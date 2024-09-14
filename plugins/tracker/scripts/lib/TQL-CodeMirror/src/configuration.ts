@@ -16,53 +16,63 @@
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/
  */
+import syntax from "@tuleap/tql-syntax";
+
+export const variable_definition = {
+    regex: syntax.variable.pattern,
+    token: "tql-variable",
+};
 
 const TQL_mode_definition = {
     start: [
         {
-            regex: /"(?:[^\\]|\\.)*?(?:"|$)/, // double quotes
-            token: "string",
+            regex: syntax.double_quote_string.pattern,
+            token: "tql-string",
         },
         {
-            regex: /'(?:[^\\]|\\.)*?(?:'|$)/, // single quotes
-            token: "string",
+            regex: syntax.simple_quote_string.pattern,
+            token: "tql-string",
         },
         {
-            regex: /\d+[dwmy]/i, // Time period
-            token: "variable-3",
+            regex: syntax.time_period.pattern,
+            token: "tql-time-period",
         },
         {
-            regex: /\d+(?:\.\d+)?/i, // Float & integers
-            token: "number",
+            regex: syntax.number.pattern,
+            token: "tql-number",
         },
         {
-            regex: /(?:and|or)\b/i,
-            token: "keyword",
+            regex: syntax.structure.pattern,
+            token: "tql-structure",
         },
         {
-            regex: /(?:select|where|now|between|in|not|myself|open|parent|artifact|tracker|with|without|children|child|is|linked|from|to|type|covering|covered|by)\b/i,
-            token: "variable-2",
+            regex: syntax.linked_from.pattern,
+            token: "tql-keyword",
         },
         {
-            regex: /[=<>!+-]+/,
-            token: "operator",
+            regex: syntax.function.pattern,
+            token: "tql-keyword",
+        },
+        {
+            regex: syntax.operator.pattern,
+            token: "tql-operator",
         },
         {
             regex: /[(]/,
-            token: "operator",
+            token: "tql-operator",
             indent: true,
         },
         {
             regex: /[)]/,
-            token: "operator",
+            token: "tql-operator",
             dedent: true,
         },
+        {
+            regex: syntax.atvariable.pattern,
+            token: "tql-atvariable",
+        },
+        { ...variable_definition },
     ],
-};
-
-export const variable_definition = {
-    regex: /@?[a-zA-Z0-9_-]+/,
-    token: "variable",
 };
 
 export type TQLDefinition = typeof TQL_mode_definition;
@@ -80,7 +90,6 @@ export function buildModeDefinition({
         };
         TQL_mode_definition.start.push(additional_keywords_definition);
     }
-    TQL_mode_definition.start.push(variable_definition);
     return TQL_mode_definition;
 }
 

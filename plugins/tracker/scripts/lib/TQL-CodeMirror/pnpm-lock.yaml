@@ -1,6 +1,16 @@
 lockfileVersion: '6.0'
 
+settings:
+  autoInstallPeers: false
+  excludeLinksFromLockfile: false
+
 dependencies:
+  '@tuleap/tlp-swatch-colors':
+    specifier: workspace:^
+    version: link:../../../../../lib/frontend/tlp-swatch-colors
+  '@tuleap/tql-syntax':
+    specifier: workspace:^
+    version: link:../../../../../lib/frontend/tql-syntax
   codemirror:
     specifier: ^5.62.0
     version: 5.65.3
