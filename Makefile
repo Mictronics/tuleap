@@ -3,7 +3,7 @@
 # Run the phpunit tests in Jenkins: make -C tuleap BUILD_ENV=ci ci_phpunit
 # Run docker as a priviledged user: make SUDO=sudo ... or make SUDO=pkexec ...
 
-SHELL=/usr/bin/env bash
+SHELL=/usr/bin/bash
 
 OS := $(shell uname)
 ifeq ($(OS),Darwin)
@@ -56,6 +56,7 @@ preload:
 		-d display_startup_errors=1 \
 		-d opcache.lockfile_path="$(XDG_RUNTIME_DIR)" \
 		-d memory_limit=256M \
+        -d opcache.preload_user=$(USER) \
 		-d opcache.preload=$(CURDIR)/tools/utils/preload/verification-loader.php \
 		 tools/utils/preload/check-preload.php
 
