@@ -39,6 +39,7 @@ in pkgs.stdenvNoCC.mkDerivation {
   '';
 
   installPhase = ''
+    cp -v -L RPMS/noarch/*.rpm /var/rpms/
     mkdir $out/
     mv RPMS/noarch/*.rpm $out/
   '';
