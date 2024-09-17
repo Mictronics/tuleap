@@ -1,4 +1,5 @@
-/*
+<?php
+/**
  * Copyright (c) Enalean, 2024-Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
@@ -17,16 +18,22 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type Vue from "vue";
-import { createLocalVue } from "@vue/test-utils";
-import Vuex from "vuex";
-import { initVueGettext } from "@tuleap/vue2-gettext-init";
+declare(strict_types=1);
 
-export const createLocalVueForTests = async (): Promise<typeof Vue> => {
-    const local_vue = createLocalVue();
-    local_vue.use(Vuex);
-    await initVueGettext(local_vue, () => {
-        throw new Error("Fallback to default");
-    });
-    return local_vue;
-};
+namespace Tuleap\CrossTracker\Report\Query\Advanced;
+
+use Tuleap\Test\PHPUnit\TestCase;
+use Tuleap\Tracker\Report\Query\Advanced\Grammar\Field;
+use Tuleap\Tracker\Report\Query\Advanced\Grammar\OrderBy;
+use Tuleap\Tracker\Report\Query\Advanced\Grammar\OrderByDirection;
+
+final class InvalidOrderByBuilderTest extends TestCase
+{
+    public function testItReturnsErrorForNow(): void
+    {
+        $builder = new InvalidOrderByBuilder();
+        $result  = $builder->buildInvalidOrderBy(new OrderBy(new Field('my_field'), OrderByDirection::ASCENDING));
+        self::assertNotNull($result);
+        self::assertSame('Not implemented yet', $result->message);
+    }
+}

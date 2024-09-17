@@ -20,21 +20,22 @@
 
 declare(strict_types=1);
 
-namespace Tuleap\ProgramManagement\Adapter\Program\Backlog\TopBacklog;
+namespace Tuleap\Tracker\Report\Query\Advanced;
 
-use Tuleap\ProgramManagement\Adapter\Workspace\RetrieveFullProject;
-use Tuleap\ProgramManagement\Domain\Program\Backlog\TopBacklog\VerifyProgramServiceIsEnabled;
-use Tuleap\ProgramManagement\ProgramService;
+use Exception;
 
-final readonly class ProgramServiceIsEnabledVerifier implements VerifyProgramServiceIsEnabled
+final class OrderByIsInvalidException extends Exception
 {
-    public function __construct(private RetrieveFullProject $project_retriever)
+    private readonly string $i18n_message;
+
+    public function __construct(string $message, string $i18n_message)
     {
+        parent::__construct($message);
+        $this->i18n_message = $i18n_message;
     }
 
-    public function isProgramServiceEnabled(int $project_id): bool
+    public function getI18NExceptionMessage(): string
     {
-        return $this->project_retriever->getProject($project_id)
-            ->usesService(ProgramService::SERVICE_SHORTNAME);
+        return $this->i18n_message;
     }
 }
