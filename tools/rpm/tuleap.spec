@@ -553,6 +553,13 @@ Requires: %{name} = %{tuleap_version}-%{tuleap_release}%{?dist}
 %description theme-burningparrot
 BurningParrot, default theme starting Tuleap 10
 
+%package theme-airbus
+Summary: Airbus theme for Tuleap 15+
+Group: Development/Tools
+Requires: %{name} = %{tuleap_version}-%{tuleap_release}%{?dist}
+%description theme-airbus
+Airbus theme for Tuleap 15+
+
 #
 # Package setup
 %prep
@@ -630,6 +637,9 @@ done
 %{__rm} -rf $RPM_BUILD_ROOT/%{APP_DIR}/src/themes/FlamingParrot/css
 %{__rm} -rf $RPM_BUILD_ROOT/%{APP_DIR}/src/themes/FlamingParrot/images
 %{__rm} -rf $RPM_BUILD_ROOT/%{APP_DIR}/src/themes/common
+%{__rm} -rf $RPM_BUILD_ROOT/%{APP_DIR}/src/themes/Airbus/composer.json
+%{__rm} -rf $RPM_BUILD_ROOT/%{APP_DIR}/src/themes/Airbus/pnpm-lock.yaml
+%{__rm} -rf $RPM_BUILD_ROOT/%{APP_DIR}/src/themes/Airbus/package.json
 
 # Configuration
 %{__install} -d $RPM_BUILD_ROOT/etc/%{APP_NAME}
@@ -1471,7 +1481,15 @@ fi
 %{APP_DIR}/src/themes/BurningParrot
 %{APP_DIR}/src/www/themes/BurningParrot
 
+%files theme-airbus
+%defattr(-,root,root,-)
+%{APP_DIR}/src/themes/Airbus
+%{APP_DIR}/src/www/themes/Airbus
+
 %changelog
+* Tue Sep 17 2024 Michael Wolf <michael@mictronics.de>
+- Add Airbus theme
+
 * Thu Mar 23 2017 Matthieu MONNIER <matthieu.monnier@enalean.com> -
 - RHEL7 support
 
