@@ -5,6 +5,7 @@ packages:  # all packages in subdirs of packages/ and components/  - 'packages/*
   - "src/themes/common"
   - "src/themes/BurningParrot"
   - "src/themes/FlamingParrot"
+  - "src/themes/Airbus"
   - "src/additional-packages/*/"
   - "plugins/*/"
   - "plugins/*/scripts/**/"

@@ -1,0 +1,20 @@
+{
+    "name": "tuleap/theme-airbus",
+    "autoload": {
+        "psr-4": {
+            "Tuleap\\Theme\\Airbus\\": [
+                "./include"
+            ]
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "tuleap": {
+        "preload": {
+            "include": [
+                "/include"
+            ]
+        }
+    }
+}
