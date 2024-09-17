@@ -4,7 +4,7 @@ set -ex
 
 TULEAP_SOURCES="$1"
 RPM_BUILD="$2"
-TULEAP_OUT_DIR=/var/rpms/tuleap-$(cat "$SRC_DIR/VERSION")
+TULEAP_OUT_DIR=/var/rpms/tuleap-$(cat "$TULEAP_SOURCES/VERSION")
 mkdir -p $TULEAP_OUT_DIR
 
 push_nix_build_cache=''
