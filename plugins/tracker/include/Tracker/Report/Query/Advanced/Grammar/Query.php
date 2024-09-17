@@ -31,6 +31,7 @@ final readonly class Query
         private array $select,
         private ?From $from,
         private Logical $condition,
+        private ?OrderBy $order_by,
     ) {
     }
 
@@ -47,5 +48,10 @@ final readonly class Query
     public function getCondition(): Logical
     {
         return $this->condition;
+    }
+
+    public function getOrderBy(): ?OrderBy
+    {
+        return $this->order_by;
     }
 }

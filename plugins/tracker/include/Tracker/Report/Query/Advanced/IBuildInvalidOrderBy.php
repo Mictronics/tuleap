@@ -20,9 +20,11 @@
 
 declare(strict_types=1);
 
-namespace Tuleap\ProgramManagement\Domain\Program\Backlog\TopBacklog;
+namespace Tuleap\Tracker\Report\Query\Advanced;
 
-interface VerifyProgramServiceIsEnabled
+use Tuleap\Tracker\Report\Query\Advanced\Grammar\OrderBy;
+
+interface IBuildInvalidOrderBy
 {
-    public function isProgramServiceEnabled(int $project_id): bool;
+    public function buildInvalidOrderBy(OrderBy $order_by): ?InvalidOrderBy;
 }
