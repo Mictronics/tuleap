@@ -32,6 +32,8 @@ class Step
     private $expected_results;
     /** @var string */
     private $expected_results_format;
+    /** @var string */
+    private $step_type;
     /** @var int */
     private $rank;
 
@@ -42,6 +44,7 @@ class Step
         ?string $expected_results,
         string $expected_results_format,
         int $rank,
+        string $step_type,
     ) {
         $this->id                      = $id;
         $this->description             = $description;
@@ -49,6 +52,7 @@ class Step
         $this->rank                    = $rank;
         $this->expected_results        = $expected_results;
         $this->expected_results_format = $expected_results_format;
+        $this->step_type               = $step_type;
     }
 
     /**
@@ -92,6 +96,14 @@ class Step
     }
 
     /**
+     * @return string
+     */
+    public function getStepType()
+    {
+        return $this->step_type;
+    }
+
+    /**
      * @return int
      */
     public function getRank()
@@ -109,6 +121,7 @@ class Step
                 $this->expected_results,
                 $this->expected_results_format,
                 $this->rank,
+                $this->step_type,
             ],
             JSON_THROW_ON_ERROR
         );
