@@ -50,4 +50,6 @@ interface Tracker_Artifact_ChangesetValueVisitor
     public function visitComputed(ChangesetValueComputed $changeset_value);
 
     public function visitExternalField(Tracker_Artifact_ChangesetValue $changeset_value);
+
+    public function visitStepType(Tracker_Artifact_ChangesetValue_StepType $changeset_value);
 }
