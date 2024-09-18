@@ -61,6 +61,10 @@ class StepPresenter
      * @var string
      */
     public $purified_expected_results;
+    /**
+     * @var string
+     */
+    public $step_type;
 
     public function __construct(Step $step, Project $project)
     {
@@ -80,6 +84,7 @@ class StepPresenter
             $step->getExpectedResultsFormat(),
             $project
         );
+        $this->step_type                 = $step->getStepType();
     }
 
     private function getPurifiedText(string $text, string $format, Project $project): string
