@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tuleap\TestManagement\Step;
 
 use Luracast\Restler\RestException;
+use Tracker_Artifact_ChangesetValue_StepType;
 use Tracker_Artifact_ChangesetValue_Text;
 
 final class StepChecker
@@ -46,6 +47,14 @@ final class StepChecker
             ! self::isSubmittedFormatFromPostRESTValid($step['expected_results_format'])
         ) {
             throw new RestException(400, "Invalid format given, only 'html', 'text' or 'commonmark' are supported for step");
+        }
+
+        if (! isset($step['step_type'])) {
+            throw new RestException(400, 'Step type definition is missing');
+        }
+
+        if (! self::isSubmittedStepTypeValid($step['step_type'])) {
+            throw new RestException(400, 'Invalid step type given.');
         }
     }
 
@@ -70,6 +79,24 @@ final class StepChecker
                 Tracker_Artifact_ChangesetValue_Text::HTML_CONTENT,
                 Tracker_Artifact_ChangesetValue_Text::COMMONMARK_CONTENT,
                 Tracker_Artifact_ChangesetValue_Text::TEXT_CONTENT,
+            ],
+            true
+        );
+    }
+
+    public static function isSubmittedStepTypeValid(string $step_type): bool
+    {
+        return in_array(
+            $step_type,
+            [
+                Tracker_Artifact_ChangesetValue_StepType::TYPE_ACTION,
+                Tracker_Artifact_ChangesetValue_StepType::TYPE_CHECK,
+                Tracker_Artifact_ChangesetValue_StepType::TYPE_INPUT,
+                Tracker_Artifact_ChangesetValue_StepType::TYPE_RATIONALE,
+                Tracker_Artifact_ChangesetValue_StepType::TYPE_INFO,
+                Tracker_Artifact_ChangesetValue_StepType::TYPE_REQUIREMENT,
+                Tracker_Artifact_ChangesetValue_StepType::TYPE_WARNING,
+                Tracker_Artifact_ChangesetValue_StepType::TYPE_ALERT,
             ],
             true
         );
