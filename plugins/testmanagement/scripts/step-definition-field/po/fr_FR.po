@@ -39,6 +39,9 @@ msgstr "Aide"
 msgid "Preview"
 msgstr "Aperçu"
 
+msgid "Typ:"
+msgstr "Type:"
+
 msgid "Reorder steps"
 msgstr "Réordonner les étapes"
 
