@@ -11,6 +11,10 @@ grammar {
           attribute format {"text" | "html"| "commonmark"},
           xsd:string
      },
+     element step_type {
+          attribute type {"action" | "check"| "input" | "rationale" | "info" | "requirement" | "warning" | "alert"},
+          xsd:string
+     },
      element expected_results {
           attribute format {"text" | "html"| "commonmark"},
           xsd:string
