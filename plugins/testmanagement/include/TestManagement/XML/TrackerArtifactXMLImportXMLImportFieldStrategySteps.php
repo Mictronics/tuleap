@@ -44,6 +44,7 @@ class TrackerArtifactXMLImportXMLImportFieldStrategySteps implements Tracker_Art
             $data['description'][]             = (string) $step->description;
             $data['expected_results_format'][] = (string) $step->expected_results->attributes()['format'];
             $data['expected_results'][]        = (string) $step->expected_results;
+            $data['step_type'][]               = (string) $step->step_type;
         }
 
         return $data;

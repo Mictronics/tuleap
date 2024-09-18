@@ -73,13 +73,19 @@ class StepDefinitionSubmittedValuesTransformator
                 $expected_results = $this->substitutor->substituteURLsInHTML($expected_results, $url_mapping);
             }
 
+            $step_type = '';
+            if (isset($submitted_values['step_type'][$key])) {
+                $expected_results_format = $submitted_values['step_type'][$key];
+            }
+
             $steps[] = new Step(
                 0,
                 $description,
                 $description_format,
                 $expected_results,
                 $expected_results_format,
-                $rank
+                $rank,
+                $step_type
             );
         }
 

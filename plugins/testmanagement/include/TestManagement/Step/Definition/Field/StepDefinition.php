@@ -307,7 +307,7 @@ class StepDefinition extends Tracker_FormElement_Field implements TrackerFormEle
                 return false;
             }
 
-            if (! isset($value['description_format'][$key]) || ! isset($value['expected_results_format'][$key])) {
+            if (! isset($value['description_format'][$key]) || ! isset($value['expected_results_format'][$key]) || ! isset($value['step_type'][$key])) {
                 return false;
             }
 
@@ -315,6 +315,10 @@ class StepDefinition extends Tracker_FormElement_Field implements TrackerFormEle
                 ! StepChecker::isSubmittedFormatValid($value['description_format'][$key])
                 || ! StepChecker::isSubmittedFormatValid($value['expected_results_format'][$key])
             ) {
+                return false;
+            }
+
+            if (! StepChecker::isSubmittedStepTypeValid($value['step_type'][$key])) {
                 return false;
             }
         }
@@ -362,6 +366,10 @@ class StepDefinition extends Tracker_FormElement_Field implements TrackerFormEle
             if (isset($new_value['id'][$key])) {
                 $submitted_step_id = $new_value['id'][$key];
             }
+            $submitted_step_type = 'action';
+            if (isset($new_value['step_type'][$key])) {
+                $submitted_expected_results_format = $new_value['step_type'][$key];
+            }
 
             $submitted_steps[] = new Step(
                 $submitted_step_id,
@@ -369,7 +377,8 @@ class StepDefinition extends Tracker_FormElement_Field implements TrackerFormEle
                 $submitted_description_format,
                 $submitted_expected_results,
                 $submitted_expected_results_format,
-                $rank
+                $rank,
+                $submitted_step_type,
             );
             $rank++;
         }
@@ -484,7 +493,8 @@ class StepDefinition extends Tracker_FormElement_Field implements TrackerFormEle
                 $row['description_format'],
                 $row['expected_results'],
                 $row['expected_results_format'],
-                $rank
+                $rank,
+                $row['step_type'],
             );
             $rank++;
         }
@@ -546,7 +556,7 @@ class StepDefinition extends Tracker_FormElement_Field implements TrackerFormEle
     private function getEmptyStepPresenter(): ?StepPresenter
     {
         $default_format = $this->getDefaultFormat($this->getCurrentUser());
-        $empty_step     = new Step(0, '', $default_format, '', $default_format, 0);
+        $empty_step     = new Step(0, '', $default_format, '', $default_format, 0, 'action');
 
         return $this->getStepPresenter($empty_step);
     }

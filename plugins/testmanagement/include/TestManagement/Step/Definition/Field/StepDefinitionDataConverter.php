@@ -44,6 +44,7 @@ final class StepDefinitionDataConverter
             $converted_steps['description_format'][]      = $step['description_format'];
             $converted_steps['expected_results'][]        = $step['expected_results'];
             $converted_steps['expected_results_format'][] = $step['expected_results_format'];
+            $converted_steps['step_type'][]               = $step['step_type'];
         }
 
         return $converted_steps;

@@ -47,5 +47,11 @@ class StepXMLExporter
             (string) $step->getExpectedResults(),
             ['format' => $step->getExpectedResultsFormat()]
         );
+
+        $this->cdata_factory->insert(
+            $xml_step,
+            'step_type',
+            $step->getStepType()
+        );
     }
 }

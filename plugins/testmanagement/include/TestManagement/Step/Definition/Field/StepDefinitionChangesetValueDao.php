@@ -62,13 +62,14 @@ class StepDefinitionChangesetValueDao extends FieldValueDao
             $description_format      = $this->da->quoteSmart($step->getDescriptionFormat());
             $expected_results        = $this->da->quoteSmart($step->getExpectedResults());
             $expected_results_format = $this->da->quoteSmart($step->getExpectedResultsFormat());
+            $step_type               = $this->da->quoteSmart($step->getStepType());
 
-            $values[] = "($changeset_value_id, $description, $description_format, $expected_results, $expected_results_format, $rank)";
+            $values[] = "($changeset_value_id, $description, $description_format, $expected_results, $expected_results_format, $rank, $step_type)";
             $rank++;
         }
         if ($values) {
             $values = implode(',', $values);
-            $sql    = "INSERT INTO plugin_testmanagement_changeset_value_stepdef(changeset_value_id, description, description_format, expected_results, expected_results_format, `rank`)
+            $sql    = "INSERT INTO plugin_testmanagement_changeset_value_stepdef(changeset_value_id, description, description_format, expected_results, expected_results_format, `rank`, step_type)
                     VALUES $values";
 
             return $this->update($sql);
@@ -86,8 +87,8 @@ class StepDefinitionChangesetValueDao extends FieldValueDao
     {
         $from = $this->da->escapeInt($from);
         $to   = $this->da->escapeInt($to);
-        $sql  = "INSERT INTO plugin_testmanagement_changeset_value_stepdef(changeset_value_id, description, description_format, expected_results, expected_results_format, `rank`)
-                SELECT $to, description, description_format, expected_results, expected_results_format, `rank`
+        $sql  = "INSERT INTO plugin_testmanagement_changeset_value_stepdef(changeset_value_id, description, description_format, expected_results, expected_results_format, `rank`, step_type)
+                SELECT $to, description, description_format, expected_results, expected_results_format, `rank`, step_type
                 FROM plugin_testmanagement_changeset_value_stepdef
                 WHERE changeset_value_id = $from";
 
