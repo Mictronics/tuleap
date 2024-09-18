@@ -1,6 +1,5 @@
-<?php
-/**
- * Copyright (c) Enalean, 2020 - Present. All Rights Reserved.
+/*
+ * Copyright (c) Enalean, 2024 - present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -18,11 +17,10 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-declare(strict_types=1);
+import type { FindDOMNodeAtPosition } from "../DOMNodeAtPositionFinder";
 
-namespace Tuleap\ProgramManagement\Domain\Program\Plan;
-
-interface SavePlan
-{
-    public function save(NewPlan $plan): void;
-}
+export const FindDOMNodeAtPositionStub = {
+    withNode: (dom_node: Node): FindDOMNodeAtPosition => ({
+        findNodeAtGivenPosition: () => dom_node,
+    }),
+};
