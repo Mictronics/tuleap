@@ -183,6 +183,9 @@ export default {
         format_select_id() {
             return "format_" + this.step.uuid + "_" + this.field_id;
         },
+        type_select_id() {
+            return "type_" + this.step.uuid + "_" + this.field_id;
+        },
     },
     watch: {
         is_dragging(new_value) {
