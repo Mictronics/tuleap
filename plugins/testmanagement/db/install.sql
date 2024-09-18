@@ -25,6 +25,7 @@ CREATE TABLE IF NOT EXISTS plugin_testmanagement_changeset_value_stepdef(
     expected_results TEXT,
     expected_results_format VARCHAR(10) NOT NULL DEFAULT 'text',
     `rank` INT(11) UNSIGNED NOT NULL,
+    step_type VARCHAR(12) NOT NULL DEFAULT 'action',
     INDEX cvid_idx(changeset_value_id, `rank`)
 );
 
