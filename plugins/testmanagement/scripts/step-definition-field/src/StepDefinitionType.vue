@@ -19,76 +19,76 @@
 
 <!-- prettier-ignore -->
 <template>
-    <div class="ttm-definition-step-actions">
-        <div class="ttm-definition-step-actions-format-and-helper-container">
-            <translate>Typ:</translate>
-            <select
-                v-bind:id="type_select_id"
-                ref="type"
-                class="small ttm-definition-step-type"
-                v-on:change="type_change($event)"
-                v-bind:disabled="disabled_type_selectbox"
-                data-test="ttm-definition-step-type"
-            >
-                <option
-                    value="action"
-                    v-bind:selected="is_action"
-                    data-test="ttm-definition-step-type-action"
-                >
-                    Action
-                </option>
-                <option
-                    value="check"
-                    v-bind:selected="is_check"
-                    data-test="ttm-definition-step-type-check"
-                >
-                    Check
-                </option>
-                <option
-                    value="input"
-                    v-bind:selected="is_input"
-                    data-test="ttm-definition-step-type-input"
-                >
-                    Input
-                </option>
-                <option
-                    value="rationale"
-                    v-bind:selected="is_rationale"
-                    data-test="ttm-definition-step-type-rationale"
-                >
-                    Rationale
-                </option>
-                <option
-                    value="info"
-                    v-bind:selected="is_info"
-                    data-test="ttm-definition-step-type-info"
-                >
-                    Info
-                </option>
-                <option
-                    value="requirement"
-                    v-bind:selected="is_requirement"
-                    data-test="ttm-definition-step-type-requirement"
-                >
-                    Requirement
-                </option>
-                <option
-                    value="warning"
-                    v-bind:selected="is_warning"
-                    data-test="ttm-definition-step-type-warning"
-                >
-                    Warning
-                </option>
-                <option
-                    value="Alert"
-                    v-bind:selected="is_alert"
-                    data-test="ttm-definition-step-type-alert"
-                >
-                    Alert
-                </option>
-            </select>
-        </div>
+  <div class="ttm-definition-step-actions">
+    <div class="ttm-definition-step-actions-format-and-helper-container">
+      <translate>Typ:</translate>
+      <select
+        v-bind:id="type_select_id"
+        ref="type"
+        class="small ttm-definition-step-type"
+        v-on:change="type_change($event)"
+        v-bind:disabled="disabled_type_selectbox"
+        data-test="ttm-definition-step-type"
+      >
+        <option
+          value="action"
+          v-bind:selected="is_action"
+          data-test="ttm-definition-step-type-action"
+        >
+          Action
+        </option>
+        <option
+          value="check"
+          v-bind:selected="is_check"
+          data-test="ttm-definition-step-type-check"
+        >
+          Check
+        </option>
+        <option
+          value="input"
+          v-bind:selected="is_input"
+          data-test="ttm-definition-step-type-input"
+        >
+          Input
+        </option>
+        <option
+          value="rationale"
+          v-bind:selected="is_rationale"
+          data-test="ttm-definition-step-type-rationale"
+        >
+          Rationale
+        </option>
+        <option
+          value="info"
+          v-bind:selected="is_info"
+          data-test="ttm-definition-step-type-info"
+        >
+          Info
+        </option>
+        <option
+          value="requirement"
+          v-bind:selected="is_requirement"
+          data-test="ttm-definition-step-type-requirement"
+        >
+          Requirement
+        </option>
+        <option
+          value="warning"
+          v-bind:selected="is_warning"
+          data-test="ttm-definition-step-type-warning"
+        >
+          Warning
+        </option>
+        <option
+          value="Alert"
+          v-bind:selected="is_alert"
+          data-test="ttm-definition-step-type-alert"
+        >
+          Alert
+        </option>
+      </select>
     </div>
+  </div>
 </template>
 
 <script>
