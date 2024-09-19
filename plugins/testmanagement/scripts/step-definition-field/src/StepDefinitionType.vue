@@ -87,65 +87,15 @@
                     Alert
                 </option>
             </select>
-            <translate>Format:</translate>
-            <select
-                v-bind:id="format_select_id"
-                ref="format"
-                class="small ttm-definition-step-description-format"
-                v-on:change="input($event)"
-                v-bind:disabled="disabled_format_selectbox"
-                data-test="ttm-definition-step-description-format"
-            >
-                <option
-                    value="text"
-                    v-bind:selected="is_text"
-                    data-test="ttm-definition-step-description-format-text"
-                >
-                    Text
-                </option>
-                <option
-                    value="html"
-                    v-bind:selected="is_html"
-                    data-test="ttm-definition-step-description-format-html"
-                >
-                    HTML
-                </option>
-                <option
-                    value="commonmark"
-                    v-bind:selected="is_commonmark"
-                    data-test="ttm-definition-step-description-format-commonmark"
-                >
-                    Markdown
-                </option>
-            </select>
-            <commonmark-preview-button
-                v-on:commonmark-preview-event="$emit('interpret-content-event')"
-                v-bind:is_in_preview_mode="is_in_preview_mode"
-                v-bind:is_preview_loading="is_preview_loading"
-                v-if="is_commonmark_button_displayed"
-            />
-            <commonmark-syntax-helper
-                v-bind:is_in_preview_mode="is_in_preview_mode"
-                v-if="is_commonmark_button_displayed"
-            />
         </div>
-        <slot />
     </div>
 </template>
 
 <script>
-import {
-    TEXT_FORMAT_COMMONMARK,
-    TEXT_FORMAT_HTML,
-    TEXT_FORMAT_TEXT,
-} from "@tuleap/plugin-tracker-constants";
 import { mapState } from "vuex";
-import CommonmarkSyntaxHelper from "./CommonMark/CommonmarkSyntaxHelper.vue";
-import CommonmarkPreviewButton from "./CommonMark/CommonmarkPreviewButton.vue";
 
 export default {
-    name: "StepDefinitionActions",
-    components: { CommonmarkPreviewButton, CommonmarkSyntaxHelper },
+    name: "StepDefinitionType",
     props: {
         value: {
             type: String,
@@ -155,37 +105,16 @@ export default {
             type: Boolean,
             default: false,
         },
-        format_select_id: {
-            type: String,
-            default: "",
-        },
         type_select_id: {
             type: String,
             default: "",
         },
-        is_in_preview_mode: Boolean,
-        is_preview_loading: Boolean,
     },
-    emits: ["input", "interpret-content-event"],
+    emits: ["type_change"],
     computed: {
         ...mapState(["field_id"]),
-        is_text() {
-            return this.value === TEXT_FORMAT_TEXT;
-        },
-        is_html() {
-            return this.value === TEXT_FORMAT_HTML;
-        },
-        is_commonmark() {
-            return this.value === TEXT_FORMAT_COMMONMARK;
-        },
-        disabled_format_selectbox() {
-            return this.disabled || this.is_in_preview_mode;
-        },
         disabled_type_selectbox() {
             return this.disabled || this.is_in_preview_mode;
-        },
-        is_commonmark_button_displayed() {
-            return !this.disabled && this.is_commonmark;
         },
         is_action() {
             return this.value === "action";
@@ -213,8 +142,8 @@ export default {
         },
     },
     methods: {
-        input(event) {
-            this.$emit("input", event, this.$refs.format.value);
+        type_change(event) {
+            this.$emit("type_change", event, this.$refs.type.value);
         },
     },
 };
