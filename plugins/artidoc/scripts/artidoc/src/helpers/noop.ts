@@ -18,3 +18,4 @@
  */
 
 export const noop = (): void => {};
+export const promised_noop = (): Promise<void> => Promise.resolve();

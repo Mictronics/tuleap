@@ -33,8 +33,9 @@ export type FileUploadOptions = {
     max_size_upload: number;
     onErrorCallback: (
         error: UploadError | MaxSizeUploadExceededError | InvalidFileUploadError,
+        file_name: string,
     ) => void;
-    onSuccessCallback: (id: number, download_href: string) => void;
+    onSuccessCallback: (id: number, download_href: string, file_name: string) => void;
     onProgressCallback: (file_name: string, global_progress: number) => void;
-    onStartUploadCallback: (file_name: string) => OnGoingUploadFile[];
+    onStartUploadCallback: (files: FileList) => OnGoingUploadFile[];
 };
