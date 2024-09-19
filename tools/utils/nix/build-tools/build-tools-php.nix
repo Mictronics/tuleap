@@ -36,6 +36,7 @@ let
     sysvsem
     redis
     xsl
+    xdebug
   ]);
 in
 [
