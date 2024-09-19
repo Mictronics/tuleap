@@ -52,6 +52,7 @@ describe("step-test-definition-formatter", () => {
                         expected_results: "01",
                         expected_results_format: "text",
                         rank: 1,
+                        step_type: "action",
                     },
                     {
                         id: 14,
@@ -60,6 +61,7 @@ describe("step-test-definition-formatter", () => {
                         expected_results: "text\nwith\nnewlines",
                         expected_results_format: "text",
                         rank: 2,
+                        step_type: "action",
                     },
                     {
                         id: 15,
@@ -68,6 +70,7 @@ describe("step-test-definition-formatter", () => {
                         expected_results: "<p>HTML</p>\n\n<p>with</p>\n\n<p>newlines</p>",
                         expected_results_format: "html",
                         rank: 3,
+                        step_type: "action",
                     },
                 ],
                 all_requirements: [
@@ -217,6 +220,7 @@ describe("step-test-definition-formatter", () => {
                         expected_results: "01",
                         expected_results_format: "text",
                         rank: 1,
+                        step_type: "action",
                     },
                 ],
                 all_requirements: [
