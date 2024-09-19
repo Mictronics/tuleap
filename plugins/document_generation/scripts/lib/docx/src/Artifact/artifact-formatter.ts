@@ -126,6 +126,7 @@ function formatFieldValue<StepDefFieldValue>(
                 expected_results_format:
                     step.expected_results_format === "html" ? "html" : "plaintext",
                 rank: step.rank,
+                step_type: step.step_type,
                 status: step.status ?? "notrun",
             });
         }

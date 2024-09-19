@@ -62,6 +62,10 @@ final class StepDefinitionRepresentation implements \JsonSerializable
      * @var int The rank of the step in the test case
      */
     public $rank;
+    /**
+     * @var string The type of the step in the test case
+     */
+    public $step_type;
 
     public function __construct(
         int $id,
@@ -72,6 +76,7 @@ final class StepDefinitionRepresentation implements \JsonSerializable
         string $expected_results_format,
         ?string $commonmark_expected_results,
         int $rank,
+        string $step_type,
     ) {
         $this->id                          = $id;
         $this->description                 = $description;
@@ -81,6 +86,7 @@ final class StepDefinitionRepresentation implements \JsonSerializable
         $this->expected_results_format     = $expected_results_format;
         $this->commonmark_expected_results = $commonmark_expected_results;
         $this->rank                        = $rank;
+        $this->step_type                   = $step_type;
     }
 
     public function jsonSerialize(): array
@@ -98,7 +104,8 @@ final class StepDefinitionRepresentation implements \JsonSerializable
         if ($this->commonmark_expected_results) {
             $json_representation['commonmark_expected_results'] = $this->commonmark_expected_results;
         }
-        $json_representation['rank'] = $this->rank;
+        $json_representation['rank']      = $this->rank;
+        $json_representation['step_type'] = $this->step_type;
         return $json_representation;
     }
 }

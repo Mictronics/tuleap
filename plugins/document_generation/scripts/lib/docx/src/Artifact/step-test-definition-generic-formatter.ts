@@ -33,6 +33,7 @@ export function formatStepDefinitionField(
             expected_results: step.expected_results,
             expected_results_format: step.expected_results_format === "html" ? "html" : "plaintext",
             rank: step.rank,
+            step_type: step.step_type,
         });
     }
     return {

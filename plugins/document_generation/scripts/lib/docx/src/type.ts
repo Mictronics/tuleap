@@ -121,6 +121,7 @@ export interface ArtifactFieldValueStepDefinition {
     readonly description_format: "plaintext" | "html";
     readonly expected_results: string;
     readonly expected_results_format: "plaintext" | "html";
+    readonly step_type: string;
     readonly rank: number;
 }
 
@@ -226,6 +227,7 @@ export interface ArtifactReportResponseStepRepresentation {
     description_format: string;
     expected_results: string;
     expected_results_format: string;
+    step_type: string;
     rank: number;
 }
 

@@ -254,7 +254,8 @@ class StepExecution extends Tracker_FormElement_Field implements TrackerFormElem
                 $row['description_format'],
                 $row['expected_results'],
                 $row['expected_results_format'],
-                $row['rank']
+                $row['rank'],
+                $row['step_type']
             );
 
             $steps[] = new StepResult($step, $row['status']);
