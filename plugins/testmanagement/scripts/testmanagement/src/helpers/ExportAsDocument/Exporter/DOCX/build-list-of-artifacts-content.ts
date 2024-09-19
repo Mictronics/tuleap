@@ -618,6 +618,7 @@ async function buildStepDefinitionParagraphs(
         );
     }
 
+    // TODO: Add test step type.
     paragraphs.push(
         new Paragraph({
             heading: HeadingLevel.HEADING_6,

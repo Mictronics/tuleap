@@ -576,6 +576,7 @@ async function buildStepDefinitionParagraphs(
 ): Promise<Paragraph[]> {
     const paragraphs: Paragraph[] = [];
 
+    // TODO: Add test step type
     paragraphs.push(
         new Paragraph({
             heading: HeadingLevel.HEADING_6,
