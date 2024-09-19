@@ -339,6 +339,7 @@ describe("Create ArtifactValues Collection", () => {
                                     expected_results_format: "text",
                                     rank: 1,
                                     status: "passed",
+                                    step_type: "action",
                                 },
                                 {
                                     id: 14,
@@ -348,6 +349,7 @@ describe("Create ArtifactValues Collection", () => {
                                     expected_results_format: "text",
                                     rank: 2,
                                     status: null,
+                                    step_type: "check",
                                 },
                                 {
                                     id: 15,
@@ -358,6 +360,7 @@ describe("Create ArtifactValues Collection", () => {
                                     expected_results_format: "html",
                                     rank: 3,
                                     status: "blocked",
+                                    step_type: "info",
                                 },
                             ],
                             steps_values: ["passed", null, "blocked"],

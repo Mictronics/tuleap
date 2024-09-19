@@ -51,6 +51,7 @@ describe("getTestManagementExecution", () => {
                         expected_results: "01",
                         expected_results_format: "text",
                         rank: 1,
+                        step_type: "action",
                     },
                     {
                         id: 14,
@@ -59,6 +60,7 @@ describe("getTestManagementExecution", () => {
                         expected_results: "text\nwith\nnewlines",
                         expected_results_format: "text",
                         rank: 2,
+                        step_type: "check",
                     },
                     {
                         id: 15,
@@ -67,6 +69,7 @@ describe("getTestManagementExecution", () => {
                         expected_results: "<p>HTML</p>\n\n<p>with</p>\n\n<p>newlines</p>",
                         expected_results_format: "html",
                         rank: 3,
+                        step_type: "info",
                     },
                 ],
                 all_requirements: [

@@ -71,7 +71,8 @@ final class StepDefinitionTest extends \Tuleap\Test\PHPUnit\TestCase
                             'html',
                             '',
                             'text',
-                            1
+                            1,
+                            'action',
                         ),
                     ]
                 ),
@@ -99,7 +100,8 @@ final class StepDefinitionTest extends \Tuleap\Test\PHPUnit\TestCase
                             'html',
                             '',
                             'text',
-                            1
+                            1,
+                            'info',
                         ),
                     ]
                 ),
@@ -141,7 +143,8 @@ final class StepDefinitionTest extends \Tuleap\Test\PHPUnit\TestCase
                             'html',
                             '',
                             'text',
-                            1
+                            1,
+                            'check',
                         ),
                     ]
                 ),

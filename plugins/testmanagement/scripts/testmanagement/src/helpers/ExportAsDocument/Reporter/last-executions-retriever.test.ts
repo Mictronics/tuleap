@@ -70,6 +70,7 @@ function buildExecutionMapWithSameTestWithDifferentVersions(): ExecutionsForCamp
                             expected_results: "01",
                             expected_results_format: "text",
                             rank: 1,
+                            step_type: "action",
                         },
                         {
                             id: 14,
@@ -78,6 +79,7 @@ function buildExecutionMapWithSameTestWithDifferentVersions(): ExecutionsForCamp
                             expected_results: "text\nwith\nnewlines",
                             expected_results_format: "text",
                             rank: 2,
+                            step_type: "action",
                         },
                         {
                             id: 15,
@@ -86,6 +88,7 @@ function buildExecutionMapWithSameTestWithDifferentVersions(): ExecutionsForCamp
                             expected_results: "<p>HTML</p>\n\n<p>with</p>\n\n<p>newlines</p>",
                             expected_results_format: "html",
                             rank: 3,
+                            step_type: "action",
                         },
                     ],
                     all_requirements: [
@@ -138,6 +141,7 @@ function buildExecutionMapWithSameTestWithDifferentVersions(): ExecutionsForCamp
                             expected_results: "01",
                             expected_results_format: "text",
                             rank: 1,
+                            step_type: "action",
                         },
                         {
                             id: 14,
@@ -146,6 +150,7 @@ function buildExecutionMapWithSameTestWithDifferentVersions(): ExecutionsForCamp
                             expected_results: "text\nwith\nnewlines",
                             expected_results_format: "text",
                             rank: 2,
+                            step_type: "action",
                         },
                         {
                             id: 15,
@@ -154,6 +159,7 @@ function buildExecutionMapWithSameTestWithDifferentVersions(): ExecutionsForCamp
                             expected_results: "<p>HTML</p>\n\n<p>with</p>\n\n<p>newlines</p>",
                             expected_results_format: "html",
                             rank: 3,
+                            step_type: "action",
                         },
                     ],
                     all_requirements: [
@@ -224,6 +230,7 @@ function buildExecutionMapWith2Tests(): ExecutionsForCampaignMap {
                             expected_results: "01",
                             expected_results_format: "text",
                             rank: 1,
+                            step_type: "action",
                         },
                         {
                             id: 14,
@@ -232,6 +239,7 @@ function buildExecutionMapWith2Tests(): ExecutionsForCampaignMap {
                             expected_results: "text\nwith\nnewlines",
                             expected_results_format: "text",
                             rank: 2,
+                            step_type: "action",
                         },
                         {
                             id: 15,
@@ -240,6 +248,7 @@ function buildExecutionMapWith2Tests(): ExecutionsForCampaignMap {
                             expected_results: "<p>HTML</p>\n\n<p>with</p>\n\n<p>newlines</p>",
                             expected_results_format: "html",
                             rank: 3,
+                            step_type: "action",
                         },
                     ],
                     all_requirements: [
@@ -292,6 +301,7 @@ function buildExecutionMapWith2Tests(): ExecutionsForCampaignMap {
                             expected_results: "01",
                             expected_results_format: "text",
                             rank: 1,
+                            step_type: "action",
                         },
                         {
                             id: 14,
@@ -300,6 +310,7 @@ function buildExecutionMapWith2Tests(): ExecutionsForCampaignMap {
                             expected_results: "text\nwith\nnewlines",
                             expected_results_format: "text",
                             rank: 2,
+                            step_type: "action",
                         },
                         {
                             id: 15,
@@ -308,6 +319,7 @@ function buildExecutionMapWith2Tests(): ExecutionsForCampaignMap {
                             expected_results: "<p>HTML</p>\n\n<p>with</p>\n\n<p>newlines</p>",
                             expected_results_format: "html",
                             rank: 3,
+                            step_type: "action",
                         },
                     ],
                     all_requirements: [
