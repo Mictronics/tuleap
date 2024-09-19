@@ -368,7 +368,7 @@ class StepDefinition extends Tracker_FormElement_Field implements TrackerFormEle
             }
             $submitted_step_type = 'action';
             if (isset($new_value['step_type'][$key])) {
-                $submitted_expected_results_format = $new_value['step_type'][$key];
+                $submitted_step_type = $new_value['step_type'][$key];
             }
 
             $submitted_steps[] = new Step(
