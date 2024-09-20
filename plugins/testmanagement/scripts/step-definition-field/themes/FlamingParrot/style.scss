@@ -279,5 +279,63 @@
 }
 
 .ttm-definition-step-type-icon {
-    padding: 6px 0 0 10px;
+    padding: 6px 0 5px 10px;
+    font-family: "Font Awesome 6 Free";
+    font-size: medium;
+    font-style: normal;
+    font-weight: 900;
+}
+
+.ttm-definition-step-icon-action::before {
+    content: "\f0a4";
+}
+
+.ttm-definition-step-icon-check {
+    font-weight: 400;
+}
+
+.ttm-definition-step-icon-check::before {
+    content: "\f14a";
+}
+
+.ttm-definition-step-icon-rationale::before {
+    content: "\e447";
+}
+
+.ttm-definition-step-icon-info {
+    color: #00aec7;
+
+    /* TODO: Define color in Airbus theme. */
+}
+
+.ttm-definition-step-icon-info::before {
+    content: "\f05a";
+}
+
+.ttm-definition-step-icon-alert {
+    color: #e4002b;
+
+    /* TODO: Define color in Airbus theme. */
+}
+
+.ttm-definition-step-icon-alert::before {
+    content: "\f06a";
+}
+
+.ttm-definition-step-icon-warning {
+    color: #e1e000;
+
+    /* TODO: Define color in Airbus theme. */
+}
+
+.ttm-definition-step-icon-warning::before {
+    content: "\f071";
+}
+
+.ttm-definition-step-icon-requirement::before {
+    content: "\f085";
+}
+
+.ttm-definition-step-icon-input::before {
+    content: "\f303";
 }
