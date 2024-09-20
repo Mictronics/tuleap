@@ -270,4 +270,10 @@
 
 .ttm-definition-step-delete-button {
     float: right;
+
+    > i {
+        color: #e4002b;
+
+        /* TODO: Define color in Airbus theme. */
+    }
 }
