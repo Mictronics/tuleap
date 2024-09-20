@@ -18,24 +18,51 @@
   -->
 
 <!-- prettier-ignore -->
-<template functional>
+<template>
     <i class="ttm-definition-step-type-icon" v-bind:class="{
-        'fas fa-hand-point-right': is_action,
-        'fas fa-circle-exclamation': is_alert,
-        'far fa-check-square': is_check,
-        'fas fa-circle-info': is_info,
-        'fas fa-pencil': is_input,
-        'fas fa-section': is_rationale,
-        'fas fa-gear': is_requirement,
-        'fas fa-triangle-exclamation': is_warning
+        'ttm-definition-step-icon-action': is_action,
+        'ttm-definition-step-icon-alert': is_alert,
+        'ttm-definition-step-icon-check': is_check,
+        'ttm-definition-step-icon-info': is_info,
+        'ttm-definition-step-icon-input': is_input,
+        'ttm-definition-step-icon-rationale': is_rationale,
+        'ttm-definition-step-icon-requirement': is_requirement,
+        'ttm-definition-step-icon-warning': is_warning
     }" />
 </template>
 
 <script>
 export default {
-    name: "StepDefinitionType",
+    name: "StepDefinitionTypeIcon",
     components: {},
-    props: {},
-    computed: {},
+    props: {
+        step: Object,
+    },
+    computed: {
+        is_action() {
+            return this.step.step_type === "action";
+        },
+        is_check() {
+            return this.step.step_type === "check";
+        },
+        is_input() {
+            return this.step.step_type === "input";
+        },
+        is_info() {
+            return this.step.step_type === "info";
+        },
+        is_rationale() {
+            return this.step.step_type === "rationale";
+        },
+        is_requirement() {
+            return this.step.step_type === "requirement";
+        },
+        is_warning() {
+            return this.step.step_type === "warning";
+        },
+        is_alert() {
+            return this.step.step_type === "alert";
+        },
+    },
 };
 </script>
