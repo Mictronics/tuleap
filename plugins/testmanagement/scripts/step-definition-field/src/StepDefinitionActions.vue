@@ -93,30 +93,6 @@ export default {
         is_commonmark_button_displayed() {
             return !this.disabled && this.is_commonmark;
         },
-        is_action() {
-            return this.value === "action";
-        },
-        is_check() {
-            return this.value === "check";
-        },
-        is_input() {
-            return this.value === "input";
-        },
-        is_info() {
-            return this.value === "info";
-        },
-        is_rationale() {
-            return this.value === "rationale";
-        },
-        is_requirement() {
-            return this.value === "requirement";
-        },
-        is_warning() {
-            return this.value === "warning";
-        },
-        is_alert() {
-            return this.value === "alert";
-        },
     },
     methods: {
         input(event) {
