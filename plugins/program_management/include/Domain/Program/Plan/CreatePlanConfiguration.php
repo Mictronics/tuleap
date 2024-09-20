@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) Enalean, 2024-Present. All Rights Reserved.
+ * Copyright (c) Enalean, 2020 - Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -22,17 +22,17 @@ declare(strict_types=1);
 
 namespace Tuleap\ProgramManagement\Domain\Program\Plan;
 
-use Tuleap\ProgramManagement\Domain\Program\ProgramIdentifier;
+use Tuleap\ProgramManagement\Domain\Program\Admin\ProgramCannotBeATeamException;
+use Tuleap\ProgramManagement\Domain\Program\ProgramTrackerException;
 
-final readonly class PlanInheritanceHandler
+interface CreatePlanConfiguration
 {
-    public function __construct(
-        private RetrievePlanConfiguration $retrieve_plan,
-    ) {
-    }
-
-    public function handle(ProgramIdentifier $program_identifier): PlanConfiguration
-    {
-        return $this->retrieve_plan->retrievePlan($program_identifier);
-    }
+    /**
+     * @throws PlanTrackerException
+     * @throws ProgramAccessException
+     * @throws ProgramTrackerException
+     * @throws InvalidProgramUserGroup
+     * @throws ProgramCannotBeATeamException
+     */
+    public function create(PlanConfigurationChange $plan_change): void;
 }

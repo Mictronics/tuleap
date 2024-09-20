@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) Enalean, 2020 - Present. All Rights Reserved.
+ * Copyright (c) Enalean, 2024-Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -20,9 +20,20 @@
 
 declare(strict_types=1);
 
-namespace Tuleap\ProgramManagement\Domain\Program\Plan;
+namespace Tuleap\CrossTracker\Report\Query\Advanced\DuckTypedField\OrderBy;
 
-interface SavePlan
+use Tuleap\NeverThrow\Fault;
+
+/**
+ * @psalm-immutable
+ */
+final readonly class FieldIsMultipleValueListFault extends Fault
 {
-    public function save(NewPlan $plan): void;
+    public static function build(string $field_name): Fault
+    {
+        return new self(sprintf(
+            dgettext('tuleap-crosstracker', 'You cannot sort artifacts by %s, the field is a list with multiple values'),
+            $field_name,
+        ));
+    }
 }

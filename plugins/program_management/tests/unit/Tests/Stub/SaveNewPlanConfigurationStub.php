@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) Enalean, 2024-Present. All Rights Reserved.
+ * Copyright (c) Enalean, 2022-Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -20,19 +20,29 @@
 
 declare(strict_types=1);
 
-namespace Tuleap\ProgramManagement\Domain\Program\Plan;
+namespace Tuleap\ProgramManagement\Tests\Stub;
 
-use Tuleap\ProgramManagement\Domain\Program\ProgramIdentifier;
+use Tuleap\ProgramManagement\Domain\Program\Plan\NewPlanConfiguration;
+use Tuleap\ProgramManagement\Domain\Program\Plan\SaveNewPlanConfiguration;
 
-final readonly class PlanInheritanceHandler
+final class SaveNewPlanConfigurationStub implements SaveNewPlanConfiguration
 {
-    public function __construct(
-        private RetrievePlanConfiguration $retrieve_plan,
-    ) {
+    private function __construct(private int $call_count = 0)
+    {
     }
 
-    public function handle(ProgramIdentifier $program_identifier): PlanConfiguration
+    public static function withCount(): self
     {
-        return $this->retrieve_plan->retrievePlan($program_identifier);
+        return new self();
+    }
+
+    public function save(NewPlanConfiguration $plan): void
+    {
+        $this->call_count++;
+    }
+
+    public function getCallCount(): int
+    {
+        return $this->call_count;
     }
 }

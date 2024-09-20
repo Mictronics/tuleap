@@ -20,11 +20,16 @@
 
 declare(strict_types=1);
 
-namespace Tuleap\ProgramManagement\Domain\Program\Plan;
+namespace Tuleap\CrossTracker\Report\Query\Advanced\DuckTypedField\OrderBy;
 
-use Tuleap\ProgramManagement\Domain\Program\ProgramIdentifier;
-
-interface RetrievePlan
+/**
+ * @psalm-immutable
+ */
+final readonly class FieldIdentifierPropertiesOrderBy
 {
-    public function retrievePlan(ProgramIdentifier $program_identifier): PlanConfiguration;
+    public function __construct(
+        public int $id,
+        public DuckTypedFieldTypeOrderBy $type,
+    ) {
+    }
 }
