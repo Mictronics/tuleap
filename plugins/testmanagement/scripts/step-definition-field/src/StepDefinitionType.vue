@@ -44,7 +44,7 @@
       <option value="warning" v-bind:selected="is_warning" data-test="ttm-definition-step-type-warning">
         Warning
       </option>
-      <option value="Alert" v-bind:selected="is_alert" data-test="ttm-definition-step-type-alert">
+      <option value="alert" v-bind:selected="is_alert" data-test="ttm-definition-step-type-alert">
         Alert
       </option>
     </select>
