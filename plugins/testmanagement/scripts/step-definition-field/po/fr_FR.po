@@ -24,8 +24,8 @@ msgstr "Supprimer"
 msgid "Edit"
 msgstr "Editer"
 
-msgid "Expected results"
-msgstr "Résultats attendus"
+msgid "Expected results (optional)"
+msgstr "Résultats attendus (optionnel)"
 
 msgid "For your information..."
 msgstr "Pour votre information..."
