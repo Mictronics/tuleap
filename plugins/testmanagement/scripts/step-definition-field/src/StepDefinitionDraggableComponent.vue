@@ -23,7 +23,7 @@
         <div class="ttm-definition-step-rank ttm-execution-step-rank-edition">
             {{ dynamic_rank }}
         </div>
-        <step-definition-type-icon />
+        <step-definition-type-icon v-bind:step="step" />
         <div
             v-dompurify-html="step.raw_description"
             v-bind:class="{
