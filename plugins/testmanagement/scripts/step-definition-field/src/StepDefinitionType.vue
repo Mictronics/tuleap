@@ -1,5 +1,5 @@
 <!--
-  - Copyright (c) Enalean, 2019-Present. All Rights Reserved.
+  - Copyright (c) Michael Wolf, 2024-Present. All Rights Reserved.
   -
   - This file is a part of Tuleap.
   -
