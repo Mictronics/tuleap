@@ -21,71 +21,32 @@
 <!-- prettier-ignore -->
 <template>
   <div>
-    <input
-      type="hidden"
-      v-bind:name="'artifact[' + field_id + '][id][]'"
-      v-bind:value="step.id"
-    />
-    <step-definition-type
-      v-bind:value="step.step_type"
-      v-bind:type_select_id="type_select_id"
-      v-on:type_change="toggleStepType"
-    />
-    <input
-      type="hidden"
-      v-bind:name="'artifact[' + field_id + '][step_type][]'"
-      v-bind:value="step.step_type"
-    />
-    <step-definition-actions
-      v-bind:value="step.description_format"
-      v-bind:format_select_id="format_select_id"
-      v-bind:is_in_preview_mode="is_in_preview_mode"
-      v-bind:is_preview_loading="is_preview_loading"
-      v-on:input="toggleRTE"
-      v-on:interpret-content-event="togglePreview"
-    >
-      <step-deletion-action-button-mark-as-deleted
-        v-bind:mark-as-deleted="markAsDeleted"
-        v-bind:is_deletion="true"
-      />
-    </step-definition-actions>
-    <input
-      type="hidden"
-      v-bind:name="'artifact[' + field_id + '][description_format][]'"
-      v-bind:value="step.description_format"
-    />
-    <textarea
-      ref="description"
-      class="ttm-definition-step-description-textarea"
-      v-bind:id="description_id"
-      v-bind:name="'artifact[' + field_id + '][description][]'"
-      v-bind:data-help-id="description_help_id"
-      v-bind:data-upload-url="upload_url"
-      v-bind:data-upload-field-name="upload_field_name"
-      v-bind:data-upload-max-size="upload_max_size"
-      data-test="description-textarea"
-      rows="3"
-      v-model="step.raw_description"
-      v-show="!is_in_preview_mode && !is_preview_in_error"
-      v-bind:disabled="is_preview_loading"
-    ></textarea>
-    <div
-      v-if="is_in_preview_mode && !is_preview_in_error"
-      v-dompurify-html="interpreted_description"
-      data-test="description-preview"
-    ></div>
-    <div
-      v-if="is_preview_in_error"
-      class="alert alert-error"
-      data-test="description-error"
-    >
+    <div class="ttm-definition-step-actions-format-and-helper-container">
+      <input type="hidden" v-bind:name="'artifact[' + field_id + '][id][]'" v-bind:value="step.id" />
+      <step-definition-type v-bind:value="step.step_type" v-bind:type_select_id="type_select_id"
+        v-on:type_change="toggleStepType" />
+      <input type="hidden" v-bind:name="'artifact[' + field_id + '][step_type][]'" v-bind:value="step.step_type" />
+      <step-definition-actions v-bind:value="step.description_format" v-bind:format_select_id="format_select_id"
+        v-bind:is_in_preview_mode="is_in_preview_mode" v-bind:is_preview_loading="is_preview_loading"
+        v-on:input="toggleRTE" v-on:interpret-content-event="togglePreview">
+        <step-deletion-action-button-mark-as-deleted v-bind:mark-as-deleted="markAsDeleted" v-bind:is_deletion="true" />
+      </step-definition-actions>
+      <input type="hidden" v-bind:name="'artifact[' + field_id + '][description_format][]'"
+        v-bind:value="step.description_format" />
+    </div>
+    <textarea ref="description" class="ttm-definition-step-description-textarea" v-bind:id="description_id"
+      v-bind:name="'artifact[' + field_id + '][description][]'" v-bind:data-help-id="description_help_id"
+      v-bind:data-upload-url="upload_url" v-bind:data-upload-field-name="upload_field_name"
+      v-bind:data-upload-max-size="upload_max_size" data-test="description-textarea" rows="3"
+      v-model="step.raw_description" v-show="!is_in_preview_mode && !is_preview_in_error"
+      v-bind:disabled="is_preview_loading"></textarea>
+    <div v-if="is_in_preview_mode && !is_preview_in_error" v-dompurify-html="interpreted_description"
+      data-test="description-preview"></div>
+    <div v-if="is_preview_in_error" class="alert alert-error" data-test="description-error">
       <translate>There was an error in the Markdown preview:</translate>
       {{ error_text }}
     </div>
-    <div
-      class="muted tracker-richtexteditor-help shown"
-      v-bind:id="description_help_id"
-    ></div>
+    <div class="muted tracker-richtexteditor-help shown" v-bind:id="description_help_id"></div>
 
     <section class="ttm-definition-step-expected">
       <step-definition-arrow-expected />
@@ -94,45 +55,24 @@
           <translate>Expected results</translate>
         </div>
 
-        <input
-          type="hidden"
-          v-bind:name="'artifact[' + field_id + '][expected_results_format][]'"
-          v-bind:value="step.description_format"
-        />
-        <textarea
-          ref="expected_results"
-          class="ttm-definition-step-expected-results-textarea"
-          v-bind:id="expected_results_id"
-          v-bind:name="'artifact[' + field_id + '][expected_results][]'"
-          v-bind:data-help-id="expected_results_help_id"
-          v-bind:data-upload-url="upload_url"
-          v-bind:data-upload-field-name="upload_field_name"
-          v-bind:data-upload-max-size="upload_max_size"
-          rows="3"
-          v-model="step.raw_expected_results"
-          v-show="!is_in_preview_mode && !is_preview_in_error"
-          data-test="expected-results-textarea"
-          v-bind:disabled="is_preview_loading"
-        ></textarea>
-        <div
-          v-if="is_in_preview_mode"
-          v-dompurify-html="interpreted_expected_result"
-          data-test="expected-results-preview"
-        ></div>
-        <div
-          class="alert alert-error"
-          v-if="is_preview_in_error"
-          data-test="expected-results-error"
-        >
+        <input type="hidden" v-bind:name="'artifact[' + field_id + '][expected_results_format][]'"
+          v-bind:value="step.description_format" />
+        <textarea ref="expected_results" class="ttm-definition-step-expected-results-textarea"
+          v-bind:id="expected_results_id" v-bind:name="'artifact[' + field_id + '][expected_results][]'"
+          v-bind:data-help-id="expected_results_help_id" v-bind:data-upload-url="upload_url"
+          v-bind:data-upload-field-name="upload_field_name" v-bind:data-upload-max-size="upload_max_size" rows="3"
+          v-model="step.raw_expected_results" v-show="!is_in_preview_mode && !is_preview_in_error"
+          data-test="expected-results-textarea" v-bind:disabled="is_preview_loading"></textarea>
+        <div v-if="is_in_preview_mode" v-dompurify-html="interpreted_expected_result"
+          data-test="expected-results-preview"></div>
+        <div class="alert alert-error" v-if="is_preview_in_error" data-test="expected-results-error">
           <translate>There was an error in the Markdown preview:</translate>
           {{ error_text }}
         </div>
-        <div
-          class="muted tracker-richtexteditor-help shown"
-          v-bind:id="expected_results_help_id"
-        ></div>
+        <div class="muted tracker-richtexteditor-help shown" v-bind:id="expected_results_help_id"></div>
       </div>
     </section>
+
   </div>
 </template>
 

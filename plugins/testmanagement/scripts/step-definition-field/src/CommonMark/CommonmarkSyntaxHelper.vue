@@ -17,15 +17,12 @@
   - along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
   -
   -->
+
+<!-- prettier-ignore -->
 <template>
-    <div>
-        <button
-            type="button"
-            class="btn btn-small button-commonmark-syntax-helper"
-            ref="button_helper"
-            v-bind:disabled="is_in_preview_mode"
-            data-test="button-helper"
-        >
+    <span>
+        <button type="button" class="btn btn-small button-commonmark-syntax-helper" ref="button_helper"
+            v-bind:disabled="is_in_preview_mode" data-test="button-helper">
             <i class="fas fa-question-circle" aria-hidden="true"></i>
             <translate>Help</translate>
         </button>
@@ -51,11 +48,15 @@
                     </tr>
                     <tr>
                         <td># Heading 1</td>
-                        <td><h1 class="popover-h1-indentation">Heading 1</h1></td>
+                        <td>
+                            <h1 class="popover-h1-indentation">Heading 1</h1>
+                        </td>
                     </tr>
                     <tr>
                         <td>## Heading 2</td>
-                        <td><h2 class="popover-h2-indentation">Heading 2</h2></td>
+                        <td>
+                            <h2 class="popover-h2-indentation">Heading 2</h2>
+                        </td>
                     </tr>
                     <tr>
                         <td>[Link](https://example.com)</td>
@@ -64,10 +65,7 @@
                     <tr>
                         <td>![Image](/path/image.png)</td>
                         <td>
-                            <img
-                                class="popover-image-indentation"
-                                src="../assets/image_example_commonmark.png"
-                            />
+                            <img class="popover-image-indentation" src="../assets/image_example_commonmark.png" />
                         </td>
                     </tr>
                     <tr>
@@ -135,7 +133,7 @@ echo a.b;
                 </tbody>
             </table>
         </section>
-    </div>
+    </span>
 </template>
 
 <script>

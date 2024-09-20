@@ -244,7 +244,6 @@
 }
 
 .ttm-definition-step-actions {
-    display: flex;
     justify-content: space-between;
     margin: 0 0 10px;
 }
@@ -265,6 +264,10 @@
 }
 
 .ttm-definition-step-actions-format-and-helper-container {
-    display: flex;
     align-items: center;
+    margin: 0 0 10px;
+}
+
+.ttm-definition-step-delete-button {
+    float: right;
 }

@@ -17,9 +17,10 @@
   - along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
   -->
 
+<!-- prettier-ignore -->
 <template functional>
-    <button class="btn" type="button" v-on:click="props.unmarkDeletion()">
-        <i class="fa fa-undo"></i>
-        <translate key="undelete">Undo deletion</translate>
-    </button>
+  <button class="btn btn-small ttm-definition-step-delete-button" type="button" v-on:click="props.unmarkDeletion()">
+    <i class="fa fa-undo"></i>
+    <translate key="undelete">Undo deletion</translate>
+  </button>
 </template>
