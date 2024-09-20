@@ -23,6 +23,7 @@
         <div class="ttm-definition-step-rank ttm-execution-step-rank-edition">
             {{ dynamic_rank }}
         </div>
+        <step-definition-type-icon />
         <div
             v-dompurify-html="step.raw_description"
             v-bind:class="{
@@ -35,8 +36,12 @@
 
 <script>
 import { mapGetters } from "vuex";
+import StepDefinitionTypeIcon from "./StepDefinitionTypeIcon.vue";
 export default {
     name: "StepDefinitionDraggableComponent",
+    components: {
+        StepDefinitionTypeIcon,
+    },
     props: {
         step: Object,
         dynamic_rank: Number,
