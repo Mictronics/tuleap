@@ -72,7 +72,7 @@ export default {
     },
     emits: ["type_change"],
     computed: {
-        ...mapState(["field_id"]),
+        ...mapState(["field_id", "last_step_type"]),
         disabled_type_selectbox() {
             return this.disabled || this.is_in_preview_mode;
         },
@@ -103,6 +103,7 @@ export default {
     },
     methods: {
         type_change(event) {
+            this.$store.state.last_step_type = this.$refs.type.value;
             this.$emit("type_change", event, this.$refs.type.value);
         },
     },
