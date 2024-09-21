@@ -33,6 +33,7 @@ CREATE TABLE IF NOT EXISTS plugin_testmanagement_changeset_value_stepexec(
     changeset_value_id INT(11) NOT NULL,
     stepdef_id         INT(11) UNSIGNED NOT NULL,
     status             VARCHAR(20),
+    comment            VARCHAR(100),
     PRIMARY KEY (changeset_value_id, stepdef_id)
 );
 
