@@ -41,6 +41,9 @@ export default function controller(
         setToNotRun() {
             setNewStatusIfNotSaving(NOT_RUN_STATUS);
         },
+        onCommentChange() {
+            setNewStatusIfNotSaving(self.step_result.status);
+        },
         isPassed: () => self.step_result.status === PASSED_STATUS,
         isFailed: () => self.step_result.status === FAILED_STATUS,
         isBlocked: () => self.step_result.status === BLOCKED_STATUS,
@@ -77,10 +80,15 @@ export default function controller(
         self.saving = true;
         resetError();
 
-        return ExecutionRestService.updateStepStatus(self.execution, self.step.id, status)
+        return ExecutionRestService.updateStepStatus(
+            self.execution,
+            self.step.id,
+            status,
+            self.comment,
+        )
             .then(
                 () => {
-                    updateStepResults(self.execution, self.step.id, status);
+                    updateStepResults(self.execution, self.step.id, status, self.comment);
                     self.step_result.status = status;
                     ExecutionRestService.getExecution(self.execution.id).then((execution) => {
                         ExecutionService.updateTestExecution(

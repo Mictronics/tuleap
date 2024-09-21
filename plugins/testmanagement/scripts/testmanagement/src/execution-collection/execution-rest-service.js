@@ -204,12 +204,14 @@ function ExecutionRestService($http, $q, SharedPropertiesService) {
         );
     }
 
-    function updateStepStatus(test_execution, step_id, step_status) {
+    function updateStepStatus(test_execution, step_id, step_status, comment) {
         const { id: execution_id } = test_execution;
         return $q.when(
             patch(encodeURI(`/api/v1/testmanagement_executions/${execution_id}`), {
                 headers,
-                body: JSON.stringify({ steps_results: [{ step_id, status: step_status }] }),
+                body: JSON.stringify({
+                    steps_results: [{ step_id, status: step_status, comment }],
+                }),
             }).catch((exception) => {
                 return exception.response.json().then((json) => $q.reject(json.error));
             }),
