@@ -60,7 +60,8 @@ final class StepDefinitionRepresentationBuilder
             $expected_results->content,
             $expected_results->format,
             $expected_results->commonmark,
-            $step->getRank()
+            $step->getRank(),
+            $step->getStepType(),
         );
     }
 
