@@ -149,3 +149,65 @@ step {
 .steps-step-action-disabled {
     color: var(--tlp-dimmed-color);
 }
+
+.steps-step-type-icon {
+    padding: 0 10px 0 0;
+    font-family: "Font Awesome 6 Free";
+    font-size: large;
+    font-style: normal;
+    font-weight: 900;
+}
+
+.steps-icon-action::before {
+    content: "\f0a4";
+}
+
+.steps-icon-check {
+    font-weight: 400;
+}
+
+.steps-icon-check::before {
+    content: "\f14a";
+}
+
+.steps-icon-rationale::before {
+    content: "\e447";
+}
+
+.steps-icon-info {
+    color: #00aec7;
+
+    /* TODO: Define color in Airbus theme. */
+}
+
+.steps-icon-info::before {
+    content: "\f05a";
+}
+
+.steps-icon-alert {
+    color: #e4002b;
+
+    /* TODO: Define color in Airbus theme. */
+}
+
+.steps-icon-alert::before {
+    content: "\f06a";
+}
+
+.steps-icon-warning {
+    color: #e1e000;
+
+    /* TODO: Define color in Airbus theme. */
+}
+
+.steps-icon-warning::before {
+    content: "\f071";
+}
+
+.steps-icon-requirement::before {
+    content: "\f085";
+}
+
+.steps-icon-input::before {
+    content: "\f303";
+}
