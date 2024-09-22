@@ -111,7 +111,7 @@ class TestStatusAccordingToStepsStatusChangesBuilder
         foreach ($steps_defined_in_test as $step) {
             $status = 'notrun';
             if (isset($steps_changes[$step->getId()])) {
-                $status = $steps_changes[$step->getId()];
+                $status = $steps_changes[$step->getId()][0];
             }
 
             $nb[$status]++;
