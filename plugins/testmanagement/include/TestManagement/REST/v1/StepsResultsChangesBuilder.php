@@ -110,7 +110,7 @@ class StepsResultsChangesBuilder
         foreach ($steps_defined_in_test as $step) {
             $id = $step->getId();
             if (isset($existing_steps_results[$id])) {
-                $steps_changes[$id] = $existing_steps_results[$id]->getStatus();
+                $steps_changes[$id] = [$existing_steps_results[$id]->getStatus(), $existing_steps_results[$id]->getComment()];
             }
             if (isset($submitted_steps_results[$id])) {
                 $steps_changes[$id] = $submitted_steps_results[$id];
@@ -145,7 +145,7 @@ class StepsResultsChangesBuilder
     {
         $indexed_by_id = [];
         foreach ($submitted_steps_results as $step) {
-            $indexed_by_id[$step->step_id] = $step->status;
+            $indexed_by_id[$step->step_id] = [$step->status, $step->comment];
         }
 
         return $indexed_by_id;
