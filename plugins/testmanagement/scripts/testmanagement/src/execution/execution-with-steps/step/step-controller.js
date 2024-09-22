@@ -6,7 +6,7 @@ import {
 } from "../../execution-constants.js";
 import { createDropdown } from "@tuleap/tlp-dropdown";
 import { resetError, setError } from "../../../feedback-state.js";
-import { updateStepResults, updateStepComment } from "./execution-with-steps-updater.js";
+import { updateStepResults } from "./execution-with-steps-updater.js";
 import { sanitize } from "dompurify";
 
 controller.$inject = [
@@ -42,7 +42,7 @@ export default function controller(
             setNewStatusIfNotSaving(NOT_RUN_STATUS);
         },
         onCommentChange() {
-            setNewCommentIfNotSaving(self.comment);
+            setNewStatusIfNotSaving(self.step_result.status);
         },
         isPassed: () => self.step_result.status === PASSED_STATUS,
         isFailed: () => self.step_result.status === FAILED_STATUS,
@@ -76,52 +76,20 @@ export default function controller(
         self.dropdown.hide();
     }
 
-    function setNewCommentIfNotSaving(comment) {
-        if (self.saving) {
-            return;
-        }
-
-        setNewComment(comment);
-    }
-
     function setNewStatus(status) {
         self.saving = true;
         resetError();
 
-        return ExecutionRestService.updateStepStatus(self.execution, self.step.id, status)
+        return ExecutionRestService.updateStepStatus(
+            self.execution,
+            self.step.id,
+            status,
+            self.comment,
+        )
             .then(
                 () => {
-                    updateStepResults(self.execution, self.step.id, status);
+                    updateStepResults(self.execution, self.step.id, status, self.comment);
                     self.step_result.status = status;
-                    ExecutionRestService.getExecution(self.execution.id).then((execution) => {
-                        ExecutionService.updateTestExecution(
-                            execution,
-                            SharedPropertiesService.getCurrentUser(),
-                        );
-                    });
-                },
-                (error) =>
-                    setError(
-                        gettextCatalog.getString(
-                            "An error occurred while executing this step. Please try again later. {{ error }}",
-                            { error },
-                        ),
-                    ),
-            )
-            .finally(() => {
-                self.saving = false;
-            });
-    }
-
-    function setNewComment(comment) {
-        self.saving = true;
-        resetError();
-
-        return ExecutionRestService.updateStepComment(self.execution, self.step.id, comment)
-            .then(
-                () => {
-                    updateStepComment(self.execution, self.step.id, comment);
-                    self.step_result.comment = comment;
                     ExecutionRestService.getExecution(self.execution.id).then((execution) => {
                         ExecutionService.updateTestExecution(
                             execution,
