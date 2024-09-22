@@ -34,9 +34,15 @@ class StepResultRepresentation
      */
     public $status;
 
+    /**
+     * @var string {@string} {@required true}
+     */
+    public $comment;
+
     public function build(StepResult $stepstep_result): void
     {
         $this->step_id = JsonCast::toInt($stepstep_result->getStep()->getId());
         $this->status  = $stepstep_result->getStatus();
+        $this->comment = $stepstep_result->getComment();
     }
 }

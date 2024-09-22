@@ -28,11 +28,23 @@ class StepResult
     private $step;
     /** @var string */
     private $status;
+    /** @var string */
+    private $comment;
 
-    public function __construct(Step $step, string $status)
+    public function __construct(Step $step, mixed $status, mixed $comment)
     {
-        $this->step   = $step;
-        $this->status = $status;
+        $this->step = $step;
+        if (empty($status) || is_null($status) || ! is_string($status)) {
+            $this->status = 'notrun';
+        } else {
+            $this->status = $status;
+        }
+
+        if (empty($comment) || is_null($comment) || ! is_string($comment)) {
+            $this->comment = '';
+        } else {
+            $this->comment = $comment;
+        }
     }
 
     /**
@@ -49,5 +61,13 @@ class StepResult
     public function getStatus()
     {
         return $this->status;
+    }
+
+    /**
+     * @return string
+     */
+    public function getComment()
+    {
+        return $this->comment;
     }
 }

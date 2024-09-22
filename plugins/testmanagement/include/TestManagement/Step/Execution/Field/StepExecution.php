@@ -258,7 +258,7 @@ class StepExecution extends Tracker_FormElement_Field implements TrackerFormElem
                 $row['step_type']
             );
 
-            $steps[] = new StepResult($step, $row['status']);
+            $steps[] = new StepResult($step, $row['status'], $row['comment']);
         }
 
         return new StepExecutionChangesetValue($value_id, $changeset, $this, $has_changed, $steps);
