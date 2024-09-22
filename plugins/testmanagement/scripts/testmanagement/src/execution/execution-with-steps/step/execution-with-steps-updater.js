@@ -17,11 +17,18 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-function updateStepResults(execution, step_id, status, comment) {
+function updateStepResults(execution, step_id, status) {
     if (typeof execution.steps_results[step_id] === "undefined") {
         execution.steps_results[step_id] = {};
     }
-    Object.assign(execution.steps_results[step_id], { step_id, status, comment });
+    Object.assign(execution.steps_results[step_id], { step_id, status });
 }
 
-export { updateStepResults };
+function updateStepComment(execution, step_id, comment) {
+    if (typeof execution.steps_results[step_id] === "undefined") {
+        execution.steps_results[step_id] = {};
+    }
+    Object.assign(execution.steps_results[step_id], { step_id, comment });
+}
+
+export { updateStepResults, updateStepComment };

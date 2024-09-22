@@ -42,6 +42,7 @@ function ExecutionRestService($http, $q, SharedPropertiesService) {
         getExecution,
         updateExecutionToUseLatestVersionOfDefinition,
         updateStepStatus,
+        updateStepComment,
         createFileInTestExecution,
     });
 
@@ -204,13 +205,27 @@ function ExecutionRestService($http, $q, SharedPropertiesService) {
         );
     }
 
-    function updateStepStatus(test_execution, step_id, step_status, comment) {
+    function updateStepStatus(test_execution, step_id, step_status) {
         const { id: execution_id } = test_execution;
         return $q.when(
             patch(encodeURI(`/api/v1/testmanagement_executions/${execution_id}`), {
                 headers,
                 body: JSON.stringify({
-                    steps_results: [{ step_id, status: step_status, comment }],
+                    steps_results: [{ step_id, status: step_status }],
+                }),
+            }).catch((exception) => {
+                return exception.response.json().then((json) => $q.reject(json.error));
+            }),
+        );
+    }
+
+    function updateStepComment(test_execution, step_id, step_comment) {
+        const { id: execution_id } = test_execution;
+        return $q.when(
+            patch(encodeURI(`/api/v1/testmanagement_executions/${execution_id}`), {
+                headers,
+                body: JSON.stringify({
+                    steps_results: [{ step_id, comment: step_comment }],
                 }),
             }).catch((exception) => {
                 return exception.response.json().then((json) => $q.reject(json.error));
