@@ -17,6 +17,7 @@ services:
     ports:
       - "443:443"
       - "3939:22"
+      - "9003:9003"
     volumes:
       # For Tuleap devs, un-comment if you want to test stuff with your own code base
       - ../../../:/usr/share/tuleap:ro,cached

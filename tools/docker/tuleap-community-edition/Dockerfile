@@ -33,7 +33,7 @@ COPY docker/tuleap-community-edition/sshd_config /etc/ssh/sshd_config
 
 FROM scratch
 
-EXPOSE 22 80 443
+EXPOSE 22 80 443 9003
 
 ENV TLP_SYSTEMCTL=docker
 ENV TLP_INSTALL_PLUGINS_TO_ENABLE='agiledashboard api_explorer cardwall docman embed frs git gitlab gitlfs graphontrackersv5 hudson_git kanban mediawiki_standalone onlyoffice openidconnectclient pullrequest tracker'

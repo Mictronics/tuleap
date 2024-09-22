@@ -4,7 +4,7 @@ RUN apk add --no-cache openssl
 
 COPY entrypoint.sh /
 
-EXPOSE 22 80 443
+EXPOSE 22 80 443 9003
 
 ENTRYPOINT [ "/entrypoint.sh" ]
 
