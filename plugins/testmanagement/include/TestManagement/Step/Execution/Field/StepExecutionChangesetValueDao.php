@@ -37,7 +37,7 @@ class StepExecutionChangesetValueDao extends \Tuleap\Tracker\FormElement\Field\F
     {
         $changeset_value_id = $this->da->escapeInt($changeset_value_id);
 
-        $sql = "SELECT def.*, exec.status
+        $sql = "SELECT def.*, exec.status, exec.comment
                 FROM plugin_testmanagement_changeset_value_stepexec AS exec
                 INNER JOIN plugin_testmanagement_changeset_value_stepdef AS def
                   ON (exec.stepdef_id = def.id)
@@ -51,14 +51,15 @@ class StepExecutionChangesetValueDao extends \Tuleap\Tracker\FormElement\Field\F
     {
         $changeset_value_id = $this->da->escapeInt($changeset_value_id);
         $values             = [];
-        foreach ($steps as $id => $status) {
+        foreach ($steps as $id => [$status, $comment]) {
             $id       = $this->da->escapeInt($id);
             $status   = $this->da->quoteSmart($status);
-            $values[] = "($changeset_value_id, $id, $status)";
+            $comment  = $this->da->quoteSmart($comment);
+            $values[] = "($changeset_value_id, $id, $status, $comment)";
         }
         if ($values) {
             $values = implode(',', $values);
-            $sql    = "INSERT INTO plugin_testmanagement_changeset_value_stepexec(changeset_value_id, stepdef_id, status)
+            $sql    = "INSERT INTO plugin_testmanagement_changeset_value_stepexec(changeset_value_id, stepdef_id, status, comment)
                     VALUES $values";
 
             return $this->update($sql);
@@ -76,8 +77,8 @@ class StepExecutionChangesetValueDao extends \Tuleap\Tracker\FormElement\Field\F
     {
         $from = $this->da->escapeInt($from);
         $to   = $this->da->escapeInt($to);
-        $sql  = "INSERT INTO plugin_testmanagement_changeset_value_stepexec(changeset_value_id, stepdef_id, status)
-                SELECT $to, stepdef_id, status
+        $sql  = "INSERT INTO plugin_testmanagement_changeset_value_stepexec(changeset_value_id, stepdef_id, status, comment)
+                SELECT $to, stepdef_id, status, comment
                 FROM plugin_testmanagement_changeset_value_stepexec
                 WHERE changeset_value_id = $from";
 
