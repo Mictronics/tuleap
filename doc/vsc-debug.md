@@ -10,6 +10,10 @@ Remote Debugging PHP in Visual Studio Code with XDebug:
 
 ## Install PHP Debug extension in VSC
 
+**Start Visual Studio Code from the nix-shell development environment using the `code`command to ensure that all the build tools can be used!**
+
+This will save also issues when committing code changes.
+
 * Open vscode
 * Goto the extensions tab (the last icon on the left pane)
 * Search for _PHP Debug_ (Publisher XDebug)
@@ -30,12 +34,59 @@ Remote Debugging PHP in Visual Studio Code with XDebug:
             "port": 9003,
             "stopOnEntry": true,
             "pathMappings": {
-                "/usr/share/tuleap/src/www/": "${workspaceRoot}/src/www/",
+                "/usr/share/tuleap/": "${workspaceRoot}/",
             }
         }
     ]
 ```
 * Save and close launch.json
+
+## Setup XDebug configuration in Docker
+
+* From nix-shell run `make bash-web`to open a shell in the Docker web container.
+* Edit `/etc/opt/remi/php82/php.d/15-xdebug.ini` and include the changes below
+* Set `xdebug.client_host` to the IP or host name of your machine where the IDE or debugging client is running, e.g. VSC.
+* Make sure this host is reachable from within Docker shell.
+
+```
+# Enable xdebug extension module
+zend_extension=xdebug.so
+
+xdebug.log = /tmp/xdebug.log
+xdebug.max_nesting_level=200
+
+xdebug.var_display_max_depth=10
+#xdebug.profiler_enable=1
+xdebug.profiler_enable_trigger=1
+xdebug.profiler_output_dir="/data/var/lib/cachegrind"
+xdebug.profiler_output_name="cachegrind.out.%s.%r"
+
+xdebug.remote_connect_back=1
+xdebug.remote_enable=1
+
+# By default the develop mode is disabled because it triggers
+# major slowness on trackers
+#xdebug.mode=debug,develop
+xdebug.mode=debug
+#xdebug.discover_client_host=1
+xdebug.remote_autostart=1
+xdebug.remote_enable=1
+xdebug.remote_handler="dbgp"
+
+xdebug.client_host = <YOUR IDE HOST IP>
+xdebug.start_with_request = yes
+xdebug.client_port = 9003
+xdebug.client_mode="req"
+xdebug.idekey="XDEBUG_VSC"
+xdebug.extended_info=1
+xdebug.cli_color=1
+xdebug.connect_timeout_ms=500
+
+xdebug.collect_params = 4
+xdebug.collect_return = 1
+xdebug.collect_vars = 1
+xdebug.show_local_vars = 1
+```
 
 ## Install browser extension
 
