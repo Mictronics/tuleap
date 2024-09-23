@@ -35,7 +35,7 @@ class StepResultRepresentation
     public $status;
 
     /**
-     * @var string {@string} {@required true}
+     * @var string {@string} {@required false}
      */
     public $comment;
 
