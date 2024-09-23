@@ -82,6 +82,7 @@ export default {
             this.upload_url,
             this.upload_field_name,
             this.upload_max_size,
+            "action",
         ]);
     },
     destroyed() {
