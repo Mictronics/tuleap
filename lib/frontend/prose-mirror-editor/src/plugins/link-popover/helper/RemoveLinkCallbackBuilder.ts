@@ -17,22 +17,23 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { LinkPopoverButton } from "../LinkPopoverElement";
-import { createOpenLinkButton } from "./OpenLinkButtonElement";
-import { createCopyToClipboardButton } from "./CopyToClipboardButtonElement";
-import type { GetText } from "@tuleap/gettext";
+import type { EditorState, Transaction } from "prosemirror-state";
+import type { RemoveLinkCallback } from "../element/items/RemoveLinkButtonElement";
+import { removeLink } from "../../../helpers/remove-link";
+import { removePopover } from "./create-link-popover";
 
-export const createButton = (
-    doc: Document,
-    gettext_provider: GetText,
-    button: LinkPopoverButton,
-): HTMLElement => {
-    switch (button.type) {
-        case "open-link":
-            return createOpenLinkButton(doc, gettext_provider, button);
-        case "copy-to-clipboard":
-            return createCopyToClipboardButton(doc, button);
-        default:
-            throw new Error(`Unknown button type`);
-    }
+export type BuildRemoveLinkCallback = {
+    build(doc: Document, editor_id: string): RemoveLinkCallback;
 };
+
+export const RemoveLinkCallbackBuilder = (
+    state: EditorState,
+    dispatch: (tr: Transaction) => void,
+): BuildRemoveLinkCallback => ({
+    build:
+        (doc: Document, editor_id: string): RemoveLinkCallback =>
+        (): void => {
+            removeLink(state, state.schema.marks.link, dispatch);
+            removePopover(doc, editor_id);
+        },
+});

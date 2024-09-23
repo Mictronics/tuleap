@@ -17,11 +17,34 @@
  *  along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { Schema } from "prosemirror-model";
+import { type DOMOutputSpec, type MarkSpec, Schema } from "prosemirror-model";
 import { addListNodes } from "prosemirror-schema-list";
 import { schema } from "prosemirror-schema-basic";
 
+// hard_break is redefined here, because I can no longer write any text after creating one by node.create
+// see https://discuss.prosemirror.net/t/solved-cant-type-after-hard-break/3752
+const nodes = schema.spec.nodes.append({
+    custom_hard_break: {
+        inline: true,
+        group: "inline",
+        selectable: false,
+        parseDOM: [{ tag: "br" }],
+        toDOM() {
+            return ["br"];
+        },
+    },
+});
+
+const subscript_mark_spec: MarkSpec = {
+    parseDOM: [{ tag: "sub" }],
+    toDOM(): DOMOutputSpec {
+        return ["sub", 0];
+    },
+};
 export const custom_schema: Schema = new Schema({
-    nodes: addListNodes(schema.spec.nodes, "paragraph block*", "block"),
-    marks: schema.spec.marks,
+    nodes: addListNodes(nodes, "paragraph block*", "block"),
+    marks: {
+        ...schema.spec.marks.toObject(),
+        subscript: subscript_mark_spec,
+    },
 });
