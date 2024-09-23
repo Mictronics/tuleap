@@ -584,6 +584,33 @@ $attachment-progress-bar-bg-color: var(--tlp-dimmed-color-lighter-50);
     }
 }
 
+.current-test-step-comment-container {
+    display: grid;
+    margin: var(--tlp-small-spacing);
+}
+
+.current-test-step-comment {
+    padding: var(--tlp-small-spacing) 10px;
+    overflow-y: auto;
+    transition: border-color ease-out 150ms;
+    border: 1px solid var(--tlp-neutral-normal-color);
+    border-radius: var(--tlp-medium-radius);
+    background: var(--tlp-white-color);
+
+    // stylelint-disable selector-class-pattern
+    &:focus,
+    &.cke_focus {
+        // stylelint-enable
+        min-height: calc(5 * 1.125rem);
+        border-radius: 0 var(--tlp-medium-radius) var(--tlp-medium-radius);
+        border-color: var(--tlp-main-color);
+    }
+
+    img {
+        height: auto !important;
+    }
+}
+
 .current-test-results {
     display: flex;
 }

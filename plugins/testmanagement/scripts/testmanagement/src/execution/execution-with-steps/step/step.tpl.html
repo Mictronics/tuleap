@@ -33,22 +33,6 @@
             ><p ng-bind-html="$ctrl.step.expected_results" class="steps-step-expected-text" load-all-tooltips></p></div>
         </div>
     </div>
-    <div>
-        <label class="tlp-label" translate>Comment</label>
-        <textarea class="current-test-comment cke_editable cke_editable_inline cke_contents_ltr cke_show_borders"
-            contenteditable="true"
-            tabindex="0"
-            spellcheck="true"
-            style="position: relative;"
-            role="textbox"
-            aria-multiline="true"
-            aria-label="Step comment"
-            title="Step comment"
-            aria-describedby=""
-            ng-disabled="$ctrl.saving"
-            ng-blur="$ctrl.onCommentChange()"
-            ng-model="$ctrl.comment"></textarea>
-    </div>
 </div>
 <div class="tlp-dropdown steps-step-action">
     <div class="tlp-dropdown-split-button"
@@ -97,4 +81,20 @@
             <i class="fa fa-fw fa-question-circle"></i> {{::'Not run' | translate }}
         </button>
     </div>
+</div>
+<div class="current-test-step-comment-container">
+    <textarea class="current-test-step-comment"
+        contenteditable="true"
+        tabindex="0"
+        spellcheck="true"
+        wrap="soft"
+        role="textbox"
+        aria-multiline="true"
+        aria-label="Step comment"
+        title="Step comment"
+        aria-describedby=""
+        ng-disabled="$ctrl.saving"
+        ng-blur="$ctrl.onCommentChange()"
+        ng-model="$ctrl.comment"></textarea>
+    <label class="tlp-label" translate>Comment</label>
 </div>
