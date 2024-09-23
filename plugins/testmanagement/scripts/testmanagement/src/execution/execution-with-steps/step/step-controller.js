@@ -42,6 +42,7 @@ export default function controller(
             setNewStatusIfNotSaving(NOT_RUN_STATUS);
         },
         onCommentChange() {
+            self.step_result.comment = self.comment;
             setNewStatusIfNotSaving(self.step_result.status);
         },
         isPassed: () => self.step_result.status === PASSED_STATUS,
@@ -58,9 +59,12 @@ export default function controller(
             ? self.step_result
             : {
                   status: "notrun",
+                  comment: "",
               };
         const $trigger = $element.find(".steps-step-action-dropdown-trigger");
         const $dropdown_menu = $element.find(".steps-step-action-dropdown");
+
+        self.comment = self.step_result.comment;
 
         self.dropdown = createDropdown($trigger[0], {
             dropdown_menu: $dropdown_menu[0],
@@ -84,11 +88,16 @@ export default function controller(
             self.execution,
             self.step.id,
             status,
-            self.comment,
+            self.step_result.comment,
         )
             .then(
                 () => {
-                    updateStepResults(self.execution, self.step.id, status, self.comment);
+                    updateStepResults(
+                        self.execution,
+                        self.step.id,
+                        status,
+                        self.step_result.comment,
+                    );
                     self.step_result.status = status;
                     ExecutionRestService.getExecution(self.execution.id).then((execution) => {
                         ExecutionService.updateTestExecution(
