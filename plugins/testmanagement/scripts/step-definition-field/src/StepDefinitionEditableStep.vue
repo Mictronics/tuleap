@@ -149,6 +149,25 @@ export default {
             return "type_" + this.step.uuid + "_" + this.field_id;
         },
     },
+    created() {
+        switch (this.step.step_type) {
+            case "action":
+                this.is_hide_expected = false;
+                break;
+            case "check":
+            case "info":
+            case "input":
+            case "warning":
+            case "alert":
+            case "requirement":
+            case "rationale":
+                this.is_hide_expected = true;
+                break;
+            default:
+                this.is_hide_expected = false;
+                break;
+        }
+    },
     watch: {
         is_dragging(new_value) {
             if (new_value === false) {
