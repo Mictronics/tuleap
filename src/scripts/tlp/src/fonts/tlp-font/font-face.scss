@@ -26,3 +26,11 @@ $tlp-font-basepath: "../" !default;
     src: url("#{$tlp-font-basepath}/fonts/tlp-font/TLP.woff2") format("woff2");
     font-display: block;
 }
+
+@font-face {
+    font-family: Inter;
+    font-style: normal;
+    font-weight: 400;
+    src: url("#{$tlp-font-basepath}/fonts/tlp-font/Inter-Regular.woff2") format("woff2");
+    font-display: swap;
+}
