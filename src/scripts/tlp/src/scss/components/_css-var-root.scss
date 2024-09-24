@@ -31,24 +31,24 @@ $tlp-x-large-spacing: 32px !default;
 $tlp-jumbo-spacing: 48px !default;
 
 // Colors
-$tlp-info-color: #1aacd8 !default;
-$tlp-info-dark-color: #007699 !default;
-$tlp-success-color: #1aa350 !default;
-$tlp-success-dark-color: #007b4f !default;
-$tlp-warning-color: #e2a300 !default;
-$tlp-warning-dark-color: #996200 !default;
-$tlp-danger-color: #e04b4b !default;
-$tlp-danger-dark-color: #c72b2b !default;
-$tlp-dimmed-color: #717171 !default;
-$tlp-neutral-light-color: #f2f2f2 !default;
-$tlp-neutral-normal-color: #e5e7f0 !default;
-$tlp-neutral-dark-color: #d5d8dc !default;
-$tlp-main-color: common.$tlp-theme-orange !default;
-$tlp-background-color: common.$tlp-theme-background-orange !default;
-$tlp-dark-color: common.$tlp-theme-dark-orange !default;
+$tlp-info-color: #00aec7 !default;
+$tlp-info-dark-color: #003840 !default;
+$tlp-success-color: #84bd00 !default;
+$tlp-success-dark-color: #3e5900 !default;
+$tlp-warning-color: #e1e000 !default;
+$tlp-warning-dark-color: #595900 !default;
+$tlp-danger-color: #e4002b !default;
+$tlp-danger-dark-color: #b22222 !default;
+$tlp-dimmed-color: #6a6f71 !default;
+$tlp-neutral-light-color: #f2f3f4 !default;
+$tlp-neutral-normal-color: #e5e7eb !default;
+$tlp-neutral-dark-color: #d0d2d8 !default;
+$tlp-main-color: common.$tlp-theme-grey !default;
+$tlp-background-color: common.$tlp-theme-background-grey !default;
+$tlp-dark-color: common.$tlp-theme-dark-grey !default;
 $tlp-typo-default-text-color: $tlp-dark-color !default;
-$tlp-illustration-grey-on-background: #f3efec !default;
-$tlp-illustration-grey-on-white: #fffbf8 !default;
+$tlp-illustration-grey-on-background: #a6a9aa !default;
+$tlp-illustration-grey-on-white: #f2f3f4 !default;
 
 // Deprecated
 $tlp-illustration-primary-color: #ffb87b !default;
@@ -61,8 +61,9 @@ $fade-background-color: color.mix($tlp-background-color, common.$tlp-white-color
 
 :root {
     // Fonts
-    --tlp-font-family: system-ui, "Segoe UI", roboto, oxygen, ubuntu, cantarell, "Helvetica Neue",
-        arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    --tlp-font-family: "Inter", system-ui, "Segoe UI", roboto, oxygen, ubuntu, cantarell,
+        "Helvetica Neue", arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji",
+        "Segoe UI Symbol";
     --tlp-font-family-mono: menlo, monaco, consolas, "Courier New", monospace;
 
     // colors
