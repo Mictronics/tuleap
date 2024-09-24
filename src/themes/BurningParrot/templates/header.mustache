@@ -4,15 +4,18 @@
         <meta charset="utf-8">
 
         <title>{{ title }}</title>
-
-        <link rel="apple-touch-icon" sizes="180x180" href="{{ imgroot }}favicon/{{ color_name }}/apple-touch-icon.png">
-        <link rel="icon" type="image/png" sizes="32x32" href="{{ imgroot }}favicon/{{ color_name }}/favicon-32x32.png">
-        <link rel="icon" type="image/png" sizes="16x16" href="{{ imgroot }}favicon/{{ color_name }}/favicon-16x16.png">
-        <link rel="shortcut icon" href="{{ imgroot }}favicon/{{ color_name }}/favicon.ico">
-        <link rel="manifest" href="{{ imgroot }}favicon/{{ color_name }}/site.webmanifest">
-        <link rel="mask-icon" href="{{ imgroot }}favicon/{{ color_name }}/safari-pinned-tab.svg" color="{{ color_code }}">
-        <meta name="msapplication-TileColor" content="{{ color_code }}">
-        <meta name="msapplication-config" content="{{ imgroot }}favicon/{{ color_name }}/browserconfig.xml">
+        <!-- TODO: Remove hard coded icon links when we understand how themes work! -->
+        <link rel="apple-touch-icon" sizes="180x180" href="/themes/Airbus/favicon/appicon-180x180.png">
+        <link rel="icon" type="image/png" sizes="32x32" href="/themes/Airbus/images/favicon/appicon-32x32.png">
+        <link rel="icon" type="image/png" sizes="16x16" href="/themes/Airbus/images/favicon/appicon-16x16.png">
+        <link rel="icon" type="image/png" sizes="48x48" href="/themes/Airbus/images/favicon/appicon-48x48.png">
+        <link rel="icon" type="image/png" sizes="120x120" href="/themes/Airbus/images/favicon/appicon-120x120.png">
+        <link rel="icon" type="image/png" sizes="192x192" href="/themes/Airbus/images/favicon/appicon-192x192.png">
+        <link rel="icon" type="image/png" sizes="256x256" href="/themes/Airbus/images/favicon/appicon-256x256.png">
+        <link rel="icon" type="image/png" sizes="512x512" href="/themes/Airbus/images/favicon/appicon-512x512.png">
+        <link rel="shortcut icon" href="/themes/Airbus/images/favicon/favicon.ico">
+        <link rel="manifest" href="/themes/Airbus/images/favicon/site.webmanifest">
+        <link rel="mask-icon" href="/themes/Airbus/images/favicon/appicon-maskable.svg" color="#00205b">
         <meta name="main-color" content="{{ color_code }}">
 
         {{> open-graph }}
