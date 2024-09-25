@@ -24,35 +24,13 @@
 
 namespace Tuleap\HudsonGit\REST\v1;
 
-use Tuleap\REST\JsonCast;
-use Tuleap\HudsonGit\Git\Administration\JenkinsServer;
 
 /**
  * @psalm-immutable
  */
-class JenkinsServerRepresentation
+final readonly class JenkinsServerRepresentation
 {
-    /**
-     * @var int
-     */
-    public $id;
-
-    /**
-     * @var string
-     */
-    public $url;
-
-    private function __construct(int $id, string $url)
+    public function __construct(public int $id, public string $url)
     {
-        $this->id  = $id;
-        $this->url = $url;
-    }
-
-    public static function build(JenkinsServer $server): self
-    {
-        return new self(
-            JsonCast::toInt($server->getId()),
-            $server->getServerURL()
-        );
     }
 }
