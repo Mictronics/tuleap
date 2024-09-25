@@ -28,6 +28,9 @@ msgstr "Une erreur est survenue durant le téléversement"
 msgid "Apply subscript style on the selected text `Ctrl+,`"
 msgstr "Transformer le texte sélectionné en indice `Ctrl+,`"
 
+msgid "Apply superscript style on the selected text `Ctrl+.`"
+msgstr "Transformer le texte sélectionné en exposant `Ctrl+.`"
+
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -48,6 +51,9 @@ msgstr "Créer"
 
 msgid "Create a link"
 msgstr "Créer un lien"
+
+msgid "Edit link"
+msgstr "Éditer le lien"
 
 msgid "File type is invalid, you can only upload images"
 msgstr ""
@@ -74,11 +80,17 @@ msgstr "Ouvrir le lien"
 msgid "Remove link"
 msgstr "Supprimer le lien"
 
+msgid "Save"
+msgstr "Sauvegarder"
+
 msgid "Styles"
 msgstr "Styles"
 
 msgid "Subscript"
 msgstr "Indice"
+
+msgid "Superscript"
+msgstr "Exposant"
 
 msgid "Text"
 msgstr "Texte"

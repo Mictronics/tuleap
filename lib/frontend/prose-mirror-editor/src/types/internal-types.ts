@@ -23,3 +23,8 @@
  */
 import type { Node } from "prosemirror-model";
 export type EditorNode = Node;
+
+export type LinkProperties = {
+    href: string;
+    title: string;
+};

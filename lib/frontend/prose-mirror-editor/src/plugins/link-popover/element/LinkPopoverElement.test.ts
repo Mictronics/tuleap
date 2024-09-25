@@ -20,8 +20,8 @@
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { createLocalDocument } from "../../../helpers";
 import * as tlp_popovers from "@tuleap/tlp-popovers";
-import type { HostElement } from "./LinkPopoverElement";
-import { connect } from "./LinkPopoverElement";
+import type { HostElement, InternalLinkPopoverElement } from "./LinkPopoverElement";
+import { observeEditionMode, connect } from "./LinkPopoverElement";
 
 const noop = (): void => {
     // Do nothing
@@ -74,6 +74,45 @@ describe("LinkPopoverElement", () => {
             disconnect();
 
             expect(mocked_popover_instance.destroy).toHaveBeenCalledOnce();
+        });
+    });
+
+    describe("observeEditionMode", () => {
+        it("When the edition mode is enabled, then it should destroy the popover instance", () => {
+            const mocked_popover_instance = {
+                show: noop,
+                hide: noop,
+                destroy: vi.fn(),
+            };
+
+            const host = {
+                popover_instance: mocked_popover_instance,
+            } as unknown as InternalLinkPopoverElement;
+
+            observeEditionMode(host, true);
+
+            expect(host.popover_instance?.destroy).toHaveBeenCalledOnce();
+        });
+
+        it("When the edition mode is disabled, then it should recreate the popover instance", () => {
+            const mocked_popover_instance = {
+                show: vi.fn(),
+                hide: noop,
+                destroy: noop,
+            };
+
+            const host = {
+                popover_instance: null,
+            } as unknown as InternalLinkPopoverElement;
+
+            const createPopover = vi.spyOn(tlp_popovers, "createPopover");
+            createPopover.mockReturnValue(mocked_popover_instance);
+
+            observeEditionMode(host, false);
+
+            expect(createPopover).toHaveBeenCalledOnce();
+            expect(host.popover_instance).toStrictEqual(mocked_popover_instance);
+            expect(host.popover_instance?.show).toHaveBeenCalledOnce();
         });
     });
 });
