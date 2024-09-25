@@ -34,7 +34,13 @@ final class SiteDeployImages
         'organization_logo_mail.png',
     ];
 
+    private const AIRBUS_LOGOS = [
+        'organization_logo.svg',
+        'organization_logo_small.svg',
+    ];
+
     private const BURNING_PARROT_IMAGES_PATH = __DIR__ . '/../../../../www/themes/BurningParrot/images';
+    private const AIRBUS_IMAGES_PATH         = __DIR__ . '/../../../../www/themes/Airbus/images';
 
     private const COMMON_IMAGES_PATH = __DIR__ . '/../../../../www/themes/common/images';
 
@@ -60,7 +66,7 @@ final class SiteDeployImages
 
     public function deploy(OutputInterface $output): void
     {
-        foreach (self::LOGOS as $logo_name) {
+        foreach (self::AIRBUS_LOGOS as $logo_name) {
             $dst_file = $this->images_dir . '/' . $logo_name;
             $logo     = $this->theme_dir . '/' . $logo_name;
             if (! file_exists($dst_file)) {
@@ -68,6 +74,9 @@ final class SiteDeployImages
                     $output->writeln(sprintf('<info>Copy custom %s to %s</info>', $logo, $dst_file));
                     copy($logo, $dst_file);
                     $output->writeln(sprintf('<comment>%s is no longer used, you can delete this file</comment>', $logo));
+                } elseif (file_exists(self::AIRBUS_IMAGES_PATH . '/' . $logo_name)) {
+                    $output->writeln(sprintf('<info>Copy platform default logo to %s</info>', $dst_file));
+                    copy(self::AIRBUS_IMAGES_PATH . '/' . $logo_name, $dst_file);
                 } elseif (file_exists(self::BURNING_PARROT_IMAGES_PATH . '/' . $logo_name)) {
                     $output->writeln(sprintf('<info>Copy platform default logo to %s</info>', $dst_file));
                     copy(self::BURNING_PARROT_IMAGES_PATH . '/' . $logo_name, $dst_file);
