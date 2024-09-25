@@ -84,7 +84,7 @@ adjusted manually to have a [contrast ratio of at least
 
 Now that you have two `.webp` versions of an image, and its dominant
 color, you can insert the definition in
-`src/themes/common/css/project-background/_background.scss` alongside
+`lib/frontend/project-background/themes/main.scss` alongside
 the existing ones. Be nice, don\'t forget the attributions!
 
 You will need to write a new scss file (it will expose the CSS custom
@@ -94,7 +94,7 @@ definition file. It will be referenced later as the *identifier* of the
 background.
 
 ``` scss
-// _background.scss
+// main.scss
 $definitions: (
     // […],
     my-image:
@@ -133,7 +133,7 @@ const project_background_themes = [
 Identifier of the background should be declared in the following
 locations:
 
--   In the `HeaderBackgroundRepresentation::identifier` annotation, so
-    that we expose the expected values in the OpenAPI representation.
+-   In the `HeaderBackgroundRepresentation::identifier` (in HeaderBackgroundRepresentation.php) @var string annotation, so
+    that we expose the expected values in the REST API representation.
 -   In the `ProjectBackgroundSelection::ALLOWED` constant, so that we
     can propose the new image in project administration.
