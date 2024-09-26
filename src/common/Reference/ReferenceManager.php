@@ -621,10 +621,10 @@ class ReferenceManager implements ExtractReferences, ExtractAndSaveCrossReferenc
             (?:(?P<context_word>\w+)\s)?
             (?P<key>\w+)
             \s          #blank separator
-            \#          #dash (2 en 1)
+            (?P<token>\#|\§)   # dash or § for requirements, add more tokens here
             (?P<project_name>[\w\-]+:)? #optional project name (followed by a colon)
             (?P<value>(?:(?:(?&extended_value_sequence)+/)*)?(?&final_value_sequence)+?) # Sequence of multiple '<extended_value_sequence>/' ending with <final_value_sequence>
-            (?P<after_reference>&(?:\#(?:\d+|[xX][[:xdigit:]]+)|quot);|(?=[^\w&/])|$) # Exclude HTML dec, hex and some (quot) named entities from the end of the reference
+            (?P<after_reference>&(?:\#|\§(?:\d+|[xX][[:xdigit:]]+)|quot);|(?=[^\w&/])|$) # Exclude HTML dec, hex and some (quot) named entities from the end of the reference
         `x";
     }
 
@@ -681,7 +681,7 @@ class ReferenceManager implements ExtractReferences, ExtractAndSaveCrossReferenc
                     $ref_instance = $this->_getReferenceInstanceFromMatch($match);
                     if (! $ref_instance) {
                         $context_word_with_space = $match['context_word'] !== '' ? $match['context_word'] . ' ' : '';
-                        return $context_word_with_space . $match['key'] . ' #' . $match['project_name'] . $match['value'] . $match['after_reference'];
+                        return $context_word_with_space . $match['key'] . ' ' . $match['token'] . $match['project_name'] . $match['value'] . $match['after_reference'];
                     }
                     return $this->buildLinkForReference($ref_instance) . $match['after_reference'];
                 },
@@ -1106,7 +1106,7 @@ class ReferenceManager implements ExtractReferences, ExtractAndSaveCrossReferenc
             return null;
         }
         return new ReferenceInstance(
-            $key . ' #' . $match['project_name'] . $value,
+            $key . ' ' . $match['token'] . $match['project_name'] . $value,
             $ref,
             $value,
             $key,
