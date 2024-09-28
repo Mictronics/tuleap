@@ -27,6 +27,7 @@ use Codendi_HTMLPurifier;
 use EventManager;
 use Exception;
 use ForgeConfig;
+use LogicException;
 use Luracast\Restler\RestException;
 use PFUser;
 use ProjectManager;
@@ -36,9 +37,11 @@ use Tracker_FormElementFactory;
 use Tracker_Semantic_ContributorDao;
 use Tracker_Semantic_ContributorFactory;
 use Tracker_Semantic_DescriptionDao;
+use Tracker_Semantic_DescriptionFactory;
 use Tracker_Semantic_StatusDao;
 use Tracker_Semantic_StatusFactory;
 use Tracker_Semantic_TitleDao;
+use Tracker_Semantic_TitleFactory;
 use TrackerFactory;
 use Tuleap\CrossTracker\CrossTrackerArtifactReportDao;
 use Tuleap\CrossTracker\CrossTrackerDefaultReport;
@@ -48,6 +51,7 @@ use Tuleap\CrossTracker\CrossTrackerReport;
 use Tuleap\CrossTracker\CrossTrackerReportDao;
 use Tuleap\CrossTracker\CrossTrackerReportFactory;
 use Tuleap\CrossTracker\CrossTrackerReportNotFoundException;
+use Tuleap\CrossTracker\Field\ReadableFieldRetriever;
 use Tuleap\CrossTracker\Permission\CrossTrackerPermissionGate;
 use Tuleap\CrossTracker\Report\CrossTrackerArtifactReportFactory;
 use Tuleap\CrossTracker\Report\Query\Advanced\DuckTypedField\FieldTypeRetrieverWrapper;
@@ -65,6 +69,7 @@ use Tuleap\CrossTracker\Report\Query\Advanced\InvalidTermCollectorVisitor;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\Date\DateFromOrderBuilder;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\FieldFromOrderBuilder;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\Numeric\NumericFromOrderBuilder;
+use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\Text\TextFromOrderBuilder;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Metadata\MetadataFromOrderBuilder;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilderVisitor;
 use Tuleap\CrossTracker\Report\Query\Advanced\QueryBuilder\ArtifactLink\ForwardLinkFromWhereBuilder;
@@ -449,7 +454,7 @@ final class CrossTrackerReportsResource extends AuthenticatedResource
         return match ($report::class) {
             CrossTrackerExpertReport::class  => CrossTrackerExpertReportRepresentation::fromReport($report, $user),
             CrossTrackerDefaultReport::class => CrossTrackerDefaultReportRepresentation::fromReport($report, $user),
-            default                          => throw new \LogicException('Unexpected report type'),
+            default                          => throw new LogicException('Unexpected report type'),
         };
     }
 
@@ -559,6 +564,7 @@ final class CrossTrackerReportsResource extends AuthenticatedResource
             $ugroup_label_converter
         );
 
+        $field_retriever = new ReadableFieldRetriever($form_element_factory, TrackersPermissionsRetriever::build());
         return new DuckTypedFieldChecker(
             $form_element_factory,
             $form_element_factory,
@@ -585,7 +591,7 @@ final class CrossTrackerReportsResource extends AuthenticatedResource
                 new ArtifactSubmitterChecker($this->user_manager),
                 true,
             ),
-            TrackersPermissionsRetriever::build(),
+            $field_retriever
         );
     }
 
@@ -728,17 +734,17 @@ final class CrossTrackerReportsResource extends AuthenticatedResource
         );
         $purifier                 = Codendi_HTMLPurifier::instance();
         $text_value_interpreter   = new TextValueInterpreter($purifier, CommonMarkInterpreter::build($purifier));
+        $field_retriever          = new ReadableFieldRetriever($form_element_factory, $trackers_permissions);
         $result_builder_visitor   = new ResultBuilderVisitor(
             new FieldResultBuilder(
-                $form_element_factory,
                 $retrieve_field_type,
-                $trackers_permissions,
                 new DateResultBuilder($tracker_artifact_factory, $form_element_factory),
                 new TextResultBuilder($tracker_artifact_factory, $text_value_interpreter),
                 new NumericResultBuilder(),
                 new StaticListResultBuilder(),
                 new UGroupListResultBuilder($tracker_artifact_factory, new UGroupManager()),
                 new UserListResultBuilder($this->user_manager, $this->user_manager, $this->user_manager, UserHelper::instance()),
+                $field_retriever
             ),
             new MetadataResultBuilder(
                 new MetadataTextResultBuilder($tracker_artifact_factory, $text_value_interpreter),
@@ -753,15 +759,20 @@ final class CrossTrackerReportsResource extends AuthenticatedResource
                 new ArtifactResultBuilder($tracker_artifact_factory),
             ),
         );
+        $text_order_builder       = new TextFromOrderBuilder();
         $order_builder_visitor    = new OrderByBuilderVisitor(
             new FieldFromOrderBuilder(
-                $form_element_factory,
+                $field_retriever,
                 $retrieve_field_type,
-                $trackers_permissions,
                 new DateFromOrderBuilder(),
                 new NumericFromOrderBuilder(),
+                $text_order_builder,
             ),
-            new MetadataFromOrderBuilder(),
+            new MetadataFromOrderBuilder(
+                Tracker_Semantic_TitleFactory::instance(),
+                Tracker_Semantic_DescriptionFactory::instance(),
+                $text_order_builder,
+            ),
         );
         $field_checker            = $this->getDuckTypedFieldChecker();
         $metadata_checker         = $this->getMetadataChecker();

@@ -31,13 +31,16 @@ use Tracker_FormElementFactory;
 use Tracker_Semantic_ContributorDao;
 use Tracker_Semantic_ContributorFactory;
 use Tracker_Semantic_DescriptionDao;
+use Tracker_Semantic_DescriptionFactory;
 use Tracker_Semantic_StatusDao;
 use Tracker_Semantic_StatusFactory;
 use Tracker_Semantic_TitleDao;
+use Tracker_Semantic_TitleFactory;
 use TrackerFactory;
 use Tuleap\CrossTracker\CrossTrackerArtifactReportDao;
 use Tuleap\CrossTracker\CrossTrackerInstrumentation;
 use Tuleap\CrossTracker\CrossTrackerReportDao;
+use Tuleap\CrossTracker\Field\ReadableFieldRetriever;
 use Tuleap\CrossTracker\Report\CrossTrackerArtifactReportFactory;
 use Tuleap\CrossTracker\Report\Query\Advanced\DuckTypedField\FieldTypeRetrieverWrapper;
 use Tuleap\CrossTracker\Report\Query\Advanced\FromBuilder\FromProjectBuilderVisitor;
@@ -50,6 +53,7 @@ use Tuleap\CrossTracker\Report\Query\Advanced\InvalidTermCollectorVisitor;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\Date\DateFromOrderBuilder;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\FieldFromOrderBuilder;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\Numeric\NumericFromOrderBuilder;
+use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\Text\TextFromOrderBuilder;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Metadata\MetadataFromOrderBuilder;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilderVisitor;
 use Tuleap\CrossTracker\Report\Query\Advanced\QueryBuilder\ArtifactLink\ForwardLinkFromWhereBuilder;
@@ -167,8 +171,10 @@ final class ArtifactReportFactoryInstantiator
             $ugroup_label_converter
         );
 
-        $form_element_factory          = Tracker_FormElementFactory::instance();
-        $trackers_permissions          = TrackersPermissionsRetriever::build();
+        $form_element_factory = Tracker_FormElementFactory::instance();
+        $trackers_permissions = TrackersPermissionsRetriever::build();
+        $field_retriever      = new ReadableFieldRetriever($form_element_factory, $trackers_permissions);
+
         $duck_typed_field_checker      = new DuckTypedFieldChecker(
             $form_element_factory,
             $form_element_factory,
@@ -195,7 +201,7 @@ final class ArtifactReportFactoryInstantiator
                 new ArtifactSubmitterChecker($user_manager),
                 true,
             ),
-            $trackers_permissions,
+            $field_retriever,
         );
         $metadata_checker              = new MetadataChecker(
             new MetadataUsageChecker(
@@ -290,11 +296,10 @@ final class ArtifactReportFactoryInstantiator
             $purifier,
             CommonMarkInterpreter::build($purifier),
         );
+        $field_retriever          = new ReadableFieldRetriever($form_element_factory, $trackers_permissions);
         $result_builder_visitor   = new ResultBuilderVisitor(
             new FieldResultBuilder(
-                $form_element_factory,
                 $retrieve_field_type,
-                $trackers_permissions,
                 new DateResultBuilder(
                     $artifact_factory,
                     $form_element_factory,
@@ -307,6 +312,7 @@ final class ArtifactReportFactoryInstantiator
                 new StaticListResultBuilder(),
                 new UGroupListResultBuilder($artifact_factory, new UGroupManager()),
                 new UserListResultBuilder($user_manager, $user_manager, $user_manager, UserHelper::instance()),
+                $field_retriever
             ),
             new MetadataResultBuilder(
                 new MetadataTextResultBuilder(
@@ -335,15 +341,21 @@ final class ArtifactReportFactoryInstantiator
                 $event_manager,
             ),
         );
-        $order_builder_visitor    = new OrderByBuilderVisitor(
+
+        $text_order_builder    = new TextFromOrderBuilder();
+        $order_builder_visitor = new OrderByBuilderVisitor(
             new FieldFromOrderBuilder(
-                $form_element_factory,
+                $field_retriever,
                 $retrieve_field_type,
-                $trackers_permissions,
                 new DateFromOrderBuilder(),
                 new NumericFromOrderBuilder(),
+                $text_order_builder,
             ),
-            new MetadataFromOrderBuilder(),
+            new MetadataFromOrderBuilder(
+                Tracker_Semantic_TitleFactory::instance(),
+                Tracker_Semantic_DescriptionFactory::instance(),
+                $text_order_builder,
+            ),
         );
 
         $expert_query_dao = new CrossTrackerExpertQueryReportDao();
