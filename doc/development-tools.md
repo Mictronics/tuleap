@@ -94,3 +94,7 @@ click > bookmark this link)
 
 Add a break point (in pre.php for instance) Go on your tuleap page, then
 click on bookmark then refresh your page, debugger should start
+
+## Configure Debugger in Visual Studio Code
+
+See [How to debug Tuleap in Visual Studio Code](vsc-debug.md)
