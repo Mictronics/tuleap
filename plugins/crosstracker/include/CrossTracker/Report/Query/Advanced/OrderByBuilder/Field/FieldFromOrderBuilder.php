@@ -23,45 +23,34 @@ declare(strict_types=1);
 namespace Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field;
 
 use Tracker;
-use Tracker_FormElement_Field;
+use Tuleap\CrossTracker\Field\ReadableFieldRetriever;
 use Tuleap\CrossTracker\Report\Query\Advanced\DuckTypedField\OrderBy\DuckTypedFieldOrderBy;
 use Tuleap\CrossTracker\Report\Query\Advanced\DuckTypedField\OrderBy\DuckTypedFieldTypeOrderBy;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\Date\DateFromOrderBuilder;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\Numeric\NumericFromOrderBuilder;
+use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\Text\TextFromOrderBuilder;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\OrderByBuilderParameters;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\ParametrizedFromOrder;
-use Tuleap\Tracker\FormElement\Field\RetrieveUsedFields;
 use Tuleap\Tracker\FormElement\RetrieveFieldType;
-use Tuleap\Tracker\Permission\FieldPermissionType;
-use Tuleap\Tracker\Permission\RetrieveUserPermissionOnFields;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\Field;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\OrderByDirection;
 
 final readonly class FieldFromOrderBuilder
 {
     public function __construct(
-        private RetrieveUsedFields $retrieve_used_fields,
+        private ReadableFieldRetriever $fields_retriever,
         private RetrieveFieldType $retrieve_field_type,
-        private RetrieveUserPermissionOnFields $permission_on_fields,
         private DateFromOrderBuilder $date_builder,
         private NumericFromOrderBuilder $numeric_builder,
+        private TextFromOrderBuilder $text_builder,
     ) {
     }
 
     public function getFromOrder(Field $field, OrderByBuilderParameters $parameters): ParametrizedFromOrder
     {
         $tracker_ids = array_map(static fn(Tracker $tracker) => $tracker->getId(), $parameters->trackers);
-        $fields      = array_filter(
-            array_map(
-                fn(int $tracker_id) => $this->retrieve_used_fields->getUsedFieldByName($tracker_id, $field->getName()),
-                $tracker_ids,
-            ),
-            static fn(?Tracker_FormElement_Field $field) => $field !== null,
-        );
 
-        $fields_user_can_read = $this->permission_on_fields
-            ->retrieveUserPermissionOnFields($parameters->user, $fields, FieldPermissionType::PERMISSION_READ)
-            ->allowed;
+        $fields_user_can_read = $this->fields_retriever->retrieveFieldsUserCanRead($field, $parameters->user, $tracker_ids);
         return DuckTypedFieldOrderBy::build(
             $this->retrieve_field_type,
             $field->getName(),
@@ -84,7 +73,7 @@ final readonly class FieldFromOrderBuilder
             DuckTypedFieldTypeOrderBy::DATE,
             DuckTypedFieldTypeOrderBy::DATETIME  => $this->date_builder->getFromOrder($field, $order),
             DuckTypedFieldTypeOrderBy::NUMERIC   => $this->numeric_builder->getFromOrder($field, $order),
-            DuckTypedFieldTypeOrderBy::TEXT,
+            DuckTypedFieldTypeOrderBy::TEXT      => $this->text_builder->getFromOrder($field->field_ids, $order),
             DuckTypedFieldTypeOrderBy::STATIC_LIST,
             DuckTypedFieldTypeOrderBy::UGROUP_LIST,
             DuckTypedFieldTypeOrderBy::USER_LIST => new ParametrizedFromOrder('', [], ''),
