@@ -280,7 +280,7 @@ class Tracker_FormElement_Field_File extends Tracker_FormElement_Field
     protected function fetchSubmitValue(array $submitted_values)
     {
         $html  = '';
-        $html .= '<div class="add-attachement">';
+        $html .= '<div class="add-attachment">';
         $html .= '<p>' . dgettext('tuleap-tracker', 'Add a new file:') . '</p>';
         $html .= '<div class="tracker_artifact_add_attachment">';
         $html .= '<p>';
