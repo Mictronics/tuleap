@@ -191,7 +191,11 @@ if ($request->isAjax()) {
                         )
                     )
                 );
-            $get_tooltip->process($ref, $project, $request->getCurrentUser(), $keyword, $request->get('val'));
+            if ($ref->getKeyword() === 'requirement') {
+                $get_tooltip->process($ref, $project, $request->getCurrentUser(), $keyword, $ref->getId('val'));
+            } else {
+                $get_tooltip->process($ref, $project, $request->getCurrentUser(), $keyword, $request->get('val'));
+            }
             break;
     }
 } else {
