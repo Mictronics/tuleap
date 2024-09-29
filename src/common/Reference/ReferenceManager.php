@@ -660,7 +660,7 @@ class ReferenceManager implements ExtractReferences, ExtractAndSaveCrossReferenc
             $purifier->purify($context_word_with_space),
             $ref_instance->getFullGotoLink(),
             $purifier->purify($reference_description_translation->getTranslatedDescription()),
-            $purifier->purify($ref_instance->getMatch())
+            empty($context_word_with_space) ? $purifier->purify(ucfirst($ref_instance->getMatch())) : $purifier->purify($ref_instance->getMatch())
         );
     }
 
@@ -681,7 +681,11 @@ class ReferenceManager implements ExtractReferences, ExtractAndSaveCrossReferenc
                     $ref_instance = $this->_getReferenceInstanceFromMatch($match);
                     if (! $ref_instance) {
                         $context_word_with_space = $match['context_word'] !== '' ? $match['context_word'] . ' ' : '';
-                        return $context_word_with_space . $match['key'] . ' ' . $match['token'] . $match['project_name'] . $match['value'] . $match['after_reference'];
+                        if (empty($context_word_with_space)) {
+                            return ucfirst($match['key']) . ' ' . $match['token'] . $match['project_name'] . $match['value'] . $match['after_reference'];
+                        } else {
+                            return $context_word_with_space . $match['key'] . ' ' . $match['token'] . $match['project_name'] . $match['value'] . $match['after_reference'];
+                        }
                     }
                     return $this->buildLinkForReference($ref_instance) . $match['after_reference'];
                 },
