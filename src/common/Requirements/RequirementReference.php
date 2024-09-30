@@ -67,7 +67,7 @@ class RequirementReference extends \Reference
         if (! $requirement_title) {
             throw new NotFoundException(self::class . ': no reference value found for ' . $requirement_title);
         }
-        $dao = new \RequirementsDao();
+        $dao = new \Tuleap\Requirements\RequirementsDao();
         return $dao->searchByTitle($requirement_title);
     }
 
