@@ -48,6 +48,8 @@ export default function controller(
         getCSRFTokenCampaignStatus,
         getCurrentMilestone,
         exportCampaignAsDocument,
+        exportAirbusTestOrder,
+        exportAirbusTestReport,
         is_preparing_the_download: false,
     });
 
@@ -58,6 +60,72 @@ export default function controller(
         self.is_preparing_the_download = true;
 
         try {
+            await downloadCampaignAsDocx(
+                ExecutionService.campaign,
+                SharedPropertiesService.getPlatformName(),
+                SharedPropertiesService.getPlatformLogoUrl(),
+                SharedPropertiesService.getProjectName(),
+                SharedPropertiesService.getCurrentUser().display_name,
+                SharedPropertiesService.getUserTimezone(),
+                SharedPropertiesService.getUserLocale(),
+                SharedPropertiesService.getBaseUrl(),
+                SharedPropertiesService.getProjectId(),
+                SharedPropertiesService.getDefinitionTrackerId() || null,
+                SharedPropertiesService.getArtifactLinksTypes() || [],
+            );
+        } catch (e) {
+            TlpModalService.open({
+                templateUrl: "download-error.tpl.html",
+                controller: DownloadErrorCtrl,
+                controllerAs: "error_modal",
+            });
+            throw e;
+        } finally {
+            self.is_preparing_the_download = false;
+        }
+    }
+
+    async function exportAirbusTestOrder() {
+        if (self.is_preparing_the_download) {
+            return;
+        }
+        self.is_preparing_the_download = true;
+
+        try {
+            // TODO: Add export code
+            await downloadCampaignAsDocx(
+                ExecutionService.campaign,
+                SharedPropertiesService.getPlatformName(),
+                SharedPropertiesService.getPlatformLogoUrl(),
+                SharedPropertiesService.getProjectName(),
+                SharedPropertiesService.getCurrentUser().display_name,
+                SharedPropertiesService.getUserTimezone(),
+                SharedPropertiesService.getUserLocale(),
+                SharedPropertiesService.getBaseUrl(),
+                SharedPropertiesService.getProjectId(),
+                SharedPropertiesService.getDefinitionTrackerId() || null,
+                SharedPropertiesService.getArtifactLinksTypes() || [],
+            );
+        } catch (e) {
+            TlpModalService.open({
+                templateUrl: "download-error.tpl.html",
+                controller: DownloadErrorCtrl,
+                controllerAs: "error_modal",
+            });
+            throw e;
+        } finally {
+            self.is_preparing_the_download = false;
+        }
+    }
+
+    async function exportAirbusTestReport() {
+        if (self.is_preparing_the_download) {
+            return;
+        }
+        self.is_preparing_the_download = true;
+
+        try {
+            // TODO: Add export code
             await downloadCampaignAsDocx(
                 ExecutionService.campaign,
                 SharedPropertiesService.getPlatformName(),

@@ -218,6 +218,12 @@ msgstr "Résultats attendus"
 msgid "Export as document"
 msgstr "Exporter en tant que document"
 
+msgid "Export as test order"
+msgstr "Exporter Airbus commande de test"
+
+msgid "Export as test report"
+msgstr "Exporter Airbus rapport de test"
+
 msgid "Exported by"
 msgstr "Exporté par"
 
