@@ -150,6 +150,7 @@ redeploy-nginx: ## Redeploy nginx configuration
 restart-services: redeploy-nginx ## Restart nginx, apache and fpm
 	@$(DOCKER_COMPOSE) exec web systemctl restart tuleap-php-fpm
 	@$(DOCKER_COMPOSE) exec web systemctl restart httpd
+	@$(DOCKER_COMPOSE) exec web systemctl restart tuleap-workers
 
 generate-po: ## Generate translatable strings
 	@tools/utils/generate-po.php `pwd` "$(PLUGIN)"
