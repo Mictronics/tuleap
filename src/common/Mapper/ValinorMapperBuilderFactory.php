@@ -47,6 +47,11 @@ final class ValinorMapperBuilderFactory
     private static function buildCache(): Option
     {
         if (posix_getpwuid(posix_geteuid())['name'] === \ForgeConfig::getApplicationUserLogin()) {
+            if (! \Psl\Filesystem\exists(self::getCachePath())) {
+                \Psl\Filesystem\create_directory(\ForgeConfig::getCacheDir() . '/valinor_cache/', 750);
+                \Psl\Filesystem\create_directory(\ForgeConfig::getCacheDir() . '/valinor_cache/functions', 750);
+                \Psl\Filesystem\create_directory(\ForgeConfig::getCacheDir() . '/valinor_cache/classes', 750);
+            }
             return Option::fromValue(new FileSystemCache(self::getCachePath()));
         }
 
