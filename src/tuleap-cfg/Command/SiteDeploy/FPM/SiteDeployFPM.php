@@ -263,6 +263,9 @@ final class SiteDeployFPM
             $this->createDirectoryForAppUser($this->temp_base_directory . '/tuleap_cache');
             $this->createDirectoryForAppUser($this->temp_base_directory . '/tuleap_cache/php');
             $this->createDirectoryForAppUser($this->temp_base_directory . '/tuleap_cache/php/session');
+            $this->createDirectoryForAppUser($this->temp_base_directory . '/tuleap_cache/valinor_cache');
+            $this->createDirectoryForAppUser($this->temp_base_directory . '/tuleap_cache/valinor_cache/functions');
+            $this->createDirectoryForAppUser($this->temp_base_directory . '/tuleap_cache/valinor_cache/classes');
         }
     }
 

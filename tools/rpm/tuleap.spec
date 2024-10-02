@@ -1111,6 +1111,9 @@ fi
 %dir %attr(00750,%{APP_USER},%{APP_USER}) %{APP_CACHE_DIR}
 %dir %attr(00750,%{APP_USER},%{APP_USER}) %{APP_CACHE_DIR}/php
 %dir %attr(00750,%{APP_USER},%{APP_USER}) %{APP_CACHE_DIR}/php/session
+%dir %attr(00750,%{APP_USER},%{APP_USER}) %{APP_CACHE_DIR}/valinor
+%dir %attr(00750,%{APP_USER},%{APP_USER}) %{APP_CACHE_DIR}/valinor/functions
+%dir %attr(00750,%{APP_USER},%{APP_USER}) %{APP_CACHE_DIR}/valinor/classes
 
 # Log dir
 %attr(755,%{APP_USER},%{APP_USER}) %dir %{APP_LOG_DIR}
