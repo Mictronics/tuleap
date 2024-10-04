@@ -32,5 +32,8 @@ interface DefinitionRepresentation
     public const FIELD_STEPS           = 'steps';
     public const FIELD_SUMMARY         = 'summary';
     public const FIELD_CATEGORY        = 'category';
+    public const FIELD_CHAPTER         = 'chapter';
+    public const FIELD_SECTION         = 'section';
+    public const FIELD_SUBSECTION      = 'subsection';
     public const FIELD_AUTOMATED_TESTS = 'automated_tests';
 }

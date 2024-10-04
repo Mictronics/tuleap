@@ -64,6 +64,27 @@ class MinimalDefinitionRepresentation
      *
      * @psalm-readonly
      */
+    public $chapter;
+
+    /**
+     * @var string
+     *
+     * @psalm-readonly
+     */
+    public $section;
+
+    /**
+     * @var string
+     *
+     * @psalm-readonly
+     */
+    public $subsection;
+
+    /**
+     * @var string
+     *
+     * @psalm-readonly
+     */
     public $automated_tests;
 
     public function __construct(
@@ -85,6 +106,30 @@ class MinimalDefinitionRepresentation
             $artifact,
             $changeset,
             DefinitionRepresentation::FIELD_SUMMARY
+        );
+        $this->chapter         = DefinitionRepresentationBuilder::getTextChangesetValue(
+            $form_element_factory,
+            $tracker_id,
+            $user,
+            $artifact,
+            $changeset,
+            DefinitionRepresentation::FIELD_CHAPTER
+        );
+        $this->section         = DefinitionRepresentationBuilder::getTextChangesetValue(
+            $form_element_factory,
+            $tracker_id,
+            $user,
+            $artifact,
+            $changeset,
+            DefinitionRepresentation::FIELD_SECTION
+        );
+        $this->subsection      = DefinitionRepresentationBuilder::getTextChangesetValue(
+            $form_element_factory,
+            $tracker_id,
+            $user,
+            $artifact,
+            $changeset,
+            DefinitionRepresentation::FIELD_SUBSECTION
         );
         $this->category        = self::getCategory($form_element_factory, $tracker_id, $user, $changeset);
         $this->automated_tests = DefinitionRepresentationBuilder::getTextChangesetValue(
