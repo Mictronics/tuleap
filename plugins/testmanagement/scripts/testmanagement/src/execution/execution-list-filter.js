@@ -73,7 +73,15 @@ function ExecutionListFilter($filter) {
     function keywordsMatcher(keyword_list, list) {
         var result = [],
             lookup = "",
-            properties = ["summary", "id", "category", "_uncategorized"];
+            properties = [
+                "summary",
+                "id",
+                "category",
+                "_uncategorized",
+                "chapter",
+                "section",
+                "subsection",
+            ];
 
         keyword_list.forEach(function (keyword) {
             properties.forEach(function (property) {
