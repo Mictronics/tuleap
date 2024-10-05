@@ -59,7 +59,7 @@
     overflow-y: auto;
 }
 
-.tests-list {
+.tests-list ol {
     padding: 0;
     list-style-type: none;
     font-size: 14px;
@@ -176,9 +176,10 @@
     color: #687a7c;
 }
 
-.tests-list-category {
+.tests-list-category,
+ol {
     margin: 0;
-    padding: calc(var(--tlp-small-spacing) / 2) var(--tlp-small-spacing);
+    padding: calc(var(--tlp-small-spacing) / 2) calc(var(--tlp-small-spacing) / 2);
     background: var(--tlp-background-color);
     color: var(--tlp-main-color);
     font-size: 0.75rem;
