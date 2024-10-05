@@ -64,7 +64,7 @@ function ExecutionListCtrl(
     Object.assign($scope, {
         checkActiveClassOnExecution,
         viewTestExecution,
-        canCategoryBeDisplayed,
+        canHeadingBeDisplayed,
         hideDetailsForRemovedTestExecution,
         shouldShowEmptyState,
         isStatusHidden,
@@ -257,9 +257,9 @@ function ExecutionListCtrl(
         return ExecutionService.loading[$scope.campaign_id] === true;
     }
 
-    function canCategoryBeDisplayed(category) {
+    function canHeadingBeDisplayed(heading) {
         const filtered_executions = $filter("ExecutionListFilter")(
-            category.executions,
+            heading.executions,
             $scope.search,
             $scope.status,
         );
@@ -268,8 +268,7 @@ function ExecutionListCtrl(
             filtered_executions,
             $scope.are_automated_tests_shown,
         );
-
-        return filtered_auto_tests.length > 0;
+        return filtered_auto_tests.length > 0 || heading.has_executions;
     }
 
     function isStatusHidden(status) {
