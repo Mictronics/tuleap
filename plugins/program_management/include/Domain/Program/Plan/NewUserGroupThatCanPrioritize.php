@@ -23,23 +23,21 @@ declare(strict_types=1);
 namespace Tuleap\ProgramManagement\Domain\Program\Plan;
 
 use Tuleap\ProgramManagement\Domain\Program\Admin\ProgramForAdministrationIdentifier;
+use Tuleap\ProgramManagement\Domain\Workspace\NewUserGroupThatCanPrioritizeIsValidCertificate;
 
 /**
  * @psalm-immutable
  */
-final class ProgramUserGroup
+final readonly class NewUserGroupThatCanPrioritize
 {
-    private int $id;
-
-    private function __construct(int $id)
+    private function __construct(public int $id)
     {
-        $this->id = $id;
     }
 
     /**
      * @throws InvalidProgramUserGroup
      */
-    public static function buildProgramUserGroup(
+    public static function fromId(
         RetrieveProgramUserGroup $ugroup_retriever,
         string $raw_user_group_id,
         ProgramForAdministrationIdentifier $program,
@@ -48,13 +46,8 @@ final class ProgramUserGroup
         return new self($user_group_id);
     }
 
-    public static function buildFake(): self
+    public static function fromValidUserGroup(NewUserGroupThatCanPrioritizeIsValidCertificate $certificate): self
     {
-        return new self(-1);
-    }
-
-    public function getId(): int
-    {
-        return $this->id;
+        return new self($certificate->user_group_id);
     }
 }

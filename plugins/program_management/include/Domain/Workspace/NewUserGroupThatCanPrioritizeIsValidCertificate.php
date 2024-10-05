@@ -1,5 +1,6 @@
+<?php
 /**
- * Copyright (c) Enalean, 2024 - Present. All Rights Reserved.
+ * Copyright (c) Enalean, 2024-Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -15,26 +16,23 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-.prose-mirror-toolbar-container {
-    display: flex;
-    padding: var(--tlp-medium-spacing);
-    background: var(--tlp-white-color);
-    box-shadow: var(--tlp-sticky-header-shadow);
-    gap: var(--tlp-medium-spacing);
-}
+declare(strict_types=1);
 
-.prose-mirror-toolbar-button-icon {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding: var(--tlp-small-spacing);
-    vertical-align: middle;
-    cursor: pointer;
-}
+namespace Tuleap\ProgramManagement\Domain\Workspace;
 
-.prose-mirror-button-activated {
-    background: var(--tlp-main-color-lighter-90);
+use Tuleap\ProgramManagement\Domain\Program\Admin\ProgramForAdministrationIdentifier;
+
+/**
+ * I certify that the User Group that can prioritize features exists and belongs to the given Program.
+ * @psalm-immutable
+ */
+final readonly class NewUserGroupThatCanPrioritizeIsValidCertificate
+{
+    public function __construct(
+        public int $user_group_id,
+        public ProgramForAdministrationIdentifier $program,
+    ) {
+    }
 }

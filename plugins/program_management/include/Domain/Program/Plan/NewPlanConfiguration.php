@@ -24,7 +24,7 @@ namespace Tuleap\ProgramManagement\Domain\Program\Plan;
 
 use Tuleap\Option\Option;
 use Tuleap\ProgramManagement\Domain\Program\Admin\ProgramForAdministrationIdentifier;
-use Tuleap\ProgramManagement\Domain\Program\Admin\ProgramUserGroupCollection;
+use Tuleap\ProgramManagement\Domain\Program\Admin\CollectionOfNewUserGroupsThatCanPrioritize;
 
 /**
  * I hold the new Plan configuration of a Program that is going to be saved.
@@ -40,16 +40,8 @@ final readonly class NewPlanConfiguration
         public NewProgramIncrementTracker $program_increment_tracker,
         public ProgramForAdministrationIdentifier $program,
         public NewTrackerThatCanBePlannedCollection $trackers_that_can_be_planned,
-        private ProgramUserGroupCollection $can_prioritize,
+        public CollectionOfNewUserGroupsThatCanPrioritize $user_groups_that_can_prioritize,
         public Option $iteration_tracker,
     ) {
-    }
-
-    /**
-     * @return non-empty-list<ProgramUserGroup>
-     */
-    public function getCanPrioritize(): array
-    {
-        return $this->can_prioritize->getUserGroups();
     }
 }

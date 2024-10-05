@@ -19,7 +19,20 @@
   -->
 
 <template>
-    <tuleap-prose-mirror-toolbar class="artidoc-toolbar" v-bind:controller="controller" />
+    <tuleap-prose-mirror-toolbar
+        class="artidoc-toolbar"
+        v-bind:controller="controller"
+        v-bind:text_elements="{
+            bold: true,
+            embedded: true,
+            code: true,
+            quote: true,
+        }"
+        v-bind:script_elements="{
+            subscript: true,
+            superscript: true,
+        }"
+    />
 </template>
 
 <script setup lang="ts">

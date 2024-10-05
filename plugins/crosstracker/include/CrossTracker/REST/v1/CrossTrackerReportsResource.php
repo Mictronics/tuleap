@@ -71,6 +71,9 @@ use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\FieldFromOrde
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\Numeric\NumericFromOrderBuilder;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\StaticList\StaticListFromOrderBuilder;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\Text\TextFromOrderBuilder;
+use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\UGroupList\UGroupListFromOrderBuilder;
+use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\UserList\UserListFromOrderBuilder;
+use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\UserList\UserOrderByBuilder;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Metadata\MetadataFromOrderBuilder;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilderVisitor;
 use Tuleap\CrossTracker\Report\Query\Advanced\QueryBuilder\ArtifactLink\ForwardLinkFromWhereBuilder;
@@ -736,6 +739,7 @@ final class CrossTrackerReportsResource extends AuthenticatedResource
         $purifier                  = Codendi_HTMLPurifier::instance();
         $text_value_interpreter    = new TextValueInterpreter($purifier, CommonMarkInterpreter::build($purifier));
         $field_retriever           = new ReadableFieldRetriever($form_element_factory, $trackers_permissions);
+        $user_group_manager        = new UGroupManager();
         $result_builder_visitor    = new ResultBuilderVisitor(
             new FieldResultBuilder(
                 $retrieve_field_type,
@@ -743,7 +747,7 @@ final class CrossTrackerReportsResource extends AuthenticatedResource
                 new TextResultBuilder($tracker_artifact_factory, $text_value_interpreter),
                 new NumericResultBuilder(),
                 new StaticListResultBuilder(),
-                new UGroupListResultBuilder($tracker_artifact_factory, new UGroupManager()),
+                new UGroupListResultBuilder($tracker_artifact_factory, $user_group_manager),
                 new UserListResultBuilder($this->user_manager, $this->user_manager, $this->user_manager, UserHelper::instance()),
                 $field_retriever
             ),
@@ -762,6 +766,8 @@ final class CrossTrackerReportsResource extends AuthenticatedResource
         );
         $text_order_builder        = new TextFromOrderBuilder();
         $static_list_order_builder = new StaticListFromOrderBuilder();
+        $user_order_by_builder     = new UserOrderByBuilder(UserManager::instance());
+        $user_list_builder         = new UserListFromOrderBuilder($user_order_by_builder);
         $order_builder_visitor     = new OrderByBuilderVisitor(
             new FieldFromOrderBuilder(
                 $field_retriever,
@@ -770,13 +776,18 @@ final class CrossTrackerReportsResource extends AuthenticatedResource
                 new NumericFromOrderBuilder(),
                 $text_order_builder,
                 $static_list_order_builder,
+                new UGroupListFromOrderBuilder($user_group_manager),
+                $user_list_builder,
             ),
             new MetadataFromOrderBuilder(
                 Tracker_Semantic_TitleFactory::instance(),
                 Tracker_Semantic_DescriptionFactory::instance(),
                 new StatusFieldRetriever(Tracker_Semantic_StatusFactory::instance()),
+                new ContributorFieldRetriever(Tracker_Semantic_ContributorFactory::instance()),
                 $text_order_builder,
                 $static_list_order_builder,
+                $user_list_builder,
+                $user_order_by_builder,
             ),
         );
         $field_checker             = $this->getDuckTypedFieldChecker();
