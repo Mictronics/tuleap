@@ -30,6 +30,8 @@ use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\Date\DateFrom
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\Numeric\NumericFromOrderBuilder;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\StaticList\StaticListFromOrderBuilder;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\Text\TextFromOrderBuilder;
+use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\UGroupList\UGroupListFromOrderBuilder;
+use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\Field\UserList\UserListFromOrderBuilder;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\OrderByBuilderParameters;
 use Tuleap\CrossTracker\Report\Query\Advanced\OrderByBuilder\ParametrizedFromOrder;
 use Tuleap\Tracker\FormElement\RetrieveFieldType;
@@ -45,6 +47,8 @@ final readonly class FieldFromOrderBuilder
         private NumericFromOrderBuilder $numeric_builder,
         private TextFromOrderBuilder $text_builder,
         private StaticListFromOrderBuilder $static_list_builder,
+        private UGroupListFromOrderBuilder $ugroup_list_builder,
+        private UserListFromOrderBuilder $user_list_builder,
     ) {
     }
 
@@ -77,8 +81,8 @@ final readonly class FieldFromOrderBuilder
             DuckTypedFieldTypeOrderBy::NUMERIC     => $this->numeric_builder->getFromOrder($field, $order),
             DuckTypedFieldTypeOrderBy::TEXT        => $this->text_builder->getFromOrder($field->field_ids, $order),
             DuckTypedFieldTypeOrderBy::STATIC_LIST => $this->static_list_builder->getFromOrder($field->field_ids, $order),
-            DuckTypedFieldTypeOrderBy::UGROUP_LIST,
-            DuckTypedFieldTypeOrderBy::USER_LIST   => new ParametrizedFromOrder('', [], ''),
+            DuckTypedFieldTypeOrderBy::UGROUP_LIST => $this->ugroup_list_builder->getFromOrder($field->field_ids, $order),
+            DuckTypedFieldTypeOrderBy::USER_LIST   => $this->user_list_builder->getFromOrder($field->field_ids, $order),
         };
     }
 }

@@ -20,39 +20,51 @@
 
 import { define, html, type UpdateFunction } from "hybrids";
 import type { ToolbarBus } from "@tuleap/prose-mirror-editor";
-import { gettext_provider } from "./gettext-provider";
+import { gettext_provider } from "../../gettext-provider";
+import { getClass } from "../../helpers/class-getter";
 
 export const BOLD_TAG_NAME = "bold-item";
 
 export type BoldElement = {
-    is_activated: boolean;
     toolbar_bus: ToolbarBus;
 };
 
-type InternalBoldElement = Readonly<BoldElement>;
+type InternalBoldElement = Readonly<BoldElement> & {
+    is_activated: boolean;
+};
+
+export type HostElement = InternalBoldElement & HTMLElement;
 
 const onClickApplyBold = (host: BoldElement): void => {
     host.toolbar_bus.bold();
 };
 export const renderBoldItem = (host: InternalBoldElement): UpdateFunction<InternalBoldElement> => {
-    const classes = {
-        "prose-mirror-button-activated": host.is_activated,
-        "fa-solid": true,
-        "fa-bold": true,
-        "prose-mirror-toolbar-button-icon": true,
-    };
+    const classes = getClass(host.is_activated);
 
-    return html` <i
+    return html`<button
         class="${classes}"
         onclick="${onClickApplyBold}"
         data-test="button-bold"
         title="${gettext_provider.gettext("Toggle bold style `Ctrl+b`")}"
-    ></i>`;
+    >
+        <i class="fa-solid fa-bold" role="img"></i>
+    </button>`;
 };
 
-export default define<InternalBoldElement>({
+export const connect = (host: InternalBoldElement): void => {
+    host.toolbar_bus.setView({
+        activateBold: (is_activated: boolean): void => {
+            host.is_activated = is_activated;
+        },
+    });
+};
+
+define<InternalBoldElement>({
     tag: BOLD_TAG_NAME,
     is_activated: false,
-    toolbar_bus: (host: BoldElement, toolbar_bus: ToolbarBus) => toolbar_bus,
+    toolbar_bus: {
+        value: (host: BoldElement, toolbar_bus: ToolbarBus) => toolbar_bus,
+        connect,
+    },
     render: renderBoldItem,
 });

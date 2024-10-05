@@ -25,12 +25,6 @@ msgstr "Ajouter ou modifier un lien"
 msgid "An error occurred during upload"
 msgstr "Une erreur est survenue durant le téléversement"
 
-msgid "Apply subscript style on the selected text `Ctrl+,`"
-msgstr "Transformer le texte sélectionné en indice `Ctrl+,`"
-
-msgid "Apply superscript style on the selected text `Ctrl+.`"
-msgstr "Transformer le texte sélectionné en exposant `Ctrl+.`"
-
 msgid "Cancel"
 msgstr "Annuler"
 
@@ -95,32 +89,17 @@ msgstr "Sauvegarder"
 msgid "Styles"
 msgstr "Styles"
 
-msgid "Subscript"
-msgstr "Indice"
-
-msgid "Superscript"
-msgstr "Exposant"
-
 msgid "Text"
 msgstr "Texte"
 
 msgid "Title"
 msgstr "Titre"
 
-msgid "Toggle code Ctrl+`"
-msgstr "Passer en bloc code Ctrl+`"
-
-msgid "Toggle embedded style `Ctrl+i`"
-msgstr "Passer en italique `Ctrl+i`"
-
 msgid "Tuleap reference has been copied!"
 msgstr "La référence Tuleap a été copiée !"
 
 msgid "Update link"
 msgstr "Modifier le lien"
-
-msgid "Wrap in block quote `Ctrl->`"
-msgstr "Passer en mode citation Ctrl->`"
 
 msgid "Wrap in bullet list `Shift+Ctrl+8`"
 msgstr "Transformer en liste à puces `Shift+Ctrl+8`"

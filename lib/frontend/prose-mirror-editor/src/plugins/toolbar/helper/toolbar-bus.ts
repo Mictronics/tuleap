@@ -19,29 +19,75 @@
  */
 export interface ToolbarHandler {
     toggleBold: () => void;
+    toggleEmbedded: () => void;
+    toggleCode: () => void;
+    toggleQuote: () => void;
+    toggleSubscript: () => void;
+    toggleSuperScript: () => void;
 }
 
 export interface ToolbarView {
     activateBold: (is_activated: boolean) => void;
+    activateEmbedded: (is_activated: boolean) => void;
+    activateCode: (is_activated: boolean) => void;
+    activateQuote: (is_activated: boolean) => void;
+    activateSubscript: (is_activated: boolean) => void;
+    activateSuperscript: (is_activated: boolean) => void;
 }
 
 export interface ToolbarBus {
     handler: ToolbarHandler | null;
-    view: ToolbarView | null;
+    view: ToolbarView;
     bold: () => void;
+    embedded: () => void;
+    code: () => void;
+    quote: () => void;
+    subscript: () => void;
+    superscript: () => void;
     setCurrentHandler: (handler: ToolbarHandler) => void;
-    setView: (view: ToolbarView) => void;
+    setView: (view: Partial<ToolbarView>) => void;
 }
+
+const noop = (): void => {
+    // Do nothing
+};
+const default_view: ToolbarView = {
+    activateBold: noop,
+    activateCode: noop,
+    activateQuote: noop,
+    activateEmbedded: noop,
+    activateSubscript: noop,
+    activateSuperscript: noop,
+};
+
 export const buildToolbarBus = (): ToolbarBus => ({
     handler: null,
-    view: null,
+    view: default_view,
     bold(): void {
         this.handler?.toggleBold();
+    },
+    embedded(): void {
+        this.handler?.toggleEmbedded();
+    },
+    code(): void {
+        this.handler?.toggleCode();
+    },
+    quote(): void {
+        this.handler?.toggleQuote();
+    },
+    subscript(): void {
+        this.handler?.toggleSubscript();
+    },
+    superscript(): void {
+        this.handler?.toggleSuperScript();
     },
     setCurrentHandler(handler: ToolbarHandler): void {
         this.handler = handler;
     },
-    setView(view: ToolbarView): void {
-        this.view = view;
+    setView(view: Partial<ToolbarView>): void {
+        this.view = {
+            ...this.view,
+            ...view,
+        };
     },
 });
