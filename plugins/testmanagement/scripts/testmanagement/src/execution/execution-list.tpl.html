@@ -14,9 +14,9 @@
                         <input
                             type="search"
                             class="tests-list-filter-search"
-                            placeholder="{{ 'Id, summary, category…' | translate }}"
+                            placeholder="{{ 'Id, summary, category, chapter, section, subsection…' | translate }}"
                             ng-model="search"
-                            aria-label="{{ 'Filter tests by ID, summary, category…' | translate }}"
+                            aria-label="{{ 'Filter tests by ID, summary, category, chapter, section, subsection…' | translate }}"
                             data-shortcut-search-filter
                         >
                         <div class="tlp-dropdown tests-filters-dropdown">
@@ -133,7 +133,7 @@
                         aria-orientation="vertical"
                     >
                         <li ng-repeat="category in categories"
-                            ng-if="canCategoryBeDisplayed(category)"
+                            ng-if="canHeadingBeDisplayed(category)"
                             data-navigation-category
                         >
                             <p class="tests-list-category">{{ category.label }}</p>
@@ -148,52 +148,249 @@
                                     data-navigation-test
                                 >
                                     <a class="tests-list-test {{ execution.status }}"
-                                       ui-sref=".detail({ execid: execution.id, defid: execution.definition.id })"
-                                       ng-click="viewTestExecution(execution)"
-                                       ng-class="{active: checkActiveClassOnExecution(execution)}"
-                                       data-exec-id="{{ execution.id }}"
-
-                                       role="tab"
-                                       aria-controls="{{ execution.definition.id }}-tabpanel"
-                                       aria-selected="{{ checkActiveClassOnExecution(execution) }}"
-                                       tabindex="{{ checkActiveClassOnExecution(execution) ? 0 : -1 }}"
-                                       data-navigation-test-link
+                                    ui-sref=".detail({ execid: execution.id, defid: execution.definition.id })"
+                                    ng-click="viewTestExecution(execution)"
+                                    ng-class="{active: checkActiveClassOnExecution(execution)}"
+                                    data-exec-id="{{ execution.id }}"
+                                    role="tab"
+                                    aria-controls="{{ execution.definition.id }}-tabpanel"
+                                    aria-selected="{{ checkActiveClassOnExecution(execution) }}"
+                                    tabindex="{{ checkActiveClassOnExecution(execution) ? 0 : -1 }}"
+                                    data-navigation-test-link
                                     >
                                         <div class="tlp-avatar-mini tlp-tooltip tlp-tooltip-top"
-                                             data-tlp-tooltip="{{ presence.real_name }}"
-                                             ng-if="execution.viewed_by"
-                                             ng-repeat="user in execution.viewed_by">
+                                            data-tlp-tooltip="{{ presence.real_name }}"
+                                            ng-if="execution.viewed_by"
+                                            ng-repeat="user in execution.viewed_by">
                                             <img title="{{ user.real_name }}"
-                                                 ng-src="{{ user.avatar_url }}"
-                                                 onerror="this.src='/themes/common/images/avatar_default.png'"
-                                                 alt="avatar">
+                                                ng-src="{{ user.avatar_url }}"
+                                                onerror="this.src='/themes/common/images/avatar_default.png'"
+                                                alt="avatar">
                                         </div>
                                         <span class="tests-list-test-id">#{{ execution.definition.id }}</span>
                                         <span class="tests-list-test-title"
-                                              data-test="test-title"
-                                              id="{{ execution.definition.id}}-tab"
+                                            data-test="test-title"
+                                            id="{{ execution.definition.id}}-tab"
                                         >
-                                              {{ execution.definition.summary}}
+                                            {{ execution.definition.summary}}
                                         </span>
                                         <i class="fa test-automated-icon"
-                                           ng-class="{
+                                        ng-class="{
                                                 'fa-tlp-robot': execution.status === 'notrun',
                                                 'fa-tlp-robot blocked': execution.status === 'blocked',
                                                 'fa-tlp-robot-happy passed': execution.status === 'passed',
                                                 'fa-tlp-robot-unhappy failed': execution.status === 'failed'
                                             }"
-                                           ng-if="execution.definition.automated_tests !== ''"
-                                           title="{{ 'This is an automated test' | translate }}"></i>
+                                        ng-if="execution.definition.automated_tests !== ''"
+                                        title="{{ 'This is an automated test' | translate }}"></i>
                                         <i class="fa fa-check-circle test-status-icon passed"
-                                           ng-if="execution.status === 'passed'"
-                                           title="{{ 'Passed' | translate }}"></i>
+                                        ng-if="execution.status === 'passed'"
+                                        title="{{ 'Passed' | translate }}"></i>
                                         <i class="fa fa-times-circle test-status-icon failed"
-                                           ng-if="execution.status === 'failed'"
-                                           title="{{ 'Failed' | translate }}"></i>
+                                        ng-if="execution.status === 'failed'"
+                                        title="{{ 'Failed' | translate }}"></i>
                                         <i class="fa fa-exclamation-circle test-status-icon blocked"
-                                           ng-if="execution.status === 'blocked'"
-                                           title="{{ 'Blocked' | translate }}"></i>
+                                        ng-if="execution.status === 'blocked'"
+                                        title="{{ 'Blocked' | translate }}"></i>
                                     </a>
+                                </li>
+                            </ol>
+                            <ol class="test-list">
+                                <li ng-repeat="chapter in category.chapters"
+                                    ng-if="canHeadingBeDisplayed(chapter)"
+                                    data-navigation-chapter
+                                >
+                                    <p class="tests-list-category">{{ chapter.label }}</p>
+                                    <ol class="tests-list">
+                                        <li ng-repeat="execution in chapter.executions
+                                            | toArray:false
+                                            | ExecutionListFilter:search:status
+                                            | AutomatedTestsFilter:are_automated_tests_shown
+                                            | orderBy:isOrderByDefinitionRankEnabled()?'definition.rank':'definition.id'
+                                            | unique:'definition.id'
+                                            track by execution.definition.id"
+                                            data-navigation-test
+                                        >
+                                            <a class="tests-list-test {{ execution.status }}"
+                                            ui-sref=".detail({ execid: execution.id, defid: execution.definition.id })"
+                                            ng-click="viewTestExecution(execution)"
+                                            ng-class="{active: checkActiveClassOnExecution(execution)}"
+                                            data-exec-id="{{ execution.id }}"
+                                            role="tab"
+                                            aria-controls="{{ execution.definition.id }}-tabpanel"
+                                            aria-selected="{{ checkActiveClassOnExecution(execution) }}"
+                                            tabindex="{{ checkActiveClassOnExecution(execution) ? 0 : -1 }}"
+                                            data-navigation-test-link
+                                            >
+                                                <div class="tlp-avatar-mini tlp-tooltip tlp-tooltip-top"
+                                                    data-tlp-tooltip="{{ presence.real_name }}"
+                                                    ng-if="execution.viewed_by"
+                                                    ng-repeat="user in execution.viewed_by">
+                                                    <img title="{{ user.real_name }}"
+                                                        ng-src="{{ user.avatar_url }}"
+                                                        onerror="this.src='/themes/common/images/avatar_default.png'"
+                                                        alt="avatar">
+                                                </div>
+                                                <span class="tests-list-test-id">#{{ execution.definition.id }}</span>
+                                                <span class="tests-list-test-title"
+                                                    data-test="test-title"
+                                                    id="{{ execution.definition.id}}-tab"
+                                                >
+                                                    {{ execution.definition.summary}}
+                                                </span>
+                                                <i class="fa test-automated-icon"
+                                                ng-class="{
+                                                        'fa-tlp-robot': execution.status === 'notrun',
+                                                        'fa-tlp-robot blocked': execution.status === 'blocked',
+                                                        'fa-tlp-robot-happy passed': execution.status === 'passed',
+                                                        'fa-tlp-robot-unhappy failed': execution.status === 'failed'
+                                                    }"
+                                                ng-if="execution.definition.automated_tests !== ''"
+                                                title="{{ 'This is an automated test' | translate }}"></i>
+                                                <i class="fa fa-check-circle test-status-icon passed"
+                                                ng-if="execution.status === 'passed'"
+                                                title="{{ 'Passed' | translate }}"></i>
+                                                <i class="fa fa-times-circle test-status-icon failed"
+                                                ng-if="execution.status === 'failed'"
+                                                title="{{ 'Failed' | translate }}"></i>
+                                                <i class="fa fa-exclamation-circle test-status-icon blocked"
+                                                ng-if="execution.status === 'blocked'"
+                                                title="{{ 'Blocked' | translate }}"></i>
+                                            </a>
+                                        </li>
+                                    </ol>
+                                    <ol class="test-list">
+                                        <li ng-repeat="section in chapter.sections"
+                                            ng-if="canHeadingBeDisplayed(section)"
+                                            data-navigation-section
+                                        >
+                                            <p class="tests-list-category">{{ section.label }}</p>
+                                            <ol class="tests-list">
+                                                <li ng-repeat="execution in section.executions
+                                                    | toArray:false
+                                                    | ExecutionListFilter:search:status
+                                                    | AutomatedTestsFilter:are_automated_tests_shown
+                                                    | orderBy:isOrderByDefinitionRankEnabled()?'definition.rank':'definition.id'
+                                                    | unique:'definition.id'
+                                                    track by execution.definition.id"
+                                                    data-navigation-test
+                                                >
+                                                    <a class="tests-list-test {{ execution.status }}"
+                                                    ui-sref=".detail({ execid: execution.id, defid: execution.definition.id })"
+                                                    ng-click="viewTestExecution(execution)"
+                                                    ng-class="{active: checkActiveClassOnExecution(execution)}"
+                                                    data-exec-id="{{ execution.id }}"
+                                                    role="tab"
+                                                    aria-controls="{{ execution.definition.id }}-tabpanel"
+                                                    aria-selected="{{ checkActiveClassOnExecution(execution) }}"
+                                                    tabindex="{{ checkActiveClassOnExecution(execution) ? 0 : -1 }}"
+                                                    data-navigation-test-link
+                                                    >
+                                                        <div class="tlp-avatar-mini tlp-tooltip tlp-tooltip-top"
+                                                            data-tlp-tooltip="{{ presence.real_name }}"
+                                                            ng-if="execution.viewed_by"
+                                                            ng-repeat="user in execution.viewed_by">
+                                                            <img title="{{ user.real_name }}"
+                                                                ng-src="{{ user.avatar_url }}"
+                                                                onerror="this.src='/themes/common/images/avatar_default.png'"
+                                                                alt="avatar">
+                                                        </div>
+                                                        <span class="tests-list-test-id">#{{ execution.definition.id }}</span>
+                                                        <span class="tests-list-test-title"
+                                                            data-test="test-title"
+                                                            id="{{ execution.definition.id}}-tab"
+                                                        >
+                                                            {{ execution.definition.summary}}
+                                                        </span>
+                                                        <i class="fa test-automated-icon"
+                                                        ng-class="{
+                                                                'fa-tlp-robot': execution.status === 'notrun',
+                                                                'fa-tlp-robot blocked': execution.status === 'blocked',
+                                                                'fa-tlp-robot-happy passed': execution.status === 'passed',
+                                                                'fa-tlp-robot-unhappy failed': execution.status === 'failed'
+                                                            }"
+                                                        ng-if="execution.definition.automated_tests !== ''"
+                                                        title="{{ 'This is an automated test' | translate }}"></i>
+                                                        <i class="fa fa-check-circle test-status-icon passed"
+                                                        ng-if="execution.status === 'passed'"
+                                                        title="{{ 'Passed' | translate }}"></i>
+                                                        <i class="fa fa-times-circle test-status-icon failed"
+                                                        ng-if="execution.status === 'failed'"
+                                                        title="{{ 'Failed' | translate }}"></i>
+                                                        <i class="fa fa-exclamation-circle test-status-icon blocked"
+                                                        ng-if="execution.status === 'blocked'"
+                                                        title="{{ 'Blocked' | translate }}"></i>
+                                                    </a>
+                                                </li>
+                                            </ol>
+                                            <ol class="test-list">
+                                                <li ng-repeat="subsection in section.subsections"
+                                                    ng-if="canHeadingBeDisplayed(subsection)"
+                                                    data-navigation-subsection
+                                                >
+                                                    <p class="tests-list-category">{{ subsection.label }}</p>
+                                                    <ol class="tests-list">
+                                                        <li ng-repeat="execution in subsection.executions
+                                                            | toArray:false
+                                                            | ExecutionListFilter:search:status
+                                                            | AutomatedTestsFilter:are_automated_tests_shown
+                                                            | orderBy:isOrderByDefinitionRankEnabled()?'definition.rank':'definition.id'
+                                                            | unique:'definition.id'
+                                                            track by execution.definition.id"
+                                                            data-navigation-test
+                                                        >
+                                                            <a class="tests-list-test {{ execution.status }}"
+                                                            ui-sref=".detail({ execid: execution.id, defid: execution.definition.id })"
+                                                            ng-click="viewTestExecution(execution)"
+                                                            ng-class="{active: checkActiveClassOnExecution(execution)}"
+                                                            data-exec-id="{{ execution.id }}"
+                                                            role="tab"
+                                                            aria-controls="{{ execution.definition.id }}-tabpanel"
+                                                            aria-selected="{{ checkActiveClassOnExecution(execution) }}"
+                                                            tabindex="{{ checkActiveClassOnExecution(execution) ? 0 : -1 }}"
+                                                            data-navigation-test-link
+                                                            >
+                                                                <div class="tlp-avatar-mini tlp-tooltip tlp-tooltip-top"
+                                                                    data-tlp-tooltip="{{ presence.real_name }}"
+                                                                    ng-if="execution.viewed_by"
+                                                                    ng-repeat="user in execution.viewed_by">
+                                                                    <img title="{{ user.real_name }}"
+                                                                        ng-src="{{ user.avatar_url }}"
+                                                                        onerror="this.src='/themes/common/images/avatar_default.png'"
+                                                                        alt="avatar">
+                                                                </div>
+                                                                <span class="tests-list-test-id">#{{ execution.definition.id }}</span>
+                                                                <span class="tests-list-test-title"
+                                                                    data-test="test-title"
+                                                                    id="{{ execution.definition.id}}-tab"
+                                                                >
+                                                                    {{ execution.definition.summary}}
+                                                                </span>
+                                                                <i class="fa test-automated-icon"
+                                                                ng-class="{
+                                                                        'fa-tlp-robot': execution.status === 'notrun',
+                                                                        'fa-tlp-robot blocked': execution.status === 'blocked',
+                                                                        'fa-tlp-robot-happy passed': execution.status === 'passed',
+                                                                        'fa-tlp-robot-unhappy failed': execution.status === 'failed'
+                                                                    }"
+                                                                ng-if="execution.definition.automated_tests !== ''"
+                                                                title="{{ 'This is an automated test' | translate }}"></i>
+                                                                <i class="fa fa-check-circle test-status-icon passed"
+                                                                ng-if="execution.status === 'passed'"
+                                                                title="{{ 'Passed' | translate }}"></i>
+                                                                <i class="fa fa-times-circle test-status-icon failed"
+                                                                ng-if="execution.status === 'failed'"
+                                                                title="{{ 'Failed' | translate }}"></i>
+                                                                <i class="fa fa-exclamation-circle test-status-icon blocked"
+                                                                ng-if="execution.status === 'blocked'"
+                                                                title="{{ 'Blocked' | translate }}"></i>
+                                                            </a>
+                                                        </li>
+                                                    </ol>
+                                                </li>
+                                            </ol>
+                                        </li>
+                                    </ol>
                                 </li>
                             </ol>
                         </li>

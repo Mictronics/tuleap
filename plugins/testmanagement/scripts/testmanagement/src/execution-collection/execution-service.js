@@ -160,7 +160,7 @@ function ExecutionService(
             function (data) {
                 var total_executions = data.total;
 
-                groupExecutionsByCategory(campaign_id, data.results);
+                groupExecutionsByHeading(campaign_id, data.results);
                 $rootScope.$emit("bunch-of-executions-loaded", data.results);
                 remote_executions = remote_executions.concat(data.results);
 
@@ -177,7 +177,7 @@ function ExecutionService(
         ExecutionRestService.updateExecutionToUseLatestVersionOfDefinition(execution_id);
     }
 
-    function groupExecutionsByCategory(campaign_id, executions) {
+    function groupExecutionsByHeading(campaign_id, executions) {
         if (self.executions_by_categories_by_campaigns[campaign_id] === undefined) {
             self.executions_by_categories_by_campaigns[campaign_id] = {};
         }
@@ -185,6 +185,22 @@ function ExecutionService(
 
         executions.forEach(function (execution) {
             var category = execution.definition.category;
+            var chapter = execution.definition.chapter;
+            var section = execution.definition.section;
+            var subsection = execution.definition.subsection;
+            var chapterObj = {};
+            var sectionObj = {};
+            var subsectionObj = {};
+            if (chapter === "") {
+                chapter = ExecutionConstants.UNCATEGORIZED;
+            }
+            if (section === "") {
+                section = ExecutionConstants.UNCATEGORIZED;
+            }
+            if (subsection === "") {
+                subsection = ExecutionConstants.UNCATEGORIZED;
+            }
+
             if (!category) {
                 category = ExecutionConstants.UNCATEGORIZED;
                 execution.definition._uncategorized = category;
@@ -198,7 +214,77 @@ function ExecutionService(
                 categories[category] = {
                     label: category,
                     executions: [],
+                    has_executions: false,
+                    chapters: {},
                 };
+            }
+
+            if (typeof categories[category].chapters[chapter] === "undefined") {
+                chapterObj = categories[category].chapters[chapter] = {
+                    label: chapter,
+                    executions: [],
+                    has_executions: false,
+                    sections: {},
+                };
+            }
+
+            if (typeof categories[category].chapters[chapter].sections[section] === "undefined") {
+                sectionObj = categories[category].chapters[chapter].sections[section] = {
+                    label: section,
+                    executions: [],
+                    has_executions: false,
+                    subsections: {},
+                };
+            }
+
+            if (
+                typeof categories[category].chapters[chapter].sections[section].subsections[
+                    subsection
+                ] === "undefined"
+            ) {
+                subsectionObj = categories[category].chapters[chapter].sections[
+                    section
+                ].subsections[subsection] = {
+                    label: subsection,
+                    has_executions: false,
+                    executions: [],
+                };
+            }
+
+            if (
+                !subsectionObj.executions.some(
+                    (subsection_execution) => subsection_execution.id === execution.id,
+                )
+            ) {
+                subsectionObj.executions.push(execution);
+                categories[category].has_executions = true;
+                chapterObj.has_executions = true;
+                sectionObj.has_executions = true;
+                subsectionObj.has_executions = true;
+                return;
+            }
+
+            if (
+                !sectionObj.executions.some(
+                    (section_execution) => section_execution.id === execution.id,
+                )
+            ) {
+                sectionObj.executions.push(execution);
+                categories[category].has_executions = true;
+                chapterObj.has_executions = true;
+                sectionObj.has_executions = true;
+                return;
+            }
+
+            if (
+                !chapterObj.executions.some(
+                    (chapter_execution) => chapter_execution.id === execution.id,
+                )
+            ) {
+                chapterObj.executions.push(execution);
+                categories[category].has_executions = true;
+                chapterObj.has_executions = true;
+                return;
             }
 
             if (
@@ -207,6 +293,7 @@ function ExecutionService(
                 )
             ) {
                 categories[category].executions.push(execution);
+                categories[category].has_executions = true;
             }
         });
 
@@ -225,7 +312,7 @@ function ExecutionService(
         var executions = [execution];
         var status = execution.status;
 
-        groupExecutionsByCategory(self.campaign_id, executions);
+        groupExecutionsByHeading(self.campaign_id, executions);
         self.campaign["nb_of_" + status]++;
         self.campaign.total++;
     }
@@ -233,7 +320,7 @@ function ExecutionService(
     function addTestExecutionWithoutUpdateCampaignStatus(execution) {
         var executions = [execution];
 
-        groupExecutionsByCategory(self.campaign_id, executions);
+        groupExecutionsByHeading(self.campaign_id, executions);
     }
 
     function removeTestExecution(execution_to_remove) {
