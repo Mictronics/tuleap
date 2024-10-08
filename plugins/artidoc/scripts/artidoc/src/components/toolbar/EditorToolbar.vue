@@ -24,13 +24,18 @@
         v-bind:controller="controller"
         v-bind:text_elements="{
             bold: true,
-            embedded: true,
+            italic: true,
             code: true,
             quote: true,
         }"
         v-bind:script_elements="{
             subscript: true,
             superscript: true,
+        }"
+        v-bind:link_elements="{ link: true, unlink: true, image: true }"
+        v-bind:list_elements="{
+            ordered_list: true,
+            bullet_list: true,
         }"
     />
 </template>

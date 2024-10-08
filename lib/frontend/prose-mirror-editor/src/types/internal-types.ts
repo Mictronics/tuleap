@@ -25,6 +25,11 @@ import type { Node } from "prosemirror-model";
 export type EditorNode = Node;
 
 export type LinkProperties = {
-    href: string;
-    title: string;
+    readonly href: string;
+    readonly title: string;
+};
+
+export type ImageProperties = {
+    readonly src: string;
+    readonly title: string;
 };

@@ -23,23 +23,25 @@ import type { ToolbarView } from "./toolbar-bus";
 import { custom_schema } from "../../../custom_schema";
 import type { CheckIsMArkActive } from "./IsMarkActiveChecker";
 import { isSelectionABlockQuote } from "../quote/is-selection-a-block-quote";
+import type { BuildLinkState } from "../links/LinkStateBuilder";
+import type { BuildImageState } from "../image/ImageStateBuilder";
+import type { BuildListState } from "../list/ListStateBuilder";
+
 export type ActivateToolbar = {
-    activateToolbarItem(
-        toolbar_view: ToolbarView,
-        state: EditorState,
-        check_is_mark_active: CheckIsMArkActive,
-    ): void;
+    activateToolbarItem(toolbar_view: ToolbarView, state: EditorState): void;
 };
-export const ToolbarActivator = (): ActivateToolbar => ({
-    activateToolbarItem(
-        toolbar_view: ToolbarView,
-        state: EditorState,
-        check_is_mark_active: CheckIsMArkActive,
-    ): void {
+
+export const ToolbarActivator = (
+    check_is_mark_active: CheckIsMArkActive,
+    build_link_state: BuildLinkState,
+    build_image_state: BuildImageState,
+    build_list_state: BuildListState,
+): ActivateToolbar => ({
+    activateToolbarItem(toolbar_view: ToolbarView, state: EditorState): void {
         toolbar_view.activateBold(
             check_is_mark_active.isMarkActive(state, custom_schema.marks.strong),
         );
-        toolbar_view.activateEmbedded(
+        toolbar_view.activateItalic(
             check_is_mark_active.isMarkActive(state, custom_schema.marks.em),
         );
         toolbar_view.activateCode(
@@ -51,6 +53,25 @@ export const ToolbarActivator = (): ActivateToolbar => ({
         );
         toolbar_view.activateSuperscript(
             check_is_mark_active.isMarkActive(state, custom_schema.marks.superscript),
+        );
+        toolbar_view.activateLink(build_link_state.build(state));
+        toolbar_view.activateUnlink(
+            check_is_mark_active.isMarkActive(state, custom_schema.marks.link),
+        );
+        toolbar_view.activateImage(build_image_state.build(state.selection));
+
+        toolbar_view.activateOrderedList(
+            build_list_state.build(
+                custom_schema.nodes.ordered_list,
+                custom_schema.nodes.bullet_list,
+            ),
+        );
+
+        toolbar_view.activateBulletList(
+            build_list_state.build(
+                custom_schema.nodes.bullet_list,
+                custom_schema.nodes.ordered_list,
+            ),
         );
     },
 });
