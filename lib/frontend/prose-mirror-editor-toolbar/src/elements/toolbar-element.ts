@@ -21,12 +21,18 @@ import type { UpdateFunction } from "hybrids";
 import { define, html } from "hybrids";
 import type { ControlToolbar } from "./ToolbarController";
 import scss_styles from "./styles.scss?inline";
+
 import "./buttons/bold";
 import "./buttons/code";
 import "./buttons/quote";
-import "./buttons/embedded";
+import "./buttons/italic";
 import "./buttons/subscript";
 import "./buttons/superscript";
+import "./buttons/unlink";
+import "./buttons/link/link";
+import "./buttons/image/image";
+import "./buttons/ordered-list";
+import "./buttons/bullet-list";
 
 export type ProseMirrorToolbarElement = {
     controller: ControlToolbar;
@@ -34,9 +40,14 @@ export type ProseMirrorToolbarElement = {
 
 export type TextElements = {
     bold: boolean;
-    embedded: boolean;
+    italic: boolean;
     code: boolean;
     quote: boolean;
+};
+
+export type ListElements = {
+    ordered_list: boolean;
+    bullet_list: boolean;
 };
 
 export type ScriptElements = {
@@ -44,9 +55,17 @@ export type ScriptElements = {
     superscript: boolean;
 };
 
+export type LinkElements = {
+    link: boolean;
+    unlink: boolean;
+    image: true;
+};
+
 export type InternalProseMirrorToolbarElement = Readonly<ProseMirrorToolbarElement> & {
     text_elements: TextElements | null;
+    list_elements: ListElements | null;
     script_elements: ScriptElements | null;
+    link_elements: LinkElements | null;
 };
 
 const TOOLBAR_TAG_NAME = "tuleap-prose-mirror-toolbar";
@@ -58,8 +77,8 @@ export const renderToolbar = (
         ? html`<bold-item toolbar_bus="${host.controller.getToolbarBus()}"></bold-item>`
         : html``;
 
-    const embedded_item = host.text_elements?.embedded
-        ? html`<embedded-item toolbar_bus="${host.controller.getToolbarBus()}"></embedded-item>`
+    const italic_item = host.text_elements?.italic
+        ? html`<italic-item toolbar_bus="${host.controller.getToolbarBus()}"></italic-item>`
         : html``;
 
     const code = host.text_elements?.code;
@@ -70,6 +89,20 @@ export const renderToolbar = (
     const quote = host.text_elements?.quote;
     const quote_item = quote
         ? html`<quote-item toolbar_bus="${host.controller.getToolbarBus()}"></quote-item>`
+        : html``;
+
+    const ordered = host.list_elements?.ordered_list;
+    const ordered_item = ordered
+        ? html`<ordered-list-item
+              toolbar_bus="${host.controller.getToolbarBus()}"
+          ></ordered-list-item>`
+        : html``;
+
+    const bullet = host.list_elements?.bullet_list;
+    const bullet_item = bullet
+        ? html`<bullet-list-item
+              toolbar_bus="${host.controller.getToolbarBus()}"
+          ></bullet-list-item>`
         : html``;
 
     const subscript = host.script_elements?.subscript;
@@ -84,9 +117,25 @@ export const renderToolbar = (
           ></superscript-item>`
         : html``;
 
+    const link_item = host.link_elements?.link
+        ? html`<link-item toolbar_bus="${host.controller.getToolbarBus()}"></link-item>`
+        : html``;
+
+    const unlink_item = host.link_elements?.unlink
+        ? html`<unlink-item toolbar_bus="${host.controller.getToolbarBus()}"></unlink-item>`
+        : html``;
+
+    const image_item = host.link_elements?.image
+        ? html`<image-item toolbar_bus="${host.controller.getToolbarBus()}"></image-item>`
+        : html``;
+
     return html`
         <div class="prose-mirror-toolbar-container" data-test="toolbar-container">
-            ${bold_item} ${embedded_item} ${code_item} ${quote_item}
+            ${bold_item} ${italic_item} ${quote_item} ${code_item}
+            <hr class="prose-mirror-hr" />
+            ${link_item} ${unlink_item} ${image_item}
+            <hr class="prose-mirror-hr" />
+            ${bullet_item} ${ordered_item}
             <hr class="prose-mirror-hr" />
             ${subscript_item} ${superscript_item}
             <hr class="prose-mirror-hr" />
@@ -99,6 +148,8 @@ define<InternalProseMirrorToolbarElement>({
     controller: (host, controller) => controller,
     text_elements: null,
     script_elements: null,
+    link_elements: null,
+    list_elements: null,
     render: {
         value: renderToolbar,
         shadow: false,

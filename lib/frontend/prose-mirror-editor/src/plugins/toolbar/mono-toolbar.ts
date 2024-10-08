@@ -27,6 +27,23 @@ import { IsMarkActiveChecker } from "./helper/IsMarkActiveChecker";
 import { MarkToggle } from "./helper/MonoToolbarToggler";
 import { custom_schema } from "../../custom_schema";
 import { getQuoteCommand } from "./quote";
+import { LinkStateBuilder } from "./links/LinkStateBuilder";
+import { LinkPropertiesExtractor } from "../../helpers/LinkPropertiesExtractor";
+import { EditorNodeAtPositionFinder } from "../../helpers/EditorNodeAtPositionFinder";
+import { LinkNodeDetector } from "../link-popover/helper/LinkNodeDetector";
+import { replaceLinkNode } from "../../helpers/replace-link-node";
+import { IsMarkTypeRepeatedInSelectionChecker } from "../../helpers/IsMarkTypeRepeatedInSelectionChecker";
+import { removeSelectedLinks } from "../link-popover/helper/remove-selected-links";
+import { ImageStateBuilder } from "./image/ImageStateBuilder";
+import { CanInsertImageChecker } from "./image/CanInsertImageChecker";
+import { ImageNodeInserter } from "./image/ImageNodeInserter";
+import { ImageFromSelectionExtractor } from "./image/ImageFromSelectionExtractor";
+import { ListStateBuilder } from "./list/ListStateBuilder";
+import { IsSelectionAListWithTypeChecker } from "./list/IsSelectionAListWithTypeChecker";
+import { ListNodeInserter } from "./list/ListInserter";
+import { IsSelectionAListChecker } from "./list/IsListChecker";
+import { lift } from "prosemirror-commands";
+import { wrapInList } from "prosemirror-schema-list";
 
 export function setupMonoToolbar(toolbar_bus: ToolbarBus): Plugin {
     return new Plugin({
@@ -34,18 +51,30 @@ export function setupMonoToolbar(toolbar_bus: ToolbarBus): Plugin {
             return {
                 update: (view: EditorView): void => {
                     if (toolbar_bus.view) {
-                        ToolbarActivator().activateToolbarItem(
-                            toolbar_bus.view,
-                            view.state,
+                        const toolbar_activator = ToolbarActivator(
                             IsMarkActiveChecker(),
+                            LinkStateBuilder(
+                                IsMarkTypeRepeatedInSelectionChecker(),
+                                LinkPropertiesExtractor(
+                                    EditorNodeAtPositionFinder(view.state),
+                                    LinkNodeDetector(view.state),
+                                ),
+                            ),
+                            ImageStateBuilder(
+                                CanInsertImageChecker(),
+                                ImageFromSelectionExtractor(EditorNodeAtPositionFinder(view.state)),
+                            ),
+                            ListStateBuilder(view.state, IsSelectionAListWithTypeChecker()),
                         );
+
+                        toolbar_activator.activateToolbarItem(toolbar_bus.view, view.state);
                     }
 
                     toolbar_bus.setCurrentHandler({
                         toggleBold(): void {
                             MarkToggle().toggleMark(view, custom_schema.marks.strong);
                         },
-                        toggleEmbedded(): void {
+                        toggleItalic(): void {
                             MarkToggle().toggleMark(view, custom_schema.marks.em);
                         },
                         toggleCode(): void {
@@ -59,6 +88,35 @@ export function setupMonoToolbar(toolbar_bus: ToolbarBus): Plugin {
                         },
                         toggleSuperScript(): void {
                             MarkToggle().toggleMark(view, custom_schema.marks.superscript);
+                        },
+                        applyLink(link): void {
+                            replaceLinkNode(view, link);
+                        },
+                        applyUnlink(): void {
+                            removeSelectedLinks(view.state, view.dispatch);
+                        },
+                        applyImage(image): void {
+                            ImageNodeInserter(view.state, view.dispatch).insertImage(image);
+                        },
+                        toggleOrderedList(): void {
+                            ListNodeInserter(
+                                view.state,
+                                view.dispatch,
+                                IsSelectionAListChecker(),
+                                custom_schema.nodes.ordered_list,
+                                lift,
+                                wrapInList(custom_schema.nodes.ordered_list),
+                            ).insertList();
+                        },
+                        toggleBulletList(): void {
+                            ListNodeInserter(
+                                view.state,
+                                view.dispatch,
+                                IsSelectionAListChecker(),
+                                custom_schema.nodes.bullet_list,
+                                lift,
+                                wrapInList(custom_schema.nodes.bullet_list),
+                            ).insertList();
                         },
                     });
                 },
