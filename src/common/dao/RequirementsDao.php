@@ -42,6 +42,7 @@ class RequirementsDao extends \Tuleap\DB\DataAccessObject
                 INNER JOIN tracker ON (tracker.id = artifact.tracker_id)
                 WHERE cvt_title.value = ?
                 AND tracker.item_name = 'requirement'
+                ORDER BY tracker_id DESC
                 LIMIT 1;
         ";
         return $this->getDB()->row($sql, $req_title);
