@@ -61,6 +61,7 @@ class RequirementReference extends \Reference
      * Query requirement artifact from database with given title.
      *
      * @param requirement_title The title of the requirement we are looking for.
+     * @param group_id The actual project id.
      */
     private function _getRequirementFromDao($requirement_title, $group_id): mixed // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
     {
