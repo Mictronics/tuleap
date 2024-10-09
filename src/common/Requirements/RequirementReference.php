@@ -62,13 +62,13 @@ class RequirementReference extends \Reference
      *
      * @param requirement_title The title of the requirement we are looking for.
      */
-    private function _getRequirementFromDao($requirement_title): mixed // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+    private function _getRequirementFromDao($requirement_title, $group_id): mixed // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
     {
         if (! $requirement_title) {
             throw new NotFoundException(self::class . ': no reference value found for ' . $requirement_title);
         }
         $dao = new \Tuleap\Requirements\RequirementsDao();
-        return $dao->searchByTitle($requirement_title);
+        return $dao->searchByTitle($requirement_title, $group_id);
     }
 
     /**
@@ -79,7 +79,7 @@ class RequirementReference extends \Reference
     public function getLink(): string
     {
         if ($this->requirement_title) {
-            $row = $this->_getRequirementFromDao($this->requirement_title);
+            $row = $this->_getRequirementFromDao($this->requirement_title, $this->group_id);
             if (! empty($row) && $row['item_name'] == 'requirement') {
                 $this->link                    = '/plugins/tracker/?aid=' . $row['aid'] . '&group_id=' . $this->group_id;
                 $this->requirement_artifact_id = $row['aid'];
@@ -100,7 +100,7 @@ class RequirementReference extends \Reference
         if (empty($this->requirement_artifact_id) && ! $this->requirement_title) {
             return (string) $this->id;
         } elseif (empty($this->requirement_artifact_id) && $this->requirement_title) {
-            $row = $this->_getRequirementFromDao($this->requirement_title);
+            $row = $this->_getRequirementFromDao($this->requirement_title, $this->group_id);
             if (! empty($row) && $row['item_name'] == 'requirement') {
                 $this->requirement_artifact_id = $row['aid'];
             }
@@ -134,7 +134,7 @@ class RequirementReference extends \Reference
                 $count = 9;
             }
             for ($i = 1; $i <= $count; $i++) {
-                $row = $this->_getRequirementFromDao($args[$i - 1]);
+                $row = $this->_getRequirementFromDao($args[$i - 1], $this->group_id);
                 if (! empty($row) && $row['item_name'] == 'requirement') {
                     $this->link = str_replace('$' . $i, (string) $row['aid'], $this->link);
                 }

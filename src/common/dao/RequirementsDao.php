@@ -28,7 +28,7 @@ class RequirementsDao extends \Tuleap\DB\DataAccessObject
      *
      * @return
      */
-    public function searchByTitle($req_title)
+    public function searchByTitle($req_title, $group_id)
     {
         $sql = "
                 SELECT artifact.id as aid, tracker.item_name, tracker.id as tracker_id, cvt_title.value as title
@@ -41,10 +41,11 @@ class RequirementsDao extends \Tuleap\DB\DataAccessObject
                 ) ON (artifact.last_changeset_id = cv_title.changeset_id)
                 INNER JOIN tracker ON (tracker.id = artifact.tracker_id)
                 WHERE cvt_title.value = ?
+                AND tracker.group_id = ?
                 AND tracker.item_name = 'requirement'
                 ORDER BY tracker_id DESC
                 LIMIT 1;
         ";
-        return $this->getDB()->row($sql, $req_title);
+        return $this->getDB()->row($sql, $req_title, $group_id);
     }
 }
