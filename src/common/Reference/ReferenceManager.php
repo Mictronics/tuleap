@@ -585,6 +585,19 @@ class ReferenceManager implements ExtractReferences, ExtractAndSaveCrossReferenc
                     $row['group_id'],
                     $val
                 );
+        } elseif ($row['keyword'] === 'ata') {
+                $reference = new \Tuleap\ATA\ATAReference(
+                    $refid,
+                    $row['keyword'],
+                    $row['description'],
+                    $row['link'],
+                    $row['scope'],
+                    $row['service_short_name'],
+                    $row['nature'],
+                    $row['is_active'],
+                    $row['group_id'],
+                    $val
+                );
         } else {
             $reference = new Reference(
                 $refid,
