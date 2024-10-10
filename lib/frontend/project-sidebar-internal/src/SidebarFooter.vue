@@ -61,9 +61,8 @@
         v-if="config && config.instance_information.copyright !== null"
         class="sidebar-copyright"
         data-test="copyright"
-    >
-        {{ config.instance_information.copyright }}
-    </span>
+        v-html="config.instance_information.copyright"
+    ></span>
 </template>
 <script setup lang="ts">
 import { strictInject } from "@tuleap/vue-strict-inject";
