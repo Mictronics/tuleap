@@ -191,7 +191,7 @@ if ($request->isAjax()) {
                         )
                     )
                 );
-            if ($ref->getKeyword() === 'requirement') {
+            if ($ref->getKeyword() === 'requirement' || $ref->getKeyword() === 'ata') {
                 $get_tooltip->process($ref, $project, $request->getCurrentUser(), $keyword, $ref->getId('val'));
             } else {
                 $get_tooltip->process($ref, $project, $request->getCurrentUser(), $keyword, $request->get('val'));
