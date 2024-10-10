@@ -636,8 +636,9 @@ class ReferenceManager implements ExtractReferences, ExtractAndSaveCrossReferenc
             \s          #blank separator
             (?P<token>\#|\§)   # dash or § for requirements, add more tokens here
             (?P<project_name>[\w\-]+:)? #optional project name (followed by a colon)
-            (?P<value>(?:(?:(?&extended_value_sequence)+/)*)?(?&final_value_sequence)+?) # Sequence of multiple '<extended_value_sequence>/' ending with <final_value_sequence>
+            (?P<value>(?:[0-9-]+)|(?:(?:(?&extended_value_sequence)+/)*)?(?&final_value_sequence)+?) # Sequence of multiple '<extended_value_sequence>/' ending with <final_value_sequence>
             (?P<after_reference>&(?:\#|\§(?:\d+|[xX][[:xdigit:]]+)|quot);|(?=[^\w&/])|$) # Exclude HTML dec, hex and some (quot) named entities from the end of the reference
+            |(?:(?P<ata_key>[aAtT]{3})\s(?P<ata_codes>[0-9-]{3,5})) # Capture ATA chapter reference
         `x";
     }
 
