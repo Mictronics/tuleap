@@ -121,9 +121,11 @@ class ATAReference extends \Reference
         if (empty($this->ata_artifact_id) && ! empty($this->ata_title)) {
             return (string) $this->id;
         } elseif (empty($this->ata_artifact_id) && empty($this->ata_title)) {
-            $row = $this->_getATAFromDao($this->ata_system, $this->ata_subsystem, $this->group_id);
-            if (! empty($row) && $row['item_name'] == 'ata') {
-                $this->ata_artifact_id = $row['aid'];
+            if ($this->ata_system && $this->ata_subsystem) {
+                $row = $this->_getATAFromDao($this->ata_system, $this->ata_subsystem, $this->group_id);
+                if (! empty($row) && $row['item_name'] == 'ata') {
+                    $this->ata_artifact_id = $row['aid'];
+                }
             }
         }
         return (string) $this->ata_artifact_id;
