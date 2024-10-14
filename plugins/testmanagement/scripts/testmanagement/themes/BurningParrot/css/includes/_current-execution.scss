@@ -586,6 +586,7 @@ $attachment-progress-bar-bg-color: var(--tlp-dimmed-color-lighter-50);
 
 .current-test-step-comment-container {
     display: grid;
+    min-width: fit-content;
     margin: var(--tlp-small-spacing);
 }
 
