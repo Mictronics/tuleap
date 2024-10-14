@@ -46,6 +46,20 @@
         </div>
         <step-definition-drag-container />
         <step-definition-no-step v-if="!isThereAtLeastOneStep" />
+        <div v-if="isThereAtLeastOneStep">
+            <button
+                v-if="areThereAtLeastTwoSteps"
+                type="button"
+                class="ttm-definition-reorder-steps-button btn btn-small"
+                v-on:click="toggleIsDragging()"
+            >
+                <i class="fas fa-sync fa-rotate-90"></i>
+                <translate v-if="is_dragging" key="stop-reordering">
+                    Stop reordering steps
+                </translate>
+                <translate v-else key="start-reordering">Reorder steps</translate>
+            </button>
+        </div>
     </div>
 </template>
 
