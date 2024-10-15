@@ -59,10 +59,17 @@
     overflow-y: auto;
 }
 
-.tests-list ol {
+.tests-list {
     padding: 0;
-    list-style-type: none;
     font-size: 14px;
+}
+
+.test-list ul,
+ol {
+    margin: 0 0 var(--tlp-small-spacing);
+    padding: 0 0 0 calc(var(--tlp-small-spacing));
+    line-height: 1.5rem;
+    list-style: none;
 }
 
 .tests-list-filters {
@@ -176,8 +183,7 @@
     color: #687a7c;
 }
 
-.tests-list-category,
-ol {
+.tests-list-category {
     margin: 0;
     padding: calc(var(--tlp-small-spacing) / 2) calc(var(--tlp-small-spacing) / 2);
     background: var(--tlp-background-color);
