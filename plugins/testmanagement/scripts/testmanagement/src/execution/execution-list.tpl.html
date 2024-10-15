@@ -136,7 +136,7 @@
                             ng-if="canHeadingBeDisplayed(category)"
                             data-navigation-category
                         >
-                            <p class="tests-list-category">{{ category.label }}</p>
+                            <p class="tests-list-category" ng-if="category.label != 'Uncategorized'">{{ category.label }}</p>
                             <ol class="tests-list">
                                 <li ng-repeat="execution in category.executions
                                     | toArray:false
@@ -200,7 +200,7 @@
                                     ng-if="canHeadingBeDisplayed(chapter)"
                                     data-navigation-chapter
                                 >
-                                    <p class="tests-list-category">{{ chapter.label }}</p>
+                                    <p class="tests-list-category" ng-if="chapter.label != 'Uncategorized'">{{ chapter.label }}</p>
                                     <ol class="tests-list">
                                         <li ng-repeat="execution in chapter.executions
                                             | toArray:false
@@ -264,7 +264,7 @@
                                             ng-if="canHeadingBeDisplayed(section)"
                                             data-navigation-section
                                         >
-                                            <p class="tests-list-category">{{ section.label }}</p>
+                                            <p class="tests-list-category" ng-if="section.label != 'Uncategorized'">{{ section.label }}</p>
                                             <ol class="tests-list">
                                                 <li ng-repeat="execution in section.executions
                                                     | toArray:false
@@ -328,7 +328,7 @@
                                                     ng-if="canHeadingBeDisplayed(subsection)"
                                                     data-navigation-subsection
                                                 >
-                                                    <p class="tests-list-category">{{ subsection.label }}</p>
+                                                    <p class="tests-list-category" ng-if="subsection.label != 'Uncategorized'">{{ subsection.label }}</p>
                                                     <ol class="tests-list">
                                                         <li ng-repeat="execution in subsection.executions
                                                             | toArray:false
