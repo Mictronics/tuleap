@@ -226,6 +226,8 @@ function ExecutionService(
                     has_executions: false,
                     sections: {},
                 };
+            } else {
+                chapterObj = categories[category].chapters[chapter];
             }
 
             if (typeof categories[category].chapters[chapter].sections[section] === "undefined") {
@@ -235,6 +237,8 @@ function ExecutionService(
                     has_executions: false,
                     subsections: {},
                 };
+            } else {
+                sectionObj = categories[category].chapters[chapter].sections[section];
             }
 
             if (
@@ -249,6 +253,11 @@ function ExecutionService(
                     has_executions: false,
                     executions: [],
                 };
+            } else {
+                subsectionObj =
+                    categories[category].chapters[chapter].sections[section].subsections[
+                        subsection
+                    ];
             }
 
             if (
