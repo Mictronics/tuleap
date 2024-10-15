@@ -644,7 +644,7 @@ class ReferenceManager implements ExtractReferences, ExtractAndSaveCrossReferenc
                 (?<final_value_sequence>\w|&amp;|&)                         # Any word, & or &amp;
                 (?<extended_value_sequence>(?&final_value_sequence)|-|_|\.) # <final_value_sequence>, -, _ or .
             )
-            (?:(?P<context_word>\w+)\s)?
+            (?:(?P<context_word>\w+:?)\s)?
             (?P<key>\w+)
             \s          #blank separator
             (?P<token>\#|\§)   # dash or § for requirements, add more tokens here
