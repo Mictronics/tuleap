@@ -111,7 +111,6 @@ use Tuleap\Tracker\Permission\SubmissionPermissionVerifier;
 use Tuleap\Tracker\Permission\VerifySubmissionPermissions;
 use Tuleap\Tracker\PromotedTrackerDao;
 use Tuleap\Tracker\Semantic\Tooltip\SemanticTooltip;
-use Tuleap\Tracker\Tooltip\TooltipStatsPresenter;
 use Tuleap\Tracker\Tooltip\TrackerStats;
 use Tuleap\Tracker\TrackerColor;
 use Tuleap\Tracker\TrackerCrumbInContext;
@@ -1227,14 +1226,22 @@ class Tracker implements Tracker_Dispatchable_Interface
         array $params = [],
     ): void {
         if ($project = ProjectManager::instance()->getProject($this->group_id)) {
-            $hp = Codendi_HTMLPurifier::instance();
+            $is_email_creation_allowed = $this->getArtifactByMailStatus()->canCreateArtifact($this);
+            if ($is_email_creation_allowed) {
+                $base_layout = $GLOBALS['HTML'];
+                assert($base_layout instanceof \Tuleap\Layout\BaseLayout);
+                $base_layout->addJavascriptAsset(
+                    new \Tuleap\Layout\JavascriptViteAsset(
+                        new \Tuleap\Layout\IncludeViteAssets(
+                            __DIR__ . '/../../scripts/header/frontend-assets',
+                            '/assets/trackers/header'
+                        ),
+                        'src/main.ts'
+                    )
+                );
+            }
 
-            $breadcrumbs = array_merge(
-                [
-                    $this->getCrumb(),
-                ],
-                $breadcrumbs
-            );
+            $breadcrumbs = array_merge([$this->getCrumb()], $breadcrumbs);
 
             if ($this->userCanSubmitArtifact($this->getUserManager()->getCurrentUser())) {
                 $link_presenter_builder                         = new TrackerNewDropdownLinkPresenterBuilder();
@@ -1248,15 +1255,11 @@ class Tracker implements Tracker_Dispatchable_Interface
 
             $params['active-promoted-item-id'] = $this->getPromotedTrackerId();
 
+            $hp    = Codendi_HTMLPurifier::instance();
             $title = ($title ? $title . ' - ' : '') . $hp->purify($this->name, CODENDI_PURIFIER_CONVERT_HTML);
             $layout->displayHeader($project, $title, $breadcrumbs, $params);
 
-            if ($this->getArtifactByMailStatus()->canCreateArtifact($this)) {
-                $assets      = new \Tuleap\Layout\IncludeAssets(__DIR__ . '/../../frontend-assets', '/assets/trackers');
-                $base_layout = $GLOBALS['HTML'];
-                assert($base_layout instanceof \Tuleap\Layout\BaseLayout);
-                $base_layout->addJavascriptAsset(new \Tuleap\Layout\JavascriptAsset($assets, 'tracker-header.js'));
-
+            if ($is_email_creation_allowed) {
                 $renderer = TemplateRendererFactory::build()->getRenderer(__DIR__ . '/../../templates/artifact');
                 $renderer->renderToPage(
                     'create-by-mail-modal-info',
@@ -2901,29 +2904,6 @@ class Tracker implements Tracker_Dispatchable_Interface
         }
 
         return $this->tracker_stats;
-    }
-
-    /**
-     * Fetch some statistics about this tracker to display on trackers home page
-     */
-    public function fetchStatsTooltip(PFUser $current_user): string
-    {
-        $tracker_stats = $this->getStats();
-        if ($tracker_stats === null) {
-            return '';
-        }
-
-        $tooltip_renderer = TemplateRendererFactory::build()->getRenderer(__DIR__ . '/../../templates/tooltip');
-
-        return $tooltip_renderer->renderToString(
-            'stats-tooltip',
-            new TooltipStatsPresenter(
-                $this->getId(),
-                $this->hasSemanticsStatus(),
-                $tracker_stats,
-                $current_user
-            )
-        );
     }
 
     /**

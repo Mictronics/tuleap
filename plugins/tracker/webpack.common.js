@@ -30,7 +30,6 @@ const output = webpack_configurator.configureOutput(
 const config_for_flaming_parrot = {
     entry: {
         "modal-v2": "./scripts/modal-v2/modal-in-place.js",
-        "tracker-header": "./scripts/header/header.ts",
         "tracker-report-expert-mode": "./scripts/report/index.js",
     },
     context,
@@ -41,33 +40,12 @@ const config_for_flaming_parrot = {
         jquery: "jQuery",
     },
     resolve: {
-        extensions: [".js", ".ts"],
+        extensions: [".js"],
     },
     module: {
-        rules: [
-            ...webpack_configurator.configureTypescriptRules(),
-            webpack_configurator.rule_po_files,
-        ],
+        rules: [webpack_configurator.rule_po_files],
     },
-    plugins: [manifest_plugin, webpack_configurator.getTypescriptCheckerPlugin(false)],
-};
-
-const config_for_burning_parrot = {
-    entry: {
-        "tracker-homepage": "./scripts/tracker-homepage/src/index.ts",
-    },
-    context,
-    output,
-    externals: {
-        tlp: "tlp",
-    },
-    resolve: {
-        extensions: [".js", ".ts"],
-    },
-    module: {
-        rules: [...webpack_configurator.configureTypescriptRules()],
-    },
-    plugins: [manifest_plugin, webpack_configurator.getTypescriptCheckerPlugin(false)],
+    plugins: [manifest_plugin],
 };
 
 let entry_points = {
@@ -87,4 +65,4 @@ const config_for_themes = {
     plugins: [manifest_plugin, ...webpack_configurator.getCSSExtractionPlugins()],
 };
 
-module.exports = [config_for_flaming_parrot, config_for_burning_parrot, config_for_themes];
+module.exports = [config_for_flaming_parrot, config_for_themes];

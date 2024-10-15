@@ -33,7 +33,7 @@ final class InvalidSelectablesCollectionBuilder implements IBuildInvalidSelectab
     {
         if ($selectables !== []) {
             // This way user think its query is not valid tql
-            throw new SyntaxError('', '', '', 0, 0, 0);
+            throw new EmptySyntaxError();
         }
 
         return new InvalidSelectablesCollection();
