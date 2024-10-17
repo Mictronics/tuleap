@@ -36,7 +36,6 @@ export type InternalLinkButtonElement = Readonly<Link> &
         is_disabled: boolean;
         link_href: string;
         link_title: string;
-        render(): HTMLElement;
     };
 
 export type HostElement = InternalLinkButtonElement & HTMLElement;
@@ -58,6 +57,7 @@ define<InternalLinkButtonElement>({
     is_disabled: true,
     link_href: "",
     link_title: "",
+    popover_instance: (host, popover_instance) => popover_instance,
     button_element: (host: InternalLinkButtonElement) => {
         const button_element = host.render().querySelector("[data-role=popover-trigger]");
         if (!(button_element instanceof HTMLButtonElement)) {
@@ -74,7 +74,7 @@ define<InternalLinkButtonElement>({
 
             return popover_element;
         },
-        connect: connectPopover,
+        connect: (host: InternalLinkButtonElement) => connectPopover(host, document),
     },
     toolbar_bus: {
         value: (host: InternalLinkButtonElement, toolbar_bus: ToolbarBus) => toolbar_bus,
