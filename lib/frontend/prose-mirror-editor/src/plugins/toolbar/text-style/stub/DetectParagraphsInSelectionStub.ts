@@ -1,6 +1,5 @@
-<?php
-/**
- * Copyright (c) Enalean, 2022 - Present. All Rights Reserved.
+/*
+ * Copyright (c) Enalean, 2024 - present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -18,10 +17,13 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-declare(strict_types=1);
+import type { DetectParagraphsInSelection } from "../ParagraphsInSelectionDetector";
 
-namespace Tuleap\OnlyOffice\Save;
-
-class NoDocumentServerException extends \Exception
-{
-}
+export const DetectParagraphsInSelectionStub = {
+    withOnlyParagraphs: (): DetectParagraphsInSelection => ({
+        doesSelectionContainOnlyParagraphs: () => true,
+    }),
+    withoutOnlyParagraphs: (): DetectParagraphsInSelection => ({
+        doesSelectionContainOnlyParagraphs: () => false,
+    }),
+};

@@ -20,7 +20,9 @@
 
 <template>
     <tuleap-prose-mirror-toolbar
+        ref="toolbar"
         class="artidoc-toolbar"
+        v-bind:class="{ 'is-stuck': is_stuck }"
         v-bind:controller="controller"
         v-bind:text_elements="{
             bold: true,
@@ -37,6 +39,7 @@
             ordered_list: true,
             bullet_list: true,
         }"
+        v-bind:style_elements="{ headings: true, text: true, preformatted: true }"
     />
 </template>
 
@@ -44,12 +47,30 @@
 import { TOOLBAR_BUS } from "@/toolbar-bus-injection-key";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import { ToolbarController } from "@tuleap/prose-mirror-editor-toolbar";
-
+import { onMounted, ref } from "vue";
+import { observeStickyToolbar } from "@/helpers/observe-sticky-toolbar";
 const toolbar_bus = strictInject(TOOLBAR_BUS);
 const controller = ToolbarController(toolbar_bus);
+
+const toolbar = ref<HTMLElement | undefined>();
+const is_stuck = ref(false);
+
+onMounted(() => {
+    if (toolbar.value) {
+        observeStickyToolbar(
+            toolbar.value,
+            () => {
+                is_stuck.value = true;
+            },
+            () => {
+                is_stuck.value = false;
+            },
+        );
+    }
+});
 </script>
 
-<style scoped lang="scss">
+<style lang="scss">
 @use "@/themes/includes/zindex";
 @use "@tuleap/burningparrot-theme/css/includes/global-variables";
 
@@ -59,5 +80,24 @@ const controller = ToolbarController(toolbar_bus);
     position: sticky;
     z-index: zindex.$toolbar;
     top: global-variables.$navbar-height;
+
+    &.is-stuck {
+        box-shadow: var(--tlp-sticky-header-shadow);
+    }
+}
+
+.has-visible-platform-banner {
+    .artidoc-toolbar {
+        top: calc(
+            #{global-variables.$navbar-height} + #{global-variables.$platform-banner-base-height}
+        );
+    }
+
+    &.has-visible-project-banner .artidoc-toolbar {
+        top: calc(
+            #{global-variables.$navbar-height} + #{global-variables.$platform-banner-base-height} +
+                #{global-variables.$extra-platform-banner-white-space-height}
+        );
+    }
 }
 </style>

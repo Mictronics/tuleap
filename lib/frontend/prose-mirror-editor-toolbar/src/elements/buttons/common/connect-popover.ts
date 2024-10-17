@@ -18,21 +18,36 @@
  */
 
 import { createPopover } from "@tuleap/tlp-popovers";
+import type { Popover } from "@tuleap/tlp-popovers";
 
 export type PopoverHost = {
     button_element: HTMLButtonElement;
     popover_element: HTMLElement;
+    popover_instance: Popover;
+    render(): HTMLElement;
 };
 
 type DisconnectFunction = () => void;
 
-export const connectPopover = (host: PopoverHost): DisconnectFunction => {
-    const popover = createPopover(host.button_element, host.popover_element, {
+function movePopoverToDocumentBody(host: PopoverHost, doc: Document): void {
+    // Move popover to document.body to avoid a toolbar position bug when the popover is closed.
+    doc.body.appendChild(host.popover_element);
+}
+
+const movePopoverBackToHostElement = (host: PopoverHost): void => {
+    // Put back popover inside host element, so the component can continue working after being disconnected/reconnected.
+    host.render().appendChild(host.popover_element);
+};
+
+export const connectPopover = (host: PopoverHost, doc: Document): DisconnectFunction => {
+    host.popover_instance = createPopover(host.button_element, host.popover_element, {
         trigger: "click",
         placement: "bottom-start",
     });
+    movePopoverToDocumentBody(host, doc);
 
     return () => {
-        popover.destroy();
+        host.popover_instance.destroy();
+        movePopoverBackToHostElement(host);
     };
 };
