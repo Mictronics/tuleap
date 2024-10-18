@@ -224,12 +224,16 @@ class StepExecution extends Tracker_FormElement_Field implements TrackerFormElem
         $new_value,
     ) {
         $old_values = [];
+        $new_values = [];
         /** @var StepResult[] $old_steps */
         $old_steps = $old_value->getValue();
         foreach ($old_steps as $step_result) {
             $old_values[$step_result->getStep()->getId()] = $step_result->getStatus();
         }
-        $new_values = $new_value[self::UPDATE_VALUE_KEY];
+        $new_steps = $new_value[self::UPDATE_VALUE_KEY];
+        foreach ($new_steps as $id => $status) {
+            $new_values[$id] = $status[0]; // key 0 status, 1 comment
+        }
 
         return array_diff_assoc($new_values, $old_values) !== [] || array_diff_assoc($old_values, $new_values) !== [];
     }
