@@ -14,7 +14,8 @@ step {
     align-items: baseline;
     border-bottom: 1px solid var(--tlp-neutral-light-color);
 
-    &.passed {
+    &.passed,
+    &.read {
         border-color: var(--tlp-success-color-transparent-85);
         background: var(--tlp-success-color-transparent-90);
 
