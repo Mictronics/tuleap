@@ -88,6 +88,9 @@ msgstr "Non executé"
 msgid "Passed"
 msgstr "Passé"
 
+msgid "Read"
+msgstr "Lu"
+
 msgid "Platform"
 msgstr "Plateforme"
 

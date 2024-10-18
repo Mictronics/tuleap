@@ -352,6 +352,9 @@ msgstr "Ouvrir la campagne"
 msgid "Passed"
 msgstr "Succès"
 
+msgid "Read"
+msgstr "Lu"
+
 msgid "Platform"
 msgstr "Plateforme"
 

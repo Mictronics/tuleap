@@ -78,6 +78,9 @@ msgstr ""
 msgid "Passed"
 msgstr ""
 
+msgid "Read"
+msgstr ""
+
 msgid "Platform"
 msgstr ""
 

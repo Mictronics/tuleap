@@ -116,6 +116,9 @@ msgstr "Succès"
 msgid "Past"
 msgstr "Passé"
 
+msgid "Read"
+msgstr "Lu"
+
 msgid "Recently closed"
 msgstr "Récemment fermé(e)"
 
