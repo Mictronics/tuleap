@@ -29,7 +29,7 @@ class TestExecutionTestStatusDAO extends DataAccessObject
 {
     /**
      * @return int[]
-     * @psalm-return array{notrun: int, blocked: int, passed: int, failed: int}
+     * @psalm-return array{notrun: int, blocked: int, passed: int, failed: int, read: int, notapplicable: int}
      */
     public function searchTestStatusesInACampaign(InformationNeededToRetrieveTestStatusOfACampaign $information): array
     {
@@ -50,7 +50,7 @@ class TestExecutionTestStatusDAO extends DataAccessObject
                 JOIN tracker_changeset_value_list ON (tracker_changeset_value_list.bindvalue_id = tracker_field_list_bind_static_value.id)
                 JOIN tracker_changeset_value ON (tracker_changeset_value_list.changeset_value_id = tracker_changeset_value.id AND tracker_changeset_value.changeset_id = test_exec.last_changeset_id AND tracker_changeset_value.field_id = ?)
                 WHERE testmanagement_config.test_execution_tracker_id = test_exec.tracker_id AND (test_exec.use_artifact_permissions = 0 OR permissions.ugroup_id IN ($current_user_ugroup_ids_in_filter))
-                    AND test_campaign.id = ? AND tracker_field_list_bind_static_value.label IN ('notrun', 'passed', 'failed', 'blocked')
+                    AND test_campaign.id = ? AND tracker_field_list_bind_static_value.label IN ('notrun', 'passed', 'failed', 'blocked', 'read', 'notapplicable')
                 GROUP BY test_status
                 UNION ALL
                 SELECT 'notrun' AS test_status, 0 AS nb
@@ -60,6 +60,10 @@ class TestExecutionTestStatusDAO extends DataAccessObject
                 SELECT 'failed' AS test_status, 0 AS nb
                 UNION ALL
                 SELECT 'blocked' AS test_status, 0 AS nb
+                UNION ALL
+                SELECT 'read' AS test_status, 0 AS nb
+                UNION ALL
+                SELECT 'notapplicable' AS test_status, 0 AS nb
             ) AS sum_with_default_values
             GROUP BY test_status
             EOF;
