@@ -3,6 +3,8 @@ import {
     FAILED_STATUS,
     NOT_RUN_STATUS,
     PASSED_STATUS,
+    READ_STATUS,
+    NOT_APPLICABLE_STATUS,
 } from "../../execution-constants.js";
 import { createDropdown } from "@tuleap/tlp-dropdown";
 import { resetError, setError } from "../../../feedback-state.js";
@@ -41,6 +43,9 @@ export default function controller(
         setToNotRun() {
             setNewStatusIfNotSaving(NOT_RUN_STATUS);
         },
+        setToRead() {
+            setNewStatusIfNotSaving(READ_STATUS);
+        },
         onCommentChange() {
             self.step_result.comment = self.comment;
             setNewStatusIfNotSaving(self.step_result.status);
@@ -49,6 +54,13 @@ export default function controller(
         isFailed: () => self.step_result.status === FAILED_STATUS,
         isBlocked: () => self.step_result.status === BLOCKED_STATUS,
         isNotRun: () => self.step_result.status === NOT_RUN_STATUS,
+        isRead: () => self.step_result.status === READ_STATUS,
+        isNotApplicable: () => self.step.step_type === "rationale",
+        hasReadStatus: () =>
+            self.step.step_type !== "action" &&
+            self.step.step_type !== "check" &&
+            self.step.step_type !== "input" &&
+            self.step.step_type !== "rationale",
         openDropdown: () => self.dropdown.show(),
         $onInit: init,
         sanitizedContentWithEnhancedCodeBlocks,
@@ -58,9 +70,14 @@ export default function controller(
         self.step_result = self.step_result
             ? self.step_result
             : {
-                  status: "notrun",
+                  status: NOT_RUN_STATUS,
                   comment: "",
               };
+        if (self.step.step_type === "rationale") {
+            if (self.step_result.status !== NOT_APPLICABLE_STATUS) {
+                setNewStatusIfNotSaving(NOT_APPLICABLE_STATUS);
+            }
+        }
         const $trigger = $element.find(".steps-step-action-dropdown-trigger");
         const $dropdown_menu = $element.find(".steps-step-action-dropdown");
 

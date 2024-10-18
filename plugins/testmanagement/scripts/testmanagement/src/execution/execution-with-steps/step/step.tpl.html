@@ -1,7 +1,7 @@
 <div class="steps-step-number">
     <span class="tlp-badge-rounded"
         ng-class="{
-        'tlp-badge-success': $ctrl.isPassed(),
+        'tlp-badge-success': $ctrl.isPassed() || $ctrl.isRead(),
         'tlp-badge-danger': $ctrl.isFailed(),
         'tlp-badge-info': $ctrl.isBlocked(),
         'tlp-badge-secondary': $ctrl.isNotRun()
@@ -36,13 +36,28 @@
 </div>
 <div class="tlp-dropdown steps-step-action">
     <div class="tlp-dropdown-split-button"
-        ng-hide="$ctrl.execution.userCanReloadTestBecauseDefinitionIsUpdated || ! $ctrl.campaign.is_open"
+        ng-hide="$ctrl.execution.userCanReloadTestBecauseDefinitionIsUpdated || ! $ctrl.campaign.is_open || $ctrl.isNotApplicable()"
     >
+        <button class="tlp-dropdown-split-button-main tlp-button-secondary tlp-button-outline tlp-button-small steps-step-action-pass"
+            type="button"
+            ng-click="$ctrl.setToRead()"
+            ng-disabled="$ctrl.saving"
+            ng-attr-title="{{:: 'Read' | translate }}"
+            ng-if="$ctrl.hasReadStatus()"
+        >
+            <i class="fas tlp-button-icon"
+                ng-class="{
+                    'fa-circle-o-notch fa-spin': $ctrl.saving,
+                    'fa-eye': ! $ctrl.saving
+                }"
+            ></i>
+        </button>
         <button class="tlp-dropdown-split-button-main tlp-button-secondary tlp-button-outline tlp-button-small steps-step-action-pass"
             type="button"
             ng-click="$ctrl.setToPassed()"
             ng-disabled="$ctrl.saving"
             ng-attr-title="{{:: 'Passed' | translate }}"
+            ng-if="!$ctrl.hasReadStatus()"
         >
             <i class="fa tlp-button-icon"
                 ng-class="{
