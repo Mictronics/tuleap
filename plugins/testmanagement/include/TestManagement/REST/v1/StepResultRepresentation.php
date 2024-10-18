@@ -30,7 +30,7 @@ class StepResultRepresentation
      */
     public $step_id;
     /**
-     * @var string {@choice notrun,passed,failed,blocked} {@required true}
+     * @var string {@choice notrun,passed,failed,blocked,read,notapplicable} {@required true}
      */
     public $status;
 

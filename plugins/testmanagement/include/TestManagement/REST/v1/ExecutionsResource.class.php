@@ -415,7 +415,7 @@ class ExecutionsResource
      *
      * @param TrackerReference $tracker_reference Execution tracker of the execution {@from body}
      * @param int $definition_id Definition of the execution {@from body}
-     * @param string $status Status of the execution {@from body} {@choice notrun,passed,failed,blocked}
+     * @param string $status Status of the execution {@from body} {@choice notrun,passed,failed,blocked,read,notapplicable}
      * @param string $results Result of the execution {@from body}
      * @return ExecutionRepresentation
      *
@@ -566,7 +566,7 @@ class ExecutionsResource
      * @url PUT {id}
      *
      * @param string $id Id of the artifact
-     * @param string $status Status of the execution {@from body} {@choice notrun,passed,failed,blocked}
+     * @param string $status Status of the execution {@from body} {@choice notrun,passed,failed,blocked,read,notapplicable}
      * @param int[] $uploaded_file_ids files_ids to add during the execution {@from body}
      * @param int[] $deleted_file_ids files_ids to delete during the execution {@from body}
      * @param int $time Time to pass the execution {@from body}

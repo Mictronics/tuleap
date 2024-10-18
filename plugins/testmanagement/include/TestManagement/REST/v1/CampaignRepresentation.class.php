@@ -45,10 +45,12 @@ class CampaignRepresentation
     public const FIELD_ARTIFACT_LINKS = 'artifact_links';
     public const FIELD_STATUS         = 'status';
 
-    public const STATUS_NOT_RUN = 'notrun';
-    public const STATUS_PASSED  = 'passed';
-    public const STATUS_FAILED  = 'failed';
-    public const STATUS_BLOCKED = 'blocked';
+    public const STATUS_NOT_RUN        = 'notrun';
+    public const STATUS_PASSED         = 'passed';
+    public const STATUS_FAILED         = 'failed';
+    public const STATUS_BLOCKED        = 'blocked';
+    public const STATUS_READ           = 'read';
+    public const STATUS_NOT_APPLICABLE = 'notapplicable';
     /**
      * @var int
      */
@@ -78,6 +80,12 @@ class CampaignRepresentation
     /** @var int */
     public $nb_of_blocked;
 
+    /** @var int */
+    public $nb_of_read;
+
+    /** @var int */
+    public $nb_of_notapplicable;
+
     /** @var array */
     public $resources;
 
@@ -102,28 +110,32 @@ class CampaignRepresentation
         int $nb_of_passed,
         int $nb_of_failed,
         int $nb_of_blocked,
+        int $nb_of_read,
+        int $nb_of_notapplicable,
         array $resources,
         JobConfigurationRepresentation $job_configuration,
         bool $user_can_update,
         bool $user_can_close,
         bool $user_can_open,
     ) {
-        $this->id                = $id;
-        $this->label             = $label;
-        $this->status            = $status;
-        $this->is_open           = $is_open;
-        $this->nb_of_notrun      = $nb_of_notrun;
-        $this->nb_of_passed      = $nb_of_passed;
-        $this->nb_of_failed      = $nb_of_failed;
-        $this->nb_of_blocked     = $nb_of_blocked;
-        $this->resources         = $resources;
-        $this->job_configuration = $job_configuration;
-        $this->user_can_update   = $user_can_update;
-        $this->user_can_close    = $user_can_close;
-        $this->user_can_open     = $user_can_open;
+        $this->id                  = $id;
+        $this->label               = $label;
+        $this->status              = $status;
+        $this->is_open             = $is_open;
+        $this->nb_of_notrun        = $nb_of_notrun;
+        $this->nb_of_passed        = $nb_of_passed;
+        $this->nb_of_failed        = $nb_of_failed;
+        $this->nb_of_blocked       = $nb_of_blocked;
+        $this->nb_of_read          = $nb_of_read;
+        $this->nb_of_notapplicable = $nb_of_notapplicable;
+        $this->resources           = $resources;
+        $this->job_configuration   = $job_configuration;
+        $this->user_can_update     = $user_can_update;
+        $this->user_can_close      = $user_can_close;
+        $this->user_can_open       = $user_can_open;
 
         $this->uri   = self::ROUTE . '/' . $this->id;
-        $this->total = $nb_of_notrun + $nb_of_passed + $nb_of_failed + $nb_of_blocked;
+        $this->total = $nb_of_notrun + $nb_of_passed + $nb_of_failed + $nb_of_blocked + $nb_of_read;
     }
 
     public static function build(
@@ -179,6 +191,8 @@ class CampaignRepresentation
             $executions_status[self::STATUS_PASSED],
             $executions_status[self::STATUS_FAILED],
             $executions_status[self::STATUS_BLOCKED],
+            $executions_status[self::STATUS_READ],
+            $executions_status[self::STATUS_NOT_APPLICABLE],
             [
                 [
                     'type' => ExecutionRepresentation::ROUTE,
@@ -200,7 +214,7 @@ class CampaignRepresentation
     /**
      * @return int[]
      *
-     * @psalm-return array{notrun: int, blocked: int, passed: int, failed: int}
+     * @psalm-return array{notrun: int, blocked: int, passed: int, failed: int, read: int, notapplicable: int}
      */
     private static function getExecutionsStatus(
         \Tuleap\Tracker\Artifact\Artifact $campaign_artifact,
@@ -220,10 +234,12 @@ class CampaignRepresentation
 
         if ($information === null) {
             return [
-                self::STATUS_NOT_RUN => 0,
-                self::STATUS_BLOCKED => 0,
-                self::STATUS_PASSED  => 0,
-                self::STATUS_FAILED  => 0,
+                self::STATUS_NOT_RUN        => 0,
+                self::STATUS_BLOCKED        => 0,
+                self::STATUS_PASSED         => 0,
+                self::STATUS_FAILED         => 0,
+                self::STATUS_READ           => 0,
+                self::STATUS_NOT_APPLICABLE => 0,
             ];
         }
 

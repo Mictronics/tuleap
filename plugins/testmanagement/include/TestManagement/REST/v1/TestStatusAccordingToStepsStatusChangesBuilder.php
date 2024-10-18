@@ -96,17 +96,19 @@ class TestStatusAccordingToStepsStatusChangesBuilder
     /**
      * @return int[]
      *
-     * @psalm-return array{passed: int, failed: int, blocked: int, notrun: int}
+     * @psalm-return array{passed: int, failed: int, blocked: int, notrun: int, read: int, notapplicable: int}
      */
     private function countStatus(
         array $steps_defined_in_test,
         array $steps_changes,
     ): array {
         $nb = [
-            'passed'  => 0,
-            'failed'  => 0,
-            'blocked' => 0,
-            'notrun'  => 0,
+            'passed'        => 0,
+            'failed'        => 0,
+            'blocked'       => 0,
+            'notrun'        => 0,
+            'read'          => 0,
+            'notapplicable' => 0,
         ];
         foreach ($steps_defined_in_test as $step) {
             $status = 'notrun';
