@@ -698,6 +698,9 @@ done
 %{__install} -d $RPM_BUILD_ROOT/%{APP_CACHE_DIR}
 %{__install} -d $RPM_BUILD_ROOT/%{APP_CACHE_DIR}/php
 %{__install} -d $RPM_BUILD_ROOT/%{APP_CACHE_DIR}/php/session
+%{__install} -d $RPM_BUILD_ROOT/%{APP_CACHE_DIR}/valinor
+%{__install} -d $RPM_BUILD_ROOT/%{APP_CACHE_DIR}/valinor/functions
+%{__install} -d $RPM_BUILD_ROOT/%{APP_CACHE_DIR}/valinor/classes
 
 # Log dir
 %{__install} -d $RPM_BUILD_ROOT/%{APP_LOG_DIR}
