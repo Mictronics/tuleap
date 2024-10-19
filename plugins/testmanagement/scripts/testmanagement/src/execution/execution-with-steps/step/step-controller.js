@@ -67,15 +67,13 @@ export default function controller(
     });
 
     function init() {
-        self.step_result = self.step_result
-            ? self.step_result
-            : {
-                  status: NOT_RUN_STATUS,
-                  comment: "",
-              };
-        if (self.step.step_type === "rationale") {
-            if (self.step_result.status !== NOT_APPLICABLE_STATUS) {
-                setNewStatusIfNotSaving(NOT_APPLICABLE_STATUS);
+        if (!self.step_result) {
+            self.step_result = {
+                status: NOT_RUN_STATUS,
+                comment: "",
+            };
+            if (self.step.step_type === "rationale") {
+                self.step_result.status = NOT_APPLICABLE_STATUS;
             }
         }
         const $trigger = $element.find(".steps-step-action-dropdown-trigger");
