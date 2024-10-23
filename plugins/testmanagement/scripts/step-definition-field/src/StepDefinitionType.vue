@@ -39,7 +39,7 @@
         Info
       </option>
       <option value="requirement" v-bind:selected="is_requirement" data-test="ttm-definition-step-type-requirement">
-        Requirement
+        Prerequisite
       </option>
       <option value="warning" v-bind:selected="is_warning" data-test="ttm-definition-step-type-warning">
         Warning
