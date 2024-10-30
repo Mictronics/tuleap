@@ -36,7 +36,11 @@ use Tuleap\Config\PluginWithConfigKeys;
 use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\Docman\Item\CloneOtherItemPostAction;
 use Tuleap\Docman\Item\GetDocmanItemOtherTypeEvent;
+use Tuleap\Docman\Item\Icon\DocumentIconPresenterEvent;
+use Tuleap\Docman\Item\Icon\GetIconForItemEvent;
+use Tuleap\Docman\Item\OtherDocumentHrefEvent;
 use Tuleap\Docman\ItemType\GetItemTypeAsText;
+use Tuleap\Docman\Reference\DocumentIconPresenter;
 use Tuleap\Docman\REST\v1\Folders\FilterItemOtherTypeProvider;
 use Tuleap\Docman\REST\v1\GetOtherDocumentItemRepresentationWrapper;
 use Tuleap\Docman\REST\v1\MoveItem\MoveOtherItemUriRetriever;
@@ -174,8 +178,24 @@ class ArtidocPlugin extends Plugin implements PluginWithConfigKeys
     public function getOtherDocumentItemRepresentationWrapper(GetOtherDocumentItemRepresentationWrapper $event): void
     {
         if ($event->item instanceof ArtidocDocument) {
-            $event->setItemRepresentationArguments(ArtidocDocument::TYPE, new OtherTypePropertiesRepresentation('/artidoc/' . urlencode((string) $event->item->getId())));
+            $event->setItemRepresentationArguments(
+                ArtidocDocument::TYPE,
+                new OtherTypePropertiesRepresentation($this->getArtidocHref($event->item)),
+            );
         }
+    }
+
+    #[ListeningToEventClass]
+    public function otherDocumentHrefEvent(OtherDocumentHrefEvent $event): void
+    {
+        if ($event->item instanceof ArtidocDocument) {
+            $event->setHref($this->getArtidocHref($event->item));
+        }
+    }
+
+    private function getArtidocHref(ArtidocDocument $document): string
+    {
+        return '/artidoc/' . urlencode((string) $document->getId());
     }
 
     #[ListeningToEventClass]
@@ -266,6 +286,22 @@ class ArtidocPlugin extends Plugin implements PluginWithConfigKeys
     {
         $this->getArtidocDao()
             ->deleteSectionsByArtifactId($artifact_deleted->getArtifact()->getId());
+    }
+
+    #[\Tuleap\Plugin\ListeningToEventClass]
+    public function getIconForItemEvent(GetIconForItemEvent $event): void
+    {
+        if ($event->item instanceof ArtidocDocument) {
+            $event->setIcon('artidoc');
+        }
+    }
+
+    #[\Tuleap\Plugin\ListeningToEventClass]
+    public function documentIconPresenterEvent(DocumentIconPresenterEvent $event): void
+    {
+        if ($event->icon === 'artidoc') {
+            $event->setPresenter(new DocumentIconPresenter('fa-solid fa-tlp-artidoc', 'peggy-pink'));
+        }
     }
 
     private function getArtidocDao(): ArtidocDao

@@ -1,5 +1,5 @@
-/**
- * Copyright (c) Enalean, 2024 - Present. All Rights Reserved.
+/*
+ * Copyright (c) Enalean, 2024-Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -17,20 +17,23 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-@use "pkg:@tuleap/burningparrot-theme/css/includes/global-variables";
+import { vite } from "@tuleap/build-system-configurator";
+import * as path from "node:path";
+import { viteExternalsPlugin } from "vite-plugin-externals";
 
-/* stylelint-disable-next-line selector-class-pattern */
-.cke_top.cke_reset_all {
-    position: sticky;
-
-    // Do not display the toolbar under the images in the content
-    z-index: 3;
-
-    // important to override inline style that want to set top to 0px
-    top: global-variables.$navbar-height !important;
-    box-shadow: var(--tlp-sticky-header-shadow);
-}
-
-.cke.ck-reset {
-    border-top: 1px solid var(--ck-color-base-border);
-}
+export default vite.defineAppConfig(
+    {
+        plugin_name: path.basename(path.resolve(__dirname, "../..")),
+        sub_app_name: path.basename(__dirname),
+    },
+    {
+        plugins: [viteExternalsPlugin({ codendi: "codendi" })],
+        build: {
+            rollupOptions: {
+                input: {
+                    report: path.resolve(__dirname, "src/main.js"),
+                },
+            },
+        },
+    },
+);
