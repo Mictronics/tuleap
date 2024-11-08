@@ -23,13 +23,9 @@ import { EditorView } from "prosemirror-view";
 import { DOMParser } from "prosemirror-model";
 import { dropCursor } from "prosemirror-dropcursor";
 import { buildCustomSchema } from "./custom_schema";
-import type { PluginDropFile } from "./plugins";
-import {
-    initLinkPopoverPlugin,
-    initPluginTransformInput,
-    initPluginInput,
-    setupToolbar,
-} from "./plugins";
+import type { EditorNodes } from "./custom_schema";
+import type { PluginDropFile, PluginInput } from "./plugins";
+import { initLinkPopoverPlugin, initPluginTransformInput, setupToolbar } from "./plugins";
 import type { GetText } from "@tuleap/gettext";
 
 import {
@@ -41,7 +37,6 @@ import { v4 as uuidv4 } from "uuid";
 import type { CrossReference } from "./plugins/extract-referencies/reference-extractor";
 import { initPluginCloseMarksAfterSpace } from "./plugins/close-marks-after-space";
 import { type ToolbarBus } from "./plugins/toolbar/helper/toolbar-bus";
-import { initPluginAutomagicLinks } from "./plugins/automagic-links";
 
 export type UseEditorType = {
     editor: EditorView;
@@ -52,11 +47,12 @@ export type UseEditorType = {
 export async function useEditor(
     editor_element: HTMLElement,
     setupUploadPlugin: (gettext_provider: GetText) => PluginDropFile,
-    onChange: (new_text_content: string) => void,
+    setupInputPlugin: () => PluginInput,
     initial_content: HTMLElement,
     project_id: number,
     references: Array<CrossReference>,
     toolbar_bus: ToolbarBus,
+    custom_editor_nodes?: EditorNodes,
 ): Promise<UseEditorType> {
     const gettext_provider = await initGettext(
         getLocaleWithDefault(document),
@@ -66,17 +62,20 @@ export async function useEditor(
 
     const upload_plugin = setupUploadPlugin(gettext_provider);
 
-    const schema = buildCustomSchema();
+    const schema = buildCustomSchema(custom_editor_nodes);
     const editor_id = uuidv4();
     const plugins: Plugin[] = [
-        initPluginInput(onChange),
+        setupInputPlugin(),
         upload_plugin,
-        dropCursor(),
+        dropCursor({
+            color: false,
+            width: 2,
+            class: "prose-mirror-editor-dropcursor",
+        }),
         initLinkPopoverPlugin(document, gettext_provider, editor_id),
         ...setupToolbar(schema, toolbar_bus),
         initPluginTransformInput(project_id, references),
         initPluginCloseMarksAfterSpace(),
-        initPluginAutomagicLinks(),
     ];
 
     const state: EditorState = getState(initial_content);

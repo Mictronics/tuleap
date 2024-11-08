@@ -19,13 +19,33 @@
 
 import { Plugin } from "prosemirror-state";
 import type { EditorView } from "prosemirror-view";
+import { DOMSerializer } from "prosemirror-model";
+import { loadTooltips } from "@tuleap/tooltip";
 
-export function initPluginInput(update_callback: (newTextContent: string) => void): Plugin {
+export type PluginInput = Plugin;
+
+export function initPluginInput(update_callback: (content: HTMLElement) => void): PluginInput {
     return new Plugin({
-        view(): { update: (view: EditorView) => void } {
+        view(view: EditorView): { update: (view: EditorView) => void } {
+            loadTooltips(view.dom);
+
+            const serializer = DOMSerializer.fromSchema(view.state.schema);
+
             return {
                 update(view: EditorView): void {
-                    update_callback(view.dom.innerHTML);
+                    loadTooltips(view.dom);
+
+                    const serialized_content = serializer.serializeFragment(
+                        view.state.doc.content,
+                        { document },
+                        document.createElement("div"),
+                    );
+
+                    if (!(serialized_content instanceof HTMLElement)) {
+                        throw new Error("Unable to serialize the editor content");
+                    }
+
+                    update_callback(serialized_content);
                 },
             };
         },

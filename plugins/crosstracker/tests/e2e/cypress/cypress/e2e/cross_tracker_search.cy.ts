@@ -88,9 +88,7 @@ describe("Cross tracker search", function () {
         cy.intercept("/api/v1/cross_tracker_reports/*/content*").as("getReportContent");
 
         cy.log("Regular user should be able to run queries");
-        cy.log("Switch to Expert mode");
         editWidget();
-        toggleWidgetMode();
         updateSearchQuery(
             `SELECT @title FROM @project.name = "${project_name}" AND @tracker.name IN ("bug", "task") WHERE @last_update_date > "2018-01-01"`,
         );
@@ -164,7 +162,7 @@ function editWidget(): void {
 function updateSearchQuery(search_query: string): void {
     clearCodeMirror();
     // eslint-disable-next-line cypress/require-data-selectors -- ignore for CodeMirror
-    cy.get(".CodeMirror-code").type(search_query);
+    cy.get(".cm-editor").type(search_query);
     cy.get("[data-test=search-report-button]").click();
     cy.get("[data-test=tql-reading-mode-query]").contains(search_query);
 }
@@ -196,8 +194,5 @@ function assertAllArtifacts(): void {
 
 function clearCodeMirror(): void {
     // eslint-disable-next-line cypress/require-data-selectors -- ignore for CodeMirror
-    cy.get(".CodeMirror").then((el) => {
-        const unwrap = Cypress.dom.unwrap(el)[0];
-        unwrap.CodeMirror.setValue("");
-    });
+    cy.get(".cm-editor").type("{ctrl}a{del}");
 }

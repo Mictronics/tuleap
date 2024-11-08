@@ -20,11 +20,10 @@
 import codendi from "codendi";
 import { post } from "@tuleap/tlp-fetch";
 import {
-    buildModeDefinition,
-    TQL_autocomplete_keywords,
+    buildTQLEditor,
+    buildParserDefinition,
     insertAllowedFieldInCodeMirror,
-    initializeTQLMode,
-    codeMirrorify,
+    TQL_autocomplete_keywords,
 } from "@tuleap/plugin-tracker-tql-codemirror";
 
 let query_rich_editor = null;
@@ -99,24 +98,34 @@ function initializeCodeMirror() {
         return;
     }
 
-    const TQL_simple_mode_definition = buildModeDefinition({ additional_keywords: ["@comments"] });
-    initializeTQLMode(TQL_simple_mode_definition);
     if (!tracker_report_expert_query.classList.contains("tracker-report-query-undisplayed")) {
         codeMirrorifyQueryArea();
     }
 }
 
 function codeMirrorifyQueryArea() {
+    if (query_rich_editor !== null) {
+        return;
+    }
+
     const tracker_query = document.getElementById("tracker-report-expert-query-textarea");
     const allowed_fields = JSON.parse(tracker_query.dataset.allowedFields);
+    const autocomplete_keywords = TQL_autocomplete_keywords.concat(allowed_fields);
 
-    if (query_rich_editor !== null) {
-        query_rich_editor.refresh();
-    } else {
-        const autocomplete_keywords = TQL_autocomplete_keywords.concat(allowed_fields);
-
-        query_rich_editor = codeMirrorify(tracker_query, autocomplete_keywords, submitFormCallback);
-    }
+    query_rich_editor = buildTQLEditor(
+        {
+            autocomplete: autocomplete_keywords,
+            parser_definition: buildParserDefinition(["@comments"]),
+        },
+        tracker_query.placeholder,
+        tracker_query.value,
+        submitFormCallback,
+        null,
+    );
+    tracker_query.insertAdjacentElement("afterend", query_rich_editor.dom);
+    tracker_query.form?.addEventListener("submit", function () {
+        tracker_query.value = query_rich_editor.state.doc.toString();
+    });
 }
 
 function submitFormCallback() {

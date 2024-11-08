@@ -46,12 +46,12 @@
 <script setup lang="ts">
 import { TOOLBAR_BUS } from "@/toolbar-bus-injection-key";
 import { strictInject } from "@tuleap/vue-strict-inject";
-import { ToolbarController } from "@tuleap/prose-mirror-editor-toolbar";
+import { buildToolbarController } from "@tuleap/prose-mirror-editor-toolbar";
 import { onMounted, ref } from "vue";
 import { observeStickyToolbar } from "@/helpers/observe-sticky-toolbar";
 import { onClickActivateOrDeactivateToolbar } from "@/helpers/toolbar-activator";
 const toolbar_bus = strictInject(TOOLBAR_BUS);
-const controller = ToolbarController(toolbar_bus);
+const controller = buildToolbarController(toolbar_bus);
 
 const toolbar = ref<HTMLElement | undefined>();
 const is_stuck = ref(false);
@@ -78,12 +78,17 @@ onMounted(() => {
 
 .artidoc-toolbar {
     // Display block is mandatory to avoid flickering with the toolbar
-    display: block;
+    display: flex;
     position: sticky;
     z-index: zindex.$toolbar;
     top: global-variables.$navbar-height;
+    justify-content: center;
+    width: 100%;
+    border-bottom: 1px solid var(--tlp-neutral-normal-color);
+    background: var(--tlp-white-color);
 
     &.is-stuck {
+        border-bottom: 0;
         box-shadow: var(--tlp-sticky-header-shadow);
     }
 }
