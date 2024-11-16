@@ -20,45 +20,26 @@
 const path = require("path");
 const { webpack_configurator } = require("@tuleap/build-system-configurator");
 
-const manifest_plugin = webpack_configurator.getManifestPlugin();
-const context = __dirname;
-const output = webpack_configurator.configureOutput(
-    path.resolve(__dirname, "./frontend-assets/"),
-    "/assets/trackers/",
-);
-
-const config_for_flaming_parrot = {
-    entry: {
-        "modal-v2": "./scripts/modal-v2/modal-in-place.js",
-    },
-    context,
-    output,
-    externals: {
-        ckeditor4: "CKEDITOR",
-        codendi: "codendi",
-        jquery: "jQuery",
-    },
-    resolve: {
-        extensions: [".js"],
-    },
-    plugins: [manifest_plugin],
-};
-
-let entry_points = {
-    "style-fp": "./themes/FlamingParrot/css/style.scss",
-    print: "./themes/default/css/print.scss",
-    "dependencies-matrix": "./themes/FlamingParrot/css/dependencies-matrix.scss",
-    "tracker-bp": "./themes/BurningParrot/css/tracker.scss",
-};
-
 const config_for_themes = {
-    entry: entry_points,
-    context,
-    output,
+    entry: {
+        "style-fp": "./themes/FlamingParrot/css/style.scss",
+        print: "./themes/default/css/print.scss",
+        "dependencies-matrix": "./themes/FlamingParrot/css/dependencies-matrix.scss",
+        "tracker-bp": "./themes/BurningParrot/css/tracker.scss",
+    },
+    context: __dirname,
+    output: webpack_configurator.configureOutput(
+        path.resolve(__dirname, "./frontend-assets/"),
+        "/assets/trackers/",
+    ),
     module: {
         rules: [webpack_configurator.rule_scss_loader, webpack_configurator.rule_css_assets],
     },
-    plugins: [manifest_plugin, ...webpack_configurator.getCSSExtractionPlugins()],
+    plugins: [
+        webpack_configurator.getCleanWebpackPlugin(),
+        webpack_configurator.getManifestPlugin(),
+        ...webpack_configurator.getCSSExtractionPlugins(),
+    ],
 };
 
-module.exports = [config_for_flaming_parrot, config_for_themes];
+module.exports = [config_for_themes];

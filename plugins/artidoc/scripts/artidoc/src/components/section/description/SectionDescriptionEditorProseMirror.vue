@@ -35,13 +35,17 @@ import type { UseUploadFileType } from "@/composables/useUploadFile";
 import type { CrossReference } from "@/stores/useSectionsStore";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import { TOOLBAR_BUS } from "@/toolbar-bus-injection-key";
-import { artidoc_editor_schema } from "./artidoc-editor-schema";
+import { artidoc_editor_schema } from "../mono-editor/artidoc-editor-schema";
 import { renderArtidocSectionNode } from "@/components/section/description/render-artidoc-section-node";
+import { setupMonoEditorPlugins } from "../mono-editor/jump-to-section-node";
+
+const toolbar_bus = strictInject(TOOLBAR_BUS);
 
 const props = defineProps<{
     title: string;
     is_edit_mode: boolean;
     editable_description: string;
+    upload_url: string;
     input_section_content: EditorSectionContent["inputSectionContent"];
     upload_file: UseUploadFileType;
     project_id: number;
@@ -86,14 +90,18 @@ watch(
 
 onMounted(async () => {
     if (area_editor.value) {
+        const is_upload_allowed = props.upload_url !== "";
+
         useEditorInstance = await useEditor(
             area_editor.value,
             setupUploadPlugin,
             setupInputPlugin,
+            () => setupMonoEditorPlugins(toolbar_bus),
+            is_upload_allowed,
             renderArtidocSectionNode(props.title, props.editable_description),
             props.project_id,
             props.references,
-            strictInject(TOOLBAR_BUS),
+            toolbar_bus,
             artidoc_editor_schema,
         );
         editorView.value = useEditorInstance.editor;
@@ -101,6 +109,10 @@ onMounted(async () => {
 });
 </script>
 <style lang="scss">
+artidoc-section {
+    display: block;
+}
+
 artidoc-section-title {
     display: block;
     margin: 0 0 var(--tlp-large-spacing);
@@ -110,5 +122,9 @@ artidoc-section-title {
     font-size: 36px;
     font-weight: 600;
     line-height: 40px;
+}
+
+artidoc-section-description {
+    display: block;
 }
 </style>

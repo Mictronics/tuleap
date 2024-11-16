@@ -23,84 +23,74 @@ declare(strict_types=1);
 namespace Tuleap\Tracker\Artifact;
 
 use ForgeConfig;
-use Mockery;
-use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
-use Mockery\MockInterface;
-use TemplateRendererFactory;
+use PHPUnit\Framework\MockObject\Stub;
 use Tracker;
 use Tuleap\ForgeConfigSandbox;
-use Tuleap\Templating\TemplateCache;
+use Tuleap\TemporaryTestDirectory;
 use Tuleap\Test\Builders\ProjectTestBuilder;
+use Tuleap\Test\Builders\TemplateRendererFactoryBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
+use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\FileFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\TextFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
 final class RichTextareaProviderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
-    use MockeryPHPUnitIntegration;
     use ForgeConfigSandbox;
+    use TemporaryTestDirectory;
 
-    /**
-     * @var MockInterface|TemplateRendererFactory
-     */
-    private $template_renderer_factory;
-    /**
-     * @var RichTextareaProvider
-     */
-    private $provider;
-    /**
-     * @var Mockery\LegacyMockInterface|MockInterface|FileUploadDataProvider
-     */
-    private $first_usable_field_data_getter;
+    private FileUploadDataProvider & Stub $first_usable_field_data_getter;
 
     public function setUp(): void
     {
-        $this->first_usable_field_data_getter = Mockery::mock(FileUploadDataProvider::class);
-
-        $template_cache = Mockery::mock(TemplateCache::class);
-        $template_cache->shouldReceive('getPath')->andReturn(null);
-
-        $this->template_renderer_factory = new TemplateRendererFactory($template_cache);
-
-        $this->provider = new RichTextareaProvider(
-            $this->template_renderer_factory,
-            new UploadDataAttributesForRichTextEditorBuilder($this->first_usable_field_data_getter)
-        );
+        $this->first_usable_field_data_getter = $this->createStub(FileUploadDataProvider::class);
 
         ForgeConfig::set('sys_max_size_upload', 1024);
     }
 
-    public function testItPassesArgumentsAsPresenterToTheTemplate(): void
+    private function renderTextarea(
+        RichTextareaConfiguration $configuration,
+        bool $is_artifact_copy,
+    ): string {
+        $template_renderer_factory = TemplateRendererFactoryBuilder::get()->withPath($this->getTmpDir())->build();
+
+        $provider = new RichTextareaProvider(
+            $template_renderer_factory,
+            new UploadDataAttributesForRichTextEditorBuilder($this->first_usable_field_data_getter)
+        );
+
+        return $provider->getTextarea($configuration, $is_artifact_copy);
+    }
+
+    public function testItRendersTextAreaForNewFollowupComment(): void
     {
         $tracker = $this->buildTracker(7);
-        $this->first_usable_field_data_getter->shouldReceive('getFileUploadData')->andReturn(null);
+        $this->first_usable_field_data_getter->method('getFileUploadData')->willReturn(null);
 
-        $textarea = $this->provider->getTextarea(
-            $tracker,
-            null,
-            UserTestBuilder::aUser()->build(),
-            'input-id',
-            'input-name',
-            8,
-            80,
-            'input-value',
-            true,
+        $textarea = $this->renderTextarea(
+            RichTextareaConfiguration::fromNewFollowUpComment(
+                $tracker,
+                ArtifactTestBuilder::anArtifact(781)->build(),
+                UserTestBuilder::buildWithDefaults(),
+                'input-value'
+            ),
             false
         );
-        self::assertEquals(
+        self::assertSame(
             <<<EOL
 <textarea
-        id="input-id"
+        id="tracker_followup_comment_new"
         class="user-mention"
         wrap="soft"
         rows="8"
         cols="80"
-        name="input-name"
+        name="artifact_followup_comment"
         maxlength="65535"
-        required
-            data-project-id="7"
-        data-test="input-name"
+        \n            data-project-id="7"
+        data-test="artifact_followup_comment"
 >input-value</textarea>
-<div class="muted tracker-richtexteditor-help" id="input-id-help"></div>
+<div class="muted tracker-richtexteditor-help" id="tracker_followup_comment_new-help"></div>
 
 EOL
             ,
@@ -108,43 +98,40 @@ EOL
         );
     }
 
-    public function testItDoesNotAllowDragAndDropDuringArtifactCopy(): void
+    public function testItDoesNotAllowImageUploadDuringArtifactCopy(): void
     {
-        $tracker = $this->buildTracker(7);
-        $field1  = Mockery::mock(FileUploadData::class);
-        $field1->shouldReceive('getUploadUrl')->andReturn('/api/v1/tracker_fields/1002/files');
-        $field1->shouldReceive('getUploadFileName')->andReturn('artifact[1002][][tus-uploaded-id]');
-        $field1->shouldReceive('getUploadMaxSize')->andReturn(1024);
+        $tracker     = $this->buildTracker(7);
+        $upload_data = new FileUploadData(FileFieldBuilder::aFileField(1002)->build());
 
-        $this->first_usable_field_data_getter->shouldReceive('getFileUploadData')->andReturn($field1);
+        $this->first_usable_field_data_getter->method('getFileUploadData')->willReturn($upload_data);
 
-        $textarea = $this->provider->getTextarea(
-            $tracker,
-            null,
-            UserTestBuilder::aUser()->build(),
-            'input-id',
-            'input-name',
-            8,
-            80,
-            'input-value',
-            true,
+        $textarea = $this->renderTextarea(
+            RichTextareaConfiguration::fromTextField(
+                $tracker,
+                ArtifactTestBuilder::anArtifact(211)->build(),
+                UserTestBuilder::buildWithDefaults(),
+                TextFieldBuilder::aTextField(335)->thatIsRequired()
+                    ->withNumberOfRows(10)
+                    ->withNumberOfColumns(200)
+                    ->build(),
+                'input-value'
+            ),
             true
         );
-        self::assertEquals(
+        self::assertSame(
             <<<EOL
 <textarea
-        id="input-id"
-        class="user-mention"
-        wrap="soft"
-        rows="8"
-        cols="80"
-        name="input-name"
+        id="field_335"
+        \n        wrap="soft"
+        rows="10"
+        cols="200"
+        name="artifact[335][content]"
         maxlength="65535"
         required
             data-project-id="7"
-        data-test="input-name"
+        data-test="artifact[335][content]"
 >input-value</textarea>
-<div class="muted tracker-richtexteditor-help" id="input-id-help"></div>
+<div class="muted tracker-richtexteditor-help" id="field_335-help"></div>
 
 EOL
             ,
@@ -154,44 +141,40 @@ EOL
 
     public function testItIncludesUploadOptionsIfAFileFieldIsUpdatable(): void
     {
-        $tracker = $this->buildTracker(7);
-        $field1  = $this->createMock(FileUploadData::class);
-        $field1->method('getUploadUrl')->willReturn('/api/v1/tracker_fields/1002/files');
-        $field1->method('getUploadFileName')->willReturn('artifact[1002][][tus-uploaded-id]');
-        $field1->method('getUploadMaxSize')->willReturn(1024);
+        $tracker     = $this->buildTracker(7);
+        $upload_data = new FileUploadData(FileFieldBuilder::aFileField(1002)->build());
 
-        $this->first_usable_field_data_getter->shouldReceive('getFileUploadData')->andReturn($field1);
+        $this->first_usable_field_data_getter->method('getFileUploadData')->willReturn($upload_data);
 
-        $textarea = $this->provider->getTextarea(
-            $tracker,
-            null,
-            UserTestBuilder::aUser()->build(),
-            'input-id',
-            'input-name',
-            8,
-            80,
-            'input-value',
-            false,
+        $textarea = $this->renderTextarea(
+            RichTextareaConfiguration::fromTextField(
+                $tracker,
+                ArtifactTestBuilder::anArtifact(131)->build(),
+                UserTestBuilder::buildWithDefaults(),
+                TextFieldBuilder::aTextField(489)->withNumberOfRows(8)
+                    ->withNumberOfColumns(80)
+                    ->build(),
+                'input-value',
+            ),
             false
         );
-        self::assertEquals(
+        self::assertSame(
             <<<EOL
 <textarea
-        id="input-id"
-        class="user-mention"
-        wrap="soft"
+        id="field_489"
+        \n        wrap="soft"
         rows="8"
         cols="80"
-        name="input-name"
+        name="artifact[489][content]"
         maxlength="65535"
-        \n            data-upload-url="/api/v1/tracker_fields/1002/files"
+        \n            data-project-id="7"
+            data-upload-url="/api/v1/tracker_fields/1002/files"
             data-upload-field-name="artifact[1002][][tus-uploaded-id]"
             data-upload-max-size="1024"
-            data-project-id="7"
-            data-help-id="input-id-help"
-        data-test="input-name"
+            data-help-id="field_489-help"
+        data-test="artifact[489][content]"
 >input-value</textarea>
-<div class="muted tracker-richtexteditor-help" id="input-id-help"></div>
+<div class="muted tracker-richtexteditor-help" id="field_489-help"></div>
 
 EOL
             ,

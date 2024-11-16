@@ -17,9 +17,11 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import Vue from "vue";
-import { getPOFileFromLocale, initVueGettext } from "@tuleap/vue2-gettext-init";
+import { createApp } from "vue";
+import { createGettext } from "vue3-gettext";
+import { getPOFileFromLocale, initVueGettext } from "@tuleap/vue3-gettext-init";
 import App from "./components/App.vue";
+import { LocationHelper } from "./helpers/LocationHelper";
 
 document.addEventListener("DOMContentLoaded", async () => {
     const vue_mount_point = document.getElementById("platform-banner-admin");
@@ -27,23 +29,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         return;
     }
 
-    await initVueGettext(
-        Vue,
-        (locale: string) =>
-            import(
-                /* webpackChunkName: "platform-admin-banner-po-" */ `../po/${getPOFileFromLocale(
-                    locale,
-                )}`
-            ),
+    const gettext_plugin = await initVueGettext(
+        createGettext,
+        (locale: string) => import(`../po/${getPOFileFromLocale(locale)}`),
     );
-
-    const AppComponent = Vue.extend(App);
-    new AppComponent({
-        propsData: {
-            message: vue_mount_point.dataset.bannerMessage || "",
-            importance: vue_mount_point.dataset.bannerImportance || "standard",
-            expiration_date: vue_mount_point.dataset.bannerExpirationDate || "",
-            location: window.location,
-        },
-    }).$mount(vue_mount_point);
+    const location_helper = LocationHelper(window.location);
+    createApp(App, {
+        message: vue_mount_point.dataset.bannerMessage ?? "",
+        importance: vue_mount_point.dataset.bannerImportance ?? "standard",
+        expiration_date: vue_mount_point.dataset.bannerExpirationDate ?? "",
+        location_helper,
+    })
+        .use(gettext_plugin)
+        .mount(vue_mount_point);
 });

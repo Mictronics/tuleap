@@ -48,6 +48,8 @@ export async function useEditor(
     editor_element: HTMLElement,
     setupUploadPlugin: (gettext_provider: GetText) => PluginDropFile,
     setupInputPlugin: () => PluginInput,
+    setupAdditionalPlugins: () => Plugin[],
+    is_upload_allowed: boolean,
     initial_content: HTMLElement,
     project_id: number,
     references: Array<CrossReference>,
@@ -67,15 +69,20 @@ export async function useEditor(
     const plugins: Plugin[] = [
         setupInputPlugin(),
         upload_plugin,
-        dropCursor({
-            color: false,
-            width: 2,
-            class: "prose-mirror-editor-dropcursor",
-        }),
+        ...(is_upload_allowed
+            ? [
+                  dropCursor({
+                      color: false,
+                      width: 2,
+                      class: "prose-mirror-editor-dropcursor",
+                  }),
+              ]
+            : []),
         initLinkPopoverPlugin(document, gettext_provider, editor_id),
         ...setupToolbar(schema, toolbar_bus),
         initPluginTransformInput(project_id, references),
         initPluginCloseMarksAfterSpace(),
+        ...setupAdditionalPlugins(),
     ];
 
     const state: EditorState = getState(initial_content);

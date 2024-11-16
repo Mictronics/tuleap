@@ -68,7 +68,8 @@ aside {
 
 .table-of-contents {
     position: sticky;
-    top: var(--header-height);
+    top: calc(var(--sticky-top-position) + var(--tlp-small-spacing));
+    padding: 0;
 }
 
 @media screen and (max-width: #{viewport-breakpoint.$small-screen-size}) {

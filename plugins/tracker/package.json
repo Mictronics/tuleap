@@ -8,20 +8,17 @@
     "@tuleap/burningparrot-theme": "workspace:^",
     "@tuleap/flamingparrot-theme": "workspace:^",
     "@tuleap/mention": "workspace:*",
-    "@tuleap/plugin-tracker-artifact-ckeditor-image-upload": "workspace:*",
     "@tuleap/plugin-tracker-rich-text-editor": "workspace:*",
-    "@tuleap/plugin-tracker-rte-creator": "workspace:*",
     "@tuleap/project-background": "workspace:*",
     "@tuleap/tlp": "workspace:*",
     "@tuleap/tlp-badge": "workspace:*",
-    "@tuleap/tlp-swatch-colors": "workspace:^",
-    "@tuleap/tooltip": "workspace:*"
+    "@tuleap/tlp-swatch-colors": "workspace:^"
   },
   "devDependencies": {
     "@tuleap/build-system-configurator": "workspace:*"
   },
   "scripts": {
-    "build": "rm -rf ./frontend-assets && webpack --config webpack.prod.js",
+    "build": "webpack --config webpack.prod.js",
     "watch": "webpack --config webpack.dev.js --watch"
   }
 }
