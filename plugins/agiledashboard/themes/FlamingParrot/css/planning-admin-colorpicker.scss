@@ -18,8 +18,7 @@
  */
 
 @use "pkg:@tuleap/plugin-tracker-color-picker";
-@import "../../../../tracker/themes/default/css/includes/field-bound-colors";
-@import "../../../../tracker/themes/default/css/includes/columns-colors";
+@use "pkg:@tuleap/plugin-cardwall-column-colors";
 
 .tracker-colorpicker {
     font-weight: normal;

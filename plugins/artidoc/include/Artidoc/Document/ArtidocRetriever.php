@@ -23,6 +23,8 @@ declare(strict_types=1);
 namespace Tuleap\Artidoc\Document;
 
 use Project_NotFoundException;
+use Tuleap\Artidoc\Adapter\Document\ArtidocDocument;
+use Tuleap\Artidoc\Adapter\Service\DocumentServiceDocmanProxy;
 use Tuleap\Docman\Item\GetItemFromRow;
 use Tuleap\Docman\ServiceDocman;
 use Tuleap\NeverThrow\Err;
@@ -54,7 +56,7 @@ final class ArtidocRetriever implements RetrieveArtidoc
         }
 
         $permissions_manager = \Docman_PermissionsManager::instance((int) $item->getGroupId());
-        if (! $permissions_manager->userCanRead($user, (int) $item->getId())) {
+        if (! $permissions_manager->userCanRead($user, $item->getId())) {
             return Result::err(Fault::fromMessage('User cannot read document'));
         }
 
@@ -66,6 +68,6 @@ final class ArtidocRetriever implements RetrieveArtidoc
 
         return $this->service_from_allowed_project_retriever
             ->getDocumentServiceFromAllowedProject($project)
-            ->map(static fn(ServiceDocman $service) => new ArtidocDocumentInformation($item, $service));
+            ->map(static fn(ServiceDocman $service) => new ArtidocDocumentInformation($item, $service, DocumentServiceDocmanProxy::build($service)));
     }
 }

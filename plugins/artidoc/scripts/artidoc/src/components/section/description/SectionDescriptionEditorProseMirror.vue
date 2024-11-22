@@ -37,7 +37,7 @@ import { strictInject } from "@tuleap/vue-strict-inject";
 import { TOOLBAR_BUS } from "@/toolbar-bus-injection-key";
 import { artidoc_editor_schema } from "../mono-editor/artidoc-editor-schema";
 import { renderArtidocSectionNode } from "@/components/section/description/render-artidoc-section-node";
-import { setupMonoEditorPlugins } from "../mono-editor/jump-to-section-node";
+import { setupMonoEditorPlugins } from "../mono-editor/setupMonoEditorPlugins";
 
 const toolbar_bus = strictInject(TOOLBAR_BUS);
 
@@ -77,7 +77,14 @@ watch(
     () => {
         if (!props.is_edit_mode) {
             resetProgressCallback();
-            if (editorView.value && useEditorInstance) {
+            if (
+                editorView.value &&
+                useEditorInstance &&
+                area_editor.value &&
+                String(
+                    area_editor.value.querySelector("artidoc-section-description")?.innerHTML,
+                ) !== props.editable_description
+            ) {
                 const artidoc_section = renderArtidocSectionNode(
                     props.title,
                     props.editable_description,

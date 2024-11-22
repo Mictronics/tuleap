@@ -96,13 +96,14 @@ final readonly class ArtidocController implements DispatchableWithRequest, Dispa
         );
 
         if (! $user->isAnonymous()) {
-            $this->recently_visited_dao->save((int) $user->getId(), (int) $document_information->document->getId(), \Tuleap\Request\RequestTime::getTimestamp());
+            $this->recently_visited_dao->save((int) $user->getId(), $document_information->document->getId(), \Tuleap\Request\RequestTime::getTimestamp());
         }
 
-        $title   = $document_information->document->getTitle();
-        $service = $document_information->service_docman;
+        $title            = $document_information->document->getTitle();
+        $service          = $document_information->not_yet_hexagonal_service_docman;
+        $document_service = $document_information->document_service;
 
-        $permissions_manager = \Docman_PermissionsManager::instance((int) $service->getProject()->getID());
+        $permissions_manager = \Docman_PermissionsManager::instance($document_service->getProjectIdentifier());
         $user_can_write      = $permissions_manager->userCanWrite($user, $document_information->document->getId());
 
         $allowed_max_size = \ForgeConfig::getInt('sys_max_size_upload');
@@ -113,7 +114,7 @@ final readonly class ArtidocController implements DispatchableWithRequest, Dispa
             [],
             HeaderConfigurationBuilder::get($title)
                 ->inProject($service->project, \DocmanPlugin::SERVICE_SHORTNAME)
-                ->withBodyClass(['has-sidebar-with-pinned-header'])
+                ->withBodyClass(['has-sidebar-with-pinned-header', 'reduce-help-button'])
                 ->build()
         );
         \TemplateRendererFactory::build()
@@ -121,7 +122,7 @@ final readonly class ArtidocController implements DispatchableWithRequest, Dispa
             ->renderToPage(
                 'artidoc',
                 new ArtidocPresenter(
-                    (int) $document_information->document->getId(),
+                    $document_information->document->getId(),
                     $user_can_write && \ForgeConfig::getFeatureFlag(self::EDIT_FEATURE_FLAG) === '1',
                     $title,
                     $this->getTrackerRepresentation($this->configured_tracker_retriever->getTracker($document_information->document), $user),
