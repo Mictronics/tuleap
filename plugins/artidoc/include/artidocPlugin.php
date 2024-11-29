@@ -21,13 +21,16 @@
 declare(strict_types=1);
 
 use Tuleap\Artidoc\Adapter\Document\ArtidocDocument;
+use Tuleap\Artidoc\Adapter\Document\ArtidocRetriever;
+use Tuleap\Artidoc\Adapter\Document\ArtidocWithContextDecorator;
+use Tuleap\Artidoc\Adapter\Document\CurrentCurrentUserHasArtidocPermissionsChecker;
+use Tuleap\Artidoc\Adapter\Document\Section\Identifier\UUIDSectionIdentifierFactory;
 use Tuleap\Artidoc\ArtidocController;
 use Tuleap\Artidoc\Document\ArtidocBreadcrumbsProvider;
 use Tuleap\Artidoc\Document\ArtidocDao;
-use Tuleap\Artidoc\Document\ArtidocRetriever;
+use Tuleap\Artidoc\Domain\Document\ArtidocWithContextRetriever;
 use Tuleap\Artidoc\Document\ConfiguredTrackerRetriever;
 use Tuleap\Artidoc\Document\DocumentServiceFromAllowedProjectRetriever;
-use Tuleap\Artidoc\Document\Section\Identifier\SectionIdentifierFactory;
 use Tuleap\Artidoc\Document\Tracker\SuitableTrackerForDocumentChecker;
 use Tuleap\Artidoc\Document\Tracker\SuitableTrackersForDocumentRetriever;
 use Tuleap\Artidoc\REST\ResourcesInjector;
@@ -119,11 +122,13 @@ class ArtidocPlugin extends Plugin implements PluginWithConfigKeys
 
         $form_element_factory = Tracker_FormElementFactory::instance();
         return new ArtidocController(
-            new ArtidocRetriever(
-                ProjectManager::instance(),
-                $dao,
-                $docman_item_factory,
-                new DocumentServiceFromAllowedProjectRetriever($this),
+            new ArtidocWithContextRetriever(
+                new ArtidocRetriever($dao, $docman_item_factory),
+                CurrentCurrentUserHasArtidocPermissionsChecker::withCurrentUser(HTTPRequest::instance()->getCurrentUser()),
+                new ArtidocWithContextDecorator(
+                    ProjectManager::instance(),
+                    new DocumentServiceFromAllowedProjectRetriever($this),
+                ),
             ),
             new ConfiguredTrackerRetriever(
                 $dao,
@@ -317,6 +322,6 @@ class ArtidocPlugin extends Plugin implements PluginWithConfigKeys
 
     private function getArtidocDao(): ArtidocDao
     {
-        return (new ArtidocDao(new SectionIdentifierFactory(new DatabaseUUIDV7Factory())));
+        return (new ArtidocDao(new UUIDSectionIdentifierFactory(new DatabaseUUIDV7Factory())));
     }
 }

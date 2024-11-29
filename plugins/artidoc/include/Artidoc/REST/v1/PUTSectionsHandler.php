@@ -22,12 +22,11 @@ declare(strict_types=1);
 
 namespace Tuleap\Artidoc\REST\v1;
 
-use Tuleap\Artidoc\Document\ArtidocDocumentInformation;
 use Tuleap\Artidoc\Document\PaginatedRawSections;
 use Tuleap\Artidoc\Document\RawSection;
-use Tuleap\Artidoc\Document\RetrieveArtidoc;
+use Tuleap\Artidoc\Domain\Document\RetrieveArtidocWithContext;
 use Tuleap\Artidoc\Document\SaveSections;
-use Tuleap\Artidoc\Document\Section\Identifier\SectionIdentifierFactory;
+use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifierFactory;
 use Tuleap\NeverThrow\Err;
 use Tuleap\NeverThrow\Fault;
 use Tuleap\NeverThrow\Ok;
@@ -36,7 +35,7 @@ use Tuleap\NeverThrow\Result;
 final readonly class PUTSectionsHandler
 {
     public function __construct(
-        private RetrieveArtidoc $retrieve_artidoc,
+        private RetrieveArtidocWithContext $retrieve_artidoc,
         private TransformRawSectionsToRepresentation $transformer,
         private SaveSections $dao,
         private SectionIdentifierFactory $identifier_factory,
@@ -50,8 +49,7 @@ final readonly class PUTSectionsHandler
     public function handle(int $id, array $sections, \PFUser $user): Ok|Err
     {
         return $this->retrieve_artidoc
-            ->retrieveArtidoc($id, $user)
-            ->andThen(fn (ArtidocDocumentInformation $document_information) => $this->ensureThatUserCanWriteDocument($document_information, $user))
+            ->retrieveArtidocUserCanWrite($id)
             ->andThen(fn() => $this->ensureThatUserCanReadAllNewSections($id, $sections, $user))
             ->andThen(
                 /**
@@ -59,19 +57,6 @@ final readonly class PUTSectionsHandler
                  */
                 fn(array $artifact_ids) => $this->saveSections($id, $artifact_ids)
             );
-    }
-
-    /**
-     * @return Ok<ArtidocDocumentInformation>|Err<Fault>
-     */
-    private function ensureThatUserCanWriteDocument(ArtidocDocumentInformation $document_information, \PFUser $user): Ok|Err
-    {
-        $permissions_manager = \Docman_PermissionsManager::instance($document_information->document->getProjectId());
-        if (! $permissions_manager->userCanWrite($user, $document_information->document->getId())) {
-            return Result::err(Fault::fromMessage('User cannot write document'));
-        }
-
-        return Result::ok($document_information);
     }
 
     /**

@@ -22,16 +22,13 @@ declare(strict_types=1);
 
 namespace Tuleap\Artidoc\REST\v1;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use Tuleap\Artidoc\Adapter\Document\ArtidocDocument;
-use Tuleap\Artidoc\Adapter\Service\DocumentServiceDocmanProxy;
-use Tuleap\Artidoc\Document\ArtidocDocumentInformation;
-use Tuleap\Artidoc\Document\Section\Identifier\SectionIdentifierFactory;
-use Tuleap\Artidoc\Stubs\Document\RetrieveArtidocStub;
+use Tuleap\Artidoc\Adapter\Document\Section\Identifier\UUIDSectionIdentifierFactory;
+use Tuleap\Artidoc\Domain\Document\ArtidocWithContext;
 use Tuleap\Artidoc\Stubs\Document\SaveSectionsStub;
 use Tuleap\Artidoc\Stubs\Document\TransformRawSectionsToRepresentationStub;
+use Tuleap\Artidoc\Stubs\Domain\Document\RetrieveArtidocWithContextStub;
 use Tuleap\DB\DatabaseUUIDV7Factory;
-use Tuleap\Docman\ServiceDocman;
 use Tuleap\NeverThrow\Result;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
@@ -41,41 +38,27 @@ final class PUTSectionsHandlerTest extends TestCase
     private const PROJECT_ID = 101;
 
     private \PFUser $user;
-    private \Docman_PermissionsManager & MockObject $permissions_manager;
 
     protected function setUp(): void
     {
         $this->user = UserTestBuilder::buildWithDefaults();
-
-        $this->permissions_manager = $this->createMock(\Docman_PermissionsManager::class);
-        \Docman_PermissionsManager::setInstance(self::PROJECT_ID, $this->permissions_manager);
-    }
-
-    protected function tearDown(): void
-    {
-        \Docman_PermissionsManager::clearInstances();
     }
 
     public function testHappyPath(): void
     {
         $saver = SaveSectionsStub::build();
 
-        $this->permissions_manager->method('userCanWrite')->willReturn(true);
-
         $dummy_collection = new PaginatedArtidocSectionRepresentationCollection([], 0);
 
-        $service_docman = $this->createMock(ServiceDocman::class);
-        $handler        = new PUTSectionsHandler(
-            RetrieveArtidocStub::withDocument(
-                new ArtidocDocumentInformation(
+        $handler = new PUTSectionsHandler(
+            RetrieveArtidocWithContextStub::withDocumentUserCanWrite(
+                new ArtidocWithContext(
                     new ArtidocDocument(['item_id' => 1, 'group_id' => self::PROJECT_ID]),
-                    $this->createMock(ServiceDocman::class),
-                    DocumentServiceDocmanProxy::build($service_docman)
                 ),
             ),
             TransformRawSectionsToRepresentationStub::withCollection($dummy_collection),
             $saver,
-            new SectionIdentifierFactory(new DatabaseUUIDV7Factory()),
+            new UUIDSectionIdentifierFactory(new DatabaseUUIDV7Factory()),
         );
 
         $result = $handler->handle(
@@ -100,13 +83,11 @@ final class PUTSectionsHandlerTest extends TestCase
     {
         $saver = SaveSectionsStub::build();
 
-        $this->permissions_manager->method('userCanWrite')->willReturn(true);
-
         $handler = new PUTSectionsHandler(
-            RetrieveArtidocStub::withoutDocument(),
+            RetrieveArtidocWithContextStub::withoutDocument(),
             TransformRawSectionsToRepresentationStub::shouldNotBeCalled(),
             $saver,
-            new SectionIdentifierFactory(new DatabaseUUIDV7Factory()),
+            new UUIDSectionIdentifierFactory(new DatabaseUUIDV7Factory()),
         );
 
         $result = $handler->handle(
@@ -130,20 +111,15 @@ final class PUTSectionsHandlerTest extends TestCase
     {
         $saver = SaveSectionsStub::build();
 
-        $this->permissions_manager->method('userCanWrite')->willReturn(true);
-
-        $service_docman = $this->createMock(ServiceDocman::class);
-        $handler        = new PUTSectionsHandler(
-            RetrieveArtidocStub::withDocument(
-                new ArtidocDocumentInformation(
+        $handler = new PUTSectionsHandler(
+            RetrieveArtidocWithContextStub::withDocumentUserCanWrite(
+                new ArtidocWithContext(
                     new ArtidocDocument(['item_id' => 1, 'group_id' => self::PROJECT_ID]),
-                    $this->createMock(ServiceDocman::class),
-                    DocumentServiceDocmanProxy::build($service_docman)
                 ),
             ),
             TransformRawSectionsToRepresentationStub::withoutCollection(),
             $saver,
-            new SectionIdentifierFactory(new DatabaseUUIDV7Factory()),
+            new UUIDSectionIdentifierFactory(new DatabaseUUIDV7Factory()),
         );
 
         $result = $handler->handle(
@@ -167,20 +143,15 @@ final class PUTSectionsHandlerTest extends TestCase
     {
         $saver = SaveSectionsStub::build();
 
-        $this->permissions_manager->method('userCanWrite')->willReturn(false);
-
-        $service_docman = $this->createMock(ServiceDocman::class);
-        $handler        = new PUTSectionsHandler(
-            RetrieveArtidocStub::withDocument(
-                new ArtidocDocumentInformation(
+        $handler = new PUTSectionsHandler(
+            RetrieveArtidocWithContextStub::withDocumentUserCanRead(
+                new ArtidocWithContext(
                     new ArtidocDocument(['item_id' => 1, 'group_id' => self::PROJECT_ID]),
-                    $this->createMock(ServiceDocman::class),
-                    DocumentServiceDocmanProxy::build($service_docman)
                 ),
             ),
             TransformRawSectionsToRepresentationStub::shouldNotBeCalled(),
             $saver,
-            new SectionIdentifierFactory(new DatabaseUUIDV7Factory()),
+            new UUIDSectionIdentifierFactory(new DatabaseUUIDV7Factory()),
         );
 
         $result = $handler->handle(

@@ -29,16 +29,28 @@ use EventManager;
 use Luracast\Restler\RestException;
 use ProjectManager;
 use Tuleap\Artidoc\Adapter\Document\ArtidocDocument;
+use Tuleap\Artidoc\Adapter\Document\ArtidocRetriever;
+use Tuleap\Artidoc\Adapter\Document\ArtidocWithContextDecorator;
+use Tuleap\Artidoc\Adapter\Document\CurrentCurrentUserHasArtidocPermissionsChecker;
+use Tuleap\Artidoc\Adapter\Document\Section\Identifier\UUIDSectionIdentifierFactory;
 use Tuleap\Artidoc\Document\ArtidocDao;
-use Tuleap\Artidoc\Document\ArtidocRetriever;
+use Tuleap\Artidoc\Domain\Document\ArtidocWithContextRetriever;
 use Tuleap\Artidoc\Document\DocumentServiceFromAllowedProjectRetriever;
-use Tuleap\Artidoc\Document\Section\Identifier\SectionIdentifierFactory;
 use Tuleap\Artidoc\Document\Tracker\NoSemanticDescriptionFault;
 use Tuleap\Artidoc\Document\Tracker\NoSemanticTitleFault;
 use Tuleap\Artidoc\Document\Tracker\SemanticTitleIsNotAStringFault;
 use Tuleap\Artidoc\Document\Tracker\SuitableTrackerForDocumentChecker;
 use Tuleap\Artidoc\Document\Tracker\TooManyRequiredFieldsFault;
 use Tuleap\Artidoc\Document\Tracker\TrackerNotFoundFault;
+use Tuleap\Artidoc\Domain\Document\Order\CannotMoveSectionRelativelyToItselfFault;
+use Tuleap\Artidoc\Domain\Document\Order\Direction;
+use Tuleap\Artidoc\Domain\Document\Order\InvalidComparedToFault;
+use Tuleap\Artidoc\Domain\Document\Order\InvalidDirectionFault;
+use Tuleap\Artidoc\Domain\Document\Order\InvalidIdsFault;
+use Tuleap\Artidoc\Domain\Document\Order\SectionOrderBuilder;
+use Tuleap\Artidoc\Domain\Document\Order\UnableToReorderSectionOutsideOfDocumentFault;
+use Tuleap\Artidoc\Domain\Document\Order\UnknownSectionToMoveFault;
+use Tuleap\Artidoc\Domain\Document\UserCannotWriteDocumentFault;
 use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\Docman\ItemType\DoesItemHasExpectedTypeVisitor;
 use Tuleap\Docman\REST\v1\DocmanItemsEventAdder;
@@ -139,7 +151,7 @@ final class ArtidocResource extends AuthenticatedResource
      */
     public function optionsSections(int $id): void
     {
-        Header::allowOptionsGetPutPost();
+        Header::allowOptionsGetPutPostPatch();
     }
 
     /**
@@ -163,8 +175,9 @@ final class ArtidocResource extends AuthenticatedResource
     {
         $this->checkAccess();
 
-        return $this->getBuilder()
-            ->build($id, $limit, $offset, UserManager::instance()->getCurrentUser())
+        $user = UserManager::instance()->getCurrentUser();
+        return $this->getBuilder($user)
+            ->build($id, $limit, $offset, $user)
             ->match(
                 function (PaginatedArtidocSectionRepresentationCollection $collection) use ($limit, $offset) {
                     Header::sendPaginationHeaders($limit, $offset, $collection->total, self::MAX_LIMIT);
@@ -183,6 +196,8 @@ final class ArtidocResource extends AuthenticatedResource
      * Set sections of an artidoc document.
      *
      * <p>The sections will be saved in the given order.</p>
+     *
+     * <p>Note: do not use this route to reorder sections since it will change the section ids.</p>
      *
      * <p>Example payload:</p>
      * <pre>
@@ -205,8 +220,9 @@ final class ArtidocResource extends AuthenticatedResource
     {
         $this->checkAccess();
 
-        $this->getPutHandler()
-            ->handle($id, $sections, UserManager::instance()->getCurrentUser())
+        $user = UserManager::instance()->getCurrentUser();
+        $this->getPutHandler($user)
+            ->handle($id, $sections, $user)
             ->match(
                 static function () {
                     // nothing to do
@@ -220,6 +236,85 @@ final class ArtidocResource extends AuthenticatedResource
                         );
                     }
                     throw new RestException(404);
+                }
+            );
+    }
+
+    /**
+     * Reorder sections
+     *
+     * Reorder sections of a document.
+     *
+     * <p>Note: only one section can be moved for now.</p>
+     *
+     * <p>Example payload to move section with id "123" before the section with id "124":</p>
+     * <pre>
+     * {<br>
+     * &nbsp;&nbsp;"order": {<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;"ids": ["123"],<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;"direction": "before",<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;"compared_to": "124"<br>
+     * &nbsp;&nbsp;}<br>
+     * }
+     * </pre>
+     *
+     * @url    PATCH {id}/sections
+     * @access hybrid
+     *
+     * @param int $id Id of the document
+     * @param \Tuleap\Artidoc\REST\v1\OrderRepresentation $order Order of the sections {@from body}
+     *
+     * @status 200
+     * @throws RestException
+     */
+    public function patchSections(int $id, OrderRepresentation $order): void
+    {
+        $this->checkAccess();
+
+        $user = UserManager::instance()->getCurrentUser();
+        $this->getPatchHandler($user)
+            ->handle($id, $order)
+            ->match(
+                static function () {
+                    // nothing to do
+                },
+                static function (Fault $fault) use ($order) {
+                    Fault::writeToLogger($fault, RESTLogger::getLogger());
+                    throw match (true) {
+                        $fault instanceof UserCannotWriteDocumentFault => new I18NRestException(
+                            403,
+                            dgettext('tuleap-artidoc', "You don't have permission to write the document.")
+                        ),
+                        $fault instanceof CannotMoveSectionRelativelyToItselfFault => new I18NRestException(
+                            400,
+                            dgettext('tuleap-artidoc', 'The section cannot be moved relatively to itself.'),
+                        ),
+                        $fault instanceof InvalidComparedToFault => new I18NRestException(
+                            400,
+                            dgettext('tuleap-artidoc', 'The compared_to is not a valid section identifier.'),
+                        ),
+                        $fault instanceof InvalidDirectionFault => new I18NRestException(
+                            400,
+                            sprintf(
+                                dgettext('tuleap-artidoc', 'Unknown direction "%s". Expected one of the following values: %s'),
+                                $order->direction,
+                                implode(', ', Direction::allowed()),
+                            ),
+                        ),
+                        $fault instanceof InvalidIdsFault => new I18NRestException(
+                            400,
+                            dgettext('tuleap-artidoc', 'The ids is invalid. Expected an array of one section identifier.'),
+                        ),
+                        $fault instanceof UnableToReorderSectionOutsideOfDocumentFault => new I18NRestException(
+                            400,
+                            dgettext('tuleap-artidoc', 'The section cannot be reordered outside of its document.'),
+                        ),
+                        $fault instanceof UnknownSectionToMoveFault => new I18NRestException(
+                            400,
+                            dgettext('tuleap-artidoc', 'The section being moved does not belong to the document.'),
+                        ),
+                        default => new RestException(404, (string) $fault),
+                    };
                 }
             );
     }
@@ -258,8 +353,9 @@ final class ArtidocResource extends AuthenticatedResource
     {
         $this->checkAccess();
 
-        return $this->getPostHandler()
-            ->handle($id, $section, UserManager::instance()->getCurrentUser())
+        $user = UserManager::instance()->getCurrentUser();
+        return $this->getPostHandler($user)
+            ->handle($id, $section, $user)
             ->match(
                 static function (ArtidocSectionRepresentation $representation) {
                     return $representation;
@@ -311,8 +407,9 @@ final class ArtidocResource extends AuthenticatedResource
     {
         $this->checkAccess();
 
-        $this->getPutConfigurationHandler()
-            ->handle($id, $configuration, UserManager::instance()->getCurrentUser())
+        $user = UserManager::instance()->getCurrentUser();
+        $this->getPutConfigurationHandler($user)
+            ->handle($id, $configuration, $user)
             ->match(
                 static function () {
                     // nothing to do
@@ -350,19 +447,21 @@ final class ArtidocResource extends AuthenticatedResource
             );
     }
 
-    private function getBuilder(): PaginatedArtidocSectionRepresentationCollectionBuilder
+    private function getBuilder(\PFUser $user): PaginatedArtidocSectionRepresentationCollectionBuilder
     {
         $plugin = \PluginManager::instance()->getEnabledPluginByName('artidoc');
         if (! $plugin) {
             throw new RestException(404);
         }
 
-        $dao       = new ArtidocDao(new SectionIdentifierFactory(new DatabaseUUIDV7Factory()));
-        $retriever = new ArtidocRetriever(
-            \ProjectManager::instance(),
-            $dao,
-            new Docman_ItemFactory(),
-            new DocumentServiceFromAllowedProjectRetriever($plugin),
+        $dao       = new ArtidocDao(new UUIDSectionIdentifierFactory(new DatabaseUUIDV7Factory()));
+        $retriever = new ArtidocWithContextRetriever(
+            new ArtidocRetriever($dao, new Docman_ItemFactory()),
+            CurrentCurrentUserHasArtidocPermissionsChecker::withCurrentUser($user),
+            new ArtidocWithContextDecorator(
+                \ProjectManager::instance(),
+                new DocumentServiceFromAllowedProjectRetriever($plugin),
+            ),
         );
 
         $transformer = $this->getRepresentationTransformer();
@@ -373,20 +472,22 @@ final class ArtidocResource extends AuthenticatedResource
     /**
      * @throws RestException
      */
-    private function getPutHandler(): PUTSectionsHandler
+    private function getPutHandler(\PFUser $user): PUTSectionsHandler
     {
         $plugin = \PluginManager::instance()->getEnabledPluginByName('artidoc');
         if (! $plugin) {
             throw new RestException(404);
         }
 
-        $identifier_factory = new SectionIdentifierFactory(new DatabaseUUIDV7Factory());
+        $identifier_factory = new UUIDSectionIdentifierFactory(new DatabaseUUIDV7Factory());
         $dao                = new ArtidocDao($identifier_factory);
-        $retriever          = new ArtidocRetriever(
-            \ProjectManager::instance(),
-            $dao,
-            new Docman_ItemFactory(),
-            new DocumentServiceFromAllowedProjectRetriever($plugin),
+        $retriever          = new ArtidocWithContextRetriever(
+            new ArtidocRetriever($dao, new Docman_ItemFactory()),
+            CurrentCurrentUserHasArtidocPermissionsChecker::withCurrentUser($user),
+            new ArtidocWithContextDecorator(
+                \ProjectManager::instance(),
+                new DocumentServiceFromAllowedProjectRetriever($plugin),
+            ),
         );
 
         $transformer = $this->getRepresentationTransformer();
@@ -402,20 +503,22 @@ final class ArtidocResource extends AuthenticatedResource
     /**
      * @throws RestException
      */
-    private function getPostHandler(): POSTSectionHandler
+    private function getPostHandler(\PFUser $user): POSTSectionHandler
     {
         $plugin = \PluginManager::instance()->getEnabledPluginByName('artidoc');
         if (! $plugin) {
             throw new RestException(404);
         }
 
-        $identifier_factory = new SectionIdentifierFactory(new DatabaseUUIDV7Factory());
+        $identifier_factory = new UUIDSectionIdentifierFactory(new DatabaseUUIDV7Factory());
         $dao                = new ArtidocDao($identifier_factory);
-        $retriever          = new ArtidocRetriever(
-            \ProjectManager::instance(),
-            $dao,
-            new Docman_ItemFactory(),
-            new DocumentServiceFromAllowedProjectRetriever($plugin),
+        $retriever          = new ArtidocWithContextRetriever(
+            new ArtidocRetriever($dao, new Docman_ItemFactory()),
+            CurrentCurrentUserHasArtidocPermissionsChecker::withCurrentUser($user),
+            new ArtidocWithContextDecorator(
+                \ProjectManager::instance(),
+                new DocumentServiceFromAllowedProjectRetriever($plugin),
+            ),
         );
 
         $transformer = $this->getRepresentationTransformer();
@@ -431,19 +534,49 @@ final class ArtidocResource extends AuthenticatedResource
     /**
      * @throws RestException
      */
-    private function getPutConfigurationHandler(): PUTConfigurationHandler
+    private function getPatchHandler(\PFUser $user): PATCHSectionsHandler
     {
         $plugin = \PluginManager::instance()->getEnabledPluginByName('artidoc');
         if (! $plugin) {
             throw new RestException(404);
         }
 
-        $dao       = new ArtidocDao(new SectionIdentifierFactory(new DatabaseUUIDV7Factory()));
-        $retriever = new ArtidocRetriever(
-            \ProjectManager::instance(),
+        $identifier_factory = new UUIDSectionIdentifierFactory(new DatabaseUUIDV7Factory());
+        $dao                = new ArtidocDao($identifier_factory);
+        $retriever          = new ArtidocWithContextRetriever(
+            new ArtidocRetriever($dao, new Docman_ItemFactory()),
+            CurrentCurrentUserHasArtidocPermissionsChecker::withCurrentUser($user),
+            new ArtidocWithContextDecorator(
+                \ProjectManager::instance(),
+                new DocumentServiceFromAllowedProjectRetriever($plugin),
+            ),
+        );
+
+        return new PATCHSectionsHandler(
+            $retriever,
+            new SectionOrderBuilder($identifier_factory),
             $dao,
-            new Docman_ItemFactory(),
-            new DocumentServiceFromAllowedProjectRetriever($plugin),
+        );
+    }
+
+    /**
+     * @throws RestException
+     */
+    private function getPutConfigurationHandler(\PFUser $user): PUTConfigurationHandler
+    {
+        $plugin = \PluginManager::instance()->getEnabledPluginByName('artidoc');
+        if (! $plugin) {
+            throw new RestException(404);
+        }
+
+        $dao       = new ArtidocDao(new UUIDSectionIdentifierFactory(new DatabaseUUIDV7Factory()));
+        $retriever = new ArtidocWithContextRetriever(
+            new ArtidocRetriever($dao, new Docman_ItemFactory()),
+            CurrentCurrentUserHasArtidocPermissionsChecker::withCurrentUser($user),
+            new ArtidocWithContextDecorator(
+                \ProjectManager::instance(),
+                new DocumentServiceFromAllowedProjectRetriever($plugin),
+            ),
         );
 
         return new PUTConfigurationHandler(

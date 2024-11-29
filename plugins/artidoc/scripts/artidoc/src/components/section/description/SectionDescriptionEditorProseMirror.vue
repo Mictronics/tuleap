@@ -27,12 +27,12 @@ import type {
     UseEditorType,
     PluginDropFile,
     PluginInput,
+    SerializeDOM,
 } from "@tuleap/prose-mirror-editor";
 import { initPluginDropFile, initPluginInput, useEditor } from "@tuleap/prose-mirror-editor";
 import type { EditorSectionContent } from "@/composables/useEditorSectionContent";
 import type { GetText } from "@tuleap/gettext";
 import type { UseUploadFileType } from "@/composables/useUploadFile";
-import type { CrossReference } from "@/stores/useSectionsStore";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import { TOOLBAR_BUS } from "@/toolbar-bus-injection-key";
 import { artidoc_editor_schema } from "../mono-editor/artidoc-editor-schema";
@@ -49,7 +49,6 @@ const props = defineProps<{
     input_section_content: EditorSectionContent["inputSectionContent"];
     upload_file: UseUploadFileType;
     project_id: number;
-    references: Array<CrossReference>;
 }>();
 
 let useEditorInstance: UseEditorType | undefined;
@@ -63,8 +62,8 @@ function setupUploadPlugin(gettext_provider: GetText): PluginDropFile {
     return initPluginDropFile(file_upload_options, gettext_provider);
 }
 
-const setupInputPlugin = (): PluginInput =>
-    initPluginInput((content: HTMLElement) => {
+const setupInputPlugin = (serializer: SerializeDOM): PluginInput =>
+    initPluginInput(serializer, (content: HTMLElement) => {
         props.input_section_content(
             String(content.querySelector("artidoc-section-title")?.textContent),
             String(content.querySelector("artidoc-section-description")?.innerHTML),
@@ -107,7 +106,6 @@ onMounted(async () => {
             is_upload_allowed,
             renderArtidocSectionNode(props.title, props.editable_description),
             props.project_id,
-            props.references,
             toolbar_bus,
             artidoc_editor_schema,
         );

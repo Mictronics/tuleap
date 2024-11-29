@@ -22,14 +22,12 @@ declare(strict_types=1);
 
 namespace Tuleap\Artidoc\REST\v1;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use Tuleap\Artidoc\Adapter\Document\ArtidocDocument;
-use Tuleap\Artidoc\Adapter\Service\DocumentServiceDocmanProxy;
-use Tuleap\Artidoc\Document\ArtidocDocumentInformation;
-use Tuleap\Artidoc\Stubs\Document\RetrieveArtidocStub;
+use Tuleap\Artidoc\Domain\Document\ArtidocWithContext;
+use Tuleap\Artidoc\Domain\Document\UserCannotWriteDocumentFault;
 use Tuleap\Artidoc\Stubs\Document\SaveConfiguredTrackerStub;
 use Tuleap\Artidoc\Stubs\Document\Tracker\CheckTrackerIsSuitableForDocumentStub;
-use Tuleap\Docman\ServiceDocman;
+use Tuleap\Artidoc\Stubs\Domain\Document\RetrieveArtidocWithContextStub;
 use Tuleap\NeverThrow\Result;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
@@ -42,39 +40,25 @@ final class PUTConfigurationHandlerTest extends TestCase
     private const TRACKER_ID = 1001;
 
     private \PFUser $user;
-    private \Docman_PermissionsManager & MockObject $permissions_manager;
 
     protected function setUp(): void
     {
         $this->user = UserTestBuilder::buildWithDefaults();
-
-        $this->permissions_manager = $this->createMock(\Docman_PermissionsManager::class);
-        \Docman_PermissionsManager::setInstance(self::PROJECT_ID, $this->permissions_manager);
-    }
-
-    protected function tearDown(): void
-    {
-        \Docman_PermissionsManager::clearInstances();
     }
 
     public function testHappyPath(): void
     {
         $saver = SaveConfiguredTrackerStub::build();
 
-        $this->permissions_manager->method('userCanWrite')->willReturn(true);
-
         $tracker = TrackerTestBuilder::aTracker()
             ->withUserCanView(true)
             ->withId(self::TRACKER_ID)
             ->build();
 
-        $service_docman = $this->createMock(ServiceDocman::class);
-        $handler        = new PUTConfigurationHandler(
-            RetrieveArtidocStub::withDocument(
-                new ArtidocDocumentInformation(
+        $handler = new PUTConfigurationHandler(
+            RetrieveArtidocWithContextStub::withDocumentUserCanWrite(
+                new ArtidocWithContext(
                     new ArtidocDocument(['item_id' => 1, 'group_id' => self::PROJECT_ID]),
-                    $this->createMock(ServiceDocman::class),
-                    DocumentServiceDocmanProxy::build($service_docman)
                 ),
             ),
             $saver,
@@ -97,10 +81,8 @@ final class PUTConfigurationHandlerTest extends TestCase
     {
         $saver = SaveConfiguredTrackerStub::build();
 
-        $this->permissions_manager->method('userCanWrite')->willReturn(true);
-
         $handler = new PUTConfigurationHandler(
-            RetrieveArtidocStub::withoutDocument(),
+            RetrieveArtidocWithContextStub::withoutDocument(),
             $saver,
             RetrieveTrackerStub::withTracker(
                 TrackerTestBuilder::aTracker()
@@ -125,15 +107,10 @@ final class PUTConfigurationHandlerTest extends TestCase
     {
         $saver = SaveConfiguredTrackerStub::build();
 
-        $this->permissions_manager->method('userCanWrite')->willReturn(false);
-
-        $service_docman = $this->createMock(ServiceDocman::class);
-        $handler        = new PUTConfigurationHandler(
-            RetrieveArtidocStub::withDocument(
-                new ArtidocDocumentInformation(
+        $handler = new PUTConfigurationHandler(
+            RetrieveArtidocWithContextStub::withDocumentUserCanRead(
+                new ArtidocWithContext(
                     new ArtidocDocument(['item_id' => 1, 'group_id' => self::PROJECT_ID]),
-                    $this->createMock(ServiceDocman::class),
-                    DocumentServiceDocmanProxy::build($service_docman)
                 ),
             ),
             $saver,
@@ -161,15 +138,10 @@ final class PUTConfigurationHandlerTest extends TestCase
     {
         $saver = SaveConfiguredTrackerStub::build();
 
-        $this->permissions_manager->method('userCanWrite')->willReturn(true);
-
-        $service_docman = $this->createMock(ServiceDocman::class);
-        $handler        = new PUTConfigurationHandler(
-            RetrieveArtidocStub::withDocument(
-                new ArtidocDocumentInformation(
+        $handler = new PUTConfigurationHandler(
+            RetrieveArtidocWithContextStub::withDocumentUserCanWrite(
+                new ArtidocWithContext(
                     new ArtidocDocument(['item_id' => 1, 'group_id' => self::PROJECT_ID]),
-                    $this->createMock(ServiceDocman::class),
-                    DocumentServiceDocmanProxy::build($service_docman)
                 ),
             ),
             $saver,
@@ -191,15 +163,10 @@ final class PUTConfigurationHandlerTest extends TestCase
     {
         $saver = SaveConfiguredTrackerStub::build();
 
-        $this->permissions_manager->method('userCanWrite')->willReturn(true);
-
-        $service_docman = $this->createMock(ServiceDocman::class);
-        $handler        = new PUTConfigurationHandler(
-            RetrieveArtidocStub::withDocument(
-                new ArtidocDocumentInformation(
+        $handler = new PUTConfigurationHandler(
+            RetrieveArtidocWithContextStub::withDocumentUserCanWrite(
+                new ArtidocWithContext(
                     new ArtidocDocument(['item_id' => 1, 'group_id' => self::PROJECT_ID]),
-                    $this->createMock(ServiceDocman::class),
-                    DocumentServiceDocmanProxy::build($service_docman)
                 ),
             ),
             $saver,
