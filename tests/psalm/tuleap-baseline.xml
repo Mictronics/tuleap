@@ -5324,16 +5324,9 @@
       <code><![CDATA[$report_id]]></code>
       <code><![CDATA[$report_id]]></code>
       <code><![CDATA[$report_id]]></code>
-      <code><![CDATA[$report_id]]></code>
-      <code><![CDATA[$report_id]]></code>
-      <code><![CDATA[$report_id]]></code>
     </MissingParamType>
     <MissingReturnType>
-      <code><![CDATA[addTrackersToReport]]></code>
-      <code><![CDATA[create]]></code>
       <code><![CDATA[delete]]></code>
-      <code><![CDATA[searchReportById]]></code>
-      <code><![CDATA[searchReportTrackersById]]></code>
       <code><![CDATA[searchTrackersIdUsedByCrossTrackerByProjectId]]></code>
       <code><![CDATA[updateExpertQuery]]></code>
       <code><![CDATA[updateReport]]></code>
@@ -5355,17 +5348,6 @@
       <code><![CDATA[$offset]]></code>
       <code><![CDATA[$size]]></code>
     </MissingParamType>
-    <UndefinedClass>
-      <code><![CDATA[Parser]]></code>
-      <code><![CDATA[SyntaxError]]></code>
-      <code><![CDATA[SyntaxError]]></code>
-      <code><![CDATA[SyntaxError]]></code>
-    </UndefinedClass>
-  </file>
-  <file src="plugins/crosstracker/include/CrossTracker/REST/v1/SyntaxErrorTranslator.php">
-    <UndefinedClass>
-      <code><![CDATA[SyntaxError]]></code>
-    </UndefinedClass>
   </file>
   <file src="plugins/crosstracker/include/CrossTracker/Report/CSV/CSVRepresentation.php">
     <MissingReturnType>
@@ -5460,14 +5442,6 @@
       <code><![CDATA[getFieldValue]]></code>
     </MissingReturnType>
   </file>
-  <file src="plugins/crosstracker/include/CrossTracker/Report/CrossTrackerArtifactReportFactory.php">
-    <UndefinedDocblockClass>
-      <code><![CDATA[SyntaxError]]></code>
-      <code><![CDATA[SyntaxError]]></code>
-      <code><![CDATA[SyntaxError]]></code>
-      <code><![CDATA[SyntaxError]]></code>
-    </UndefinedDocblockClass>
-  </file>
   <file src="plugins/crosstracker/include/CrossTracker/Report/Query/Advanced/QueryBuilder/CrossTrackerExpertQueryReportDao.php">
     <MissingParamType>
       <code><![CDATA[$limit]]></code>
@@ -5511,12 +5485,6 @@
     <DeprecatedMethod>
       <code><![CDATA[getAvatarUrl]]></code>
     </DeprecatedMethod>
-  </file>
-  <file src="plugins/crosstracker/include/CrossTracker/Report/ReportTrackersRetriever.php">
-    <UndefinedDocblockClass>
-      <code><![CDATA[SyntaxError]]></code>
-      <code><![CDATA[SyntaxError]]></code>
-    </UndefinedDocblockClass>
   </file>
   <file src="plugins/crosstracker/include/CrossTracker/Report/SimilarField/BindNameVisitor.php">
     <MissingReturnType>
@@ -5628,10 +5596,8 @@
       <code><![CDATA[$id]]></code>
       <code><![CDATA[$owner_id]]></code>
       <code><![CDATA[$owner_type]]></code>
-      <code><![CDATA[$report_id]]></code>
     </MissingParamType>
     <MissingReturnType>
-      <code><![CDATA[cloneContent]]></code>
       <code><![CDATA[destroy]]></code>
       <code><![CDATA[getCategory]]></code>
       <code><![CDATA[getContent]]></code>
@@ -5653,14 +5619,6 @@
     <MissingReturnType>
       <code><![CDATA[uninstall]]></code>
     </MissingReturnType>
-    <UndefinedClass>
-      <code><![CDATA[Parser]]></code>
-    </UndefinedClass>
-  </file>
-  <file src="plugins/crosstracker/tests/integration/CrossTracker/Tests/Report/ArtifactReportFactoryInstantiator.php">
-    <UndefinedClass>
-      <code><![CDATA[Parser]]></code>
-    </UndefinedClass>
   </file>
   <file src="plugins/docman/bin/DocmanExport/Docman_ExportException.class.php">
     <MissingParamType>
@@ -7000,6 +6958,7 @@
       <code><![CDATA[_setView]]></code>
       <code><![CDATA[_setView]]></code>
       <code><![CDATA[_setView]]></code>
+      <code><![CDATA[_setView]]></code>
       <code><![CDATA[_set_createItemView_afterCreate]]></code>
       <code><![CDATA[_set_createItemView_errorParentDoesNotExist]]></code>
       <code><![CDATA[_set_deleteView_errorPerms]]></code>
@@ -7543,14 +7502,10 @@
       <code><![CDATA[$action]]></code>
       <code><![CDATA[$icon]]></code>
       <code><![CDATA[$icon]]></code>
-      <code><![CDATA[$images_path]]></code>
       <code><![CDATA[$item]]></code>
       <code><![CDATA[$mime_type]]></code>
       <code><![CDATA[$params]]></code>
     </MissingParamType>
-    <MissingPropertyType>
-      <code><![CDATA[$images_path]]></code>
-    </MissingPropertyType>
     <MissingReturnType>
       <code><![CDATA[getActionIcon]]></code>
       <code><![CDATA[getFolderSpinner]]></code>
@@ -12997,12 +12952,6 @@
   </file>
   <file src="plugins/docman/include/view/Docman_View_Redirect.class.php">
     <MissingParamType>
-      <code><![CDATA[$item]]></code>
-      <code><![CDATA[$item]]></code>
-      <code><![CDATA[$item]]></code>
-      <code><![CDATA[$item]]></code>
-      <code><![CDATA[$item]]></code>
-      <code><![CDATA[$item]]></code>
       <code><![CDATA[$params]]></code>
       <code><![CDATA[$params]]></code>
       <code><![CDATA[$params]]></code>
@@ -13013,12 +12962,6 @@
     </MissingParamType>
     <MissingReturnType>
       <code><![CDATA[_content]]></code>
-      <code><![CDATA[visitEmbeddedFile]]></code>
-      <code><![CDATA[visitEmpty]]></code>
-      <code><![CDATA[visitFile]]></code>
-      <code><![CDATA[visitFolder]]></code>
-      <code><![CDATA[visitLink]]></code>
-      <code><![CDATA[visitWiki]]></code>
     </MissingReturnType>
   </file>
   <file src="plugins/docman/include/view/Docman_View_RedirectAfterCrud.class.php">
@@ -19659,168 +19602,9 @@
     </UndefinedThisPropertyFetch>
   </file>
   <file src="plugins/git/tests/integration/Gitolite/GitoliteDriverTest.php">
-    <InvalidArgument>
-      <code><![CDATA[$this->another_git_exec]]></code>
-      <code><![CDATA[$this->gitoliterc_reader]]></code>
-      <code><![CDATA[$this->project_manager]]></code>
-      <code><![CDATA[$this->project_manager]]></code>
-      <code><![CDATA[$this->project_manager]]></code>
-      <code><![CDATA[\Mockery::mock(GitDao::class)]]></code>
-      <code><![CDATA[\Mockery::mock(GitDao::class)]]></code>
-      <code><![CDATA[\Mockery::mock(GitPlugin::class)]]></code>
-      <code><![CDATA[\Mockery::mock(GitPlugin::class)]]></code>
-      <code><![CDATA[\Mockery::spy(EventManager::class)]]></code>
-      <code><![CDATA[\Mockery::spy(\Git_Driver_Gerrit_ProjectCreatorStatus::class)]]></code>
-      <code><![CDATA[\Mockery::spy(\Psr\Log\LoggerInterface::class)]]></code>
-      <code><![CDATA[\Mockery::spy(\Tuleap\Git\BigObjectAuthorization\BigObjectAuthorizationManager::class)]]></code>
-      <code><![CDATA[\Mockery::spy(\Tuleap\Git\BigObjectAuthorization\BigObjectAuthorizationManager::class)]]></code>
-      <code><![CDATA[\Mockery::spy(\Tuleap\Git\BigObjectAuthorization\BigObjectAuthorizationManager::class)]]></code>
-      <code><![CDATA[\Mockery::spy(\Tuleap\Git\Permissions\FineGrainedPermissionFactory::class)]]></code>
-      <code><![CDATA[\Mockery::spy(\Tuleap\Git\Permissions\FineGrainedRetriever::class)]]></code>
-      <code><![CDATA[\Mockery::spy(\Tuleap\Git\Permissions\RegexpFineGrainedRetriever::class)]]></code>
-    </InvalidArgument>
-    <InvalidPropertyAssignmentValue>
-      <code><![CDATA[\Mockery::spy(\Git_Exec::class)]]></code>
-      <code><![CDATA[\Mockery::spy(\Git_Gitolite_GitoliteRCReader::class)]]></code>
-      <code><![CDATA[\Mockery::spy(\ProjectManager::class)]]></code>
-    </InvalidPropertyAssignmentValue>
     <MissingParamType>
       <code><![CDATA[$filename]]></code>
     </MissingParamType>
-    <MissingReturnType>
-      <code><![CDATA[getFileConf]]></code>
-      <code><![CDATA[getGitoliteConf]]></code>
-    </MissingReturnType>
-    <UndefinedInterfaceMethod>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[times]]></code>
-    </UndefinedInterfaceMethod>
-    <UndefinedMagicMethod>
-      <code><![CDATA[andReturn]]></code>
-      <code><![CDATA[andReturn]]></code>
-      <code><![CDATA[andReturn]]></code>
-      <code><![CDATA[times]]></code>
-    </UndefinedMagicMethod>
-    <UndefinedMethod>
-      <code><![CDATA[shouldReceive]]></code>
-      <code><![CDATA[shouldReceive]]></code>
-      <code><![CDATA[shouldReceive]]></code>
-      <code><![CDATA[shouldReceive]]></code>
-      <code><![CDATA[shouldReceive]]></code>
-      <code><![CDATA[shouldReceive]]></code>
-      <code><![CDATA[shouldReceive]]></code>
-    </UndefinedMethod>
-  </file>
-  <file src="plugins/git/tests/integration/Gitolite/GitoliteTestCase.php">
-    <InvalidArgument>
-      <code><![CDATA[$git_plugin]]></code>
-      <code><![CDATA[$this->git_exec]]></code>
-      <code><![CDATA[$this->git_exec]]></code>
-      <code><![CDATA[$this->logger]]></code>
-      <code><![CDATA[$this->repository_factory]]></code>
-      <code><![CDATA[\Mockery::mock(GitPlugin::class)]]></code>
-      <code><![CDATA[\Mockery::spy(EventManager::class)]]></code>
-      <code><![CDATA[\Mockery::spy(GitDao::class)]]></code>
-      <code><![CDATA[\Mockery::spy(\Git_Driver_Gerrit_ProjectCreatorStatus::class)]]></code>
-      <code><![CDATA[\Mockery::spy(\Tuleap\Git\BigObjectAuthorization\BigObjectAuthorizationManager::class)]]></code>
-      <code><![CDATA[\Mockery::spy(\Tuleap\Git\Permissions\FineGrainedPermissionFactory::class)]]></code>
-      <code><![CDATA[\Mockery::spy(\Tuleap\Git\Permissions\FineGrainedRetriever::class)]]></code>
-      <code><![CDATA[\Mockery::spy(\Tuleap\Git\Permissions\RegexpFineGrainedRetriever::class)]]></code>
-    </InvalidArgument>
-    <InvalidPropertyAssignmentValue>
-      <code><![CDATA[\Mockery::mock(\Git_Exec::class)->makePartial()->shouldAllowMockingProtectedMethods()]]></code>
-      <code><![CDATA[\Mockery::spy(\GitRepositoryFactory::class)]]></code>
-      <code><![CDATA[\Mockery::spy(\Git_SystemEventManager::class)]]></code>
-      <code><![CDATA[\Mockery::spy(\Psr\Log\LoggerInterface::class)]]></code>
-      <code><![CDATA[\Mockery::spy(\UserManager::class)]]></code>
-    </InvalidPropertyAssignmentValue>
-    <PossiblyFalseArgument>
-      <code><![CDATA[$this->cwd]]></code>
-    </PossiblyFalseArgument>
-    <TooManyArguments>
-      <code><![CDATA[andReturns]]></code>
-    </TooManyArguments>
-    <UndefinedInterfaceMethod>
-      <code><![CDATA[__construct]]></code>
-      <code><![CDATA[setLocalCommiter]]></code>
-    </UndefinedInterfaceMethod>
-    <UndefinedMagicMethod>
-      <code><![CDATA[andReturns]]></code>
-    </UndefinedMagicMethod>
-  </file>
-  <file src="plugins/git/tests/integration/Gitolite/SSHKeyDumperTest.php">
-    <InvalidArgument>
-      <code><![CDATA[$invalid_keys_collector]]></code>
-      <code><![CDATA[$invalid_keys_collector]]></code>
-      <code><![CDATA[$invalid_keys_collector]]></code>
-      <code><![CDATA[$invalid_keys_collector]]></code>
-      <code><![CDATA[$invalid_keys_collector]]></code>
-      <code><![CDATA[$invalid_keys_collector]]></code>
-      <code><![CDATA[$invalid_keys_collector]]></code>
-      <code><![CDATA[$invalid_keys_collector]]></code>
-      <code><![CDATA[$invalid_keys_collector]]></code>
-      <code><![CDATA[$invalid_keys_collector]]></code>
-    </InvalidArgument>
-    <MissingPropertyType>
-      <code><![CDATA[$key1]]></code>
-      <code><![CDATA[$key2]]></code>
-    </MissingPropertyType>
-    <UndefinedInterfaceMethod>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[times]]></code>
-    </UndefinedInterfaceMethod>
-    <UndefinedMagicMethod>
-      <code><![CDATA[andReturn]]></code>
-      <code><![CDATA[andReturn]]></code>
-      <code><![CDATA[andReturn]]></code>
-      <code><![CDATA[andReturn]]></code>
-      <code><![CDATA[andReturn]]></code>
-      <code><![CDATA[andReturn]]></code>
-    </UndefinedMagicMethod>
-  </file>
-  <file src="plugins/git/tests/integration/Gitolite/SSHKeyMassDumperTest.php">
-    <MissingPropertyType>
-      <code><![CDATA[$key1]]></code>
-      <code><![CDATA[$key2]]></code>
-      <code><![CDATA[$mass_dumper]]></code>
-    </MissingPropertyType>
-    <TooManyArguments>
-      <code><![CDATA[andReturns]]></code>
-    </TooManyArguments>
-    <UndefinedInterfaceMethod>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[times]]></code>
-    </UndefinedInterfaceMethod>
-    <UndefinedMagicMethod>
-      <code><![CDATA[andReturn]]></code>
-      <code><![CDATA[andReturn]]></code>
-      <code><![CDATA[andReturn]]></code>
-      <code><![CDATA[andReturn]]></code>
-      <code><![CDATA[andReturns]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[once]]></code>
-      <code><![CDATA[times]]></code>
-    </UndefinedMagicMethod>
   </file>
   <file src="plugins/gitlab/include/API/ClientWrapper.php">
     <InvalidReturnStatement>
@@ -31884,14 +31668,6 @@
       <code><![CDATA[$id]]></code>
     </MissingParamType>
   </file>
-  <file src="plugins/template/include/autoload.php">
-    <MissingParamType>
-      <code><![CDATA[$class]]></code>
-    </MissingParamType>
-    <MissingReturnType>
-      <code><![CDATA[autoload05f5f6356f162273d6e2d918b3f49691]]></code>
-    </MissingReturnType>
-  </file>
   <file src="plugins/template/include/templatePlugin.php">
     <MissingParamType>
       <code><![CDATA[$id]]></code>
@@ -32379,20 +32155,6 @@
       <code><![CDATA[$dom]]></code>
       <code><![CDATA[$dom_document]]></code>
     </TypeDoesNotContainType>
-  </file>
-  <file src="plugins/testmanagement/tests/unit/Builders/StepDefinitionFieldBuilder.php">
-    <NullArgument>
-      <code><![CDATA[null]]></code>
-      <code><![CDATA[null]]></code>
-      <code><![CDATA[null]]></code>
-    </NullArgument>
-  </file>
-  <file src="plugins/testmanagement/tests/unit/Builders/StepExecutionFieldBuilder.php">
-    <NullArgument>
-      <code><![CDATA[null]]></code>
-      <code><![CDATA[null]]></code>
-      <code><![CDATA[null]]></code>
-    </NullArgument>
   </file>
   <file src="plugins/testplan/include/REST/v1/BacklogItemRepresentation.php">
     <DeprecatedMethod>
@@ -33116,20 +32878,6 @@
       <code><![CDATA[build]]></code>
     </MissingReturnType>
   </file>
-  <file src="plugins/tracker/include/REST/Artifact/ArtifactFieldValueFileFullRepresentation.class.php">
-    <MissingParamType>
-      <code><![CDATA[$id]]></code>
-      <code><![CDATA[$label]]></code>
-      <code><![CDATA[$type]]></code>
-    </MissingParamType>
-    <MissingReturnType>
-      <code><![CDATA[build]]></code>
-    </MissingReturnType>
-    <UndefinedDocblockClass>
-      <code><![CDATA[Tuleap\Tracker\REST\Artifact\FileInfoRepresentation[]]]></code>
-      <code><![CDATA[public $file_descriptions = [];]]></code>
-    </UndefinedDocblockClass>
-  </file>
   <file src="plugins/tracker/include/REST/Artifact/ArtifactFieldValueFileRepresentation.class.php">
     <MissingParamType>
       <code><![CDATA[$id]]></code>
@@ -33327,9 +33075,6 @@
       <code><![CDATA[$name]]></code>
       <code><![CDATA[$submitted_by]]></code>
     </MissingParamType>
-    <UndefinedThisPropertyAssignment>
-      <code><![CDATA[$this->uri]]></code>
-    </UndefinedThisPropertyAssignment>
   </file>
   <file src="plugins/tracker/include/REST/Artifact/MovedArtifactValueBuilder.php">
     <MissingReturnType>
@@ -33890,9 +33635,6 @@
     <RedundantCast>
       <code><![CDATA[(bool) (strtolower($order) === self::ORDER_DESC)]]></code>
     </RedundantCast>
-    <UndefinedClass>
-      <code><![CDATA[SyntaxError]]></code>
-    </UndefinedClass>
   </file>
   <file src="plugins/tracker/include/REST/v1/Workflow/ModeUpdater.php">
     <MissingReturnType>
@@ -43703,20 +43445,6 @@
       <code><![CDATA[! $value]]></code>
     </RiskyTruthyFalsyComparison>
   </file>
-  <file src="plugins/tracker/include/Tracker/Report/Query/Advanced/ExpertQueryValidator.php">
-    <UndefinedClass>
-      <code><![CDATA[SyntaxError]]></code>
-      <code><![CDATA[SyntaxError]]></code>
-      <code><![CDATA[SyntaxError]]></code>
-    </UndefinedClass>
-    <UndefinedDocblockClass>
-      <code><![CDATA[Grammar\SyntaxError]]></code>
-      <code><![CDATA[SyntaxError]]></code>
-      <code><![CDATA[SyntaxError]]></code>
-      <code><![CDATA[SyntaxError]]></code>
-      <code><![CDATA[SyntaxError]]></code>
-    </UndefinedDocblockClass>
-  </file>
   <file src="plugins/tracker/include/Tracker/Report/Query/Advanced/Grammar/CurrentDateTimeValueWrapper.php">
     <RiskyTruthyFalsyComparison>
       <code><![CDATA[$period]]></code>
@@ -43824,14 +43552,6 @@
       <code><![CDATA[checkMetaDataIsValid]]></code>
     </MissingReturnType>
   </file>
-  <file src="plugins/tracker/include/Tracker/Report/Query/Advanced/InvalidSelectablesCollectionBuilder.php">
-    <UndefinedClass>
-      <code><![CDATA[SyntaxError]]></code>
-    </UndefinedClass>
-    <UndefinedDocblockClass>
-      <code><![CDATA[SyntaxError]]></code>
-    </UndefinedDocblockClass>
-  </file>
   <file src="plugins/tracker/include/Tracker/Report/Query/Advanced/ListFieldBindValueNormalizer.php">
     <MissingParamType>
       <code><![CDATA[$value]]></code>
@@ -43839,15 +43559,6 @@
     <MissingReturnType>
       <code><![CDATA[normalize]]></code>
     </MissingReturnType>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Report/Query/Advanced/ParserCacheProxy.php">
-    <UndefinedClass>
-      <code><![CDATA[$this->parser]]></code>
-      <code><![CDATA[private]]></code>
-    </UndefinedClass>
-    <UndefinedDocblockClass>
-      <code><![CDATA[SyntaxError]]></code>
-    </UndefinedDocblockClass>
   </file>
   <file src="plugins/tracker/include/Tracker/Report/Query/Advanced/QueryBuilder/BetweenComparison/ForDateTime.php">
     <MissingParamType>
@@ -44856,15 +44567,9 @@
       <code><![CDATA[$session_additional_criteria]]></code>
       <code><![CDATA[$session_criteria]]></code>
     </RiskyTruthyFalsyComparison>
-    <UndefinedClass>
-      <code><![CDATA[Parser]]></code>
-      <code><![CDATA[SyntaxError]]></code>
-      <code><![CDATA[SyntaxError]]></code>
-    </UndefinedClass>
     <UndefinedDocblockClass>
       <code><![CDATA[ReportRenderer]]></code>
       <code><![CDATA[Request]]></code>
-      <code><![CDATA[SyntaxError]]></code>
     </UndefinedDocblockClass>
     <UnsupportedReferenceUsage>
       <code><![CDATA[$session_criteria = &$this->report_session->getCriteria()]]></code>
@@ -47409,9 +47114,6 @@
       <code><![CDATA[$project->group_id]]></code>
       <code><![CDATA[$project->group_id]]></code>
       <code><![CDATA[$project->group_id]]></code>
-      <code><![CDATA[$tracker->description]]></code>
-      <code><![CDATA[$tracker->id]]></code>
-      <code><![CDATA[$tracker->name]]></code>
     </MissingPropertyType>
     <MissingReturnType>
       <code><![CDATA[checkUserCanAccessTracker]]></code>
@@ -47428,13 +47130,10 @@
       <code><![CDATA[getServiceTrackerBreadcrumb]]></code>
       <code><![CDATA[getTrackerHomepageURL]]></code>
       <code><![CDATA[getTrackersV3ForProject]]></code>
-      <code><![CDATA[informUserOfOngoingMigrations]]></code>
       <code><![CDATA[processSubElement]]></code>
       <code><![CDATA[redirectToTrackerHomepage]]></code>
-      <code><![CDATA[trackerCanBeDisplayed]]></code>
     </MissingReturnType>
     <PossiblyInvalidArgument>
-      <code><![CDATA[$project->getID()]]></code>
       <code><![CDATA[$request->getProject()->getID()]]></code>
     </PossiblyInvalidArgument>
     <PossiblyUndefinedVariable>
@@ -50345,10 +50044,6 @@
     </MissingReturnType>
   </file>
   <file src="plugins/tracker/include/manual_autoload.php">
-    <MissingFile>
-      <code><![CDATA[require_once __DIR__ . '/../grammar/backend-assets/Tracker/Report/Query/Advanced/Grammar/Parser.php']]></code>
-      <code><![CDATA[require_once __DIR__ . '/../grammar/backend-assets/Tracker/Report/Query/Advanced/Grammar/Parser.php']]></code>
-    </MissingFile>
     <MissingParamType>
       <code><![CDATA[$classname]]></code>
     </MissingParamType>
@@ -50725,352 +50420,15 @@
       <code><![CDATA[testItStartsWithEmptyTable]]></code>
     </MissingReturnType>
   </file>
-  <file src="plugins/tracker/tests/unit/Builders/ArtifactImportedMappingBuilder.php">
-    <InvalidDocblock>
-      <code><![CDATA[public static function fromSourcesAndDestinations(array $sources_and_destinations): Tracker_XML_Importer_ArtifactImportedMapping]]></code>
-    </InvalidDocblock>
-  </file>
-  <file src="plugins/tracker/tests/unit/Builders/ArtifactTestBuilder.php">
-    <InvalidPropertyAssignmentValue>
-      <code><![CDATA[$this->user_can_view]]></code>
-      <code><![CDATA[$this->user_can_view]]></code>
-    </InvalidPropertyAssignmentValue>
-  </file>
-  <file src="plugins/tracker/tests/unit/Builders/ArtifactValuesRepresentationBuilder.php">
-    <InvalidPropertyAssignmentValue>
-      <code><![CDATA[[$first_bind_value_id, ...$other_bind_value_ids]]]></code>
-    </InvalidPropertyAssignmentValue>
-    <RiskyTruthyFalsyComparison>
-      <code><![CDATA[$this->all_links]]></code>
-      <code><![CDATA[$this->bind_value_ids]]></code>
-      <code><![CDATA[$this->links]]></code>
-    </RiskyTruthyFalsyComparison>
-  </file>
-  <file src="plugins/tracker/tests/unit/Builders/ChangesetTestBuilder.php">
-    <ArgumentTypeCoercion>
-      <code><![CDATA[$this->id]]></code>
-    </ArgumentTypeCoercion>
-    <ImpureMethodCall>
-      <code><![CDATA[getSubmittedBy]]></code>
-      <code><![CDATA[getSubmittedOn]]></code>
-      <code><![CDATA[new Tracker_Artifact_Changeset_Comment(
-                1,
-                $changeset,
-                0,
-                0,
-                (int) $changeset->getSubmittedBy(),
-                (int) $changeset->getSubmittedOn(),
-                $this->text_comment,
-                Tracker_Artifact_Changeset_Comment::TEXT_COMMENT,
-                -1,
-                null
-            )]]></code>
-      <code><![CDATA[new \Tracker_Artifact_Changeset(
-            $this->id,
-            $this->artifact,
-            $this->submitted_by_id,
-            $this->submission_timestamp,
-            $this->submitted_by_email
-        )]]></code>
-      <code><![CDATA[setLatestComment]]></code>
-    </ImpureMethodCall>
-    <ImpurePropertyFetch>
-      <code><![CDATA[$this->artifact]]></code>
-      <code><![CDATA[$this->id]]></code>
-      <code><![CDATA[$this->submission_timestamp]]></code>
-      <code><![CDATA[$this->submitted_by_email]]></code>
-      <code><![CDATA[$this->submitted_by_id]]></code>
-      <code><![CDATA[$this->text_comment]]></code>
-      <code><![CDATA[$this->text_comment]]></code>
-    </ImpurePropertyFetch>
-    <ImpureVariable>
-      <code><![CDATA[$this]]></code>
-      <code><![CDATA[$this]]></code>
-      <code><![CDATA[$this]]></code>
-      <code><![CDATA[$this]]></code>
-      <code><![CDATA[$this]]></code>
-      <code><![CDATA[$this]]></code>
-      <code><![CDATA[$this]]></code>
-    </ImpureVariable>
-  </file>
-  <file src="plugins/tracker/tests/unit/Builders/Fields/CheckboxFieldBuilder.php">
-    <InvalidPropertyAssignmentValue>
-      <code><![CDATA[$this->read_permissions]]></code>
-    </InvalidPropertyAssignmentValue>
-    <PossiblyInvalidArrayOffset>
-      <code><![CDATA[$this->read_permissions[$user->getId()]]]></code>
-    </PossiblyInvalidArrayOffset>
-  </file>
-  <file src="plugins/tracker/tests/unit/Builders/Fields/DateFieldBuilder.php">
+  <file src="plugins/tracker/tests/unit/Test/Builders/Fields/DateFieldBuilder.php">
     <DeprecatedMethod>
       <code><![CDATA[setCacheSpecificProperties]]></code>
     </DeprecatedMethod>
-    <InvalidPropertyAssignmentValue>
-      <code><![CDATA[$this->read_permissions]]></code>
-    </InvalidPropertyAssignmentValue>
-    <PossiblyInvalidArrayOffset>
-      <code><![CDATA[$this->read_permissions[$user->getId()]]]></code>
-    </PossiblyInvalidArrayOffset>
   </file>
-  <file src="plugins/tracker/tests/unit/Builders/Fields/ExternalFieldBuilder.php">
-    <InvalidReturnType>
-      <code><![CDATA[fetchAdminFormElement]]></code>
-      <code><![CDATA[fetchArtifactValue]]></code>
-      <code><![CDATA[fetchArtifactValueReadOnly]]></code>
-      <code><![CDATA[fetchCriteriaValue]]></code>
-      <code><![CDATA[fetchRawValue]]></code>
-      <code><![CDATA[fetchRawValueFromChangeset]]></code>
-      <code><![CDATA[fetchSubmitValue]]></code>
-      <code><![CDATA[fetchSubmitValueMasschange]]></code>
-      <code><![CDATA[fetchTooltipValue]]></code>
-      <code><![CDATA[getFactoryDescription]]></code>
-      <code><![CDATA[getFactoryIconCreate]]></code>
-      <code><![CDATA[getFactoryIconUseIt]]></code>
-      <code><![CDATA[getFactoryLabel]]></code>
-      <code><![CDATA[saveValue]]></code>
-      <code><![CDATA[validate]]></code>
-    </InvalidReturnType>
-    <MissingParamType>
-      <code><![CDATA[$criteria]]></code>
-    </MissingParamType>
-    <MissingReturnType>
-      <code><![CDATA[accept]]></code>
-      <code><![CDATA[getFormAdminVisitor]]></code>
-      <code><![CDATA[getRESTAvailableValues]]></code>
-      <code><![CDATA[getValueDao]]></code>
-    </MissingReturnType>
-  </file>
-  <file src="plugins/tracker/tests/unit/Builders/Fields/FileFieldBuilder.php">
-    <InvalidPropertyAssignmentValue>
-      <code><![CDATA[$this->read_permissions]]></code>
-    </InvalidPropertyAssignmentValue>
-    <PossiblyInvalidArrayOffset>
-      <code><![CDATA[$this->read_permissions[$user->getId()]]]></code>
-    </PossiblyInvalidArrayOffset>
-  </file>
-  <file src="plugins/tracker/tests/unit/Builders/Fields/ListFieldBuilder.php">
-    <InvalidPropertyAssignmentValue>
-      <code><![CDATA[$this->read_permissions]]></code>
-    </InvalidPropertyAssignmentValue>
-    <PossiblyInvalidArrayOffset>
-      <code><![CDATA[$this->read_permissions[$user->getId()]]]></code>
-    </PossiblyInvalidArrayOffset>
-  </file>
-  <file src="plugins/tracker/tests/unit/Builders/Fields/OpenListFieldBuilder.php">
-    <InvalidPropertyAssignmentValue>
-      <code><![CDATA[$this->read_permissions]]></code>
-    </InvalidPropertyAssignmentValue>
-    <PossiblyInvalidArrayOffset>
-      <code><![CDATA[$this->read_permissions[$user->getId()]]]></code>
-    </PossiblyInvalidArrayOffset>
-  </file>
-  <file src="plugins/tracker/tests/unit/Builders/Fields/RadioButtonFieldBuilder.php">
-    <InvalidPropertyAssignmentValue>
-      <code><![CDATA[$this->read_permissions]]></code>
-    </InvalidPropertyAssignmentValue>
-    <PossiblyInvalidArrayOffset>
-      <code><![CDATA[$this->read_permissions[$user->getId()]]]></code>
-    </PossiblyInvalidArrayOffset>
-  </file>
-  <file src="plugins/tracker/tests/unit/Builders/Fields/StringFieldBuilder.php">
-    <InvalidPropertyAssignmentValue>
-      <code><![CDATA[$this->read_permissions]]></code>
-    </InvalidPropertyAssignmentValue>
-    <PossiblyInvalidArrayOffset>
-      <code><![CDATA[$this->read_permissions[$user->getId()]]]></code>
-    </PossiblyInvalidArrayOffset>
-  </file>
-  <file src="plugins/tracker/tests/unit/Builders/Fields/TextFieldBuilder.php">
-    <InvalidPropertyAssignmentValue>
-      <code><![CDATA[$this->read_permissions]]></code>
-    </InvalidPropertyAssignmentValue>
-    <PossiblyInvalidArrayOffset>
-      <code><![CDATA[$this->read_permissions[$user->getId()]]]></code>
-    </PossiblyInvalidArrayOffset>
-  </file>
-  <file src="plugins/tracker/tests/unit/Builders/LinkWithDirectionRepresentationBuilder.php">
-    <InaccessibleProperty>
-      <code><![CDATA[$representation->direction]]></code>
-      <code><![CDATA[$representation->id]]></code>
-      <code><![CDATA[$representation->type]]></code>
-    </InaccessibleProperty>
-    <PropertyTypeCoercion>
-      <code><![CDATA[$this->direction]]></code>
-      <code><![CDATA[$this->id]]></code>
-    </PropertyTypeCoercion>
-  </file>
-  <file src="plugins/tracker/tests/unit/Builders/TrackerTestBuilder.php">
-    <MissingParamType>
-      <code><![CDATA[$allow_copy]]></code>
-      <code><![CDATA[$browse_instructions]]></code>
-      <code><![CDATA[$deletion_date]]></code>
-      <code><![CDATA[$description]]></code>
-      <code><![CDATA[$enable_emailgateway]]></code>
-      <code><![CDATA[$group_id]]></code>
-      <code><![CDATA[$id]]></code>
-      <code><![CDATA[$instantiate_for_new_projects]]></code>
-      <code><![CDATA[$item_name]]></code>
-      <code><![CDATA[$log_priority_changes]]></code>
-      <code><![CDATA[$name]]></code>
-      <code><![CDATA[$notifications_level]]></code>
-      <code><![CDATA[$status]]></code>
-      <code><![CDATA[$submit_instructions]]></code>
-    </MissingParamType>
-  </file>
-  <file src="plugins/tracker/tests/unit/REST/Artifact/ChangesetValue/ArtifactLink/NewArtifactLinkChangesetValueBuilderTest.php">
-    <MissingReturnType>
-      <code><![CDATA[build]]></code>
-    </MissingReturnType>
-  </file>
-  <file src="plugins/tracker/tests/unit/Stub/BindValueIdCollectionStub.php">
-    <MissingParamType>
-      <code><![CDATA[$value]]></code>
-    </MissingParamType>
-  </file>
-  <file src="plugins/tracker/tests/unit/Stub/CheckBeforeMoveStub.php">
-    <InaccessibleProperty>
-      <code><![CDATA[$this->call_count]]></code>
-    </InaccessibleProperty>
-  </file>
-  <file src="plugins/tracker/tests/unit/Stub/CreateNewChangesetStub.php">
-    <ArgumentTypeCoercion>
-      <code><![CDATA[$callback]]></code>
-    </ArgumentTypeCoercion>
-  </file>
-  <file src="plugins/tracker/tests/unit/Stub/FeedbackFieldCollectorInterfaceStub.php">
-    <UndefinedClass>
-      <code><![CDATA[FeedbackFieldCollectorInterface]]></code>
-    </UndefinedClass>
-  </file>
-  <file src="plugins/tracker/tests/unit/Stub/MoveDryRunStub.php">
-    <ImpureMethodCall>
-      <code><![CDATA[withoutDryRun]]></code>
-    </ImpureMethodCall>
-    <InaccessibleProperty>
-      <code><![CDATA[$this->call_count]]></code>
-    </InaccessibleProperty>
-  </file>
-  <file src="plugins/tracker/tests/unit/Stub/MoveRestArtifactStub.php">
-    <InaccessibleProperty>
-      <code><![CDATA[$this->call_count]]></code>
-    </InaccessibleProperty>
-  </file>
-  <file src="plugins/tracker/tests/unit/Stub/RetrieveAllUsableTypesInProjectStub.php">
-    <LessSpecificImplementedReturnType>
-      <code><![CDATA[TypePresenter[]]]></code>
-    </LessSpecificImplementedReturnType>
-  </file>
-  <file src="plugins/tracker/tests/unit/Stub/Tracker/Artifact/Changeset/PostCreation/CalendarEvent/RetrieveEventDatesStub.php">
-    <LessSpecificReturnStatement>
-      <code><![CDATA[Result::err($this->error)]]></code>
-    </LessSpecificReturnStatement>
-    <MoreSpecificReturnType>
-      <code><![CDATA[Ok<CalendarEventData>|Err<non-falsy-string>]]></code>
-    </MoreSpecificReturnType>
-  </file>
-  <file src="plugins/tracker/tests/unit/Stub/Tracker/Artifact/Changeset/PostCreation/CalendarEvent/RetrieveEventOrganizerStub.php">
-    <PossiblyNullArgument>
-      <code><![CDATA[$this->organizer_name]]></code>
-    </PossiblyNullArgument>
-  </file>
-  <file src="plugins/tracker/tests/unit/Stub/Tracker/Artifact/Changeset/PostCreation/CalendarEvent/RetrieveEventSummaryStub.php">
-    <ArgumentTypeCoercion>
-      <code><![CDATA[$summary]]></code>
-    </ArgumentTypeCoercion>
-  </file>
-  <file src="plugins/tracker/tests/unit/Stub/Tracker/Artifact/Changeset/PostCreation/PostCreationActionsQueuerStub.php">
-    <MissingParamType>
-      <code><![CDATA[$count]]></code>
-    </MissingParamType>
-  </file>
-  <file src="plugins/tracker/tests/unit/Stub/Tracker/Artifact/Changeset/ProcessChangesetPostCreationStub.php">
-    <InaccessibleProperty>
-      <code><![CDATA[$this->count]]></code>
-    </InaccessibleProperty>
-  </file>
-  <file src="plugins/tracker/tests/unit/Stub/Tracker/FormElement/Field/ListFields/Bind/BindVisitorStub.php">
-    <MissingReturnType>
-      <code><![CDATA[visitListBindNull]]></code>
-      <code><![CDATA[visitListBindStatic]]></code>
-      <code><![CDATA[visitListBindUgroups]]></code>
-      <code><![CDATA[visitListBindUsers]]></code>
-    </MissingReturnType>
-  </file>
-  <file src="plugins/tracker/tests/unit/Stub/Tracker/Permission/RetrieveUserPermissionOnTrackersStub.php">
-    <PropertyTypeCoercion>
-      <code><![CDATA[$this->has_permission_on]]></code>
-    </PropertyTypeCoercion>
-  </file>
-  <file src="plugins/tracker/tests/unit/Stub/UpdateArtifactLinkXMLStub.php">
-    <InaccessibleProperty>
-      <code><![CDATA[$this->nb_calls]]></code>
-    </InaccessibleProperty>
-  </file>
-  <file src="plugins/tracker/tests/unit/Stub/UpdateBindValueForSemanticStub.php">
-    <UndefinedClass>
-      <code><![CDATA[UpdateBindValueForSemantic]]></code>
-    </UndefinedClass>
-  </file>
-  <file src="plugins/tracker/tests/unit/Tracker/Artifact/ChangesetValue/ArtifactLink/ArtifactLinksByChangesetCacheTest.php">
-    <InvalidScalarArgument>
-      <code><![CDATA[101]]></code>
-      <code><![CDATA[102]]></code>
-    </InvalidScalarArgument>
-  </file>
-  <file src="plugins/tracker/tests/unit/Tracker/Artifact/ChangesetValue/ArtifactLink/ChangeForwardLinksCommandFormatterTest.php">
-    <InvalidPropertyAssignmentValue>
-      <code><![CDATA[Option::fromValue(NewParentLinkStub::withId(55))]]></code>
-    </InvalidPropertyAssignmentValue>
-  </file>
-  <file src="plugins/tracker/tests/unit/Tracker/Artifact/ChangesetValue/ArtifactLink/NewArtifactLinkChangesetValueTest.php">
-    <InvalidArgument>
-      <code><![CDATA[$new_parent_link]]></code>
-    </InvalidArgument>
-  </file>
-  <file src="plugins/tracker/tests/unit/Tracker/Artifact/ChangesetValue/ArtifactLink/NewArtifactLinkInitialChangesetValueFormatterTest.php">
-    <InvalidPropertyAssignmentValue>
-      <code><![CDATA[Option::fromValue(NewParentLinkStub::withId(71))]]></code>
-    </InvalidPropertyAssignmentValue>
-  </file>
-  <file src="plugins/tracker/tests/unit/Tracker/Artifact/ChangesetValue/ArtifactLink/NewArtifactLinkInitialChangesetValueTest.php">
-    <InvalidArgument>
-      <code><![CDATA[$parent]]></code>
-    </InvalidArgument>
-  </file>
-  <file src="plugins/tracker/tests/unit/Tracker/Artifact/ChangesetValue/ArtifactLink/ReverseLinksRetrieverTest.php">
-    <InvalidArgument>
-      <code><![CDATA[[StoredReverseLink::fromRow($expected_retrieve_artifact, $user, $linked_artifact_1)]]]></code>
-    </InvalidArgument>
-  </file>
-  <file src="plugins/tracker/tests/unit/Tracker/Artifact/ChangesetValue/ArtifactLink/ReverseLinksToNewChangesetsConverterTest.php">
-    <PossiblyUndefinedArrayOffset>
-      <code><![CDATA[$first_added_changeset]]></code>
-      <code><![CDATA[$new_changeset_add_link]]></code>
-    </PossiblyUndefinedArrayOffset>
-  </file>
-  <file src="plugins/tracker/tests/unit/Tracker/Artifact/ChangesetValue/ArtifactLink/StoredReverseLinkTest.php">
-    <PossiblyNullReference>
-      <code><![CDATA[getSourceArtifactId]]></code>
-      <code><![CDATA[getType]]></code>
-    </PossiblyNullReference>
-  </file>
-  <file src="plugins/tracker/tests/unit/Tracker/Artifact/ChangesetValue/ChangesetValuesContainerTest.php">
-    <InvalidArgument>
-      <code><![CDATA[Option::fromValue(NewParentLinkStub::withId(63))]]></code>
-    </InvalidArgument>
-  </file>
-  <file src="plugins/tracker/tests/unit/Tracker/Artifact/ChangesetValue/Text/TextValueInterpreterTest.php">
-    <PossiblyNullArgument>
-      <code><![CDATA[$this->purifier]]></code>
-    </PossiblyNullArgument>
-    <PossiblyNullReference>
-      <code><![CDATA[purifyHTMLWithReferences]]></code>
-    </PossiblyNullReference>
-  </file>
-  <file src="plugins/tracker/tests/unit/Tracker/Artifact/Creation/ReverseLinksAdderTest.php">
-    <InvalidArgument>
-      <code><![CDATA[$parent]]></code>
-    </InvalidArgument>
+  <file src="plugins/tracker/tests/unit/Test/Builders/Fields/TextFieldBuilder.php">
+    <DeprecatedMethod>
+      <code><![CDATA[setCacheSpecificProperties]]></code>
+    </DeprecatedMethod>
   </file>
   <file src="plugins/tracker_date_reminder/include/ArtifactDateReminder.class.php">
     <DeprecatedFunction>
@@ -58092,10 +57450,7 @@
   <file src="src/common/Project/Admin/Reference/ReferenceAdministrationViews.php">
     <DeprecatedFunction>
       <code><![CDATA[db_fetch_array($result)]]></code>
-      <code><![CDATA[db_fetch_array($result)]]></code>
       <code><![CDATA[db_query('SELECT * FROM service WHERE group_id=100 ORDER BY `rank`')]]></code>
-      <code><![CDATA[db_query('SELECT * FROM service WHERE group_id=100 ORDER BY `rank`')]]></code>
-      <code><![CDATA[html_build_select_box_from_arrays($serv_short_name, $serv_label, 'service_short_name')]]></code>
       <code><![CDATA[html_build_select_box_from_arrays($serv_short_name, $serv_label, 'service_short_name', $ref->getServiceShortName())]]></code>
     </DeprecatedFunction>
     <MissingParamType>
@@ -58103,10 +57458,7 @@
       <code><![CDATA[$view]]></code>
     </MissingParamType>
     <MissingReturnType>
-      <code><![CDATA[creation]]></code>
       <code><![CDATA[edit]]></code>
-      <code><![CDATA[footer]]></code>
-      <code><![CDATA[header]]></code>
     </MissingReturnType>
   </file>
   <file src="src/common/Project/Admin/RestrictedUsersProjectCounter.php">
@@ -66887,123 +66239,6 @@
       <code><![CDATA[$row['prj_restricted']]]></code>
     </PossiblyInvalidArrayAccess>
   </file>
-  <file src="src/common/dao/ServiceDao.class.php">
-    <DeprecatedMethod>
-      <code><![CDATA[DataAccessObject]]></code>
-      <code><![CDATA[affectedRows]]></code>
-      <code><![CDATA[affectedRows]]></code>
-      <code><![CDATA[affectedRows]]></code>
-      <code><![CDATA[affectedRows]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[quoteSmart]]></code>
-      <code><![CDATA[quoteSmart]]></code>
-      <code><![CDATA[quoteSmart]]></code>
-      <code><![CDATA[quoteSmart]]></code>
-      <code><![CDATA[quoteSmart]]></code>
-      <code><![CDATA[quoteSmart]]></code>
-      <code><![CDATA[quoteSmart]]></code>
-      <code><![CDATA[quoteSmart]]></code>
-      <code><![CDATA[quoteSmart]]></code>
-      <code><![CDATA[quoteSmart]]></code>
-      <code><![CDATA[quoteSmart]]></code>
-      <code><![CDATA[quoteSmart]]></code>
-      <code><![CDATA[quoteSmart]]></code>
-      <code><![CDATA[quoteSmart]]></code>
-      <code><![CDATA[quoteSmart]]></code>
-      <code><![CDATA[quoteSmart]]></code>
-      <code><![CDATA[quoteSmartImplode]]></code>
-      <code><![CDATA[retrieve]]></code>
-      <code><![CDATA[retrieve]]></code>
-      <code><![CDATA[retrieve]]></code>
-      <code><![CDATA[retrieve]]></code>
-      <code><![CDATA[retrieve]]></code>
-      <code><![CDATA[rowCount]]></code>
-      <code><![CDATA[update]]></code>
-      <code><![CDATA[update]]></code>
-      <code><![CDATA[update]]></code>
-      <code><![CDATA[update]]></code>
-      <code><![CDATA[update]]></code>
-      <code><![CDATA[update]]></code>
-      <code><![CDATA[update]]></code>
-    </DeprecatedMethod>
-    <FalsableReturnStatement>
-      <code><![CDATA[$this->retrieve($sql)]]></code>
-    </FalsableReturnStatement>
-    <InvalidFalsableReturnType>
-      <code><![CDATA[\Tuleap\DB\Compat\Legacy2018\LegacyDataAccessResultInterface]]></code>
-    </InvalidFalsableReturnType>
-    <MissingParamType>
-      <code><![CDATA[$allowed_shortnames]]></code>
-      <code><![CDATA[$description]]></code>
-      <code><![CDATA[$description]]></code>
-      <code><![CDATA[$icon_name]]></code>
-      <code><![CDATA[$icon_name]]></code>
-      <code><![CDATA[$id]]></code>
-      <code><![CDATA[$is_active]]></code>
-      <code><![CDATA[$is_active]]></code>
-      <code><![CDATA[$is_in_iframe]]></code>
-      <code><![CDATA[$is_in_new_tab]]></code>
-      <code><![CDATA[$is_in_new_tab]]></code>
-      <code><![CDATA[$is_used]]></code>
-      <code><![CDATA[$is_used]]></code>
-      <code><![CDATA[$is_used]]></code>
-      <code><![CDATA[$label]]></code>
-      <code><![CDATA[$label]]></code>
-      <code><![CDATA[$link]]></code>
-      <code><![CDATA[$link]]></code>
-      <code><![CDATA[$name]]></code>
-      <code><![CDATA[$name]]></code>
-      <code><![CDATA[$project_id]]></code>
-      <code><![CDATA[$project_id]]></code>
-      <code><![CDATA[$project_id]]></code>
-      <code><![CDATA[$project_id]]></code>
-      <code><![CDATA[$project_id]]></code>
-      <code><![CDATA[$project_id]]></code>
-      <code><![CDATA[$rank]]></code>
-      <code><![CDATA[$rank]]></code>
-      <code><![CDATA[$scope]]></code>
-      <code><![CDATA[$scope]]></code>
-      <code><![CDATA[$service_id]]></code>
-      <code><![CDATA[$service_id]]></code>
-      <code><![CDATA[$service_id]]></code>
-      <code><![CDATA[$service_short_name]]></code>
-      <code><![CDATA[$short_name]]></code>
-      <code><![CDATA[$short_name]]></code>
-      <code><![CDATA[$short_name]]></code>
-    </MissingParamType>
-    <MissingReturnType>
-      <code><![CDATA[create]]></code>
-      <code><![CDATA[delete]]></code>
-      <code><![CDATA[deleteFromAllProjects]]></code>
-      <code><![CDATA[getServiceInfoQueryForNewProject]]></code>
-      <code><![CDATA[isServiceActiveInProjectByShortName]]></code>
-      <code><![CDATA[isServiceAvailableAtSiteLevelByShortName]]></code>
-      <code><![CDATA[saveBasicInformation]]></code>
-      <code><![CDATA[saveIsActiveAndScope]]></code>
-      <code><![CDATA[searchById]]></code>
-      <code><![CDATA[searchByProjectIdAndShortNames]]></code>
-      <code><![CDATA[updateServiceUsageByServiceID]]></code>
-      <code><![CDATA[updateServiceUsageByShortName]]></code>
-    </MissingReturnType>
-    <PossiblyFalseReference>
-      <code><![CDATA[rowCount]]></code>
-    </PossiblyFalseReference>
-  </file>
   <file src="src/common/dao/SessionDao.class.php">
     <MissingParamType>
       <code><![CDATA[$current_session_id]]></code>
@@ -68021,16 +67256,10 @@
       <code><![CDATA[isInCoreServicesSiteAdmin]]></code>
       <code><![CDATA[isInCoreServicesSiteAdminWithPermissionDelegation]]></code>
       <code><![CDATA[isInHelp]]></code>
-      <code><![CDATA[isInProjectAdmin]]></code>
       <code><![CDATA[isManagingLabels]]></code>
       <code><![CDATA[isSoftwareMap]]></code>
     </MissingReturnType>
     <PossiblyNullArgument>
-      <code><![CDATA[$_SERVER['QUERY_STRING']]]></code>
-      <code><![CDATA[$_SERVER['REQUEST_URI']]]></code>
-      <code><![CDATA[$_SERVER['REQUEST_URI']]]></code>
-      <code><![CDATA[$_SERVER['REQUEST_URI']]]></code>
-      <code><![CDATA[$_SERVER['REQUEST_URI']]]></code>
       <code><![CDATA[$_SERVER['REQUEST_URI']]]></code>
       <code><![CDATA[$_SERVER['REQUEST_URI']]]></code>
       <code><![CDATA[$_SERVER['REQUEST_URI']]]></code>
@@ -68041,8 +67270,6 @@
       <code><![CDATA[$uri]]></code>
     </PossiblyNullArgument>
     <PossiblyUndefinedArrayOffset>
-      <code><![CDATA[$_SERVER['QUERY_STRING']]]></code>
-      <code><![CDATA[$_SERVER['REQUEST_URI']]]></code>
       <code><![CDATA[$_SERVER['REQUEST_URI']]]></code>
       <code><![CDATA[$_SERVER['REQUEST_URI']]]></code>
       <code><![CDATA[$_SERVER['REQUEST_URI']]]></code>
@@ -79416,9 +78643,6 @@
     </MissingReturnType>
   </file>
   <file src="tests/lib/Builders/UserTestBuilder.php">
-    <InvalidDocblock>
-      <code><![CDATA[public function withStatus(string $status): self]]></code>
-    </InvalidDocblock>
     <RedundantCast>
       <code><![CDATA[(string) $email]]></code>
     </RedundantCast>

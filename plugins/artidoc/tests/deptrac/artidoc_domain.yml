@@ -1,0 +1,18 @@
+deptrac:
+  paths:
+    - ../../include/
+  layers:
+    - name: Domain
+      collectors:
+        - type: directory
+          value: plugins/artidoc/include/Artidoc/Domain/.*
+    - name: CoreLibraries
+      collectors:
+        - type: classLike
+          value: Tuleap\\NeverThrow\\(?:Err|Fault|Ok|Result)
+
+  ruleset:
+    Domain:
+      - Domain
+      - CoreLibraries
+    CoreLibraries: ~

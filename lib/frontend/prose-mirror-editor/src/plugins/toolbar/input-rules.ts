@@ -18,9 +18,11 @@
  */
 
 import type { Plugin } from "prosemirror-state";
-import type { InputRule } from "prosemirror-inputrules";
 import { wrappingInputRule, inputRules, textblockTypeInputRule } from "prosemirror-inputrules";
-import type { NodeType, Schema } from "prosemirror-model";
+import type { InputRule } from "prosemirror-inputrules";
+import type { NodeType, Schema, MarkType } from "prosemirror-model";
+import { automagicLinksInputRule } from "../automagic-links";
+import { markInputRule } from "../../helpers/MarkInputRule";
 
 function codeBlockRule(nodeType: NodeType): InputRule {
     return textblockTypeInputRule(/^```$/, nodeType);
@@ -39,12 +41,43 @@ function bulletListRule(nodeType: NodeType): InputRule {
     return wrappingInputRule(/^\s*([-+*])\s$/, nodeType);
 }
 
+function blockquoteRule(nodeType: NodeType): InputRule {
+    return wrappingInputRule(/^\s*>\s$/, nodeType);
+}
+
+function largeHeadingRule(nodeType: NodeType): InputRule {
+    return textblockTypeInputRule(/^#\s$/, nodeType, { level: 1 });
+}
+
+function mediumHeadingRule(nodeType: NodeType): InputRule {
+    return textblockTypeInputRule(/^##\s$/, nodeType, { level: 2 });
+}
+
+function smallHeadingRule(nodeType: NodeType): InputRule {
+    return textblockTypeInputRule(/^###\s$/, nodeType, { level: 3 });
+}
+
+function boldRule(markType: MarkType): InputRule {
+    return markInputRule(/(?:\*\*|__)([^*_]+)(?:\*\*|__)$/, markType);
+}
+
+function inlineCodeRule(markType: MarkType): InputRule {
+    return markInputRule(/`([^`]+)`$/, markType);
+}
+
 export function buildInputRules(schema: Schema): Plugin {
     return inputRules({
         rules: [
             codeBlockRule(schema.nodes.code_block),
             orderedListRule(schema.nodes.ordered_list),
             bulletListRule(schema.nodes.bullet_list),
+            blockquoteRule(schema.nodes.blockquote),
+            largeHeadingRule(schema.nodes.heading),
+            mediumHeadingRule(schema.nodes.heading),
+            smallHeadingRule(schema.nodes.heading),
+            boldRule(schema.marks.strong),
+            inlineCodeRule(schema.marks.code),
+            automagicLinksInputRule(),
         ],
     });
 }

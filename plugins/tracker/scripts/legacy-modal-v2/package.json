@@ -1,0 +1,21 @@
+{
+  "author": "Enalean Team",
+  "name": "@tuleap/plugin-tracker-legacy-modal-v2",
+  "homepage": "https://tuleap.org",
+  "license": "GPL-2.0-or-later",
+  "private": true,
+  "dependencies": {
+    "@tuleap/mention": "workspace:*",
+    "@tuleap/plugin-tracker-artifact-ckeditor-image-upload": "workspace:*",
+    "@tuleap/plugin-tracker-rich-text-editor": "workspace:*",
+    "@tuleap/plugin-tracker-rte-creator": "workspace:*",
+    "@tuleap/tooltip": "workspace:*"
+  },
+  "devDependencies": {
+    "@tuleap/build-system-configurator": "workspace:*"
+  },
+  "scripts": {
+    "build": "webpack --config webpack.prod.js",
+    "watch": "webpack --config webpack.dev.js --watch"
+  }
+}

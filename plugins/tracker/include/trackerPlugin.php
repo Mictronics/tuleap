@@ -42,8 +42,10 @@ use Tuleap\Http\Response\BinaryFileResponseBuilder;
 use Tuleap\Http\Server\SessionWriteCloseMiddleware;
 use Tuleap\Instrument\Prometheus\CollectTuleapComputedMetrics;
 use Tuleap\Language\LocaleSwitcher;
+use Tuleap\Layout\CssViteAsset;
 use Tuleap\Layout\HomePage\StatisticsCollectionCollector;
 use Tuleap\Layout\IncludeAssets;
+use Tuleap\Layout\IncludeViteAssets;
 use Tuleap\Layout\NewDropdown\NewDropdownProjectLinksCollector;
 use Tuleap\Mail\MailFilter;
 use Tuleap\Mail\MailLogger;
@@ -69,6 +71,7 @@ use Tuleap\Project\RestrictedUserCanAccessProjectVerifier;
 use Tuleap\Project\Service\AddMissingService;
 use Tuleap\Project\Service\PluginWithService;
 use Tuleap\Project\Service\ServiceClassnamesCollector;
+use Tuleap\Project\Service\ServiceDao;
 use Tuleap\Project\Service\ServiceDisabledCollector;
 use Tuleap\Project\XML\Export\ArchiveInterface;
 use Tuleap\Project\XML\Export\NoArchive;
@@ -125,9 +128,9 @@ use Tuleap\Tracker\Artifact\Changeset\Comment\PrivateComment\TrackerPrivateComme
 use Tuleap\Tracker\Artifact\Changeset\Comment\PrivateComment\TrackerPrivateCommentUGroupPermissionInserter;
 use Tuleap\Tracker\Artifact\Changeset\CommentOnlyChangesetCreator;
 use Tuleap\Tracker\Artifact\Changeset\FieldsToBeSavedInSpecificOrderRetriever;
-use Tuleap\Tracker\Artifact\Changeset\NewChangesetPostProcessor;
 use Tuleap\Tracker\Artifact\Changeset\NewChangesetCreator;
 use Tuleap\Tracker\Artifact\Changeset\NewChangesetFieldValueSaver;
+use Tuleap\Tracker\Artifact\Changeset\NewChangesetPostProcessor;
 use Tuleap\Tracker\Artifact\Changeset\NewChangesetValidator;
 use Tuleap\Tracker\Artifact\Changeset\PostCreation\ActionsQueuer;
 use Tuleap\Tracker\Artifact\Changeset\PostCreation\AsynchronousActionsRunner;
@@ -221,6 +224,7 @@ use Tuleap\Tracker\Notifications\NotificationLevelExtractor;
 use Tuleap\Tracker\Notifications\NotificationListBuilder;
 use Tuleap\Tracker\Notifications\NotificationsForceUsageUpdater;
 use Tuleap\Tracker\Notifications\NotificationsForProjectMemberCleaner;
+use Tuleap\Tracker\Notifications\Recipient\MentionedUserInCommentRetriever;
 use Tuleap\Tracker\Notifications\RecipientsManager;
 use Tuleap\Tracker\Notifications\Settings\NotificationsAdminSettingsDisplayController;
 use Tuleap\Tracker\Notifications\Settings\NotificationsAdminSettingsUpdateController;
@@ -549,21 +553,42 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             strpos($_SERVER['REQUEST_URI'], '/projects/') === 0 ||
             strpos($_SERVER['REQUEST_URI'], '/widgets/') === 0
         ) {
-            $style_css_url = $this->getAssets()->getFileURL('style-fp.css');
-            $print_css_url = $this->getAssets()->getFileURL('print.css');
+            $style_assets   = new IncludeViteAssets(
+                __DIR__ . '/../scripts/styles/frontend-assets',
+                '/assets/trackers/styles'
+            );
+            $current_user   = UserManager::instance()->getCurrentUser();
+            $fake_variation = new \Tuleap\Layout\ThemeVariation(
+                \Tuleap\Layout\ThemeVariantColor::buildFromDefaultVariant(),
+                $current_user
+            );
+            $style_css_url  = CssViteAsset::fromFileName($style_assets, 'themes/FlamingParrot/style.scss')->getFileURL(
+                $fake_variation
+            );
+            $print_css_url  = CssViteAsset::fromFileName($style_assets, 'themes/default/print.scss')->getFileURL(
+                $fake_variation
+            );
 
             echo '<link rel="stylesheet" type="text/css" href="' . $style_css_url . '" />';
             echo '<link rel="stylesheet" type="text/css" href="' . $print_css_url . '" media="print" />';
         }
     }
 
-    public function burning_parrot_get_stylesheets($params)//phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    public function burning_parrot_get_stylesheets(&$params)//phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
         $include_tracker_css_file = false;
         EventManager::instance()->processEvent(self::TRACKER_EVENT_INCLUDE_CSS_FILE, ['include_tracker_css_file' => &$include_tracker_css_file]);
 
         if ($include_tracker_css_file || strpos($_SERVER['REQUEST_URI'], $this->getPluginPath()) === 0) {
-            $params['stylesheets'][] = $this->getAssets()->getFileURL('tracker-bp.css');
+            $style_assets  = new IncludeViteAssets(
+                __DIR__ . '/../scripts/styles/frontend-assets',
+                '/assets/trackers/styles'
+            );
+            $style_css_url = CssViteAsset::fromFileName($style_assets, 'themes/BurningParrot/tracker.scss')->getFileURL(
+                $params['theme_variation']
+            );
+
+            $params['stylesheets'][] = $style_css_url;
         }
     }
 
@@ -579,13 +604,21 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             // DO NOT REPLACE this `includeJavascriptFile()` with `addJavascriptAsset()`
             // The tracker artifact view has script tags in the middle of the body expecting to have access to `tuleap.tracker`
             $layout->includeJavascriptFile($legacy_asset->getFileURL());
-            $layout->addJavascriptAsset(new \Tuleap\Layout\JavascriptAsset($this->getAssets(), 'modal-v2.js'));
+            $layout->addJavascriptAsset(
+                new \Tuleap\Layout\JavascriptAsset(
+                    new IncludeAssets(
+                        __DIR__ . '/../scripts/legacy-modal-v2/frontend-assets',
+                        '/assets/trackers/legacy-modal-v2'
+                    ),
+                    'modal-v2.js'
+                )
+            );
         }
     }
 
     public function permissionPerGroupDisplayEvent(PermissionPerGroupDisplayEvent $event): void
     {
-        $assets = new \Tuleap\Layout\IncludeViteAssets(
+        $assets = new IncludeViteAssets(
             __DIR__ . '/../scripts/permissions-per-group/frontend-assets',
             '/assets/trackers/permissions-per-group'
         );
@@ -1158,6 +1191,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             Tracker_FormElement::PROJECT_HISTORY_UPDATE,
             ArtifactDeletor::PROJECT_HISTORY_ARTIFACT_DELETED,
             MarkTrackerAsDeletedController::PROJECT_HISTORY_TRACKER_DELETION_KEY,
+            \Tuleap\Tracker\Hierarchy\HierarchyController::TRACKER_HIERARCHY_UPDATE
         );
     }
 
@@ -1169,6 +1203,15 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
                 dgettext(
                     'tuleap-tracker',
                     'Tracker deleted',
+                ),
+            );
+        }
+
+        if ($event->getKey() === \Tuleap\Tracker\Hierarchy\HierarchyController::TRACKER_HIERARCHY_UPDATE) {
+            $event->setLabel(
+                dgettext(
+                    'tuleap-tracker',
+                    'Hierarchy updated',
                 ),
             );
         }
@@ -1216,7 +1259,8 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             EventManager::instance(),
             new TypePresenterFactory(new TypeDao(), $artifact_link_usage_dao),
             $artifact_link_usage_dao,
-            $external_field_extractor
+            $external_field_extractor,
+            $this->getBackendLogger()
         );
     }
 
@@ -2411,7 +2455,8 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
                     new UserNotificationOnlyStatusChangeDAO(),
                     new InvolvedNotificationDao()
                 ),
-                new UserNotificationOnlyStatusChangeDAO()
+                new UserNotificationOnlyStatusChangeDAO(),
+                new MentionedUserInCommentRetriever($this->getUserManager())
             ),
             new UserNotificationSettingsDAO()
         );
@@ -2495,11 +2540,6 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
     private function getTrackerChecker(): TrackerCreationDataChecker
     {
         return TrackerCreationDataChecker::build();
-    }
-
-    private function getAssets(): IncludeAssets
-    {
-        return new IncludeAssets(__DIR__ . '/../frontend-assets', '/assets/trackers');
     }
 
     public function collectOAuth2ScopeBuilder(OAuth2ScopeBuilderCollector $collector): void

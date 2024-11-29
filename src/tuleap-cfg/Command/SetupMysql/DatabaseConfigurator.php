@@ -29,6 +29,10 @@ use Tuleap\Config\ConfigSerializer;
 use Tuleap\Config\ConfigurationVariables;
 use Tuleap\Cryptography\ConcealedString;
 use Tuleap\DB\DBConfig;
+use Tuleap\NeverThrow\Err;
+use Tuleap\NeverThrow\Fault;
+use Tuleap\NeverThrow\Ok;
+use Tuleap\NeverThrow\Result;
 use Tuleap\Option\Option;
 
 final class DatabaseConfigurator
@@ -45,9 +49,9 @@ final class DatabaseConfigurator
     }
 
     /**
-     * @psalm-return Option<ConcealedString>
+     * @return Ok<DBWrapperInterface>|Err<Fault>
      */
-    public function setupDatabase(SymfonyStyle $output, DBSetupParameters $db_params, string $base_directory = '/'): Option
+    public function getDatabaseConnection(SymfonyStyle $output, DBSetupParameters $db_params): Ok|Err
     {
         $db = $this->connection_manager->getDBWithoutDBName(
             $output,
@@ -60,8 +64,28 @@ final class DatabaseConfigurator
             $db_params->admin_password,
         );
 
-        $this->connection_manager->checkSQLModes($db);
+        return $this->sanityCheck($db)->andThen(fn () => Result::ok($db));
+    }
 
+    public function getDatabaseConnectionWithoutSanityCheck(SymfonyStyle $output, DBSetupParameters $db_params): DBWrapperInterface
+    {
+        return $this->connection_manager->getDBWithoutDBName(
+            $output,
+            \ForgeConfig::get(DBConfig::CONF_HOST),
+            \ForgeConfig::getInt(DBConfig::CONF_PORT),
+            \ForgeConfig::getStringAsBool(DBConfig::CONF_ENABLE_SSL),
+            \ForgeConfig::getStringAsBool(DBConfig::CONF_SSL_VERIFY_CERT),
+            \ForgeConfig::get(DBConfig::CONF_SSL_CA),
+            $db_params->admin_user,
+            $db_params->admin_password,
+        );
+    }
+
+    /**
+     * @psalm-return Option<ConcealedString>
+     */
+    public function setupDatabase(SymfonyStyle $output, DBWrapperInterface $db, DBSetupParameters $db_params, string $base_directory = '/'): Option
+    {
         $admin_password = $this->updateDBAdminPasswordIfNeeded($output, $db, $db_params);
 
         $this->initializeDatabaseAndLoadValues(
@@ -184,24 +208,6 @@ final class DatabaseConfigurator
         }
     }
 
-    /**
-     * @see https://bugs.mysql.com/bug.php?id=80379
-     */
-    public function setUpNss(SymfonyStyle $io, DBWrapperInterface $db, string $target_dbname, string $nss_user, string $nss_password, string $grant_hostname): void
-    {
-        $io->writeln(sprintf('<info>Grant privileges to %s</info>', $nss_user));
-
-        $this->createUser($db, $nss_user, $nss_password, $grant_hostname);
-
-        $this->grantOn($db, ['SELECT'], $target_dbname, 'user', $nss_user, $grant_hostname);
-        $this->grantOn($db, ['SELECT'], $target_dbname, 'groups', $nss_user, $grant_hostname);
-        $this->grantOn($db, ['SELECT'], $target_dbname, 'user_group', $nss_user, $grant_hostname);
-
-        $this->grantOn($db, ['SELECT', 'UPDATE'], $target_dbname, 'svn_token', $nss_user, $grant_hostname);
-        $this->grantOn($db, ['SELECT'], $target_dbname, 'plugin_ldap_user', $nss_user, $grant_hostname);
-        $this->grantOn($db, ['SELECT'], $target_dbname, 'plugin_openidconnectclient_user_mapping', $nss_user, $grant_hostname);
-    }
-
     public function setUpMediawiki(SymfonyStyle $io, DBWrapperInterface $db, string $mediawiki, string $app_user, string $grant_hostname): void
     {
         if ($mediawiki !== self::OPT_MEDIAWIKI_VALUE_CENTRAL && $mediawiki !== self::OPT_MEDIAWIKI_VALUE_PER_PROJECT) {
@@ -283,31 +289,11 @@ final class DatabaseConfigurator
         return sprintf("'%s'@'%s'", $user_identifier, $grant_hostname);
     }
 
-    private function grantOn(DBWrapperInterface $db, array $grants, string $db_name, string $table_name, string $user, string $grant_hostname): void
+    /**
+     * @return Ok<null>|Err<Fault>
+     */
+    public function sanityCheck(DBWrapperInterface $db): Ok|Err
     {
-        array_walk(
-            $grants,
-            static function (string $grant) {
-                // List is not complete because no need for other type yet, feel free to add supported one if you feel
-                // the need
-                // @see https://dev.mysql.com/doc/refman/8.0/en/grant.html#grant-table-privileges
-                if (! in_array($grant, ['SELECT', 'UPDATE', 'DELETE', 'INSERT'])) {
-                    throw new \RuntimeException('Invalid grant type: ' . $grant);
-                }
-            },
-        );
-        $db->run(sprintf(
-            'GRANT CREATE,%s ON %s.%s TO %s',
-            implode(',', $grants),
-            $db->escapeIdentifier($db_name),
-            $db->escapeIdentifier($table_name),
-            $this->quoteDbUser($user, $grant_hostname),
-        ));
-        $db->run(sprintf(
-            'REVOKE CREATE ON %s.%s FROM %s',
-            $db->escapeIdentifier($db_name),
-            $db->escapeIdentifier($table_name),
-            $this->quoteDbUser($user, $grant_hostname),
-        ));
+        return $this->connection_manager->sanityCheck($db);
     }
 }

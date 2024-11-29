@@ -21,6 +21,7 @@
 use Tuleap\Config\GetConfigKeys;
 use Tuleap\CrossTracker\CrossTrackerArtifactReportDao;
 use Tuleap\CrossTracker\CrossTrackerInstrumentation;
+use Tuleap\CrossTracker\CrossTrackerReportCreator;
 use Tuleap\CrossTracker\CrossTrackerReportDao;
 use Tuleap\CrossTracker\CrossTrackerReportFactory;
 use Tuleap\CrossTracker\Field\ReadableFieldRetriever;
@@ -101,6 +102,7 @@ use Tuleap\CrossTracker\Report\Query\Advanced\SelectBuilder\Metadata\Special\Pre
 use Tuleap\CrossTracker\Report\Query\Advanced\SelectBuilder\Metadata\Special\ProjectName\ProjectNameSelectFromBuilder;
 use Tuleap\CrossTracker\Report\Query\Advanced\SelectBuilderVisitor;
 use Tuleap\CrossTracker\Report\Query\Advanced\WidgetInProjectChecker;
+use Tuleap\CrossTracker\Report\ReportInheritanceHandler;
 use Tuleap\CrossTracker\Report\ReportTrackersRetriever;
 use Tuleap\CrossTracker\Report\SimilarField\BindNameVisitor;
 use Tuleap\CrossTracker\Report\SimilarField\SimilarFieldsFilter;
@@ -195,7 +197,18 @@ class crosstrackerPlugin extends Plugin
     public function widgetInstance(GetWidget $get_widget_event): void
     {
         if ($get_widget_event->getName() === ProjectCrossTrackerSearch::NAME) {
-            $get_widget_event->setWidget(new ProjectCrossTrackerSearch());
+            $report_dao = new CrossTrackerReportDao();
+            $get_widget_event->setWidget(
+                new ProjectCrossTrackerSearch(
+                    new CrossTrackerReportCreator($report_dao),
+                    new ReportInheritanceHandler(
+                        new CrossTrackerReportFactory($report_dao, $report_dao, \TrackerFactory::instance()),
+                        $report_dao,
+                        $report_dao,
+                        $this->getBackendLogger()
+                    )
+                )
+            );
         }
     }
 
@@ -459,6 +472,7 @@ class crosstrackerPlugin extends Plugin
         );
 
         $expert_query_dao               = new CrossTrackerExpertQueryReportDao();
+        $tracker_factory                = TrackerFactory::instance();
         $cross_tracker_artifact_factory = new CrossTrackerArtifactReportFactory(
             new CrossTrackerArtifactReportDao(),
             Tracker_ArtifactFactory::instance(),
@@ -479,7 +493,7 @@ class crosstrackerPlugin extends Plugin
                 $from_builder_visitor,
                 $trackers_permissions,
                 $expert_query_dao,
-                TrackerFactory::instance(),
+                $tracker_factory,
                 new WidgetInProjectChecker($report_dao),
                 $report_dao,
                 $project_manager,
@@ -501,7 +515,8 @@ class crosstrackerPlugin extends Plugin
         return new CSVExportController(
             new CrossTrackerReportFactory(
                 $report_dao,
-                TrackerFactory::instance()
+                $report_dao,
+                $tracker_factory
             ),
             $cross_tracker_artifact_factory,
             $representation_factory,

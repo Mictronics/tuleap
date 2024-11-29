@@ -20,15 +20,16 @@
 import { chainCommands, exitCode, lift, toggleMark, wrapIn } from "prosemirror-commands";
 import type { Command } from "prosemirror-state";
 import { TextSelection } from "prosemirror-state";
-import type { Schema } from "prosemirror-model";
 import { liftListItem, sinkListItem, splitListItem, wrapInList } from "prosemirror-schema-list";
-import type { CheckIsSelectionAList } from "./list/IsListChecker";
 import { getHeadingCommand } from "./text-style/transform-text";
+import type { DetectSingleListInSelection } from "./list/SingleListInSelectionDetector";
+import type { Schema } from "prosemirror-model";
 
 export type ProseMirrorKeyMap = { [key: string]: Command };
 export function buildKeymap(
     schema: Schema,
-    check_is_selection_a_list: CheckIsSelectionAList,
+    detect_ordered_list: DetectSingleListInSelection,
+    detect_bullet_list: DetectSingleListInSelection,
     nb_heading: number,
     map_keys?: { [key: string]: false | string },
 ): ProseMirrorKeyMap {
@@ -61,7 +62,7 @@ export function buildKeymap(
 
     const listCommand = chainCommands(exitCode, (state, dispatch) => {
         const node_type = schema.nodes.bullet_list;
-        if (check_is_selection_a_list.isSelectionAList(state, node_type)) {
+        if (detect_bullet_list.doesSelectionContainOnlyASingleList(state.doc, state.selection)) {
             return lift(state, dispatch);
         }
 
@@ -71,7 +72,7 @@ export function buildKeymap(
 
     const olistCommand = chainCommands(exitCode, (state, dispatch) => {
         const node_type = schema.nodes.ordered_list;
-        if (check_is_selection_a_list.isSelectionAList(state, node_type)) {
+        if (detect_ordered_list.doesSelectionContainOnlyASingleList(state.doc, state.selection)) {
             return lift(state, dispatch);
         }
 

@@ -20,14 +20,17 @@
 
 declare(strict_types=1);
 
+use Tuleap\Artidoc\Adapter\Document\ArtidocDocument;
+use Tuleap\Artidoc\Adapter\Document\ArtidocRetriever;
+use Tuleap\Artidoc\Adapter\Document\ArtidocWithContextDecorator;
+use Tuleap\Artidoc\Adapter\Document\CurrentCurrentUserHasArtidocPermissionsChecker;
+use Tuleap\Artidoc\Adapter\Document\Section\Identifier\UUIDSectionIdentifierFactory;
 use Tuleap\Artidoc\ArtidocController;
 use Tuleap\Artidoc\Document\ArtidocBreadcrumbsProvider;
 use Tuleap\Artidoc\Document\ArtidocDao;
-use Tuleap\Artidoc\Document\ArtidocDocument;
-use Tuleap\Artidoc\Document\ArtidocRetriever;
+use Tuleap\Artidoc\Domain\Document\ArtidocWithContextRetriever;
 use Tuleap\Artidoc\Document\ConfiguredTrackerRetriever;
 use Tuleap\Artidoc\Document\DocumentServiceFromAllowedProjectRetriever;
-use Tuleap\Artidoc\Document\Section\Identifier\SectionIdentifierFactory;
 use Tuleap\Artidoc\Document\Tracker\SuitableTrackerForDocumentChecker;
 use Tuleap\Artidoc\Document\Tracker\SuitableTrackersForDocumentRetriever;
 use Tuleap\Artidoc\REST\ResourcesInjector;
@@ -36,13 +39,19 @@ use Tuleap\Config\PluginWithConfigKeys;
 use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\Docman\Item\CloneOtherItemPostAction;
 use Tuleap\Docman\Item\GetDocmanItemOtherTypeEvent;
+use Tuleap\Docman\Item\Icon\DocumentIconPresenterEvent;
+use Tuleap\Docman\Item\Icon\GetIconForItemEvent;
+use Tuleap\Docman\Item\OtherDocumentHrefEvent;
 use Tuleap\Docman\ItemType\GetItemTypeAsText;
+use Tuleap\Docman\Reference\DocumentIconPresenter;
 use Tuleap\Docman\REST\v1\Folders\FilterItemOtherTypeProvider;
 use Tuleap\Docman\REST\v1\GetOtherDocumentItemRepresentationWrapper;
 use Tuleap\Docman\REST\v1\MoveItem\MoveOtherItemUriRetriever;
 use Tuleap\Docman\REST\v1\Others\OtherTypePropertiesRepresentation;
 use Tuleap\Docman\REST\v1\Others\VerifyOtherTypeIsSupported;
 use Tuleap\Docman\REST\v1\Search\SearchRepresentationOtherType;
+use Tuleap\Document\RecentlyVisited\RecentlyVisitedDocumentDao;
+use Tuleap\Document\RecentlyVisited\VisitedOtherDocumentHref;
 use Tuleap\Document\Tree\OtherItemTypeDefinition;
 use Tuleap\Document\Tree\OtherItemTypes;
 use Tuleap\Document\Tree\SearchCriterionListOptionPresenter;
@@ -113,11 +122,13 @@ class ArtidocPlugin extends Plugin implements PluginWithConfigKeys
 
         $form_element_factory = Tracker_FormElementFactory::instance();
         return new ArtidocController(
-            new ArtidocRetriever(
-                ProjectManager::instance(),
-                $dao,
-                $docman_item_factory,
-                new DocumentServiceFromAllowedProjectRetriever($this),
+            new ArtidocWithContextRetriever(
+                new ArtidocRetriever($dao, $docman_item_factory),
+                CurrentCurrentUserHasArtidocPermissionsChecker::withCurrentUser(HTTPRequest::instance()->getCurrentUser()),
+                new ArtidocWithContextDecorator(
+                    ProjectManager::instance(),
+                    new DocumentServiceFromAllowedProjectRetriever($this),
+                ),
             ),
             new ConfiguredTrackerRetriever(
                 $dao,
@@ -149,6 +160,7 @@ class ArtidocPlugin extends Plugin implements PluginWithConfigKeys
                 $form_element_factory
             ),
             EventManager::instance(),
+            new RecentlyVisitedDocumentDao(),
         );
     }
 
@@ -174,8 +186,32 @@ class ArtidocPlugin extends Plugin implements PluginWithConfigKeys
     public function getOtherDocumentItemRepresentationWrapper(GetOtherDocumentItemRepresentationWrapper $event): void
     {
         if ($event->item instanceof ArtidocDocument) {
-            $event->setItemRepresentationArguments(ArtidocDocument::TYPE, new OtherTypePropertiesRepresentation('/artidoc/' . urlencode((string) $event->item->getId())));
+            $event->setItemRepresentationArguments(
+                ArtidocDocument::TYPE,
+                new OtherTypePropertiesRepresentation($this->getArtidocHref($event->item)),
+            );
         }
+    }
+
+    #[ListeningToEventClass]
+    public function otherDocumentHrefEvent(OtherDocumentHrefEvent $event): void
+    {
+        if ($event->item instanceof ArtidocDocument) {
+            $event->setHref($this->getArtidocHref($event->item));
+        }
+    }
+
+    #[ListeningToEventClass]
+    public function visitedOtherDocumentHref(VisitedOtherDocumentHref $event): void
+    {
+        if ($event->item instanceof ArtidocDocument) {
+            $event->setHref($this->getArtidocHref($event->item));
+        }
+    }
+
+    private function getArtidocHref(ArtidocDocument $document): string
+    {
+        return '/artidoc/' . urlencode((string) $document->getId());
     }
 
     #[ListeningToEventClass]
@@ -210,7 +246,7 @@ class ArtidocPlugin extends Plugin implements PluginWithConfigKeys
     public function cloneOtherItemPostAction(CloneOtherItemPostAction $event): void
     {
         if ($event->source instanceof ArtidocDocument && $event->target instanceof ArtidocDocument) {
-            $this->getArtidocDao()->cloneItem((int) $event->source->getId(), (int) $event->target->getId());
+            $this->getArtidocDao()->cloneItem($event->source->getId(), $event->target->getId());
         }
     }
 
@@ -268,8 +304,24 @@ class ArtidocPlugin extends Plugin implements PluginWithConfigKeys
             ->deleteSectionsByArtifactId($artifact_deleted->getArtifact()->getId());
     }
 
+    #[\Tuleap\Plugin\ListeningToEventClass]
+    public function getIconForItemEvent(GetIconForItemEvent $event): void
+    {
+        if ($event->item instanceof ArtidocDocument) {
+            $event->setIcon('artidoc');
+        }
+    }
+
+    #[\Tuleap\Plugin\ListeningToEventClass]
+    public function documentIconPresenterEvent(DocumentIconPresenterEvent $event): void
+    {
+        if ($event->icon === 'artidoc') {
+            $event->setPresenter(new DocumentIconPresenter('fa-solid fa-tlp-artidoc', 'peggy-pink'));
+        }
+    }
+
     private function getArtidocDao(): ArtidocDao
     {
-        return (new ArtidocDao(new SectionIdentifierFactory(new DatabaseUUIDV7Factory())));
+        return (new ArtidocDao(new UUIDSectionIdentifierFactory(new DatabaseUUIDV7Factory())));
     }
 }

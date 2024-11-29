@@ -28,6 +28,7 @@ setup_database() {
     echo "Use remote db $DB_HOST"
 
     /usr/share/tuleap/src/tuleap-cfg/tuleap-cfg.php setup:mysql-init \
+        --skip-sanity-check \
         --host="$DB_HOST" \
         --admin-user=root \
         --admin-password=welcome0 \

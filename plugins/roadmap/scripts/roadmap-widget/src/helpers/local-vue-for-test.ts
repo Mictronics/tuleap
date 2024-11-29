@@ -21,13 +21,14 @@
 import type { Vue } from "vue/types/vue";
 import { createLocalVue } from "@vue/test-utils";
 import { initVueGettext } from "@tuleap/vue2-gettext-init";
-import VueDOMPurifyHTML from "vue-dompurify-html";
+import VueDOMPurifyHTML from "@tuleap/vue2-dompurify-html";
 
 export async function createRoadmapLocalVue(): Promise<typeof Vue> {
     const local_vue = createLocalVue();
     await initVueGettext(local_vue, () => {
         throw new Error("Fallback to default");
     });
+    // @ts-expect-error Vue 2.7.8 and 2.7.16 types do not play well together
     local_vue.use(VueDOMPurifyHTML);
 
     return local_vue;

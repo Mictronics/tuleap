@@ -41,21 +41,19 @@
                 class="section-header"
                 v-if="!is_sections_loading"
                 v-bind:title="editable_title"
-                v-bind:input_current_title="inputCurrentTitle"
-                v-bind:is_edit_mode="is_section_in_edit_mode"
             />
-            <section-header-skeleton v-else class="section-header" />
+            <section-header-skeleton v-if="is_sections_loading" class="section-header" />
             <section-description
                 v-bind:editable_description="editable_description"
                 v-bind:readonly_description="getReadonlyDescription()"
-                v-bind:input_current_description="inputCurrentDescription"
                 v-bind:is_edit_mode="is_section_in_edit_mode"
                 v-bind:add_attachment_to_waiting_list="addAttachmentToWaitingList"
                 v-bind:upload_url="upload_url"
                 v-bind:is_image_upload_allowed="is_image_upload_allowed"
                 v-bind:upload_file="upload_file"
                 v-bind:project_id="getProjectId()"
-                v-bind:references="props.section.references"
+                v-bind:title="editable_title"
+                v-bind:input_section_content="inputSectionContent"
             />
             <section-footer v-bind:editor="editor" v-bind:section="section" />
         </article>
@@ -117,13 +115,8 @@ const {
 } = editor.editor_state;
 const { is_in_error, is_outdated } = editor.editor_error;
 
-const {
-    inputCurrentDescription,
-    inputCurrentTitle,
-    editable_title,
-    editable_description,
-    getReadonlyDescription,
-} = editor.editor_section_content;
+const { inputSectionContent, editable_title, editable_description, getReadonlyDescription } =
+    editor.editor_section_content;
 
 function getProjectId(): number {
     if (isArtifactSection(props.section)) {
@@ -135,8 +128,6 @@ function getProjectId(): number {
 </script>
 
 <style lang="scss" scoped>
-@use "pkg:@tuleap/burningparrot-theme/css/includes/global-variables";
-@use "@/themes/includes/zindex";
 @use "@/themes/includes/whitespace";
 
 section {
@@ -160,9 +151,6 @@ section {
 }
 
 .section-header {
-    position: sticky;
-    z-index: zindex.$header;
-    top: global-variables.$navbar-height;
     margin-bottom: var(--tlp-medium-spacing);
     border-bottom: 1px solid var(--tlp-neutral-normal-color);
     background: var(--tuleap-artidoc-section-background);

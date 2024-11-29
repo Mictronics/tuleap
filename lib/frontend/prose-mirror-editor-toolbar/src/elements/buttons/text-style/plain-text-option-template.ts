@@ -19,32 +19,26 @@
 
 import { html } from "hybrids";
 import type { UpdateFunction } from "hybrids";
-import type { InternalHeadingsItem } from "./text-style";
+import type { InternalTextStyleItem } from "./text-style";
 import type { GetText } from "@tuleap/gettext";
 
+export const OPTION_PLAIN_TEXT = "plain-text";
+
 export const renderPlainTextOption = (
-    host: InternalHeadingsItem,
+    host: InternalTextStyleItem,
     gettext_provider: GetText,
-): UpdateFunction<InternalHeadingsItem> => {
+): UpdateFunction<InternalTextStyleItem> => {
     if (!host.style_elements.text) {
         return html``;
     }
 
-    const onClickApplyPlainText = (): void => {
-        if (host.is_plain_text_activated) {
-            return;
-        }
-
-        host.toolbar_bus.plainText();
-    };
-
     return html`
         <option
             selected="${host.is_plain_text_activated}"
-            title="${gettext_provider.gettext("Change to plain text")}"
-            onclick="${onClickApplyPlainText}"
+            title="${gettext_provider.gettext("Change to normal text")}"
+            value="${OPTION_PLAIN_TEXT}"
         >
-            ${gettext_provider.gettext("Text")}
+            ${gettext_provider.gettext("Normal")}
         </option>
     `;
 };

@@ -23,3 +23,12 @@ $add-section-button-size: 26px;
 $add-section-button-container-height: calc(
     2 * #{whitespace.$add-section-button-container-vertical-padding} + #{$add-section-button-size}
 );
+$add-section-button-container-width: calc(
+    2 * #{whitespace.$add-section-button-container-horizontal-padding} + #{$add-section-button-size}
+);
+$document-container-width-ratio: 0.7;
+$document-width: 960px;
+$header-title-height: 40px; // line-height of TLP h1
+$header-height: calc(
+    $header-title-height + #{whitespace.$header-title-padding-top} + #{whitespace.$header-title-padding-bottom}
+);

@@ -17,9 +17,11 @@
  *  along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { type DOMOutputSpec, type MarkSpec, Schema } from "prosemirror-model";
+import { Schema } from "prosemirror-model";
+import type { DOMOutputSpec, MarkSpec, NodeSpec } from "prosemirror-model";
 import { addListNodes } from "prosemirror-schema-list";
 import { schema } from "prosemirror-schema-basic";
+import { createAsyncCrossReference } from "./plugins/cross-references/element/AsyncCrossReference";
 
 const subscript_mark_spec: MarkSpec = {
     parseDOM: [{ tag: "sub" }],
@@ -27,17 +29,42 @@ const subscript_mark_spec: MarkSpec = {
         return ["sub", 0];
     },
 };
-const supercript_mark_spec: MarkSpec = {
+
+const superscript_mark_spec: MarkSpec = {
     parseDOM: [{ tag: "sup" }],
     toDOM(): DOMOutputSpec {
         return ["sup", 0];
     },
 };
-export const custom_schema: Schema = new Schema({
-    nodes: addListNodes(schema.spec.nodes, "(paragraph | code_block | heading) block*", "block"),
-    marks: {
-        ...schema.spec.marks.toObject(),
-        subscript: subscript_mark_spec,
-        superscript: supercript_mark_spec,
+
+const async_cross_reference_mark_spec: MarkSpec = {
+    inclusive: false,
+    spanning: false,
+    attrs: {
+        text: { validate: "string" },
+        project_id: { validate: "number" },
     },
-});
+    toDOM(node): DOMOutputSpec {
+        const { text, project_id } = node.attrs;
+        return createAsyncCrossReference(text, project_id);
+    },
+};
+
+export type EditorNodes = Record<string, NodeSpec>;
+export const prosemirror_nodes = addListNodes(
+    schema.spec.nodes,
+    "(paragraph | code_block | heading) block*",
+    "block",
+).toObject();
+
+export const buildCustomSchema = (editor_nodes: EditorNodes = {}): Schema => {
+    return new Schema({
+        nodes: Object.keys(editor_nodes).length > 0 ? editor_nodes : prosemirror_nodes,
+        marks: {
+            ...schema.spec.marks.toObject(),
+            subscript: subscript_mark_spec,
+            superscript: superscript_mark_spec,
+            async_cross_reference: async_cross_reference_mark_spec,
+        },
+    });
+};

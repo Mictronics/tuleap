@@ -428,6 +428,9 @@ msgstr ""
 "Suite à une mise à jour d'artéfact, les types de lien désactivés seront "
 "supprimés sans enlever les liens existants."
 
+msgid "Allow duplication of artifacts"
+msgstr "Autoriser la duplication des artéfacts"
+
 msgid "Allow to permanently delete an artifact."
 msgstr "Cette opération efface de manière permanente un artéfact."
 
@@ -651,6 +654,9 @@ msgstr ""
 
 msgid "Artifacts fields"
 msgstr "Liste des champs des artéfacts"
+
+msgid "Artifacts of this tracker cannot be duplicated."
+msgstr "Les artéfacts de cet outil de suivi ne peuvent pas être dupliqués."
 
 msgid ""
 "As a tracker administrator, you can choose the e-mail notifications level in "
@@ -1664,6 +1670,9 @@ msgstr "Groupes de champs cachés:"
 
 msgid "Hierarchy"
 msgstr "Hiérarchie"
+
+msgid "Hierarchy updated"
+msgstr "Hiérarchie mise à jour"
 
 msgid "Hint"
 msgstr "Indication"
@@ -3923,6 +3932,9 @@ msgstr ""
 msgid "This artifact (of %2$s) will be linked to %1$s"
 msgstr "Cet artéfact (de %2$s) sera lié à %1$s"
 
+msgid "This artifact cannot be duplicated."
+msgstr "Cet artéfact ne peut pas être dupliqué."
+
 msgid "This artifact does not exist."
 msgstr "Cet artéfact n'existe pas."
 
@@ -4083,6 +4095,10 @@ msgstr "Nombre total d'artéfacts"
 
 msgid "Tracker"
 msgstr "Outil de suivi"
+
+#, php-format
+msgid "Tracker #%d new children: %s (previous children: %s)"
+msgstr "outil de suivi #%d nouveaux enfants: %s (enfant précédents: %s)"
 
 #, php-format
 msgid "Tracker %1$s not duplicated"
@@ -4981,6 +4997,12 @@ msgstr "jour(s)"
 
 msgid "decreased"
 msgstr "baissée"
+
+msgid "empty children list"
+msgstr "liste des enfants vidée"
+
+msgid "empty previous hierarchy"
+msgstr "hiérarchie précédente vide"
 
 msgid ""
 "error while playing with the database.  Help us improve your experience by "

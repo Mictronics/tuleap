@@ -22,33 +22,23 @@
         type="search"
         class="tlp-search tlp-search-small"
         v-bind:placeholder="placeholder"
-        ref="filter"
-        v-bind:value="value"
-        v-on:input="onInput($event)"
+        v-on:input="updateFilter"
     />
 </template>
 
-<script lang="ts">
-import Vue from "vue";
-import { Prop } from "vue-property-decorator";
+<script setup lang="ts">
+defineProps<{
+    placeholder: string;
+}>();
 
-export default class RefsFilter extends Vue {
-    @Prop()
-    readonly value: string = "";
-    @Prop()
-    readonly placeholder: string = "";
+const emit = defineEmits<{
+    (e: "update-filter", value: string): void;
+}>();
 
-    mounted(): void {
-        if (this.$refs.filter instanceof HTMLInputElement) {
-            this.$refs.filter.focus();
-        }
-    }
-
-    onInput(event: Event): void {
-        if (!(event.target instanceof HTMLInputElement)) {
-            return;
-        }
-        this.$emit("input", event.target.value);
+function updateFilter(event: Event): void {
+    const event_target = event.currentTarget;
+    if (event_target instanceof HTMLInputElement) {
+        emit("update-filter", event_target.value);
     }
 }
 </script>

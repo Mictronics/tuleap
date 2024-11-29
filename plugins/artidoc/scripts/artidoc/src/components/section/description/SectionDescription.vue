@@ -20,26 +20,29 @@
 
 <template>
     <section-description-skeleton v-if="is_sections_loading" />
-    <template v-else-if="(is_edit_mode || is_prose_mirror) && !is_print_mode">
+    <template v-if="!is_sections_loading && can_section_be_edited">
         <component
             v-bind:is="async_editor"
             v-bind:upload_url="upload_url"
             v-bind:add_attachment_to_waiting_list="add_attachment_to_waiting_list"
             v-bind:editable_description="editable_description"
             v-bind:is_edit_mode="is_edit_mode"
-            v-bind:input_current_description="input_current_description"
             v-bind:readonly_value="readonly_description"
             v-bind:is_image_upload_allowed="is_image_upload_allowed"
             v-bind:upload_file="upload_file"
             v-bind:project_id="project_id"
-            v-bind:references="references"
+            v-bind:title="title"
+            v-bind:input_section_content="input_section_content"
             data-test="editor"
         />
     </template>
-    <section-description-read-only v-else v-bind:readonly_value="readonly_description" />
+    <section-description-read-only
+        v-if="!is_sections_loading && !can_section_be_edited"
+        v-bind:readonly_value="readonly_description"
+    />
 </template>
 <script setup lang="ts">
-import { defineAsyncComponent, onMounted } from "vue";
+import { defineAsyncComponent, onMounted, computed } from "vue";
 import { loadTooltips } from "@tuleap/tooltip";
 import SectionDescriptionSkeleton from "./SectionDescriptionSkeleton.vue";
 import SectionDescriptionReadOnly from "./SectionDescriptionReadOnly.vue";
@@ -47,23 +50,22 @@ import type { EditorSectionContent } from "@/composables/useEditorSectionContent
 import type { AttachmentFile } from "@/composables/useAttachmentFile";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import { SECTIONS_STORE } from "@/stores/sections-store-injection-key";
-import { EDITOR_CHOICE } from "@/helpers/editor-choice";
 import type { UseUploadFileType } from "@/composables/useUploadFile";
-import type { CrossReference } from "@/stores/useSectionsStore";
+import { CAN_USER_EDIT_DOCUMENT } from "@/can-user-edit-document-injection-key";
 
-withDefaults(
+const props = withDefaults(
     defineProps<{
+        title: string;
         add_attachment_to_waiting_list: AttachmentFile["addAttachmentToWaitingList"];
         upload_url: string;
         editable_description: string;
         readonly_description: string;
         is_edit_mode: boolean;
         is_image_upload_allowed: boolean;
-        input_current_description: EditorSectionContent["inputCurrentDescription"];
         is_print_mode?: boolean;
         upload_file: UseUploadFileType;
         project_id: number;
-        references: Array<CrossReference>;
+        input_section_content: EditorSectionContent["inputSectionContent"];
     }>(),
     {
         is_print_mode: false,
@@ -71,19 +73,17 @@ withDefaults(
 );
 
 const { is_sections_loading } = strictInject(SECTIONS_STORE);
-const { is_prose_mirror } = strictInject(EDITOR_CHOICE);
+const can_user_edit_document = strictInject(CAN_USER_EDIT_DOCUMENT);
 
-const async_editor = is_prose_mirror.value
-    ? defineAsyncComponent({
-          loader: () => import("./SectionDescriptionEditorProseMirror.vue"),
-          loadingComponent: SectionDescriptionReadOnly,
-          delay: 0,
-      })
-    : defineAsyncComponent({
-          loader: () => import("./SectionDescriptionEditor.vue"),
-          loadingComponent: SectionDescriptionReadOnly,
-          delay: 0,
-      });
+const can_section_be_edited = computed(
+    () => props.is_print_mode !== true && can_user_edit_document,
+);
+
+const async_editor = defineAsyncComponent({
+    loader: () => import("./SectionDescriptionEditorProseMirror.vue"),
+    loadingComponent: SectionDescriptionReadOnly,
+    delay: 0,
+});
 
 onMounted(() => {
     loadTooltips();

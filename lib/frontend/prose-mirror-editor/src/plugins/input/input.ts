@@ -18,16 +18,21 @@
  */
 
 import { Plugin } from "prosemirror-state";
-import type { EditorView } from "prosemirror-view";
+import type { SerializeDOM } from "./DomSerializer";
 
-export function initPluginInput(update_callback: (newTextContent: string) => void): Plugin {
-    return new Plugin({
-        view(): { update: (view: EditorView) => void } {
-            return {
-                update(view: EditorView): void {
-                    update_callback(view.dom.innerHTML);
-                },
-            };
+export type PluginInput = Plugin;
+
+export const initPluginInput = (
+    serializer: SerializeDOM,
+    update_callback: (content: HTMLElement) => void,
+): PluginInput =>
+    new Plugin({
+        state: {
+            init(): void {},
+            apply(tr, plugin_state, old_editor_state, new_editor_state): void {
+                if (tr.docChanged) {
+                    update_callback(serializer.serializeDOM(new_editor_state.doc.content));
+                }
+            },
         },
     });
-}

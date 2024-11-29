@@ -22,7 +22,6 @@
     <tuleap-prose-mirror-toolbar
         ref="toolbar"
         class="artidoc-toolbar"
-        v-bind:class="{ 'is-stuck': is_stuck }"
         v-bind:controller="controller"
         v-bind:text_elements="{
             bold: true,
@@ -46,26 +45,17 @@
 <script setup lang="ts">
 import { TOOLBAR_BUS } from "@/toolbar-bus-injection-key";
 import { strictInject } from "@tuleap/vue-strict-inject";
-import { ToolbarController } from "@tuleap/prose-mirror-editor-toolbar";
+import { buildToolbarController } from "@tuleap/prose-mirror-editor-toolbar";
 import { onMounted, ref } from "vue";
-import { observeStickyToolbar } from "@/helpers/observe-sticky-toolbar";
+import { onClickActivateOrDeactivateToolbar } from "@/helpers/toolbar-activator";
 const toolbar_bus = strictInject(TOOLBAR_BUS);
-const controller = ToolbarController(toolbar_bus);
+const controller = buildToolbarController(toolbar_bus);
 
 const toolbar = ref<HTMLElement | undefined>();
-const is_stuck = ref(false);
 
 onMounted(() => {
     if (toolbar.value) {
-        observeStickyToolbar(
-            toolbar.value,
-            () => {
-                is_stuck.value = true;
-            },
-            () => {
-                is_stuck.value = false;
-            },
-        );
+        onClickActivateOrDeactivateToolbar(document, toolbar.value, toolbar_bus);
     }
 });
 </script>
@@ -75,29 +65,19 @@ onMounted(() => {
 @use "@tuleap/burningparrot-theme/css/includes/global-variables";
 
 .artidoc-toolbar {
-    // Display block is mandatory to avoid flickering with the toolbar
-    display: block;
+    // Display block|flex is mandatory to avoid flickering with the toolbar
+    display: flex;
     position: sticky;
     z-index: zindex.$toolbar;
-    top: global-variables.$navbar-height;
-
-    &.is-stuck {
-        box-shadow: var(--tlp-sticky-header-shadow);
-    }
+    top: var(--artidoc-sticky-top-position);
+    justify-content: center;
+    width: 100%;
+    border-bottom: 1px solid var(--tlp-neutral-normal-color);
+    background: var(--tlp-white-color);
 }
 
-.has-visible-platform-banner {
-    .artidoc-toolbar {
-        top: calc(
-            #{global-variables.$navbar-height} + #{global-variables.$platform-banner-base-height}
-        );
-    }
-
-    &.has-visible-project-banner .artidoc-toolbar {
-        top: calc(
-            #{global-variables.$navbar-height} + #{global-variables.$platform-banner-base-height} +
-                #{global-variables.$extra-platform-banner-white-space-height}
-        );
-    }
+.artidoc-container-scrolled .artidoc-toolbar {
+    border-bottom: 0;
+    box-shadow: var(--tlp-sticky-header-shadow);
 }
 </style>

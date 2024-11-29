@@ -25,13 +25,14 @@ namespace Tuleap\Artidoc\REST\v1;
 use Tracker_Semantic_Description;
 use Tracker_Semantic_Title;
 use Tuleap\Artidoc\Document\PaginatedRawSections;
-use Tuleap\Artidoc\Document\Section\Identifier\SectionIdentifier;
+use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifier;
 use Tuleap\NeverThrow\Err;
 use Tuleap\NeverThrow\Fault;
 use Tuleap\NeverThrow\Ok;
 use Tuleap\NeverThrow\Result;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Artifact\GetFileUploadData;
+use Tuleap\Tracker\REST\Artifact\ArtifactFieldValueFileFullRepresentation;
 use Tuleap\Tracker\REST\Artifact\ArtifactFieldValueFullRepresentation;
 use Tuleap\Tracker\REST\Artifact\ArtifactReference;
 use Tuleap\Tracker\REST\Artifact\ArtifactTextFieldValueRepresentation;
@@ -144,7 +145,8 @@ final readonly class RawSectionsToRepresentationTransformer implements Transform
 
             $attachments = null;
             if ($file_upload_data) {
-                $attachments = $file_upload_data->getField()->getRESTValue($user, $last_changeset);
+                $attachments = $file_upload_data->getField()->getRESTValue($user, $last_changeset)
+                    ?? ArtifactFieldValueFileFullRepresentation::fromEmptyValues($file_upload_data->getField());
             }
 
             $sections[] = new ArtidocSectionRepresentation(

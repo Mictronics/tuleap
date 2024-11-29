@@ -20,7 +20,6 @@
 
 import type { EditorState } from "prosemirror-state";
 import type { ToolbarView } from "./toolbar-bus";
-import { custom_schema } from "../../../custom_schema";
 import type { CheckIsMArkActive } from "./IsMarkActiveChecker";
 import { isSelectionABlockQuote } from "../quote/is-selection-a-block-quote";
 import type { BuildLinkState } from "../links/LinkStateBuilder";
@@ -36,45 +35,30 @@ export const ToolbarActivator = (
     check_is_mark_active: CheckIsMArkActive,
     build_link_state: BuildLinkState,
     build_image_state: BuildImageState,
-    build_list_state: BuildListState,
+    build_ordered_list_state: BuildListState,
+    build_bullet_list_state: BuildListState,
     activate_text_style_items: ActivateMonoToolbarTextStyleItems,
 ): ActivateToolbar => ({
     activateToolbarItem(toolbar_view: ToolbarView, state: EditorState): void {
-        toolbar_view.activateBold(
-            check_is_mark_active.isMarkActive(state, custom_schema.marks.strong),
-        );
-        toolbar_view.activateItalic(
-            check_is_mark_active.isMarkActive(state, custom_schema.marks.em),
-        );
-        toolbar_view.activateCode(
-            check_is_mark_active.isMarkActive(state, custom_schema.marks.code),
-        );
+        const schema = state.schema;
+
+        toolbar_view.activateBold(check_is_mark_active.isMarkActive(state, schema.marks.strong));
+        toolbar_view.activateItalic(check_is_mark_active.isMarkActive(state, schema.marks.em));
+        toolbar_view.activateCode(check_is_mark_active.isMarkActive(state, schema.marks.code));
         toolbar_view.activateQuote(isSelectionABlockQuote(state));
         toolbar_view.activateSubscript(
-            check_is_mark_active.isMarkActive(state, custom_schema.marks.subscript),
+            check_is_mark_active.isMarkActive(state, schema.marks.subscript),
         );
         toolbar_view.activateSuperscript(
-            check_is_mark_active.isMarkActive(state, custom_schema.marks.superscript),
+            check_is_mark_active.isMarkActive(state, schema.marks.superscript),
         );
         toolbar_view.activateLink(build_link_state.build(state));
-        toolbar_view.activateUnlink(
-            check_is_mark_active.isMarkActive(state, custom_schema.marks.link),
-        );
+        toolbar_view.activateUnlink(check_is_mark_active.isMarkActive(state, schema.marks.link));
         toolbar_view.activateImage(build_image_state.build(state.selection));
 
-        toolbar_view.activateOrderedList(
-            build_list_state.build(
-                custom_schema.nodes.ordered_list,
-                custom_schema.nodes.bullet_list,
-            ),
-        );
+        toolbar_view.activateOrderedList(build_ordered_list_state.build());
 
-        toolbar_view.activateBulletList(
-            build_list_state.build(
-                custom_schema.nodes.bullet_list,
-                custom_schema.nodes.ordered_list,
-            ),
-        );
+        toolbar_view.activateBulletList(build_bullet_list_state.build());
         activate_text_style_items.activateTextStyleItems(toolbar_view, state);
     },
 });

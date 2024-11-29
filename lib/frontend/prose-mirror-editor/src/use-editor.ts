@@ -22,14 +22,10 @@ import { EditorState } from "prosemirror-state";
 import { EditorView } from "prosemirror-view";
 import { DOMParser } from "prosemirror-model";
 import { dropCursor } from "prosemirror-dropcursor";
-import { custom_schema } from "./custom_schema";
-import type { PluginDropFile } from "./plugins";
-import {
-    initLinkPopoverPlugin,
-    initPluginTransformInput,
-    initPluginInput,
-    setupToolbar,
-} from "./plugins";
+import { buildCustomSchema } from "./custom_schema";
+import type { EditorNodes } from "./custom_schema";
+import type { PluginDropFile, PluginInput, SerializeDOM } from "./plugins";
+import { initLinkPopoverPlugin, setupToolbar } from "./plugins";
 import type { GetText } from "@tuleap/gettext";
 
 import {
@@ -38,10 +34,14 @@ import {
     initGettext,
 } from "@tuleap/gettext";
 import { v4 as uuidv4 } from "uuid";
-import type { CrossReference } from "./plugins/extract-referencies/reference-extractor";
 import { initPluginCloseMarksAfterSpace } from "./plugins/close-marks-after-space";
 import { type ToolbarBus } from "./plugins/toolbar/helper/toolbar-bus";
-import { initPluginAutomagicLinks } from "./plugins/automagic-links";
+import { initCrossReferencesPlugins } from "./plugins/cross-references";
+import { buildDOMSerializer } from "./plugins/input/DomSerializer";
+import {
+    initAddMarkAfterEnterPlugin,
+    buildAddMarkAfterEnterPluginMap,
+} from "./plugins/add-mark-after-enter";
 
 export type UseEditorType = {
     editor: EditorView;
@@ -50,13 +50,15 @@ export type UseEditorType = {
 };
 
 export async function useEditor(
-    query_selector: HTMLElement,
+    editor_element: HTMLElement,
     setupUploadPlugin: (gettext_provider: GetText) => PluginDropFile,
-    onChange: (new_text_content: string) => void,
+    setupInputPlugin: (serializer: SerializeDOM) => PluginInput,
+    setupAdditionalPlugins: () => Plugin[],
+    is_upload_allowed: boolean,
     initial_content: HTMLElement,
     project_id: number,
-    references: Array<CrossReference>,
     toolbar_bus: ToolbarBus,
+    custom_editor_nodes?: EditorNodes,
 ): Promise<UseEditorType> {
     const gettext_provider = await initGettext(
         getLocaleWithDefault(document),
@@ -66,20 +68,30 @@ export async function useEditor(
 
     const upload_plugin = setupUploadPlugin(gettext_provider);
 
+    const schema = buildCustomSchema(custom_editor_nodes);
     const editor_id = uuidv4();
     const plugins: Plugin[] = [
-        initPluginInput(onChange),
+        ...setupAdditionalPlugins(),
+        setupInputPlugin(buildDOMSerializer(schema)),
         upload_plugin,
-        dropCursor(),
+        ...(is_upload_allowed
+            ? [
+                  dropCursor({
+                      color: false,
+                      width: 2,
+                      class: "prose-mirror-editor-dropcursor",
+                  }),
+              ]
+            : []),
         initLinkPopoverPlugin(document, gettext_provider, editor_id),
-        ...setupToolbar(toolbar_bus),
-        initPluginTransformInput(project_id, references),
+        ...setupToolbar(schema, toolbar_bus),
         initPluginCloseMarksAfterSpace(),
-        initPluginAutomagicLinks(),
+        ...initCrossReferencesPlugins(project_id),
+        initAddMarkAfterEnterPlugin(buildAddMarkAfterEnterPluginMap(schema, project_id)),
     ];
 
     const state: EditorState = getState(initial_content);
-    const editor: EditorView = new EditorView(query_selector, {
+    const editor: EditorView = new EditorView(editor_element, {
         state,
         attributes: {
             class: "ProseMirror-focused",
@@ -94,8 +106,8 @@ export async function useEditor(
 
     function getState(initial_content: Node): EditorState {
         return EditorState.create({
-            doc: DOMParser.fromSchema(custom_schema).parse(initial_content),
-            schema: custom_schema,
+            doc: DOMParser.fromSchema(schema).parse(initial_content, { preserveWhitespace: true }),
+            schema,
             plugins,
         });
     }

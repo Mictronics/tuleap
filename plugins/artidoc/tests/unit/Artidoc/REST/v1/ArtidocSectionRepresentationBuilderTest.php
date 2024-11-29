@@ -22,16 +22,16 @@ declare(strict_types=1);
 
 namespace Tuleap\Artidoc\REST\v1;
 
-use Tuleap\Artidoc\Document\ArtidocDocument;
-use Tuleap\Artidoc\Document\ArtidocDocumentInformation;
+use Tuleap\Artidoc\Adapter\Document\ArtidocDocument;
+use Tuleap\Artidoc\Adapter\Document\Section\Identifier\UUIDSectionIdentifierFactory;
 use Tuleap\Artidoc\Document\RawSection;
-use Tuleap\Artidoc\Document\Section\Identifier\SectionIdentifierFactory;
-use Tuleap\Artidoc\Stubs\Document\RetrieveArtidocStub;
+use Tuleap\Artidoc\Domain\Document\ArtidocWithContext;
+use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifierFactory;
 use Tuleap\Artidoc\Stubs\Document\SearchOneSectionStub;
 use Tuleap\Artidoc\Stubs\Document\SectionIdentifierStub;
 use Tuleap\Artidoc\Stubs\Document\TransformRawSectionsToRepresentationStub;
+use Tuleap\Artidoc\Stubs\Domain\Document\RetrieveArtidocWithContextStub;
 use Tuleap\DB\DatabaseUUIDV7Factory;
-use Tuleap\Docman\ServiceDocman;
 use Tuleap\NeverThrow\Result;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
@@ -39,6 +39,8 @@ use Tuleap\Tracker\REST\Artifact\ArtifactFieldValueFileFullRepresentation;
 use Tuleap\Tracker\REST\Artifact\ArtifactFieldValueFullRepresentation;
 use Tuleap\Tracker\REST\Artifact\ArtifactReference;
 use Tuleap\Tracker\REST\Artifact\ArtifactTextFieldValueRepresentation;
+use Tuleap\Tracker\REST\Artifact\FileInfoRepresentation;
+use Tuleap\Tracker\Test\Builders\Fields\FileFieldBuilder;
 
 final class ArtidocSectionRepresentationBuilderTest extends TestCase
 {
@@ -49,26 +51,27 @@ final class ArtidocSectionRepresentationBuilderTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->identifier_factory = new SectionIdentifierFactory(new DatabaseUUIDV7Factory());
+        $this->identifier_factory = new UUIDSectionIdentifierFactory(new DatabaseUUIDV7Factory());
     }
 
     public function testHappyPath(): void
     {
-        $attachments_representation = new ArtifactFieldValueFileFullRepresentation();
-        $values                     = [
+        $attachments_representation = ArtifactFieldValueFileFullRepresentation::fromValues(
+            FileFieldBuilder::aFileField(1)->build(),
             [
-                'id' => 107,
-                'submitted_by' => 103,
-                'description' => '',
-                'name' => 'maraiste.jpg',
-                'size' => 5910,
-                'type' => 'image/jpeg',
-                'html_url' => '/plugins/tracker/attachments/107-maraiste.jpg',
-                'html_preview_url' => '/plugins/tracker/attachments/preview/107-maraiste.jpg',
-                'uri' => 'artifact_files/107',
+                new FileInfoRepresentation(
+                    107,
+                    103,
+                    '',
+                    'maraiste.jpg',
+                    5910,
+                    '/plugins/tracker/attachments/107-maraiste.jpg',
+                    '/plugins/tracker/attachments/preview/107-maraiste.jpg',
+                    'artifact_files/107',
+                ),
             ],
-        ];
-        $attachments_representation->build(1, 'file', 'Attachments', $values);
+        );
+
         $section_representation = new ArtidocSectionRepresentation(
             self::SECTION_ID,
             $this->createMock(ArtifactReference::class),
@@ -80,10 +83,9 @@ final class ArtidocSectionRepresentationBuilderTest extends TestCase
 
         $builder = new ArtidocSectionRepresentationBuilder(
             SearchOneSectionStub::withResults($this->getMatchingRawSection()),
-            RetrieveArtidocStub::withDocument(
-                new ArtidocDocumentInformation(
+            RetrieveArtidocWithContextStub::withDocumentUserCanRead(
+                new ArtidocWithContext(
                     new ArtidocDocument(['item_id' => self::ITEM_ID]),
-                    $this->createMock(ServiceDocman::class),
                 )
             ),
             TransformRawSectionsToRepresentationStub::withCollection(
@@ -100,7 +102,7 @@ final class ArtidocSectionRepresentationBuilderTest extends TestCase
     {
         $builder = new ArtidocSectionRepresentationBuilder(
             SearchOneSectionStub::withoutResults(),
-            RetrieveArtidocStub::shouldNotBeCalled(),
+            RetrieveArtidocWithContextStub::shouldNotBeCalled(),
             TransformRawSectionsToRepresentationStub::shouldNotBeCalled(),
         );
 
@@ -112,7 +114,7 @@ final class ArtidocSectionRepresentationBuilderTest extends TestCase
     {
         $builder = new ArtidocSectionRepresentationBuilder(
             SearchOneSectionStub::withResults($this->getMatchingRawSection()),
-            RetrieveArtidocStub::withoutDocument(),
+            RetrieveArtidocWithContextStub::withoutDocument(),
             TransformRawSectionsToRepresentationStub::shouldNotBeCalled(),
         );
 
@@ -124,10 +126,9 @@ final class ArtidocSectionRepresentationBuilderTest extends TestCase
     {
         $builder = new ArtidocSectionRepresentationBuilder(
             SearchOneSectionStub::withResults($this->getMatchingRawSection()),
-            RetrieveArtidocStub::withDocument(
-                new ArtidocDocumentInformation(
+            RetrieveArtidocWithContextStub::withDocumentUserCanRead(
+                new ArtidocWithContext(
                     new ArtidocDocument(['item_id' => self::ITEM_ID]),
-                    $this->createMock(ServiceDocman::class),
                 )
             ),
             TransformRawSectionsToRepresentationStub::withCollection(
@@ -152,10 +153,9 @@ final class ArtidocSectionRepresentationBuilderTest extends TestCase
 
         $builder = new ArtidocSectionRepresentationBuilder(
             SearchOneSectionStub::withResults($this->getMatchingRawSection()),
-            RetrieveArtidocStub::withDocument(
-                new ArtidocDocumentInformation(
+            RetrieveArtidocWithContextStub::withDocumentUserCanRead(
+                new ArtidocWithContext(
                     new ArtidocDocument(['item_id' => self::ITEM_ID]),
-                    $this->createMock(ServiceDocman::class),
                 )
             ),
             TransformRawSectionsToRepresentationStub::withCollection(

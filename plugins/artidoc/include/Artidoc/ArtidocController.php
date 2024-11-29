@@ -26,13 +26,15 @@ use HTTPRequest;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Psr\Log\LoggerInterface;
 use Tuleap\Artidoc\Document\ArtidocBreadcrumbsProvider;
-use Tuleap\Artidoc\Document\ArtidocDocumentInformation;
+use Tuleap\Artidoc\Domain\Document\ArtidocWithContext;
 use Tuleap\Artidoc\Document\ConfiguredTrackerRetriever;
-use Tuleap\Artidoc\Document\RetrieveArtidoc;
+use Tuleap\Artidoc\Domain\Document\RetrieveArtidocWithContext;
 use Tuleap\Artidoc\Document\Tracker\DocumentTrackerRepresentation;
 use Tuleap\Artidoc\Document\Tracker\SuitableTrackersForDocumentRetriever;
 use Tuleap\Config\ConfigKeyString;
 use Tuleap\Config\FeatureFlagConfigKey;
+use Tuleap\Docman\ServiceDocman;
+use Tuleap\Document\RecentlyVisited\RecordVisit;
 use Tuleap\Export\Pdf\Template\GetPdfTemplatesEvent;
 use Tuleap\Layout\BaseLayout;
 use Tuleap\Layout\HeaderConfigurationBuilder;
@@ -56,23 +58,15 @@ final readonly class ArtidocController implements DispatchableWithRequest, Dispa
     #[ConfigKeyString('1')]
     public const EDIT_FEATURE_FLAG = 'enable_artidoc_edition';
 
-    #[FeatureFlagConfigKey(<<<'EOF'
-    Feature flag to allow edition of artidoc documents with next gen editor.
-    0 to deactivate (default)
-    1 to activate
-    EOF
-    )]
-    #[ConfigKeyString('0')]
-    public const NEXT_GEN_EDITOR_FEATURE_FLAG = 'enable_next_gen_editor_in_artidoc';
-
     public function __construct(
-        private RetrieveArtidoc $retrieve_artidoc,
+        private RetrieveArtidocWithContext $retrieve_artidoc,
         private ConfiguredTrackerRetriever $configured_tracker_retriever,
         private SuitableTrackersForDocumentRetriever $suitable_trackers_retriever,
         private ArtidocBreadcrumbsProvider $breadcrumbs_provider,
         private LoggerInterface $logger,
         private FileUploadDataProvider $file_upload_provider,
         private EventDispatcherInterface $event_dispatcher,
+        private RecordVisit $recently_visited_dao,
     ) {
     }
 
@@ -80,12 +74,9 @@ final readonly class ArtidocController implements DispatchableWithRequest, Dispa
     {
         ServiceInstrumentation::increment('artidoc');
 
-        $core_assets = new \Tuleap\Layout\IncludeCoreAssets();
-        $layout->includeFooterJavascriptFile($core_assets->getFileURL('ckeditor.js'));
-
-        $this->retrieve_artidoc->retrieveArtidoc((int) $variables['id'], $request->getCurrentUser())
+        $this->retrieve_artidoc->retrieveArtidocUserCanRead((int) $variables['id'])
             ->match(
-                fn (ArtidocDocumentInformation $document_information) => $this->renderPage($document_information, $layout, $request->getCurrentUser()),
+                fn (ArtidocWithContext $document_information) => $this->renderPage($document_information, $layout, $request->getCurrentUser()),
                 function (Fault $fault) {
                     Fault::writeToLogger($fault, $this->logger);
                     throw new NotFoundException();
@@ -93,7 +84,7 @@ final readonly class ArtidocController implements DispatchableWithRequest, Dispa
             );
     }
 
-    private function renderPage(ArtidocDocumentInformation $document_information, BaseLayout $layout, \PFUser $user): void
+    private function renderPage(ArtidocWithContext $document_information, BaseLayout $layout, \PFUser $user): void
     {
         $layout->addJavascriptAsset(
             new JavascriptViteAsset(
@@ -105,10 +96,17 @@ final readonly class ArtidocController implements DispatchableWithRequest, Dispa
             )
         );
 
-        $title   = $document_information->document->getTitle();
-        $service = $document_information->service_docman;
+        if (! $user->isAnonymous()) {
+            $this->recently_visited_dao->save((int) $user->getId(), $document_information->document->getId(), \Tuleap\Request\RequestTime::getTimestamp());
+        }
 
-        $permissions_manager = \Docman_PermissionsManager::instance((int) $service->getProject()->getID());
+        $title   = $document_information->document->getTitle();
+        $service = $document_information->getContext(ServiceDocman::class);
+        if (! $service instanceof ServiceDocman) {
+            throw new \LogicException('Service is missing');
+        }
+
+        $permissions_manager = \Docman_PermissionsManager::instance((int) $service->getProject()->getId());
         $user_can_write      = $permissions_manager->userCanWrite($user, $document_information->document->getId());
 
         $allowed_max_size = \ForgeConfig::getInt('sys_max_size_upload');
@@ -118,8 +116,8 @@ final readonly class ArtidocController implements DispatchableWithRequest, Dispa
             $this->breadcrumbs_provider->getBreadcrumbs($document_information, $user),
             [],
             HeaderConfigurationBuilder::get($title)
-                ->inProject($service->project, \DocmanPlugin::SERVICE_SHORTNAME)
-                ->withBodyClass(['has-sidebar-with-pinned-header'])
+                ->inProject($service->getProject(), \DocmanPlugin::SERVICE_SHORTNAME)
+                ->withBodyClass(['has-sidebar-with-pinned-header', 'reduce-help-button'])
                 ->build()
         );
         \TemplateRendererFactory::build()
@@ -127,9 +125,8 @@ final readonly class ArtidocController implements DispatchableWithRequest, Dispa
             ->renderToPage(
                 'artidoc',
                 new ArtidocPresenter(
-                    (int) $document_information->document->getId(),
+                    $document_information->document->getId(),
                     $user_can_write && \ForgeConfig::getFeatureFlag(self::EDIT_FEATURE_FLAG) === '1',
-                    \ForgeConfig::getFeatureFlag(self::NEXT_GEN_EDITOR_FEATURE_FLAG) === '1',
                     $title,
                     $this->getTrackerRepresentation($this->configured_tracker_retriever->getTracker($document_information->document), $user),
                     array_map(

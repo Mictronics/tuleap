@@ -23,6 +23,8 @@ declare(strict_types=1);
 namespace Tuleap\Artidoc\Document;
 
 use PHPUnit\Framework\MockObject\MockObject;
+use Tuleap\Artidoc\Adapter\Document\ArtidocDocument;
+use Tuleap\Artidoc\Domain\Document\ArtidocWithContext;
 use Tuleap\Docman\ServiceDocman;
 use Tuleap\Layout\BreadCrumbDropdown\BreadCrumb;
 use Tuleap\Layout\BreadCrumbDropdown\EllipsisBreadCrumb;
@@ -71,7 +73,7 @@ final class ArtidocBreadcrumbsProviderTest extends TestCase
 
         $provider    = new ArtidocBreadcrumbsProvider($this->item_factory);
         $breadcrumbs = $provider
-            ->getBreadcrumbs(new ArtidocDocumentInformation($item, $service), $this->user)
+            ->getBreadcrumbs((new ArtidocWithContext($item))->withContext(ServiceDocman::class, $service), $this->user)
             ->getBreadcrumbs();
 
         self::assertCount(2, $breadcrumbs);
@@ -101,7 +103,7 @@ final class ArtidocBreadcrumbsProviderTest extends TestCase
 
         $provider    = new ArtidocBreadcrumbsProvider($this->item_factory);
         $breadcrumbs = $provider
-            ->getBreadcrumbs(new ArtidocDocumentInformation($item, $service), $this->user)
+            ->getBreadcrumbs((new ArtidocWithContext($item))->withContext(ServiceDocman::class, $service), $this->user)
             ->getBreadcrumbs();
 
         self::assertCount(2, $breadcrumbs);
@@ -130,7 +132,7 @@ final class ArtidocBreadcrumbsProviderTest extends TestCase
 
         $provider    = new ArtidocBreadcrumbsProvider($this->item_factory);
         $breadcrumbs = $provider
-            ->getBreadcrumbs(new ArtidocDocumentInformation($item, $service), $this->user)
+            ->getBreadcrumbs((new ArtidocWithContext($item))->withContext(ServiceDocman::class, $service), $this->user)
             ->getBreadcrumbs();
 
         self::assertCount(3, $breadcrumbs);
@@ -171,7 +173,7 @@ final class ArtidocBreadcrumbsProviderTest extends TestCase
 
         $provider    = new ArtidocBreadcrumbsProvider($this->item_factory);
         $breadcrumbs = $provider
-            ->getBreadcrumbs(new ArtidocDocumentInformation($item, $service), $this->user)
+            ->getBreadcrumbs((new ArtidocWithContext($item))->withContext(ServiceDocman::class, $service), $this->user)
             ->getBreadcrumbs();
 
         self::assertCount(7, $breadcrumbs);

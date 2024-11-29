@@ -23,8 +23,8 @@ declare(strict_types=1);
 namespace Tuleap\Artidoc\Document\Tracker;
 
 use Tracker;
-use Tuleap\Artidoc\Document\ArtidocDocument;
-use Tuleap\Artidoc\Document\ArtidocDocumentInformation;
+use Tuleap\Artidoc\Adapter\Document\ArtidocDocument;
+use Tuleap\Artidoc\Domain\Document\ArtidocWithContext;
 use Tuleap\Artidoc\Stubs\Document\Tracker\CheckTrackerIsSuitableForDocumentStub;
 use Tuleap\Docman\ServiceDocman;
 use Tuleap\Test\Builders\ProjectTestBuilder;
@@ -39,7 +39,7 @@ final class SuitableTrackersForDocumentRetrieverTest extends TestCase
     private Tracker $bugs;
     private Tracker $tasks;
     private Tracker $reqs;
-    private ArtidocDocumentInformation $document_information;
+    private ArtidocWithContext $document_information;
     private \PFUser $user;
 
 
@@ -53,10 +53,9 @@ final class SuitableTrackersForDocumentRetrieverTest extends TestCase
         $service_docman = $this->createMock(ServiceDocman::class);
         $service_docman->method('getProject')->willReturn(ProjectTestBuilder::aProject()->build());
 
-        $this->document_information = new ArtidocDocumentInformation(
+        $this->document_information = (new ArtidocWithContext(
             new ArtidocDocument(['item_id' => 1]),
-            $service_docman,
-        );
+        ))->withContext(ServiceDocman::class, $service_docman);
 
         $this->user = UserTestBuilder::aUser()->build();
     }

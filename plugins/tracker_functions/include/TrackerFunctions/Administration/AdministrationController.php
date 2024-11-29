@@ -28,8 +28,7 @@ use Psr\EventDispatcher\EventDispatcherInterface;
 use Tuleap\CSRFSynchronizerTokenPresenter;
 use Tuleap\Date\RelativeDatesAssetsRetriever;
 use Tuleap\Layout\BaseLayout;
-use Tuleap\Layout\CssAssetWithoutVariantDeclinaisons;
-use Tuleap\Layout\IncludeAssets;
+use Tuleap\Layout\CssViteAsset;
 use Tuleap\Layout\IncludeViteAssets;
 use Tuleap\Layout\JavascriptViteAsset;
 use Tuleap\Request\DispatchableWithBurningParrot;
@@ -37,9 +36,9 @@ use Tuleap\Request\DispatchableWithProject;
 use Tuleap\Request\DispatchableWithRequest;
 use Tuleap\Request\NotFoundException;
 use Tuleap\REST\ExplorerEndpointAvailableEvent;
-use Tuleap\Tracker\Artifact\RetrieveTracker;
-use Tuleap\TrackerFunctions\Logs\LogLinePresenterBuilder;
+use Tuleap\Tracker\RetrieveTracker;
 use Tuleap\TrackerFunctions\Logs\FunctionLogLineWithArtifact;
+use Tuleap\TrackerFunctions\Logs\LogLinePresenterBuilder;
 use Tuleap\TrackerFunctions\Logs\RetrieveLogsForTracker;
 use Tuleap\TrackerFunctions\WASM\WASMFunctionPathHelper;
 
@@ -68,13 +67,13 @@ final class AdministrationController implements DispatchableWithRequest, Dispatc
         }
 
         $layout->addCssAsset(
-            new CssAssetWithoutVariantDeclinaisons(
-                new IncludeAssets(
-                    __DIR__ . '/../../../../tracker/frontend-assets',
-                    '/assets/trackers',
+            CssViteAsset::fromFileName(
+                new IncludeViteAssets(
+                    __DIR__ . '/../../../../tracker/scripts/styles/frontend-assets',
+                    '/assets/trackers/styles'
                 ),
-                'tracker-bp',
-            ),
+                'themes/BurningParrot/tracker.scss'
+            )
         );
 
         $layout->addJavascriptAsset(

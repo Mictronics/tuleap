@@ -24,13 +24,16 @@ use Codendi_Request;
 use HTTPRequest;
 use Project;
 use TemplateRendererFactory;
+use Tuleap\CrossTracker\CrossTrackerReportCreator;
 use Tuleap\CrossTracker\CrossTrackerReportDao;
+use Tuleap\CrossTracker\Report\ReportInheritanceHandler;
 use Tuleap\Layout\CssAssetCollection;
 use Tuleap\Layout\CssAssetWithoutVariantDeclinaisons;
 use Tuleap\Layout\IncludeCoreAssets;
 use Tuleap\Layout\IncludeViteAssets;
 use Tuleap\Layout\JavascriptAsset;
 use Tuleap\Layout\JavascriptViteAsset;
+use Tuleap\NeverThrow\Fault;
 use Tuleap\Project\MappingRegistry;
 use Widget;
 
@@ -38,8 +41,10 @@ class ProjectCrossTrackerSearch extends Widget
 {
     public const NAME = 'crosstrackersearch';
 
-    public function __construct()
-    {
+    public function __construct(
+        private readonly CrossTrackerReportCreator $report_creator,
+        private readonly ReportInheritanceHandler $inheritance_handler,
+    ) {
         parent::__construct(self::NAME);
     }
 
@@ -97,9 +102,12 @@ class ProjectCrossTrackerSearch extends Widget
 
     public function create(Codendi_Request $request)
     {
-        $content_id = $this->getDao()->create();
+        $dashboard_type = $request->get('dashboard-type');
 
-        return $content_id;
+        return $this->report_creator->createReportAndReturnLastId($dashboard_type)->match(
+            static fn(int $content_id) => $content_id,
+            static fn(Fault $fault) => throw new \RuntimeException((string) $fault),
+        );
     }
 
     public function destroy($id)
@@ -114,52 +122,8 @@ class ProjectCrossTrackerSearch extends Widget
         $owner_id,
         $owner_type,
         MappingRegistry $mapping_registry,
-    ) {
-        $content_id      = $this->getDao()->create();
-        $tracker_factory = $this->getTrackerFactory();
-
-        $trackers_existing_widget = $this->getTrackers($id);
-        $trackers_new_widget      = [];
-
-        foreach ($trackers_existing_widget as $tracker) {
-            if ($this->owner_id == $tracker->getGroupId()) {
-                $trackers_new_widget[] = $tracker_factory->getTrackerByShortnameAndProjectId(
-                    $tracker->getItemName(),
-                    $owner_id
-                );
-            } else {
-                $trackers_new_widget[] = $tracker;
-            }
-        }
-
-        $this->getDao()->addTrackersToReport($trackers_new_widget, $content_id);
-
-        return $content_id;
-    }
-
-    /**
-     * @return \Tracker[]
-     */
-    private function getTrackers($report_id)
-    {
-        $tracker_factory = $this->getTrackerFactory();
-        $tracker_rows    = $this->getDao()->searchReportTrackersById($report_id);
-        $trackers        = [];
-        foreach ($tracker_rows as $row) {
-            $tracker = $tracker_factory->getTrackerById($row['tracker_id']);
-            if ($tracker !== null) {
-                $trackers[] = $tracker;
-            }
-        }
-        return $trackers;
-    }
-
-    /**
-     * @return \TrackerFactory
-     */
-    private function getTrackerFactory()
-    {
-        return \TrackerFactory::instance();
+    ): int {
+        return $this->inheritance_handler->handle($id, $mapping_registry->getCustomMapping(\TrackerFactory::TRACKER_MAPPING_KEY));
     }
 
     public function getJavascriptAssets(): array

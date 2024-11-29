@@ -63,6 +63,11 @@ msgstr ""
 msgid "Example: @title = 'value'"
 msgstr ""
 
+msgid ""
+"Example: SELECT @pretty_title FROM @project.name = 'my-project' WHERE @title "
+"= 'value'"
+msgstr ""
+
 msgid "Expert mode"
 msgstr ""
 
@@ -164,6 +169,6 @@ msgstr "Avatar do Usuário"
 
 msgid ""
 "You can use: AND, OR, WITH PARENT, WITHOUT PARENT, WITH CHILDREN, WITHOUT "
-"CHILDREN, BETWEEN(), NOW(), MYSELF(), OPEN(), IN(), NOT IN(), parenthesis. "
-"Autocomplete is activated with Ctrl + Space."
+"CHILDREN, BETWEEN(), NOW(), MYSELF(), OPEN(), IN(), NOT IN(), MY_PROJECTS(), "
+"parenthesis. Autocomplete is activated with Ctrl + Space."
 msgstr ""

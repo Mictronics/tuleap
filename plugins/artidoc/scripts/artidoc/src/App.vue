@@ -19,15 +19,17 @@
   -->
 
 <template>
-    <document-header />
-    <div class="artidoc-container">
-        <document-view class="artidoc-app-container" />
-    </div>
-    <global-error-message-modal v-if="has_error_message" v-bind:error="error_message" />
+    <section class="artidoc-app">
+        <document-header />
+        <div class="artidoc-container" ref="container">
+            <document-view />
+        </div>
+        <global-error-message-modal v-if="has_error_message" v-bind:error="error_message" />
+    </section>
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, provide, ref } from "vue";
+import { computed, onMounted, onUnmounted, provide, ref } from "vue";
 import DocumentView from "@/views/DocumentView.vue";
 import DocumentHeader from "@/components/DocumentHeader.vue";
 import useScrollToAnchor from "@/composables/useScrollToAnchor";
@@ -50,6 +52,7 @@ const { scrollToAnchor } = useScrollToAnchor();
 
 const error_message = ref<GlobalErrorMessage | null>(null);
 const has_error_message = computed(() => error_message.value !== null);
+const container = ref<HTMLElement>();
 
 provide(
     SET_GLOBAL_ERROR_MESSAGE,
@@ -58,19 +61,36 @@ provide(
 
 onMounted(() => {
     store
-        .loadSections(
-            item_id,
-            configuration.selected_tracker.value,
-            can_user_edit_document,
-            configuration.current_project.value,
-        )
+        .loadSections(item_id, configuration.selected_tracker.value, can_user_edit_document)
         .then(() => {
             const hash = window.location.hash.slice(1);
             if (hash) {
                 scrollToAnchor(hash);
             }
         });
+
+    container.value?.addEventListener("scroll", onScroll);
 });
+
+onUnmounted(() => {
+    container.value?.removeEventListener("scroll", onScroll);
+});
+
+function onScroll(): void {
+    // Magic value to wait that a few pixels have been scrolled down before applying a dropshadow
+    // 16px ≃ --tlp-medium-spacing
+    const threshold = 16;
+
+    if (!container.value) {
+        return;
+    }
+
+    if (container.value.scrollTop > threshold) {
+        container.value.classList.add("artidoc-container-scrolled");
+    } else {
+        container.value.classList.remove("artidoc-container-scrolled");
+    }
+}
 </script>
 
 <style lang="scss">
@@ -82,12 +102,9 @@ html {
 }
 
 .artidoc-container {
-    height: 100%;
-}
-</style>
-
-<style lang="scss" scoped>
-.artidoc-app-container {
-    height: inherit;
+    flex: 1 1 auto;
+    height: var(--artidoc-container-height);
+    overflow: auto;
+    border-top: 1px solid var(--tlp-neutral-normal-color);
 }
 </style>

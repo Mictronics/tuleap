@@ -76,15 +76,15 @@ class ReferenceAdministrationActions extends Actions
             $request->get('scope'),
             $service_short_name,
             $request->get('nature'),
-            $request->get('is_used'),
+            (bool) $request->get('is_used'),
             $request->get('group_id')
         );
         if (($ref->getGroupId() == 100) && ($ref->isSystemReference())) {
             // Add reference to ALL active projects!
             $result = $reference_manager->createSystemReference($ref, $force);
             if (! $result) {
-                exit_error(
-                    _('Error'),
+                $GLOBALS['HTML']->addFeedback(
+                    \Feedback::ERROR,
                     _('Reference pattern creation failed: the selected keyword is invalid (reserved, or already exists)')
                 );
             } else {
@@ -92,12 +92,13 @@ class ReferenceAdministrationActions extends Actions
                     \Feedback::INFO,
                     _('Successfully created system reference pattern - reference pattern added to all projects')
                 );
+                $GLOBALS['Response']->redirect('/project/' . urlencode($request->get('group_id')) . '/admin/references');
             }
         } else {
             $result = $reference_manager->createReference($ref, $force);
             if (! $result) {
-                exit_error(
-                    _('Error'),
+                $GLOBALS['HTML']->addFeedback(
+                    \Feedback::ERROR,
                     _('Reference pattern creation failed: the selected keyword is invalid (reserved, or already exists)')
                 );
             } else {
@@ -105,6 +106,7 @@ class ReferenceAdministrationActions extends Actions
                     \Feedback::INFO,
                     _('Successfully created reference pattern')
                 );
+                $GLOBALS['Response']->redirect('/project/' . urlencode($request->get('group_id')) . '/admin/references');
             }
         }
     }
@@ -146,10 +148,11 @@ class ReferenceAdministrationActions extends Actions
             return;
         }
 
+        $is_used = (bool) $request->get('is_used');
         if (($ref->isSystemReference()) && ($ref->getGroupId() != 100) || $ref->getServiceShortName() !== '') {
             // Only update is_active field
-            if ($ref->isActive() != $request->get('is_used')) {
-                $reference_manager->updateIsActive($ref, $request->get('is_used'));
+            if ((bool) $ref->isActive() !== $is_used) {
+                $reference_manager->updateIsActive($ref, $is_used);
             }
         } else {
             if (! $su) {
@@ -173,7 +176,7 @@ class ReferenceAdministrationActions extends Actions
                 $ref->getScope(), // Can't edit a ref scope
                 $service_short_name,
                 $request->get('nature'),
-                $request->get('is_used'),
+                $is_used,
                 $request->get('group_id')
             );
             $result  = $reference_manager->updateReference($new_ref, $force);

@@ -18,13 +18,21 @@
  */
 
 import type { ResultAsync } from "neverthrow";
-import { del, getAllJSON, putResponse, uri, getJSON, postJSON } from "@tuleap/fetch-result";
+import {
+    del,
+    getAllJSON,
+    putResponse,
+    uri,
+    getJSON,
+    patchJSON,
+    postJSON,
+} from "@tuleap/fetch-result";
 import type { Fault } from "@tuleap/fault";
 import TurndownService from "turndown";
 import type { ArtidocSection } from "@/helpers/artidoc-section.type";
 import { isCommonmark, isTitleAString } from "@/helpers/artidoc-section.type";
 import type { Tracker } from "@/stores/configuration-store";
-import type { CrossReference, PositionForSection } from "@/stores/useSectionsStore";
+import type { PositionForSection } from "@/stores/useSectionsStore";
 import type { AttachmentFile } from "@/composables/useAttachmentFile";
 
 type ArtidocSectionFromRest = Omit<ArtidocSection, "display_title">;
@@ -117,6 +125,21 @@ export function postArtifact(
     });
 }
 
+export function reorderSections(
+    document_id: number,
+    section_id: string,
+    direction: "before" | "after",
+    compared_to: string,
+): void {
+    patchJSON(uri`/api/artidoc/${document_id}/sections`, {
+        order: {
+            ids: [section_id],
+            direction,
+            compared_to,
+        },
+    });
+}
+
 export function createSection(
     document_id: number,
     artifact_id: number,
@@ -162,15 +185,5 @@ function injectDisplayTitle(section: ArtidocSectionFromRest): ArtidocSection {
     return {
         ...section,
         display_title: display_title.replace(/([\r\n]+)/g, " "),
-        references: [],
     };
-}
-
-export function getReferences(
-    text_content: string,
-    project_id: number,
-): ResultAsync<CrossReference[], Fault> {
-    return postJSON<CrossReference[]>(uri`/api/projects/${project_id}/extract_references`, {
-        text: text_content,
-    });
 }

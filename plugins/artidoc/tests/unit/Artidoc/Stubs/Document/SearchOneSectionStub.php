@@ -24,7 +24,7 @@ namespace Tuleap\Artidoc\Stubs\Document;
 
 use Tuleap\Artidoc\Document\RawSection;
 use Tuleap\Artidoc\Document\SearchOneSection;
-use Tuleap\Artidoc\Document\Section\Identifier\SectionIdentifier;
+use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifier;
 
 final class SearchOneSectionStub implements SearchOneSection
 {

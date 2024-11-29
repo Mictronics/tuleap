@@ -61,9 +61,9 @@ use Tuleap\Tracker\Artifact\Changeset\Comment\PrivateComment\TrackerPrivateComme
 use Tuleap\Tracker\Artifact\Changeset\Comment\PrivateComment\XMLImport\TrackerPrivateCommentUGroupExtractor;
 use Tuleap\Tracker\Artifact\Changeset\FieldsToBeSavedInSpecificOrderRetriever;
 use Tuleap\Tracker\Artifact\Changeset\InitialChangesetCreator;
-use Tuleap\Tracker\Artifact\Changeset\NewChangesetPostProcessor;
 use Tuleap\Tracker\Artifact\Changeset\NewChangesetCreator;
 use Tuleap\Tracker\Artifact\Changeset\NewChangesetFieldValueSaver;
+use Tuleap\Tracker\Artifact\Changeset\NewChangesetPostProcessor;
 use Tuleap\Tracker\Artifact\Changeset\NewChangesetValidator;
 use Tuleap\Tracker\Artifact\Changeset\PostCreation\ActionsQueuer;
 use Tuleap\Tracker\Artifact\ChangesetValue\ArtifactLink\NewArtifactLinkInitialChangesetValue;
@@ -98,6 +98,7 @@ use Tuleap\Tracker\Notifications\InvolvedNotificationDao;
 use Tuleap\Tracker\Notifications\NotificationLevelExtractor;
 use Tuleap\Tracker\Notifications\NotificationListBuilder;
 use Tuleap\Tracker\Notifications\NotificationsForceUsageUpdater;
+use Tuleap\Tracker\Notifications\Recipient\MentionedUserInCommentRetriever;
 use Tuleap\Tracker\Notifications\RecipientsManager;
 use Tuleap\Tracker\Notifications\Settings\CalendarEventConfigDao;
 use Tuleap\Tracker\Notifications\Settings\CheckEventShouldBeSentInNotification;
@@ -832,6 +833,14 @@ class Tracker implements Tracker_Dispatchable_Interface
                 $action->process($layout, $request, $current_user);
                 break;
             case 'submit-copy-artifact':
+                if (! $this->isCopyAllowed()) {
+                    $GLOBALS['Response']->addFeedback(
+                        'error',
+                        dgettext('tuleap-tracker', 'Artifacts of this tracker cannot be duplicated.'),
+                    );
+                    $GLOBALS['Response']->redirect($this->getUri());
+                }
+
                 $logger                    = new Tracker_XML_Importer_CopyArtifactInformationsAggregator(BackendLogger::getDefaultLogger());
                 $xml_importer              = $this->getArtifactXMLImporterForArtifactCopy($logger);
                 $artifact_factory          = $this->getTrackerArtifactFactory();
@@ -1007,6 +1016,7 @@ class Tracker implements Tracker_Dispatchable_Interface
             new Tracker_Workflow_Trigger_RulesDao(),
             new ArtifactLinksUsageDao(),
             EventManager::instance(),
+            new ProjectHistoryDao()
         );
 
         return $controller;
@@ -1750,7 +1760,8 @@ class Tracker implements Tracker_Dispatchable_Interface
                         new UserNotificationOnlyStatusChangeDAO(),
                         new InvolvedNotificationDao()
                     ),
-                    new UserNotificationOnlyStatusChangeDAO()
+                    new UserNotificationOnlyStatusChangeDAO(),
+                    new MentionedUserInCommentRetriever($user_manager)
                 ),
                 new UserNotificationSettingsDAO()
             )

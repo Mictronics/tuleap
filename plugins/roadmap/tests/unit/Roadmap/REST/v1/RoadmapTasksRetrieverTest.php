@@ -37,7 +37,7 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\Stubs\ProjectByIDFactoryStub;
 use Tuleap\Test\Stubs\ProvideCurrentUserStub;
 use Tuleap\Tracker\Artifact\Artifact;
-use Tuleap\Tracker\Artifact\RetrieveTracker;
+use Tuleap\Tracker\RetrieveTracker;
 use Tuleap\Tracker\Semantic\Progress\MethodBasedOnEffort;
 use Tuleap\Tracker\Semantic\Progress\MethodNotConfigured;
 use Tuleap\Tracker\Semantic\Progress\SemanticProgress;
@@ -1202,7 +1202,7 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
 
     private function anArtifact(int $id, string $title, Tracker $tracker, bool $readable, SemanticTimeframe $semantic_timeframe): Artifact
     {
-        $changeset   = ChangesetTestBuilder::aChangeset('1')->build();
+        $changeset   = ChangesetTestBuilder::aChangeset(1)->build();
         $start_field = $semantic_timeframe->getStartDateField();
         if ($start_field !== null) {
             $changeset->setFieldValue(
@@ -1236,7 +1236,7 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
 
     private function anArtifactWithoutStartDate(int $id, string $title, Tracker $tracker, SemanticTimeframe $semantic_timeframe): Artifact
     {
-        $changeset   = ChangesetTestBuilder::aChangeset('1')->build();
+        $changeset   = ChangesetTestBuilder::aChangeset(1)->build();
         $start_field = $semantic_timeframe->getStartDateField();
         if ($start_field !== null) {
             $changeset->setFieldValue($start_field, null);

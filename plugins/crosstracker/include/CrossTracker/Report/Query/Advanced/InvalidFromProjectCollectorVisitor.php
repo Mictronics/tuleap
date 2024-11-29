@@ -46,6 +46,18 @@ final readonly class InvalidFromProjectCollectorVisitor implements FromProjectCo
 
     public function visitEqual(FromProjectEqual $project_equal, $parameters): void
     {
+        if (is_array($project_equal->getValue())) {
+            if ($project_equal->getValue() === []) {
+                $parameters->collection->addInvalidFrom(
+                    dgettext(
+                        'tuleap-crosstracker',
+                        'No tracker found',
+                    )
+                );
+            }
+            return;
+        }
+
         $from_project = $parameters->from_project;
 
         match ($from_project->getTarget()) {

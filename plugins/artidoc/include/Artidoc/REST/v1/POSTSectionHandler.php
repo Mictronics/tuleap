@@ -22,15 +22,15 @@ declare(strict_types=1);
 
 namespace Tuleap\Artidoc\REST\v1;
 
-use Tuleap\Artidoc\Document\ArtidocDocumentInformation;
-use Tuleap\Artidoc\Document\Section\AlreadyExistingSectionWithSameArtifactException;
-use Tuleap\Artidoc\Document\Section\Identifier\InvalidSectionIdentifierStringException;
+use Tuleap\Artidoc\Domain\Document\ArtidocWithContext;
 use Tuleap\Artidoc\Document\PaginatedRawSections;
 use Tuleap\Artidoc\Document\RawSection;
-use Tuleap\Artidoc\Document\RetrieveArtidoc;
+use Tuleap\Artidoc\Domain\Document\RetrieveArtidocWithContext;
 use Tuleap\Artidoc\Document\SaveOneSection;
-use Tuleap\Artidoc\Document\Section\Identifier\SectionIdentifierFactory;
-use Tuleap\Artidoc\Document\Section\UnableToFindSiblingSectionException;
+use Tuleap\Artidoc\Domain\Document\Section\AlreadyExistingSectionWithSameArtifactException;
+use Tuleap\Artidoc\Domain\Document\Section\Identifier\InvalidSectionIdentifierStringException;
+use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifierFactory;
+use Tuleap\Artidoc\Domain\Document\Section\UnableToFindSiblingSectionException;
 use Tuleap\NeverThrow\Err;
 use Tuleap\NeverThrow\Fault;
 use Tuleap\NeverThrow\Ok;
@@ -39,7 +39,7 @@ use Tuleap\NeverThrow\Result;
 final readonly class POSTSectionHandler
 {
     public function __construct(
-        private RetrieveArtidoc $retrieve_artidoc,
+        private RetrieveArtidocWithContext $retrieve_artidoc,
         private TransformRawSectionsToRepresentation $transformer,
         private SaveOneSection $dao,
         private SectionIdentifierFactory $identifier_factory,
@@ -52,36 +52,22 @@ final readonly class POSTSectionHandler
     public function handle(int $id, ArtidocPOSTSectionRepresentation $section, \PFUser $user): Ok|Err
     {
         return $this->retrieve_artidoc
-            ->retrieveArtidoc($id, $user)
-            ->andThen(fn (ArtidocDocumentInformation $document_information) => $this->ensureThatUserCanWriteDocument($document_information, $user))
-            ->andThen(fn (ArtidocDocumentInformation $document_information) => $this->getSectionRepresentationToMakeSureThatUserCanReadIt($document_information, $section, $user))
+            ->retrieveArtidocUserCanWrite($id)
+            ->andThen(fn (ArtidocWithContext $document_information) => $this->getSectionRepresentationToMakeSureThatUserCanReadIt($document_information, $section, $user))
             ->andThen(fn (ArtidocSectionRepresentation $section_representation) => $this->saveSection($id, $section_representation, $section));
-    }
-
-    /**
-     * @return Ok<ArtidocDocumentInformation>|Err<Fault>
-     */
-    private function ensureThatUserCanWriteDocument(ArtidocDocumentInformation $document_information, \PFUser $user): Ok|Err
-    {
-        $permissions_manager = \Docman_PermissionsManager::instance((int) $document_information->document->getGroupId());
-        if (! $permissions_manager->userCanWrite($user, (int) $document_information->document->getId())) {
-            return Result::err(Fault::fromMessage('User cannot write document'));
-        }
-
-        return Result::ok($document_information);
     }
 
     /**
      * @return Ok<ArtidocSectionRepresentation>|Err<Fault>
      */
     private function getSectionRepresentationToMakeSureThatUserCanReadIt(
-        ArtidocDocumentInformation $document_information,
+        ArtidocWithContext $document_information,
         ArtidocPOSTSectionRepresentation $section,
         \PFUser $user,
     ): Ok|Err {
         $dummy_identifier = $this->identifier_factory->buildIdentifier();
 
-        $item_id = (int) $document_information->document->getId();
+        $item_id = $document_information->document->getId();
         return $this->transformer
             ->getRepresentation(
                 new PaginatedRawSections(

@@ -17,19 +17,27 @@
  *  along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 @use "./links-popover";
+@use "./cross-references";
 
 #editor,
 .editor {
     position: relative;
     z-index: 2;
+
+    /* Add a little bit of margin so that the focus of .ProseMirror is visible */
+    margin: 0 0 var(--tlp-shadow-focus-width);
     border-radius: var(--tlp-form-element-border-radius);
     background-color: var(--tlp-white-color);
+
+    &:focus-within {
+        transition: box-shadow 350ms;
+        box-shadow: var(--tlp-shadow-focus);
+    }
 }
 
 /* stylelint-disable selector-class-pattern */
 .ProseMirror {
     padding: var(--tlp-form-element-padding-horizontal);
-    border: 1px solid var(--tlp-form-element-border-color);
     border-radius: var(--tlp-form-element-border-radius);
     word-wrap: break-word;
     white-space: pre-wrap;
@@ -50,10 +58,13 @@
 .ProseMirror p {
     margin-bottom: var(--tlp-small-spacing);
 }
+
+/* stylelint-disable-next-line selector-no-qualifying-type */
+.ProseMirror-focused img.ProseMirror-selectednode {
+    outline: 1px solid var(--tlp-main-color);
+}
 /* stylelint-enable selector-class-pattern */
 
-.cross-reference-link {
-    color: var(--tlp-main-color);
-    text-decoration: none;
-    cursor: pointer;
+.prose-mirror-editor-dropcursor {
+    background-color: var(--tlp-main-color);
 }

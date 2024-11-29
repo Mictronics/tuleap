@@ -19,36 +19,37 @@
   -->
 
 <template>
-    <editor-toolbar v-if="is_prose_mirror" />
+    <editor-toolbar v-if="can_user_edit_document" />
     <notification-container />
-    <editor-choice />
-    <ol ref="sections_container">
-        <li
-            v-for="section in sections"
-            v-bind:key="section.internal_id"
-            v-bind:id="getId(section)"
-            v-bind:class="{ 'artidoc-section-with-add-button': has_add_button }"
-        >
-            <add-new-section-button
-                class="artidoc-button-add-section-container"
-                v-if="has_add_button"
-                v-bind:insert_section_callback="insertSection"
-                v-bind:position="{ before: section.id }"
-            />
-            <section-container v-bind:section="section" />
-        </li>
-    </ol>
-    <add-new-section-button
-        class="artidoc-button-add-section-container"
-        v-if="has_add_button"
-        v-bind:insert_section_callback="insertSection"
-        v-bind:position="AT_THE_END"
-    />
-    <add-existing-section-modal />
+    <div class="tlp-card">
+        <ol>
+            <li
+                v-for="section in sections"
+                v-bind:key="section.internal_id"
+                v-bind:id="getId(section)"
+                v-bind:class="{ 'artidoc-section-with-add-button': has_add_button }"
+                data-test="artidoc-section"
+            >
+                <add-new-section-button
+                    class="artidoc-button-add-section-container"
+                    v-if="has_add_button"
+                    v-bind:insert_section_callback="insertSection"
+                    v-bind:position="{ before: section.id }"
+                />
+                <section-container v-bind:section="section" />
+            </li>
+        </ol>
+        <add-new-section-button
+            class="artidoc-button-add-section-container"
+            v-if="has_add_button"
+            v-bind:insert_section_callback="insertSection"
+            v-bind:position="AT_THE_END"
+        />
+        <add-existing-section-modal />
+    </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
 import type { ArtidocSection } from "@/helpers/artidoc-section.type";
 import { AT_THE_END } from "@/stores/useSectionsStore";
 import AddNewSectionButton from "@/components/AddNewSectionButton.vue";
@@ -56,33 +57,19 @@ import SectionContainer from "@/components/section/SectionContainer.vue";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import { CAN_USER_EDIT_DOCUMENT } from "@/can-user-edit-document-injection-key";
 import { SECTIONS_STORE } from "@/stores/sections-store-injection-key";
-import EditorChoice from "@/components/EditorChoice.vue";
-import { onScrollStickSectionNumbers } from "@/helpers/on-scroll-stick-section-numbers";
 import AddExistingSectionModal from "@/components/AddExistingSectionModal.vue";
 import NotificationContainer from "@/components/NotificationContainer.vue";
 import EditorToolbar from "@/components/toolbar/EditorToolbar.vue";
-import { EDITOR_CHOICE } from "@/helpers/editor-choice";
 
 const { sections, insertSection } = strictInject(SECTIONS_STORE);
 
 const can_user_edit_document = strictInject(CAN_USER_EDIT_DOCUMENT);
-const { is_prose_mirror } = strictInject(EDITOR_CHOICE);
-
-const sections_container = ref<HTMLOListElement>();
 
 const has_add_button = can_user_edit_document;
 
 function getId(section: ArtidocSection): string {
     return `section-${section.id}`;
 }
-
-onMounted(() => {
-    if (sections_container.value === undefined) {
-        return;
-    }
-
-    onScrollStickSectionNumbers(sections_container.value);
-});
 </script>
 
 <style lang="scss" scoped>
@@ -112,6 +99,10 @@ li {
     position: relative;
     margin: 0 0 var(--tlp-medium-spacing);
     counter-increment: item-without-dot;
+
+    &::marker {
+        color: transparent; // hack to hide the li number to be displayed in the margin
+    }
 
     &:last-child {
         margin: 0;
@@ -164,5 +155,38 @@ li[data-is-sticking="true"]:first-child::before {
     display: inline-block;
     position: sticky;
     top: calc(#{$magic-number-to-align-li-number-with-title} + 45px);
+}
+
+.tlp-card {
+    width: size.$document-width;
+    margin: var(--tlp-medium-spacing) 0 var(--tlp-x-large-spacing);
+    padding: 0;
+    border: 0;
+    background-color: var(--tlp-white-color);
+    box-shadow: var(--tlp-flyover-shadow);
+}
+</style>
+
+<style lang="scss">
+@use "@/themes/includes/viewport-breakpoint";
+
+.is-aside-expanded + .document-content {
+    > .tlp-card {
+        @media screen and (max-width: #{viewport-breakpoint.$medium-screen-size-when-document-sidebar-is-expanded}) {
+            width: 100%;
+            margin: 0;
+            box-shadow: none;
+        }
+    }
+}
+
+.is-aside-collapsed + .document-content {
+    > .tlp-card {
+        @media screen and (max-width: #{viewport-breakpoint.$medium-screen-size-when-document-sidebar-is-collapsed}) {
+            width: 100%;
+            margin: 0;
+            box-shadow: none;
+        }
+    }
 }
 </style>

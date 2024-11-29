@@ -21,7 +21,6 @@ import type { Mock } from "vitest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import { useSectionEditor } from "@/composables/useSectionEditor";
 import ArtifactSectionFactory from "@/helpers/artifact-section.factory";
-import PendingArtifactSectionFactory from "@/helpers/pending-artifact-section.factory";
 import type { SectionsStore } from "@/stores/useSectionsStore";
 import { mockStrictInject } from "@/helpers/mock-strict-inject";
 import { CAN_USER_EDIT_DOCUMENT } from "@/can-user-edit-document-injection-key";
@@ -34,11 +33,11 @@ import * as editorContent from "@/composables/useEditorSectionContent";
 import { SECTIONS_STORE } from "@/stores/sections-store-injection-key";
 import type { SectionEditorsStore } from "@/stores/useSectionEditorsStore";
 import { EDITORS_COLLECTION, useSectionEditorsStore } from "@/stores/useSectionEditorsStore";
-import { EDITOR_CHOICE } from "@/helpers/editor-choice";
 import { ref } from "vue";
 import { UPLOAD_FILE_STORE } from "@/stores/upload-file-store-injection-key";
 import { UploadFileStoreStub } from "@/helpers/stubs/UploadFileStoreStub";
 import type { UploadFileStoreType } from "@/stores/useUploadFileStore";
+import PendingArtifactSectionFactory from "@/helpers/pending-artifact-section.factory";
 
 const section = ArtifactSectionFactory.create();
 const merge_artifacts = vi.fn();
@@ -65,7 +64,6 @@ describe("useSectionEditor", () => {
             [DOCUMENT_ID, 1],
             [SECTIONS_STORE, store_stub],
             [EDITORS_COLLECTION, editors_collection],
-            [EDITOR_CHOICE, { is_prose_mirror: ref(false) }],
             [UPLOAD_FILE_STORE, upload_file_store_stub],
         ]);
     });
@@ -182,7 +180,10 @@ describe("useSectionEditor", () => {
                     () => {},
                 );
                 editor_state.is_section_in_edit_mode.value = true;
-                editor_section_content.inputCurrentDescription("the description changed");
+                editor_section_content.inputSectionContent(
+                    "the title changed",
+                    "the description changed",
+                );
 
                 editor_actions.cancelEditor(null);
 
@@ -205,19 +206,16 @@ describe("useSectionEditor", () => {
                 expect(upload_file_store_stub.cancelSectionUploads).toHaveBeenCalledOnce();
             });
 
-            describe("when prose mirror is disable", () => {
-                it("should remove the section if it is a pending one", () => {
-                    const { editor_actions } = useSectionEditor(
-                        PendingArtifactSectionFactory.create(),
-                        merge_artifacts,
-                        set_waiting_list,
-                        ref(false),
-                        () => {},
-                    );
-                    editor_actions.cancelEditor(null);
-
-                    expect(store_stub.removeSection).toHaveBeenCalled();
-                });
+            it("should remove the section if it is a pending one", () => {
+                const { editor_actions } = useSectionEditor(
+                    PendingArtifactSectionFactory.create(),
+                    merge_artifacts,
+                    set_waiting_list,
+                    ref(false),
+                    () => {},
+                );
+                editor_actions.cancelEditor(null);
+                expect(store_stub.removeSection).toHaveBeenCalled();
             });
         });
     });

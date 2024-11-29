@@ -125,6 +125,9 @@ use Tuleap\Document\DownloadFolderAsZip\ZipStreamerLoggingHelper;
 use Tuleap\Document\DownloadFolderAsZip\ZipStreamMailNotificationSender;
 use Tuleap\Document\LinkProvider\DocumentLinkProvider;
 use Tuleap\Document\PermissionDeniedDocumentMailSender;
+use Tuleap\Document\RecentlyVisited\RecentlyVisitedDocumentDao;
+use Tuleap\Document\RecentlyVisited\VisitedDocumentHrefVisitor;
+use Tuleap\Document\RecentlyVisited\VisitedDocumentRetriever;
 use Tuleap\Document\Tree\DocumentTreeController;
 use Tuleap\Document\Tree\DocumentTreeProjectExtractor;
 use Tuleap\Document\Tree\ListOfSearchCriterionPresenterBuilder;
@@ -171,6 +174,8 @@ use Tuleap\Upload\FileUploadController;
 use Tuleap\User\Avatar\AvatarHashDao;
 use Tuleap\User\Avatar\ComputeAvatarHash;
 use Tuleap\User\Avatar\UserAvatarUrlProvider;
+use Tuleap\User\History\HistoryEntryCollection;
+use Tuleap\User\History\HistoryRetriever;
 use Tuleap\Widget\Event\GetProjectWidgetList;
 use Tuleap\Widget\Event\GetPublicAreas;
 use Tuleap\Widget\Event\GetUserWidgetList;
@@ -465,6 +470,31 @@ class DocmanPlugin extends Plugin implements PluginWithConfigKeys
         $reminder->remindApprovers();
 
         $this->cleanUnusedResources();
+        (new RecentlyVisitedDocumentDao())->deleteOldVisits();
+    }
+
+    #[\Tuleap\Plugin\ListeningToEventName(Event::USER_HISTORY_CLEAR)]
+    public function userHistoryClear(array $params): void
+    {
+        $user = $params['user'];
+        assert($user instanceof PFUser);
+
+        $visit_cleaner = new RecentlyVisitedDocumentDao();
+        $visit_cleaner->deleteVisitByUserId((int) $user->getId());
+    }
+
+    #[ListeningToEventClass]
+    public function getHistoryEntryCollection(HistoryEntryCollection $collection): void
+    {
+        $event_manager = EventManager::instance();
+
+        $visit_retriever = new VisitedDocumentRetriever(
+            new RecentlyVisitedDocumentDao(),
+            ProjectManager::instance(),
+            new DocumentIconPresenterBuilder($event_manager),
+            new VisitedDocumentHrefVisitor(new \Docman_VersionFactory(), $event_manager),
+        );
+        $visit_retriever->getVisitHistory($collection, HistoryRetriever::MAX_LENGTH_HISTORY);
     }
 
     public function process()
@@ -553,7 +583,7 @@ class DocmanPlugin extends Plugin implements PluginWithConfigKeys
             return;
         }
 
-        $icon_presenter_builder = new DocumentIconPresenterBuilder();
+        $icon_presenter_builder = new DocumentIconPresenterBuilder(EventManager::instance());
 
         $renderer     = TemplateRendererFactory::build()->getRenderer(__DIR__);
         $tooltip_json = TooltipJSON::fromHtmlTitleAndHtmlBody(
@@ -572,7 +602,7 @@ class DocmanPlugin extends Plugin implements PluginWithConfigKeys
         $tracker_organizer = new CrossReferenceDocmanOrganizer(
             ProjectManager::instance(),
             new DocumentFromReferenceValueFinder(),
-            new DocumentIconPresenterBuilder(),
+            new DocumentIconPresenterBuilder(EventManager::instance()),
         );
 
         $tracker_organizer->organizeDocumentReferences($by_nature_organizer);
@@ -1443,7 +1473,8 @@ class DocmanPlugin extends Plugin implements PluginWithConfigKeys
             new Docman_ItemFactory(),
             new DocmanFileDownloadResponseGenerator(
                 new Docman_VersionFactory(),
-                new BinaryFileResponseBuilder($response_factory, HTTPFactoryBuilder::streamFactory())
+                new BinaryFileResponseBuilder($response_factory, HTTPFactoryBuilder::streamFactory()),
+                new RecentlyVisitedDocumentDao(),
             ),
             $rest_current_user_middleware,
             BackendLogger::getDefaultLogger(),

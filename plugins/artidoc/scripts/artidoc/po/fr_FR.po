@@ -62,6 +62,9 @@ msgstr "Choisissez un tracker"
 msgid "Close"
 msgstr "Fermer"
 
+msgid "Close sidebar"
+msgstr "Fermer la barre latérale"
+
 msgid "Configuration failure"
 msgstr "Échec de la configuration"
 
@@ -74,9 +77,6 @@ msgstr "Configuration sauvegardée"
 msgid "Configure document"
 msgstr "Configurer le document"
 
-msgid "Delete"
-msgstr "Supprimer"
-
 msgid ""
 "Do you want to continue to force save your modification, or discard it and "
 "load the new one?"
@@ -86,9 +86,6 @@ msgstr ""
 
 msgid "Each section is an artifact."
 msgstr "Chaque section est un artéfact."
-
-msgid "Edit"
-msgstr "Éditer"
 
 msgid "Error"
 msgstr "Erreur"
@@ -124,6 +121,12 @@ msgstr "Artéfacts correspondants"
 msgid "Matching artifacts to use as section"
 msgstr "Artéfacts correspondants à utiliser comme section"
 
+msgid "Move down"
+msgstr "Déplacer vers le bas"
+
+msgid "Move up"
+msgstr "Déplacer vers le haut"
+
 msgid "No artifact is matching your query"
 msgstr "Aucun artéfact ne correspond à votre recherche"
 
@@ -146,11 +149,24 @@ msgstr "Ouvrir l'artéfact"
 msgid "Open contextual menu"
 msgstr "Ouvrir le menu contextuel"
 
+msgid "Open sidebar"
+msgstr "Ouvrir la barre latérale"
+
 msgid "Please log in in order to be able to export as PDF"
 msgstr "Veuillez vous connecter afin de pouvoir exporter en PDF"
 
 msgid "Reload page"
 msgstr "Recharger la page"
+
+msgid "Remove"
+msgstr "Enlever"
+
+msgid ""
+"Remove the section from this document. Corresponding artifact won't be "
+"deleted."
+msgstr ""
+"Enlève la section de ce document. L'artéfact correspondant ne sera pas "
+"supprimé."
 
 msgid "Save"
 msgstr "Sauvegarder"
@@ -162,12 +178,6 @@ msgid "Search existing artifact to use as section inside tracker %{ tracker }"
 msgstr ""
 "Recherche d'artéfact existant à utiliser comme section dans le tracker "
 "%{ tracker }"
-
-msgid "Section is currently being edited"
-msgstr "La section est en train d'être éditée"
-
-msgid "Section without title"
-msgstr "Section sans titre"
 
 msgid "Table of contents"
 msgstr "Table des matières"
@@ -203,15 +213,6 @@ msgstr "Titre..."
 
 msgid "Tracker"
 msgstr "Tracker"
-
-msgid "Unable to upload the image"
-msgstr "Impossible de téléverser l'image"
-
-msgid "You are not allowed to paste images here"
-msgstr "Vous ne pouvez pas ajouter d'images ici"
-
-msgid "You can drag 'n drop or paste image directly in the editor."
-msgstr "Vous pouvez glisser/déposer une image directement dans l'éditeur."
 
 msgid ""
 "You can now go back to the document and create new sections, they will be "
@@ -256,9 +257,6 @@ msgstr "Vous ne pouvez pas lire ou éditer ce document"
 
 msgid "You don't have access to this document"
 msgstr "Vous n'avez pas les droits d'accès à ce document"
-
-msgid "You have to reload the browser"
-msgstr "Vous devez rafraîchir votre navigateur"
 
 msgid ""
 "You should reload the page to have a clean state (you will loose your "
