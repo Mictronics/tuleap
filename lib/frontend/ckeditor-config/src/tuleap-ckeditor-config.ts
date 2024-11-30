@@ -34,6 +34,42 @@ export const config: CKEDITOR.config = {
         { name: "Code", element: "code" },
         { name: "Subscript", element: "sub" },
         { name: "Superscript", element: "sup" },
+        // Add additional styles for demo purpose
+        {
+            name: "Caution",
+            element: "span",
+            styles: { "background-color": "#FBBC04", color: "#000000" },
+        },
+        {
+            name: "Warning",
+            element: "span",
+            styles: { "background-color": "#FF0000", color: "#FFFFFF" },
+        },
+        {
+            name: "Advisory",
+            element: "span",
+            styles: { "background-color": "#FFFFFF", color: "#000000", border: "black solid thin" },
+        },
+        {
+            name: "Sequence Amber",
+            element: "span",
+            styles: { "background-color": "#0B5394", color: "#FBBC04" },
+        },
+        {
+            name: "Sequence Green",
+            element: "span",
+            styles: { "background-color": "#0B5394", color: "#00FF00" },
+        },
+        {
+            name: "Sequence Cyan",
+            element: "span",
+            styles: { "background-color": "#0B5394", color: "#00FFFF" },
+        },
+        {
+            name: "Sequence White",
+            element: "span",
+            styles: { "background-color": "#0B5394", color: "#FFFFFF" },
+        },
     ],
     disableNativeSpellChecker: false,
 };
