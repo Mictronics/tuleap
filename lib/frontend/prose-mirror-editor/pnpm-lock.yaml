@@ -6,7 +6,7 @@ settings:
 
 patchedDependencies:
   prosemirror-dropcursor@1.8.1:
-    hash: 4vsicnimczfojb4aeivjmoemj4
+    hash: 53bbneroi2uzg5u5annibkzxw4
     path: patches/prosemirror-dropcursor@1.8.1.patch
 
 dependencies:
@@ -48,7 +48,7 @@ dependencies:
     version: 1.5.2
   prosemirror-dropcursor:
     specifier: ^1.8.1
-    version: 1.8.1(patch_hash=4vsicnimczfojb4aeivjmoemj4)
+    version: 1.8.1(patch_hash=53bbneroi2uzg5u5annibkzxw4)
   prosemirror-inputrules:
     specifier: ^1.4.0
     version: 1.4.0
@@ -214,7 +214,7 @@ packages:
       prosemirror-transform: 1.9.0
     dev: false
 
-  /prosemirror-dropcursor@1.8.1(patch_hash=4vsicnimczfojb4aeivjmoemj4):
+  /prosemirror-dropcursor@1.8.1(patch_hash=53bbneroi2uzg5u5annibkzxw4):
     resolution: {integrity: sha512-M30WJdJZLyXHi3N8vxN6Zh5O8ZBbQCz0gURTfPmTIBNQ5pxrdU7A58QkNqfa98YEjSAL1HUyyU34f6Pm5xBSGw==}
     dependencies:
       prosemirror-state: 1.4.3
