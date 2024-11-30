@@ -30,6 +30,7 @@ import type { TextEditorInterface } from "./TextEditorInterface";
 const DEFAULT_LOCALE = "en_US";
 const CKEDITOR_DEFAULT_OPTIONS = {
     toolbar: [
+        ["Undo", "Redo"],
         ["Bold", "Italic", "-", "CopyFormatting", "RemoveFormat"],
         ["TextColor", "BGColor"],
         ["NumberedList", "BulletedList", "-", "Blockquote", "Styles", "Format"],
@@ -38,7 +39,7 @@ const CKEDITOR_DEFAULT_OPTIONS = {
     ],
     // For some reason extraPlugins doesn"t work to load colorbutton and colordialog
     plugins:
-        "basicstyles,colorbutton,colordialog,copyformatting,format,wysiwygarea,image,link,list,liststyle,removeformat,stylescombo,uploadwidget,uploadimage",
+        "basicstyles,colorbutton,colordialog,copyformatting,format,wysiwygarea,image,link,list,liststyle,removeformat,stylescombo,undo,uploadwidget,uploadimage",
     stylesSet: [
         { name: "Bold", element: "strong", overrides: { b: true } },
         { name: "Italic", element: "em", overrides: { i: true } },
