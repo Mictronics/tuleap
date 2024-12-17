@@ -57,12 +57,16 @@ function smallHeadingRule(nodeType: NodeType): InputRule {
     return textblockTypeInputRule(/^###\s$/, nodeType, { level: 3 });
 }
 
-function boldRule(markType: MarkType): InputRule {
+export function boldRule(markType: MarkType): InputRule {
     return markInputRule(/(?:\*\*|__)([^*_]+)(?:\*\*|__)$/, markType);
 }
 
-function inlineCodeRule(markType: MarkType): InputRule {
+export function inlineCodeRule(markType: MarkType): InputRule {
     return markInputRule(/`([^`]+)`$/, markType);
+}
+
+export function italicRule(markType: MarkType): InputRule {
+    return markInputRule(/(?<![*_])[*_]([^*_]+)[*_]$/, markType);
 }
 
 export function buildInputRules(schema: Schema): Plugin {
@@ -77,6 +81,7 @@ export function buildInputRules(schema: Schema): Plugin {
             smallHeadingRule(schema.nodes.heading),
             boldRule(schema.marks.strong),
             inlineCodeRule(schema.marks.code),
+            italicRule(schema.marks.em),
             automagicLinksInputRule(),
         ],
     });

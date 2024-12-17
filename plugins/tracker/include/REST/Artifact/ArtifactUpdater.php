@@ -56,19 +56,15 @@ class ArtifactUpdater
         $this->check_artifact_rest_update_conditions->checkIfArtifactUpdateCanBePerformedThroughREST($user, $artifact);
         $changeset_values = $this->fields_data_builder->getFieldsDataOnUpdate($values, $artifact, $user);
 
-        $comment_body   = '';
-        $comment_format = \Tracker_Artifact_Changeset_Comment::COMMONMARK_COMMENT;
-        if ($comment) {
-            $comment_body   = $comment->body;
-            $comment_format = $comment->format;
-        }
+        $comment_body   = $comment?->body ?? '';
+        $comment_format = $comment?->format ?? CommentFormatIdentifier::COMMONMARK->value;
 
         $submitted_on  = $_SERVER['REQUEST_TIME'];
         $new_changeset = NewChangeset::fromFieldsDataArray(
             $artifact,
             $changeset_values->getFieldsData(),
             $comment_body,
-            CommentFormatIdentifier::fromFormatString($comment_format),
+            CommentFormatIdentifier::fromStringWithDefault($comment_format),
             [],
             $user,
             $submitted_on,

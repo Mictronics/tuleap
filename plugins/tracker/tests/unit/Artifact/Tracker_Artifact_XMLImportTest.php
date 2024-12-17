@@ -21,6 +21,7 @@
 use Psr\Log\LoggerInterface;
 use Tuleap\Project\XML\Import\ExternalFieldsExtractor;
 use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\Artifact\Changeset\Comment\CommentFormatIdentifier;
 use Tuleap\Tracker\Artifact\Changeset\Comment\PrivateComment\XMLImport\TrackerPrivateCommentUGroupExtractor;
 use Tuleap\Tracker\Artifact\Changeset\NewChangeset;
 use Tuleap\Tracker\Artifact\Changeset\NewChangesetCreator;
@@ -357,11 +358,11 @@ final class Tracker_Artifact_XMLImportTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->new_changeset_creator->shouldReceive('create')->times(2);
 
         $this->new_changeset_creator->shouldReceive('create')
-            ->with(Mockery::any(), Mockery::any(), 'Some text', Mockery::any(), Mockery::any(), Mockery::any(), Tracker_Artifact_Changeset_Comment::TEXT_COMMENT, Mockery::any(), [])
+            ->with(Mockery::any(), Mockery::any(), 'Some text', Mockery::any(), Mockery::any(), Mockery::any(), CommentFormatIdentifier::TEXT->value, Mockery::any(), [])
             ->andReturn(\Mockery::spy(\Tracker_Artifact_Changeset::class));
 
         $this->new_changeset_creator->shouldReceive('create')
-            ->with(Mockery::any(), Mockery::any(), '<p>Some text</p>', Mockery::any(), Mockery::any(), Mockery::any(), Tracker_Artifact_Changeset_Comment::HTML_COMMENT, Mockery::any(), [])
+            ->with(Mockery::any(), Mockery::any(), '<p>Some text</p>', Mockery::any(), Mockery::any(), Mockery::any(), CommentFormatIdentifier::HTML->value, Mockery::any(), [])
             ->andReturn(\Mockery::spy(\Tracker_Artifact_Changeset::class));
 
         $this->artifact->shouldReceive('getTracker')->andReturn($this->tracker);
@@ -445,7 +446,7 @@ final class Tracker_Artifact_XMLImportTest extends \Tuleap\Test\PHPUnit\TestCase
                 if ($comment->getBody() !== 'Some text') {
                     return false;
                 }
-                if ((string) $comment->getFormat() !== \Tracker_Artifact_Changeset_Comment::TEXT_COMMENT) {
+                if ($comment->getFormat() !== CommentFormatIdentifier::TEXT) {
                     return false;
                 }
                 return true;
@@ -453,7 +454,7 @@ final class Tracker_Artifact_XMLImportTest extends \Tuleap\Test\PHPUnit\TestCase
             ->once()
             ->andReturn($changeset);
 
-        $changeset->shouldReceive('updateCommentWithoutNotification')->with('<p>Some text</p>', $this->john_doe, Tracker_Artifact_Changeset_Comment::HTML_COMMENT, strtotime('2014-01-15T11:23:50+01:00'), [])->once();
+        $changeset->shouldReceive('updateCommentWithoutNotification')->with('<p>Some text</p>', $this->john_doe, CommentFormatIdentifier::HTML->value, strtotime('2014-01-15T11:23:50+01:00'), [])->once();
         $changeset->shouldReceive('getArtifact')->once()->andReturn(Mockery::mock(Artifact::class));
 
         $xml_element = new SimpleXMLElement('<?xml version="1.0"?>
@@ -561,7 +562,7 @@ final class Tracker_Artifact_XMLImportTest extends \Tuleap\Test\PHPUnit\TestCase
                     if ($comment->getBody() !== 'Some text') {
                         return false;
                     }
-                    if ((string) $comment->getFormat() !== \Tracker_Artifact_Changeset_Comment::TEXT_COMMENT) {
+                    if ($comment->getFormat() !== CommentFormatIdentifier::TEXT) {
                         return false;
                     }
                     if ($comment->getUserGroupsThatAreAllowedToSee() !== [$my_group, $my_other_group]) {
@@ -577,7 +578,7 @@ final class Tracker_Artifact_XMLImportTest extends \Tuleap\Test\PHPUnit\TestCase
             ->with(
                 'New comment update',
                 $this->john_doe,
-                Tracker_Artifact_Changeset_Comment::HTML_COMMENT,
+                CommentFormatIdentifier::HTML->value,
                 strtotime('2014-01-15T11:23:50+01:00'),
                 [$my_group, $my_best_group]
             )

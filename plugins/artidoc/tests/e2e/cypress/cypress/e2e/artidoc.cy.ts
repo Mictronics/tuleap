@@ -79,10 +79,12 @@ describe("Artidoc", () => {
                 cy.visit(url);
             });
 
+        cy.intercept("POST", "/api/artidoc/*/sections").as("postSections");
         cy.get("[data-test=artidoc-section]:first-child").within(() => {
             cy.log("User with write rights should see a form to enter a new section");
             fillInSectionTitleAndDescription(requirements[0]);
         });
+        cy.wait(["@postSections"]);
 
         cy.log("User should be able to add a section at the beginning");
         cy.get("[data-test=artidoc-add-new-section-trigger]").first().click();
@@ -90,6 +92,7 @@ describe("Artidoc", () => {
         cy.get("[data-test=artidoc-section]:first-child").within(() => {
             fillInSectionTitleAndDescription(requirements[1]);
         });
+        cy.wait(["@postSections"]);
 
         cy.log("User should be able to add a section at the end");
         cy.get("[data-test=artidoc-add-new-section-trigger]").last().click();
@@ -97,6 +100,7 @@ describe("Artidoc", () => {
         cy.get("[data-test=artidoc-section]:last-child").within(() => {
             fillInSectionTitleAndDescription(requirements[2]);
         });
+        cy.wait(["@postSections"]);
 
         cy.log("Check that the document has now section in given order");
         cy.reload();
@@ -134,6 +138,21 @@ describe("Artidoc", () => {
             cy.get("img")
                 .should("have.attr", "src")
                 .should("include", "/plugins/tracker/attachments/");
+        });
+
+        cy.log("User should be able to reorder sections with arrows");
+        cy.intercept("PATCH", "/api/artidoc/*/sections").as("patchSectionsOrder");
+
+        cy.get("[data-test=move-down]").first().click({ force: true });
+        cy.wait("@patchSectionsOrder");
+        cy.get("[data-test=artidoc-section]:first-child").within(() => {
+            getSectionTitle().should("contain.text", "Functional Requirement");
+        });
+
+        cy.get("[data-test=move-up]").last().click({ force: true });
+        cy.wait("@patchSectionsOrder");
+        cy.get("[data-test=artidoc-section]:last-child").within(() => {
+            getSectionTitle().should("contain.text", "Performance Requirement");
         });
     });
 });

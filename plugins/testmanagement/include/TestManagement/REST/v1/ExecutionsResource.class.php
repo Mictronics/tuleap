@@ -42,6 +42,7 @@ use Tuleap\DB\DBTransactionExecutorWithConnection;
 use Tuleap\Http\HttpClientFactory;
 use Tuleap\Http\HTTPFactoryBuilder;
 use Tuleap\Markdown\CommonMarkInterpreter;
+use Tuleap\Notification\Mention\MentionedUserInTextRetriever;
 use Tuleap\RealTime\NodeJSClient;
 use Tuleap\RealTimeMercure\ClientBuilder;
 use Tuleap\REST\Header;
@@ -271,6 +272,7 @@ class ExecutionsResource
         $fields_retriever = new FieldsToBeSavedInSpecificOrderRetriever($this->formelement_factory);
         $event_dispatcher = \EventManager::instance();
 
+        $user_manager      = UserManager::instance();
         $changeset_creator = new NewChangesetCreator(
             new DBTransactionExecutorWithConnection(DBFactory::getMainTuleapDBConnection()),
             ArtifactChangesetSaver::build(),
@@ -308,6 +310,7 @@ class ExecutionsResource
                     $event_dispatcher,
                     new \Tracker_Artifact_Changeset_CommentDao(),
                 ),
+                new MentionedUserInTextRetriever($user_manager),
             ),
         );
 

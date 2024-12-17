@@ -39,6 +39,8 @@ final readonly class DocumentTrackerRepresentation
     private function __construct(
         public int $id,
         public string $label,
+        public string $color,
+        public string $item_name,
         public ?DocumentTrackerFieldStringRepresentation $title,
         public ?DocumentTrackerFieldTextRepresentation $description,
         public ?DocumentTrackerFieldFileRepresentation $file,
@@ -67,6 +69,15 @@ final readonly class DocumentTrackerRepresentation
 
         $project = new MinimalProjectRepresentation($tracker->getProject());
 
-        return new self($tracker->getId(), $tracker->getName(), $title, $description, $file, $project);
+        return new self(
+            $tracker->getId(),
+            $tracker->getName(),
+            $tracker->getColor()->getName(),
+            $tracker->getItemName(),
+            $title,
+            $description,
+            $file,
+            $project,
+        );
     }
 }

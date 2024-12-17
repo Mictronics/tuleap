@@ -24,6 +24,7 @@ use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Artifact\Changeset\ChangesetFromXmlDao;
 use Tuleap\Tracker\Artifact\Changeset\ChangesetFromXmlDisplayer;
 use Tuleap\Tracker\Artifact\Changeset\Comment\ChangesetCommentIndexer;
+use Tuleap\Tracker\Artifact\Changeset\Comment\CommentFormatIdentifier;
 use Tuleap\Tracker\Artifact\Changeset\Comment\PrivateComment\CachingTrackerPrivateCommentInformationRetriever;
 use Tuleap\Tracker\Artifact\Changeset\Comment\PrivateComment\TrackerPrivateCommentInformationRetriever;
 use Tuleap\Tracker\Artifact\Changeset\Comment\PrivateComment\TrackerPrivateCommentUGroupEnabledDao;
@@ -247,7 +248,7 @@ class Tracker_Artifact_Changeset extends Tracker_Artifact_Followup_Item
                 return '';
             }
 
-            $html .= '<div class="tracker_artifact_followup_comment" data-test="follow-up-comment">';
+            $html .= '<div class="tracker_artifact_followup_comment" data-read-only-comment data-test="follow-up-comment">';
             if ($follow_up) {
                 $html .= $follow_up;
             }
@@ -278,6 +279,10 @@ class Tracker_Artifact_Changeset extends Tracker_Artifact_Followup_Item
             return '';
         }
 
+        $tracker    = $this->getTracker();
+        $project_id = $tracker->getGroupId();
+        $purifier   = Codendi_HTMLPurifier::instance();
+
         $html = $this->getAvatar();
 
         $html .= '<div class="tracker_artifact_followup_header">';
@@ -288,11 +293,20 @@ class Tracker_Artifact_Changeset extends Tracker_Artifact_Followup_Item
         $html .= $this->getTimeAgo($current_user);
         $html .= '</div>';
 
+        $user_preferred_format = CommentFormatIdentifier::fromStringWithDefault(
+            (string) $current_user->getPreference(\PFUser::PREFERENCE_NAME_EDITION_DEFAULT_FORMAT)
+        )->value;
+
         // The content
-        $html .= '<div class="tracker_artifact_followup_content">';
+        $html .= '<div class="tracker_artifact_followup_content"'
+              . ' data-follow-up-content'
+              . ' data-changeset-id="' . $purifier->purify($this->getId()) . '"'
+              . ' data-project-id="' . $purifier->purify($project_id) . '"'
+              . ($tracker->isNotificationStopped() ? ' data-notifications-disabled' : '')
+              . ' data-user-preferred-format="' . $purifier->purify($user_preferred_format) . '"'
+              .  '>';
         $html .= $follow_up_content;
         $html .= '</div>';
-
         $html .= '<div style="clear:both;"></div>';
         return $html;
     }
@@ -324,9 +338,9 @@ class Tracker_Artifact_Changeset extends Tracker_Artifact_Followup_Item
         }
 
         $html  = '';
-        $html .= '<a href="#" class="tracker_artifact_followup_comment_controls_edit">';
-        $html .= '<button class="btn btn-mini" data-test="edit-comment"><i class="far fa-edit"></i> ' . dgettext('tuleap-tracker', 'Edit') . '</button>';
-        $html .= '</a>';
+        $html .= '<div class="tracker-artifact-followup-comment-controls-edit">';
+        $html .= '<button class="btn btn-mini" type="button" data-edit-comment-button data-test="edit-comment"><i class="fa-regular fa-edit" aria-hidden="true"></i> ' . dgettext('tuleap-tracker', 'Edit') . '</button>';
+        $html .= '</div>';
 
         return $html;
     }
@@ -855,7 +869,7 @@ class Tracker_Artifact_Changeset extends Tracker_Artifact_Followup_Item
      */
     public function executePostCreationActions(bool $send_notifications): void
     {
-        ActionsQueuer::build(BackendLogger::getDefaultLogger())->queuePostCreation($this, $send_notifications);
+        ActionsQueuer::build(BackendLogger::getDefaultLogger())->queuePostCreation($this, $send_notifications, []);
     }
 
     /**
@@ -927,11 +941,11 @@ class Tracker_Artifact_Changeset extends Tracker_Artifact_Followup_Item
         if ($comment_content === '') {
             return null;
         }
-        $project_id = $this->getTracker()->getGroupId();
+        $purifier = Codendi_HTMLPurifier::instance();
 
         $classnames    = 'tracker_artifact_followup ';
         $classnames   .= $this->getFollowUpClassnames($diff_to_previous, $user);
-        $comment_html  = '<article id="followup_' . $this->getId() . '" class="' . $classnames . '" data-test="artifact-follow-up" data-changeset-id="followup_' . $this->getId() . '" data-project-id="' . $project_id . '">';
+        $comment_html  = '<article id="followup_' . $purifier->purify($this->getId()) . '" class="' . $purifier->purify($classnames) . '" data-test="artifact-follow-up" data-follow-up>';
         $comment_html .= $comment_content;
         $comment_html .= '</article>';
 

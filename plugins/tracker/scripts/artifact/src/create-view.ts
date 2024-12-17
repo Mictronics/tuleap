@@ -27,9 +27,9 @@ document.addEventListener("DOMContentLoaded", () => {
     if (locale === undefined) {
         return;
     }
-    const creator = new RichTextEditorsCreator(
+    const creator = RichTextEditorsCreator(
         document,
-        new UploadImageFormFactory(document, locale),
+        UploadImageFormFactory(document, locale),
         RichTextEditorFactory.forFlamingParrotWithFormatSelector(document, locale),
     );
     creator.createTextFieldEditors();

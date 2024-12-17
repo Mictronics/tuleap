@@ -3532,6 +3532,11 @@ msgstr ""
 msgid "This tracker is deleted"
 msgstr ""
 
+msgid ""
+"This tracker's notifications are disabled, when you use @ to mention "
+"someone, no email will be sent."
+msgstr ""
+
 msgid "This transition already exists."
 msgstr ""
 
@@ -4001,6 +4006,9 @@ msgid ""
 "When there is a timeframe associated with a tracker, email notifications for "
 "artifacts include the necessary information for adding the event to a "
 "calendar (Outlook, Google Calendar, etc.)."
+msgstr ""
+
+msgid "When you use @ to mention someone, they will get an email notification."
 msgstr ""
 
 msgid "Workflow"

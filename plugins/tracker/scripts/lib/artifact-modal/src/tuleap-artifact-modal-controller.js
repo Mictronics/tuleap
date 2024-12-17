@@ -32,7 +32,6 @@ import { ParentFeedbackController } from "./domain/parent/ParentFeedbackControll
 import { LinkFieldController } from "./domain/fields/link-field/LinkFieldController";
 import { DatePickerInitializer } from "./adapters/UI/fields/date-field/DatePickerInitializer";
 import { LinksRetriever } from "./domain/fields/link-field/LinksRetriever";
-import { CurrentArtifactIdentifierProxy } from "./adapters/Caller/CurrentArtifactIdentifierProxy";
 import { ParentArtifactIdentifierProxy } from "./adapters/Caller/ParentArtifactIdentifierProxy";
 import { LinksMarkedForRemovalStore } from "./adapters/Memory/fields/link-field/LinksMarkedForRemovalStore";
 import { LinksStore } from "./adapters/Memory/fields/link-field/LinksStore";
@@ -68,9 +67,12 @@ import { WillNotifyFault } from "./domain/WillNotifyFault";
 import { WillDisableSubmit } from "./domain/submit/WillDisableSubmit";
 import { WillEnableSubmit } from "./domain/submit/WillEnableSubmit";
 import { ProjectsCache } from "./adapters/Memory/fields/link-field/ProjectsCache";
-import { LinkableArtifactCreator } from "./adapters/REST/fields/link-field/LinkableArtifactCreator";
+import { LinkableArtifactCreator } from "./adapters/REST/fields/link-field/creation/LinkableArtifactCreator";
 import { StaticOpenListFieldController } from "./adapters/UI/fields/open-list-field/static/StaticOpenListFieldController";
 import { UserGroupOpenListFieldController } from "./adapters/UI/fields/open-list-field/user-groups/UserGroupOpenListFieldController";
+import { LinkFieldAPIClient } from "./adapters/REST/fields/link-field/LinkFieldAPIClient";
+import { ArtifactCreationAPIClient } from "./adapters/REST/fields/link-field/creation/ArtifactCreationAPIClient";
+import { FormattedTextUserPreferences } from "./domain/common/FormattedTextUserPreferences";
 
 export default ArtifactModalController;
 
@@ -102,17 +104,17 @@ function ArtifactModalController(
 
     const event_dispatcher = EventDispatcher();
     const fault_feedback_controller = FaultFeedbackController(event_dispatcher);
-    const current_artifact_option = CurrentArtifactIdentifierProxy.fromModalArtifactId(
-        modal_model.artifact_id,
-    );
     const current_project_identifier = CurrentProjectIdentifierProxy.fromTrackerModel(
         modal_model.tracker,
     );
-    const api_client = TuleapAPIClient(current_artifact_option, current_project_identifier);
+    const current_artifact_option = Option.fromNullable(modal_model.current_artifact_identifier);
+    const api_client = TuleapAPIClient(current_project_identifier);
+    const link_field_api_client = LinkFieldAPIClient(current_artifact_option);
+    const artifact_creation_api_client = ArtifactCreationAPIClient();
     const links_store = LinksStore();
     const links_marked_for_removal_store = LinksMarkedForRemovalStore();
     const new_links_store = NewLinksStore();
-    const possible_parents_cache = PossibleParentsCache(api_client);
+    const possible_parents_cache = PossibleParentsCache(link_field_api_client);
     const already_linked_verifier = AlreadyLinkedVerifier(links_store, new_links_store);
     const parent_artifact_identifier = ParentArtifactIdentifierProxy.fromCallerArgument(
         modal_model.parent_artifact_id,
@@ -121,18 +123,16 @@ function ArtifactModalController(
         modal_model.tracker_id,
     );
     const file_uploader = FileFieldsUploader(api_client, FileUploader());
-    const user_history_cache = UserHistoryCache(api_client);
+    const user_history_cache = UserHistoryCache(link_field_api_client);
 
     const user_locale = document.body.dataset.userLocale ?? en_US_LOCALE;
 
     Object.assign(self, {
         $onInit: init,
-        artifact_id: modal_model.artifact_id,
         current_artifact_identifier: current_artifact_option.unwrapOr(null), // Fields using it are not allowed in creation mode
         color: formatColor(modal_model.color),
         creation_mode: isInCreationMode(),
         ordered_fields: modal_model.ordered_fields,
-        parent: null,
         parent_artifact_id: modal_model.parent_artifact_id,
         title: getTitle(),
         tracker: modal_model.tracker,
@@ -157,22 +157,30 @@ function ArtifactModalController(
         ),
         fault_feedback_controller,
         file_upload_quota_controller: FileUploadQuotaController(event_dispatcher),
-        comments_controller: CommentsController(
-            api_client,
-            event_dispatcher,
-            current_artifact_option.unwrapOr(null), // It is not built in creation mode
-            {
-                locale: modal_model.user_locale,
-                date_time_format: modal_model.user_date_time_format,
-                relative_dates_display: modal_model.relative_dates_display,
-                is_comment_order_inverted: modal_model.invert_followups_comments_order,
-                is_allowed_to_add_comment: isNotAnonymousUser(),
-                text_format: modal_model.text_fields_format,
-            },
-        ),
+        getCommentsController: () => {
+            return CommentsController(
+                api_client,
+                event_dispatcher,
+                current_artifact_option.unwrapOr(null), // It is not built in creation mode
+                {
+                    locale: modal_model.user_locale,
+                    date_time_format: modal_model.user_date_time_format,
+                    relative_dates_display: modal_model.relative_dates_display,
+                    is_comment_order_inverted: modal_model.invert_followups_comments_order,
+                    is_allowed_to_add_comment: isNotAnonymousUser(),
+                    are_mentions_effective: modal_model.are_mentions_effective,
+                    text_format: modal_model.text_fields_format,
+                },
+            );
+        },
         getLinkFieldController: (field) => {
             return LinkFieldController(
-                LinksRetriever(api_client, api_client, links_store, current_artifact_option),
+                LinksRetriever(
+                    link_field_api_client,
+                    link_field_api_client,
+                    links_store,
+                    current_artifact_option,
+                ),
                 links_store,
                 links_store,
                 links_marked_for_removal_store,
@@ -199,10 +207,10 @@ function ArtifactModalController(
         },
         getLinkFieldAutoCompleter: () => {
             return ArtifactLinkSelectorAutoCompleter(
-                api_client,
+                link_field_api_client,
                 already_linked_verifier,
                 user_history_cache,
-                api_client,
+                link_field_api_client,
                 event_dispatcher,
                 current_artifact_option,
                 UserIdentifierProxy.fromUserId(modal_model.user_id),
@@ -211,9 +219,13 @@ function ArtifactModalController(
         getArtifactCreatorController() {
             return ArtifactCreatorController(
                 event_dispatcher,
-                ProjectsCache(api_client),
-                api_client,
-                LinkableArtifactCreator(api_client, api_client, api_client),
+                ProjectsCache(artifact_creation_api_client),
+                artifact_creation_api_client,
+                LinkableArtifactCreator(
+                    artifact_creation_api_client,
+                    api_client,
+                    link_field_api_client,
+                ),
                 current_project_identifier,
                 current_tracker_identifier,
                 user_locale,
@@ -249,7 +261,7 @@ function ArtifactModalController(
             return FormattedTextController(
                 event_dispatcher,
                 api_client,
-                modal_model.text_fields_format,
+                FormattedTextUserPreferences.build(modal_model.text_fields_format, user_locale),
             );
         },
         getStaticOpenListFieldController: (field) => {
@@ -262,7 +274,6 @@ function ArtifactModalController(
         },
         hidden_fieldsets: extractHiddenFieldsets(modal_model.ordered_fields),
         formatColor,
-        getDropdownAttribute,
         getRestErrorMessage: getErrorMessage,
         hasRestError: hasError,
         isDisabled,
@@ -317,13 +328,7 @@ function ArtifactModalController(
     }
 
     function getTitle() {
-        if (modal_model.title === null) {
-            return "";
-        }
-
-        const is_title_a_text_field = typeof modal_model.title.content !== "undefined";
-
-        return is_title_a_text_field ? modal_model.title.content : modal_model.title;
+        return modal_model.title ?? "";
     }
 
     function isNotAnonymousUser() {
@@ -396,13 +401,13 @@ function ArtifactModalController(
                 }
                 if (self.confirm_action_to_edit) {
                     return editArtifact(
-                        modal_model.artifact_id,
+                        modal_model.current_artifact_identifier.id,
                         validated_values,
                         self.new_followup_comment,
                     );
                 }
                 return editArtifactWithConcurrencyChecking(
-                    modal_model.artifact_id,
+                    modal_model.current_artifact_identifier.id,
                     validated_values,
                     self.new_followup_comment,
                     modal_model.etag,
@@ -452,10 +457,6 @@ function ArtifactModalController(
             setError(gettextCatalog.getString("An error occurred while saving the artifact."));
         }
         TuleapArtifactModalLoading.loading = false;
-    }
-
-    function getDropdownAttribute(field) {
-        return isDisabled(field) ? "" : "dropdown";
     }
 
     function toggleFieldset(fieldset) {

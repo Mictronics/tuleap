@@ -26,13 +26,22 @@ use Docman_ItemFactory;
 use Luracast\Restler\RestException;
 use Tuleap\Artidoc\Adapter\Document\ArtidocRetriever;
 use Tuleap\Artidoc\Adapter\Document\ArtidocWithContextDecorator;
-use Tuleap\Artidoc\Adapter\Document\CurrentCurrentUserHasArtidocPermissionsChecker;
+use Tuleap\Artidoc\Adapter\Document\CurrentUserHasArtidocPermissionsChecker;
+use Tuleap\Artidoc\Adapter\Document\SearchArtidocDocumentDao;
+use Tuleap\Artidoc\Adapter\Document\Section\DeleteOneSectionDao;
+use Tuleap\Artidoc\Adapter\Document\Section\Freetext\Identifier\UUIDFreetextIdentifierFactory;
 use Tuleap\Artidoc\Adapter\Document\Section\Identifier\UUIDSectionIdentifierFactory;
-use Tuleap\Artidoc\Document\ArtidocDao;
-use Tuleap\Artidoc\Domain\Document\ArtidocWithContextRetriever;
+use Tuleap\Artidoc\Adapter\Document\Section\RequiredSectionInformationCollector;
+use Tuleap\Artidoc\Adapter\Document\Section\RetrieveArtidocSectionDao;
 use Tuleap\Artidoc\Document\DocumentServiceFromAllowedProjectRetriever;
+use Tuleap\Artidoc\Domain\Document\ArtidocWithContextRetriever;
+use Tuleap\Artidoc\Domain\Document\Section\CollectRequiredSectionInformation;
+use Tuleap\Artidoc\Domain\Document\Section\Freetext\Identifier\FreetextIdentifierFactory;
+use Tuleap\Artidoc\Domain\Document\Section\RawSection;
+use Tuleap\Artidoc\Domain\Document\Section\SectionRetriever;
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\InvalidSectionIdentifierStringException;
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifierFactory;
+use Tuleap\Artidoc\Domain\Document\Section\SectionDeletor;
 use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\NeverThrow\Fault;
 use Tuleap\REST\AuthenticatedResource;
@@ -71,7 +80,7 @@ final class ArtidocSectionsResource extends AuthenticatedResource
      * @status 200
      * @throws RestException 404
      */
-    public function get(string $id): ArtidocSectionRepresentation
+    public function get(string $id): SectionRepresentation
     {
         $this->checkAccess();
 
@@ -81,18 +90,23 @@ final class ArtidocSectionsResource extends AuthenticatedResource
             throw new RestException(404);
         }
 
-        $user = UserManager::instance()->getCurrentUser();
-        return $this->getBuilder($user)
-            ->build($section_id, $user)
-            ->match(
-                function (ArtidocSectionRepresentation $representation) {
-                    return $representation;
-                },
-                function (Fault $fault) {
-                    Fault::writeToLogger($fault, RESTLogger::getLogger());
-                    throw new RestException(404);
-                },
-            );
+        $user      = UserManager::instance()->getCurrentUser();
+        $collector = new RequiredSectionInformationCollector(
+            $user,
+            new RequiredArtifactInformationBuilder(\Tracker_ArtifactFactory::instance())
+        );
+
+
+        return $this->getSectionRetriever($user, $collector)
+            ->retrieveSection($section_id)
+            ->andThen(fn(RawSection $section) =>
+                $this->getSectionRepresentationBuilder()->getSectionRepresentation($section, $collector, $user))->match(
+                    fn(SectionRepresentation $representation) => $representation,
+                    function (Fault $fault) {
+                        Fault::writeToLogger($fault, RESTLogger::getLogger());
+                        throw new RestException(404);
+                    },
+                );
     }
 
     /**
@@ -120,7 +134,7 @@ final class ArtidocSectionsResource extends AuthenticatedResource
 
         $user = UserManager::instance()->getCurrentUser();
         $this->getDeleteHandler($user)
-            ->handle($section_id)
+            ->deleteSection($section_id)
             ->match(
                 function () {
                 },
@@ -131,47 +145,72 @@ final class ArtidocSectionsResource extends AuthenticatedResource
             );
     }
 
-    private function getDeleteHandler(\PFUser $user): DeleteSectionHandler
+    private function getDeleteHandler(\PFUser $user): SectionDeletor
     {
         $plugin = \PluginManager::instance()->getEnabledPluginByName('artidoc');
         if (! $plugin) {
             throw new RestException(404);
         }
 
-        $dao       = new ArtidocDao($this->getSectionIdentifierFactory());
         $retriever = new ArtidocWithContextRetriever(
-            new ArtidocRetriever($dao, new Docman_ItemFactory()),
-            CurrentCurrentUserHasArtidocPermissionsChecker::withCurrentUser($user),
+            new ArtidocRetriever(new SearchArtidocDocumentDao(), new Docman_ItemFactory()),
+            CurrentUserHasArtidocPermissionsChecker::withCurrentUser($user),
             new ArtidocWithContextDecorator(
                 \ProjectManager::instance(),
                 new DocumentServiceFromAllowedProjectRetriever($plugin),
             ),
         );
 
-        return new DeleteSectionHandler($dao, $retriever, $dao);
+        $section_identifier_factory  = $this->getSectionIdentifierFactory();
+        $freetext_identifier_factory = $this->getFreetextIdentifierFactory();
+
+        return new SectionDeletor(
+            new RetrieveArtidocSectionDao($section_identifier_factory, $freetext_identifier_factory),
+            $retriever,
+            new DeleteOneSectionDao(),
+        );
     }
 
-    private function getBuilder(\PFUser $user): ArtidocSectionRepresentationBuilder
+    private function getSectionRetriever(\PFUser $user, CollectRequiredSectionInformation $collector): SectionRetriever
     {
         $plugin = \PluginManager::instance()->getEnabledPluginByName('artidoc');
         if (! $plugin) {
             throw new RestException(404);
         }
 
-        $dao       = new ArtidocDao($this->getSectionIdentifierFactory());
+        $dao       = new RetrieveArtidocSectionDao($this->getSectionIdentifierFactory(), $this->getFreetextIdentifierFactory());
         $retriever = new ArtidocWithContextRetriever(
-            new ArtidocRetriever($dao, new Docman_ItemFactory()),
-            CurrentCurrentUserHasArtidocPermissionsChecker::withCurrentUser($user),
+            new ArtidocRetriever(new SearchArtidocDocumentDao(), new Docman_ItemFactory()),
+            CurrentUserHasArtidocPermissionsChecker::withCurrentUser($user),
             new ArtidocWithContextDecorator(
                 \ProjectManager::instance(),
                 new DocumentServiceFromAllowedProjectRetriever($plugin),
             ),
         );
 
+        return new SectionRetriever($dao, $retriever, $collector);
+    }
+
+    private function getSectionIdentifierFactory(): SectionIdentifierFactory
+    {
+        return new UUIDSectionIdentifierFactory(new DatabaseUUIDV7Factory());
+    }
+
+    private function getFreetextIdentifierFactory(): FreetextIdentifierFactory
+    {
+        return new UUIDFreetextIdentifierFactory(new DatabaseUUIDV7Factory());
+    }
+
+    private function getSectionRepresentationBuilder(): SectionRepresentationBuilder
+    {
+        return new SectionRepresentationBuilder($this->getArtifactSectionRepresentationBuilder());
+    }
+
+    private function getArtifactSectionRepresentationBuilder(): ArtifactSectionRepresentationBuilder
+    {
         $form_element_factory = \Tracker_FormElementFactory::instance();
-        $transformer          = new RawSectionsToRepresentationTransformer(
-            new \Tracker_ArtifactDao(),
-            \Tracker_ArtifactFactory::instance(),
+
+        return new ArtifactSectionRepresentationBuilder(
             new FileUploadDataProvider(
                 new FrozenFieldDetector(
                     new TransitionRetriever(
@@ -189,12 +228,5 @@ final class ArtidocSectionsResource extends AuthenticatedResource
                 $form_element_factory
             ),
         );
-
-        return new ArtidocSectionRepresentationBuilder($dao, $retriever, $transformer);
-    }
-
-    private function getSectionIdentifierFactory(): SectionIdentifierFactory
-    {
-        return new UUIDSectionIdentifierFactory(new DatabaseUUIDV7Factory());
     }
 }

@@ -32,6 +32,7 @@ use Tracker_FormElementFactory;
 use Tracker_NoChangeException;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\DBTransactionExecutorWithConnection;
+use Tuleap\Notification\Mention\MentionedUserInTextRetriever;
 use Tuleap\REST\I18NRestException;
 use Tuleap\Search\ItemToIndexQueueEventBased;
 use Tuleap\Tracker\Admin\ArtifactLinksUsageDao;
@@ -95,8 +96,8 @@ class CardPatcher
         $artifact_factory     = \Tracker_ArtifactFactory::instance();
         $fields_retriever     = new FieldsToBeSavedInSpecificOrderRetriever($form_element_factory);
         $event_dispatcher     = \EventManager::instance();
-
-        $changeset_creator = new NewChangesetCreator(
+        $user_manager         =    \UserManager::instance();
+        $changeset_creator    = new NewChangesetCreator(
             new DBTransactionExecutorWithConnection(DBFactory::getMainTuleapDBConnection()),
             ArtifactChangesetSaver::build(),
             new AfterNewChangesetHandler($artifact_factory, $fields_retriever),
@@ -141,6 +142,7 @@ class CardPatcher
                     $event_dispatcher,
                     new \Tracker_Artifact_Changeset_CommentDao(),
                 ),
+                new MentionedUserInTextRetriever($user_manager),
             ),
         );
 

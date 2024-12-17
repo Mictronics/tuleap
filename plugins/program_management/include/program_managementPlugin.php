@@ -31,6 +31,7 @@ use Tuleap\DB\DBTransactionExecutorWithConnection;
 use Tuleap\Glyph\GlyphFinder;
 use Tuleap\Glyph\GlyphLocation;
 use Tuleap\Glyph\GlyphLocationsCollector;
+use Tuleap\Notification\Mention\MentionedUserInTextRetriever;
 use Tuleap\ProgramManagement\Adapter\ArtifactLinks\DeletedArtifactLinksProxy;
 use Tuleap\ProgramManagement\Adapter\ArtifactLinks\LinkedArtifactDAO;
 use Tuleap\ProgramManagement\Adapter\ArtifactLinks\MoveArtifactActionEventProxy;
@@ -918,6 +919,7 @@ final class program_managementPlugin extends Plugin implements PluginWithService
         $after_new_changeset_handler    = new AfterNewChangesetHandler($artifact_factory, $fields_retriever);
         $retrieve_workflow              = \WorkflowFactory::instance();
         $event_dispatcher               = EventManager::instance();
+        $user_manager                   = UserManager::instance();
 
         $new_changeset_creator = new NewChangesetCreator(
             $transaction_executor,
@@ -970,6 +972,7 @@ final class program_managementPlugin extends Plugin implements PluginWithService
                     $event_dispatcher,
                     new \Tracker_Artifact_Changeset_CommentDao(),
                 ),
+                new MentionedUserInTextRetriever($user_manager),
             ),
         );
 

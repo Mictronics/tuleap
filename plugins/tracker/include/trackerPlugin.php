@@ -49,6 +49,7 @@ use Tuleap\Layout\IncludeViteAssets;
 use Tuleap\Layout\NewDropdown\NewDropdownProjectLinksCollector;
 use Tuleap\Mail\MailFilter;
 use Tuleap\Mail\MailLogger;
+use Tuleap\Notification\Mention\MentionedUserInTextRetriever;
 use Tuleap\Plugin\ListeningToEventClass;
 use Tuleap\Project\Admin\History\GetHistoryKeyLabel;
 use Tuleap\Project\Admin\PermissionsPerGroup\PermissionPerGroupDisplayEvent;
@@ -224,7 +225,6 @@ use Tuleap\Tracker\Notifications\NotificationLevelExtractor;
 use Tuleap\Tracker\Notifications\NotificationListBuilder;
 use Tuleap\Tracker\Notifications\NotificationsForceUsageUpdater;
 use Tuleap\Tracker\Notifications\NotificationsForProjectMemberCleaner;
-use Tuleap\Tracker\Notifications\Recipient\MentionedUserInCommentRetriever;
 use Tuleap\Tracker\Notifications\RecipientsManager;
 use Tuleap\Tracker\Notifications\Settings\NotificationsAdminSettingsDisplayController;
 use Tuleap\Tracker\Notifications\Settings\NotificationsAdminSettingsUpdateController;
@@ -1472,8 +1472,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             new MailGatewayConfigDao(),
         );
 
-        $src_dir = ForgeConfig::get('codendi_dir');
-        $script  = $src_dir . '/plugins/tracker/bin/emailgateway-wrapper.sh';
+        $script = realpath(__DIR__ . '/../bin/emailgateway-wrapper.sh');
 
         $command = "sudo -u codendiadm $script";
 
@@ -2456,7 +2455,6 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
                     new InvolvedNotificationDao()
                 ),
                 new UserNotificationOnlyStatusChangeDAO(),
-                new MentionedUserInCommentRetriever($this->getUserManager())
             ),
             new UserNotificationSettingsDAO()
         );
@@ -2736,6 +2734,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
                     $event_manager,
                     new \Tracker_Artifact_Changeset_CommentDao(),
                 ),
+                new MentionedUserInTextRetriever($user_manager),
             ),
         );
 

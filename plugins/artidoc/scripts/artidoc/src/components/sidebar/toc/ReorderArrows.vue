@@ -45,11 +45,17 @@
 <script setup lang="ts">
 import { useGettext } from "vue3-gettext";
 import { strictInject } from "@tuleap/vue-strict-inject";
-import { SECTIONS_STORE } from "@/stores/sections-store-injection-key";
-import type { StoredArtidocSection } from "@/stores/useSectionsStore";
+import type { Fault } from "@tuleap/fault";
+import type { InternalArtidocSectionId, StoredArtidocSection } from "@/stores/useSectionsStore";
 import { DOCUMENT_ID } from "@/document-id-injection-key";
+import type { SectionsReorderer } from "@/components/sidebar/toc/SectionsReorderer";
 
-const props = defineProps<{ is_first: boolean; is_last: boolean; section: StoredArtidocSection }>();
+const props = defineProps<{
+    is_first: boolean;
+    is_last: boolean;
+    section: StoredArtidocSection;
+    sections_reorderer: SectionsReorderer;
+}>();
 
 const { $gettext } = useGettext();
 
@@ -57,22 +63,47 @@ const title_up = $gettext("Move up");
 const title_down = $gettext("Move down");
 
 const document_id = strictInject(DOCUMENT_ID);
-const { moveSectionUp, moveSectionDown } = strictInject(SECTIONS_STORE);
+
+const emit = defineEmits<{
+    (event: "moved-section-up-or-down", section: InternalArtidocSectionId): void;
+    (event: "moving-section-up-or-down", section: InternalArtidocSectionId): void;
+    (event: "moved-section-up-or-down-fault", fault: Fault): void;
+}>();
+
+const dispatchMovedSection = (): void => {
+    emit("moved-section-up-or-down", props.section);
+};
+
+const dispatchMovingSection = (): void => {
+    emit("moving-section-up-or-down", props.section);
+};
+
+const dispatchFault = (fault: Fault): void => {
+    emit("moved-section-up-or-down-fault", fault);
+};
 
 function up(event: Event): void {
-    moveSectionUp(document_id, props.section).then(() => {
+    dispatchMovingSection();
+
+    props.sections_reorderer.moveSectionUp(document_id, props.section).match(() => {
         if (event.target instanceof HTMLButtonElement) {
             event.target.focus();
         }
-    });
+
+        dispatchMovedSection();
+    }, dispatchFault);
 }
 
 function down(event: Event): void {
-    moveSectionDown(document_id, props.section).then(() => {
+    dispatchMovingSection();
+
+    props.sections_reorderer.moveSectionDown(document_id, props.section).match(() => {
         if (event.target instanceof HTMLButtonElement) {
             event.target.focus();
         }
-    });
+
+        dispatchMovedSection();
+    }, dispatchFault);
 }
 </script>
 
