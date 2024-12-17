@@ -50,6 +50,8 @@ interface FileFieldDefinition {
 export interface Tracker {
     readonly id: number;
     readonly label: string;
+    readonly color: string;
+    readonly item_name: string;
     readonly title: null | TitleFieldDefinition;
     readonly description: null | DescriptionFieldDefinition;
     readonly file: null | FileFieldDefinition;

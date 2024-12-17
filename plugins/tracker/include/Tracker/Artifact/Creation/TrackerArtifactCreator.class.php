@@ -37,6 +37,7 @@ use Tracker_FormElementFactory;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\DBTransactionExecutor;
 use Tuleap\DB\DBTransactionExecutorWithConnection;
+use Tuleap\Notification\Mention\MentionedUserInTextRetriever;
 use Tuleap\Search\ItemToIndexQueueEventBased;
 use Tuleap\Tracker\Admin\ArtifactLinksUsageDao;
 use Tuleap\Tracker\Artifact\Artifact;
@@ -115,6 +116,7 @@ class TrackerArtifactCreator
             DBFactory::getMainTuleapDBConnection()
         );
 
+        $user_manager = \UserManager::instance();
         return new self(
             $artifact_factory,
             $fields_validator,
@@ -170,6 +172,7 @@ class TrackerArtifactCreator
                             $event_dispatcher,
                             new \Tracker_Artifact_Changeset_CommentDao(),
                         ),
+                        new MentionedUserInTextRetriever($user_manager),
                     ),
                 ),
             ),

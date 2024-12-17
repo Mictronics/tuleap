@@ -33,6 +33,7 @@ use Tuleap\Instrument\Prometheus\Prometheus;
 use Tuleap\Layout\Feedback\FeedbackSerializer;
 use Tuleap\Mapper\ValinorMapperBuilderFactory;
 use Tuleap\Markdown\CommonMarkInterpreter;
+use Tuleap\Notification\Mention\MentionedUserInTextRetriever;
 use Tuleap\Plugin\ListeningToEventClass;
 use Tuleap\Plugin\ListeningToEventName;
 use Tuleap\Project\Admin\History\GetHistoryKeyLabel;
@@ -377,6 +378,7 @@ final class tracker_functionsPlugin extends Plugin
         $event_manager       = EventManager::instance();
 
         $artifact_factory  = Tracker_ArtifactFactory::instance();
+        $user_manager      = UserManager::instance();
         $changeset_creator = new NewChangesetCreator(
             $transaction_executor,
             ArtifactChangesetSaver::build(),
@@ -422,6 +424,7 @@ final class tracker_functionsPlugin extends Plugin
                     $event_manager,
                     new Tracker_Artifact_Changeset_CommentDao(),
                 ),
+                new MentionedUserInTextRetriever($user_manager),
             ),
         );
 

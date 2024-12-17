@@ -4023,6 +4023,13 @@ msgstr "Cet outil de suivi n'a pas de workflow."
 msgid "This tracker is deleted"
 msgstr "Ce tracker a été supprimé"
 
+msgid ""
+"This tracker's notifications are disabled, when you use @ to mention "
+"someone, no email will be sent."
+msgstr ""
+"Les notifications de ce tracker sont désactivées, lorsque vous utilisez @ "
+"pour mentionner quelqu'un, aucun e-mail ne sera envoyé."
+
 msgid "This transition already exists."
 msgstr "Cette transition existe déjà."
 
@@ -4560,6 +4567,11 @@ msgstr ""
 "Lorsqu'il y a une plage de temps associée à un tracker, les notifications "
 "email pour les artifacts comprennent les informations nécessaires pour "
 "ajouter l’évènement à un calendrier (Outlook, Google Calendar, etc.)."
+
+msgid "When you use @ to mention someone, they will get an email notification."
+msgstr ""
+"Lorsque vous utilisez @ pour mentionner quelqu'un, cette personne recevra un "
+"e-mail de notification."
 
 msgid "Workflow"
 msgstr "Workflow"

@@ -25,7 +25,7 @@ namespace Tuleap\Artidoc\REST\v1;
 final readonly class PaginatedArtidocSectionRepresentationCollection
 {
     /**
-     * @param list<ArtidocSectionRepresentation> $sections
+     * @param list<SectionRepresentation> $sections
      */
     public function __construct(public array $sections, public int $total)
     {

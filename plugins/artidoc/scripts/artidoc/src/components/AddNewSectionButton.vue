@@ -40,7 +40,7 @@
                 v-on:click="addNewSection"
                 data-test="add-new-section"
             >
-                {{ add_new_section_label }}
+                {{ add_new_requirement_label }}
             </button>
             <button
                 type="button"
@@ -74,10 +74,19 @@ const props = defineProps<{
 
 const configuration_store = strictInject(CONFIGURATION_STORE);
 
-const { $gettext } = useGettext();
+const { $gettext, interpolate } = useGettext();
 
 const add_new_section_label = $gettext("Add new section");
-const add_existing_section_label = $gettext("Add existing section");
+const add_new_requirement_label = configuration_store.selected_tracker.value
+    ? interpolate($gettext("Add new %{tracker_label}"), {
+          tracker_label: configuration_store.selected_tracker.value.item_name,
+      })
+    : add_new_section_label;
+const add_existing_section_label = configuration_store.selected_tracker.value
+    ? interpolate($gettext("Import existing %{tracker_label}"), {
+          tracker_label: configuration_store.selected_tracker.value.item_name,
+      })
+    : $gettext("Import existing section");
 
 const configuration_bus = strictInject(OPEN_CONFIGURATION_MODAL_BUS);
 const add_existing_section_bus = strictInject(OPEN_ADD_EXISTING_SECTION_MODAL_BUS);
@@ -181,11 +190,13 @@ ol:has(> .artidoc-section-with-add-button:last-child:hover) + .artidoc-add-new-s
 <style scoped lang="scss">
 @use "@/themes/includes/whitespace";
 @use "@/themes/includes/size";
+@use "@/themes/includes/zindex";
 
 .artidoc-add-new-section-container {
     --add-new-section-button-background-color: var(--tlp-neutral-light-color);
     --add-new-section-button-text-color: var(--tlp-typo-default-text-color);
 
+    z-index: zindex.$dropdown;
     margin: 0 0 0 calc(-1 * #{size.$add-section-button-container-width});
     padding: whitespace.$add-section-button-container-vertical-padding
         whitespace.$add-section-button-container-horizontal-padding;

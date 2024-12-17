@@ -51,6 +51,7 @@ use TransitionFactory;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\DBTransactionExecutorWithConnection;
 use Tuleap\Markdown\CommonMarkInterpreter;
+use Tuleap\Notification\Mention\MentionedUserInTextRetriever;
 use Tuleap\REST\AuthenticatedResource;
 use Tuleap\REST\Header;
 use Tuleap\REST\JsonDecoder;
@@ -774,6 +775,7 @@ class ArtifactsResource extends AuthenticatedResource
         $fields_retriever = new FieldsToBeSavedInSpecificOrderRetriever($this->formelement_factory);
         $event_dispatcher = EventManager::instance();
 
+        $user_manager      = UserManager::instance();
         $changeset_creator = new NewChangesetCreator(
             $transaction_executor,
             ArtifactChangesetSaver::build(),
@@ -819,6 +821,7 @@ class ArtifactsResource extends AuthenticatedResource
                     $event_dispatcher,
                     new \Tracker_Artifact_Changeset_CommentDao(),
                 ),
+                new MentionedUserInTextRetriever($user_manager),
             ),
         );
 

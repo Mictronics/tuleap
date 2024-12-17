@@ -20,6 +20,8 @@
 import type { UpdateFunction } from "hybrids";
 import { define, dispatch, html } from "hybrids";
 import {
+    getAtMentionInfo,
+    getAtMentionWarning,
     getChangesetsCommentMessage,
     getCommentsSectionTitle,
     getEmptyCommentsMessage,
@@ -27,7 +29,7 @@ import {
 import { loadTooltips } from "@tuleap/tooltip";
 import type { CommentsControllerType } from "../../../domain/comments/CommentsController";
 import { CommentsPresenter } from "./CommentsPresenter";
-import "./FollowupEditor";
+import "./CommentEditor";
 import { getCommentTemplate } from "./CommentTemplate";
 import type { NewComment } from "../../../domain/comments/NewComment";
 import type { FormattedTextControllerType } from "../../../domain/common/FormattedTextController";
@@ -49,13 +51,19 @@ const getNewCommentTemplate = (
     if (!host.presenter.preferences.is_allowed_to_add_comment) {
         return html``;
     }
-    return html`<tuleap-artifact-modal-followup-editor
+    return html`<div
         class="${getNewCommentClasses(host.presenter.preferences.is_comment_order_inverted)}"
-        format="${host.presenter.preferences.text_format}"
-        controller="${host.formattedTextController}"
-        onvalue-changed="${onValueChanged}"
-        data-test="add-comment-form"
-    ></tuleap-artifact-modal-followup-editor>`;
+    >
+        <tuleap-artifact-modal-comment-editor
+            format="${host.presenter.preferences.text_format}"
+            controller="${host.formattedTextController}"
+            onvalue-changed="${onValueChanged}"
+            data-test="add-comment-form"
+        ></tuleap-artifact-modal-comment-editor>
+        ${host.presenter.preferences.are_mentions_effective
+            ? html`<p class="tlp-text-info">${getAtMentionInfo()}</p>`
+            : html`<p class="tlp-text-warning">${getAtMentionWarning()}</p>`}
+    </div>`;
 };
 
 export const getSectionClasses = (is_comment_order_inverted: boolean): MapOfClasses => ({

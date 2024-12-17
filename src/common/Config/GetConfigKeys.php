@@ -26,10 +26,12 @@ use ForgeAccess;
 use ProjectManager;
 use Tuleap\admin\ProjectCreation\ProjectVisibility\ProjectVisibilityConfigManager;
 use Tuleap\BrowserDetection\BrowserDeprecationMessage;
+use Tuleap\CookieManager;
 use Tuleap\Date\OpeningDaysRetriever;
 use Tuleap\DB\DBConfig;
 use Tuleap\DB\ThereIsAnOngoingTransactionChecker;
 use Tuleap\Event\Dispatchable;
+use Tuleap\Forum\DeprecatedForum;
 use Tuleap\HelpDropdown\HelpDropdownPresenterBuilder;
 use Tuleap\Http\Client\FilteredOutboundHTTPResponseAlerter;
 use Tuleap\Http\Client\OutboundHTTPRequestProxy;
@@ -60,6 +62,8 @@ final class GetConfigKeys implements Dispatchable, ConfigClassProvider, KeyMetad
     public const NAME = 'getConfigKeys';
 
     public const CORE_CLASSES_WITH_CONFIG_KEYS = [
+        ConfigurationVariables::class,
+        ConfigurationVariablesLocalIncDist::class,
         ProjectManager::class,
         User_UserStatusManager::class,
         ForgeAccess::class,
@@ -77,7 +81,6 @@ final class GetConfigKeys implements Dispatchable, ConfigClassProvider, KeyMetad
         HelpDropdownPresenterBuilder::class,
         BrowserDeprecationMessage::class,
         DBConfig::class,
-        ConfigurationVariables::class,
         ServerHostname::class,
         ProjectExportController::class,
         MailTransportBuilder::class,
@@ -94,6 +97,8 @@ final class GetConfigKeys implements Dispatchable, ConfigClassProvider, KeyMetad
         CustomProjectArchive::class,
         ThereIsAnOngoingTransactionChecker::class,
         OpeningDaysRetriever::class,
+        CookieManager::class,
+        DeprecatedForum::class,
     ];
 
     /**

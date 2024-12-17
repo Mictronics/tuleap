@@ -33,27 +33,6 @@ use Tuleap\Tracker\Artifact\CodeBlockFeaturesOnArtifact;
 class Tracker_Artifact_Changeset_Comment
 {
     /**
-     * @const Changeset comment format is text.
-     */
-    public const TEXT_COMMENT = 'text';
-
-    /**
-     * @const Changeset comment format is HTML
-     */
-    public const HTML_COMMENT = 'html';
-
-    public const COMMONMARK_COMMENT = 'commonmark';
-
-    /**
-    * @const Changeset available comment formats
-    */
-    private static $available_comment_formats = [
-        self::TEXT_COMMENT,
-        self::HTML_COMMENT,
-        self::COMMONMARK_COMMENT,
-    ];
-
-    /**
      * @var int|string
      */
     public $id;
@@ -88,17 +67,17 @@ class Tracker_Artifact_Changeset_Comment
     /**
      * @var array of purifier levels to be used when the comment is displayed in text/plain context
      */
-    public static $PURIFIER_LEVEL_IN_TEXT = [
-        self::HTML_COMMENT => CODENDI_PURIFIER_STRIP_HTML,
-        self::TEXT_COMMENT => CODENDI_PURIFIER_DISABLED,
+    private static array $PURIFIER_LEVEL_IN_TEXT = [
+        CommentFormatIdentifier::HTML->value => CODENDI_PURIFIER_STRIP_HTML,
+        CommentFormatIdentifier::TEXT->value => CODENDI_PURIFIER_DISABLED,
     ];
 
     /**
      * @var array of purifier levels to be used when the comment is displayed in text/html context
      */
-    public static $PURIFIER_LEVEL_IN_HTML = [
-        self::HTML_COMMENT => CODENDI_PURIFIER_FULL,
-        self::TEXT_COMMENT => CODENDI_PURIFIER_BASIC,
+    private static array $PURIFIER_LEVEL_IN_HTML = [
+        CommentFormatIdentifier::HTML->value => CODENDI_PURIFIER_FULL,
+        CommentFormatIdentifier::TEXT->value => CODENDI_PURIFIER_BASIC,
     ];
     /**
      * @var ProjectUGroup[]|null
@@ -148,24 +127,23 @@ class Tracker_Artifact_Changeset_Comment
      */
     public function getPurifiedBodyForText(): string
     {
-        return self::getCommentInPlaintext($this->getPurifier(), $this->body, CommentFormatIdentifier::fromFormatString($this->bodyFormat));
+        return self::getCommentInPlaintext($this->getPurifier(), $this->body, CommentFormatIdentifier::fromStringWithDefault($this->bodyFormat));
     }
 
     private static function getCommentInPlaintext(Codendi_HTMLPurifier $purifier, string $content, CommentFormatIdentifier $comment_format): string
     {
-        $identifier = (string) $comment_format;
-        if ($identifier === self::COMMONMARK_COMMENT) {
+        if ($comment_format === CommentFormatIdentifier::COMMONMARK) {
             return CommonMarkInterpreter::build($purifier)->getContentStrippedOfTags($content);
         }
-        return $purifier->purify($content, self::$PURIFIER_LEVEL_IN_TEXT[$identifier]);
+        return $purifier->purify($content, self::$PURIFIER_LEVEL_IN_TEXT[$comment_format->value]);
     }
 
     public function getPurifiedBodyForHTML(): string
     {
-        if ($this->bodyFormat === self::HTML_COMMENT) {
+        if ($this->bodyFormat === CommentFormatIdentifier::HTML->value) {
             return $this->purifyHTMLBody();
         }
-        if ($this->bodyFormat === self::COMMONMARK_COMMENT) {
+        if ($this->bodyFormat === CommentFormatIdentifier::COMMONMARK->value) {
             $content_interpretor = CommonMarkInterpreter::build(
                 Codendi_HTMLPurifier::instance(),
                 new EnhancedCodeBlockExtension(CodeBlockFeaturesOnArtifact::getInstance())
@@ -256,9 +234,9 @@ class Tracker_Artifact_Changeset_Comment
      * @param String  $format Format of the output
      * @return string the HTML code of this comment
      */
-    public function fetchMailFollowUp($format = self::HTML_COMMENT)
+    public function fetchMailFollowUp($format = CommentFormatIdentifier::HTML->value)
     {
-        if ($format !== self::HTML_COMMENT) {
+        if ($format !== CommentFormatIdentifier::HTML->value) {
             if ($this->hasEmptyBody()) {
                 return '';
             }
@@ -317,23 +295,6 @@ class Tracker_Artifact_Changeset_Comment
             </tr>';
 
         return $html;
-    }
-
-    /**
-     * Check the comment format, to ensure it is in
-     * a known one.
-     *
-     * @param string $comment_format the format of the comment
-     *
-     * @return string $comment_format
-     */
-    public static function checkCommentFormat($comment_format)
-    {
-        if (! in_array($comment_format, self::$available_comment_formats, $strict = true)) {
-            $comment_format = self::COMMONMARK_COMMENT;
-        }
-
-        return $comment_format;
     }
 
     private function fetchFormattedMailComment(): string

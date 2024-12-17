@@ -25,6 +25,7 @@ import type {
 } from "@tuleap/plugin-tracker-rich-text-editor";
 import { RichTextEditorFactory } from "@tuleap/plugin-tracker-rich-text-editor";
 import type { TextFieldFormat } from "@tuleap/plugin-tracker-constants";
+import { en_US_LOCALE } from "@tuleap/core-constants";
 import {
     TEXT_FORMAT_COMMONMARK,
     TEXT_FORMAT_HTML,
@@ -32,6 +33,7 @@ import {
 } from "@tuleap/plugin-tracker-constants";
 import { Option } from "@tuleap/option";
 import { selectOrThrow } from "@tuleap/dom";
+import * as mention from "@tuleap/mention";
 import { setCatalog } from "../../gettext-catalog";
 import type { HostElement } from "./RichTextEditor";
 import {
@@ -47,6 +49,7 @@ import { FormattedTextController } from "../../domain/common/FormattedTextContro
 import { DispatchEventsStub } from "../../../tests/stubs/DispatchEventsStub";
 import type { FileUploadSetup } from "../../domain/fields/file-field/FileUploadSetup";
 import { InterpretCommonMarkStub } from "../../../tests/stubs/InterpretCommonMarkStub";
+import { FormattedTextUserPreferences } from "../../domain/common/FormattedTextUserPreferences";
 
 type CKEditorEventHandler = (event: CKEDITOR.eventInfo) => void;
 
@@ -102,30 +105,40 @@ describe(`RichTextEditor`, () => {
         isThereAnImageWithDataURI = jest.spyOn(image_upload, "isThereAnImageWithDataURI");
 
         ckeditor = {
-            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            document: {
+                getBody: () => ({
+                    $: doc.createElement("div") as HTMLElement,
+                }),
+            } as CKEDITOR.dom.document,
             on(event_name: string, handler: CKEditorEventHandler) {
-                // Do nothing
+                if (event_name || handler !== null) {
+                    // Do nothing
+                }
             },
             getData() {
                 return value;
             },
         } as CKEDITOR.editor;
         editor = {
-            destroy: jest.fn(),
-        } as unknown as TextEditorInterface;
+            destroy: noop,
+        } as TextEditorInterface;
         editor_factory = {
             createRichTextEditor: (
                 textarea: HTMLTextAreaElement,
                 options: RichTextEditorOptions,
             ): TextEditorInterface => {
                 if (typeof options.onFormatChange !== "function") {
-                    throw new Error("Expected onFormatChange to be a function");
+                    throw Error("Expected onFormatChange to be a function");
                 }
                 options.onFormatChange(format, value);
                 if (typeof options.onEditorInit !== "function") {
-                    throw new Error("Expected onEditorInit to be a function");
+                    throw Error("Expected onEditorInit to be a function");
                 }
                 options.onEditorInit(ckeditor, textarea);
+                if (typeof options.onEditorDataReady !== "function") {
+                    throw Error("Expected onEditorDataReady to be a function");
+                }
+                options.onEditorDataReady(ckeditor);
                 return editor;
             },
         } as RichTextEditorFactory;
@@ -153,13 +166,14 @@ describe(`RichTextEditor`, () => {
             disabled,
             required,
             rows: 5,
+            allows_mentions: false,
             textarea: doc.createElement("textarea"),
             is_help_shown: false,
             upload_setup,
             controller: FormattedTextController(
                 event_dispatcher,
                 InterpretCommonMarkStub.withHTML(`<p>HTML</p>`),
-                TEXT_FORMAT_TEXT,
+                FormattedTextUserPreferences.build(TEXT_FORMAT_TEXT, en_US_LOCALE),
             ),
         } as HostElement);
     }
@@ -271,12 +285,13 @@ describe(`RichTextEditor`, () => {
 
         describe(`disconnect()`, () => {
             it(`if the editor was created, then it will destroy the editor`, () => {
+                const destroy = jest.spyOn(editor, "destroy");
                 const host = getHost();
                 const disconnect = connect(host);
                 host.editor = editor;
                 disconnect();
 
-                expect(editor.destroy).toHaveBeenCalled();
+                expect(destroy).toHaveBeenCalled();
             });
         });
 
@@ -442,6 +457,18 @@ describe(`RichTextEditor`, () => {
 
                         expect(error.loader.message).toBeDefined();
                     });
+                });
+            });
+
+            describe(`when CKEditor data is ready`, () => {
+                it(`and when the editor allows mentions, it will init the mentions`, () => {
+                    const initMentions = jest.spyOn(mention, "initMentions");
+                    const host = getHost();
+                    host.allows_mentions = true;
+                    host.textarea = doc.createElement("textarea");
+                    host.editor = createEditor(host);
+
+                    expect(initMentions).toHaveBeenCalled();
                 });
             });
         });

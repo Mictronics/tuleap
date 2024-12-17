@@ -30,10 +30,10 @@ import {
 import type { NewComment } from "../../../domain/comments/NewComment";
 import { CommentsPresenter } from "./CommentsPresenter";
 import { setCatalog } from "../../../gettext-catalog";
-import type { FollowupEditor } from "./FollowupEditor";
+import type { CommentEditor } from "./CommentEditor";
 import { CommentsController } from "../../../domain/comments/CommentsController";
 import { RetrieveCommentsStub } from "../../../../tests/stubs/RetrieveCommentsStub";
-import { CurrentArtifactIdentifierStub } from "../../../../tests/stubs/CurrentArtifactIdentifierStub";
+import { CurrentArtifactIdentifier } from "../../../domain/CurrentArtifactIdentifier";
 import type { CommentUserPreferences } from "../../../domain/comments/CommentUserPreferences";
 import { DispatchEventsStub } from "../../../../tests/stubs/DispatchEventsStub";
 
@@ -97,7 +97,7 @@ describe(`ModalCommentsSection`, () => {
                 controller: CommentsController(
                     RetrieveCommentsStub.withoutComments(),
                     DispatchEventsStub.buildNoOp(),
-                    CurrentArtifactIdentifierStub.withId(91),
+                    CurrentArtifactIdentifier.fromId(91),
                     preferences,
                 ),
             } as HostElement;
@@ -142,7 +142,7 @@ describe(`ModalCommentsSection`, () => {
             const followup_editor = selectOrThrow(
                 target,
                 "[data-test=add-comment-form]",
-            ) as FollowupEditor & HTMLElement;
+            ) as CommentEditor & HTMLElement;
             expect(followup_editor.format).toBe(TEXT_FORMAT_HTML);
         });
     });

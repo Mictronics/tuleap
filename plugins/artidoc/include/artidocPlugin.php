@@ -23,7 +23,9 @@ declare(strict_types=1);
 use Tuleap\Artidoc\Adapter\Document\ArtidocDocument;
 use Tuleap\Artidoc\Adapter\Document\ArtidocRetriever;
 use Tuleap\Artidoc\Adapter\Document\ArtidocWithContextDecorator;
-use Tuleap\Artidoc\Adapter\Document\CurrentCurrentUserHasArtidocPermissionsChecker;
+use Tuleap\Artidoc\Adapter\Document\CurrentUserHasArtidocPermissionsChecker;
+use Tuleap\Artidoc\Adapter\Document\SearchArtidocDocumentDao;
+use Tuleap\Artidoc\Adapter\Document\Section\Freetext\Identifier\UUIDFreetextIdentifierFactory;
 use Tuleap\Artidoc\Adapter\Document\Section\Identifier\UUIDSectionIdentifierFactory;
 use Tuleap\Artidoc\ArtidocController;
 use Tuleap\Artidoc\Document\ArtidocBreadcrumbsProvider;
@@ -123,8 +125,8 @@ class ArtidocPlugin extends Plugin implements PluginWithConfigKeys
         $form_element_factory = Tracker_FormElementFactory::instance();
         return new ArtidocController(
             new ArtidocWithContextRetriever(
-                new ArtidocRetriever($dao, $docman_item_factory),
-                CurrentCurrentUserHasArtidocPermissionsChecker::withCurrentUser(HTTPRequest::instance()->getCurrentUser()),
+                new ArtidocRetriever(new SearchArtidocDocumentDao(), $docman_item_factory),
+                CurrentUserHasArtidocPermissionsChecker::withCurrentUser(HTTPRequest::instance()->getCurrentUser()),
                 new ArtidocWithContextDecorator(
                     ProjectManager::instance(),
                     new DocumentServiceFromAllowedProjectRetriever($this),
@@ -322,6 +324,9 @@ class ArtidocPlugin extends Plugin implements PluginWithConfigKeys
 
     private function getArtidocDao(): ArtidocDao
     {
-        return (new ArtidocDao(new UUIDSectionIdentifierFactory(new DatabaseUUIDV7Factory())));
+        return new ArtidocDao(
+            new UUIDSectionIdentifierFactory(new DatabaseUUIDV7Factory()),
+            new UUIDFreetextIdentifierFactory(new DatabaseUUIDV7Factory()),
+        );
     }
 }
