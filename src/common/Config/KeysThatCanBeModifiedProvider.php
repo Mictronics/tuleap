@@ -25,5 +25,5 @@ interface KeysThatCanBeModifiedProvider
     /**
      * @return string[]
      */
-    public function getKeysThatCanBeModified(): array;
+    public function getKeysThatCanBeModifiedWithConfigSet(): array;
 }

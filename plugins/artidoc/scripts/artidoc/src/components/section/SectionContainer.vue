@@ -30,7 +30,6 @@ import { isArtifactSection, isPendingArtifactSection } from "@/helpers/artidoc-s
 import { computed } from "vue";
 
 const props = defineProps<{ section: ArtidocSection }>();
-
 const additional_class = computed(() => {
     const color = isArtifactSection(props.section)
         ? props.section.artifact.tracker.color
@@ -38,7 +37,7 @@ const additional_class = computed(() => {
           ? props.section.tracker.color
           : "";
 
-    return color !== "" ? `tlp-swatch-${color}` : "";
+    return color !== "" ? `tlp-swatch-${color}` : "artidoc-section-container-without-border";
 });
 </script>
 
@@ -79,6 +78,10 @@ const additional_class = computed(() => {
 .artidoc-section-container {
     --tuleap-artidoc-section-background: var(--tlp-white-color);
     --border-width: 4px;
+
+    &-without-border {
+        --border-color: transparent;
+    }
 
     padding: var(--tlp-medium-spacing) 0 var(--tlp-medium-spacing)
         calc(#{whitespace.$section-left-padding} - var(--border-width));
