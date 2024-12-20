@@ -26,6 +26,13 @@ msgid "%s commented on %s: %s."
 msgstr ""
 
 #, php-format
+msgid "%s created the pull request #%d: %s"
+msgstr ""
+
+msgid "%s created the pull request %s: %s"
+msgstr ""
+
+#, php-format
 msgid "%s has abandoned the pull request #%d: %s"
 msgstr ""
 
@@ -55,6 +62,13 @@ msgid "%s requested your review on #%d: %s"
 msgstr ""
 
 msgid "%s requested your review on %s: %s"
+msgstr ""
+
+#, php-format
+msgid "%s updated the description of the pull request #%d: %s"
+msgstr ""
+
+msgid "%s updated the description of the pull request %s: %s"
 msgstr ""
 
 #, php-format

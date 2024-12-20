@@ -18,6 +18,10 @@ msgstr "Administration"
 msgid "Artidoc"
 msgstr "Artidoc"
 
+msgid "Artifact sections cannot be updated via this route."
+msgstr ""
+"Les sections d'artéfacts ne peuvent pas être mises à jour via cette route."
+
 msgid "Artifacts as Documents"
 msgstr "Artéfacts sous forme de Documents"
 
@@ -64,6 +68,9 @@ msgid ""
 "There is already an existing section with the same artifact in the document."
 msgstr ""
 "Il y a déjà une section existante avec le même artéfact dans le document."
+
+msgid "Title of the section cannot be empty."
+msgstr "Le titre de la section ne peut pas être vide."
 
 #, php-format
 msgid "Unknown direction \"%s\". Expected one of the following values: %s"

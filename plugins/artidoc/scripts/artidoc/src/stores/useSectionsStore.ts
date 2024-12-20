@@ -20,7 +20,11 @@
 import type { ComputedRef, Ref } from "vue";
 import { computed, ref } from "vue";
 import { okAsync } from "neverthrow";
-import { isArtifactSection, isPendingArtifactSection } from "@/helpers/artidoc-section.type";
+import {
+    isArtifactSection,
+    isFreetextSection,
+    isPendingArtifactSection,
+} from "@/helpers/artidoc-section.type";
 import type {
     ArtidocSection,
     PendingArtifactSection,
@@ -33,21 +37,21 @@ import type { Tracker } from "@/stores/configuration-store";
 import { isTrackerWithSubmittableSection } from "@/stores/configuration-store";
 import type { ResultAsync } from "neverthrow";
 import { injectInternalId } from "@/helpers/inject-internal-id";
-import { extractArtifactSectionsFromArtidocSections } from "@/helpers/extract-artifact-sections-from-artidoc-sections";
+import { extractArtifactAndFreetextSectionsFromArtidocSections } from "@/helpers/extract-artifact-and-freetext-sections-from-artidoc-sections";
 import type { Fault } from "@tuleap/fault";
 
 export type StoredArtidocSection = ArtidocSection & InternalArtidocSectionId;
 
 export interface SectionsStore {
     sections: Ref<StoredArtidocSection[] | undefined>;
-    saved_sections: ComputedRef<readonly ArtifactSection[] | undefined>;
+    saved_sections: ComputedRef<readonly ArtidocSection[] | undefined>;
     is_sections_loading: Ref<boolean>;
     loadSections: (
         item_id: number,
         tracker: Tracker | null,
         can_user_edit_document: boolean,
     ) => Promise<void>;
-    updateSection: (section: ArtifactSection) => void;
+    updateSection: (section: ArtidocSection) => void;
     insertSection: (section: ArtidocSection, position: PositionForSection) => void;
     removeSection: (
         section: ArtidocSection,
@@ -80,8 +84,8 @@ export function useSectionsStore(): SectionsStore {
     const sections: Ref<StoredArtidocSection[] | undefined> = ref(skeleton_data);
     const is_sections_loading = ref(true);
 
-    const saved_sections: ComputedRef<readonly ArtifactSection[] | undefined> = computed(() => {
-        return extractArtifactSectionsFromArtidocSections(sections.value);
+    const saved_sections: ComputedRef<readonly ArtidocSection[] | undefined> = computed(() => {
+        return extractArtifactAndFreetextSectionsFromArtidocSections(sections.value);
     });
 
     function loadSections(
@@ -110,7 +114,7 @@ export function useSectionsStore(): SectionsStore {
             );
     }
 
-    function updateSection(section: ArtifactSection): void {
+    function updateSection(section: ArtidocSection): void {
         if (sections.value === undefined) {
             throw Error("Unexpected call to updateSection while there is no section");
         }
@@ -118,7 +122,10 @@ export function useSectionsStore(): SectionsStore {
         const length = sections.value.length;
         for (let i = 0; i < length; i++) {
             const current = sections.value[i];
-            if (isArtifactSection(current) && current.id === section.id) {
+            if (
+                (isArtifactSection(current) || isFreetextSection(current)) &&
+                current.id === section.id
+            ) {
                 sections.value[i] = {
                     ...section,
                     internal_id: sections.value[i].internal_id,
