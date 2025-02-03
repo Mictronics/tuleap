@@ -17,14 +17,7 @@
  *  along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type {
-    FileUploadOptions,
-    MaxSizeUploadExceededError,
-    UploadError,
-    OnGoingUploadFile,
-} from "@tuleap/prose-mirror-editor";
-import { computed } from "vue";
-import type { Ref } from "vue";
+import type { FileUploadOptions, UploadError, OnGoingUploadFile } from "@tuleap/file-upload";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import { UPLOAD_MAX_SIZE } from "@/max-upload-size-injecion-keys";
 import type { AttachmentFile } from "@/composables/useAttachmentFile";
@@ -34,26 +27,17 @@ import { NOTIFICATION_STORE } from "@/stores/notification-injection-key";
 
 export type UseUploadFileType = {
     file_upload_options: FileUploadOptions;
-    is_in_progress: Ref<boolean>;
     resetProgressCallback: () => void;
 };
 
 export function useUploadFile(
     section_id: string,
-    upload_url: string,
+    post_information: FileUploadOptions["post_information"],
     add_attachment_to_waiting_list: AttachmentFile["addAttachmentToWaitingList"],
 ): UseUploadFileType {
     const upload_max_size = strictInject(UPLOAD_MAX_SIZE);
     const { addPendingUpload, pending_uploads, deleteUpload, cancelSectionUploads } =
         strictInject(UPLOAD_FILE_STORE);
-
-    const is_in_progress = computed(() => {
-        return (
-            pending_uploads.value.filter(
-                (upload: OnGoingUploadFileWithId) => upload.section_id === section_id,
-            ).length > 0
-        );
-    });
 
     const onStartUploadCallback = (files: FileList): OnGoingUploadFile[] => {
         for (const file of files) {
@@ -62,10 +46,7 @@ export function useUploadFile(
         return pending_uploads.value;
     };
     const { addNotification } = strictInject(NOTIFICATION_STORE);
-    const onErrorCallback = (
-        error: UploadError | MaxSizeUploadExceededError,
-        file_name: string,
-    ): void => {
+    const onErrorCallback = (error: UploadError, file_name: string): void => {
         addNotification({ message: error.message, type: "danger" });
         const file_to_delete = pending_uploads.value.find(
             (upload) => upload.file_name === file_name && upload.section_id === section_id,
@@ -100,7 +81,7 @@ export function useUploadFile(
     };
 
     const file_upload_options: FileUploadOptions = {
-        upload_url: upload_url,
+        post_information,
         max_size_upload: upload_max_size,
         onStartUploadCallback,
         onErrorCallback,
@@ -109,7 +90,6 @@ export function useUploadFile(
     };
     return {
         file_upload_options,
-        is_in_progress,
         resetProgressCallback,
     };
 }

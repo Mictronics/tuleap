@@ -21,6 +21,10 @@ import { loadTooltips } from "@tuleap/tooltip";
 import { Option } from "@tuleap/option";
 import { en_US_LOCALE } from "@tuleap/core-constants";
 import { EVENT_TLP_MODAL_WILL_HIDE } from "@tuleap/tlp-modal";
+import {
+    CurrentProjectIdentifier,
+    CurrentTrackerIdentifier,
+} from "@tuleap/plugin-tracker-artifact-common";
 import { isInCreationMode } from "./modal-creation-mode-state.ts";
 import { getErrorMessage, hasError, setError } from "./rest/rest-error-state";
 import { isDisabled } from "./adapters/UI/fields/disabled-field-detector";
@@ -46,7 +50,6 @@ import { ArtifactLinkSelectorAutoCompleter } from "./adapters/UI/fields/link-fie
 import { NewLinksStore } from "./adapters/Memory/fields/link-field/NewLinksStore";
 import { PermissionFieldController } from "./adapters/UI/fields/permission-field/PermissionFieldController";
 import { CheckboxFieldController } from "./adapters/UI/fields/checkbox-field/CheckboxFieldController";
-import { CurrentTrackerIdentifierProxy } from "./adapters/Caller/CurrentTrackerIdentifierProxy";
 import { PossibleParentsCache } from "./adapters/Memory/fields/link-field/PossibleParentsCache";
 import { AlreadyLinkedVerifier } from "./domain/fields/link-field/AlreadyLinkedVerifier";
 import { FileFieldsUploader } from "./domain/fields/file-field/FileFieldsUploader";
@@ -56,16 +59,17 @@ import { LinkTypesCollector } from "./adapters/REST/fields/link-field/LinkTypesC
 import { UserIdentifierProxy } from "./adapters/Caller/UserIdentifierProxy";
 import { UserHistoryCache } from "./adapters/Memory/fields/link-field/UserHistoryCache";
 import { CommentsController } from "./domain/comments/CommentsController";
-import { CurrentProjectIdentifierProxy } from "./adapters/REST/CurrentProjectIdentifierProxy";
-import { EventDispatcher } from "./domain/EventDispatcher";
 import { SelectBoxFieldController } from "./adapters/UI/fields/select-box-field/SelectBoxFieldController";
 import { FieldDependenciesValuesHelper } from "./domain/fields/select-box-field/FieldDependenciesValuesHelper";
 import { FormattedTextController } from "./domain/common/FormattedTextController";
 import { ParentTrackerIdentifierProxy } from "./adapters/REST/fields/link-field/ParentTrackerIdentifierProxy";
 import { ArtifactCreatorController } from "./domain/fields/link-field/creation/ArtifactCreatorController";
-import { WillNotifyFault } from "./domain/WillNotifyFault";
-import { WillDisableSubmit } from "./domain/submit/WillDisableSubmit";
-import { WillEnableSubmit } from "./domain/submit/WillEnableSubmit";
+import {
+    EventDispatcher,
+    WillDisableSubmit,
+    WillEnableSubmit,
+    WillNotifyFault,
+} from "./domain/AllEvents";
 import { ProjectsCache } from "./adapters/Memory/fields/link-field/ProjectsCache";
 import { LinkableArtifactCreator } from "./adapters/REST/fields/link-field/creation/LinkableArtifactCreator";
 import { StaticOpenListFieldController } from "./adapters/UI/fields/open-list-field/static/StaticOpenListFieldController";
@@ -104,8 +108,8 @@ function ArtifactModalController(
 
     const event_dispatcher = EventDispatcher();
     const fault_feedback_controller = FaultFeedbackController(event_dispatcher);
-    const current_project_identifier = CurrentProjectIdentifierProxy.fromTrackerModel(
-        modal_model.tracker,
+    const current_project_identifier = CurrentProjectIdentifier.fromId(
+        modal_model.tracker.project.id,
     );
     const current_artifact_option = Option.fromNullable(modal_model.current_artifact_identifier);
     const api_client = TuleapAPIClient(current_project_identifier);
@@ -119,9 +123,7 @@ function ArtifactModalController(
     const parent_artifact_identifier = ParentArtifactIdentifierProxy.fromCallerArgument(
         modal_model.parent_artifact_id,
     );
-    const current_tracker_identifier = CurrentTrackerIdentifierProxy.fromModalTrackerId(
-        modal_model.tracker_id,
-    );
+    const current_tracker_identifier = CurrentTrackerIdentifier.fromId(modal_model.tracker_id);
     const file_uploader = FileFieldsUploader(api_client, FileUploader());
     const user_history_cache = UserHistoryCache(link_field_api_client);
 

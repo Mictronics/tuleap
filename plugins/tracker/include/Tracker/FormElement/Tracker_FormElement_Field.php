@@ -51,24 +51,17 @@ abstract class Tracker_FormElement_Field extends Tracker_FormElement implements 
 
     /**
      * Display the field value as a criteria
-     * @return string
      * @see fetchCriteria
      */
-    abstract public function fetchCriteriaValue($criteria);
+    abstract public function fetchCriteriaValue(Tracker_Report_Criteria $criteria): string;
 
     /**
      * Display the field as a Changeset value.
      * Used in CSV data export.
      *
      * Please override this method for specific field (if needed)
-     *
-     * @param int $artifact_id the corresponding artifact id
-     * @param int $changeset_id the corresponding changeset
-     * @param mixed $value the value of the field
-     *
-     * @return string the value of the field for artifact_id and changeset_id, formatted for CSV
      */
-    public function fetchCSVChangesetValue($artifact_id, $changeset_id, $value, $report)
+    public function fetchCSVChangesetValue(int $artifact_id, int $changeset_id, mixed $value, ?Tracker_Report $report): string
     {
         return $this->fetchChangesetValue($artifact_id, $changeset_id, $value, $report);
     }
@@ -80,10 +73,8 @@ abstract class Tracker_FormElement_Field extends Tracker_FormElement implements 
 
     /**
      * Fetch the value
-     * @param mixed $value the value of the field
-     * @return string
      */
-    abstract public function fetchRawValue($value);
+    abstract public function fetchRawValue(mixed $value): string;
 
     /**
      * Get the "from" statement to allow search with this field
@@ -660,14 +651,12 @@ abstract class Tracker_FormElement_Field extends Tracker_FormElement implements 
 
     /**
      * Fetch the html code to display the field value in artifact
-     *
-     * @return string
      */
     abstract protected function fetchArtifactValue(
         Artifact $artifact,
         ?Tracker_Artifact_ChangesetValue $value,
         array $submitted_values,
-    );
+    ): string;
 
     /**
      * Fetch the html code to display the field value in artifact in read only
@@ -723,10 +712,8 @@ abstract class Tracker_FormElement_Field extends Tracker_FormElement implements 
 
     /**
      * Fetch the html code to display the field value in new artifact submission form
-     *
-     * @return string html
      */
-    abstract protected function fetchSubmitValue(array $submitted_values);
+    abstract protected function fetchSubmitValue(array $submitted_values): string;
 
     /**
      * Return a value from user submitted request (if any) or from default value (if any)
@@ -746,17 +733,13 @@ abstract class Tracker_FormElement_Field extends Tracker_FormElement implements 
 
     /**
      * Fetch the html code to display the field value in masschange submission form
-     *
-     * @return string html
      */
-    abstract protected function fetchSubmitValueMasschange();
+    abstract protected function fetchSubmitValueMasschange(): string;
 
     /**
      * Fetch the html code to display the field value in tooltip
-     * @param Tracker_Artifact_ChangesetValue $value The changeset value of the field
-     * @return string
      */
-    abstract protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null);
+    abstract protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null): string;
 
     /**
      * Fetch the html code to display the field value in card
@@ -827,10 +810,8 @@ abstract class Tracker_FormElement_Field extends Tracker_FormElement implements 
 
     /**
      * Fetch the value in a specific changeset
-     * @param Tracker_Artifact_Changeset $changeset
-     * @return string
      */
-    abstract public function fetchRawValueFromChangeset($changeset);
+    abstract public function fetchRawValueFromChangeset(Tracker_Artifact_Changeset $changeset): string;
 
     public function fetchAdmin($tracker)
     {

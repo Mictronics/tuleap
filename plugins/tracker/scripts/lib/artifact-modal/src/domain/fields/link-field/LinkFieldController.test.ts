@@ -20,6 +20,11 @@
 import { Fault } from "@tuleap/fault";
 import { okAsync } from "neverthrow";
 import { Option } from "@tuleap/option";
+import { IS_CHILD_LINK_TYPE, UNTYPED_LINK } from "@tuleap/plugin-tracker-constants";
+import {
+    CurrentProjectIdentifier,
+    CurrentTrackerIdentifier,
+} from "@tuleap/plugin-tracker-artifact-common";
 import { LinkFieldController } from "./LinkFieldController";
 import { RetrieveAllLinkedArtifactsStub } from "../../../../tests/stubs/RetrieveAllLinkedArtifactsStub";
 import type { RetrieveAllLinkedArtifacts } from "./RetrieveAllLinkedArtifacts";
@@ -36,7 +41,6 @@ import type { LinkableArtifact } from "./LinkableArtifact";
 import { AddNewLinkStub } from "../../../../tests/stubs/AddNewLinkStub";
 import { RetrieveNewLinksStub } from "../../../../tests/stubs/RetrieveNewLinksStub";
 import { LinkTypeStub } from "../../../../tests/stubs/LinkTypeStub";
-import { IS_CHILD_LINK_TYPE, UNTYPED_LINK } from "@tuleap/plugin-tracker-constants";
 import type { RetrieveLinkedArtifactsSync } from "./RetrieveLinkedArtifactsSync";
 import type { VerifyLinkIsMarkedForRemoval } from "./VerifyLinkIsMarkedForRemoval";
 import type { RetrieveNewLinks } from "./RetrieveNewLinks";
@@ -45,7 +49,6 @@ import { NewLinkStub } from "../../../../tests/stubs/NewLinkStub";
 import type { LinkType } from "./LinkType";
 import { FORWARD_DIRECTION, REVERSE_DIRECTION } from "./LinkType";
 import { RetrievePossibleParentsStub } from "../../../../tests/stubs/RetrievePossibleParentsStub";
-import { CurrentTrackerIdentifierStub } from "../../../../tests/stubs/CurrentTrackerIdentifierStub";
 import type { RetrievePossibleParents } from "./RetrievePossibleParents";
 import type { ParentArtifactIdentifier } from "../../parent/ParentArtifactIdentifier";
 import { ParentArtifactIdentifierStub } from "../../../../tests/stubs/ParentArtifactIdentifierStub";
@@ -60,7 +63,6 @@ import type { LinkTypesCollection } from "./LinkTypesCollection";
 import type { LinkedArtifact } from "./LinkedArtifact";
 import type { NewLink } from "./NewLink";
 import { ProjectStub } from "../../../../tests/stubs/ProjectStub";
-import { CurrentProjectIdentifierStub } from "../../../../tests/stubs/CurrentProjectIdentifierStub";
 
 const ARTIFACT_ID = 60;
 const FIELD_ID = 714;
@@ -103,7 +105,7 @@ describe(`LinkFieldController`, () => {
 
     const getController = (): LinkFieldController => {
         const cross_reference = Option.fromValue(ArtifactCrossReferenceStub.withRef("story #18"));
-        const current_tracker_identifier = CurrentTrackerIdentifierStub.withId(70);
+        const current_tracker_identifier = CurrentTrackerIdentifier.fromId(70);
 
         return LinkFieldController(
             links_retriever,
@@ -123,7 +125,7 @@ describe(`LinkFieldController`, () => {
             parent_tracker_identifier,
             cross_reference,
             LinkTypesCollectionStub.withParentPair(),
-            CurrentProjectIdentifierStub.withId(CURRENT_PROJECT),
+            CurrentProjectIdentifier.fromId(CURRENT_PROJECT),
             parent_artifact_identifier,
         );
     };

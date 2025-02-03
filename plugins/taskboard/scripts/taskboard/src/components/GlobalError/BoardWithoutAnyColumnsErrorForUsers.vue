@@ -23,27 +23,13 @@
             <board-without-any-columns-error-for-users-illustration />
         </div>
         <h1 class="empty-state-title">
-            <translate>This taskboard is not ready to be used</translate>
+            {{ $gettext("This taskboard is not ready to be used") }}
         </h1>
         <p class="empty-state-text">
-            <translate>
-                Your project administrator needs to finish the planning configuration.
-            </translate>
+            {{ $gettext("Your project administrator needs to finish the planning configuration.") }}
         </p>
     </section>
 </template>
-<script lang="ts">
-import Vue from "vue";
-import { Component } from "vue-property-decorator";
-@Component({
-    components: {
-        "board-without-any-columns-error-for-users-illustration": (): Promise<
-            Record<string, unknown>
-        > =>
-            import(
-                /* webpackChunkName: "taskboard-board-without-any-columns-error-for-users-illustration" */ "./BoardWithoutAnyColumnsErrorForUsersIllustration.vue"
-            ),
-    },
-})
-export default class BoardWithoutAnyColumnsErrorForUsers extends Vue {}
+<script setup lang="ts">
+import BoardWithoutAnyColumnsErrorForUsersIllustration from "./BoardWithoutAnyColumnsErrorForUsersIllustration.vue";
 </script>

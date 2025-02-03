@@ -16,65 +16,48 @@
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
+
 import { isArtifactSection, isFreetextSection } from "@/helpers/artidoc-section.type";
-import type {
-    ArtifactSection,
-    ArtidocSection,
-    FreetextSection,
-} from "@/helpers/artidoc-section.type";
+import type { ArtidocSection } from "@/helpers/artidoc-section.type";
 import { getSection } from "@/helpers/rest-querier";
 import type { Fault } from "@tuleap/fault";
-import type { EditorErrors } from "@/composables/useEditorErrors";
-import { TEMPORARY_FLAG_DURATION_IN_MS } from "@/composables/temporary-flag-duration";
-import type { Ref } from "vue";
-import { ref } from "vue";
+import type { UpdateSections } from "@/sections/SectionsUpdater";
+import type { SectionState } from "@/sections/SectionStateBuilder";
+import type { ReactiveStoredArtidocSection } from "@/sections/SectionsCollection";
+import type { ManageErrorState } from "@/sections/SectionErrorManager";
 
 export type RefreshSection = {
-    isJustRefreshed: () => boolean;
     refreshSection: () => void;
 };
 
 export function useRefreshSection(
-    section: ArtidocSection,
-    editor_errors: EditorErrors,
-    callbacks: {
-        closeEditor: () => void;
-        updateSectionStore: (section: ArtifactSection | FreetextSection) => void;
-        updateCurrentSection: (section: ArtidocSection) => void;
-    },
+    section: ReactiveStoredArtidocSection,
+    section_state: SectionState,
+    manage_error_state: ManageErrorState,
+    update_sections: UpdateSections,
+    close_editor_callback: () => void,
 ): RefreshSection {
-    const is_just_refreshed: Ref<boolean> = ref(false);
-
     function refreshSection(): void {
-        if (!isArtifactSection(section) && !isFreetextSection(section)) {
+        if (!isArtifactSection(section.value) && !isFreetextSection(section.value)) {
             return;
         }
 
-        getSection(section.id).match(
+        getSection(section.value.id).match(
             (artidoc_section: ArtidocSection) => {
-                callbacks.updateCurrentSection(artidoc_section);
                 if (isArtifactSection(artidoc_section) || isFreetextSection(artidoc_section)) {
-                    callbacks.updateSectionStore(artidoc_section);
+                    update_sections.updateSection(artidoc_section);
                 }
-                callbacks.closeEditor();
-                addTemporaryJustRefreshedFlag();
+                close_editor_callback();
+                section_state.is_just_refreshed.value = true;
             },
             (fault: Fault) => {
-                editor_errors.handleError(fault);
-                editor_errors.is_outdated.value = false;
+                manage_error_state.handleError(fault);
+                section_state.is_outdated.value = false;
             },
         );
     }
 
-    function addTemporaryJustRefreshedFlag(): void {
-        is_just_refreshed.value = true;
-        setTimeout(() => {
-            is_just_refreshed.value = false;
-        }, TEMPORARY_FLAG_DURATION_IN_MS);
-    }
-
     return {
-        isJustRefreshed: () => is_just_refreshed.value,
         refreshSection,
     };
 }

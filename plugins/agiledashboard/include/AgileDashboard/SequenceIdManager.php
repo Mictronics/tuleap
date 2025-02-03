@@ -28,8 +28,8 @@ class AgileDashboard_SequenceIdManager
     /** @var AgileDashboard_Milestone_Backlog_BacklogFactory */
     private $backlog_factory;
 
-    /** @var array */
-    private $backlog_item_ids;
+    /** @var array<int, array<int, int>> */
+    private array $backlog_item_ids;
 
     public function __construct(
         AgileDashboard_Milestone_Backlog_BacklogFactory $backlog_factory,
@@ -40,17 +40,17 @@ class AgileDashboard_SequenceIdManager
         $this->backlog_item_ids                = [];
     }
 
-    public function getSequenceId(PFUser $user, Planning_Milestone $milestone, $artifact_id)
+    public function getSequenceId(PFUser $user, Planning_Milestone $milestone, $artifact_id): ?int
     {
         $this->loadBacklogForMilestoneIfNeeded($user, $milestone);
 
         return $this->getArtifactPosition((int) $milestone->getArtifactId(), $artifact_id);
     }
 
-    private function getArtifactPosition($milestone_id, $artifact_id)
+    private function getArtifactPosition($milestone_id, $artifact_id): ?int
     {
         if (! isset($this->backlog_item_ids[$milestone_id][$artifact_id])) {
-            return;
+            return null;
         }
 
         return $this->backlog_item_ids[$milestone_id][$artifact_id];
@@ -78,13 +78,13 @@ class AgileDashboard_SequenceIdManager
             $this->backlog_item_ids[(int) $milestone->getArtifactId()] = [];
 
             $backlog_unassigned = $this->backlog_factory->getSelfBacklog($milestone);
-            $backlog_artifacts  = $this->backlog_item_collection_factory->getUnassignedOpenCollection($user, $milestone, $backlog_unassigned, false);
+            $backlog_artifacts  = $this->backlog_item_collection_factory->getUnassignedOpenCollection($user, $milestone, $backlog_unassigned, null);
 
             $this->storeTopBacklogArtifacts((int) $milestone->getArtifactId(), $backlog_artifacts);
         }
     }
 
-    private function storeTopBacklogArtifacts($milestone_id, AgileDashboard_Milestone_Backlog_BacklogItemCollection $backlog_items)
+    private function storeTopBacklogArtifacts($milestone_id, AgileDashboard_Milestone_Backlog_IBacklogItemCollection $backlog_items)
     {
         $artifact_position = 1;
         foreach ($backlog_items as $backlog_item) {

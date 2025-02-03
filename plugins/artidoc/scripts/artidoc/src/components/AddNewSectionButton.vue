@@ -37,7 +37,16 @@
             <button
                 type="button"
                 class="tlp-dropdown-menu-item"
-                v-on:click="addNewSection"
+                v-on:click="addNewFreetextSection"
+                data-test="add-freetext-section"
+                v-if="is_freetext_allowed"
+            >
+                {{ $gettext("Add freetext") }}
+            </button>
+            <button
+                type="button"
+                class="tlp-dropdown-menu-item"
+                v-on:click="addNewArtifactSection"
                 data-test="add-new-section"
             >
                 {{ add_new_requirement_label }}
@@ -60,21 +69,26 @@ import { strictInject } from "@tuleap/vue-strict-inject";
 import { OPEN_CONFIGURATION_MODAL_BUS } from "@/stores/useOpenConfigurationModalBusStore";
 import { OPEN_ADD_EXISTING_SECTION_MODAL_BUS } from "@/composables/useOpenAddExistingSectionModalBus";
 import { isTrackerWithSubmittableSection, CONFIGURATION_STORE } from "@/stores/configuration-store";
-import type { PositionForSection, SectionsStore } from "@/stores/useSectionsStore";
+import type { PositionForSection } from "@/sections/SectionsPositionsForSaveRetriever";
 import type { ArtidocSection, PendingArtifactSection } from "@/helpers/artidoc-section.type";
 import PendingArtifactSectionFactory from "@/helpers/pending-artifact-section.factory";
 import { computed, ref, onMounted, onUnmounted } from "vue";
 import type { Dropdown } from "@tuleap/tlp-dropdown";
 import { createDropdown } from "@tuleap/tlp-dropdown";
+import FreetextSectionFactory from "@/helpers/freetext-section.factory";
+import type { InsertSections } from "@/sections/SectionsInserter";
+import { IS_FREETEXT_ALLOWED } from "@/is-freetext-allowed";
 
 const props = defineProps<{
     position: PositionForSection;
-    insert_section_callback: SectionsStore["insertSection"];
+    sections_inserter: InsertSections;
 }>();
 
 const configuration_store = strictInject(CONFIGURATION_STORE);
 
 const { $gettext, interpolate } = useGettext();
+
+const is_freetext_allowed = strictInject(IS_FREETEXT_ALLOWED);
 
 const add_new_section_label = $gettext("Add new section");
 const add_new_requirement_label = computed(() =>
@@ -134,7 +148,7 @@ function addExistingSection(): void {
 
 function openAddExistingSectionModal(): void {
     add_existing_section_bus.openModal(props.position, (section: ArtidocSection): void => {
-        props.insert_section_callback(section, props.position);
+        props.sections_inserter.insertSection(section, props.position);
     });
 }
 
@@ -142,7 +156,7 @@ function openConfigurationModalBeforeInsertingExistingSection(): void {
     configuration_bus.openModal(openAddExistingSectionModal);
 }
 
-function addNewSection(): void {
+function addNewArtifactSection(): void {
     dropdown?.hide();
     if (!is_tracker_with_submittable_section.value) {
         openConfigurationModalBeforeInsertingNewSection();
@@ -150,6 +164,12 @@ function addNewSection(): void {
     }
 
     insertNewSection();
+}
+
+function addNewFreetextSection(): void {
+    dropdown?.hide();
+
+    props.sections_inserter.insertSection(FreetextSectionFactory.pending(), props.position);
 }
 
 function openConfigurationModalBeforeInsertingNewSection(): void {
@@ -169,7 +189,7 @@ function insertNewSection(): void {
         configuration_store.selected_tracker.value,
     );
 
-    props.insert_section_callback(section, props.position);
+    props.sections_inserter.insertSection(section, props.position);
 }
 </script>
 

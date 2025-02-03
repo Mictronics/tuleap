@@ -22,7 +22,6 @@ declare(strict_types=1);
 
 namespace Tuleap\ProjectMilestones\Widget;
 
-use AgileDashboard_BacklogItemDao;
 use AgileDashboard_Milestone_Backlog_BacklogFactory;
 use AgileDashboard_Milestone_Backlog_BacklogItemBuilder;
 use AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactory;
@@ -35,6 +34,7 @@ use Tracker_Artifact_PriorityDao;
 use Tracker_ArtifactFactory;
 use Tracker_FormElementFactory;
 use TrackerFactory;
+use Tuleap\AgileDashboard\BacklogItemDao;
 use Tuleap\AgileDashboard\ExplicitBacklog\ArtifactsInExplicitBacklogDao;
 use Tuleap\AgileDashboard\ExplicitBacklog\ExplicitBacklogDao;
 use Tuleap\AgileDashboard\FormElement\Burnup\CountElementsModeChecker;
@@ -157,12 +157,13 @@ class ProjectMilestonesPresenterBuilder
         return new self(
             HTTPRequest::instance(),
             new AgileDashboard_Milestone_Backlog_BacklogFactory(
-                new AgileDashboard_BacklogItemDao(),
+                new BacklogItemDao(),
                 $artifact_factory,
                 $planning_factory,
+                new \Tuleap\Tracker\Artifact\Dao\ArtifactDao(),
             ),
             new AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactory(
-                new AgileDashboard_BacklogItemDao(),
+                new BacklogItemDao(),
                 $artifact_factory,
                 $milestone_factory,
                 $planning_factory,
@@ -248,7 +249,7 @@ class ProjectMilestonesPresenterBuilder
                 $this->current_user,
                 $this->getVirturalTopMilestone(),
                 $this->agile_dashboard_milestone_backlog_backlog_factory->getSelfBacklog($this->getVirturalTopMilestone()),
-                false
+                null,
             );
 
         return $backlog->count();

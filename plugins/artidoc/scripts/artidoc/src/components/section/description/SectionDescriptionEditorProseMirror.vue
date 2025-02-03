@@ -38,6 +38,7 @@ import { TOOLBAR_BUS } from "@/toolbar-bus-injection-key";
 import { artidoc_editor_schema } from "../mono-editor/artidoc-editor-schema";
 import { renderArtidocSectionNode } from "@/components/section/description/render-artidoc-section-node";
 import { setupMonoEditorPlugins } from "../mono-editor/setupMonoEditorPlugins";
+import type { FileUploadOptions } from "@tuleap/file-upload";
 
 const toolbar_bus = strictInject(TOOLBAR_BUS);
 
@@ -45,7 +46,7 @@ const props = defineProps<{
     title: string;
     is_edit_mode: boolean;
     editable_description: string;
-    upload_url: string;
+    post_information: FileUploadOptions["post_information"];
     input_section_content: EditorSectionContent["inputSectionContent"];
     is_there_any_change: boolean;
     upload_file: UseUploadFileType;
@@ -90,7 +91,7 @@ watch(
 
 onMounted(async () => {
     if (area_editor.value) {
-        const is_upload_allowed = props.upload_url !== "";
+        const is_upload_allowed = props.post_information.upload_url !== "";
 
         useEditorInstance = await useEditor(
             area_editor.value,

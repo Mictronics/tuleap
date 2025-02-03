@@ -51,18 +51,15 @@
                 fill="var(--tlp-illustration-yellow, #FBE484)"
             />
         </svg>
-        <p class="empty-state-text" v-translate>Oops, something went wrong.</p>
-        <p class="empty-state-text" v-if="message">{{ message }}</p>
+        <p class="empty-state-text">
+            {{ $gettext("Oops, something went wrong.") }}
+        </p>
+        <p class="empty-state-text" v-if="message">
+            {{ message }}
+        </p>
     </section>
 </template>
 
-<script lang="ts">
-import Vue from "vue";
-import { Component, Prop } from "vue-property-decorator";
-
-@Component
-export default class SomethingWentWrongEmptyState extends Vue {
-    @Prop({ required: true })
-    readonly message!: string;
-}
+<script setup lang="ts">
+defineProps<{ message: string }>();
 </script>

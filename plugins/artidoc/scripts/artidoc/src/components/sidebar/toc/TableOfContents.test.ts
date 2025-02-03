@@ -22,16 +22,18 @@ import type { VueWrapper } from "@vue/test-utils";
 import { shallowMount } from "@vue/test-utils";
 import { createGettext } from "vue3-gettext";
 import type { ComponentPublicInstance } from "vue";
+import { ref } from "vue";
 import TableOfContents from "./TableOfContents.vue";
 import ArtifactSectionFactory from "@/helpers/artifact-section.factory";
-import { InjectedSectionsStoreStub } from "@/helpers/stubs/InjectSectionsStoreStub";
-import { SECTIONS_STORE } from "@/stores/sections-store-injection-key";
+import { SectionsCollectionStub } from "@/sections/stubs/SectionsCollectionStub";
+import { SECTIONS_COLLECTION } from "@/sections/sections-collection-injection-key";
 import type { ArtidocSection } from "@/helpers/artidoc-section.type";
 import { CAN_USER_EDIT_DOCUMENT } from "@/can-user-edit-document-injection-key";
 import { DOCUMENT_ID } from "@/document-id-injection-key";
 import { SET_GLOBAL_ERROR_MESSAGE } from "@/global-error-message-injection-key";
 import { noop } from "@/helpers/noop";
 import FreetextSectionFactory from "@/helpers/freetext-section.factory";
+import { IS_LOADING_SECTIONS } from "@/is-loading-sections-injection-key";
 
 describe("TableOfContents", () => {
     describe("when the sections are loading", () => {
@@ -44,7 +46,7 @@ describe("TableOfContents", () => {
                     plugins: [createGettext({ silent: true })],
                     provide: {
                         [DOCUMENT_ID.valueOf()]: 123,
-                        [SECTIONS_STORE.valueOf()]: InjectedSectionsStoreStub.withLoadingSections([
+                        [SECTIONS_COLLECTION.valueOf()]: SectionsCollectionStub.withSections([
                             ArtifactSectionFactory.override({
                                 artifact: { ...default_section.artifact, id: 1 },
                             }),
@@ -54,6 +56,7 @@ describe("TableOfContents", () => {
                         ]),
                         [CAN_USER_EDIT_DOCUMENT.valueOf()]: true,
                         [SET_GLOBAL_ERROR_MESSAGE.valueOf()]: noop,
+                        [IS_LOADING_SECTIONS.valueOf()]: ref(true),
                     },
                 },
             });
@@ -79,7 +82,9 @@ describe("TableOfContents", () => {
             section_2 = ArtifactSectionFactory.override({
                 artifact: { ...default_section.artifact, id: 2 },
             });
-            freetext_section = FreetextSectionFactory.create();
+            freetext_section = FreetextSectionFactory.override({
+                display_title: "Freetext section",
+            });
 
             wrapper = getWrapper(true);
         });
@@ -90,13 +95,14 @@ describe("TableOfContents", () => {
                     plugins: [createGettext({ silent: true })],
                     provide: {
                         [DOCUMENT_ID.valueOf()]: 123,
-                        [SECTIONS_STORE.valueOf()]: InjectedSectionsStoreStub.withLoadedSections([
+                        [SECTIONS_COLLECTION.valueOf()]: SectionsCollectionStub.withSections([
                             section_1,
                             section_2,
                             freetext_section,
                         ]),
                         [CAN_USER_EDIT_DOCUMENT.valueOf()]: can_user_edit_document,
                         [SET_GLOBAL_ERROR_MESSAGE.valueOf()]: noop,
+                        [IS_LOADING_SECTIONS.valueOf()]: ref(false),
                     },
                 },
             });
@@ -129,7 +135,7 @@ describe("TableOfContents", () => {
             expect(list).toHaveLength(3);
             expect(list[0].find("a").text()).toBe("Technologies section");
             expect(list[1].find("a").text()).toBe("Technologies section");
-            expect(list[2].find("a").text()).toBe("Introduction section");
+            expect(list[2].find("a").text()).toBe("Freetext section");
         });
 
         it("should have an url to redirect to the section", () => {

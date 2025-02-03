@@ -51,6 +51,8 @@ use Tuleap\Mail\MailFilter;
 use Tuleap\Mail\MailLogger;
 use Tuleap\Notification\Mention\MentionedUserInTextRetriever;
 use Tuleap\Plugin\ListeningToEventClass;
+use Tuleap\Plugin\ListeningToEventName;
+use Tuleap\Project\Admin\GetProjectHistoryEntryValue;
 use Tuleap\Project\Admin\History\GetHistoryKeyLabel;
 use Tuleap\Project\Admin\PermissionsPerGroup\PermissionPerGroupDisplayEvent;
 use Tuleap\Project\Admin\PermissionsPerGroup\PermissionPerGroupPaneCollector;
@@ -96,7 +98,7 @@ use Tuleap\Search\IndexAllPendingItemsEvent;
 use Tuleap\Search\IndexedItemFoundToSearchResult;
 use Tuleap\Search\ItemToIndexQueueEventBased;
 use Tuleap\Service\ServiceCreator;
-use Tuleap\Statistics\CSV\StatisticsServiceUsage;
+use Tuleap\StatisticsCore\StatisticsServiceUsage;
 use Tuleap\SystemEvent\GetSystemEventQueuesEvent;
 use Tuleap\Tracker\Admin\ArtifactDeletion\ArtifactsDeletionConfig;
 use Tuleap\Tracker\Admin\ArtifactDeletion\ArtifactsDeletionConfigController;
@@ -150,6 +152,7 @@ use Tuleap\Tracker\Artifact\MailGateway\MailGatewayConfig;
 use Tuleap\Tracker\Artifact\MailGateway\MailGatewayConfigController;
 use Tuleap\Tracker\Artifact\MailGateway\MailGatewayConfigDao;
 use Tuleap\Tracker\Artifact\RecentlyVisited\RecentlyVisitedDao;
+use Tuleap\Tracker\Artifact\Renderer\ArtifactViewCollectionBuilder;
 use Tuleap\Tracker\Artifact\StatusBadgeBuilder;
 use Tuleap\Tracker\Colorpicker\ColorpickerMountPointPresenterBuilder;
 use Tuleap\Tracker\Config\ConfigController;
@@ -211,6 +214,7 @@ use Tuleap\Tracker\FormElement\Field\Text\TextValueValidator;
 use Tuleap\Tracker\FormElement\FieldCalculator;
 use Tuleap\Tracker\FormElement\SystemEvent\SystemEvent_BURNDOWN_DAILY;
 use Tuleap\Tracker\FormElement\SystemEvent\SystemEvent_BURNDOWN_GENERATE;
+use Tuleap\Tracker\Hierarchy\HierarchyHistoryEntry;
 use Tuleap\Tracker\Import\Spotter;
 use Tuleap\Tracker\Legacy\Inheritor;
 use Tuleap\Tracker\Migration\KeepReverseCrossReferenceDAO;
@@ -226,10 +230,12 @@ use Tuleap\Tracker\Notifications\NotificationListBuilder;
 use Tuleap\Tracker\Notifications\NotificationsForceUsageUpdater;
 use Tuleap\Tracker\Notifications\NotificationsForProjectMemberCleaner;
 use Tuleap\Tracker\Notifications\RecipientsManager;
+use Tuleap\Tracker\Notifications\Settings\NoGlobalNotificationLabelBuilder;
 use Tuleap\Tracker\Notifications\Settings\NotificationsAdminSettingsDisplayController;
 use Tuleap\Tracker\Notifications\Settings\NotificationsAdminSettingsUpdateController;
 use Tuleap\Tracker\Notifications\Settings\NotificationsUserSettingsDisplayController;
 use Tuleap\Tracker\Notifications\Settings\NotificationsUserSettingsUpdateController;
+use Tuleap\Tracker\Notifications\Settings\UserGlobalAccountNotificationSettings;
 use Tuleap\Tracker\Notifications\Settings\UserNotificationSettingsDAO;
 use Tuleap\Tracker\Notifications\Settings\UserNotificationSettingsRetriever;
 use Tuleap\Tracker\Notifications\TrackerForceNotificationsLevelCommand;
@@ -264,7 +270,10 @@ use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeBuilder;
 use Tuleap\Tracker\Service\CheckPromotedTrackerConfiguration;
 use Tuleap\Tracker\Service\PromotedTrackerConfiguration;
 use Tuleap\Tracker\Service\ServiceActivator;
-use Tuleap\Tracker\User\NotificationOnOwnActionPreference;
+use Tuleap\Tracker\User\NotificationOnAllUpdatesRetriever;
+use Tuleap\Tracker\User\NotificationOnOwnActionRetriever;
+use Tuleap\Tracker\User\UserPreferencesPostController;
+use Tuleap\Tracker\User\UserPreferencesPresenter;
 use Tuleap\Tracker\Webhook\Actions\WebhookCreateController;
 use Tuleap\Tracker\Webhook\Actions\WebhookDeleteController;
 use Tuleap\Tracker\Webhook\Actions\WebhookEditController;
@@ -287,8 +296,7 @@ use Tuleap\Tracker\XML\Importer\TrackerImporterUser;
 use Tuleap\Upload\FileBeingUploadedLocker;
 use Tuleap\Upload\FileBeingUploadedWriter;
 use Tuleap\Upload\FileUploadController;
-use Tuleap\User\Account\NotificationsOnOwnActionsCollection;
-use Tuleap\User\Account\NotificationsOnOwnActionsUpdate;
+use Tuleap\User\Account\NotificationsSectionsCollector;
 use Tuleap\User\History\HistoryEntryCollection;
 use Tuleap\User\History\HistoryRetriever;
 use Tuleap\User\OAuth2\Scope\OAuth2ScopeBuilderCollector;
@@ -348,7 +356,6 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         $this->addHook(ProjectStatusUpdate::NAME);
         $this->addHook(RegisterProjectCreationEvent::NAME);
         $this->addHook('codendi_daily_start', 'codendi_daily_start');
-        $this->addHook('fill_project_history_sub_events', 'fillProjectHistorySubEvents');
         $this->addHook(Event::IMPORT_XML_PROJECT);
         $this->addHook(ProjectXMLImportPreChecksEvent::NAME);
         $this->addHook(Event::COLLECT_ERRORS_WITHOUT_IMPORTING_XML_PROJECT);
@@ -421,9 +428,6 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
 
         $this->addHook(CrossReferenceByNatureOrganizer::NAME);
         $this->addHook(IssuesTemplateDashboardDefinition::NAME);
-
-        $this->addHook(NotificationsOnOwnActionsCollection::NAME);
-        $this->addHook(NotificationsOnOwnActionsUpdate::NAME);
 
         return parent::getHooksAndCallbacks();
     }
@@ -1173,14 +1177,8 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         $trackerManager->sendDateReminder();
     }
 
-    /**
-     * Fill the list of subEvents related to tracker in the project history interface
-     *
-     * @param Array $params Hook params
-     *
-     * @return Void
-     */
-    public function fillProjectHistorySubEvents($params)
+    #[ListeningToEventName('fill_project_history_sub_events')]
+    public function fillProjectHistorySubEvents(array $params): void
     {
         array_push(
             $params['subEvents']['event_others'],
@@ -1191,7 +1189,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             Tracker_FormElement::PROJECT_HISTORY_UPDATE,
             ArtifactDeletor::PROJECT_HISTORY_ARTIFACT_DELETED,
             MarkTrackerAsDeletedController::PROJECT_HISTORY_TRACKER_DELETION_KEY,
-            \Tuleap\Tracker\Hierarchy\HierarchyController::TRACKER_HIERARCHY_UPDATE
+            HierarchyHistoryEntry::HierarchyUpdate->value
         );
     }
 
@@ -1207,12 +1205,31 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             );
         }
 
-        if ($event->getKey() === \Tuleap\Tracker\Hierarchy\HierarchyController::TRACKER_HIERARCHY_UPDATE) {
+        if ($event->getKey() === 'tracker_hierarchy_update') {
             $event->setLabel(
                 dgettext(
                     'tuleap-tracker',
                     'Hierarchy updated',
                 ),
+            );
+        }
+
+        $history_entry = HierarchyHistoryEntry::tryFrom($event->getKey());
+
+        if ($history_entry) {
+            $event->setLabel(
+                $history_entry->getLabel($event->parameters)
+            );
+        }
+    }
+
+    #[\Tuleap\Plugin\ListeningToEventClass]
+    public function getProjectHistoryEntryValue(GetProjectHistoryEntryValue $event): void
+    {
+        $history_entry = HierarchyHistoryEntry::tryFrom($event->getKey());
+        if ($history_entry) {
+            $event->setValue(
+                $history_entry->getValue($event->getParameters())
             );
         }
     }
@@ -1982,18 +1999,20 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         );
     }
 
-    public function routeGetNotificationsMy(): NotificationsUserSettingsDisplayController
+    public function routeGetNotificationsMy(): DispatchableWithRequest
     {
+        $user_preference_dao = new UserPreferencesDao();
         return new NotificationsUserSettingsDisplayController(
-            TemplateRendererFactory::build()->getRenderer(TRACKER_TEMPLATE_DIR . '/notifications/'),
+            TemplateRendererFactory::build()->getRenderer(__DIR__ . '/../templates/notifications/'),
             $this->getTrackerFactory(),
             new TrackerManager(),
             new UserNotificationSettingsRetriever(
                 new Tracker_GlobalNotificationDao(),
                 new UnsubscribersNotificationDAO(),
                 new UserNotificationOnlyStatusChangeDAO(),
-                new InvolvedNotificationDao()
-            )
+                new InvolvedNotificationDao(),
+            ),
+            new NoGlobalNotificationLabelBuilder(UserGlobalAccountNotificationSettings::build($this->getUserManager(), new NotificationOnAllUpdatesRetriever($user_preference_dao), new NotificationOnOwnActionRetriever($user_preference_dao)))
         );
     }
 
@@ -2195,6 +2214,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             $r->post('/notifications/{id:\d+}/', $this->getRouteHandler('routePostNotifications'));
             $r->get('/notifications/my/{id:\d+}/', $this->getRouteHandler('routeGetNotificationsMy'));
             $r->post('/notifications/my/{id:\d+}/', $this->getRouteHandler('routePostNotificationsMy'));
+            $r->post('/notifications/user', $this->getRouteHandler('routePostNotificationsUser'));
 
             $r->get(ByFieldController::URL . '/{id:\d+}', $this->getRouteHandler('routeGetFieldsPermissionsByField'));
             $r->get(ByGroupController::URL . '/{id:\d+}', $this->getRouteHandler('routeGetFieldsPermissionsByGroup'));
@@ -2443,18 +2463,23 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
      */
     private function getForceUsageUpdater()
     {
+        $unsubscribers_notification_dao = new UnsubscribersNotificationDAO();
+        $user_preferences_dao           = new UserPreferencesDao();
+        $only_status_change_dao         = new UserNotificationOnlyStatusChangeDAO();
         return new NotificationsForceUsageUpdater(
             new RecipientsManager(
                 Tracker_FormElementFactory::instance(),
                 UserManager::instance(),
-                new UnsubscribersNotificationDAO(),
+                $unsubscribers_notification_dao,
                 new UserNotificationSettingsRetriever(
                     new Tracker_GlobalNotificationDao(),
-                    new UnsubscribersNotificationDAO(),
-                    new UserNotificationOnlyStatusChangeDAO(),
+                    $unsubscribers_notification_dao,
+                    $only_status_change_dao,
                     new InvolvedNotificationDao()
                 ),
-                new UserNotificationOnlyStatusChangeDAO(),
+                $only_status_change_dao,
+                new NotificationOnAllUpdatesRetriever($user_preferences_dao),
+                new NotificationOnOwnActionRetriever($user_preferences_dao)
             ),
             new UserNotificationSettingsDAO()
         );
@@ -2569,6 +2594,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         $event->addConfigClass(PromotedTrackerConfiguration::class);
         $event->addConfigClass(TrackersPermissionsRetriever::class);
         $event->addConfigClass(\Tuleap\Tracker\Report\Query\Advanced\Grammar\Query::class);
+        $event->addConfigClass(ArtifactViewCollectionBuilder::class);
     }
 
     private function getMailNotificationBuilder(): MailNotificationBuilder
@@ -2788,19 +2814,38 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         (new \Tuleap\Tracker\Search\IndexArtifactDAO())->markExistingArtifactsAsPending();
     }
 
-    public function notificationsOnOwnActionsCollection(NotificationsOnOwnActionsCollection $notifications_on_own_actions_collection): void
+    #[ListeningToEventClass]
+    public function notificationsSectionsCollector(NotificationsSectionsCollector $collector): void
     {
-        $notifications_on_own_actions_collection->add(
-            NotificationOnOwnActionPreference::getPresenter($notifications_on_own_actions_collection->user)
+        $preferences_dao = new UserPreferencesDao();
+        $collector->add(
+            TemplateRendererFactory::build()
+                ->getRenderer(__DIR__ . '/../templates/notifications')
+                ->renderToString('user-preferences', new UserPreferencesPresenter(
+                    UserPreferencesPostController::getCSRFToken(),
+                    UserPreferencesPostController::URL,
+                    (new NotificationOnOwnActionRetriever($preferences_dao))->retrieve($collector->current_user),
+                    (new NotificationOnAllUpdatesRetriever($preferences_dao))->retrieve($collector->current_user),
+                    (new MailManager())->getMailPreferencesByUser($collector->current_user),
+                ))
         );
     }
 
-    public function notificationsOnOwnActionsUpdate(NotificationsOnOwnActionsUpdate $event): void
+    public function routePostNotificationsUser(): DispatchableWithRequest
     {
-        $something_changed = NotificationOnOwnActionPreference::updatePreference($event->request, $event->user);
-        if ($something_changed) {
-            $event->something_has_changed = true;
-        }
+        $user_preferences_dao = new UserPreferencesDao();
+        return new UserPreferencesPostController(
+            UserManager::instance(),
+            UserPreferencesPostController::getCSRFToken(),
+            new \Tuleap\Tracker\User\NotificationOnOwnActionSaver(
+                new NotificationOnOwnActionRetriever($user_preferences_dao),
+                $user_preferences_dao
+            ),
+            new \Tuleap\Tracker\User\NotificationOnAllUpdatesSaver(
+                new NotificationOnAllUpdatesRetriever($user_preferences_dao),
+                $user_preferences_dao
+            )
+        );
     }
 
     #[ListeningToEventClass]

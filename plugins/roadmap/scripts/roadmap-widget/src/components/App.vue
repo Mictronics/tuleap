@@ -20,7 +20,10 @@
 
 <template>
     <div>
-        <no-data-to-show-empty-state v-if="should_display_empty_state" />
+        <no-data-to-show-empty-state
+            v-if="should_display_empty_state"
+            v-bind:should_invite_to_come_back="true"
+        />
         <something-went-wrong-empty-state
             v-else-if="should_display_error_state"
             v-bind:message="error_message"
@@ -30,43 +33,30 @@
     </div>
 </template>
 
-<script lang="ts">
-import Vue from "vue";
-import { Component, Prop } from "vue-property-decorator";
+<script setup lang="ts">
+import { onMounted } from "vue";
 import NoDataToShowEmptyState from "./NoDataToShowEmptyState.vue";
 import SomethingWentWrongEmptyState from "./SomethingWentWrongEmptyState.vue";
 import GanttBoard from "./Gantt/GanttBoard.vue";
 import type { NaturesLabels } from "../type";
 import LoadingState from "./LoadingState.vue";
-import { Action, State } from "vuex-class";
+import { useActions, useState } from "vuex-composition-helpers";
 
-@Component({
-    components: { LoadingState, GanttBoard, SomethingWentWrongEmptyState, NoDataToShowEmptyState },
-})
-export default class App extends Vue {
-    @Prop({ required: true })
-    readonly roadmap_id!: number;
+const props = defineProps<{
+    roadmap_id: number;
+    visible_natures: NaturesLabels;
+}>();
 
-    @Prop({ required: true })
-    readonly visible_natures!: NaturesLabels;
+const { loadRoadmap } = useActions(["loadRoadmap"]);
+const { should_display_empty_state, should_display_error_state, is_loading, error_message } =
+    useState([
+        "should_display_empty_state",
+        "should_display_error_state",
+        "is_loading",
+        "error_message",
+    ]);
 
-    @State
-    error_message!: string;
-
-    @State
-    should_display_error_state!: boolean;
-
-    @State
-    should_display_empty_state!: boolean;
-
-    @Action
-    private readonly loadRoadmap!: (roadmap_id: number) => Promise<void>;
-
-    @State
-    readonly is_loading!: boolean;
-
-    mounted(): void {
-        this.loadRoadmap(this.roadmap_id);
-    }
-}
+onMounted(() => {
+    loadRoadmap(props.roadmap_id);
+});
 </script>

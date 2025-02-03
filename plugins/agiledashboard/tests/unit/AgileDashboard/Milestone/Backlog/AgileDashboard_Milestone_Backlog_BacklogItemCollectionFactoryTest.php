@@ -23,10 +23,7 @@ declare(strict_types=1);
 
 namespace Tuleap\AgileDashboard\Milestone\Backlog;
 
-use AgileDashboard_BacklogItemDao;
-use AgileDashboard_BacklogItemPresenter;
 use AgileDashboard_Milestone_Backlog_Backlog;
-use AgileDashboard_Milestone_Backlog_BacklogItem;
 use AgileDashboard_Milestone_Backlog_BacklogItemCollection;
 use AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactory;
 use AgileDashboard_Milestone_Backlog_DescendantItemsCollection;
@@ -38,6 +35,8 @@ use PlanningFactory;
 use Tracker_Artifact_PriorityDao;
 use Tracker_ArtifactFactory;
 use Tracker_FormElement_Field_Integer;
+use Tuleap\AgileDashboard\BacklogItemPresenter;
+use Tuleap\AgileDashboard\BacklogItemDao;
 use Tuleap\AgileDashboard\ExplicitBacklog\ArtifactsInExplicitBacklogDao;
 use Tuleap\AgileDashboard\RemainingEffortValueRetriever;
 use Tuleap\AgileDashboard\Test\Builders\PlanningBuilder;
@@ -59,11 +58,11 @@ final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest ex
     private AgileDashboard_Milestone_Backlog_IBuildBacklogItemAndBacklogItemCollection&MockObject $backlog_item_builder;
     private RemainingEffortValueRetriever&MockObject $remaining_effort_value_retriever;
     private ArtifactsInExplicitBacklogDao&MockObject $artifacts_in_explicit_backlog_dao;
-    private AgileDashboard_BacklogItemDao&MockObject $dao;
+    private BacklogItemDao&MockObject $dao;
 
     protected function setUp(): void
     {
-        $this->dao                               = $this->createMock(AgileDashboard_BacklogItemDao::class);
+        $this->dao                               = $this->createMock(BacklogItemDao::class);
         $this->artifact_factory                  = $this->createMock(Tracker_ArtifactFactory::class);
         $this->milestone_factory                 = $this->createMock(Planning_MilestoneFactory::class);
         $this->planning_factory                  = $this->createMock(PlanningFactory::class);
@@ -112,15 +111,15 @@ final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest ex
         $backlog->expects(self::once())->method('getArtifacts')->willReturn($descendant_items_collection);
 
         $open_and_closed_collection = new AgileDashboard_Milestone_Backlog_BacklogItemCollection();
-        $open_closed_item           = new AgileDashboard_Milestone_Backlog_BacklogItem(ArtifactTestBuilder::anArtifact(8)->build(), false);
+        $open_closed_item           = new BacklogItem(ArtifactTestBuilder::anArtifact(8)->build(), false);
         $open_and_closed_collection->push($open_closed_item);
 
         $todo_collection = new AgileDashboard_Milestone_Backlog_BacklogItemCollection();
-        $todo_item       = new AgileDashboard_Milestone_Backlog_BacklogItem(ArtifactTestBuilder::anArtifact(9)->build(), false);
+        $todo_item       = new BacklogItem(ArtifactTestBuilder::anArtifact(9)->build(), false);
         $todo_collection->push($todo_item);
 
         $done_collection = new AgileDashboard_Milestone_Backlog_BacklogItemCollection();
-        $done_item       = new AgileDashboard_Milestone_Backlog_BacklogItem(ArtifactTestBuilder::anArtifact(10)->build(), false);
+        $done_item       = new BacklogItem(ArtifactTestBuilder::anArtifact(10)->build(), false);
         $done_collection->push($done_item);
 
         $this->backlog_item_builder->method('getCollection')->willReturnOnConsecutiveCalls(
@@ -139,7 +138,7 @@ final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest ex
             $user,
             $milestone,
             $backlog,
-            false
+            null,
         );
 
         self::assertEquals([8], $open_and_closed_content->getItemIds());
@@ -148,7 +147,7 @@ final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest ex
             $user,
             $milestone,
             $backlog,
-            false
+            null,
         );
 
         self::assertEquals([9], $todo_content->getItemIds());
@@ -157,7 +156,7 @@ final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest ex
             $user,
             $milestone,
             $backlog,
-            false
+            null,
         );
 
         self::assertEquals([10], $done_content->getItemIds());
@@ -174,16 +173,18 @@ final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest ex
 
         $artifact = ArtifactTestBuilder::anArtifact(10)->build();
         $descendant_items_collection->push($artifact);
+        $descendant_items_collection->setTotalAvaialableSize(1);
 
         $backlog->expects(self::once())->method('getArtifacts')->willReturn($descendant_items_collection);
 
         $open_closed_and_inconsistent_collection = new AgileDashboard_Milestone_Backlog_BacklogItemCollection();
-        $open_closed_inconsistent_item           = new AgileDashboard_Milestone_Backlog_BacklogItem(ArtifactTestBuilder::anArtifact(9)->build(), true);
+        $open_closed_inconsistent_item           = new BacklogItem(ArtifactTestBuilder::anArtifact(9)->build(), true);
         $open_closed_and_inconsistent_collection->push($open_closed_inconsistent_item);
 
         $inconsistent_collection = new AgileDashboard_Milestone_Backlog_BacklogItemCollection();
-        $inconsistent_item       = new AgileDashboard_Milestone_Backlog_BacklogItem(ArtifactTestBuilder::anArtifact(9)->build(), true);
+        $inconsistent_item       = new BacklogItem(ArtifactTestBuilder::anArtifact(9)->build(), true);
         $inconsistent_collection->push($inconsistent_item);
+        $inconsistent_collection->setTotalAvaialableSize(1);
 
         $sorted_collection = new AgileDashboard_Milestone_Backlog_BacklogItemCollection();
 
@@ -213,7 +214,7 @@ final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest ex
             $user,
             $milestone,
             $backlog,
-            false
+            null,
         );
 
         self::assertEquals([9], $open_inconsistent_collection->getItemIds());
@@ -222,7 +223,7 @@ final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest ex
             $user,
             $milestone,
             $backlog,
-            false
+            null,
         );
 
         self::assertEquals([9], $open_inconsistent_collection->getItemIds());
@@ -253,7 +254,7 @@ final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest ex
         $project                = ProjectTestBuilder::aProject()->withId(102)->build();
         $tracker                = TrackerTestBuilder::aTracker()->withProject($project)->build();
         $artifact               = ArtifactTestBuilder::anArtifact(9)->inTracker($tracker)->build();
-        $backlog_item           = new AgileDashboard_Milestone_Backlog_BacklogItem($artifact, false);
+        $backlog_item           = new BacklogItem($artifact, false);
         $top_backlog_collection->push($backlog_item);
 
         $this->backlog_item_builder->method('getCollection')->willReturnOnConsecutiveCalls(
@@ -272,7 +273,7 @@ final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest ex
             $user,
             $milestone,
             $backlog,
-            false
+            null,
         );
 
         self::assertEquals([9], $unassigned_open_collection->getItemIds());
@@ -327,7 +328,7 @@ final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest ex
             $user,
             $milestone,
             $backlog,
-            false
+            null,
         );
 
         self::assertEquals([23], $unassigned_collection->getItemIds());
@@ -386,7 +387,7 @@ final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest ex
             $user,
             $milestone,
             $backlog,
-            false
+            null,
         );
 
         self::assertEquals([23], $unassigned_collection->getItemIds());
@@ -416,7 +417,7 @@ final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest ex
         $this->dao->expects(self::once())->method('getArtifactsSemantics')->willReturn([]);
 
         $backlog_item_collection = new AgileDashboard_Milestone_Backlog_BacklogItemCollection();
-        $backlog_item            = new AgileDashboard_Milestone_Backlog_BacklogItem($artifact_9, false);
+        $backlog_item            = new BacklogItem($artifact_9, false);
         $backlog_item_collection->push($backlog_item);
 
         $this->backlog_item_builder->method('getCollection')->willReturn($backlog_item_collection);
@@ -501,7 +502,7 @@ final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest ex
             $user,
             $milestone,
             $backlog,
-            false
+            null,
         );
 
         self::assertSame([10, 11], $collection->getItemIds());
@@ -510,15 +511,15 @@ final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest ex
             $user,
             $milestone,
             $backlog,
-            false
+            null,
         );
 
         self::assertSame([10, 11], $collection->getItemIds());
     }
 
-    private function getItemPresenter(Artifact $artifact): AgileDashboard_BacklogItemPresenter
+    private function getItemPresenter(Artifact $artifact): BacklogItemPresenter
     {
-        return new AgileDashboard_BacklogItemPresenter(
+        return new BacklogItemPresenter(
             $artifact,
             '',
             false,

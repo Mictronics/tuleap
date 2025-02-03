@@ -90,14 +90,7 @@ class Tracker_FormElement_Field_ArtifactLink extends Tracker_FormElement_Field /
         return $html;
     }
 
-    /**
-     * Display the field value as a criteria
-     *
-     * @param Tracker_Report_Criteria $criteria
-     *
-     * @return string
-     */
-    public function fetchCriteriaValue($criteria)
+    public function fetchCriteriaValue(Tracker_Report_Criteria $criteria): string
     {
         $html = '<input type="text" name="criteria[' . $this->id . ']" id="tracker_report_criteria_' . $this->id . '" value="';
         if ($criteria_value = $this->getCriteriaValue($criteria)) {
@@ -151,14 +144,8 @@ class Tracker_FormElement_Field_ArtifactLink extends Tracker_FormElement_Field /
     /**
      * Display the field as a Changeset value.
      * Used in CSV data export.
-     *
-     * @param int $artifact_id the corresponding artifact id
-     * @param int $changeset_id the corresponding changeset
-     * @param mixed $value the value of the field
-     *
-     * @return string
      */
-    public function fetchCSVChangesetValue($artifact_id, $changeset_id, $value, $report)
+    public function fetchCSVChangesetValue(int $artifact_id, int $changeset_id, mixed $value, ?Tracker_Report $report): string
     {
         $arr    = [];
         $values = $this->getChangesetValues($this->getCurrentUser(), $changeset_id);
@@ -186,13 +173,9 @@ class Tracker_FormElement_Field_ArtifactLink extends Tracker_FormElement_Field /
         );
     }
 
-    /**
-     * Fetch the value
-     * @param mixed $value the value of the field
-     * @return string
-     */
-    public function fetchRawValue($value)
+    public function fetchRawValue(mixed $value): string
     {
+        assert($value instanceof Tracker_Artifact_ChangesetValue_ArtifactLink);
         $artifact_id_array = $value->getArtifactIds();
         return implode(', ', $artifact_id_array);
     }
@@ -863,10 +846,8 @@ class Tracker_FormElement_Field_ArtifactLink extends Tracker_FormElement_Field /
      * @param array  $artifact_links         The current artifact links
      * @param string $prefill_new_values     Prefill new values field (what the user has submitted, if any)
      * @param bool   $read_only              True if the user can't add or remove links
-     *
-     * @return string html
      */
-    protected function fetchHtmlWidgetMasschange($name, $artifact_links, $prefill_new_values, $read_only)
+    protected function fetchHtmlWidgetMasschange($name, $artifact_links, $prefill_new_values, $read_only): string
     {
         $html          = '';
         $html_name_new = '';
@@ -899,14 +880,12 @@ class Tracker_FormElement_Field_ArtifactLink extends Tracker_FormElement_Field /
      * @param Artifact                        $artifact         The artifact
      * @param Tracker_Artifact_ChangesetValue $value            The actual value of the field
      * @param array                           $submitted_values The value already submitted by the user
-     *
-     * @return string
      */
     protected function fetchArtifactValue(
         Artifact $artifact,
         ?Tracker_Artifact_ChangesetValue $value,
         array $submitted_values,
-    ) {
+    ): string {
         $links_tab         = $this->fetchLinks($artifact, $this->getArtifactLinksToRenderFromChangesetValue($value), $submitted_values);
         $reverse_links_tab = $this->fetchReverseLinks($artifact);
 
@@ -1076,14 +1055,7 @@ class Tracker_FormElement_Field_ArtifactLink extends Tracker_FormElement_Field /
         );
     }
 
-    /**
-     * Fetch the html code to display the field value in new artifact submission form
-     *
-     * @param array $submitted_values the values already submitted
-     *
-     * @return string html
-     */
-    protected function fetchSubmitValue(array $submitted_values)
+    protected function fetchSubmitValue(array $submitted_values): string
     {
         $html               = '';
         $prefill_new_values = '';
@@ -1141,9 +1113,8 @@ class Tracker_FormElement_Field_ArtifactLink extends Tracker_FormElement_Field /
      *
      * @return string html
      */
-    protected function fetchSubmitValueMasschange()
+    protected function fetchSubmitValueMasschange(): string
     {
-        $html               = '';
         $prefill_new_values = dgettext('tuleap-tracker', 'Unchanged');
         $read_only          = false;
         $name               = 'artifact[' . $this->id . ']';
@@ -1152,14 +1123,7 @@ class Tracker_FormElement_Field_ArtifactLink extends Tracker_FormElement_Field /
         return $this->fetchHtmlWidgetMasschange($name, $artifact_links, $prefill_new_values, $read_only);
     }
 
-    /**
-     * Fetch the html code to display the field value in tooltip
-     *
-     * @param Tracker_Artifact_ChangesetValue $value The changeset value of the field
-     *
-     * @return string
-     */
-    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null)
+    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null): string
     {
         $html = '';
         if ($value != null) {
@@ -1183,21 +1147,14 @@ class Tracker_FormElement_Field_ArtifactLink extends Tracker_FormElement_Field /
 
     /**
      * Fetch the html code to display the field value in artifact
-     *
-     * @param Artifact                        $artifact The artifact
-     * @param PFUser                          $user     The user who will receive the email
-     * @param bool                            $ignore_perms
-     * @param Tracker_Artifact_ChangesetValue $value    The actual value of the field
-     *
-     * @return string
      */
     public function fetchMailArtifactValue(
         Artifact $artifact,
         PFUser $user,
-        $ignore_perms,
+        bool $ignore_perms,
         ?Tracker_Artifact_ChangesetValue $value = null,
-        $format = 'text',
-    ) {
+        string $format = 'text',
+    ): string {
         if (empty($value) || ! $value->getValue()) {
             return '-';
         }
@@ -1226,16 +1183,9 @@ class Tracker_FormElement_Field_ArtifactLink extends Tracker_FormElement_Field /
         return $output;
     }
 
-    /**
-     * Fetch the value in a specific changeset
-     *
-     * @param Tracker_Artifact_Changeset $changeset
-     *
-     * @return string
-     */
-    public function fetchRawValueFromChangeset($changeset)
+    public function fetchRawValueFromChangeset(Tracker_Artifact_Changeset $changeset): string
     {
-        // never used...
+        return '';
     }
 
     /**

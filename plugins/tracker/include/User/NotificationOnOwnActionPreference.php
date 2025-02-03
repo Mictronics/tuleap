@@ -1,5 +1,5 @@
 <?php
-/*
+/**
  * Copyright (c) Enalean, 2022-Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
@@ -23,50 +23,17 @@ declare(strict_types=1);
 
 namespace Tuleap\Tracker\User;
 
-use Tuleap\User\Account\NotificationsOnOwnActionsPresenter;
-
-final class NotificationOnOwnActionPreference
+/**
+ * @psalm-immutable
+ */
+final readonly class NotificationOnOwnActionPreference
 {
-    public const PREFERENCE_NAME = 'user_notifications_own_actions_tracker';
-    public const VALUE_NO_NOTIF  = '0';
-    public const VALUE_NOTIF     = '1';
-
-    public static function userWantsNotification(\PFUser $user): bool
+    public function __construct(public bool $enabled)
     {
-        return $user->getPreference(self::PREFERENCE_NAME) !== self::VALUE_NO_NOTIF;
     }
 
-    public static function updatePreference(\HTTPRequest $request, \PFUser $user): bool
+    public function hasChanged(self $other): bool
     {
-        $notification_on_own_action = $request->get(self::PREFERENCE_NAME) === self::VALUE_NOTIF;
-        if (self::userWantsNotification($user)) {
-            if (! $notification_on_own_action) {
-                self::updateUserDoesNotWantNotification($user);
-                return true;
-            }
-        } elseif ($notification_on_own_action) {
-            self::updateUserWantsNotifications($user);
-            return true;
-        }
-        return false;
-    }
-
-    public static function updateUserWantsNotifications(\PFUser $user): void
-    {
-        $user->setPreference(self::PREFERENCE_NAME, self::VALUE_NOTIF);
-    }
-
-    public static function updateUserDoesNotWantNotification(\PFUser $user): void
-    {
-        $user->setPreference(self::PREFERENCE_NAME, self::VALUE_NO_NOTIF);
-    }
-
-    public static function getPresenter(\PFUser $user): NotificationsOnOwnActionsPresenter
-    {
-        return new NotificationsOnOwnActionsPresenter(
-            self::PREFERENCE_NAME,
-            dgettext('tuleap-tracker', 'Tracker'),
-            self::userWantsNotification($user)
-        );
+        return $this->enabled !== $other->enabled;
     }
 }

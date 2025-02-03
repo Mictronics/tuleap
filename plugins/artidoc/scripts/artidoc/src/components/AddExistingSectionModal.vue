@@ -82,12 +82,12 @@ import type { HTMLTemplateResult, HTMLTemplateStringProcessor, LazyboxItem } fro
 import { createLazyAutocompleter } from "@tuleap/lazybox";
 import { CONFIGURATION_STORE } from "@/stores/configuration-store";
 import type { LazyAutocompleter } from "@tuleap/lazybox/src/LazyAutocompleterElement";
-import { SECTIONS_STORE } from "@/stores/sections-store-injection-key";
+import { SECTIONS_COLLECTION } from "@/sections/sections-collection-injection-key";
 import type { ArtidocSection } from "@/helpers/artidoc-section.type";
-import { createSection } from "@/helpers/rest-querier";
+import { createArtifactSection } from "@/helpers/rest-querier";
 import { DOCUMENT_ID } from "@/document-id-injection-key";
-import type { PositionForSection } from "@/stores/useSectionsStore";
-import { AT_THE_END } from "@/stores/useSectionsStore";
+import type { PositionForSection } from "@/sections/SectionsPositionsForSaveRetriever";
+import { AT_THE_END } from "@/sections/SectionsInserter";
 import type { Artifact } from "@/helpers/search-existing-artifacts-for-autocompleter";
 import {
     isArtifact,
@@ -103,7 +103,7 @@ const close_title = $gettext("Close");
 
 const documentId = strictInject(DOCUMENT_ID);
 const configuration = strictInject(CONFIGURATION_STORE);
-const { sections } = strictInject(SECTIONS_STORE);
+const sections_collection = strictInject(SECTIONS_COLLECTION);
 
 const modal_element = ref<HTMLElement | undefined>(undefined);
 
@@ -187,7 +187,7 @@ function openModal(
                     autocompleter,
                     configuration.selected_tracker.value,
                     title_field.value,
-                    sections.value || [],
+                    sections_collection,
                     gettext_provider,
                 ).orElse((fault) => {
                     error_message.value = String(fault);
@@ -236,29 +236,31 @@ function closeModal(): void {
 
 function onSubmit(event: Event): void {
     event.preventDefault();
-    if (selected.value && sections.value) {
-        createSection(
-            documentId,
-            selected.value.id,
-            getInsertionPositionExcludingPendingSections(add_position, sections.value),
-        ).match(
-            (section: ArtidocSection) => {
-                on_successful_addition_callback(section);
-                modal?.hide();
-            },
-            (fault) => {
-                error_message.value = interpolate(
-                    $gettext(
-                        "An error occurred while creating section from existing artifact %{ xref }: %{ details }",
-                    ),
-                    {
-                        xref: selected.value?.xref,
-                        details: String(fault),
-                    },
-                );
-            },
-        );
+    if (!selected.value) {
+        return;
     }
+
+    createArtifactSection(
+        documentId,
+        selected.value.id,
+        getInsertionPositionExcludingPendingSections(add_position, sections_collection),
+    ).match(
+        (section: ArtidocSection) => {
+            on_successful_addition_callback(section);
+            modal?.hide();
+        },
+        (fault) => {
+            error_message.value = interpolate(
+                $gettext(
+                    "An error occurred while creating section from existing artifact %{ xref }: %{ details }",
+                ),
+                {
+                    xref: selected.value?.xref,
+                    details: String(fault),
+                },
+            );
+        },
+    );
 }
 </script>
 

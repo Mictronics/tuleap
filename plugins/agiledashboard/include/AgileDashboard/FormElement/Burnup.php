@@ -131,7 +131,8 @@ class Burnup extends Tracker_FormElement_Field implements Tracker_FormElement_Fi
         Artifact $artifact,
         ?Tracker_Artifact_ChangesetValue $value = null,
         $submitted_values = [],
-    ) {
+    ): string {
+        return '';
     }
 
     public function fetchArtifactValueReadOnly(
@@ -183,8 +184,9 @@ class Burnup extends Tracker_FormElement_Field implements Tracker_FormElement_Fi
         );
     }
 
-    public function fetchCSVChangesetValue($artifact_id, $changeset_id, $value, $report)
+    public function fetchCSVChangesetValue(int $artifact_id, int $changeset_id, mixed $value, ?\Tracker_Report $report): string
     {
+        return '';
     }
 
     public function fetchChangesetValue(
@@ -197,25 +199,29 @@ class Burnup extends Tracker_FormElement_Field implements Tracker_FormElement_Fi
         return '';
     }
 
-    public function fetchCriteriaValue($criteria)
+    public function fetchCriteriaValue(Tracker_Report_Criteria $criteria): string
     {
+        return '';
     }
 
     public function fetchMailArtifactValue(
         Artifact $artifact,
         PFUser $user,
-        $ignore_perms,
+        bool $ignore_perms,
         ?Tracker_Artifact_ChangesetValue $value = null,
-        $format = 'text',
-    ) {
+        string $format = 'text',
+    ): string {
+        return '';
     }
 
-    public function fetchRawValue($value)
+    public function fetchRawValue(mixed $value): string
     {
+        return '';
     }
 
-    public function fetchRawValueFromChangeset($changeset)
+    public function fetchRawValueFromChangeset(Tracker_Artifact_Changeset $changeset): string
     {
+        return '';
     }
 
     public function fetchSubmit(array $submitted_values)
@@ -228,16 +234,19 @@ class Burnup extends Tracker_FormElement_Field implements Tracker_FormElement_Fi
         return '';
     }
 
-    protected function fetchSubmitValue(array $submitted_values)
+    protected function fetchSubmitValue(array $submitted_values): string
     {
+        return '';
     }
 
-    protected function fetchSubmitValueMasschange()
+    protected function fetchSubmitValueMasschange(): string
     {
+        return '';
     }
 
-    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null)
+    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null): string
     {
+        return '';
     }
 
     public function getChangesetValue($changeset, $value_id, $has_changed)

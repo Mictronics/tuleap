@@ -19,14 +19,9 @@
 
 <template>
     <section class="empty-state-page">
-        <p v-translate class="empty-state-text">There is nothing to plan</p>
+        <p class="empty-state-text">
+            {{ $gettext("There is nothing to plan") }}
+        </p>
     </section>
 </template>
-
-<script lang="ts">
-import Vue from "vue";
-import { Component } from "vue-property-decorator";
-
-@Component({})
-export default class EmptyState extends Vue {}
-</script>
+<script setup lang="ts"></script>

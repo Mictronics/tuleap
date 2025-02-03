@@ -101,30 +101,17 @@ class Tracker_FormElement_Field_PermissionsOnArtifact extends Tracker_FormElemen
         return $this->fetchChangesetRegardingPermissions($artifact_id, $changeset_id);
     }
 
-    /**
-     * @return string
-     */
-    public function fetchCSVChangesetValue($artifact_id, $changeset_id, $value, $report)
+    public function fetchCSVChangesetValue(int $artifact_id, int $changeset_id, mixed $value, ?Tracker_Report $report): string
     {
         return $this->fetchChangesetRegardingPermissions($artifact_id, $changeset_id);
     }
 
-    /**
-     * Fetch the value
-     * @param mixed $value the value of the field
-     * @return string
-     */
-    public function fetchRawValue($value)
+    public function fetchRawValue(mixed $value): string
     {
         return $this->values[$value]->getLabel();
     }
 
-    /**
-     * Fetch the value in a specific changeset
-     * @param Tracker_Artifact_Changeset $changeset
-     * @return string
-     */
-    public function fetchRawValueFromChangeset($changeset)
+    public function fetchRawValueFromChangeset(Tracker_Artifact_Changeset $changeset): string
     {
         return '';
     }
@@ -139,11 +126,7 @@ class Tracker_FormElement_Field_PermissionsOnArtifact extends Tracker_FormElemen
         return new PermissionsOnArtifactUsageFormatter($this->getPermissionsValidator());
     }
 
-    /**
-     *
-     * @return string html
-     */
-    protected function fetchSubmitValue(array $submitted_values)
+    protected function fetchSubmitValue(array $submitted_values): string
     {
         $value = $this->getValueFromSubmitOrDefault($submitted_values);
         $value = $this->getPermissionsOnArtifactUGroupRetriever()->initializeUGroupsIfNoUGroupsAreChoosen($value);
@@ -174,36 +157,26 @@ class Tracker_FormElement_Field_PermissionsOnArtifact extends Tracker_FormElemen
      * @param Artifact                        $artifact         The artifact
      * @param Tracker_Artifact_ChangesetValue $value            The actual value of the field
      * @param array                           $submitted_values The value already submitted by the user
-     *
-     * @return string
      */
     protected function fetchArtifactValue(
         Artifact $artifact,
         ?Tracker_Artifact_ChangesetValue $value,
         array $submitted_values,
-    ) {
+    ): string {
         $is_read_only = false;
         return $this->fetchArtifactValueCommon($is_read_only, $artifact, $value, $submitted_values);
     }
 
     /**
      * Fetch the field value in artifact to be displayed in mail
-     *
-     * @param Artifact                        $artifact The artifact
-     * @param PFUser                          $user     The user who will receive the email
-     * @param bool                            $ignore_perms
-     * @param Tracker_Artifact_ChangesetValue $value    The actual value of the field
-     * @param string                          $format   mail format
-     *
-     * @return string
      */
     public function fetchMailArtifactValue(
         Artifact $artifact,
         PFUser $user,
-        $ignore_perms,
+        bool $ignore_perms,
         ?Tracker_Artifact_ChangesetValue $value = null,
-        $format = 'text',
-    ) {
+        string $format = 'text',
+    ): string {
         $output    = '';
         $separator = '&nbsp;';
         if ($format == 'text') {
@@ -254,7 +227,7 @@ class Tracker_FormElement_Field_PermissionsOnArtifact extends Tracker_FormElemen
             '</div>';
     }
 
-    private function getArtifactValueHTML($artifact_id, $can_user_restrict_permissions_to_nobody, $is_read_only)
+    private function getArtifactValueHTML($artifact_id, $can_user_restrict_permissions_to_nobody, $is_read_only): string
     {
         $changeset_values   = $this->getLastChangesetValues($artifact_id);
         $is_expecting_input = $this->isRequired() && empty($changeset_values);
@@ -361,37 +334,29 @@ class Tracker_FormElement_Field_PermissionsOnArtifact extends Tracker_FormElemen
         return true;
     }
 
-    /**
-     * Fetch the html code to display the field value in tooltip
-     *
-     * @param Tracker_Artifact_ChangesetValue_PermissionsOnArtifact $value The changeset value for this field
-     * @return string
-     */
-    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null)
+    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null): string
     {
         $html = '';
-        if ($value && $artifact->useArtifactPermissions()) {
+        if ($value && $value instanceof Tracker_Artifact_ChangesetValue_PermissionsOnArtifact && $artifact->useArtifactPermissions()) {
             $ugroup_dao = $this->getUGroupDao();
 
             $perms      = $value->getPerms();
             $perms_name = [];
             foreach ($perms as $perm) {
-                $row          = $ugroup_dao->searchByUGroupId($perm)->getRow();
-                $perms_name[] = \Tuleap\User\UserGroup\NameTranslator::getUserGroupDisplayKey((string) $row['name']);
+                $row = $ugroup_dao->searchByUGroupId($perm);
+                if ($row === null) {
+                    continue;
+                }
+                $perms_name[] = \Tuleap\User\UserGroup\NameTranslator::getUserGroupDisplayKey($row['name']);
             }
             $html .= implode(',', $perms_name);
         }
         return $html;
     }
 
-   /**
-    * Returns the UGroupDao
-    *
-    * @return UGroupDao The dao
-    */
-    protected function getUGroupDao()
+    protected function getUGroupDao(): UGroupDao
     {
-        return new UGroupDao(CodendiDataAccess::instance());
+        return new UGroupDao();
     }
 
     public function getCriteriaFromWhere(Tracker_Report_Criteria $criteria): Option
@@ -495,7 +460,7 @@ class Tracker_FormElement_Field_PermissionsOnArtifact extends Tracker_FormElemen
         return;
     }
 
-    public function fetchCriteriaValue($criteria)
+    public function fetchCriteriaValue(Tracker_Report_Criteria $criteria): string
     {
         $html           = '';
         $criteria_value = $this->getCriteriaValue($criteria);
@@ -510,12 +475,12 @@ class Tracker_FormElement_Field_PermissionsOnArtifact extends Tracker_FormElemen
             return $html;
         }
 
-        if ($criteria->is_advanced) {
+        if ($criteria->is_advanced === true) {
             $multiple = ' multiple="multiple" ';
             $size     = ' size="' . min(7, count($user_groups) + 2) . '" ';
         }
 
-        $html .= '<select id="tracker_report_criteria_' . ($criteria->is_advanced ? 'adv_' : '') . $this->id . '"
+        $html .= '<select id="tracker_report_criteria_' . ($criteria->is_advanced === true ? 'adv_' : '') . $this->id . '"
                           name="' . $name . '" ' .
                           $size .
                           $multiple . '>';

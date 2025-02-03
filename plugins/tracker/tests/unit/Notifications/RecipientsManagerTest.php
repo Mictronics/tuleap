@@ -34,11 +34,14 @@ use Tracker_FormElement_Field_Selectbox;
 use Tracker_FormElementFactory;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
+use Tuleap\Test\Stubs\StoreUserPreferenceStub;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Notifications\Settings\UserNotificationSettings;
 use Tuleap\Tracker\Notifications\Settings\UserNotificationSettingsRetriever;
 use Tuleap\Tracker\Test\Builders\ChangesetCommentTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
+use Tuleap\Tracker\User\NotificationOnAllUpdatesRetriever;
+use Tuleap\Tracker\User\NotificationOnOwnActionRetriever;
 use UserManager;
 
 /**
@@ -60,12 +63,15 @@ final class RecipientsManagerTest extends TestCase
         $this->unsubscribers_notification_dao = $this->createMock(UnsubscribersNotificationDAO::class);
         $notification_settings_retriever      = $this->createMock(UserNotificationSettingsRetriever::class);
         $this->user_status_change_only_dao    = $this->createMock(UserNotificationOnlyStatusChangeDAO::class);
+        $user_preference_store                = new StoreUserPreferenceStub();
         $this->recipients_manager             = new RecipientsManager(
             $this->formelement_factory,
             $this->user_manager,
             $this->unsubscribers_notification_dao,
             $notification_settings_retriever,
             $this->user_status_change_only_dao,
+            new NotificationOnAllUpdatesRetriever($user_preference_store),
+            new NotificationOnOwnActionRetriever($user_preference_store)
         );
 
         $this->user_manager->method('getUserByUserName')->willReturnCallback(static fn(string $username) => match ($username) {

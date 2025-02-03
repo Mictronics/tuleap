@@ -22,10 +22,11 @@
         class="tlp-modal tlp-modal-danger"
         role="dialog"
         aria-labelledby="taskboard-error-modal-title"
+        ref="modal_element"
     >
         <div class="tlp-modal-header">
             <h1 class="tlp-modal-title" id="taskboard-error-modal-title">
-                <translate>Oops, there's an issue</translate>
+                {{ $gettext("Oops, there's an issue") }}
             </h1>
             <button
                 class="tlp-modal-close"
@@ -37,23 +38,19 @@
             </button>
         </div>
         <div class="tlp-modal-body">
-            <p v-translate>It seems an action you tried to perform can't be done</p>
+            <p>{{ $gettext("It seems an action you tried to perform can't be done") }}</p>
             <template v-if="has_more_details">
                 <a
                     v-if="!is_more_shown"
                     class="taskboard-error-modal-link"
                     v-on:click="is_more_shown = true"
                     data-test="show-details"
-                    v-translate
                 >
-                    Show error details
+                    {{ $gettext("Show error details") }}
                 </a>
-                <pre
-                    class="taskboard-error-modal-message"
-                    v-if="is_more_shown"
-                    data-test="details"
-                    >{{ modal_error_message }}</pre
-                >
+                <pre class="taskboard-error-modal-message" v-if="is_more_shown" data-test="details">
+                  {{ modal_error_message }}
+                </pre>
             </template>
         </div>
         <div class="tlp-modal-footer">
@@ -61,9 +58,8 @@
                 type="button"
                 class="tlp-button-danger tlp-button-outline tlp-modal-action"
                 data-dismiss="modal"
-                v-translate
             >
-                Close
+                {{ $gettext("Close") }}
             </button>
             <button
                 type="button"
@@ -71,37 +67,41 @@
                 v-on:click="reloadPage"
             >
                 <i class="fas fa-sync tlp-button-icon" aria-hidden="true"></i>
-                <translate>Reload the page</translate>
+                {{ $gettext("Reload the page") }}
             </button>
         </div>
     </div>
 </template>
 
-<script lang="ts">
-import Vue from "vue";
-import { Component } from "vue-property-decorator";
-import { namespace } from "vuex-class";
-import { createModal } from "tlp";
+<script setup lang="ts">
+import { computed, onMounted, ref } from "vue";
+import { type Modal } from "tlp";
+import { createModal } from "@tuleap/tlp-modal";
+import { useNamespacedState } from "vuex-composition-helpers";
+import type { ErrorState } from "../../store/error/type";
 
-const error = namespace("error");
+const { modal_error_message } = useNamespacedState<Pick<ErrorState, "modal_error_message">>(
+    "error",
+    ["modal_error_message"],
+);
 
-@Component
-export default class ErrorModal extends Vue {
-    @error.State
-    readonly modal_error_message!: string;
+let is_more_shown = ref(false);
+let modal = ref<null | Modal>(null);
 
-    is_more_shown = false;
-
-    mounted(): void {
-        createModal(this.$el, { destroy_on_hide: true }).show();
+const modal_element = ref<InstanceType<typeof HTMLElement>>();
+onMounted(() => {
+    if (!(modal_element.value instanceof HTMLElement)) {
+        return;
     }
+    modal.value = createModal(modal_element.value, { destroy_on_hide: true });
+    modal.value.show();
+});
 
-    get has_more_details(): boolean {
-        return this.modal_error_message.length > 0;
-    }
+const has_more_details = computed((): boolean => {
+    return modal_error_message.value.length > 0;
+});
 
-    reloadPage(): void {
-        window.location.reload();
-    }
+function reloadPage(): void {
+    window.location.reload();
 }
 </script>

@@ -20,7 +20,7 @@
 
 namespace Tuleap\SVN\Statistic;
 
-use Statistics_Services_UsageFormatter;
+use Tuleap\StatisticsCore\FormatStatisticsServiceUsage;
 
 class ServiceUsageCollector
 {
@@ -34,7 +34,7 @@ class ServiceUsageCollector
         $this->dao = $dao;
     }
 
-    public function collect(Statistics_Services_UsageFormatter $formatter, $start_date, $end_date)
+    public function collect(FormatStatisticsServiceUsage $formatter, $start_date, $end_date)
     {
         $formatter->buildDatas(
             $this->dao->searchWriteOperationsByProject($start_date, $end_date),

@@ -52,6 +52,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     // @ts-expect-error Vue 2.7.8 and 2.7.16 types do not play well together
     Vue.use(VueDOMPurifyHTML);
 
+    //eslint-disable-next-line @typescript-eslint/ban-ts-comment -- Temporary while we migrate to Vue 3
+    //@ts-ignore
     const AppComponent = Vue.extend(App);
 
     for (const vue_mount_point of all_vue_mount_points) {
@@ -59,7 +61,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             continue;
         }
 
-        const roadmap_id = vue_mount_point.dataset.roadmapId;
+        const roadmap_id = Number(vue_mount_point.dataset.roadmapId);
         if (!roadmap_id) {
             continue;
         }

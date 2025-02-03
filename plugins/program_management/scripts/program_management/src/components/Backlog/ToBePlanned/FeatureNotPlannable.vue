@@ -18,9 +18,12 @@
   -
   -->
 
-<template functional>
+<template>
     <div class="drop-not-accepted-overlay drop-not-accepted">
         <i class="fas fa-ban drop-not-accepted-icon" aria-hidden="true"></i>
-        <p data-test="overlay-error-message" v-translate>You cannot plan items</p>
+        <p data-test="overlay-error-message">
+            {{ $gettext("You cannot plan items") }}
+        </p>
     </div>
 </template>
+<script setup lang="ts"></script>

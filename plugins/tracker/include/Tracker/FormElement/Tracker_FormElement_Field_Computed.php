@@ -42,10 +42,6 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
             'type'  => 'string',
             'size'  => 40,
         ],
-        'fast_compute' => [
-            'value' => null,
-            'type'  => 'upgrade_button',
-        ],
         'default_value' => [
             'value' => '',
             'type'  => 'string',
@@ -85,18 +81,10 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
         $this->doNotDisplaySpecialPropertiesAtFieldCreation();
     }
 
-    private function doNotDisplaySpecialPropertiesAtFieldCreation()
+    private function doNotDisplaySpecialPropertiesAtFieldCreation(): void
     {
-        $this->clearFastCompute();
         $this->clearTargetFieldName();
         $this->clearCache();
-    }
-
-    private function clearFastCompute()
-    {
-        if ($this->getProperty('fast_compute') === null) {
-            unset($this->default_properties['fast_compute']);
-        }
     }
 
     private function clearTargetFieldName()
@@ -259,7 +247,6 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
 
         if ($formElement_data !== false) {
             $default_specific_properties   = [
-                'fast_compute'      => '1',
                 'target_field_name' => $formElement_data['name'],
             ];
             $submitted_specific_properties = isset($formElement_data['specific_properties']) ? $formElement_data['specific_properties'] : [];
@@ -288,7 +275,6 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
 
     public function afterCreate(array $form_element_data, $tracker_is_empty)
     {
-        $form_element_data['specific_properties']['fast_compute']      = '1';
         $form_element_data['specific_properties']['target_field_name'] = $this->name;
         $this->storeProperties($form_element_data['specific_properties']);
 
@@ -373,7 +359,7 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
         return $html;
     }
 
-    private function fetchBackToAutocomputedButton($is_disabled)
+    private function fetchBackToAutocomputedButton($is_disabled): string
     {
         $disabled = '';
         if ($is_disabled) {
@@ -402,7 +388,7 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
         Artifact $artifact,
         ?Tracker_Artifact_ChangesetValue $value,
         array $submitted_values,
-    ) {
+    ): string {
         $displayed_value = null;
         $is_autocomputed = true;
         if ($value !== null) {
@@ -417,7 +403,7 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
         return $this->fetchComputedInputs($displayed_value, $is_autocomputed);
     }
 
-    private function fetchComputedInputs($displayed_value, $is_autocomputed)
+    private function fetchComputedInputs($displayed_value, $is_autocomputed): string
     {
         $purifier = Codendi_HTMLPurifier::instance();
         $html     = '<input type="text" class="field-computed"
@@ -479,22 +465,14 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
 
     /**
      * Fetch data to display the field value in mail
-     *
-     * @param Artifact                        $artifact The artifact
-     * @param PFUser                          $user     The user who will receive the email
-     * @param bool                            $ignore_perms
-     * @param Tracker_Artifact_ChangesetValue $value    The actual value of the field
-     * @param string                          $format   output format
-     *
-     * @return string
      */
     public function fetchMailArtifactValue(
         Artifact $artifact,
         PFUser $user,
-        $ignore_perms,
+        bool $ignore_perms,
         ?Tracker_Artifact_ChangesetValue $value = null,
-        $format = 'text',
-    ) {
+        string $format = 'text',
+    ): string {
         $changeset      = $artifact->getLastChangesetWithFieldValue($this);
         $computed_value = null;
         if ($changeset !== null) {
@@ -504,13 +482,7 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
         return (string) ($computed_value ?? '-');
     }
 
-    /**
-     * Fetch the html code to display the field value in tooltip
-     *
-     * @param Tracker_Artifact_ChangesetValue $value The changeset value of this field
-     * @return string The html code to display the field value in tooltip
-     */
-    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null)
+    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null): string
     {
         $changeset      = $artifact->getLastChangesetWithFieldValue($this);
         $computed_value = null;
@@ -656,13 +628,14 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
         return '';
     }
 
-    public function fetchCriteriaValue($criteria)
+    public function fetchCriteriaValue(Tracker_Report_Criteria $criteria): string
     {
         return '';
     }
 
-    public function fetchRawValue($value)
+    public function fetchRawValue(mixed $value): string
     {
+        return '';
     }
 
     protected function getCriteriaDao()
@@ -803,7 +776,7 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
         return $html;
     }
 
-    protected function fetchSubmitValueMasschange()
+    protected function fetchSubmitValueMasschange(): string
     {
         $unchanged = dgettext('tuleap-tracker', 'Unchanged');
         $html      = $this->fetchComputedInputs($unchanged, false);
@@ -940,8 +913,9 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
         return $html;
     }
 
-    public function fetchRawValueFromChangeset($changeset)
+    public function fetchRawValueFromChangeset(Tracker_Artifact_Changeset $changeset): string
     {
+        return '';
     }
 
     public function getChangesetValue($changeset, $value_id, $has_changed)

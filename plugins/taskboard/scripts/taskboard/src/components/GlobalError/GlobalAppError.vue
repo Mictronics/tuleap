@@ -25,20 +25,15 @@
         </div>
 
         <h1 class="empty-state-title">
-            <translate>Oops, there's an issue</translate>
+            {{ $gettext("Oops, there's an issue") }}
         </h1>
-        <p class="empty-state-text" v-translate>
-            It seems an action you tried to perform can't be done.
+        <p class="empty-state-text">
+            {{ $gettext("It seems an action you tried to perform can't be done.") }}
         </p>
         <template v-if="has_more_details">
             <p class="empty-state-text taskboard-error-link">
-                <a
-                    v-if="!is_more_shown"
-                    v-on:click="is_more_shown = true"
-                    data-test="show-details"
-                    v-translate
-                >
-                    Show error details
+                <a v-if="!is_more_shown" v-on:click="is_more_shown = true" data-test="show-details">
+                    {{ $gettext("Show error details") }}
                 </a>
             </p>
             <pre v-if="is_more_shown" class="taskboard-error-details" data-test="details">{{
@@ -47,37 +42,28 @@
         </template>
         <button type="button" class="tlp-button-primary empty-state-action" v-on:click="reloadPage">
             <i class="fas fa-sync tlp-button-icon" aria-hidden="true"></i>
-            <translate>Reload the page</translate>
+            {{ $gettext("Reload the page") }}
         </button>
     </section>
 </template>
 
-<script lang="ts">
-import Vue from "vue";
-import { Component } from "vue-property-decorator";
-import { namespace } from "vuex-class";
+<script setup lang="ts">
+import { computed, ref } from "vue";
+import { useNamespacedState } from "vuex-composition-helpers";
+import type { ErrorState } from "../../store/error/type";
+import GlobalAppErrorIllustration from "./GlobalAppErrorIllustration.vue";
 
-const error = namespace("error");
-@Component({
-    components: {
-        "global-app-error-illustration": (): Promise<Record<string, unknown>> =>
-            import(
-                /* webpackChunkName: "taskboard-global-app-error-illustration" */ "./GlobalAppErrorIllustration.vue"
-            ),
-    },
-})
-export default class GlobalAppError extends Vue {
-    @error.State
-    readonly global_error_message!: string;
+const { global_error_message } = useNamespacedState<Pick<ErrorState, "global_error_message">>(
+    "error",
+    ["global_error_message"],
+);
 
-    is_more_shown = false;
+const is_more_shown = ref(false);
 
-    reloadPage(): void {
-        window.location.reload();
-    }
-
-    get has_more_details(): boolean {
-        return this.global_error_message.length > 0;
-    }
+function reloadPage(): void {
+    window.location.reload();
 }
+const has_more_details = computed((): boolean => {
+    return global_error_message.value.length > 0;
+});
 </script>

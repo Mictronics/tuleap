@@ -25,6 +25,9 @@ namespace Tuleap\User;
 
 interface StoreUserPreference
 {
+    /**
+     * @return array{ preference_value: string } | []
+     */
     public function search(int $user_id, string $preference_name): array;
 
     public function set(int $user_id, string $preference_name, string $preference_value): void;

@@ -240,9 +240,6 @@ msgstr ""
 "atual de acesso não mudará o status deles, os mesmos devem ser ajustados "
 "manualmente.</p>"
 
-msgid "<i>Disabled</i>"
-msgstr "<i>Desabilitado</i>"
-
 msgid ""
 "<p>An outbound HTTP request has been filtered in the last 24 hours in order "
 "to prevent a possible Server Side Request Forgery (SSRF) attack. You might "
@@ -982,9 +979,6 @@ msgstr "Criar"
 msgid "Create a new reference pattern"
 msgstr "Criar um novo padrão de referência"
 
-msgid "Create a new reference pattern."
-msgstr "Criar um novo padrão de referência."
-
 msgid "Create a new user"
 msgstr "Criar um novo usuário"
 
@@ -1170,9 +1164,6 @@ msgstr "Excluir grupo de usuários"
 msgid "Delete widget"
 msgstr "Excluir widget"
 
-msgid "Delete?"
-msgstr "Excluir?"
-
 msgid "Deleted"
 msgstr "Excluído"
 
@@ -1276,8 +1267,8 @@ msgid "Editing reference patterns"
 msgstr "Edição de padrões de referência"
 
 #, php-format
-msgid "Editing reference patterns for <B>%s</B>"
-msgstr "Edição de padrões de referência para <B>%s</B>"
+msgid "Editing reference patterns for %s"
+msgstr "Edição de padrões de referência para %s"
 
 msgid "Editing system reference patterns"
 msgstr "Edição de padrões de referência do sistema"
@@ -1294,9 +1285,6 @@ msgstr "O email %s é inválido"
 
 msgid "Email address"
 msgstr "Endereço de email"
-
-msgid "Email format preference successfully updated"
-msgstr "Preferência de formato de email atualizado com sucesso"
 
 msgid "Email is already validated"
 msgstr "Email já está validado"
@@ -1423,8 +1411,8 @@ msgstr "Exportar"
 msgid "Export project structure"
 msgstr "Exportar a estrutura do projeto"
 
-msgid "External system references"
-msgstr "Referências externas do sistema"
+msgid "External references"
+msgstr ""
 
 msgid "FRS"
 msgstr "FRS"
@@ -1453,11 +1441,6 @@ msgstr "Filtrar por nome"
 
 msgid "Flat"
 msgstr "Simples"
-
-msgid ""
-"For all other services, you will receive an email when you are in the "
-"notification list"
-msgstr ""
 
 msgid "Forbidden"
 msgstr "Proibido"
@@ -1573,9 +1556,6 @@ msgstr "Membros do grupo"
 
 msgid "Groups"
 msgstr "Grupos"
-
-msgid "HTML"
-msgstr "HTML"
 
 msgid "HTML tags will display in your post as text"
 msgstr "As tags HTML serão exibidas no seu post como texto"
@@ -1935,11 +1915,8 @@ msgstr "Gerir todos os plugins"
 msgid "Manage help links"
 msgstr "Gerenciar links de ajuda"
 
-msgid "Manage project reference patterns"
-msgstr "Gerir padrões de referência de projetos"
-
-msgid "Manage system reference patterns"
-msgstr "Gerenciar padrões de referência do sistema"
+msgid "Manage references"
+msgstr ""
 
 #, php-format
 msgid "Mandatory categories where missing: %s"
@@ -2141,12 +2118,15 @@ msgstr "Nova senha"
 msgid "New personal access key"
 msgstr "Nova chave de acesso pessoal"
 
+msgid "New project reference"
+msgstr ""
+
 #, php-format
 msgid "New project registered: %s"
 msgstr "Novo projeto registrado: %s"
 
-msgid "New reference pattern"
-msgstr "Novo padrão de referência"
+msgid "New system reference"
+msgstr ""
 
 msgid "New user"
 msgstr "Novo usuário"
@@ -2722,6 +2702,9 @@ msgstr "Privacidade do projeto definida para o público, incluindo restrito."
 msgid "Project privacy set to public."
 msgstr "Privacidade do projeto definida para Público."
 
+msgid "Project references"
+msgstr ""
+
 msgid "Project registration is disabled"
 msgstr "O registro do projeto está desativado"
 
@@ -2852,9 +2835,6 @@ msgstr "Receber emails adicionais da comunidade"
 msgid "Receive emails about site updates, including security notices"
 msgstr ""
 "Receber emails sobre atualizações no site, incluindo avisos de segurança"
-
-msgid "Receive emails for actions I do on the platform:"
-msgstr "Receber email a cada ação realizada por mim na plataforma:"
 
 msgid "Recently"
 msgstr "Recentemente"
@@ -3346,6 +3326,9 @@ msgstr "Grupos de sistema"
 msgid "System reference pattern deleted"
 msgstr "Padrão de referência do sistema excluído"
 
+msgid "System references"
+msgstr ""
+
 msgid "Tab"
 msgstr "Aba"
 
@@ -3649,7 +3632,13 @@ msgstr ""
 "Já há um evento programado para renomear este projeto. Por favor, verifique "
 "<a href=\"/admin/system_events/\">System Event Monitor</a>."
 
+msgid "There is no project references"
+msgstr ""
+
 msgid "There is no registered passkeys"
+msgstr ""
+
+msgid "There is no system references"
 msgstr ""
 
 msgid "There is no users group bound to this one."
@@ -3948,9 +3937,6 @@ msgstr "Ferramentas"
 
 msgid "Trace and Track all types of activities."
 msgstr "Rastreie e acompanhe todos os tipos de atividades."
-
-msgid "Tracker email format"
-msgstr "Formato de email do tracker"
 
 msgid "Trackers"
 msgstr "Trackers"

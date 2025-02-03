@@ -25,6 +25,10 @@ import { uri } from "@tuleap/fetch-result";
 import { Option } from "@tuleap/option";
 import type { ColorName } from "@tuleap/core-constants";
 import { ARTIFACT_TYPE, IS_CHILD_LINK_TYPE } from "@tuleap/plugin-tracker-constants";
+import {
+    CurrentArtifactIdentifier,
+    CurrentTrackerIdentifier,
+} from "@tuleap/plugin-tracker-artifact-common";
 import type { LinkableArtifact } from "../../../../domain/fields/link-field/LinkableArtifact";
 import type { ArtifactWithStatus } from "../../ArtifactWithStatus";
 import type { LinkedArtifactCollection } from "./LinkFieldAPIClient";
@@ -32,11 +36,9 @@ import { LinkFieldAPIClient } from "./LinkFieldAPIClient";
 import { LinkableNumberStub } from "../../../../../tests/stubs/LinkableNumberStub";
 import type { LinkType } from "../../../../domain/fields/link-field/LinkType";
 import { FORWARD_DIRECTION } from "../../../../domain/fields/link-field/LinkType";
-import { CurrentArtifactIdentifier } from "../../../../domain/CurrentArtifactIdentifier";
 import { LinkTypeStub } from "../../../../../tests/stubs/LinkTypeStub";
 import type { LinkedArtifact } from "../../../../domain/fields/link-field/LinkedArtifact";
 import { ProjectStub } from "../../../../../tests/stubs/ProjectStub";
-import { CurrentTrackerIdentifierStub } from "../../../../../tests/stubs/CurrentTrackerIdentifierStub";
 import { UserIdentifierStub } from "../../../../../tests/stubs/UserIdentifierStub";
 
 describe(`LinkFieldAPIClient`, () => {
@@ -198,7 +200,7 @@ describe(`LinkFieldAPIClient`, () => {
             SECOND_LINKED_ARTIFACT_ID = 109;
 
         const getPossibleParents = (): ResultAsync<readonly LinkableArtifact[], Fault> => {
-            return getClient().getPossibleParents(CurrentTrackerIdentifierStub.withId(TRACKER_ID));
+            return getClient().getPossibleParents(CurrentTrackerIdentifier.fromId(TRACKER_ID));
         };
 
         it(`will return an array of linkable artifacts`, async () => {

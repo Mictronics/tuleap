@@ -22,33 +22,31 @@
     <p class="tlp-text-warning taskboard-no-mapping">
         <i class="fas fa-exclamation-triangle" aria-hidden="true"></i>
         <span v-dompurify-html="message"></span>
-        <translate>
-            Please edit the card to change the status, or add children if possible.
-        </translate>
+        {{ $gettext("Please edit the card to change the status, or add children if possible.") }}
     </p>
 </template>
 
-<script lang="ts">
-import Vue from "vue";
-import { Component, Prop } from "vue-property-decorator";
+<script setup lang="ts">
+import { computed } from "vue";
 import type { Card } from "../../../../../type";
+import { useGettext } from "@tuleap/vue2-gettext-composition-helper";
 
-@Component
-export default class NoMappingMessage extends Vue {
-    @Prop({ required: true })
-    readonly card!: Card;
+const gettext_provider = useGettext();
 
-    get message(): string {
-        if (!this.card.mapped_list_value) {
-            return this.$gettext("This card does not have any status.");
-        }
+const props = defineProps<{
+    card: Card;
+}>();
 
-        return this.$gettextInterpolate(
-            this.$gettext(
-                "This card has status <strong>%{ label }</strong> that does not map to current taskboard columns.",
-            ),
-            { label: this.card.mapped_list_value.label },
-        );
+const message = computed((): string => {
+    if (!props.card.mapped_list_value) {
+        return gettext_provider.$gettext("This card does not have any status.");
     }
-}
+
+    return gettext_provider.interpolate(
+        gettext_provider.$gettext(
+            "This card has status <strong>%{ label }</strong> that does not map to current taskboard columns.",
+        ),
+        { label: props.card.mapped_list_value.label },
+    );
+});
 </script>

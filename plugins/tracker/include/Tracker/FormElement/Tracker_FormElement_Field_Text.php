@@ -211,9 +211,9 @@ class Tracker_FormElement_Field_Text extends Tracker_FormElement_Field_Alphanum
         return $changeset_value;
     }
 
-    public function fetchCSVChangesetValue($artifact_id, $changeset_id, $value, $report)
+    public function fetchCSVChangesetValue(int $artifact_id, int $changeset_id, mixed $value, ?Tracker_Report $report): string
     {
-        return $value;
+        return $value ?? '';
     }
 
     protected function getValueDao()
@@ -253,13 +253,7 @@ class Tracker_FormElement_Field_Text extends Tracker_FormElement_Field_Alphanum
         return Tracker_Artifact_ChangesetValue_Text::HTML_CONTENT;
     }
 
-    /**
-     * Fetch the html code to display the field value in new artifact submission form
-     * @param array $submitted_values the values already submitted
-     *
-     * @return string html
-     */
-    protected function fetchSubmitValue(array $submitted_values)
+    protected function fetchSubmitValue(array $submitted_values): string
     {
         $value  = $this->getValueFromSubmitOrDefault($submitted_values);
         $format = $this->getDefaultFormatForUser($this->getCurrentUser());
@@ -271,11 +265,7 @@ class Tracker_FormElement_Field_Text extends Tracker_FormElement_Field_Alphanum
         return $this->getRichTextarea(null, $format, $value['content']);
     }
 
-     /**
-     * Fetch the html code to display the field value in new artifact submission form
-     * @return string html
-     */
-    protected function fetchSubmitValueMasschange()
+    protected function fetchSubmitValueMasschange(): string
     {
         $html  = '';
         $value = dgettext('tuleap-tracker', 'Unchanged');
@@ -302,14 +292,12 @@ class Tracker_FormElement_Field_Text extends Tracker_FormElement_Field_Alphanum
      * @param Artifact                        $artifact         The artifact
      * @param Tracker_Artifact_ChangesetValue $value            The actual value of the field
      * @param array                           $submitted_values The value already submitted by the user
-     *
-     * @return string
      */
     protected function fetchArtifactValue(
         Artifact $artifact,
         ?Tracker_Artifact_ChangesetValue $value,
         array $submitted_values,
-    ) {
+    ): string {
         $content = '';
 
         if ($value) {
@@ -339,10 +327,7 @@ class Tracker_FormElement_Field_Text extends Tracker_FormElement_Field_Alphanum
         return $this->fetchArtifactReadOnly($artifact, $submitted_values);
     }
 
-    /**
-     * @return string
-     */
-    private function getRichTextarea(?Artifact $artifact, string $format, string $content)
+    private function getRichTextarea(?Artifact $artifact, string $format, string $content): string
     {
         $tracker = $this->getTracker();
         if (! $tracker) {
@@ -383,22 +368,14 @@ class Tracker_FormElement_Field_Text extends Tracker_FormElement_Field_Alphanum
 
      /**
      * Fetch data to display the field value in mail
-     *
-     * @param Artifact                        $artifact The artifact
-     * @param PFUser                          $user     The user who will receive the email
-     * @param bool                            $ignore_perms
-     * @param Tracker_Artifact_ChangesetValue $value    The actual value of the field
-     * @param string                          $format   output format
-     *
-     * @return string
      */
     public function fetchMailArtifactValue(
         Artifact $artifact,
         PFUser $user,
-        $ignore_perms,
+        bool $ignore_perms,
         ?Tracker_Artifact_ChangesetValue $value = null,
-        $format = 'text',
-    ) {
+        string $format = 'text',
+    ): string {
         if (empty($value) || $value->getText() == '') {
             return '-';
         }
@@ -479,13 +456,7 @@ class Tracker_FormElement_Field_Text extends Tracker_FormElement_Field_Alphanum
         return $GLOBALS['HTML']->getImagePath('ic/ui-spin--plus.png');
     }
 
-    /**
-     * Fetch the html code to display the field value in tooltip
-     *
-     * @param Tracker_Artifact_ChangesetValue_Text $value The changeset value of this field
-     * @return string The html code to display the field value in tooltip
-     */
-    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null)
+    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null): string
     {
         $html = '';
 

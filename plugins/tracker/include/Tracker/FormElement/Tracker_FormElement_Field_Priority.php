@@ -86,8 +86,12 @@ class Tracker_FormElement_Field_Priority extends Tracker_FormElement_Field_Integ
         return '<span class="non-displayable" title="' . dgettext('tuleap-tracker', 'The rank of an artifact only exists in the context of a milestone. You must filter by milestone to view artifact ranks.') . '">' . dgettext('tuleap-tracker', 'N/A') . '</span>';
     }
 
-    public function fetchCSVChangesetValue($artifact_id, $changeset_id, $value, $report)
+    public function fetchCSVChangesetValue(int $artifact_id, int $changeset_id, mixed $value, ?Tracker_Report $report): string
     {
+        if (! $report) {
+            return dgettext('tuleap-tracker', 'N/A');
+        }
+
         $augmented_value = $this->getAugmentedFieldValue($artifact_id, $report);
         if ($augmented_value) {
             return $augmented_value;
@@ -147,14 +151,12 @@ class Tracker_FormElement_Field_Priority extends Tracker_FormElement_Field_Integ
      * @param Artifact                        $artifact         The artifact
      * @param Tracker_Artifact_ChangesetValue $value            The actual value of the field
      * @param array                           $submitted_values The value already submitted by the user
-     *
-     * @return string
      */
     protected function fetchArtifactValue(
         Artifact $artifact,
         ?Tracker_Artifact_ChangesetValue $value,
         array $submitted_values,
-    ) {
+    ): string {
         return $this->fetchArtifactValueReadOnly($artifact, $value);
     }
 
@@ -178,18 +180,14 @@ class Tracker_FormElement_Field_Priority extends Tracker_FormElement_Field_Integ
 
     /**
      * Fetch artifact value for email
-     * @param bool $ignore_perms
-     * @param string $format
-     *
-     * @return string
      */
     public function fetchMailArtifactValue(
         Artifact $artifact,
         PFUser $user,
-        $ignore_perms,
+        bool $ignore_perms,
         ?Tracker_Artifact_ChangesetValue $value = null,
-        $format = 'text',
-    ) {
+        string $format = 'text',
+    ): string {
         $output = '';
         switch ($format) {
             case 'html':
@@ -239,13 +237,7 @@ class Tracker_FormElement_Field_Priority extends Tracker_FormElement_Field_Integ
         return $GLOBALS['HTML']->getImagePath('ic/priority.png');
     }
 
-    /**
-     * Fetch the html code to display the field value in tooltip
-     *
-     * @param Tracker_Artifact_ChangesetValue $value The changeset value of this field
-     * @return string The html code to display the field value in tooltip
-     */
-    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null)
+    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null): string
     {
         return $this->getArtifactRank($artifact->getID());
     }

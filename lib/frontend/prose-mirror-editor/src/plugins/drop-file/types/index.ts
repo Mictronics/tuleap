@@ -18,4 +18,3 @@
  */
 
 export * from "./upload-file.error";
-export * from "./file-upload-options";

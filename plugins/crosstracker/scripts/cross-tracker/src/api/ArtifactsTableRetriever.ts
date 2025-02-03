@@ -19,14 +19,14 @@
 
 import type { ResultAsync } from "neverthrow";
 import type { Fault } from "@tuleap/fault";
-import { decodeJSON, getResponse, uri } from "@tuleap/fetch-result";
+import { decodeJSON, getResponse, uri, getAllJSON } from "@tuleap/fetch-result";
 import type { SelectableReportContentRepresentation } from "./cross-tracker-rest-api-types";
-import { DEFAULT_MODE, EXPERT_MODE } from "./cross-tracker-rest-api-types";
 import type {
     ArtifactsTableWithTotal,
     RetrieveArtifactsTable,
 } from "../domain/RetrieveArtifactsTable";
 import type { ArtifactsTableBuilder } from "./ArtifactsTableBuilder";
+import type { ArtifactsTable } from "../domain/ArtifactsTable";
 
 export const ArtifactsTableRetriever = (
     table_builder: ArtifactsTableBuilder,
@@ -36,7 +36,6 @@ export const ArtifactsTableRetriever = (
         getSelectableQueryResult(
             tracker_ids,
             expert_query,
-            expert_mode,
             limit,
             offset,
         ): ResultAsync<ArtifactsTableWithTotal, Fault> {
@@ -44,7 +43,6 @@ export const ArtifactsTableRetriever = (
                 params: {
                     limit,
                     offset,
-                    report_mode: expert_mode ? EXPERT_MODE : DEFAULT_MODE,
                     query: JSON.stringify({
                         trackers_id: tracker_ids,
                         expert_query,
@@ -63,13 +61,25 @@ export const ArtifactsTableRetriever = (
                 params: {
                     limit,
                     offset,
-                    report_mode: EXPERT_MODE,
                 },
             }).andThen((response) => {
                 const total = Number.parseInt(response.headers.get("X-PAGINATION-SIZE") ?? "0", 10);
                 return decodeJSON<SelectableReportContentRepresentation>(response).map((report) => {
                     return { table: table_builder.mapReportToArtifactsTable(report), total };
                 });
+            });
+        },
+
+        getSelectableFullReport(): ResultAsync<readonly ArtifactsTable[], Fault> {
+            return getAllJSON<SelectableReportContentRepresentation>(
+                uri`/api/v1/cross_tracker_reports/${report_id}/content`,
+                {
+                    params: {
+                        limit: 50,
+                    },
+                },
+            ).map((report) => {
+                return report.map((table) => table_builder.mapReportToArtifactsTable(table));
             });
         },
     };

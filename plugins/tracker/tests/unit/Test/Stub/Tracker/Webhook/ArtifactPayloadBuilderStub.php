@@ -25,7 +25,7 @@ namespace Tuleap\Tracker\Test\Stub\Tracker\Webhook;
 use Tuleap\Tracker\Webhook\ArtifactPayload;
 use Tuleap\Tracker\Webhook\ArtifactPayloadBuilder;
 
-final class ArtifactPayloadBuilderStub extends ArtifactPayloadBuilder
+final readonly class ArtifactPayloadBuilderStub extends ArtifactPayloadBuilder
 {
     private function __construct(
         private ArtifactPayload $payload,

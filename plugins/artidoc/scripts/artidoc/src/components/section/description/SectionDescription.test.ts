@@ -20,16 +20,18 @@
 import { describe, beforeEach, expect, it } from "vitest";
 import { shallowMount } from "@vue/test-utils";
 import type { VueWrapper } from "@vue/test-utils";
+import { ref } from "vue";
 import SectionDescription from "./SectionDescription.vue";
 import SectionDescriptionSkeleton from "./SectionDescriptionSkeleton.vue";
-import { InjectedSectionsStoreStub } from "@/helpers/stubs/InjectSectionsStoreStub";
+import { SectionsCollectionStub } from "@/sections/stubs/SectionsCollectionStub";
 import SectionDescriptionReadOnly from "./SectionDescriptionReadOnly.vue";
-import { SECTIONS_STORE } from "@/stores/sections-store-injection-key";
+import { SECTIONS_COLLECTION } from "@/sections/sections-collection-injection-key";
 import { UploadFileStub } from "@/helpers/stubs/UploadFileStub";
 import { CAN_USER_EDIT_DOCUMENT } from "@/can-user-edit-document-injection-key";
 import { noop } from "@/helpers/noop";
 import ArtifactSectionFactory from "@/helpers/artifact-section.factory";
 import FreetextSectionFactory from "@/helpers/freetext-section.factory";
+import { IS_LOADING_SECTIONS } from "@/is-loading-sections-injection-key";
 
 describe.each([[ArtifactSectionFactory], [FreetextSectionFactory]])(
     "SectionDescription",
@@ -41,16 +43,13 @@ describe.each([[ArtifactSectionFactory], [FreetextSectionFactory]])(
             can_user_edit_document = true;
         });
 
-        const getWrapper = (): VueWrapper => {
-            const sections_store = are_sections_loading
-                ? InjectedSectionsStoreStub.withLoadingSections([])
-                : InjectedSectionsStoreStub.withLoadedSections([]);
-
-            return shallowMount(SectionDescription, {
+        const getWrapper = (): VueWrapper =>
+            shallowMount(SectionDescription, {
                 global: {
                     provide: {
-                        [SECTIONS_STORE.valueOf()]: sections_store,
+                        [SECTIONS_COLLECTION.valueOf()]: SectionsCollectionStub.withSections([]),
                         [CAN_USER_EDIT_DOCUMENT.valueOf()]: can_user_edit_document,
+                        [IS_LOADING_SECTIONS.valueOf()]: ref(are_sections_loading),
                     },
                     stubs: {
                         async_editor: {
@@ -63,7 +62,10 @@ describe.each([[ArtifactSectionFactory], [FreetextSectionFactory]])(
                     editable_description: "Lorem ipsum",
                     readonly_description: "Lorem ipsum",
                     is_edit_mode: false,
-                    upload_url: "/file/upload",
+                    post_information: {
+                        upload_url: "/file/upload",
+                        getUploadJsonPayload: noop,
+                    },
                     add_attachment_to_waiting_list: noop,
                     input_section_content: noop,
                     is_image_upload_allowed: true,
@@ -73,7 +75,6 @@ describe.each([[ArtifactSectionFactory], [FreetextSectionFactory]])(
                     section: factory.create(),
                 },
             });
-        };
 
         it("When sections are loading, Then it should display the skeleton", () => {
             are_sections_loading = true;

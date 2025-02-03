@@ -17,11 +17,11 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { SectionEditorsStore } from "@/stores/useSectionEditorsStore";
+import type { SectionsStatesCollection } from "@/sections/SectionsStatesCollection";
 
-export function preventPageLeave(editors_collection: SectionEditorsStore): void {
+export function preventPageLeave(states_collection: SectionsStatesCollection): void {
     window.addEventListener("beforeunload", (event) => {
-        if (editors_collection.hasAtLeastOneEditorOpened()) {
+        if (states_collection.has_at_least_one_section_in_edit_mode.value) {
             event.preventDefault();
         }
     });

@@ -21,14 +21,10 @@
 
 namespace Tuleap\GraphOnTrackersV5\DataAccess;
 
-use ChartDataBuilderV5;
 use Codendi_HTMLPurifier;
 use CSRFSynchronizerToken;
 use EventManager;
 use Exception;
-use GraphOnTrackersV5_Engine;
-use GraphOnTrackersV5_GraphActionsPresenter;
-use GraphOnTrackersV5_Renderer;
 use HTML_Element_Columns;
 use HTML_Element_Input_Hidden;
 use HTML_Element_Input_Text;
@@ -48,6 +44,10 @@ use Tuleap\Dashboard\User\UserDashboardRetriever;
 use Tuleap\Dashboard\Widget\DashboardWidgetDao;
 use Tuleap\GraphOnTrackersV5\Chart\D3CompatibleChartVisitor;
 use Tuleap\GraphOnTrackersV5\Chart\Visitable;
+use Tuleap\GraphOnTrackersV5\DataTransformation\ChartDataBuilderV5;
+use Tuleap\GraphOnTrackersV5\GraphicLibrary\GraphOnTrackersV5_Engine;
+use Tuleap\GraphOnTrackersV5\GraphOnTrackersV5_GraphActionsPresenter;
+use Tuleap\GraphOnTrackersV5\GraphOnTrackersV5_Renderer;
 use Tuleap\Tracker\Report\WidgetAdditionalButtonPresenter;
 use Tuleap\Widget\WidgetFactory;
 use User_ForgeUserGroupPermissionsDao;

@@ -26,20 +26,25 @@ use Docman_ItemFactory;
 use Luracast\Restler\RestException;
 use Tuleap\Artidoc\Adapter\Document\ArtidocRetriever;
 use Tuleap\Artidoc\Adapter\Document\ArtidocWithContextDecorator;
-use Tuleap\Artidoc\Adapter\Document\CurrentUserHasArtidocPermissionsChecker;
 use Tuleap\Artidoc\Adapter\Document\SearchArtidocDocumentDao;
+use Tuleap\Artidoc\Adapter\Document\Section\AlreadyExistingSectionWithSameArtifactFault;
 use Tuleap\Artidoc\Adapter\Document\Section\DeleteOneSectionDao;
 use Tuleap\Artidoc\Adapter\Document\Section\Freetext\Identifier\UUIDFreetextIdentifierFactory;
 use Tuleap\Artidoc\Adapter\Document\Section\Freetext\UpdateFreetextContentDao;
 use Tuleap\Artidoc\Adapter\Document\Section\Identifier\UUIDSectionIdentifierFactory;
 use Tuleap\Artidoc\Adapter\Document\Section\RequiredSectionInformationCollector;
 use Tuleap\Artidoc\Adapter\Document\Section\RetrieveArtidocSectionDao;
+use Tuleap\Artidoc\Adapter\Document\Section\SaveSectionDao;
+use Tuleap\Artidoc\Adapter\Document\Section\UnableToFindSiblingSectionFault;
+use Tuleap\Artidoc\ArtidocWithContextRetrieverBuilder;
 use Tuleap\Artidoc\Document\DocumentServiceFromAllowedProjectRetriever;
-use Tuleap\Artidoc\Domain\Document\ArtidocWithContextRetriever;
+use Tuleap\Artidoc\Domain\Document\RetrieveArtidocWithContext;
 use Tuleap\Artidoc\Domain\Document\Section\CollectRequiredSectionInformation;
 use Tuleap\Artidoc\Domain\Document\Section\EmptyTitleFault;
 use Tuleap\Artidoc\Domain\Document\Section\Freetext\Identifier\FreetextIdentifierFactory;
-use Tuleap\Artidoc\Domain\Document\Section\RawSection;
+use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifier;
+use Tuleap\Artidoc\Domain\Document\Section\RetrievedSection;
+use Tuleap\Artidoc\Domain\Document\Section\SectionCreator;
 use Tuleap\Artidoc\Domain\Document\Section\SectionRetriever;
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\InvalidSectionIdentifierStringException;
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifierFactory;
@@ -49,6 +54,7 @@ use Tuleap\Artidoc\Domain\Document\Section\UnableToUpdateArtifactSectionFault;
 use Tuleap\Artidoc\Domain\Document\UserCannotWriteDocumentFault;
 use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\NeverThrow\Fault;
+use Tuleap\Option\Option;
 use Tuleap\REST\AuthenticatedResource;
 use Tuleap\REST\Header;
 use Tuleap\REST\I18NRestException;
@@ -72,7 +78,7 @@ final class ArtidocSectionsResource extends AuthenticatedResource
      */
     public function options(string $id): void
     {
-        Header::allowOptionsGetPutDelete();
+        Header::allowOptionsGetPutPostDelete();
     }
 
     /**
@@ -105,7 +111,7 @@ final class ArtidocSectionsResource extends AuthenticatedResource
 
         return $this->getSectionRetriever($user, $collector)
             ->retrieveSectionUserCanRead($section_id)
-            ->andThen(fn(RawSection $section) =>
+            ->andThen(fn(RetrievedSection $section) =>
                 $this->getSectionRepresentationBuilder()->getSectionRepresentation($section, $collector, $user))->match(
                     fn(SectionRepresentation $representation) => $representation,
                     function (Fault $fault) {
@@ -210,50 +216,138 @@ final class ArtidocSectionsResource extends AuthenticatedResource
             );
     }
 
-    private function getDeleteHandler(\PFUser $user): SectionDeletor
+    /**
+     * Create section
+     *
+     * Create one section in an artidoc document.
+     *
+     * <p>Example payload, to create a section based on artifact #123. The new section will be placed before its sibling:</p>
+     * <pre>
+     * {<br>
+     * &nbsp;&nbsp;id: 456,<br>
+     * &nbsp;&nbsp;section:{<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;"artifact": { "id": 123 },<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;"position": { "before": "550e8400-e29b-41d4-a716-446655440000" },<br>
+     * &nbsp;&nbsp;}<br>
+     * }
+     * </pre>
+     *
+     * <p>Another example, if you want to put the section at the end of the document:</p>
+     * <pre>
+     * {<br>
+     * &nbsp;&nbsp;id: 456,<br>
+     * &nbsp;&nbsp;section:{<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;"artifact": { "id": 123 },<br>
+     * &nbsp;&nbsp;&nbsp;&nbsp;"position": null,<br>
+     * &nbsp;&nbsp;}<br>
+     * }
+     * </pre>
+     *
+     *  <p>Example payload, to create a section based on free text. The new section will be placed before its sibling:</p>
+     *  <pre>
+     * {<br>
+     * &nbsp;&nbsp;id: 456,<br>
+     * &nbsp;&nbsp;section:{<br>
+     *  &nbsp;&nbsp;&nbsp;&nbsp;"content": { "title": "My title", "description": "My freetext description", type: "freetext" },<br>
+     *  &nbsp;&nbsp;&nbsp;&nbsp;"position": { "before": "550e8400-e29b-41d4-a716-446655440000" },<br>
+     * &nbsp;&nbsp;}<br>
+     *  }
+     *  </pre>
+     *
+     * @url    POST
+     * @access hybrid
+     *
+     * @param int $artidoc_id Id of the document {@from body}
+     * @param ArtidocSectionPOSTRepresentation $section {@from body}
+     *
+     * @status 200
+     * @throws RestException
+     */
+    public function postSection(int $artidoc_id, ArtidocSectionPOSTRepresentation $section): SectionRepresentation
     {
-        $plugin = \PluginManager::instance()->getEnabledPluginByName('artidoc');
-        if (! $plugin) {
-            throw new RestException(404);
-        }
+        $this->checkAccess();
 
-        $retriever = new ArtidocWithContextRetriever(
-            new ArtidocRetriever(new SearchArtidocDocumentDao(), new Docman_ItemFactory()),
-            CurrentUserHasArtidocPermissionsChecker::withCurrentUser($user),
-            new ArtidocWithContextDecorator(
-                \ProjectManager::instance(),
-                new DocumentServiceFromAllowedProjectRetriever($plugin),
-            ),
+        $user = UserManager::instance()->getCurrentUser();
+
+        $identifier_factory = new UUIDSectionIdentifierFactory(new DatabaseUUIDV7Factory());
+
+        $collector = new RequiredSectionInformationCollector(
+            $user,
+            new RequiredArtifactInformationBuilder(\Tracker_ArtifactFactory::instance())
         );
 
-        $section_identifier_factory  = $this->getSectionIdentifierFactory();
-        $freetext_identifier_factory = $this->getFreetextIdentifierFactory();
+        try {
+            $before_section_id = $section->position
+                ? Option::fromValue($identifier_factory->buildFromHexadecimalString($section->position->before))
+                : Option::nothing(SectionIdentifier::class);
+        } catch (InvalidSectionIdentifierStringException) {
+            throw new RestException(400, 'Sibling section id is invalid');
+        }
 
+        return $this->getSectionCreator($user, $collector)
+            ->create($artidoc_id, $before_section_id, ContentToBeCreatedBuilder::buildFromRepresentation($section))
+            ->andThen(
+                fn (SectionIdentifier $section_identifier) =>
+                $this->getSectionRetriever($user, $collector)
+                    ->retrieveSectionUserCanRead($section_identifier)
+            )->andThen(
+                fn (RetrievedSection $section) =>
+                $this->getSectionRepresentationBuilder()
+                    ->getSectionRepresentation($section, $collector, $user)
+            )
+            ->match(
+                static function (SectionRepresentation $representation) {
+                    return $representation;
+                },
+                static function (Fault $fault) {
+                    Fault::writeToLogger($fault, RESTLogger::getLogger());
+                    throw match (true) {
+                        $fault instanceof UserCannotWriteDocumentFault => new I18NRestException(
+                            403,
+                            dgettext('tuleap-artidoc', "You don't have permission to write the document.")
+                        ),
+                        $fault instanceof AlreadyExistingSectionWithSameArtifactFault => new I18NRestException(
+                            400,
+                            dgettext('tuleap-artidoc', 'There is already an existing section with the same artifact in the document.')
+                        ),
+                        $fault instanceof UnableToFindSiblingSectionFault => new I18NRestException(
+                            400,
+                            dgettext('tuleap-artidoc', 'We were unable to insert the new section at the required position. The sibling section does not exist, maybe it has been deleted by someone else while you were editing the document?')
+                        ),
+                        default => new RestException(404, (string) $fault),
+                    };
+                }
+            );
+    }
+
+    /**
+     * @throws RestException
+     */
+    private function getSectionCreator(\PFUser $user, CollectRequiredSectionInformation $collector): SectionCreator
+    {
+        return new SectionCreator(
+            $this->getArtidocWithContextRetriever($user),
+            new SaveSectionDao($this->getSectionIdentifierFactory(), $this->getFreetextIdentifierFactory()),
+            $collector,
+        );
+    }
+
+    private function getDeleteHandler(\PFUser $user): SectionDeletor
+    {
         return new SectionDeletor(
-            new RetrieveArtidocSectionDao($section_identifier_factory, $freetext_identifier_factory),
-            $retriever,
+            new RetrieveArtidocSectionDao($this->getSectionIdentifierFactory(), $this->getFreetextIdentifierFactory()),
+            $this->getArtidocWithContextRetriever($user),
             new DeleteOneSectionDao(),
         );
     }
 
     private function getSectionRetriever(\PFUser $user, CollectRequiredSectionInformation $collector): SectionRetriever
     {
-        $plugin = \PluginManager::instance()->getEnabledPluginByName('artidoc');
-        if (! $plugin) {
-            throw new RestException(404);
-        }
-
-        $dao       = new RetrieveArtidocSectionDao($this->getSectionIdentifierFactory(), $this->getFreetextIdentifierFactory());
-        $retriever = new ArtidocWithContextRetriever(
-            new ArtidocRetriever(new SearchArtidocDocumentDao(), new Docman_ItemFactory()),
-            CurrentUserHasArtidocPermissionsChecker::withCurrentUser($user),
-            new ArtidocWithContextDecorator(
-                \ProjectManager::instance(),
-                new DocumentServiceFromAllowedProjectRetriever($plugin),
-            ),
+        return new SectionRetriever(
+            new RetrieveArtidocSectionDao($this->getSectionIdentifierFactory(), $this->getFreetextIdentifierFactory()),
+            $this->getArtidocWithContextRetriever($user),
+            $collector,
         );
-
-        return new SectionRetriever($dao, $retriever, $collector);
     }
 
     private function getSectionIdentifierFactory(): SectionIdentifierFactory
@@ -293,5 +387,23 @@ final class ArtidocSectionsResource extends AuthenticatedResource
                 $form_element_factory
             ),
         );
+    }
+
+    private function getArtidocWithContextRetriever(\PFUser $user): RetrieveArtidocWithContext
+    {
+        $plugin = \PluginManager::instance()->getEnabledPluginByName('artidoc');
+        if (! $plugin) {
+            throw new RestException(404);
+        }
+
+        $retriever_builder = new ArtidocWithContextRetrieverBuilder(
+            new ArtidocRetriever(new SearchArtidocDocumentDao(), new Docman_ItemFactory()),
+            new ArtidocWithContextDecorator(
+                \ProjectManager::instance(),
+                new DocumentServiceFromAllowedProjectRetriever($plugin),
+            ),
+        );
+
+        return $retriever_builder->buildForUser($user);
     }
 }

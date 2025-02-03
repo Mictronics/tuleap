@@ -20,7 +20,10 @@
 import type { Ref } from "vue";
 import { ref } from "vue";
 import type { ArtidocSection } from "@/helpers/artidoc-section.type";
+import { isFreetextSection } from "@/helpers/artidoc-section.type";
 import { noop } from "@/helpers/noop";
+import type { FileUploadOptions } from "@tuleap/file-upload";
+import type { ReactiveStoredArtidocSection } from "@/sections/SectionsCollection";
 
 type PendingAttachment = { id: number; upload_url: string };
 export interface AttachmentFile {
@@ -29,17 +32,30 @@ export interface AttachmentFile {
         section: ArtidocSection,
         description: string,
     ) => { field_id: number; value: number[] };
-    upload_url: string;
+    post_information: FileUploadOptions["post_information"];
     getWaitingListAttachments: () => Ref<PendingAttachment[]>;
     setWaitingListAttachments: (new_value: PendingAttachment[]) => void;
 }
 
-export function useAttachmentFile(field_id: Ref<number>): AttachmentFile {
+export function useAttachmentFile(
+    section: ReactiveStoredArtidocSection,
+    artidoc_id: number,
+): AttachmentFile {
     const not_saved_yet_description_attachments: Ref<PendingAttachment[]> = ref([]);
 
-    if (field_id.value === 0) {
+    if (isFreetextSection(section.value)) {
         return {
-            upload_url: "",
+            post_information: {
+                upload_url: "/api/v1/artidoc_files",
+                getUploadJsonPayload(file: File): unknown {
+                    return {
+                        artidoc_id,
+                        name: file.name,
+                        file_size: file.size,
+                        file_type: file.type,
+                    };
+                },
+            },
             getWaitingListAttachments: () => ref(not_saved_yet_description_attachments),
             setWaitingListAttachments: noop,
             addAttachmentToWaitingList: noop,
@@ -47,7 +63,21 @@ export function useAttachmentFile(field_id: Ref<number>): AttachmentFile {
         };
     }
 
-    const upload_url = `/api/v1/tracker_fields/${field_id.value}/files`;
+    const field_id = section.value.attachments ? section.value.attachments.field_id : 0;
+    if (field_id === 0) {
+        return {
+            post_information: {
+                upload_url: "",
+                getUploadJsonPayload: noop,
+            },
+            getWaitingListAttachments: () => ref(not_saved_yet_description_attachments),
+            setWaitingListAttachments: noop,
+            addAttachmentToWaitingList: noop,
+            mergeArtifactAttachments,
+        };
+    }
+
+    const upload_url = `/api/v1/tracker_fields/${field_id}/files`;
 
     function addAttachmentToWaitingList(new_pending_attachment: PendingAttachment): void {
         not_saved_yet_description_attachments.value.push({
@@ -83,7 +113,7 @@ export function useAttachmentFile(field_id: Ref<number>): AttachmentFile {
             description,
         );
         return {
-            field_id: field_id.value,
+            field_id,
             value: filteredAttachmentToAdd.concat(section_artifact_attachments),
         };
     }
@@ -97,7 +127,16 @@ export function useAttachmentFile(field_id: Ref<number>): AttachmentFile {
     }
 
     return {
-        upload_url,
+        post_information: {
+            upload_url,
+            getUploadJsonPayload(file: File): unknown {
+                return {
+                    name: file.name,
+                    file_size: file.size,
+                    file_type: file.type,
+                };
+            },
+        },
         addAttachmentToWaitingList,
         mergeArtifactAttachments,
         getWaitingListAttachments,

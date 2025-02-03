@@ -31,16 +31,13 @@ use ProjectManager;
 use Tuleap\Artidoc\Adapter\Document\ArtidocDocument;
 use Tuleap\Artidoc\Adapter\Document\ArtidocRetriever;
 use Tuleap\Artidoc\Adapter\Document\ArtidocWithContextDecorator;
-use Tuleap\Artidoc\Adapter\Document\CurrentUserHasArtidocPermissionsChecker;
 use Tuleap\Artidoc\Adapter\Document\SearchArtidocDocumentDao;
-use Tuleap\Artidoc\Adapter\Document\Section\AlreadyExistingSectionWithSameArtifactFault;
 use Tuleap\Artidoc\Adapter\Document\Section\Freetext\Identifier\UUIDFreetextIdentifierFactory;
 use Tuleap\Artidoc\Adapter\Document\Section\Identifier\UUIDSectionIdentifierFactory;
 use Tuleap\Artidoc\Adapter\Document\Section\ReorderSectionsDao;
 use Tuleap\Artidoc\Adapter\Document\Section\RequiredSectionInformationCollector;
 use Tuleap\Artidoc\Adapter\Document\Section\RetrieveArtidocSectionDao;
-use Tuleap\Artidoc\Adapter\Document\Section\SaveSectionDao;
-use Tuleap\Artidoc\Adapter\Document\Section\UnableToFindSiblingSectionFault;
+use Tuleap\Artidoc\ArtidocWithContextRetrieverBuilder;
 use Tuleap\Artidoc\Document\ArtidocDao;
 use Tuleap\Artidoc\Document\DocumentServiceFromAllowedProjectRetriever;
 use Tuleap\Artidoc\Document\Tracker\NoSemanticDescriptionFault;
@@ -49,7 +46,6 @@ use Tuleap\Artidoc\Document\Tracker\SemanticTitleIsNotAStringFault;
 use Tuleap\Artidoc\Document\Tracker\SuitableTrackerForDocumentChecker;
 use Tuleap\Artidoc\Document\Tracker\TooManyRequiredFieldsFault;
 use Tuleap\Artidoc\Document\Tracker\TrackerNotFoundFault;
-use Tuleap\Artidoc\Domain\Document\ArtidocWithContextRetriever;
 use Tuleap\Artidoc\Domain\Document\Order\CannotMoveSectionRelativelyToItselfFault;
 use Tuleap\Artidoc\Domain\Document\Order\ChangeSectionOrder;
 use Tuleap\Artidoc\Domain\Document\Order\Direction;
@@ -60,12 +56,11 @@ use Tuleap\Artidoc\Domain\Document\Order\SectionOrder;
 use Tuleap\Artidoc\Domain\Document\Order\SectionOrderBuilder;
 use Tuleap\Artidoc\Domain\Document\Order\UnableToReorderSectionOutsideOfDocumentFault;
 use Tuleap\Artidoc\Domain\Document\Order\UnknownSectionToMoveFault;
-use Tuleap\Artidoc\Domain\Document\Section\CollectRequiredSectionInformation;
-use Tuleap\Artidoc\Domain\Document\Section\Identifier\InvalidSectionIdentifierStringException;
-use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifier;
-use Tuleap\Artidoc\Domain\Document\Section\PaginatedRawSections;
-use Tuleap\Artidoc\Domain\Document\Section\PaginatedRawSectionsRetriever;
-use Tuleap\Artidoc\Domain\Document\Section\SectionCreator;
+use Tuleap\Artidoc\Domain\Document\RetrieveArtidocWithContext;
+use Tuleap\Artidoc\Domain\Document\Section\Freetext\Identifier\FreetextIdentifierFactory;
+use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifierFactory;
+use Tuleap\Artidoc\Domain\Document\Section\PaginatedRetrievedSections;
+use Tuleap\Artidoc\Domain\Document\Section\PaginatedRetrievedSectionsRetriever;
 use Tuleap\Artidoc\Domain\Document\UserCannotWriteDocumentFault;
 use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\Docman\ItemType\DoesItemHasExpectedTypeVisitor;
@@ -77,7 +72,6 @@ use Tuleap\Docman\REST\v1\MoveItem\DocmanItemMover;
 use Tuleap\Docman\Upload\Document\DocumentOngoingUploadDAO;
 use Tuleap\Docman\Upload\Document\DocumentOngoingUploadRetriever;
 use Tuleap\NeverThrow\Fault;
-use Tuleap\Option\Option;
 use Tuleap\REST\AuthenticatedResource;
 use Tuleap\REST\Header;
 use Tuleap\REST\I18NRestException;
@@ -194,10 +188,10 @@ final class ArtidocResource extends AuthenticatedResource
 
         $user = UserManager::instance()->getCurrentUser();
 
-        return $this->getPaginatedRawSectionsRetriever($user)
-            ->retrievePaginatedRawSections($id, $limit, $offset)
-            ->andThen(fn (PaginatedRawSections $raw_sections) =>
-                $this->getRepresentationTransformer($user)->getRepresentation($raw_sections, $user))->match(
+        return $this->getPaginatedRetrievedSectionsRetriever($user)
+            ->retrievePaginatedRetrievedSections($id, $limit, $offset)
+            ->andThen(fn (PaginatedRetrievedSections $retrieved_sections) =>
+                $this->getRepresentationTransformer($user)->getRepresentation($retrieved_sections, $user))->match(
                     function (PaginatedArtidocSectionRepresentationCollection $collection) use ($limit, $offset) {
                         Header::sendPaginationHeaders($limit, $offset, $collection->total, self::MAX_LIMIT);
                         return $collection->sections;
@@ -288,89 +282,6 @@ final class ArtidocResource extends AuthenticatedResource
     }
 
     /**
-     * Create section
-     *
-     * Create one section in an artidoc document.
-     *
-     * <p>Example payload, to create a section based on artifact #123. The new section will be placed before its sibling:</p>
-     * <pre>
-     * {<br>
-     * &nbsp;&nbsp;"artifact": { "id": 123 },<br>
-     * &nbsp;&nbsp;"position": { "before": "550e8400-e29b-41d4-a716-446655440000" },<br>
-     * }
-     * </pre>
-     *
-     * <p>Another example, if you want to put the section at the end of the document:</p>
-     * <pre>
-     * {<br>
-     * &nbsp;&nbsp;"artifact": { "id": 123 },<br>
-     * &nbsp;&nbsp;"position": null,<br>
-     * }
-     * </pre>
-     *
-     * @url    POST {id}/sections
-     * @access hybrid
-     *
-     * @param int $id Id of the document
-     * @param ArtidocPOSTSectionRepresentation $section {@from body}
-     *
-     * @status 200
-     * @throws RestException
-     */
-    public function postSection(int $id, ArtidocPOSTSectionRepresentation $section): ArtifactSectionRepresentation
-    {
-        $this->checkAccess();
-
-        $user = UserManager::instance()->getCurrentUser();
-
-        $identifier_factory = new UUIDSectionIdentifierFactory(new DatabaseUUIDV7Factory());
-
-        $collector = new RequiredSectionInformationCollector(
-            $user,
-            new RequiredArtifactInformationBuilder(\Tracker_ArtifactFactory::instance())
-        );
-
-        try {
-            $before_section_id = $section->position
-                ? Option::fromValue($identifier_factory->buildFromHexadecimalString($section->position->before))
-                : Option::nothing(SectionIdentifier::class);
-        } catch (InvalidSectionIdentifierStringException) {
-            throw new RestException(400, 'Sibling section id is invalid');
-        }
-
-        return $this->getSectionCreator($user, $collector)
-            ->create($id, $section->artifact->id, $before_section_id)
-            ->andThen(function (SectionIdentifier $section_identifier) use ($collector, $section) {
-                return $collector->getCollectedRequiredSectionInformation($section->artifact->id)
-                    ->map(fn(RequiredArtifactInformation $info) => new SectionWrapper($section_identifier, $info));
-            })
-            ->map(fn (SectionWrapper $created) => $this->getRepresentationBuilder()->build($created->required_info, $created->section_identifier, $user))
-            ->match(
-                static function (ArtifactSectionRepresentation $representation) {
-                    return $representation;
-                },
-                static function (Fault $fault) {
-                    Fault::writeToLogger($fault, RESTLogger::getLogger());
-                    throw match (true) {
-                        $fault instanceof UserCannotWriteDocumentFault => new I18NRestException(
-                            403,
-                            dgettext('tuleap-artidoc', "You don't have permission to write the document.")
-                        ),
-                        $fault instanceof AlreadyExistingSectionWithSameArtifactFault => new I18NRestException(
-                            400,
-                            dgettext('tuleap-artidoc', 'There is already an existing section with the same artifact in the document.')
-                        ),
-                        $fault instanceof UnableToFindSiblingSectionFault => new I18NRestException(
-                            400,
-                            dgettext('tuleap-artidoc', 'We were unable to insert the new section at the required position. The sibling section does not exist, maybe it has been deleted by someone else while you were editing the document?')
-                        ),
-                        default => new RestException(404, (string) $fault),
-                    };
-                }
-            );
-    }
-
-    /**
      * @url OPTIONS {id}/configuration
      */
     public function optionsConfiguration(int $id): void
@@ -433,77 +344,11 @@ final class ArtidocResource extends AuthenticatedResource
             );
     }
 
-    private function getPaginatedRawSectionsRetriever(\PFUser $user): PaginatedRawSectionsRetriever
+    private function getPaginatedRetrievedSectionsRetriever(\PFUser $user): PaginatedRetrievedSectionsRetriever
     {
-        $plugin = \PluginManager::instance()->getEnabledPluginByName('artidoc');
-        if (! $plugin) {
-            throw new RestException(404);
-        }
-
-        $uuid_factory = new DatabaseUUIDV7Factory();
-        $dao          = new RetrieveArtidocSectionDao(new UUIDSectionIdentifierFactory($uuid_factory), new UUIDFreetextIdentifierFactory($uuid_factory));
-        $retriever    = new ArtidocWithContextRetriever(
-            new ArtidocRetriever(new SearchArtidocDocumentDao(), new Docman_ItemFactory()),
-            CurrentUserHasArtidocPermissionsChecker::withCurrentUser($user),
-            new ArtidocWithContextDecorator(
-                \ProjectManager::instance(),
-                new DocumentServiceFromAllowedProjectRetriever($plugin),
-            ),
-        );
-
-        return new PaginatedRawSectionsRetriever($retriever, $dao);
-    }
-
-    /**
-     * @throws RestException
-     */
-    private function getSectionCreator(\PFUser $user, CollectRequiredSectionInformation $collector): SectionCreator
-    {
-        $plugin = \PluginManager::instance()->getEnabledPluginByName('artidoc');
-        if (! $plugin) {
-            throw new RestException(404);
-        }
-
-        $uuid_factory       = new DatabaseUUIDV7Factory();
-        $identifier_factory = new UUIDSectionIdentifierFactory($uuid_factory);
-        $dao                = new SaveSectionDao($identifier_factory, new UUIDFreetextIdentifierFactory($uuid_factory));
-        $retriever          = new ArtidocWithContextRetriever(
-            new ArtidocRetriever(new SearchArtidocDocumentDao(), new Docman_ItemFactory()),
-            CurrentUserHasArtidocPermissionsChecker::withCurrentUser($user),
-            new ArtidocWithContextDecorator(
-                \ProjectManager::instance(),
-                new DocumentServiceFromAllowedProjectRetriever($plugin),
-            ),
-        );
-
-        return new SectionCreator(
-            $retriever,
-            $dao,
-            $collector,
-        );
-    }
-
-    private function getRepresentationBuilder(): ArtifactSectionRepresentationBuilder
-    {
-        $form_element_factory = \Tracker_FormElementFactory::instance();
-
-        return new ArtifactSectionRepresentationBuilder(
-            new FileUploadDataProvider(
-                new FrozenFieldDetector(
-                    new TransitionRetriever(
-                        new StateFactory(
-                            \TransitionFactory::instance(),
-                            new SimpleWorkflowDao()
-                        ),
-                        new TransitionExtractor()
-                    ),
-                    new FrozenFieldsRetriever(
-                        new FrozenFieldsDao(),
-                        $form_element_factory,
-                    )
-                ),
-                $form_element_factory,
-            )
+        return new PaginatedRetrievedSectionsRetriever(
+            $this->getArtidocWithContextRetriever($user),
+            new RetrieveArtidocSectionDao($this->getSectionIdentifierFactory(), $this->getFreetextIdentifierFactory()),
         );
     }
 
@@ -512,24 +357,9 @@ final class ArtidocResource extends AuthenticatedResource
      */
     private function getReorderHandler(\PFUser $user): ChangeSectionOrder
     {
-        $plugin = \PluginManager::instance()->getEnabledPluginByName('artidoc');
-        if (! $plugin) {
-            throw new RestException(404);
-        }
-
-        $dao       = new ReorderSectionsDao();
-        $retriever = new ArtidocWithContextRetriever(
-            new ArtidocRetriever(new SearchArtidocDocumentDao(), new Docman_ItemFactory()),
-            CurrentUserHasArtidocPermissionsChecker::withCurrentUser($user),
-            new ArtidocWithContextDecorator(
-                \ProjectManager::instance(),
-                new DocumentServiceFromAllowedProjectRetriever($plugin),
-            ),
-        );
-
         return new ChangeSectionOrder(
-            $retriever,
-            $dao,
+            $this->getArtidocWithContextRetriever($user),
+            new ReorderSectionsDao(),
         );
     }
 
@@ -538,33 +368,17 @@ final class ArtidocResource extends AuthenticatedResource
      */
     private function getPutConfigurationHandler(\PFUser $user): PUTConfigurationHandler
     {
-        $plugin = \PluginManager::instance()->getEnabledPluginByName('artidoc');
-        if (! $plugin) {
-            throw new RestException(404);
-        }
-
-        $uuid_factory = new DatabaseUUIDV7Factory();
-        $dao          = new ArtidocDao(new UUIDSectionIdentifierFactory($uuid_factory), new UUIDFreetextIdentifierFactory($uuid_factory));
-        $retriever    = new ArtidocWithContextRetriever(
-            new ArtidocRetriever(new SearchArtidocDocumentDao(), new Docman_ItemFactory()),
-            CurrentUserHasArtidocPermissionsChecker::withCurrentUser($user),
-            new ArtidocWithContextDecorator(
-                \ProjectManager::instance(),
-                new DocumentServiceFromAllowedProjectRetriever($plugin),
-            ),
-        );
-
         return new PUTConfigurationHandler(
-            $retriever,
-            $dao,
+            $this->getArtidocWithContextRetriever($user),
+            new ArtidocDao($this->getSectionIdentifierFactory(), $this->getFreetextIdentifierFactory()),
             \TrackerFactory::instance(),
             new SuitableTrackerForDocumentChecker(\Tracker_FormElementFactory::instance()),
         );
     }
 
-    private function getRepresentationTransformer(\PFUser $user): RawSectionsToRepresentationTransformer
+    private function getRepresentationTransformer(\PFUser $user): RetrievedSectionsToRepresentationTransformer
     {
-        return new RawSectionsToRepresentationTransformer(
+        return new RetrievedSectionsToRepresentationTransformer(
             $this->getSectionRepresentationBuilder(),
             new RequiredSectionInformationCollector(
                 $user,
@@ -576,6 +390,24 @@ final class ArtidocResource extends AuthenticatedResource
     private function getSectionRepresentationBuilder(): SectionRepresentationBuilder
     {
         return new SectionRepresentationBuilder($this->getArtifactSectionRepresentationBuilder());
+    }
+
+    private function getArtidocWithContextRetriever(\PFUser $user): RetrieveArtidocWithContext
+    {
+        $plugin = \PluginManager::instance()->getEnabledPluginByName('artidoc');
+        if (! $plugin) {
+            throw new RestException(404);
+        }
+
+        $retriever_builder = new ArtidocWithContextRetrieverBuilder(
+            new ArtidocRetriever(new SearchArtidocDocumentDao(), new Docman_ItemFactory()),
+            new ArtidocWithContextDecorator(
+                \ProjectManager::instance(),
+                new DocumentServiceFromAllowedProjectRetriever($plugin),
+            ),
+        );
+
+        return $retriever_builder->buildForUser($user);
     }
 
     private function getArtifactSectionRepresentationBuilder(): ArtifactSectionRepresentationBuilder
@@ -604,6 +436,16 @@ final class ArtidocResource extends AuthenticatedResource
 
     private function getSectionOrderBuilder(): SectionOrderBuilder
     {
-        return (new SectionOrderBuilder(new UUIDSectionIdentifierFactory(new DatabaseUUIDV7Factory())));
+        return new SectionOrderBuilder($this->getSectionIdentifierFactory());
+    }
+
+    private function getSectionIdentifierFactory(): SectionIdentifierFactory
+    {
+        return new UUIDSectionIdentifierFactory(new DatabaseUUIDV7Factory());
+    }
+
+    private function getFreetextIdentifierFactory(): FreetextIdentifierFactory
+    {
+        return new UUIDFreetextIdentifierFactory(new DatabaseUUIDV7Factory());
     }
 }

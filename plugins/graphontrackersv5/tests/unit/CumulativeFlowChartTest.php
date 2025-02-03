@@ -24,10 +24,10 @@
 
 namespace Tuleap\GraphOnTrackersV5;
 
-use GraphOnTrackersV5_CumulativeFlow_DataBuilder;
 use Tracker_FormElement_Field_Selectbox;
 use Tracker_Report_Criteria;
 use Tuleap\GraphOnTrackersV5\DataAccess\GraphOnTrackersV5_Chart_CumulativeFlow;
+use Tuleap\GraphOnTrackersV5\DataTransformation\GraphOnTrackersV5_CumulativeFlow_DataBuilder;
 
 require_once __DIR__ . '/bootstrap.php';
 
@@ -40,7 +40,7 @@ final class CumulativeFlowChartTest extends \Tuleap\Test\PHPUnit\TestCase
     {
         $this->report = $this->createMock(\Tracker_Report::class);
 
-        $renderer = $this->createMock(\GraphOnTrackersV5_Renderer::class);
+        $renderer = $this->createMock(GraphOnTrackersV5_Renderer::class);
         $renderer->method('getReport')->willReturn($this->report);
 
         $chart = $this->createMock(GraphOnTrackersV5_Chart_CumulativeFlow::class);

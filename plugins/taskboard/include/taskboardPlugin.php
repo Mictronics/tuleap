@@ -20,6 +20,7 @@
 
 declare(strict_types=1);
 
+use Tuleap\AgileDashboard\BacklogItemDao;
 use Tuleap\AgileDashboard\Event\GetAdditionalScrumAdminSection;
 use Tuleap\AgileDashboard\Milestone\HeaderOptionsProvider;
 use Tuleap\AgileDashboard\Milestone\Pane\PaneInfoCollector;
@@ -50,6 +51,8 @@ use Tuleap\Taskboard\Tracker\TrackerPresenterCollectionBuilder;
 use Tuleap\Tracker\Artifact\RecentlyVisited\RecentlyVisitedDao;
 use Tuleap\Tracker\Artifact\RecentlyVisited\VisitRecorder;
 use Tuleap\Tracker\NewDropdown\TrackerNewDropdownLinkPresenterBuilder;
+use Tuleap\Tracker\Permission\SubmissionPermissionVerifier;
+use Tuleap\Tracker\Permission\TrackersPermissionsRetriever;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -118,7 +121,7 @@ class taskboardPlugin extends Plugin
             new BoardPresenterBuilder(
                 $agiledashboard_plugin->getMilestonePaneFactory(),
                 ColumnPresenterCollectionRetriever::build(),
-                new AgileDashboard_BacklogItemDao(),
+                new BacklogItemDao(),
                 new TrackerPresenterCollectionBuilder(
                     \Tuleap\Taskboard\Tracker\TrackerCollectionRetriever::build(),
                     new \Tuleap\Taskboard\Column\FieldValuesToColumnMapping\MappedFieldRetriever(
@@ -139,9 +142,10 @@ class taskboardPlugin extends Plugin
             new VisitRecorder(new RecentlyVisitedDao()),
             new HeaderOptionsProvider(
                 new AgileDashboard_Milestone_Backlog_BacklogFactory(
-                    new AgileDashboard_BacklogItemDao(),
+                    new BacklogItemDao(),
                     Tracker_ArtifactFactory::instance(),
                     $planning_factory,
+                    new \Tuleap\Tracker\Artifact\Dao\ArtifactDao(),
                 ),
                 new AgileDashboard_PaneInfoIdentifier(),
                 $tracker_new_dropdown_link_presenter_builder,
@@ -152,11 +156,13 @@ class taskboardPlugin extends Plugin
                     ),
                     $tracker_new_dropdown_link_presenter_builder,
                     $header_options_inserter,
+                    SubmissionPermissionVerifier::instance(),
                 ),
                 new \Tuleap\AgileDashboard\Milestone\ParentTrackerRetriever(
                     $planning_factory,
                 ),
-                $header_options_inserter
+                $header_options_inserter,
+                TrackersPermissionsRetriever::build(),
             ),
         );
     }

@@ -18,8 +18,8 @@
   -
   -->
 <template>
-    <document-layout v-if="is_sections_loading || (sections && sections.length > 0)" />
-    <div v-else-if="!is_sections_loading && !sections" class="tlp-framed">
+    <document-layout v-if="is_loading_sections || sections_collection.sections.value.length > 0" />
+    <div v-else-if="!is_loading_sections && is_loading_failed" class="tlp-framed">
         <no-access-state />
     </div>
     <div v-else class="tlp-framed" data-test="states-section">
@@ -29,20 +29,24 @@
 </template>
 
 <script setup lang="ts">
-import EmptyState from "@/views/EmptyState.vue";
-import NoAccessState from "@/views/NoAccessState.vue";
+import { computed } from "vue";
+import { strictInject } from "@tuleap/vue-strict-inject";
 import DocumentLayout from "@/components/DocumentLayout.vue";
 import ConfigurationPanel from "@/components/configuration/ConfigurationPanel.vue";
-import { strictInject } from "@tuleap/vue-strict-inject";
+import EmptyState from "@/views/EmptyState.vue";
+import NoAccessState from "@/views/NoAccessState.vue";
 import { CAN_USER_EDIT_DOCUMENT } from "@/can-user-edit-document-injection-key";
 import { CONFIGURATION_STORE } from "@/stores/configuration-store";
-import { computed } from "vue";
-import { SECTIONS_STORE } from "@/stores/sections-store-injection-key";
+import { SECTIONS_COLLECTION } from "@/sections/sections-collection-injection-key";
+import {
+    IS_LOADING_SECTIONS,
+    IS_LOADING_SECTIONS_FAILED,
+} from "@/is-loading-sections-injection-key";
 
-const { sections, is_sections_loading } = strictInject(SECTIONS_STORE);
-
+const is_loading_sections = strictInject(IS_LOADING_SECTIONS);
+const is_loading_failed = strictInject(IS_LOADING_SECTIONS_FAILED);
+const sections_collection = strictInject(SECTIONS_COLLECTION);
 const can_user_edit_document = strictInject(CAN_USER_EDIT_DOCUMENT);
-
 const { selected_tracker } = strictInject(CONFIGURATION_STORE);
 
 const should_display_configuration_panel = computed(

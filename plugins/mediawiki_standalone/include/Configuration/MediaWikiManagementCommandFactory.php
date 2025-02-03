@@ -27,6 +27,8 @@ interface MediaWikiManagementCommandFactory
 {
     public function buildInstallCommand(): MediaWikiManagementCommand;
 
+    public function buildFarmInstanceConfigurationUpdate(): MediaWikiManagementCommand;
+
     public function buildUpdateFarmInstanceCommand(): MediaWikiManagementCommand;
 
     public function buildUpdateProjectInstanceCommand(string $project_name): MediaWikiManagementCommand;

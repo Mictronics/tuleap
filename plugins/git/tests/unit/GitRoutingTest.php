@@ -19,9 +19,9 @@
  *
  */
 
-namespace Tuleap\Git;
+declare(strict_types=1);
 
-require_once __DIR__ . '/bootstrap.php';
+namespace Tuleap\Git;
 
 use FastRoute;
 use Git_RemoteServer_GerritServerFactory;
@@ -29,25 +29,18 @@ use GitDao;
 use GitPermissionsManager;
 use GitPlugin;
 use GitRepositoryFactory;
-use Mockery;
-use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use PermissionsManager;
-use Tuleap\Git\GitViews\Header\HeaderRenderer;
+use Psr\Log\NullLogger;
 use Tuleap\Git\History\GitPhpAccessLogger;
 use Tuleap\Git\Repository\GitRepositoryHeaderDisplayer;
 use Tuleap\Git\RepositoryList\GitRepositoryListController;
-use Tuleap\Layout\IncludeAssets;
 use Tuleap\Request\CollectRoutesEvent;
+use Tuleap\Test\PHPUnit\TestCase;
 use UserDao;
 
-/**
- * @group GitRoutingTest
- */
-class GitRoutingTest extends \Tuleap\Test\PHPUnit\TestCase
+final class GitRoutingTest extends TestCase
 {
-    use MockeryPHPUnitIntegration;
-
-    public static function smartHTTPRoutesProvider()
+    public static function smartHTTPRoutesProvider(): array
     {
         return [
             ['GET', '/plugins/git/gpig/goldfish/HEAD'],
@@ -65,12 +58,12 @@ class GitRoutingTest extends \Tuleap\Test\PHPUnit\TestCase
     /**
      * @dataProvider smartHTTPRoutesProvider
      */
-    public function testSmartURLs($method, $uri)
+    public function testSmartURLs($method, $uri): void
     {
-        $this->runTestOnURL($method, $uri, FastRoute\Dispatcher::FOUND, HTTP\HTTPController::class);
+        $this->runTestOnURL($method, $uri, HTTP\HTTPController::class);
     }
 
-    public static function legacyRepositoryBrowsingURLs()
+    public static function legacyRepositoryBrowsingURLs(): array
     {
         return [
             ['GET', '/plugins/git/index.php/101/view/26/'],
@@ -83,12 +76,12 @@ class GitRoutingTest extends \Tuleap\Test\PHPUnit\TestCase
     /**
      * @dataProvider legacyRepositoryBrowsingURLs
      */
-    public function testLegacyRepositoryBrowsingURLsHandledByRedirectController($method, $uri)
+    public function testLegacyRepositoryBrowsingURLsHandledByRedirectController($method, $uri): void
     {
-        $this->runTestOnURL($method, $uri, FastRoute\Dispatcher::FOUND, GitLegacyURLRedirectController::class);
+        $this->runTestOnURL($method, $uri, GitLegacyURLRedirectController::class);
     }
 
-    public static function friendlyURLsProvider()
+    public static function friendlyURLsProvider(): array
     {
         return [
             ['GET', '/plugins/git/gpig/repo'],
@@ -101,12 +94,12 @@ class GitRoutingTest extends \Tuleap\Test\PHPUnit\TestCase
     /**
      * @dataProvider friendlyURLsProvider
      */
-    public function testFriendlyURLs($method, $uri)
+    public function testFriendlyURLs($method, $uri): void
     {
-        $this->runTestOnURL($method, $uri, FastRoute\Dispatcher::FOUND, GitRepositoryBrowserController::class);
+        $this->runTestOnURL($method, $uri, GitRepositoryBrowserController::class);
     }
 
-    public static function friendlyProjectURLsProvider()
+    public static function friendlyProjectURLsProvider(): array
     {
         return [
             ['GET', '/plugins/git/gpig/'],
@@ -117,12 +110,12 @@ class GitRoutingTest extends \Tuleap\Test\PHPUnit\TestCase
     /**
      * @dataProvider friendlyProjectURLsProvider
      */
-    public function testFriendlyProjectURLs($method, $uri)
+    public function testFriendlyProjectURLs($method, $uri): void
     {
-        $this->runTestOnURL($method, $uri, FastRoute\Dispatcher::FOUND, GitRepositoryListController::class);
+        $this->runTestOnURL($method, $uri, GitRepositoryListController::class);
     }
 
-    public static function legacyGitGodControllerURLsProvider()
+    public static function legacyGitGodControllerURLsProvider(): array
     {
         return [
             ['GET', '/plugins/git/?group_id=101'],
@@ -133,38 +126,47 @@ class GitRoutingTest extends \Tuleap\Test\PHPUnit\TestCase
     /**
      * @dataProvider legacyGitGodControllerURLsProvider
      */
-    public function testLegacyUrls($method, $uri)
+    public function testLegacyUrls($method, $uri): void
     {
-        $this->runTestOnURL($method, $uri, FastRoute\Dispatcher::FOUND, GitPluginDefaultController::class);
+        $this->runTestOnURL($method, $uri, GitPluginDefaultController::class);
     }
 
-    private function runTestOnURL($method, $uri, $expected_dispatch_status, $expected_dispatch_handler)
+    /**
+     * @param class-string $expected_dispatch_handler
+     */
+    private function runTestOnURL(string $method, string $uri, string $expected_dispatch_handler): void
     {
-        $git_plugin = Mockery::mock(GitPlugin::class)->makePartial()->shouldAllowMockingProtectedMethods();
-        $dispatcher = \FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $route_collector) use ($git_plugin) {
-            $git_plugin->shouldReceive(
-                [
-                    'getRepositoryFactory'      => \Mockery::mock(GitRepositoryFactory::class),
-                    'getChainOfRouters'               => \Mockery::mock(RouterLink::class),
-                    'getLogger'                       => \Mockery::mock(\Psr\Log\LoggerInterface::class),
-                    'getGerritServerFactory'          => \Mockery::mock(
-                        Git_RemoteServer_GerritServerFactory::class,
-                        ['getServers' => []]
-                    ),
-                    'getPermissionsManager'           => \Mockery::mock(PermissionsManager::class),
-                    'getGitPhpAccessLogger'           => \Mockery::mock(GitPhpAccessLogger::class),
-                    'getGitPermissionsManager'        => \Mockery::mock(GitPermissionsManager::class),
-                    'getUserDao'                      => \Mockery::mock(UserDao::class),
-                    'getGitDao'                       => \Mockery::mock(GitDao::class),
-                    'getConfigurationParameter'       => 'foo',
-                    'getIncludeAssets'                => \Mockery::mock(IncludeAssets::class),
-                    'getHeaderRenderer'               => Mockery::mock(HeaderRenderer::class),
-                    'getThemeManager'                 => Mockery::mock(\ThemeManager::class),
-                    'getGitRepositoryHeaderDisplayer' => Mockery::mock(GitRepositoryHeaderDisplayer::class),
-                    'getName'                         => 'git',
-                ]
-            );
+        $git_plugin = $this->createPartialMock(
+            GitPlugin::class,
+            [
+                'getRepositoryFactory',
+                'getChainOfRouters',
+                'getLogger',
+                'getGerritServerFactory',
+                'getPermissionsManager',
+                'getGitPhpAccessLogger',
+                'getGitPermissionsManager',
+                'getUserDao',
+                'getGitDao',
+                'getHeaderRenderer',
+                'getThemeManager',
+                'getGitRepositoryHeaderDisplayer',
+                'getName',
+            ]
+        );
+        $git_plugin->method('getRepositoryFactory')->willReturn($this->createMock(GitRepositoryFactory::class));
+        $git_plugin->method('getChainOfRouters')->willReturn($this->createMock(RouterLink::class));
+        $git_plugin->method('getGerritServerFactory')->willReturn($this->createMock(Git_RemoteServer_GerritServerFactory::class));
+        $git_plugin->method('getPermissionsManager')->willReturn($this->createMock(PermissionsManager::class));
+        $git_plugin->method('getGitPhpAccessLogger')->willReturn($this->createMock(GitPhpAccessLogger::class));
+        $git_plugin->method('getGitPermissionsManager')->willReturn($this->createMock(GitPermissionsManager::class));
+        $git_plugin->method('getUserDao')->willReturn($this->createMock(UserDao::class));
+        $git_plugin->method('getGitDao')->willReturn($this->createMock(GitDao::class));
+        $git_plugin->method('getLogger')->willReturn(new NullLogger());
+        $git_plugin->method('getGitRepositoryHeaderDisplayer')->willReturn($this->createMock(GitRepositoryHeaderDisplayer::class));
+        $git_plugin->method('getName')->willReturn('git');
 
+        $dispatcher = \FastRoute\simpleDispatcher(function (FastRoute\RouteCollector $route_collector) use ($git_plugin) {
             $event = new CollectRoutesEvent($route_collector);
 
             $git_plugin->collectRoutesEvent($event);
@@ -172,9 +174,9 @@ class GitRoutingTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $route_info = $dispatcher->dispatch($method, $uri);
 
-        $this->assertEquals($expected_dispatch_status, $route_info[0]);
+        self::assertEquals(FastRoute\Dispatcher::FOUND, $route_info[0]);
         $handler_name = $route_info[1]['handler'];
         $controller   = $git_plugin->$handler_name();
-        $this->assertInstanceOf($expected_dispatch_handler, $controller);
+        self::assertInstanceOf($expected_dispatch_handler, $controller);
     }
 }

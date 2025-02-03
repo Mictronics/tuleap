@@ -28,9 +28,9 @@ use Tuleap\Artidoc\Adapter\Document\Section\Identifier\UUIDSectionIdentifierFact
 use Tuleap\Artidoc\Domain\Document\ArtidocWithContext;
 use Tuleap\Artidoc\Domain\Document\Section\ContentToInsert;
 use Tuleap\Artidoc\Domain\Document\Section\Freetext\Identifier\FreetextIdentifierFactory;
-use Tuleap\Artidoc\Domain\Document\Section\Freetext\RawSectionContentFreetext;
+use Tuleap\Artidoc\Domain\Document\Section\Freetext\RetrievedSectionContentFreetext;
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifierFactory;
-use Tuleap\Artidoc\Domain\Document\Section\RawSection;
+use Tuleap\Artidoc\Domain\Document\Section\RetrievedSection;
 use Tuleap\DB\DBFactory;
 use Tuleap\NeverThrow\Result;
 use Tuleap\Test\PHPUnit\TestIntegrationTestCase;
@@ -48,7 +48,7 @@ final class RetrieveArtidocSectionDaoTest extends TestIntegrationTestCase
         $this->artidoc_103 = new ArtidocWithContext(new ArtidocDocument(['item_id' => 103]));
     }
 
-    public function testSearchPaginatedRawSectionsById(): void
+    public function testSearchPaginatedRetrievedSectionsById(): void
     {
         $identifier_factory = $this->getSectionIdentifierFactory();
 
@@ -73,59 +73,94 @@ final class RetrieveArtidocSectionDaoTest extends TestIntegrationTestCase
             ]
         );
 
-        $db->insertMany('plugin_artidoc_document', [
+        $section_1_id = $identifier_factory->buildIdentifier()->getBytes();
+        $section_2_id = $identifier_factory->buildIdentifier()->getBytes();
+        $section_3_id = $identifier_factory->buildIdentifier()->getBytes();
+        $section_4_id = $identifier_factory->buildIdentifier()->getBytes();
+        $section_5_id = $identifier_factory->buildIdentifier()->getBytes();
+        $section_6_id = $identifier_factory->buildIdentifier()->getBytes();
+        $section_7_id = $identifier_factory->buildIdentifier()->getBytes();
+        $section_8_id = $identifier_factory->buildIdentifier()->getBytes();
+
+        $db->insertMany('plugin_artidoc_section', [
             [
-                'id'          => $identifier_factory->buildIdentifier()->getBytes(),
+                'id'          => $section_1_id,
                 'item_id'     => $this->artidoc_101->document->getId(),
+            ],
+            [
+                'id'          => $section_2_id,
+                'item_id'     => $this->artidoc_102->document->getId(),
+            ],
+            [
+                'id'          => $section_3_id,
+                'item_id'     => $this->artidoc_102->document->getId(),
+            ],
+            [
+                'id'          => $section_4_id,
+                'item_id'     => $this->artidoc_102->document->getId(),
+            ],
+            [
+                'id'          => $section_5_id,
+                'item_id'     => $this->artidoc_102->document->getId(),
+            ],
+            [
+                'id'          => $section_6_id,
+                'item_id'     => $this->artidoc_101->document->getId(),
+            ],
+            [
+                'id'          => $section_7_id,
+                'item_id'     => $this->artidoc_101->document->getId(),
+            ],
+            [
+                'id'          => $section_8_id,
+                'item_id'     => $this->artidoc_101->document->getId(),
+            ],
+        ]);
+        $db->insertMany('plugin_artidoc_section_version', [
+            [
+                'section_id'  => $section_1_id,
                 'artifact_id' => 1001,
                 'freetext_id' => null,
                 'rank'        => 1,
             ],
             [
-                'id'          => $identifier_factory->buildIdentifier()->getBytes(),
-                'item_id'     => $this->artidoc_102->document->getId(),
+                'section_id'  => $section_2_id,
                 'artifact_id' => null,
                 'freetext_id' => $introduction_id,
                 'rank'        => 1,
             ],
             [
-                'id'          => $identifier_factory->buildIdentifier()->getBytes(),
-                'item_id'     => $this->artidoc_102->document->getId(),
+                'section_id'  => $section_3_id,
                 'artifact_id' => null,
                 'freetext_id' => $requirements_id,
                 'rank'        => 2,
             ],
             [
-                'id'          => $identifier_factory->buildIdentifier()->getBytes(),
-                'item_id'     => $this->artidoc_102->document->getId(),
+                'section_id'  => $section_4_id,
                 'artifact_id' => 1001,
                 'freetext_id' => null,
                 'rank'        => 4,
             ],
             [
-                'id'          => $identifier_factory->buildIdentifier()->getBytes(),
-                'item_id'     => $this->artidoc_102->document->getId(),
+                'section_id'  => $section_5_id,
                 'artifact_id' => 2001,
                 'freetext_id' => null,
                 'rank'        => 3,
             ],
             [
-                'id'          => $identifier_factory->buildIdentifier()->getBytes(),
-                'item_id'     => $this->artidoc_101->document->getId(),
+                'section_id'  => $section_6_id,
                 'artifact_id' => 1003,
                 'freetext_id' => null,
                 'rank'        => 3,
             ],
             [
-                'id'          => $identifier_factory->buildIdentifier()->getBytes(),
-                'item_id'     => $this->artidoc_101->document->getId(),
+                'section_id'  => $section_7_id,
                 'artifact_id' => 1002,
                 'freetext_id' => null,
                 'rank'        => 2,
             ],
             [
-                'id'          => $identifier_factory->buildIdentifier()->getBytes(),
-                'item_id'     => $this->artidoc_101->document->getId(),
+                'section_id'  => $section_8_id,
                 'artifact_id' => 1004,
                 'freetext_id' => null,
                 'rank'        => 4,
@@ -134,39 +169,39 @@ final class RetrieveArtidocSectionDaoTest extends TestIntegrationTestCase
 
         $dao = new RetrieveArtidocSectionDao($identifier_factory, $this->getFreetextIdentifierFactory());
 
-        self::assertSame(4, $dao->searchPaginatedRawSections($this->artidoc_101, 50, 0)->total);
+        self::assertSame(4, $dao->searchPaginatedRetrievedSections($this->artidoc_101, 50, 0)->total);
         self::assertSame(
             [1001, 1002, 1003, 1004],
             array_map(
                 $this->getContentForAssertion(...),
-                $dao->searchPaginatedRawSections($this->artidoc_101, 50, 0)->rows,
+                $dao->searchPaginatedRetrievedSections($this->artidoc_101, 50, 0)->rows,
             ),
         );
 
-        self::assertSame(4, $dao->searchPaginatedRawSections($this->artidoc_101, 2, 1)->total);
+        self::assertSame(4, $dao->searchPaginatedRetrievedSections($this->artidoc_101, 2, 1)->total);
         self::assertSame(
             [1002, 1003],
             array_map(
                 $this->getContentForAssertion(...),
-                $dao->searchPaginatedRawSections($this->artidoc_101, 2, 1)->rows,
+                $dao->searchPaginatedRetrievedSections($this->artidoc_101, 2, 1)->rows,
             ),
         );
 
-        self::assertSame(4, $dao->searchPaginatedRawSections($this->artidoc_102, 50, 0)->total);
+        self::assertSame(4, $dao->searchPaginatedRetrievedSections($this->artidoc_102, 50, 0)->total);
         self::assertSame(
             ['Introduction', 'Requirements', 2001, 1001],
             array_map(
                 $this->getContentForAssertion(...),
-                $dao->searchPaginatedRawSections($this->artidoc_102, 50, 0)->rows,
+                $dao->searchPaginatedRetrievedSections($this->artidoc_102, 50, 0)->rows,
             )
         );
 
-        self::assertSame(0, $dao->searchPaginatedRawSections($this->artidoc_103, 50, 0)->total);
+        self::assertSame(0, $dao->searchPaginatedRetrievedSections($this->artidoc_103, 50, 0)->total);
         self::assertSame(
             [],
             array_map(
                 $this->getContentForAssertion(...),
-                $dao->searchPaginatedRawSections($this->artidoc_103, 50, 0)->rows,
+                $dao->searchPaginatedRetrievedSections($this->artidoc_103, 50, 0)->rows,
             ),
         );
     }
@@ -176,7 +211,15 @@ final class RetrieveArtidocSectionDaoTest extends TestIntegrationTestCase
         $dao = new SaveSectionDao($this->getSectionIdentifierFactory(), $this->getFreetextIdentifierFactory());
 
         $db = DBFactory::getMainTuleapDBConnection()->getDB();
-        $db->run('DELETE FROM plugin_artidoc_document WHERE item_id = ?', $artidoc->document->getId());
+        $db->run(
+            <<<EOS
+            DELETE section, section_version
+            FROM plugin_artidoc_section AS section
+                    INNER JOIN plugin_artidoc_section_version AS section_version
+                        ON (section.id = section_version.section_id) WHERE item_id = ?
+            EOS,
+            $artidoc->document->getId(),
+        );
 
         foreach ($content as $content_to_insert) {
             $dao->saveSectionAtTheEnd($artidoc, $content_to_insert);
@@ -196,11 +239,11 @@ final class RetrieveArtidocSectionDaoTest extends TestIntegrationTestCase
         $dao = $this->getDao();
 
         $this->createArtidocSections($this->artidoc_101, $this->getArtifactIdsToInsert(1001, 1002, 1003));
-        $rows = $dao->searchPaginatedRawSections($this->artidoc_101, 50, 0)->rows;
+        $rows = $dao->searchPaginatedRetrievedSections($this->artidoc_101, 50, 0)->rows;
 
         foreach ($rows as $row) {
             $dao->searchSectionById($row->id)->match(
-                function (RawSection $section) use ($row) {
+                function (RetrievedSection $section) use ($row) {
                     self::assertNotNull($section);
                     self::assertSame($row->id->toString(), $section->id->toString());
                     self::assertSame(
@@ -241,11 +284,11 @@ final class RetrieveArtidocSectionDaoTest extends TestIntegrationTestCase
         return new UUIDFreetextIdentifierFactory(new \Tuleap\DB\DatabaseUUIDV7Factory());
     }
 
-    private function getContentForAssertion(RawSection $raw_section): int|string|null
+    private function getContentForAssertion(RetrievedSection $retrieved_sections): int|string|null
     {
-        return $raw_section->content->apply(
+        return $retrieved_sections->content->apply(
             static fn (int $id) => Result::ok($id),
-            static fn (RawSectionContentFreetext $freetext) => Result::ok($freetext->content->title),
+            static fn (RetrievedSectionContentFreetext $freetext) => Result::ok($freetext->content->title),
         )->unwrapOr(null);
     }
 }

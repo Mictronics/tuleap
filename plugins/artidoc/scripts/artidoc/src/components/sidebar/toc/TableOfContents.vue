@@ -25,47 +25,50 @@
     <ol ref="list" data-is-container="true">
         <li
             data-test="section-in-toc"
-            v-for="(section, index) in sections"
-            v-bind:key="section.id"
+            v-for="(section, index) in sections_collection.sections.value"
+            v-bind:key="section.value.id"
             v-bind:draggable="section_being_moved === null"
-            v-bind:data-internal-id="section.internal_id"
+            v-bind:data-internal-id="section.value.internal_id"
             v-bind:class="{
                 'section-moved-with-success':
-                    just_moved_section?.internal_id === section.internal_id,
-                'section-being-moved': section_being_moved?.internal_id === section.internal_id,
+                    just_moved_section?.internal_id === section.value.internal_id,
+                'section-being-moved':
+                    section_being_moved?.internal_id === section.value.internal_id,
             }"
         >
             <span
                 class="dragndrop-grip"
                 data-test="dragndrop-grip"
                 v-if="is_reorder_allowed"
-                v-bind:class="{ 'dragndrop-grip-when-sections-loading': is_sections_loading }"
+                v-bind:class="{ 'dragndrop-grip-when-sections-loading': is_loading_sections }"
             >
                 <dragndrop-grip-illustration />
             </span>
 
-            <span v-if="is_sections_loading" class="tlp-skeleton-text"></span>
+            <span v-if="is_loading_sections" class="tlp-skeleton-text"></span>
             <a
-                v-else-if="isArtifactSection(section) || !isSectionBasedOnArtifact(section)"
-                v-bind:href="`#section-${section.id}`"
+                v-else-if="
+                    isArtifactSection(section.value) || !isSectionBasedOnArtifact(section.value)
+                "
+                v-bind:href="`#section-${section.value.id}`"
                 class="table-of-content-section-title"
                 data-not-drag-handle="true"
             >
-                {{ section.display_title }}
+                {{ section.value.display_title }}
             </a>
             <span v-else class="table-of-content-section-title" data-not-drag-handle="true">
-                {{ section.display_title }}
+                {{ section.value.display_title }}
             </span>
             <span
                 class="reorder-arrows"
                 data-test="reorder-arrows"
                 v-if="is_reorder_allowed"
-                v-bind:class="{ 'reorder-arrows-when-sections-loading': is_sections_loading }"
+                v-bind:class="{ 'reorder-arrows-when-sections-loading': is_loading_sections }"
                 data-not-drag-handle="true"
             >
                 <reorder-arrows
                     v-bind:is_first="index === 0"
-                    v-bind:is_last="index === (sections?.length || 0) - 1"
+                    v-bind:is_last="index === sections_collection.sections.value.length - 1"
                     v-bind:section="section"
                     v-bind:sections_reorderer="sections_reorderer"
                     v-on:moved-section-up-or-down="showJustSavedTemporaryFeedback"
@@ -84,7 +87,7 @@ import type { Ref } from "vue";
 import { isArtifactSection, isSectionBasedOnArtifact } from "@/helpers/artidoc-section.type";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import type { Fault } from "@tuleap/fault";
-import { SECTIONS_STORE } from "@/stores/sections-store-injection-key";
+import { SECTIONS_COLLECTION } from "@/sections/sections-collection-injection-key";
 import DragndropGripIllustration from "@/components/sidebar/toc/DragndropGripIllustration.vue";
 import { CAN_USER_EDIT_DOCUMENT } from "@/can-user-edit-document-injection-key";
 import ReorderArrows from "@/components/sidebar/toc/ReorderArrows.vue";
@@ -92,20 +95,22 @@ import { init } from "@tuleap/drag-and-drop";
 import type { Drekkenov, SuccessfulDropCallbackParameter } from "@tuleap/drag-and-drop";
 import { noop } from "@/helpers/noop";
 import { DOCUMENT_ID } from "@/document-id-injection-key";
-import type { InternalArtidocSectionId } from "@/stores/useSectionsStore";
+import type { InternalArtidocSectionId } from "@/sections/SectionsCollection";
 import { TEMPORARY_FLAG_DURATION_IN_MS } from "@/composables/temporary-flag-duration";
 import { SET_GLOBAL_ERROR_MESSAGE } from "@/global-error-message-injection-key";
-import { isCannotReorderSectionsFault } from "@/stores/CannotReorderSectionsFault";
-import { buildSectionsReorderer } from "@/components/sidebar/toc/SectionsReorderer";
+import { isCannotReorderSectionsFault } from "@/sections/CannotReorderSectionsFault";
+import { buildSectionsReorderer } from "@/sections/SectionsReorderer";
+import { IS_LOADING_SECTIONS } from "@/is-loading-sections-injection-key";
 
 const { $gettext } = useGettext();
 
-const { sections, is_sections_loading } = strictInject(SECTIONS_STORE);
+const is_loading_sections = strictInject(IS_LOADING_SECTIONS);
+const sections_collection = strictInject(SECTIONS_COLLECTION);
 const can_user_edit_document = strictInject(CAN_USER_EDIT_DOCUMENT);
 const document_id = strictInject(DOCUMENT_ID);
 const setGlobalErrorMessage = strictInject(SET_GLOBAL_ERROR_MESSAGE);
 
-const sections_reorderer = buildSectionsReorderer(sections);
+const sections_reorderer = buildSectionsReorderer(sections_collection);
 
 const is_reorder_allowed = can_user_edit_document;
 

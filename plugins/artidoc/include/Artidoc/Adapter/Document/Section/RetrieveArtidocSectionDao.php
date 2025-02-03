@@ -27,17 +27,17 @@ use Tuleap\Artidoc\Domain\Document\ArtidocWithContext;
 use Tuleap\Artidoc\Domain\Document\Section\Freetext\Identifier\FreetextIdentifierFactory;
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifier;
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifierFactory;
-use Tuleap\Artidoc\Domain\Document\Section\PaginatedRawSections;
-use Tuleap\Artidoc\Domain\Document\Section\RawSection;
+use Tuleap\Artidoc\Domain\Document\Section\PaginatedRetrievedSections;
+use Tuleap\Artidoc\Domain\Document\Section\RetrievedSection;
 use Tuleap\Artidoc\Domain\Document\Section\SearchOneSection;
-use Tuleap\Artidoc\Domain\Document\Section\SearchPaginatedRawSections;
+use Tuleap\Artidoc\Domain\Document\Section\SearchPaginatedRetrievedSections;
 use Tuleap\DB\DataAccessObject;
 use Tuleap\NeverThrow\Err;
 use Tuleap\NeverThrow\Fault;
 use Tuleap\NeverThrow\Ok;
 use Tuleap\NeverThrow\Result;
 
-final class RetrieveArtidocSectionDao extends DataAccessObject implements SearchOneSection, SearchPaginatedRawSections
+final class RetrieveArtidocSectionDao extends DataAccessObject implements SearchOneSection, SearchPaginatedRetrievedSections
 {
     public function __construct(
         private readonly SectionIdentifierFactory $section_identifier_factory,
@@ -52,14 +52,16 @@ final class RetrieveArtidocSectionDao extends DataAccessObject implements Search
             <<<EOS
             SELECT section.id,
                    section.item_id,
-                   section.artifact_id,
+                   section_version.artifact_id,
                    freetext.id AS freetext_id,
                    freetext.title AS freetext_title,
                    freetext.description AS freetext_description,
-                   section.`rank`
-            FROM plugin_artidoc_document AS section
+                   section_version.`rank`
+            FROM plugin_artidoc_section AS section
+                INNER JOIN plugin_artidoc_section_version AS section_version
+                    ON (section.id = section_version.section_id)
                 LEFT JOIN plugin_artidoc_section_freetext AS freetext
-                    ON (section.freetext_id = freetext.id)
+                    ON (section_version.freetext_id = freetext.id)
             WHERE section.id = ?
             EOS,
             $section_id->getBytes(),
@@ -71,16 +73,16 @@ final class RetrieveArtidocSectionDao extends DataAccessObject implements Search
 
         $row['id'] = $section_id;
 
-        return Result::ok($this->instantiateRawSection($row));
+        return Result::ok($this->instantiateRetrievedSection($row));
     }
 
     /**
      * @param array{ id: SectionIdentifier, item_id: int, artifact_id: int|null, freetext_id: int|null, freetext_title: string|null, freetext_description: string|null, rank: int } $row
      */
-    private function instantiateRawSection(array $row): RawSection
+    private function instantiateRetrievedSection(array $row): RetrievedSection
     {
         if ($row['artifact_id'] !== null) {
-            return RawSection::fromArtifact($row);
+            return RetrievedSection::fromArtifact($row);
         }
 
         if ($row['freetext_id'] !== null) {
@@ -89,13 +91,13 @@ final class RetrieveArtidocSectionDao extends DataAccessObject implements Search
             $row['freetext_title']       = (string) $row['freetext_title'];
             $row['freetext_description'] = (string) $row['freetext_description'];
 
-            return RawSection::fromFreetext($row);
+            return RetrievedSection::fromFreetext($row);
         }
 
         throw new \LogicException('Section is neither an artifact nor a freetext, this is not expected');
     }
 
-    public function searchPaginatedRawSections(ArtidocWithContext $artidoc, int $limit, int $offset): PaginatedRawSections
+    public function searchPaginatedRetrievedSections(ArtidocWithContext $artidoc, int $limit, int $offset): PaginatedRetrievedSections
     {
         return $this->getDB()->tryFlatTransaction(function (EasyDB $db) use ($artidoc, $limit, $offset) {
             $item_id = $artidoc->document->getId();
@@ -104,16 +106,18 @@ final class RetrieveArtidocSectionDao extends DataAccessObject implements Search
                 <<<EOS
                 SELECT section.id,
                    section.item_id,
-                   section.artifact_id,
+                   section_version.artifact_id,
                    freetext.id AS freetext_id,
                    freetext.title AS freetext_title,
                    freetext.description AS freetext_description,
-                   section.`rank`
-                FROM plugin_artidoc_document AS section
-                LEFT JOIN plugin_artidoc_section_freetext AS freetext
-                    ON (section.freetext_id = freetext.id)
+                   section_version.`rank`
+                FROM plugin_artidoc_section AS section
+                    INNER JOIN plugin_artidoc_section_version AS section_version
+                        ON (section.id = section_version.section_id)
+                    LEFT JOIN plugin_artidoc_section_freetext AS freetext
+                        ON (section_version.freetext_id = freetext.id)
                 WHERE section.item_id = ?
-                ORDER BY section.`rank`
+                ORDER BY section_version.`rank`
                 LIMIT ? OFFSET ?
                 EOS,
                 $item_id,
@@ -121,19 +125,28 @@ final class RetrieveArtidocSectionDao extends DataAccessObject implements Search
                 $offset,
             );
 
-            $total = $db->cell('SELECT COUNT(*) FROM plugin_artidoc_document WHERE item_id = ?', $item_id);
+            $total = $db->cell(
+                <<<EOS
+                SELECT COUNT(*)
+                FROM plugin_artidoc_section AS section
+                    INNER JOIN plugin_artidoc_section_version AS section_version
+                        ON (section.id = section_version.section_id)
+                WHERE item_id = ?
+                EOS,
+                $item_id,
+            );
 
-            return new PaginatedRawSections(
+            return new PaginatedRetrievedSections(
                 $artidoc,
                 array_values(
                     array_map(
                         /**
                          * @param array{ id: string, item_id: int, artifact_id: int|null, freetext_id: int|null, freetext_title: string|null, freetext_description: string|null, rank: int } $row
                          */
-                        function (array $row): RawSection {
+                        function (array $row): RetrievedSection {
                             $row['id'] = $this->section_identifier_factory->buildFromBytesData($row['id']);
 
-                            return $this->instantiateRawSection($row);
+                            return $this->instantiateRetrievedSection($row);
                         },
                         $rows,
                     ),

@@ -7,29 +7,23 @@ exports[`BoardWithoutAnyColumnsError is displays misconfiguration error for regu
   <div
     class="empty-state-illustration"
   >
-    <!---->
+    <board-without-any-columns-error-for-users-illustration-stub />
   </div>
    
   <h1
     class="empty-state-title"
   >
-    <translate-stub
-      tag="span"
-    >
-      This taskboard is not ready to be used
-    </translate-stub>
+    
+        This taskboard is not ready to be used
+    
   </h1>
    
   <p
     class="empty-state-text"
   >
-    <translate-stub
-      tag="span"
-    >
-      
-            Your project administrator needs to finish the planning configuration.
-        
-    </translate-stub>
+    
+        Your project administrator needs to finish the planning configuration.
+    
   </p>
 </section>
 `;

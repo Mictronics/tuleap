@@ -17,11 +17,12 @@
   - along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<template functional>
+<template>
     <div class="drop-not-accepted-overlay drop-accepted">
         <i class="fas fa-ban drop-not-accepted-icon" aria-hidden="true"></i>
-        <p data-test="overlay-error-message" v-translate>
-            You are not allowed to plan in this program increment.
+        <p data-test="overlay-error-message">
+            {{ $gettext("You are not allowed to plan in this program increment.") }}
         </p>
     </div>
 </template>
+<script setup lang="ts"></script>

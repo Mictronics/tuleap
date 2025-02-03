@@ -42,6 +42,9 @@ msgstr "Descrição"
 msgid "Edit"
 msgstr ""
 
+msgid "Error while exporting the report as .xlsx: %{error}"
+msgstr ""
+
 msgid "Error while exporting the report to CSV: %{error}"
 msgstr ""
 
@@ -72,6 +75,9 @@ msgid "Expert mode"
 msgstr ""
 
 msgid "Export CSV"
+msgstr ""
+
+msgid "Export XSLX"
 msgstr ""
 
 msgid "First"

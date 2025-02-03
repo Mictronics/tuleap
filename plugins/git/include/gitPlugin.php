@@ -58,7 +58,11 @@ use Tuleap\Git\DefaultSettings\IndexController;
 use Tuleap\Git\DiskUsage\Collector;
 use Tuleap\Git\DiskUsage\Retriever;
 use Tuleap\Git\Gerrit\ReplicationHTTPUserAuthenticator;
+use Tuleap\Git\GitRepositoryBrowserController;
+use Tuleap\Git\SystemCheck;
+use Tuleap\Git\GitPHP\Controller_Snapshot;
 use Tuleap\Git\GitXMLImportDefaultBranchRetriever;
+use Tuleap\Git\LegacyConfigInc;
 use Tuleap\Git\RemoteServer\GerritCanMigrateChecker;
 use Tuleap\Git\GerritServerResourceRestrictor;
 use Tuleap\Git\GitGodObjectWrapper;
@@ -453,8 +457,14 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
 
     public function getPluginInfo()
     {
-        if (! $this->pluginInfo instanceof \GitPluginInfo) {
-            $this->pluginInfo = new GitPluginInfo($this);
+        if (! $this->pluginInfo) {
+            $this->pluginInfo = new PluginInfo($this);
+            $this->pluginInfo->setPluginDescriptor(
+                new PluginDescriptor(
+                    dgettext('tuleap-git', 'Git'),
+                    dgettext('tuleap-git', 'Plugin which provides Git support for Tuleap')
+                )
+            );
         }
         return $this->pluginInfo;
     }
@@ -473,22 +483,13 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         }
     }
 
-    /**
-     * Returns the configuration defined for given variable name
-     *
-     * @param String $key
-     *
-     * @return Mixed
-     */
-    public function getConfigurationParameter($key)
-    {
-        return $this->getPluginInfo()->getPropertyValueForName($key);
-    }
-
     public function getConfigKeys(ConfigClassProvider $event): void
     {
+        $event->addConfigClass(LegacyConfigInc::class);
         $event->addConfigClass(PreReceiveCommand::class);
         $event->addConfigClass(GitoliteAccessURLGenerator::class);
+        $event->addConfigClass(Controller_Snapshot::class);
+        $event->addConfigClass(GitRepositoryBrowserController::class);
     }
 
     public function cssFile($params)
@@ -800,7 +801,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
     {
         return new Git_Backend_Gitolite(
             $this->getGitoliteDriver(),
-            new GitoliteAccessURLGenerator($this->getPluginInfo()),
+            new GitoliteAccessURLGenerator(),
             new DefaultBranchUpdateExecutorAsGitoliteUser(),
             $this->getLogger()
         );
@@ -1143,7 +1144,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         );
         $gitolite_driver = $this->getGitoliteDriver();
 
-        $system_check = new Git_SystemCheck(
+        $system_check = new SystemCheck(
             $gitgc,
             $gitolite_driver,
             new PluginConfigChecker($params['logger']),
@@ -1819,7 +1820,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
             $this->getRepositoryFactory(),
             $this->getGitSystemEventManager(),
             $this->getGitDao(),
-            $this->getConfigurationParameter('git_backup_dir'),
+            \ForgeConfig::get(\Tuleap\Git\LegacyConfigInc::BACKUP_DIR),
             $this->getFineGrainedPermissionReplicator(),
             new ProjectHistoryDao(),
             $this->getHistoryValueFormatter(),
@@ -1966,7 +1967,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
      */
     public function areFriendlyUrlsActivated()
     {
-        return (bool) $this->getConfigurationParameter('git_use_friendly_urls');
+        return true;
     }
 
     /**
@@ -2567,7 +2568,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
 
     public function routeGetPostRepositoryView()
     {
-        return new \Tuleap\Git\GitRepositoryBrowserController(
+        return new GitRepositoryBrowserController(
             $this->getRepositoryFactory(),
             $this->getProjectManager(),
             $this->getGitPhpAccessLogger(),
@@ -2577,6 +2578,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
                 new CommitForCurrentTreeRetriever(),
                 $this->getGitRepositoryUrlManager()
             ),
+            UserManager::instance(),
             EventManager::instance()
         );
     }

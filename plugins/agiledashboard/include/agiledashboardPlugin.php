@@ -22,12 +22,16 @@ use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Tuleap\admin\ProjectEdit\ProjectStatusUpdate;
 use Tuleap\AgileDashboard\AgileDashboard\Milestone\Backlog\RecentlyVisitedTopBacklogDao;
 use Tuleap\AgileDashboard\AgileDashboard\Milestone\Backlog\VisitRetriever;
+use Tuleap\AgileDashboard\ConfigurationManager;
+use Tuleap\AgileDashboard\ConfigurationDao;
+use Tuleap\AgileDashboard\BacklogItemDao;
 use Tuleap\AgileDashboard\AgileDashboardLegacyController;
 use Tuleap\AgileDashboard\Artifact\AdditionalArtifactActionBuilder;
 use Tuleap\AgileDashboard\Artifact\EventRedirectAfterArtifactCreationOrUpdateHandler;
 use Tuleap\AgileDashboard\Artifact\HomeServiceRedirectionExtractor;
 use Tuleap\AgileDashboard\Artifact\PlannedArtifactDao;
 use Tuleap\AgileDashboard\Artifact\RedirectParameterInjector;
+use Tuleap\AgileDashboard\BacklogItem\SubBacklogItemProvider;
 use Tuleap\AgileDashboard\BreadCrumbDropdown\AgileDashboardCrumbBuilder;
 use Tuleap\AgileDashboard\BreadCrumbDropdown\MilestoneCrumbBuilder;
 use Tuleap\AgileDashboard\CreateBacklogController;
@@ -54,6 +58,9 @@ use Tuleap\AgileDashboard\FormElement\BurnupFieldRetriever;
 use Tuleap\AgileDashboard\FormElement\MessageFetcher;
 use Tuleap\AgileDashboard\FormElement\SystemEvent\SystemEvent_BURNUP_DAILY;
 use Tuleap\AgileDashboard\FormElement\SystemEvent\SystemEvent_BURNUP_GENERATE;
+use Tuleap\AgileDashboard\Milestone\MilestoneDao;
+use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItem;
+use Tuleap\AgileDashboard\Milestone\MilestoneReportCriterionDao;
 use Tuleap\AgileDashboard\Milestone\Sidebar\MilestonesInSidebarDao;
 use Tuleap\AgileDashboard\Move\AgileDashboardMovableFieldsCollector;
 use Tuleap\AgileDashboard\Planning\BacklogHistoryEntry;
@@ -119,7 +126,7 @@ use Tuleap\Project\XML\ServiceEnableForXmlImportRetriever;
 use Tuleap\QuickLink\SwitchToQuickLink;
 use Tuleap\Request\DispatchableWithRequest;
 use Tuleap\Request\ProjectRetriever;
-use Tuleap\Statistics\CSV\StatisticsServiceUsage;
+use Tuleap\StatisticsCore\StatisticsServiceUsage;
 use Tuleap\Tracker\Action\AfterArtifactCopiedEvent;
 use Tuleap\Tracker\Action\CollectMovableExternalFieldEvent;
 use Tuleap\Tracker\Artifact\ActionButtons\AdditionalArtifactActionButtonsFetcher;
@@ -391,12 +398,12 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
     }
 
     /**
-     * @return AgileDashboard_ConfigurationManager
+     * @return ConfigurationManager
      */
     private function getConfigurationManager()
     {
-        return new AgileDashboard_ConfigurationManager(
-            new AgileDashboard_ConfigurationDao(),
+        return new ConfigurationManager(
+            new ConfigurationDao(),
             EventManager::instance(),
             new MilestonesInSidebarDao(),
             new MilestonesInSidebarDao(),
@@ -461,7 +468,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
         );
         $additional_criterion = $provider->getCriterion($backlog_tracker, $user);
 
-        if (! $additional_criterion) {
+        if ($additional_criterion === null) {
             return;
         }
 
@@ -508,8 +515,8 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
         $milestone          = $milestone_provider->getMilestone();
 
         if ($milestone) {
-            $provider = new AgileDashboard_BacklogItem_SubBacklogItemProvider(
-                new Tracker_ArtifactDao(),
+            $provider = new SubBacklogItemProvider(
+                new Tuleap\Tracker\Artifact\Dao\ArtifactDao(),
                 $this->getBacklogFactory(),
                 $this->getBacklogItemCollectionFactory(
                     $this->getMilestoneFactory(),
@@ -542,7 +549,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
 
         $milestone_provider = new AgileDashboard_Milestone_SelectedMilestoneProvider($params['additional_criteria'], $this->getMilestoneFactory(), $user, $project);
         if ($milestone_provider->getMilestone()) {
-            $dao->save($params['report']->getId(), $milestone_provider->getMilestoneId());
+            $dao->save($params['report']->getId(), (int) $milestone_provider->getMilestoneId());
         } else {
             $dao->delete($params['report']->getId());
         }
@@ -557,8 +564,8 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
         $report_id  = $params['report']->getId();
         $field_name = AgileDashboard_Milestone_MilestoneReportCriterionProvider::FIELD_NAME;
 
-        $row = $dao->searchByReportId($report_id)->getRow();
-        if ($row) {
+        $row = $dao->searchByReportId($report_id);
+        if ($row !== null) {
             $params['additional_criteria_values'][$field_name]['value'] = $row['milestone_id'];
         }
     }
@@ -775,9 +782,10 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
     private function getBacklogFactory()
     {
         return new AgileDashboard_Milestone_Backlog_BacklogFactory(
-            new AgileDashboard_BacklogItemDao(),
+            new BacklogItemDao(),
             $this->getArtifactFactory(),
             PlanningFactory::build(),
+            new \Tuleap\Tracker\Artifact\Dao\ArtifactDao(),
         );
     }
 
@@ -884,8 +892,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
             return;
         }
 
-        $planning_representation = new \Tuleap\AgileDashboard\REST\v1\PlanningRepresentation();
-        $planning_representation->build($root_planning);
+        $planning_representation = new \Tuleap\AgileDashboard\REST\v1\PlanningRepresentation($root_planning);
 
         $params['informations'][$this->getName()]['root_planning'] = $planning_representation;
     }
@@ -1044,7 +1051,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
         $event->setItemsIds(array_unique($items_ids));
     }
 
-    private function parseChildrenElements(AgileDashboard_Milestone_Backlog_BacklogItem $item, PFUser $user, array &$item_ids)
+    private function parseChildrenElements(BacklogItem $item, PFUser $user, array &$item_ids)
     {
         $tracker_artifact_dao = new Tracker_ArtifactDao();
 
@@ -1064,7 +1071,8 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
         $cleaner  = new DirectArtifactLinkCleaner(
             $this->getMilestoneFactory(),
             new ExplicitBacklogDao(),
-            new ArtifactsInExplicitBacklogDao()
+            new ArtifactsInExplicitBacklogDao(),
+            Tracker_FormElementFactory::instance(),
         );
 
         $cleaner->cleanDirectlyMadeArtifactLinks($artifact, $this->getCurrentUser());
@@ -1076,7 +1084,8 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
         $cleaner  = new DirectArtifactLinkCleaner(
             $this->getMilestoneFactory(),
             new ExplicitBacklogDao(),
-            new ArtifactsInExplicitBacklogDao()
+            new ArtifactsInExplicitBacklogDao(),
+            Tracker_FormElementFactory::instance(),
         );
 
         $cleaner->cleanDirectlyMadeArtifactLinks($artifact, $event->getUser());
@@ -1337,7 +1346,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
         $form_element_factory = Tracker_FormElementFactory::instance();
 
         return new AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactory(
-            new AgileDashboard_BacklogItemDao(),
+            new BacklogItemDao(),
             $this->getArtifactFactory(),
             $milestone_factory,
             $this->getPlanningFactory(),
@@ -1402,9 +1411,9 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
         );
     }
 
-    private function getMilestoneDao(): AgileDashboard_Milestone_MilestoneDao
+    private function getMilestoneDao(): MilestoneDao
     {
-        return new AgileDashboard_Milestone_MilestoneDao();
+        return new MilestoneDao();
     }
 
     public function projectStatusUpdate(ProjectStatusUpdate $event): void
@@ -1697,7 +1706,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
         return new ConfigurationUpdater(
             new ExplicitBacklogDao(),
             new MilestoneReportCriterionDao(),
-            new AgileDashboard_BacklogItemDao(),
+            new BacklogItemDao(),
             Planning_MilestoneFactory::build(),
             new ArtifactsInExplicitBacklogDao(),
             new UnplannedArtifactsAdder(

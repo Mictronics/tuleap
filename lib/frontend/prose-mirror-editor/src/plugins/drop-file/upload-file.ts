@@ -16,13 +16,7 @@
  *  You should have received a copy of the GNU General Public License
  *  along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
-import type { FileUploadOptions, OnGoingUploadFile } from "./types";
-import {
-    NoUploadError,
-    InvalidFileUploadError,
-    MaxSizeUploadExceededError,
-    UploadError,
-} from "./types";
+
 import { uploadFile } from "./helpers/upload-file-helper";
 import { postJSON, rawUri, uri } from "@tuleap/fetch-result";
 import type { OngoingUpload } from "./plugin-drop-file";
@@ -30,6 +24,9 @@ import { Option } from "@tuleap/option";
 import type { GetText } from "@tuleap/gettext";
 import type { Upload } from "tus-js-client";
 import { Fault } from "@tuleap/fault";
+import type { FileUploadOptions, OnGoingUploadFile } from "@tuleap/file-upload";
+import { UploadError } from "@tuleap/file-upload";
+import { InvalidFileUploadError, MaxSizeUploadExceededError, NoUploadError } from "./types";
 
 export const VALID_FILE_TYPES = [
     "image/png",
@@ -71,7 +68,7 @@ export async function uploadAndDisplayFileInEditor(
     uploaders: Array<Upload>,
 ): Promise<Option<ReadonlyArray<OngoingUpload>>> {
     const {
-        upload_url,
+        post_information,
         max_size_upload,
         onStartUploadCallback,
         onErrorCallback,
@@ -79,7 +76,7 @@ export async function uploadAndDisplayFileInEditor(
         onProgressCallback,
     } = options;
 
-    if (upload_url === "") {
+    if (post_information.upload_url === "") {
         const error = new NoUploadError(gettext_provider);
         onErrorCallback(error, "");
         return Promise.reject(Fault.fromMessage(error.message));
@@ -101,12 +98,8 @@ export async function uploadAndDisplayFileInEditor(
         }
 
         const optional_ongoing_upload: Option<OngoingUpload> = await postJSON<PostFileResponse>(
-            uri`${rawUri(upload_url)}`,
-            {
-                name: file.name,
-                file_size: file.size,
-                file_type: file.type,
-            },
+            uri`${rawUri(post_information.upload_url)}`,
+            post_information.getUploadJsonPayload(file),
         ).match(
             async (response): Promise<Option<OngoingUpload>> => {
                 if (!response.upload_href) {
