@@ -33,8 +33,10 @@ use Tracker_XML_Exporter_ArtifactXMLExporterBuilder;
 use Tracker_XML_Exporter_InArchiveFilePathXMLExporter;
 use Tracker_XML_Exporter_NullChildrenCollector;
 use Tuleap\GlobalResponseMock;
+use Tuleap\Notification\Mention\MentionedUserInTextRetriever;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
+use Tuleap\Test\Stubs\ProvideAndRetrieveUserStub;
 use Tuleap\Tracker\Artifact\Changeset\AfterNewChangesetHandler;
 use Tuleap\Tracker\Artifact\Changeset\ArtifactChangesetSaver;
 use Tuleap\Tracker\Artifact\Changeset\Comment\ChangesetCommentIndexer;
@@ -264,9 +266,10 @@ final class Tracker_ArtifactTest extends \Tuleap\Test\PHPUnit\TestCase //phpcs:i
                 \Mockery::spy(\EventManager::class),
                 PostCreationActionsQueuerStub::doNothing(),
                 $changeset_comment_indexer,
+                new MentionedUserInTextRetriever(ProvideAndRetrieveUserStub::build($user)),
             ),
         );
-        $creator->create($changeset_creation, PostCreationContext::withNoConfig(false));
+        $creator->create($changeset_creation, PostCreationContext::withNoConfig($send_notification));
     }
 
     public function testDontCreateNewChangesetIfNoCommentOrNoChanges(): void
@@ -438,6 +441,7 @@ final class Tracker_ArtifactTest extends \Tuleap\Test\PHPUnit\TestCase //phpcs:i
         $artifact->shouldReceive('getHierarchyFactory')->andReturns($hierarchy_factory);
         $artifact->shouldReceive('getChangesetSaver')->andReturns($changeset_saver);
         $artifact->shouldReceive('getActionsQueuer')->andReturns(PostCreationActionsQueuerStub::doNothing());
+        $artifact->shouldReceive('getUserManager')->andReturns(ProvideAndRetrieveUserStub::build($user));
 
         $workflow_checker = \Mockery::mock(\Tuleap\Tracker\Workflow\WorkflowUpdateChecker::class);
         $workflow_checker->shouldReceive('canFieldBeUpdated')->andReturnTrue();
@@ -701,6 +705,7 @@ final class Tracker_ArtifactTest extends \Tuleap\Test\PHPUnit\TestCase //phpcs:i
         $workflow->shouldReceive('validate')->andReturns(true);
         $artifact->shouldReceive('getWorkflow')->andReturns($workflow);
         $artifact->shouldReceive('getWorkflowRetriever')->andReturns(RetrieveWorkflowStub::withWorkflow($workflow));
+        $artifact->shouldReceive('getUserManager')->andReturns(ProvideAndRetrieveUserStub::build($user));
 
         // Valid
         $fields_data = [

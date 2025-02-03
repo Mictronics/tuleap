@@ -12,8 +12,11 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.0.1\n"
 
-msgid "Add existing section"
-msgstr "Ajouter une section existante"
+msgid "Add freetext"
+msgstr "Ajouter du texte libre"
+
+msgid "Add new %{tracker_label}"
+msgstr "Créer un(e) %{tracker_label}"
 
 msgid "Add new section"
 msgstr "Créer une nouvelle section"
@@ -24,12 +27,19 @@ msgstr "Ajouter la section"
 msgid "Already existing as section in this document"
 msgstr "Existent déjà en tant que section dans ce document"
 
+msgid "An error occurred"
+msgstr "Une erreur est survenue"
+
 msgid ""
 "An error occurred while creating section from existing artifact %{ xref }: "
 "%{ details }"
 msgstr ""
 "Une erreur est survenue lors de la création d'une section à partir de "
 "l'artéfact existant %{ xref } : %{ details }"
+
+msgid "An error occurred while removing the freetext section."
+msgstr ""
+"Une erreur est survenue lors de la suppression de la section de texte libre."
 
 msgid "An error occurred while removing the section."
 msgstr "Une erreur est survenue lors de la suppression de la section."
@@ -46,6 +56,9 @@ msgstr "Une erreur est survenue lors de la sauvegarde de la configuration."
 
 msgid "An error occurred while trying to update the section."
 msgstr "Une erreur est survenue lors de la mise à jour de la section."
+
+msgid "Are you sure you want to delete this freetext section?"
+msgstr "Êtes vous sûr de vouloir supprimer cette section de texte libre ?"
 
 msgid "Artidoc allows composition of a document based on artifacts."
 msgstr "Artidoc permet la composition d'un document basé sur des artéfacts."
@@ -105,6 +118,12 @@ msgstr "Forcer la sauvegarde"
 msgid "Go to artifact"
 msgstr "Aller à l'artéfact"
 
+msgid "Import existing %{tracker_label}"
+msgstr "Importer un(e) %{tracker_label} existant(e)"
+
+msgid "Import existing section"
+msgstr "Importer une section existante"
+
 msgid ""
 "In order to be able to add new sections to your document, we need to know in "
 "which tracker the sections will be created into."
@@ -161,6 +180,15 @@ msgstr "Recharger la page"
 msgid "Remove"
 msgstr "Enlever"
 
+msgid "Remove a freetext section"
+msgstr "Supprimer une section de texte libre"
+
+msgid "Remove section"
+msgstr "Supprimer la section"
+
+msgid "Remove the section from this document."
+msgstr "Supprimer la section de ce document."
+
 msgid ""
 "Remove the section from this document. Corresponding artifact won't be "
 "deleted."
@@ -187,6 +215,9 @@ msgstr ""
 "Le document est en cours d'édition. Veuillez au préalable sauvegarder votre "
 "travail."
 
+msgid "The removal of a freetext section is definitive"
+msgstr "La suppression d'une section de texte libre est définitive"
+
 msgid ""
 "The section you are trying to update does not exist or you don't have "
 "anymore access to it."
@@ -198,6 +229,14 @@ msgid "There is %{ remaining_uploads } other upload in progress..."
 msgid_plural "There are %{ remaining_uploads } other uploads in progress..."
 msgstr[0] "Il y a %{ remaining_uploads } autre téléchargement en cours..."
 msgstr[1] "Il y a %{ remaining_uploads } autres téléchargements en cours..."
+
+msgid ""
+"There is no title field on the configured tracker %{ tracker } (or you "
+"cannot submit it), therefore you cannot search for artifacts to import."
+msgstr ""
+"Il n'y a pas de titre dans le tracker configuré %{ tracker } (ou vous n'avez "
+"pas les droits de le soumettre), ainsi vous ne pouvez pas rechercher des "
+"artéfacts pour les importer."
 
 msgid "There isn't any suitable trackers in this project"
 msgstr "Il n'y a pas de tracker utilisable dans ce projet"
@@ -213,6 +252,9 @@ msgstr "Titre..."
 
 msgid "Tracker"
 msgstr "Tracker"
+
+msgid "Unable to reorder the sections"
+msgstr "Impossible de réorganiser les sections"
 
 msgid ""
 "You can now go back to the document and create new sections, they will be "

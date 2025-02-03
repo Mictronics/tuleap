@@ -27,7 +27,7 @@ use Tuleap\Tracker\Report\Query\ParametrizedSQLFragment;
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 class Tracker_FormElement_Field_ArtifactId extends Tracker_FormElement_Field_Integer implements Tracker_FormElement_Field_ReadOnly
 {
-    public $default_properties = [];
+    public array $default_properties = [];
 
     public function getCriteriaFromWhere(Tracker_Report_Criteria $criteria): Option
     {
@@ -98,16 +98,10 @@ class Tracker_FormElement_Field_ArtifactId extends Tracker_FormElement_Field_Int
     /**
      * Display the field as a Changeset value.
      * Used in CSV data export.
-     *
-     * @param int $artifact_id the corresponding artifact id
-     * @param int $changeset_id the corresponding changeset
-     * @param mixed $value the value of the field
-     *
-     * @return string
      */
-    public function fetchCSVChangesetValue($artifact_id, $changeset_id, $value, $report)
+    public function fetchCSVChangesetValue(int $artifact_id, int $changeset_id, mixed $value, ?Tracker_Report $report): string
     {
-        return $value;
+        return $value ?? '';
     }
 
     /**
@@ -116,14 +110,12 @@ class Tracker_FormElement_Field_ArtifactId extends Tracker_FormElement_Field_Int
      * @param Artifact                        $artifact         The artifact
      * @param Tracker_Artifact_ChangesetValue $value            The actual value of the field
      * @param array                           $submitted_values The value already submitted by the user
-     *
-     * @return string
      */
     protected function fetchArtifactValue(
         Artifact $artifact,
         ?Tracker_Artifact_ChangesetValue $value,
         array $submitted_values,
-    ) {
+    ): string {
         return $this->fetchArtifactValueReadOnly($artifact, $value);
     }
 
@@ -142,18 +134,14 @@ class Tracker_FormElement_Field_ArtifactId extends Tracker_FormElement_Field_Int
 
     /**
      * Fetch artifact value for email
-     * @param bool $ignore_perms
-     * @param string $format
-     *
-     * @return string
      */
     public function fetchMailArtifactValue(
         Artifact $artifact,
         PFUser $user,
-        $ignore_perms,
+        bool $ignore_perms,
         ?Tracker_Artifact_ChangesetValue $value = null,
-        $format = 'text',
-    ) {
+        string $format = 'text',
+    ): string {
         $output = '';
         switch ($format) {
             case 'html':
@@ -205,13 +193,7 @@ class Tracker_FormElement_Field_ArtifactId extends Tracker_FormElement_Field_Int
         return $GLOBALS['HTML']->getImagePath('ic/tracker-aid--plus.png');
     }
 
-    /**
-     * Fetch the html code to display the field value in tooltip
-     *
-     * @param Tracker_Artifact_ChangesetValue $value The changeset value of this field
-     * @return string The html code to display the field value in tooltip
-     */
-    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null)
+    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null): string
     {
         $html  = '';
         $html .= $artifact->getId();

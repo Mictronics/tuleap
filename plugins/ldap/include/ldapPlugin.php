@@ -26,6 +26,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/constants.php';
 
 use FastRoute\RouteCollector;
+use Tuleap\Config\PluginWithConfigKeys;
 use Tuleap\LDAP\User\UserDao;
 use Tuleap\Project\UGroups\Membership\DynamicUGroups\ProjectMemberAdderWithStatusCheckAndNotifications;
 use Tuleap\SVNCore\SVNAccessFileDefaultBlockOverride;
@@ -73,7 +74,7 @@ use Tuleap\User\UserNameNormalizer;
 use Tuleap\User\UserRetrieverByLoginNameEvent;
 
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
-class LdapPlugin extends Plugin
+class LdapPlugin extends Plugin implements PluginWithConfigKeys
 {
     /**
      * @type LDAP
@@ -235,8 +236,8 @@ class LdapPlugin extends Plugin
     {
         return TemplateRendererFactory::build()->getRenderer(
             [
-                dirname(__FILE__) . '/../templates',
-                ForgeConfig::get('codendi_dir') . '/src/templates/search',
+                __DIR__ . '/../templates',
+                __DIR__ . '/../../../src/templates/search',
             ]
         );
     }
@@ -966,7 +967,7 @@ class LdapPlugin extends Plugin
     {
         switch ($params['type']) {
             case 'PLUGIN_LDAP_UPDATE_LOGIN':
-                include_once dirname(__FILE__) . '/system_event/SystemEvent_PLUGIN_LDAP_UPDATE_LOGIN.class.php';
+                include_once dirname(__FILE__) . '/system_event/SystemEvent_PLUGIN_LDAP_UPDATE_LOGIN.php';
                 $params['class']        = 'SystemEvent_PLUGIN_LDAP_UPDATE_LOGIN';
                 $params['dependencies'] = [
                     UserManager::instance(),
@@ -1393,5 +1394,10 @@ class LdapPlugin extends Plugin
     public function findUserByEmailEvent(FindUserByEmailEvent $event): void
     {
         (new CreateUserFromEmail($this->getLdap(), $this->getLdapUserManager(), $this->getLogger()))->process($event);
+    }
+
+    public function getConfigKeys(\Tuleap\Config\ConfigClassProvider $event): void
+    {
+        $event->addConfigClass(\LDAP::class);
     }
 }

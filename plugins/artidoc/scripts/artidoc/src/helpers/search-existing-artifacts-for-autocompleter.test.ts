@@ -25,7 +25,8 @@ import { TrackerStub } from "@/helpers/stubs/TrackerStub";
 import type { Language } from "vue3-gettext";
 import { okAsync } from "neverthrow";
 import ArtifactSectionFactory from "@/helpers/artifact-section.factory";
-import { injectInternalId } from "@/helpers/inject-internal-id";
+import { SectionsCollectionStub } from "@/sections/stubs/SectionsCollectionStub";
+import { CreateStoredSections } from "@/sections/CreateStoredSections";
 
 describe("search-existing-artifacts-for-autocompleter", () => {
     it("should empty the results if query is empty", () => {
@@ -44,7 +45,14 @@ describe("search-existing-artifacts-for-autocompleter", () => {
             replaceContent,
         } as unknown as LazyAutocompleter;
 
-        searchExistingArtifactsForAutocompleter(query, autocompleter, tracker, [], gettext).match(
+        searchExistingArtifactsForAutocompleter(
+            query,
+            autocompleter,
+            tracker,
+            tracker.title,
+            SectionsCollectionStub.withSections([]),
+            gettext,
+        ).match(
             () => {
                 expect(replaceContent).toHaveBeenCalledWith([
                     {
@@ -80,7 +88,14 @@ describe("search-existing-artifacts-for-autocompleter", () => {
 
         vi.spyOn(fetch, "getJSON");
 
-        searchExistingArtifactsForAutocompleter(query, autocompleter, tracker, [], gettext);
+        searchExistingArtifactsForAutocompleter(
+            query,
+            autocompleter,
+            tracker,
+            tracker.title,
+            SectionsCollectionStub.withSections([]),
+            gettext,
+        );
         expect(replaceContent).toHaveBeenCalledWith([
             {
                 label: "Matching artifacts",
@@ -110,7 +125,14 @@ describe("search-existing-artifacts-for-autocompleter", () => {
 
         vi.spyOn(fetch, "getJSON").mockReturnValue(okAsync([]));
 
-        searchExistingArtifactsForAutocompleter(query, autocompleter, tracker, [], gettext).match(
+        searchExistingArtifactsForAutocompleter(
+            query,
+            autocompleter,
+            tracker,
+            tracker.title,
+            SectionsCollectionStub.withSections([]),
+            gettext,
+        ).match(
             () => {
                 expect(replaceContent).toHaveBeenCalledWith([
                     {
@@ -165,7 +187,14 @@ describe("search-existing-artifacts-for-autocompleter", () => {
             ]),
         );
 
-        searchExistingArtifactsForAutocompleter(query, autocompleter, tracker, [], gettext).match(
+        searchExistingArtifactsForAutocompleter(
+            query,
+            autocompleter,
+            tracker,
+            tracker.title,
+            SectionsCollectionStub.withSections([]),
+            gettext,
+        ).match(
             () => {
                 expect(replaceContent).toHaveBeenCalledWith([
                     {
@@ -245,23 +274,22 @@ describe("search-existing-artifacts-for-autocompleter", () => {
 
         const section = ArtifactSectionFactory.create();
 
-        const sections = [
-            injectInternalId(
-                ArtifactSectionFactory.override({
-                    ...section,
-                    artifact: {
-                        ...section.artifact,
-                        id: 124,
-                    },
-                }),
-            ),
-        ];
+        const stored_section = CreateStoredSections.fromArtidocSection(
+            ArtifactSectionFactory.override({
+                ...section,
+                artifact: {
+                    ...section.artifact,
+                    id: 124,
+                },
+            }),
+        );
 
         searchExistingArtifactsForAutocompleter(
             query,
             autocompleter,
             tracker,
-            sections,
+            tracker.title,
+            SectionsCollectionStub.withSections([stored_section]),
             gettext,
         ).match(
             () => {

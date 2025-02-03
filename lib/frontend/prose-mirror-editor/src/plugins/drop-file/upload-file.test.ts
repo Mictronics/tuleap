@@ -20,19 +20,15 @@ import type { MockInstance } from "vitest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { uploadAndDisplayFileInEditor } from "./upload-file";
-import {
-    InvalidFileUploadError,
-    MaxSizeUploadExceededError,
-    NoUploadError,
-    UploadError,
-} from "./types";
-import type { FileUploadOptions, OnGoingUploadFile } from "./types";
+import { InvalidFileUploadError, MaxSizeUploadExceededError, NoUploadError } from "./types";
 import * as fetch_result from "@tuleap/fetch-result";
 import * as download_file from "./helpers/upload-file-helper";
 import { okAsync } from "neverthrow";
 import { Option } from "@tuleap/option";
 import type { OngoingUpload } from "./plugin-drop-file";
 import type { GetText } from "@tuleap/gettext";
+import type { FileUploadOptions, OnGoingUploadFile } from "@tuleap/file-upload";
+import { UploadError } from "@tuleap/file-upload";
 
 const gettext_provider = {
     gettext: vi.fn(),
@@ -75,7 +71,16 @@ describe("uploadFile", () => {
             file = new File(["123"], "file_name.png", { type: "image/png" });
             other_file = new File(["456"], "other.png", { type: "image/png" });
             options = {
-                upload_url,
+                post_information: {
+                    getUploadJsonPayload(file: File): unknown {
+                        return {
+                            name: file.name,
+                            file_size: file.size,
+                            file_type: file.type,
+                        };
+                    },
+                    upload_url,
+                },
                 max_size_upload,
                 onErrorCallback: vi.fn(),
                 onStartUploadCallback: vi.fn().mockReturnValue([
@@ -100,7 +105,10 @@ describe("uploadFile", () => {
                         mockFileList([file]),
                         {
                             ...options,
-                            upload_url: "",
+                            post_information: {
+                                ...options.post_information,
+                                upload_url: "",
+                            },
                         },
                         gettext_provider,
                         [],

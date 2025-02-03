@@ -35,6 +35,9 @@ dependencies:
   vuex:
     specifier: ^3.6.2
     version: 3.6.2(vue@2.7.8)
+  vuex-composition-helpers:
+    specifier: ^2.0.1
+    version: 2.0.3(vue@2.7.8)(vuex@3.6.2)
 
 devDependencies:
   '@tuleap/build-system-configurator':
@@ -851,8 +854,8 @@ packages:
     resolution: {integrity: sha512-sGkPx+VjMtmA6MX27oA4FBFELFCZZ4S4XqeGOXCv68tT+jb3vk/RyaKWP0PTKyWtmLSM0b+adUTEvbs1PEaH2w==}
     dev: true
 
-  /nanoid@3.3.6:
-    resolution: {integrity: sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==}
+  /nanoid@3.3.8:
+    resolution: {integrity: sha512-WNLf5Sd8oZxOm+TzppcYk8gVOgP+l58xNy58D0nbUnOxOWRWvlcCV4kUF7ltmI6PsrLl/BgKEyS4mqsGChFN0w==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
 
@@ -892,7 +895,7 @@ packages:
     resolution: {integrity: sha512-bQ3qMcpF6A/YjR55xtoTr0jGOlnPOKAIMdOWiv0EIT6HVPEaJiJB4NLljSbiHoC2RX7DN5Uvjtpbg1NPdwv1oA==}
     engines: {node: ^10 || ^12 || >=14}
     dependencies:
-      nanoid: 3.3.6
+      nanoid: 3.3.8
       picocolors: 1.0.0
       source-map-js: 1.0.2
 
@@ -1097,6 +1100,16 @@ packages:
       vue-class-component: 7.2.6(vue@2.7.8)
       vuex: 3.6.2(vue@2.7.8)
     dev: true
+
+  /vuex-composition-helpers@2.0.3(vue@2.7.8)(vuex@3.6.2):
+    resolution: {integrity: sha512-tIkGHfUqA3dzq8ePBXUXfZldqgZOXr6hb6TF6M5bhR/5ls2fsqhPJiOygC40UKZe4w6pP7cJ1HiLrZaYckz4nw==}
+    peerDependencies:
+      vue: '>= 3.0.5'
+      vuex: '>= 4.0.0'
+    dependencies:
+      vue: 2.7.8
+      vuex: 3.6.2(vue@2.7.8)
+    dev: false
 
   /vuex@3.6.2(vue@2.7.8):
     resolution: {integrity: sha512-ETW44IqCgBpVomy520DT5jf8n0zoCac+sxWnn+hMe/CzaSejb/eVw2YToiXYX+Ex/AuHHia28vWTq4goAexFbw==}

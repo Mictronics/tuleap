@@ -45,7 +45,6 @@ use Tracker;
 use Tracker_Action_UpdateArtifact;
 use Tracker_Artifact_Changeset;
 use Tracker_Artifact_Changeset_ChangesetDataInitializator;
-use Tracker_Artifact_Changeset_Comment;
 use Tracker_Artifact_Changeset_CommentDao;
 use Tracker_Artifact_Changeset_FieldsValidator;
 use Tracker_Artifact_Changeset_IncomingMailGoldenRetriever;
@@ -94,6 +93,7 @@ use Tuleap\Http\HTTPFactoryBuilder;
 use Tuleap\Http\Response\JSONResponseBuilder;
 use Tuleap\Layout\JavascriptViteAsset;
 use Tuleap\Layout\TooltipJSON;
+use Tuleap\Notification\Mention\MentionedUserInTextRetriever;
 use Tuleap\Project\ProjectAccessChecker;
 use Tuleap\Project\RestrictedUserCanAccessProjectVerifier;
 use Tuleap\Project\UGroupLiteralizer;
@@ -118,10 +118,10 @@ use Tuleap\Tracker\Artifact\Changeset\Comment\PrivateComment\TrackerPrivateComme
 use Tuleap\Tracker\Artifact\Changeset\Comment\PrivateComment\TrackerPrivateCommentUGroupPermissionInserter;
 use Tuleap\Tracker\Artifact\Changeset\FieldsToBeSavedInSpecificOrderRetriever;
 use Tuleap\Tracker\Artifact\Changeset\NewChangeset;
-use Tuleap\Tracker\Artifact\Changeset\NewChangesetPostProcessor;
 use Tuleap\Tracker\Artifact\Changeset\NewChangesetCreator;
 use Tuleap\Tracker\Artifact\Changeset\NewChangesetFieldsWithoutRequiredValidationValidator;
 use Tuleap\Tracker\Artifact\Changeset\NewChangesetFieldValueSaver;
+use Tuleap\Tracker\Artifact\Changeset\NewChangesetPostProcessor;
 use Tuleap\Tracker\Artifact\Changeset\NewChangesetValidator;
 use Tuleap\Tracker\Artifact\Changeset\PostCreation\ActionsQueuer;
 use Tuleap\Tracker\Artifact\Changeset\PostCreation\PostCreationActionsQueuer;
@@ -828,14 +828,12 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
      * Returns HTML code to display the artifact history
      *
      * @param Codendi_Request $request The data from the user
-     *
-     * @return String The valid followup comment format
      */
-    public function validateCommentFormat($request, $comment_format_field_name)
+    public function validateCommentFormat(Codendi_Request $request, string $comment_format_field_name): CommentFormatIdentifier
     {
-        $comment_format = $request->get($comment_format_field_name);
+        $comment_format = (string) $request->get($comment_format_field_name);
 
-        return Tracker_Artifact_Changeset_Comment::checkCommentFormat($comment_format);
+        return CommentFormatIdentifier::fromStringWithDefault($comment_format);
     }
 
     /**
@@ -856,20 +854,18 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
                 exit;
             case 'update-comment':
                 if ((int) $request->get('changeset_id') && $request->exist('content')) {
-                    if ($changeset = $this->getChangeset($request->get('changeset_id'))) {
+                    if ($changeset = $this->getChangeset((int) $request->get('changeset_id'))) {
                         $comment_format = $this->validateCommentFormat($request, 'comment_format');
                         $changeset->updateComment(
                             $request->get('content'),
                             $current_user,
-                            $comment_format,
+                            $comment_format->value,
                             $_SERVER['REQUEST_TIME']
                         );
-                        if ($request->isAjax()) {
-                            //We assume that we can only change a comment from a followUp
-                            $comment = $changeset->getComment();
-                            if ($comment !== null) {
-                                echo $comment->fetchFollowUp($current_user);
-                            }
+                        //We assume that we can only change a comment from a followUp
+                        $comment = $changeset->getComment();
+                        if ($comment !== null) {
+                            echo $comment->fetchFollowUp($current_user);
                         }
                     }
                 }
@@ -967,7 +963,8 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
                     $layout,
                     $this->getTypeIsChildLinkRetriever(),
                     $this->getVisitRecorder(),
-                    $this->getHiddenFieldsetsDetector()
+                    $this->getHiddenFieldsetsDetector(),
+                    new Renderer\ArtifactViewCollectionBuilder($this->getEventManager(), $this->getTypeIsChildLinkRetriever())
                 );
 
                 $renderer->display($request, $current_user);
@@ -1007,7 +1004,8 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
                         $layout,
                         $this->getTypeIsChildLinkRetriever(),
                         $this->getVisitRecorder(),
-                        $this->getHiddenFieldsetsDetector()
+                        $this->getHiddenFieldsetsDetector(),
+                        new Renderer\ArtifactViewCollectionBuilder($this->getEventManager(), $this->getTypeIsChildLinkRetriever())
                     );
                     $renderer->display($request, $current_user);
                 }
@@ -1234,7 +1232,6 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
      * @param string $comment The comment (follow-up) associated with the artifact update
      * @param PFUser $submitter The user who is doing the update
      * @param bool $send_notification true if a notification must be sent, false otherwise
-     * @param string $comment_format The comment (follow-up) type ("text" | "html" | "commonmark")
      *
      * @return Tracker_Artifact_Changeset|null
      * @throws Tracker_NoChangeException In the validation
@@ -1246,7 +1243,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
         $comment,
         PFUser $submitter,
         $send_notification = true,
-        $comment_format = Tracker_Artifact_Changeset_Comment::COMMONMARK_COMMENT,
+        CommentFormatIdentifier $comment_format = CommentFormatIdentifier::COMMONMARK,
     ) {
         $submitted_on  = $_SERVER['REQUEST_TIME'];
         $validator     = $this->getFieldValidator();
@@ -1254,7 +1251,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
             $this,
             $fields_data,
             (string) $comment,
-            CommentFormatIdentifier::fromFormatString((string) $comment_format),
+            $comment_format,
             [],
             $submitter,
             (int) $submitted_on,
@@ -1276,7 +1273,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
         $comment,
         PFUser $submitter,
         $send_notification,
-        $comment_format,
+        CommentFormatIdentifier $comment_format,
     ): ?Tracker_Artifact_Changeset {
         $submitted_on  = $_SERVER['REQUEST_TIME'];
         $validator     = new NewChangesetFieldsWithoutRequiredValidationValidator(
@@ -1287,7 +1284,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
             $this,
             $fields_data,
             (string) $comment,
-            CommentFormatIdentifier::fromFormatString((string) $comment_format),
+            $comment_format,
             [],
             $submitter,
             (int) $submitted_on,
@@ -2208,6 +2205,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
         $form_element_factory     = $this->getFormElementFactory();
         $event_dispatcher         = EventManager::instance();
         $fields_retriever         = new FieldsToBeSavedInSpecificOrderRetriever($form_element_factory);
+
         return new NewChangesetCreator(
             $this->getTransactionExecutor(),
             $this->getChangesetSaver(),
@@ -2238,6 +2236,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
                     $event_dispatcher,
                     new \Tracker_Artifact_Changeset_CommentDao(),
                 ),
+                new MentionedUserInTextRetriever($this->getUserManager()),
             ),
         );
     }

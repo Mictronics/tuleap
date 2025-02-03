@@ -28,7 +28,7 @@ use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeBuilder;
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 abstract class Tracker_FormElement_Field_Numeric extends Tracker_FormElement_Field_Alphanum implements Tracker_FormElement_IComputeValues
 {
-    public $default_properties = [
+    public array $default_properties = [
         'maxchars'      => [
             'value' => 0,
             'type'  => 'string',
@@ -193,13 +193,7 @@ abstract class Tracker_FormElement_Field_Numeric extends Tracker_FormElement_Fie
         return (int) $value;
     }
 
-    /**
-     * Fetch the html code to display the field value in new artifact submission form
-     * @param array $submitted_values the values already submitted
-     *
-     * @return string html
-     */
-    protected function fetchSubmitValue(array $submitted_values)
+    protected function fetchSubmitValue(array $submitted_values): string
     {
         $html  = '';
         $value = $this->getValueFromSubmitOrDefault($submitted_values);
@@ -213,11 +207,7 @@ abstract class Tracker_FormElement_Field_Numeric extends Tracker_FormElement_Fie
         return $html;
     }
 
-    /**
-     * Fetch the html code to display the field value in new artifact submission form
-     * @return string html
-     */
-    protected function fetchSubmitValueMasschange()
+    protected function fetchSubmitValueMasschange(): string
     {
         $html  = '';
         $value = dgettext('tuleap-tracker', 'Unchanged');
@@ -236,14 +226,12 @@ abstract class Tracker_FormElement_Field_Numeric extends Tracker_FormElement_Fie
      * @param Artifact                        $artifact         The artifact
      * @param Tracker_Artifact_ChangesetValue $value            The actual value of the field
      * @param array                           $submitted_values The value already submitted by the user
-     *
-     * @return string
      */
     protected function fetchArtifactValue(
         Artifact $artifact,
         ?Tracker_Artifact_ChangesetValue $value,
         array $submitted_values,
-    ) {
+    ): string {
         $html = '';
         if (isset($submitted_values[$this->getId()])) {
             $value = $submitted_values[$this->getId()];
@@ -263,22 +251,14 @@ abstract class Tracker_FormElement_Field_Numeric extends Tracker_FormElement_Fie
 
     /**
      * Fetch the field value in artifact to be displayed in mail
-     *
-     * @param Artifact                        $artifact The artifact
-     * @param PFUser                          $user     The user who will receive the email
-     * @param bool                            $ignore_perms
-     * @param Tracker_Artifact_ChangesetValue $value    The actual value of the field
-     * @param string                          $format   mail format
-     *
-     * @return string
      */
     public function fetchMailArtifactValue(
         Artifact $artifact,
         PFUser $user,
-        $ignore_perms,
+        bool $ignore_perms,
         ?Tracker_Artifact_ChangesetValue $value = null,
-        $format = 'text',
-    ) {
+        string $format = 'text',
+    ): string {
         if (empty($value) || ! $value->getNumeric()) {
             return '-';
         }

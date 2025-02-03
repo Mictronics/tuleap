@@ -18,18 +18,30 @@
 -
 -->
 <template>
-    <div class="tlp-dropdown" v-if="!is_pending">
+    <div class="tlp-dropdown" v-if="can_dropdown_be_displayed">
         <button
             type="button"
             v-bind:title="trigger_title"
             class="tlp-button-secondary tlp-button-outline artidoc-dropdown-trigger"
             data-test="artidoc-dropdown-trigger"
             ref="trigger"
+            v-bind:id="trigger_id"
         >
             <i class="fa-solid fa-ellipsis-vertical fa-fw" role="img"></i>
         </button>
-        <div ref="menu" class="tlp-dropdown-menu tlp-dropdown-menu-on-icon" role="menu">
-            <a v-bind:href="artifact_url" class="tlp-dropdown-menu-item" role="menuitem">
+        <div
+            ref="menu"
+            class="tlp-dropdown-menu tlp-dropdown-menu-on-icon"
+            role="menu"
+            v-bind:data-triggered-by="trigger_id"
+        >
+            <a
+                v-bind:href="artifact_url"
+                class="tlp-dropdown-menu-item"
+                role="menuitem"
+                v-if="isSectionBasedOnArtifact(section)"
+                data-test="go-to-artifact"
+            >
                 <i
                     class="tlp-dropdown-menu-item-icon fa-solid fa-fw fa-arrow-right"
                     aria-hidden="true"
@@ -37,11 +49,16 @@
                 {{ $gettext("Go to artifact") }}
             </a>
             <template v-if="is_section_editable">
-                <span class="tlp-dropdown-menu-separator" role="separator"></span>
+                <span
+                    class="tlp-dropdown-menu-separator"
+                    role="separator"
+                    v-if="isSectionBasedOnArtifact(section)"
+                ></span>
                 <button
                     type="button"
                     v-on:click="onDelete"
                     class="tlp-dropdown-menu-item"
+                    v-bind:class="{ 'tlp-dropdown-menu-item-danger': !is_artifact_section }"
                     role="menuitem"
                     data-test="delete"
                     v-bind:title="remove_title"
@@ -60,37 +77,54 @@
 <script setup lang="ts">
 import type { SectionEditor } from "@/composables/useSectionEditor";
 import { useGettext } from "vue3-gettext";
-import type { ArtidocSection } from "@/helpers/artidoc-section.type";
-import { isPendingArtifactSection, isArtifactSection } from "@/helpers/artidoc-section.type";
+import {
+    isSectionBasedOnArtifact,
+    isPendingSection,
+    isArtifactSection,
+} from "@/helpers/artidoc-section.type";
 import type { Dropdown } from "@tuleap/tlp-dropdown";
 import { createDropdown } from "@tuleap/tlp-dropdown";
 import { computed, ref, watch } from "vue";
 import { strictInject } from "@tuleap/vue-strict-inject";
-import { CONFIGURATION_STORE } from "@/stores/configuration-store";
+import { REMOVE_FREETEXT_SECTION_MODAL } from "@/composables/useRemoveFreetextSectionModal";
 import { moveDropdownMenuInDocumentBody } from "@/helpers/move-dropdownmenu-in-document-body";
+import type { StoredArtidocSection } from "@/sections/SectionsCollection";
+import type { SectionState } from "@/sections/SectionStateBuilder";
 
-const configuration = strictInject(CONFIGURATION_STORE);
+const remove_freetext_section = strictInject(REMOVE_FREETEXT_SECTION_MODAL);
 
 const { $gettext } = useGettext();
 const props = defineProps<{
     editor: SectionEditor;
-    section: ArtidocSection;
+    section: StoredArtidocSection;
+    section_state: SectionState;
 }>();
+
 const { deleteSection } = props.editor.editor_actions;
-const is_section_editable = props.editor.editor_state.is_section_editable;
-const is_pending = computed(() => isPendingArtifactSection(props.section));
+
+const { is_section_editable } = props.section_state;
+
+const is_pending = computed(() => isPendingSection(props.section));
 const artifact_url = computed(() =>
     isArtifactSection(props.section) ? `/plugins/tracker/?aid=${props.section.artifact.id}` : "",
 );
+
 const trigger = ref<HTMLElement | null>(null);
 const menu = ref<HTMLElement | null>(null);
 
-const remove_title = $gettext(
-    "Remove the section from this document. Corresponding artifact won't be deleted.",
-);
+const is_artifact_section = isSectionBasedOnArtifact(props.section);
+const trigger_id = `section-dropdown-${props.section.id}`;
+
+const remove_title = is_artifact_section
+    ? $gettext("Remove the section from this document. Corresponding artifact won't be deleted.")
+    : $gettext("Remove the section from this document.");
 const trigger_title = $gettext("Open contextual menu");
 
 let dropdown: Dropdown | null = null;
+
+const can_dropdown_be_displayed = computed(
+    () => is_pending.value === false && (is_artifact_section || is_section_editable.value),
+);
 
 watch(trigger, () => {
     if (dropdown === null && trigger.value && menu.value) {
@@ -102,7 +136,11 @@ watch(trigger, () => {
 });
 
 function onDelete(): void {
-    deleteSection(configuration.selected_tracker.value);
+    if (is_artifact_section) {
+        deleteSection();
+        return;
+    }
+    remove_freetext_section.openModal(props.section);
 }
 </script>
 

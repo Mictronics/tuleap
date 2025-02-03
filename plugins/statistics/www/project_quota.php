@@ -22,7 +22,7 @@ use Tuleap\Statistics\AdminHeaderPresenter;
 use Tuleap\Statistics\ProjectQuotaPresenter;
 
 require_once __DIR__ . '/../../../src/www/include/pre.php';
-require_once __DIR__ . '/../include/ProjectQuotaHtml.class.php';
+require_once __DIR__ . '/../include/ProjectQuotaHtml.php';
 
 
 $pluginManager = PluginManager::instance();
@@ -51,7 +51,7 @@ $title = dgettext('tuleap-statistics', 'Project quota');
 $admin_page_renderer = new AdminPageRenderer();
 $admin_page_renderer->renderANoFramedPresenter(
     $title,
-    ForgeConfig::get('codendi_dir') . '/plugins/statistics/templates',
+    __DIR__ . '/../templates',
     'project-quota',
     new ProjectQuotaPresenter(
         new AdminHeaderPresenter(

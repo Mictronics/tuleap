@@ -240,6 +240,11 @@ msgstr "Houve um erro na pré-visualização do Markdown:"
 msgid "This artifact is already linked"
 msgstr ""
 
+msgid ""
+"This tracker's notifications are disabled, when you use @ to mention "
+"someone, no email will be sent."
+msgstr ""
+
 msgid "Title"
 msgstr ""
 
@@ -264,13 +269,16 @@ msgstr ""
 msgid "View details"
 msgstr ""
 
+msgid "When you use @ to mention someone, they will get an email notification."
+msgstr ""
+
 msgid "You are not allowed to paste images here"
 msgstr "Você não está autorizado a colar imagens aqui"
 
 msgid "You are not allowed to upload files bigger than %s."
 msgstr "Você não está autorizado a carregar arquivos maiores que %s."
 
-msgid "You can drag 'n drop or paste image directly in the editor."
+msgid "You can drag and drop or paste an image directly in the editor."
 msgstr "Você pode arrastar e soltar, ou colar a imagem diretamente no editor."
 
 msgid "is Child of"

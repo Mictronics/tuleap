@@ -18,66 +18,51 @@
  */
 
 import { define } from "hybrids";
+import { initMentions } from "@tuleap/mention";
 import { gettext_provider } from "../gettext-provider";
-import type { ElementContainingAWritingZone } from "../types";
 import type { ControlWritingZone } from "./WritingZoneController";
 import type { WritingZonePresenter } from "./WritingZonePresenter";
 import { getWritingZoneTemplate } from "./WritingZoneTemplate";
 
 export const TAG = "tuleap-pullrequest-comment-writing-zone";
 
-export type InternalWritingZone = {
+export type WritingZone = {
     controller: ControlWritingZone;
     presenter: WritingZonePresenter;
-    textarea: HTMLTextAreaElement;
-    render: () => HTMLElement;
+    readonly textarea: HTMLTextAreaElement;
+    comment_content: string;
+    render(): HTMLElement;
 };
 
-export type HostElement = InternalWritingZone & HTMLElement;
+export type HostElement = WritingZone & HTMLElement;
 
-export const isWritingZoneElement = (
-    element: Element,
-): element is HTMLElement & InternalWritingZone => {
+export const isWritingZoneElement = (element: Element): element is HTMLElement & WritingZone => {
     return element.tagName.toLowerCase() === TAG;
 };
 
-export const getWritingZoneElement = <ElementType>(
-    host: ElementContainingAWritingZone<ElementType>,
-): HTMLElement & InternalWritingZone => {
+export const getWritingZoneElement = (): HostElement => {
     const element = document.createElement(TAG);
     if (!isWritingZoneElement(element)) {
         throw new Error("Failed to create a WritingZone element.");
     }
-
-    element.controller = host.writing_zone_controller;
-    element.addEventListener("writing-zone-input", (event: Event) => {
-        if (!(event instanceof CustomEvent)) {
-            return;
-        }
-
-        host.controller.handleWritingZoneContentChange(host, event.detail.content);
-    });
-
     return element;
 };
 
-define<InternalWritingZone>({
+define<WritingZone>({
     tag: TAG,
     controller: {
-        value: (host: InternalWritingZone, controller) => controller,
+        value: (host: WritingZone, controller) => controller,
         connect: (host) => {
-            const onMouseDownInDocumentHandler = (event: MouseEvent): void => {
-                if (!event.composedPath().includes(host)) {
-                    host.controller.blurWritingZone(host);
-                    return;
-                }
-
+            function onFocusIn(): void {
                 host.controller.focusWritingZone(host);
-            };
+            }
 
-            host.controller
-                .getDocument()
-                .addEventListener("mousedown", onMouseDownInDocumentHandler, true);
+            function onFocusOut(): void {
+                host.controller.blurWritingZone(host);
+            }
+
+            host.addEventListener("focusin", onFocusIn);
+            host.addEventListener("focusout", onFocusOut);
 
             setTimeout(() => {
                 if (host.controller.shouldFocusWritingZoneWhenConnected()) {
@@ -87,9 +72,8 @@ define<InternalWritingZone>({
 
             return (): void => {
                 host.controller.resetWritingZone(host);
-                host.controller
-                    .getDocument()
-                    .removeEventListener("mousedown", onMouseDownInDocumentHandler, true);
+                host.removeEventListener("focusin", onFocusIn);
+                host.removeEventListener("focusout", onFocusOut);
             };
         },
     },
@@ -98,22 +82,21 @@ define<InternalWritingZone>({
         value: (host: HostElement) => {
             const textarea_element = document.createElement("textarea");
             textarea_element.setAttribute("data-test", "writing-zone-textarea");
-            textarea_element.setAttribute(
-                "class",
-                "pull-request-comment-writing-zone-textarea tlp-textarea",
+            textarea_element.classList.add(
+                "pull-request-comment-writing-zone-textarea",
+                "tlp-textarea",
             );
-            textarea_element.setAttribute("rows", "10");
-            textarea_element.setAttribute(
-                "placeholder",
-                gettext_provider.gettext("Say something…"),
-            );
+            textarea_element.rows = 10;
+            textarea_element.placeholder = gettext_provider.gettext("Say something…");
             textarea_element.addEventListener("input", () => host.controller.onTextareaInput(host));
 
+            initMentions(textarea_element);
             return textarea_element;
         },
         connect: (host) => {
-            host.textarea.value = host.presenter.initial_content;
+            host.textarea.value = host.comment_content;
         },
     },
+    comment_content: "",
     render: (host) => getWritingZoneTemplate(host, gettext_provider),
 });

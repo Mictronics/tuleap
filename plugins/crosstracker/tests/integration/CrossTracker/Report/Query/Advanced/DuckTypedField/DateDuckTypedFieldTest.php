@@ -26,24 +26,16 @@ use DateTime;
 use PFUser;
 use ProjectUGroup;
 use Tracker;
-use Tuleap\CrossTracker\CrossTrackerDefaultReport;
+use Tuleap\CrossTracker\CrossTrackerExpertReport;
 use Tuleap\CrossTracker\Report\Query\Advanced\CrossTrackerFieldTestCase;
-use Tuleap\CrossTracker\Tests\Report\ArtifactReportFactoryInstantiator;
 use Tuleap\DB\DBFactory;
 use Tuleap\Test\Builders\CoreDatabaseBuilder;
-use Tuleap\Tracker\Artifact\Artifact;
-use Tuleap\Tracker\Report\Query\Advanced\SearchablesAreInvalidException;
-use Tuleap\Tracker\Report\Query\Advanced\SearchablesDoNotExistException;
-use Tuleap\Tracker\REST\v1\ArtifactMatchingReportCollection;
 use Tuleap\Tracker\Test\Builders\TrackerDatabaseBuilder;
 
 final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
 {
     private PFUser $project_member;
     private PFUser $project_admin;
-    private Tracker $release_tracker;
-    private Tracker $sprint_tracker;
-    private Tracker $task_tracker;
     private int $release_artifact_empty_id;
     private int $release_artifact_with_date_id;
     private int $release_artifact_with_now_id;
@@ -65,23 +57,27 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
         $core_builder->addUserToProjectMembers((int) $this->project_member->getId(), $project_id);
         $core_builder->addUserToProjectMembers((int) $this->project_admin->getId(), $project_id);
         $core_builder->addUserToProjectAdmins((int) $this->project_admin->getId(), $project_id);
+        $this->addReportToProject(1, $project_id);
 
-        $this->release_tracker = $tracker_builder->buildTracker($project_id, 'Release');
-        $this->sprint_tracker  = $tracker_builder->buildTracker($project_id, 'Sprint');
-        $this->task_tracker    = $tracker_builder->buildTracker($project_id, 'Task');
+        $release_tracker = $tracker_builder->buildTracker($project_id, 'Release');
+        $sprint_tracker  = $tracker_builder->buildTracker($project_id, 'Sprint');
+        $task_tracker    = $tracker_builder->buildTracker($project_id, 'Task');
+        $tracker_builder->setViewPermissionOnTracker($release_tracker->getId(), Tracker::PERMISSION_FULL, ProjectUGroup::PROJECT_MEMBERS);
+        $tracker_builder->setViewPermissionOnTracker($sprint_tracker->getId(), Tracker::PERMISSION_FULL, ProjectUGroup::PROJECT_MEMBERS);
+        $tracker_builder->setViewPermissionOnTracker($task_tracker->getId(), Tracker::PERMISSION_FULL, ProjectUGroup::PROJECT_MEMBERS);
 
         $release_date_field_id = $tracker_builder->buildDateField(
-            $this->release_tracker->getId(),
+            $release_tracker->getId(),
             'date_field',
             false
         );
         $sprint_date_field_id  = $tracker_builder->buildDateField(
-            $this->sprint_tracker->getId(),
+            $sprint_tracker->getId(),
             'date_field',
             false
         );
         $task_date_field_id    = $tracker_builder->buildDateField(
-            $this->task_tracker->getId(),
+            $task_tracker->getId(),
             'date_field',
             false
         );
@@ -99,13 +95,13 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
             ProjectUGroup::PROJECT_ADMIN
         );
 
-        $this->release_artifact_empty_id      = $tracker_builder->buildArtifact($this->release_tracker->getId());
-        $this->release_artifact_with_date_id  = $tracker_builder->buildArtifact($this->release_tracker->getId());
-        $this->release_artifact_with_now_id   = $tracker_builder->buildArtifact($this->release_tracker->getId());
-        $this->sprint_artifact_empty_id       = $tracker_builder->buildArtifact($this->sprint_tracker->getId());
-        $this->sprint_artifact_with_date_id   = $tracker_builder->buildArtifact($this->sprint_tracker->getId());
-        $this->sprint_artifact_with_future_id = $tracker_builder->buildArtifact($this->sprint_tracker->getId());
-        $this->task_artifact_with_date_id     = $tracker_builder->buildArtifact($this->task_tracker->getId());
+        $this->release_artifact_empty_id      = $tracker_builder->buildArtifact($release_tracker->getId());
+        $this->release_artifact_with_date_id  = $tracker_builder->buildArtifact($release_tracker->getId());
+        $this->release_artifact_with_now_id   = $tracker_builder->buildArtifact($release_tracker->getId());
+        $this->sprint_artifact_empty_id       = $tracker_builder->buildArtifact($sprint_tracker->getId());
+        $this->sprint_artifact_with_date_id   = $tracker_builder->buildArtifact($sprint_tracker->getId());
+        $this->sprint_artifact_with_future_id = $tracker_builder->buildArtifact($sprint_tracker->getId());
+        $this->task_artifact_with_date_id     = $tracker_builder->buildArtifact($task_tracker->getId());
 
         $tracker_builder->buildLastChangeset($this->release_artifact_empty_id);
         $release_artifact_with_date_changeset = $tracker_builder->buildLastChangeset($this->release_artifact_with_date_id);
@@ -142,27 +138,14 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
         );
     }
 
-    /**
-     * @return list<int>
-     * @throws SearchablesDoNotExistException
-     * @throws SearchablesAreInvalidException
-     */
-    private function getMatchingArtifactIds(CrossTrackerDefaultReport $report, PFUser $user): array
-    {
-        $result = (new ArtifactReportFactoryInstantiator())
-            ->getFactory()
-            ->getArtifactsMatchingReport($report, $user, 10, 0);
-        assert($result instanceof ArtifactMatchingReportCollection);
-        return array_values(array_map(static fn(Artifact $artifact) => $artifact->getId(), $result->getArtifacts()));
-    }
-
     public function testEqualEmpty(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field = ''",
-                [$this->release_tracker, $this->sprint_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field = ''",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -174,10 +157,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testEqualValue(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field = '2023-02-12'",
-                [$this->release_tracker, $this->sprint_tracker, $this->task_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field = '2023-02-12'",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -189,10 +173,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testPermissionsEqual(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field = '2023-02-12'",
-                [$this->release_tracker, $this->sprint_tracker, $this->task_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field = '2023-02-12'",
+                '',
+                '',
             ),
             $this->project_admin
         );
@@ -204,10 +189,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testEqualToday(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                'date_field = NOW()',
-                [$this->release_tracker, $this->sprint_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field = NOW()",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -219,10 +205,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testMultipleEqual(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field = '2023-02-12' OR date_field = '2023-03-12'",
-                [$this->release_tracker, $this->sprint_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field = '2023-02-12' OR date_field = '2023-03-12'",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -234,10 +221,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testNotEqualEmpty(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field != ''",
-                [$this->release_tracker, $this->sprint_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field != ''",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -252,10 +240,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testNotEqual(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field != '2023-02-12'",
-                [$this->release_tracker, $this->sprint_tracker, $this->task_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field != '2023-02-12'",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -271,10 +260,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testPermissionsNotEqual(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field != '2023-03-12'",
-                [$this->release_tracker, $this->sprint_tracker, $this->task_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field != '2023-03-12'",
+                '',
+                '',
             ),
             $this->project_admin
         );
@@ -290,10 +280,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testNotEqualToday(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                'date_field != NOW()',
-                [$this->release_tracker, $this->sprint_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field != NOW()",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -309,10 +300,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testMultipleNotEqual(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field != '2023-02-12' AND date_field != ''",
-                [$this->release_tracker, $this->sprint_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field != '2023-02-12' AND date_field != ''",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -324,10 +316,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testLesserThanValue(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field < '2023-03-12'",
-                [$this->release_tracker, $this->sprint_tracker, $this->task_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field < '2023-03-12'",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -339,10 +332,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testPermissionsLesserThan(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field < '2023-03-12'",
-                [$this->release_tracker, $this->sprint_tracker, $this->task_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field < '2023-03-12'",
+                '',
+                '',
             ),
             $this->project_admin
         );
@@ -354,10 +348,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testMultipleLesserThan(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field < '2023-03-12' AND date_field < NOW()",
-                [$this->release_tracker, $this->sprint_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field < '2023-03-12' AND date_field < NOW()",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -369,10 +364,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testLesserThanToday(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                'date_field < NOW()',
-                [$this->release_tracker, $this->sprint_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field < NOW()",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -384,10 +380,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testLesserThanOrEqualValue(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field <= '2023-03-12'",
-                [$this->release_tracker, $this->sprint_tracker, $this->task_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field <= '2023-03-12'",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -399,10 +396,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testPermissionsLesserThanOrEqual(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field <= '2023-03-12'",
-                [$this->release_tracker, $this->sprint_tracker, $this->task_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field <= '2023-03-12'",
+                '',
+                '',
             ),
             $this->project_admin
         );
@@ -416,10 +414,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testMultipleLesserThanOrEqual(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field <= '2023-03-12' AND date_field <= NOW()",
-                [$this->release_tracker, $this->sprint_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field <= '2023-03-12' AND date_field <= NOW()",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -431,10 +430,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testLesserThanOrEqualToday(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                'date_field <= NOW()',
-                [$this->release_tracker, $this->sprint_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field <= NOW()",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -446,10 +446,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testGreaterThanValue(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field > '2023-02-11'",
-                [$this->release_tracker, $this->sprint_tracker, $this->task_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field > '2023-02-11'",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -464,10 +465,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testPermissionsGreaterThan(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field > '2023-02-11'",
-                [$this->release_tracker, $this->sprint_tracker, $this->task_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field > '2023-02-11'",
+                '',
+                '',
             ),
             $this->project_admin
         );
@@ -483,10 +485,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testMultipleGreaterThan(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field > '2023-02-12' AND date_field > '2023-03-12'",
-                [$this->release_tracker, $this->sprint_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field > '2023-02-12' AND date_field > '2023-03-12'",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -498,10 +501,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testGreaterThanToday(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                'date_field > NOW()',
-                [$this->release_tracker, $this->sprint_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field > NOW()",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -513,10 +517,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testGreaterThanOrEqualValue(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field >= '2023-02-12'",
-                [$this->release_tracker, $this->sprint_tracker, $this->task_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field >= '2023-02-12'",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -531,10 +536,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testPermissionsGreaterThanOrEqual(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field >= '2023-02-12'",
-                [$this->release_tracker, $this->sprint_tracker, $this->task_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field >= '2023-02-12'",
+                '',
+                '',
             ),
             $this->project_admin
         );
@@ -550,10 +556,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testMultipleGreaterThanOrEqual(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field >= '2023-02-12' AND date_field >= '2023-03-12'",
-                [$this->release_tracker, $this->sprint_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field >= '2023-02-12' AND date_field >= '2023-03-12'",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -565,10 +572,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testGreaterThanOrEqualToday(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                'date_field >= NOW()',
-                [$this->release_tracker, $this->sprint_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field >= NOW()",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -580,10 +588,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testBetweenValues(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field BETWEEN('2023-02-01', '2023-03-31')",
-                [$this->release_tracker, $this->sprint_tracker, $this->task_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field BETWEEN('2023-02-01', '2023-03-31')",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -595,10 +604,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testPermissionsBetween(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field BETWEEN('2023-02-01', '2023-03-31')",
-                [$this->release_tracker, $this->sprint_tracker, $this->task_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field BETWEEN('2023-02-01', '2023-03-31')",
+                '',
+                '',
             ),
             $this->project_admin
         );
@@ -612,10 +622,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testMultipleBetween(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                "date_field BETWEEN('2023-02-01', '2023-02-28') OR date_field BETWEEN(NOW() - 1w, NOW())",
-                [$this->release_tracker, $this->sprint_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field BETWEEN('2023-02-01', '2023-02-28') OR date_field BETWEEN(NOW() - 1w, NOW())",
+                '',
+                '',
             ),
             $this->project_member
         );
@@ -627,10 +638,11 @@ final class DateDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testBetweenYesterdayAndTomorrow(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerDefaultReport(
+            new CrossTrackerExpertReport(
                 1,
-                'date_field BETWEEN(NOW() - 1d, NOW() + 1d)',
-                [$this->release_tracker, $this->sprint_tracker],
+                "SELECT @id FROM @project = 'self' WHERE date_field BETWEEN(NOW() - 1d, NOW() + 1d)",
+                '',
+                '',
             ),
             $this->project_member
         );

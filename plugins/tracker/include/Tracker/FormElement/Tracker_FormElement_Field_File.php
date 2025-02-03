@@ -116,19 +116,13 @@ class Tracker_FormElement_Field_File extends Tracker_FormElement_Field
     /**
      * Display the field as a Changeset value.
      * Used in CSV data export.
-     *
-     * @param int $artifact_id the corresponding artifact id
-     * @param int $changeset_id the corresponding changeset
-     * @param mixed $value the value of the field
-     *
-     * @return string
      */
-    public function fetchCSVChangesetValue($artifact_id, $changeset_id, $value, $report)
+    public function fetchCSVChangesetValue(int $artifact_id, int $changeset_id, mixed $value, ?Tracker_Report $report): string
     {
         return $this->fetchAllAttachmentForCSV($artifact_id, $this->getChangesetValues($changeset_id));
     }
 
-    public function fetchCriteriaValue($criteria)
+    public function fetchCriteriaValue(Tracker_Report_Criteria $criteria): string
     {
         $html = '<input type="text" name="criteria[' . $this->id . ']" id="tracker_report_criteria_' . $this->id . '" value="';
         if ($criteria_value = $this->getCriteriaValue($criteria)) {
@@ -139,22 +133,12 @@ class Tracker_FormElement_Field_File extends Tracker_FormElement_Field
         return $html;
     }
 
-    /**
-     * Fetch the value
-     * @param mixed $value the value of the field
-     * @return string
-     */
-    public function fetchRawValue($value)
+    public function fetchRawValue(mixed $value): string
     {
         return $value;
     }
 
-    /**
-     * Fetch the value in a specific changeset
-     * @param Tracker_Artifact_Changeset $changeset
-     * @return string
-     */
-    public function fetchRawValueFromChangeset($changeset)
+    public function fetchRawValueFromChangeset(Tracker_Artifact_Changeset $changeset): string
     {
         $value = '';
         if ($v = $changeset->getValue($this)) {
@@ -188,14 +172,12 @@ class Tracker_FormElement_Field_File extends Tracker_FormElement_Field
      * @param Artifact                        $artifact         The artifact
      * @param Tracker_Artifact_ChangesetValue $value            The actual value of the field
      * @param array                           $submitted_values The value already submitted by the user
-     *
-     * @return string
      */
     protected function fetchArtifactValue(
         Artifact $artifact,
         ?Tracker_Artifact_ChangesetValue $value,
         array $submitted_values,
-    ) {
+    ): string {
         $html             = '';
         $submitter_needed = true;
         $read_only        = false;
@@ -226,21 +208,14 @@ class Tracker_FormElement_Field_File extends Tracker_FormElement_Field
 
     /**
      * Fetch the html code to display the field value in Mail
-     *
-     * @param Artifact                        $artifact The artifact
-     * @param PFUser                          $user     The user who will receive the email
-     * @param bool                            $ignore_perms
-     * @param Tracker_Artifact_ChangesetValue $value    The actual value of the field
-     *
-     * @return string
      */
     public function fetchMailArtifactValue(
         Artifact $artifact,
         PFUser $user,
-        $ignore_perms,
+        bool $ignore_perms,
         ?Tracker_Artifact_ChangesetValue $value = null,
-        $format = 'text',
-    ) {
+        string $format = 'text',
+    ): string {
         if (empty($value) || ! $value->getFiles()) {
             return '-';
         }
@@ -272,12 +247,7 @@ class Tracker_FormElement_Field_File extends Tracker_FormElement_Field
         return $this->fetchArtifactValueReadOnly($artifact, $value) . $this->getHiddenArtifactValueForEdition($artifact, $value, $submitted_values);
     }
 
-    /**
-     * Fetch the html code to display the field value in new artifact submission form
-     *
-     * @return string html
-     */
-    protected function fetchSubmitValue(array $submitted_values)
+    protected function fetchSubmitValue(array $submitted_values): string
     {
         $html  = '';
         $html .= '<div class="add-attachment">';
@@ -304,12 +274,7 @@ class Tracker_FormElement_Field_File extends Tracker_FormElement_Field
         return $html;
     }
 
-    /**
-     * Fetch the html code to display the field value in new artifact submission form
-     *
-     * @return string html
-     */
-    protected function fetchSubmitValueMasschange()
+    protected function fetchSubmitValueMasschange(): string
     {
         return '';  // deactivate mass change for file fields (see issue described in rev #15855)
     }
@@ -657,15 +622,7 @@ class Tracker_FormElement_Field_File extends Tracker_FormElement_Field
         return $GLOBALS['HTML']->getImagePath('ic/attach--plus.png');
     }
 
-    /**
-     * Fetch the html code to display the field value in tooltip
-     *
-     * @param Artifact                    $artifact The artifact
-     * @param Tracker_ChangesetValue_File $value    The changeset value of this field
-     *
-     * @return string The html code to display the field value in tooltip
-     */
-    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null)
+    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null): string
     {
         $html = '';
         if ($value) {
@@ -1068,15 +1025,15 @@ class Tracker_FormElement_Field_File extends Tracker_FormElement_Field
         return $visitor->visitFile($this);
     }
 
-    protected function isPreviousChangesetEmpty(Artifact $artifact, $value)
+    protected function isPreviousChangesetEmpty(Artifact $artifact, $value): bool
     {
         $last_changeset = $artifact->getLastChangeset();
+        if (! $last_changeset || is_a($last_changeset, Tracker_Artifact_Changeset_Null::class)) {
+            return true;
+        }
 
-        if (
-            $last_changeset &&
-            ! is_a($last_changeset, Tracker_Artifact_Changeset_Null::class) &&
-            count($last_changeset->getValue($this)->getFiles()) > 0
-        ) {
+        $last_value = $last_changeset->getValue($this);
+        if ($last_value instanceof Tracker_Artifact_ChangesetValue_File && count($last_value->getFiles()) > 0) {
             return $this->areAllFilesDeletedFromPreviousChangeset($last_changeset, $value);
         }
         return true;

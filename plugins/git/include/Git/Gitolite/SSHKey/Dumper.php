@@ -23,10 +23,7 @@ use IHaveAnSSHKey;
 
 interface Dumper
 {
-    /**
-     * @return bool
-     */
-    public function dumpSSHKeys(IHaveAnSSHKey $user, InvalidKeysCollector $invalid_keys_collector);
+    public function dumpSSHKeys(IHaveAnSSHKey $user, InvalidKeysCollector $invalid_keys_collector): bool;
 
-    public function removeAllExistingKeysForUserName($user_name);
+    public function removeAllExistingKeysForUserName(string $user_name): void;
 }

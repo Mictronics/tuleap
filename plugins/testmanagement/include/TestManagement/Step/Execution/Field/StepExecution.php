@@ -22,6 +22,7 @@ namespace Tuleap\TestManagement\Step\Execution\Field;
 
 use Codendi_HTMLPurifier;
 use TemplateRendererFactory;
+use Tracker_Artifact_Changeset;
 use Tracker_Artifact_ChangesetValue;
 use Tracker_FormElement_Field;
 use Tracker_FormElement_FieldVisitor;
@@ -103,15 +104,12 @@ class StepExecution extends Tracker_FormElement_Field implements TrackerFormElem
         return false;
     }
 
-    /**
-     * @param mixed $criteria
-     */
-    public function fetchCriteriaValue($criteria)
+    public function fetchCriteriaValue(Tracker_Report_Criteria $criteria): string
     {
         return '';
     }
 
-    public function fetchRawValue($value)
+    public function fetchRawValue(mixed $value): string
     {
         return '';
     }
@@ -135,7 +133,7 @@ class StepExecution extends Tracker_FormElement_Field implements TrackerFormElem
         Artifact $artifact,
         ?Tracker_Artifact_ChangesetValue $value,
         array $submitted_values,
-    ) {
+    ): string {
         return '<div class="alert">'
             . dgettext(
                 'tuleap-testmanagement',
@@ -175,17 +173,17 @@ class StepExecution extends Tracker_FormElement_Field implements TrackerFormElem
             $this->getHiddenArtifactValueForEdition($artifact, $value, $submitted_values);
     }
 
-    protected function fetchSubmitValue(array $submitted_values)
+    protected function fetchSubmitValue(array $submitted_values): string
     {
         return '';
     }
 
-    protected function fetchSubmitValueMasschange()
+    protected function fetchSubmitValueMasschange(): string
     {
         return '';
     }
 
-    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null)
+    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null): string
     {
         return '';
     }
@@ -208,7 +206,7 @@ class StepExecution extends Tracker_FormElement_Field implements TrackerFormElem
         return new StepExecutionChangesetValueDao();
     }
 
-    public function fetchRawValueFromChangeset($changeset)
+    public function fetchRawValueFromChangeset(Tracker_Artifact_Changeset $changeset): string
     {
         return '';
     }

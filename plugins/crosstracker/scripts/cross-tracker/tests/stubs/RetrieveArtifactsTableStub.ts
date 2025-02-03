@@ -23,15 +23,21 @@ import type {
     ArtifactsTableWithTotal,
     RetrieveArtifactsTable,
 } from "../../src/domain/RetrieveArtifactsTable";
+import type { ArtifactsTable } from "../../src/domain/ArtifactsTable";
+import { TEXT_CELL } from "../../src/domain/ArtifactsTable";
+import { ArtifactsTableBuilder } from "../builders/ArtifactsTableBuilder";
+import { ArtifactRowBuilder } from "../builders/ArtifactRowBuilder";
 
 export const RetrieveArtifactsTableStub = {
     withContent(
         query_table_with_total: ArtifactsTableWithTotal,
         report_table_with_total: ArtifactsTableWithTotal,
+        report_table_with_all_artifact: ReadonlyArray<ArtifactsTable>,
     ): RetrieveArtifactsTable {
         return {
             getSelectableQueryResult: () => okAsync(query_table_with_total),
             getSelectableReportContent: () => okAsync(report_table_with_total),
+            getSelectableFullReport: () => okAsync(report_table_with_all_artifact),
         };
     },
 
@@ -39,6 +45,29 @@ export const RetrieveArtifactsTableStub = {
         return {
             getSelectableReportContent: () => errAsync(fault),
             getSelectableQueryResult: () => errAsync(fault),
+            getSelectableFullReport: () => errAsync(fault),
         };
+    },
+    withDefaultContent(): RetrieveArtifactsTable {
+        const column_name = "SL65 AMG";
+        const table = new ArtifactsTableBuilder()
+            .withColumn(column_name)
+            .withArtifactRow(
+                new ArtifactRowBuilder()
+                    .addCell(column_name, {
+                        type: TEXT_CELL,
+                        value: "<p>V12 goes brrr</p>",
+                    })
+                    .build(),
+            )
+            .build();
+
+        const table_result = {
+            table,
+            total: 1,
+        };
+        return RetrieveArtifactsTableStub.withContent(table_result, table_result, [
+            table_result.table,
+        ]);
     },
 };

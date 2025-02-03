@@ -18,16 +18,27 @@
   -
   -->
 <template>
-    <div class="artidoc-section-container">
+    <div class="artidoc-section-container" v-bind:class="additional_class">
         <section-content v-bind:section="section" />
     </div>
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
 import SectionContent from "./SectionContent.vue";
-import type { ArtidocSection } from "@/helpers/artidoc-section.type";
+import type { ReactiveStoredArtidocSection } from "@/sections/SectionsCollection";
+import { isArtifactSection, isPendingArtifactSection } from "@/helpers/artidoc-section.type";
 
-defineProps<{ section: ArtidocSection }>();
+const props = defineProps<{ section: ReactiveStoredArtidocSection }>();
+const additional_class = computed(() => {
+    const color = isArtifactSection(props.section.value)
+        ? props.section.value.artifact.tracker.color
+        : isPendingArtifactSection(props.section.value)
+          ? props.section.value.tracker.color
+          : "";
+
+    return color !== "" ? `tlp-swatch-${color}` : "artidoc-section-container-without-border";
+});
 </script>
 
 <style lang="scss">
@@ -66,9 +77,16 @@ defineProps<{ section: ArtidocSection }>();
 
 .artidoc-section-container {
     --tuleap-artidoc-section-background: var(--tlp-white-color);
+    --border-width: 4px;
 
-    padding: var(--tlp-medium-spacing) 0 var(--tlp-medium-spacing) #{whitespace.$section-left-padding};
+    &-without-border {
+        --border-color: transparent;
+    }
+
+    padding: var(--tlp-medium-spacing) 0 var(--tlp-medium-spacing)
+        calc(#{whitespace.$section-left-padding} - var(--border-width));
     transition: background-color 75ms ease-in-out;
+    border-left: var(--border-width) solid var(--border-color);
     background: var(--tuleap-artidoc-section-background);
 
     &:has(.document-section-cancel-save-buttons) {

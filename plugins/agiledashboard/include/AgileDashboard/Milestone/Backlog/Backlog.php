@@ -22,6 +22,7 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use Tuleap\AgileDashboard\BacklogItemDao;
 
 /**
  * I retrieve the content of the backlog
@@ -37,13 +38,13 @@ class AgileDashboard_Milestone_Backlog_Backlog
      */
     private $limit;
 
-    private $offset;
+    private ?int $offset;
 
-    private $milestone;
+    private Planning_Milestone $milestone;
 
-    private $content_size = 0;
+    private int $content_size = 0;
 
-    private $backlog_size = 0;
+    private int $backlog_size = 0;
 
     /** @var Tracker[] */
     private $backlogitem_trackers;
@@ -56,9 +57,10 @@ class AgileDashboard_Milestone_Backlog_Backlog
         Planning_Milestone $milestone,
         array $item_names,
         array $descendant_trackers,
-        AgileDashboard_BacklogItemDao $item_dao,
-        $limit = null,
-        $offset = null,
+        BacklogItemDao $item_dao,
+        \Tuleap\Tracker\Artifact\Dao\ArtifactDao $artifact_dao,
+        ?int $limit = null,
+        ?int $offset = null,
     ) {
         $this->milestone            = $milestone;
         $this->backlogitem_trackers = $item_names;
@@ -68,7 +70,7 @@ class AgileDashboard_Milestone_Backlog_Backlog
 
         $this->items_finder = new AgileDashboard_Milestone_Backlog_DescendantItemsFinder(
             $item_dao,
-            $artifact_factory->getDao(),
+            $artifact_dao,
             $artifact_factory,
             $milestone,
             $this->getDescendantTrackerIds()
@@ -83,7 +85,7 @@ class AgileDashboard_Milestone_Backlog_Backlog
         return $this->descendant_trackers;
     }
 
-    public function getDescendantTrackerIds()
+    public function getDescendantTrackerIds(): array
     {
         $ids = [];
         foreach ($this->descendant_trackers as $tracker) {
@@ -93,12 +95,12 @@ class AgileDashboard_Milestone_Backlog_Backlog
         return $ids;
     }
 
-    public function getTotalContentSize()
+    public function getTotalContentSize(): int
     {
         return $this->content_size;
     }
 
-    public function getTotalBacklogSize()
+    public function getTotalBacklogSize(): int
     {
         return $this->backlog_size;
     }
@@ -109,7 +111,7 @@ class AgileDashboard_Milestone_Backlog_Backlog
         return $this->backlogitem_trackers;
     }
 
-    public function getMilestoneBacklogArtifactsTracker()
+    public function getMilestoneBacklogArtifactsTracker(): array
     {
         return $this->getDescendantTrackers();
     }
@@ -118,7 +120,7 @@ class AgileDashboard_Milestone_Backlog_Backlog
     public function getArtifacts(PFUser $user)
     {
         if ($this->milestone instanceof Planning_VirtualTopMilestone) {
-            if ($this->limit !== null || $this->offset !== null) {
+            if ($this->limit !== null && $this->offset !== null) {
                 $artifacts_collection = $this->items_finder->getAllTopMilestoneContentItemsWithLimitAndOffset($user, $this->limit, $this->offset);
             } else {
                 $artifacts_collection = $this->items_finder->getAllTopMilestoneContentItems($user);
@@ -135,17 +137,17 @@ class AgileDashboard_Milestone_Backlog_Backlog
     }
 
     /** @return AgileDashboard_Milestone_Backlog_DescendantItemsCollection */
-    public function getOpenUnplannedArtifacts(PFUser $user, $sub_milestone_ids)
+    public function getOpenUnplannedArtifacts(PFUser $user, array $sub_milestone_ids)
     {
         if ($this->milestone instanceof Planning_VirtualTopMilestone) {
-            if ($this->limit !== null || $this->offset !== null) {
+            if ($this->limit !== null && $this->offset !== null) {
                 $artifacts_collection = $this->items_finder->getTopMilestoneOpenUnplannedBacklogItemsWithLimitAndOffset(
                     $user,
                     $this->limit,
                     $this->offset
                 );
             } else {
-                $artifacts_collection = $this->items_finder->getAllTopMilestoneOpenUnplannedBacklogItems($user, $sub_milestone_ids);
+                $artifacts_collection = $this->items_finder->getAllTopMilestoneOpenUnplannedBacklogItems($user);
             }
         } else {
             if ($this->limit !== null || $this->offset !== null) {
@@ -180,10 +182,10 @@ class AgileDashboard_Milestone_Backlog_Backlog
     }
 
     /** @return AgileDashboard_Milestone_Backlog_DescendantItemsCollection */
-    public function getUnplannedArtifacts(PFUser $user, $sub_milestone_ids)
+    public function getUnplannedArtifacts(PFUser $user, array $sub_milestone_ids)
     {
         if ($this->milestone instanceof Planning_VirtualTopMilestone) {
-            if ($this->limit !== null || $this->offset !== null) {
+            if ($this->limit !== null && $this->offset !== null) {
                 $artifacts_collection = $this->items_finder->getTopMilestoneUnplannedBacklogItemsWithLimitAndOffset($user, $this->limit, $this->offset);
             } else {
                 $artifacts_collection = $this->items_finder->getAllTopMilestoneUnplannedBacklogItems($user);

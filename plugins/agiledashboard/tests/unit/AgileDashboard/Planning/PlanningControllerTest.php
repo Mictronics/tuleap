@@ -27,7 +27,6 @@ use AgileDashboard_XMLFullStructureExporter;
 use Codendi_Request;
 use EventManager;
 use Exception;
-use ForgeConfig;
 use PHPUnit\Framework\MockObject\MockObject;
 use Planning_Controller;
 use Planning_RequestValidator;
@@ -44,7 +43,6 @@ use Tuleap\AgileDashboard\Planning\Admin\PlanningEditionPresenterBuilder;
 use Tuleap\AgileDashboard\Planning\Admin\UpdateRequestValidator;
 use Tuleap\AgileDashboard\Planning\RootPlanning\UpdateIsAllowedChecker;
 use Tuleap\AgileDashboard\Test\Builders\PlanningBuilder;
-use Tuleap\ForgeConfigSandbox;
 use Tuleap\GlobalLanguageMock;
 use Tuleap\GlobalResponseMock;
 use Tuleap\Test\Builders\HTTPRequestBuilder;
@@ -56,7 +54,6 @@ use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
 final class PlanningControllerTest extends TestCase
 {
-    use ForgeConfigSandbox;
     use GlobalLanguageMock;
     use GlobalResponseMock;
 
@@ -75,8 +72,6 @@ final class PlanningControllerTest extends TestCase
 
     protected function setUp(): void
     {
-        ForgeConfig::set('codendi_dir', AGILEDASHBOARD_BASE_DIR . '/../../..');
-
         $this->project = ProjectTestBuilder::aProject()->withId(101)->build();
 
         $this->planning_factory     = $this->createMock(PlanningFactory::class);
@@ -102,8 +97,8 @@ final class PlanningControllerTest extends TestCase
             $this->createMock(PlanningPermissionsManager::class),
             $this->createMock(ScrumPlanningFilter::class),
             $this->createMock(Tracker_FormElementFactory::class),
-            $this->createMock(AgileDashboardCrumbBuilder::class),
-            $this->createMock(AdministrationCrumbBuilder::class),
+            new AgileDashboardCrumbBuilder(),
+            new AdministrationCrumbBuilder(),
             new DBTransactionExecutorPassthrough(),
             $this->explicit_backlog_dao,
             $this->planning_updater,

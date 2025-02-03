@@ -27,7 +27,7 @@
     >
         <div class="tlp-modal-header">
             <h1 class="tlp-modal-title" id="artidoc-add-existing-section-modal-title">
-                {{ $gettext("Add existing section") }}
+                {{ title }}
             </h1>
             <button
                 class="tlp-modal-close"
@@ -45,7 +45,7 @@
             </div>
         </div>
 
-        <div class="tlp-modal-body" ref="body">
+        <div class="tlp-modal-body" ref="body" v-if="is_search_allowed">
             <p>{{ explanations }}</p>
         </div>
 
@@ -80,14 +80,14 @@ import { OPEN_ADD_EXISTING_SECTION_MODAL_BUS } from "@/composables/useOpenAddExi
 import { strictInject } from "@tuleap/vue-strict-inject";
 import type { HTMLTemplateResult, HTMLTemplateStringProcessor, LazyboxItem } from "@tuleap/lazybox";
 import { createLazyAutocompleter } from "@tuleap/lazybox";
-import { CONFIGURATION_STORE, isTrackerWithSubmittableSection } from "@/stores/configuration-store";
+import { CONFIGURATION_STORE } from "@/stores/configuration-store";
 import type { LazyAutocompleter } from "@tuleap/lazybox/src/LazyAutocompleterElement";
-import { SECTIONS_STORE } from "@/stores/sections-store-injection-key";
+import { SECTIONS_COLLECTION } from "@/sections/sections-collection-injection-key";
 import type { ArtidocSection } from "@/helpers/artidoc-section.type";
-import { createSection } from "@/helpers/rest-querier";
+import { createArtifactSection } from "@/helpers/rest-querier";
 import { DOCUMENT_ID } from "@/document-id-injection-key";
-import type { PositionForSection } from "@/stores/useSectionsStore";
-import { AT_THE_END } from "@/stores/useSectionsStore";
+import type { PositionForSection } from "@/sections/SectionsPositionsForSaveRetriever";
+import { AT_THE_END } from "@/sections/SectionsInserter";
 import type { Artifact } from "@/helpers/search-existing-artifacts-for-autocompleter";
 import {
     isArtifact,
@@ -103,12 +103,16 @@ const close_title = $gettext("Close");
 
 const documentId = strictInject(DOCUMENT_ID);
 const configuration = strictInject(CONFIGURATION_STORE);
-const { sections } = strictInject(SECTIONS_STORE);
+const sections_collection = strictInject(SECTIONS_COLLECTION);
 
 const modal_element = ref<HTMLElement | undefined>(undefined);
 
 const selected = ref<Artifact | null>(null);
-const is_submit_button_disabled = computed(() => selected.value === null);
+const title_field = computed(() => configuration.selected_tracker.value?.title);
+const is_search_allowed = computed(() => Boolean(title_field.value));
+const is_submit_button_disabled = computed(
+    () => is_search_allowed.value === false || selected.value === null,
+);
 const submit_button_icon = "fa-solid fa-plus";
 const explanations = computed(() =>
     interpolate(
@@ -118,7 +122,25 @@ const explanations = computed(() =>
         },
     ),
 );
-const error_message = ref("");
+const title = computed(() =>
+    configuration.selected_tracker.value
+        ? interpolate($gettext("Import existing %{tracker_label}"), {
+              tracker_label: configuration.selected_tracker.value.item_name,
+          })
+        : $gettext("Import existing section"),
+);
+const error_message = ref(
+    is_search_allowed.value
+        ? ""
+        : interpolate(
+              $gettext(
+                  "There is no title field on the configured tracker %{ tracker } (or you cannot submit it), therefore you cannot search for artifacts to import.",
+              ),
+              {
+                  tracker: configuration.selected_tracker.value?.label,
+              },
+          ),
+);
 const has_error_message = computed(() => error_message.value.length > 0);
 
 const body = ref<HTMLElement>();
@@ -152,7 +174,7 @@ function openModal(
                     return;
                 }
 
-                if (!isTrackerWithSubmittableSection(configuration.selected_tracker.value)) {
+                if (!title_field.value) {
                     return;
                 }
 
@@ -164,7 +186,8 @@ function openModal(
                     query,
                     autocompleter,
                     configuration.selected_tracker.value,
-                    sections.value || [],
+                    title_field.value,
+                    sections_collection,
                     gettext_provider,
                 ).orElse((fault) => {
                     error_message.value = String(fault);
@@ -213,29 +236,31 @@ function closeModal(): void {
 
 function onSubmit(event: Event): void {
     event.preventDefault();
-    if (selected.value && sections.value) {
-        createSection(
-            documentId,
-            selected.value.id,
-            getInsertionPositionExcludingPendingSections(add_position, sections.value),
-        ).match(
-            (section: ArtidocSection) => {
-                on_successful_addition_callback(section);
-                modal?.hide();
-            },
-            (fault) => {
-                error_message.value = interpolate(
-                    $gettext(
-                        "An error occurred while creating section from existing artifact %{ xref }: %{ details }",
-                    ),
-                    {
-                        xref: selected.value?.xref,
-                        details: String(fault),
-                    },
-                );
-            },
-        );
+    if (!selected.value) {
+        return;
     }
+
+    createArtifactSection(
+        documentId,
+        selected.value.id,
+        getInsertionPositionExcludingPendingSections(add_position, sections_collection),
+    ).match(
+        (section: ArtidocSection) => {
+            on_successful_addition_callback(section);
+            modal?.hide();
+        },
+        (fault) => {
+            error_message.value = interpolate(
+                $gettext(
+                    "An error occurred while creating section from existing artifact %{ xref }: %{ details }",
+                ),
+                {
+                    xref: selected.value?.xref,
+                    details: String(fault),
+                },
+            );
+        },
+    );
 }
 </script>
 

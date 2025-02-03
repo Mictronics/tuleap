@@ -134,7 +134,7 @@ CREATE TABLE tracker_field(
     notifications TINYINT(1) NULL,
     original_field_id INT( 11 ) UNSIGNED NOT NULL DEFAULT '0',
     INDEX idx_fk_old_id( old_id ),
-    INDEX idx_fk_tracker_id( tracker_id ),
+    INDEX idx_tracker_usage_type(tracker_id, formElement_type, use_it),
     INDEX idx_fk_parent_id( parent_id ),
     INDEX idx_original_field_id(original_field_id)
 ) ENGINE=InnoDB AUTO_INCREMENT=101;
@@ -201,8 +201,7 @@ DROP TABLE IF EXISTS tracker_field_computed;
 CREATE TABLE tracker_field_computed (
     field_id INT(11) NOT NULL PRIMARY KEY,
     default_value DOUBLE NULL,
-    target_field_name VARCHAR(255) NULL,
-    fast_compute TINYINT DEFAULT 0
+    target_field_name VARCHAR(255) NULL
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS tracker_field_openlist_value;

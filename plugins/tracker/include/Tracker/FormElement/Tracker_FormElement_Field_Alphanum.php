@@ -53,7 +53,7 @@ abstract class Tracker_FormElement_Field_Alphanum extends Tracker_FormElement_Fi
         return $expr;
     }
 
-    public function fetchCriteriaValue($criteria)
+    public function fetchCriteriaValue(Tracker_Report_Criteria $criteria): string
     {
         $html = '<input type="text" name="criteria[' . $this->id . ']" id="tracker_report_criteria_' . $this->id . '" value="';
         if ($criteria_value = $this->getCriteriaValue($criteria)) {
@@ -83,25 +83,18 @@ abstract class Tracker_FormElement_Field_Alphanum extends Tracker_FormElement_Fi
 
     /**
      * Fetch the value
-     * @param mixed $value the value of the field
-     * @return string
      */
-    public function fetchRawValue($value)
+    public function fetchRawValue(mixed $value): string
     {
         return $value;
     }
 
-    /**
-     * Fetch the value in a specific changeset
-     * @param Tracker_Artifact_Changeset $changeset
-     * @return string
-     */
-    public function fetchRawValueFromChangeset($changeset)
+    public function fetchRawValueFromChangeset(Tracker_Artifact_Changeset $changeset): string
     {
         $value = '';
         if ($v = $changeset->getValue($this)) {
             if ($row = $this->getValueDao()->searchById($v->getId(), $this->id)->getRow()) {
-                $value = $row['value'];
+                $value = $row['value'] ?? '';
             }
         }
         return $value;

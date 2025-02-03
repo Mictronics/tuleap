@@ -21,6 +21,7 @@
 declare(strict_types=1);
 
 use FastRoute\RouteCollector;
+use Tuleap\AgileDashboard\BacklogItemDao;
 use Tuleap\AgileDashboard\Milestone\HeaderOptionsProvider;
 use Tuleap\AgileDashboard\Milestone\Pane\PaneInfoCollector;
 use Tuleap\AgileDashboard\Planning\AllowedAdditionalPanesToDisplayCollector;
@@ -49,6 +50,8 @@ use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkUpdaterDataFormate
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
 use Tuleap\Tracker\NewDropdown\TrackerNewDropdownLinkPresenterBuilder;
+use Tuleap\Tracker\Permission\SubmissionPermissionVerifier;
+use Tuleap\Tracker\Permission\TrackersPermissionsRetriever;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../../tracker/include/trackerPlugin.php';
@@ -183,9 +186,10 @@ final class testplanPlugin extends Plugin
             new TestPlanHeaderOptionsProvider(
                 new HeaderOptionsProvider(
                     new AgileDashboard_Milestone_Backlog_BacklogFactory(
-                        new AgileDashboard_BacklogItemDao(),
+                        new BacklogItemDao(),
                         Tracker_ArtifactFactory::instance(),
                         $planning_factory,
+                        new \Tuleap\Tracker\Artifact\Dao\ArtifactDao(),
                     ),
                     new AgileDashboard_PaneInfoIdentifier(),
                     $tracker_new_dropdown_link_presenter_builder,
@@ -196,11 +200,13 @@ final class testplanPlugin extends Plugin
                         ),
                         $tracker_new_dropdown_link_presenter_builder,
                         $header_options_inserter,
+                        SubmissionPermissionVerifier::instance(),
                     ),
                     new \Tuleap\AgileDashboard\Milestone\ParentTrackerRetriever(
                         $planning_factory,
                     ),
                     $header_options_inserter,
+                    TrackersPermissionsRetriever::build(),
                 ),
                 $testmanagement_config,
                 $tracker_factory,

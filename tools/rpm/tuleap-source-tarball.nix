@@ -40,12 +40,12 @@ let
           !src/scripts/*/frontend-assets/
           /src/scripts/tlp-doc/
           /plugins/*/scripts/lib/
-          !plugins/*/backend-assets
           !plugins/*/*/backend-assets
           !plugins/*/frontend-assets
           !plugins/*/scripts/*/frontend-assets
           !plugins/*/resources/templates/*
           plugins/*/themes
+          tools/publish_additional_tools/
           tools/publish_js_library/
           tools/rpm/
           !tools/utils/setup_templates/*/*_template.xml
@@ -62,7 +62,6 @@ let
           tools/utils/TuleapDev/
           tools/utils/xml-templates-to-php/
           tools/utils/scripts/
-          tools/utils/publish_js_libraries/
         '';
       };
       # Clean files src/scripts/<name>/(not "frontend_assets" directory)

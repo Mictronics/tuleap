@@ -19,28 +19,52 @@
 
 <!-- prettier-ignore -->
 <template>
-  <span class="ttm-definition-step-actions">
-    <translate>Format:</translate>
-    <select v-bind:id="format_select_id" ref="format" class="small ttm-definition-step-description-format"
-      v-on:change="input($event)" v-bind:disabled="disabled_format_selectbox"
-      data-test="ttm-definition-step-description-format">
-      <option value="text" v-bind:selected="is_text" data-test="ttm-definition-step-description-format-text">
-        Text
-      </option>
-      <option value="html" v-bind:selected="is_html" data-test="ttm-definition-step-description-format-html">
-        HTML
-      </option>
-      <option value="commonmark" v-bind:selected="is_commonmark"
-        data-test="ttm-definition-step-description-format-commonmark">
-        Markdown
-      </option>
-    </select>
-    <commonmark-preview-button v-on:commonmark-preview-event="$emit('interpret-content-event')"
-      v-bind:is_in_preview_mode="is_in_preview_mode" v-bind:is_preview_loading="is_preview_loading"
-      v-if="is_commonmark_button_displayed" />
-    <commonmark-syntax-helper v-bind:is_in_preview_mode="is_in_preview_mode" v-if="is_commonmark_button_displayed" />
-    <slot />
-  </span>
+    <div class="ttm-definition-step-actions">
+        <div class="ttm-definition-step-actions-format-and-helper-container">
+            {{ $gettext("Format:") }}
+            <select
+                v-bind:id="format_select_id"
+                ref="format"
+                class="small ttm-definition-step-description-format"
+                v-on:change="input($event)"
+                v-bind:disabled="disabled_format_selectbox"
+                data-test="ttm-definition-step-description-format"
+            >
+                <option
+                    value="text"
+                    v-bind:selected="is_text"
+                    data-test="ttm-definition-step-description-format-text"
+                >
+                    Text
+                </option>
+                <option
+                    value="html"
+                    v-bind:selected="is_html"
+                    data-test="ttm-definition-step-description-format-html"
+                >
+                    HTML
+                </option>
+                <option
+                    value="commonmark"
+                    v-bind:selected="is_commonmark"
+                    data-test="ttm-definition-step-description-format-commonmark"
+                >
+                    Markdown
+                </option>
+            </select>
+            <commonmark-preview-button
+                v-on:commonmark-preview-event="$emit('interpret-content-event')"
+                v-bind:is_in_preview_mode="is_in_preview_mode"
+                v-bind:is_preview_loading="is_preview_loading"
+                v-if="is_commonmark_button_displayed"
+            />
+            <commonmark-syntax-helper
+                v-bind:is_in_preview_mode="is_in_preview_mode"
+                v-if="is_commonmark_button_displayed"
+            />
+        </div>
+        <slot />
+    </div>
 </template>
 
 <script>

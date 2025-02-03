@@ -30,7 +30,6 @@ export type RetrieveArtifactsTable = {
     getSelectableQueryResult(
         tracker_ids: ReadonlyArray<number>,
         expert_query: string,
-        expert_mode: boolean,
         limit: number,
         offset: number,
     ): ResultAsync<ArtifactsTableWithTotal, Fault>;
@@ -39,4 +38,6 @@ export type RetrieveArtifactsTable = {
         limit: number,
         offset: number,
     ): ResultAsync<ArtifactsTableWithTotal, Fault>;
+
+    getSelectableFullReport(): ResultAsync<ReadonlyArray<ArtifactsTable>, Fault>;
 };

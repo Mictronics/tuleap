@@ -19,10 +19,9 @@
 
 import { LinkableArtifactRESTFilter } from "./LinkableArtifactRESTFilter";
 import { ARTIFACT_TYPE, KANBAN_TYPE } from "@tuleap/plugin-tracker-constants";
-import type { SearchResultEntry } from "@tuleap/core-rest-api-types/src/main";
+import type { SearchResultEntry } from "@tuleap/core-rest-api-types";
 import { Option } from "@tuleap/option";
-import { CurrentArtifactIdentifierStub } from "../../../../../tests/stubs/CurrentArtifactIdentifierStub";
-import type { CurrentArtifactIdentifier } from "../../../../domain/CurrentArtifactIdentifier";
+import { CurrentArtifactIdentifier } from "@tuleap/plugin-tracker-artifact-common";
 
 describe("LinkableArtifactRESTFilter", () => {
     let current_artifact_option: Option<CurrentArtifactIdentifier>, entry: SearchResultEntry;
@@ -49,7 +48,7 @@ describe("LinkableArtifactRESTFilter", () => {
 
         it("returns false when the current entry is the same artifact as the current edited artifact", () => {
             current_artifact_option = Option.fromValue(
-                CurrentArtifactIdentifierStub.withId(ARTIFACT_ID),
+                CurrentArtifactIdentifier.fromId(ARTIFACT_ID),
             );
             expect(filter()).toBe(false);
         });
@@ -57,7 +56,7 @@ describe("LinkableArtifactRESTFilter", () => {
         it("returns true when the current entry is not the same artifact as the current edited artifact", () => {
             entry = buildSearchResultEntryStub(OTHER_ARTIFACT_ID, ARTIFACT_TYPE);
             current_artifact_option = Option.fromValue(
-                CurrentArtifactIdentifierStub.withId(ARTIFACT_ID),
+                CurrentArtifactIdentifier.fromId(ARTIFACT_ID),
             );
             expect(filter()).toBe(true);
         });

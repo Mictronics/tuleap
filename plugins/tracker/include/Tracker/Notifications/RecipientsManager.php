@@ -25,7 +25,6 @@ use PFUser;
 use Psr\Log\LoggerInterface;
 use Tracker_Artifact_Changeset;
 use Tracker_FormElementFactory;
-use Tuleap\Tracker\Notifications\Recipient\MentionedUserInCommentRetriever;
 use Tuleap\Tracker\Notifications\RemoveRecipient\ArtifactStatusChangeDetector;
 use Tuleap\Tracker\Notifications\RemoveRecipient\ArtifactStatusChangeDetectorImpl;
 use Tuleap\Tracker\Notifications\RemoveRecipient\RemoveRecipientThatAreTechnicalUsers;
@@ -35,29 +34,29 @@ use Tuleap\Tracker\Notifications\RemoveRecipient\RemoveRecipientThatHaveUnsubscr
 use Tuleap\Tracker\Notifications\RemoveRecipient\RemoveRecipientWhenTheyAreInCreationOnlyMode;
 use Tuleap\Tracker\Notifications\RemoveRecipient\RemoveRecipientWhenTheyAreInStatusUpdateOnlyMode;
 use Tuleap\Tracker\Notifications\Settings\UserNotificationSettingsRetriever;
+use Tuleap\Tracker\User\NotificationOnAllUpdatesRetriever;
+use Tuleap\Tracker\User\NotificationOnOwnActionRetriever;
 use UserManager;
 
 class RecipientsManager
 {
-    /**
-     * @var RecipientRemovalStrategy[]
-     */
-    private array $recipient_removal_strategies;
-
-    private ArtifactStatusChangeDetector $status_change_detector;
+    /** @var list<RecipientRemovalStrategy> */
+    private readonly array $recipient_removal_strategies;
+    private readonly ArtifactStatusChangeDetector $status_change_detector;
 
     public function __construct(
-        private Tracker_FormElementFactory $form_element_factory,
-        private UserManager $user_manager,
-        private UnsubscribersNotificationDAO $unsubscribers_notification_dao,
-        private UserNotificationSettingsRetriever $notification_settings_retriever,
-        private UserNotificationOnlyStatusChangeDAO $user_status_change_only_dao,
-        private readonly MentionedUserInCommentRetriever $mentioned_user_in_comment_retriever,
+        private readonly Tracker_FormElementFactory $form_element_factory,
+        private readonly UserManager $user_manager,
+        private readonly UnsubscribersNotificationDAO $unsubscribers_notification_dao,
+        private readonly UserNotificationSettingsRetriever $notification_settings_retriever,
+        private readonly UserNotificationOnlyStatusChangeDAO $user_status_change_only_dao,
+        private readonly NotificationOnAllUpdatesRetriever $notification_on_all_updates_retriever,
+        NotificationOnOwnActionRetriever $notification_on_own_action_retriever,
     ) {
         $this->status_change_detector       = new ArtifactStatusChangeDetectorImpl();
         $this->recipient_removal_strategies = [
             new RemoveRecipientThatAreTechnicalUsers(),
-            new RemoveRecipientThatDoesntWantMailForTheirOwnActions(),
+            new RemoveRecipientThatDoesntWantMailForTheirOwnActions($notification_on_own_action_retriever),
             new RemoveRecipientThatCannotReadAnything(),
             new RemoveRecipientThatHaveUnsubscribedFromNotification($this->unsubscribers_notification_dao),
             new RemoveRecipientWhenTheyAreInStatusUpdateOnlyMode($this->user_status_change_only_dao, $this->status_change_detector),
@@ -83,14 +82,17 @@ class RecipientsManager
             }
         }
 
-        // 2 Get from mentioned users in comment
-        $mentioned_users     = $this->mentioned_user_in_comment_retriever->getMentionedUsers($changeset)->users;
-        $mentioned_usernames = array_map(static fn(PFUser $user) => $user->getUsername(), $mentioned_users);
-
-        $recipients = array_merge($recipients, $mentioned_usernames);
-
-        // 3 Get from the commentators
-        $recipients = array_merge($recipients, $changeset->getArtifact()->getCommentators());
+        // 2 Get from the commentators
+        $recipients = array_merge($recipients, array_filter(
+            $changeset->getArtifact()->getCommentators(),
+            function (string $commentator) {
+                $user = $this->getUserFromRecipientName($commentator);
+                if ($user === null) {
+                    return false;
+                }
+                return $this->notification_on_all_updates_retriever->retrieve($user)->enabled;
+            },
+        ));
         $recipients = array_values(array_unique($recipients));
 
         //now force check perms for all this people
@@ -105,7 +107,7 @@ class RecipientsManager
 
         $this->removeRecipientsWhenTrackerIsInOnlyStatusUpdateMode($changeset, $tablo);
 
-        // 4 Get from the global notif
+        // 3 Get from the global notif
         foreach ($changeset->getTracker()->getRecipients() as $r) {
             if ($r['on_updates'] == 1 || ! $is_update) {
                 foreach ($r['recipients'] as $recipient) {
@@ -128,6 +130,20 @@ class RecipientsManager
                 break;
             }
             $tablo = $strategy->removeRecipient($logger, $changeset, $tablo, $is_update);
+        }
+        return array_map(static fn (Recipient $recipient) => $recipient->check_permissions, $tablo);
+    }
+
+    /**
+     * @param list<PFUser> $mentioned_users
+     *
+     * @psalm-return array<string, bool> Structure is [$recipient => $checkPermissions] where $recipient is a username or an email and $checkPermissions is bool.
+     */
+    public function getRecipientFromComment(array $mentioned_users): array
+    {
+        $tablo = [];
+        foreach ($mentioned_users as $user) {
+            $tablo[$user->getUserName()] = Recipient::fromUser($user);
         }
 
         return array_map(static fn (Recipient $recipient) => $recipient->check_permissions, $tablo);

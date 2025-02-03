@@ -23,42 +23,24 @@ declare(strict_types=1);
 namespace Tuleap\CrossTracker;
 
 use Tuleap\CrossTracker\Report\RetrieveReport;
-use Tuleap\CrossTracker\Report\SearchTrackersOfReport;
-use Tuleap\Tracker\RetrieveTracker;
 
 final readonly class CrossTrackerReportFactory
 {
     public function __construct(
         private RetrieveReport $report_retriever,
-        private SearchTrackersOfReport $trackers_searcher,
-        private RetrieveTracker $tracker_factory,
     ) {
     }
 
     /**
      * @throws CrossTrackerReportNotFoundException
      */
-    public function getById($id): CrossTrackerReport
+    public function getById($id): CrossTrackerExpertReport
     {
         $report_row = $this->report_retriever->searchReportById($id);
         if (! $report_row) {
             throw new CrossTrackerReportNotFoundException();
         }
-        $expert_query = $report_row['expert_query'];
-        $expert_mode  = $report_row['expert_mode'];
-        if ($expert_mode) {
-            return new CrossTrackerExpertReport($id, $expert_query);
-        }
 
-        $report_trackers = [];
-        $tracker_ids     = $this->trackers_searcher->searchReportTrackersById($id);
-        foreach ($tracker_ids as $tracker_id) {
-            $tracker = $this->tracker_factory->getTrackerById($tracker_id);
-            if ($tracker !== null) {
-                $report_trackers[] = $tracker;
-            }
-        }
-
-        return new CrossTrackerDefaultReport($id, $expert_query, $report_trackers);
+        return new CrossTrackerExpertReport($id, $report_row['query'], $report_row['title'], $report_row['description']);
     }
 }

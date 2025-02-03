@@ -19,6 +19,8 @@
  */
 
 use Tuleap\AgileDashboard\AgileDashboard\Milestone\Backlog\RecentlyVisitedTopBacklogDao;
+use Tuleap\AgileDashboard\ConfigurationManager;
+use Tuleap\AgileDashboard\ConfigurationDao;
 use Tuleap\AgileDashboard\BreadCrumbDropdown\AdministrationCrumbBuilder;
 use Tuleap\AgileDashboard\BreadCrumbDropdown\AgileDashboardCrumbBuilder;
 use Tuleap\AgileDashboard\ExplicitBacklog\ArtifactsInExplicitBacklogDao;
@@ -47,6 +49,8 @@ use Tuleap\Layout\NewDropdown\CurrentContextSectionToHeaderOptionsInserter;
 use Tuleap\Project\Admin\PermissionsPerGroup\PermissionPerGroupUGroupRepresentationBuilder;
 use Tuleap\Tracker\Artifact\RecentlyVisited\VisitRecorder;
 use Tuleap\Tracker\NewDropdown\TrackerNewDropdownLinkPresenterBuilder;
+use Tuleap\Tracker\Permission\SubmissionPermissionVerifier;
+use Tuleap\Tracker\Permission\TrackersPermissionsRetriever;
 use Tuleap\User\ProvideCurrentUser;
 
 class AgileDashboardRouterBuilder // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
@@ -127,11 +131,13 @@ class AgileDashboardRouterBuilder // phpcs:ignore PSR1.Classes.ClassDeclaration.
                     ),
                     $tracker_new_dropdown_link_presenter_builder,
                     $header_options_inserter,
+                    SubmissionPermissionVerifier::instance(),
                 ),
                 new \Tuleap\AgileDashboard\Milestone\ParentTrackerRetriever(
                     $planning_factory,
                 ),
-                $header_options_inserter
+                $header_options_inserter,
+                TrackersPermissionsRetriever::build(),
             ),
             new \Tuleap\AgileDashboard\CSRFSynchronizerTokenProvider(),
             new RecentlyVisitedTopBacklogDao(),
@@ -223,13 +229,10 @@ class AgileDashboardRouterBuilder // phpcs:ignore PSR1.Classes.ClassDeclaration.
         return Planning_MilestoneFactory::build();
     }
 
-    /**
-     * @return AgileDashboard_ConfigurationManager
-     */
-    private function getConfigurationManager()
+    private function getConfigurationManager(): ConfigurationManager
     {
-        return new AgileDashboard_ConfigurationManager(
-            new AgileDashboard_ConfigurationDao(),
+        return new ConfigurationManager(
+            new ConfigurationDao(),
             EventManager::instance(),
             new MilestonesInSidebarDao(),
             new MilestonesInSidebarDao(),

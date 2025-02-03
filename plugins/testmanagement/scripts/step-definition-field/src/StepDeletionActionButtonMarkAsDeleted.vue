@@ -17,10 +17,26 @@
   - along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<!-- prettier-ignore -->
-<template functional>
-  <button class="btn btn-small ttm-definition-step-delete-button" type="button" v-on:click="props.markAsDeleted()">
-    <i class="far fa-trash-alt"></i>
-    <translate key="delete">Delete</translate>
-  </button>
+<template>
+    <button class="btn" type="button" v-on:click="markAsDeleted()">
+        <i class="far fa-trash-alt"></i>
+        {{ $gettext("Delete") }}
+    </button>
 </template>
+
+<script>
+export default {
+    name: "StepDeletionActionButtonMarkAsDeleted",
+    props: {
+        step: {
+            type: Object,
+            required: true,
+        },
+    },
+    methods: {
+        markAsDeleted() {
+            this.$store.commit("setStepDeleted", [this.step, true]);
+        },
+    },
+};
+</script>

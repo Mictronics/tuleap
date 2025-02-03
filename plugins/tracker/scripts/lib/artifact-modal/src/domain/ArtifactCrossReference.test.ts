@@ -18,15 +18,14 @@
  */
 
 import { Option } from "@tuleap/option";
+import { CurrentArtifactIdentifier } from "@tuleap/plugin-tracker-artifact-common";
 import { ArtifactCrossReference } from "./ArtifactCrossReference";
-import { CurrentArtifactIdentifierStub } from "../../tests/stubs/CurrentArtifactIdentifierStub";
-import { TrackerShortnameStub } from "../../tests/stubs/TrackerShortnameStub";
 
 describe("ArtifactCrossReference", () => {
-    it("builds from an artifact id, a tracker shortname and a tracker color name", () => {
+    it("builds from the current artifact id, a tracker shortname and a tracker color name", () => {
         const option = ArtifactCrossReference.fromCurrentArtifact(
-            Option.fromValue(CurrentArtifactIdentifierStub.withId(150)),
-            TrackerShortnameStub.withShortname("story"),
+            Option.fromValue(CurrentArtifactIdentifier.fromId(150)),
+            { shortname: "story" },
             "acid-green",
         );
 

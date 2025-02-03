@@ -978,6 +978,11 @@ msgid_plural "Current artifact children satisfy the following conditions:"
 msgstr[0] ""
 msgstr[1] ""
 
+msgid ""
+"Currently, you will be notified only if you are creator of an artifact, "
+"assignee or if you have specific configuration for a tracker."
+msgstr ""
+
 msgid "Custom columns based on..."
 msgstr ""
 
@@ -1343,9 +1348,6 @@ msgstr ""
 msgid "Fail to retrieve the full collection of projects."
 msgstr ""
 
-msgid "Fast computation"
-msgstr ""
-
 msgid "Field"
 msgstr ""
 
@@ -1421,6 +1423,16 @@ msgstr ""
 msgid "Follow-ups"
 msgstr ""
 
+msgid ""
+"For all updates after you made a change on an artifact (comment, change "
+"values...)"
+msgstr ""
+
+msgid ""
+"For instance, when you create an artifact or add a comment. %s(Historical "
+"Tuleap behavior with high traffic).%s"
+msgstr ""
+
 msgid "Force cache regeneration"
 msgstr ""
 
@@ -1478,6 +1490,9 @@ msgid "Group fields in a column"
 msgstr ""
 
 msgid "Group fields in a set"
+msgstr ""
+
+msgid "HTML"
 msgstr ""
 
 msgid "Hidden fieldsets:"
@@ -1687,6 +1702,9 @@ msgid "Link type '%s' is invalid. Available type: %s"
 msgid_plural "Link type '%s' is invalid. Available types: %s"
 msgstr[0] ""
 msgstr[1] ""
+
+msgid "Links"
+msgstr ""
 
 msgid ""
 "Links between artifacts may have a type for a better semantics between "
@@ -1967,6 +1985,9 @@ msgstr ""
 msgid "Not allowed to delete non-empty field set."
 msgstr ""
 
+msgid "Nothing has changed"
+msgstr ""
+
 msgid "Notification settings"
 msgstr ""
 
@@ -1979,10 +2000,23 @@ msgstr ""
 msgid "Notifications"
 msgstr "Notificações"
 
+msgid "Notifications preferences successfully updated"
+msgstr ""
+
 msgid "Notified people"
 msgstr ""
 
 msgid "Notify closed artifacts"
+msgstr ""
+
+msgid ""
+"Notify me on all update of artifacts I touch (assignee, submitter, cc, "
+"commentator, change of value, ...)."
+msgstr ""
+
+msgid ""
+"Notify me on all updates I do on artifacts but not when other users further "
+"change artifact, unless I'm creator or assignee."
 msgstr ""
 
 msgid ""
@@ -1997,6 +2031,16 @@ msgid "Notify me on status change"
 msgstr ""
 
 msgid "Notify me when artifacts are created"
+msgstr ""
+
+msgid ""
+"Notify me when other users change an artifact I touched (assignee, "
+"submitter, cc, commentator, change of value, ...)."
+msgstr ""
+
+msgid ""
+"Notify me when other users change artifacts I created or I'm assigned to "
+"(and all fields that can trigger notifications)."
 msgstr ""
 
 msgid "Number of open artifacts"
@@ -2262,6 +2306,9 @@ msgid ""
 "artifact(s)"
 msgstr ""
 
+msgid "Receive emails:"
+msgstr ""
+
 msgid "Receive notifications for this artifact"
 msgstr ""
 
@@ -2407,6 +2454,9 @@ msgid "Save done values"
 msgstr ""
 
 msgid "Save new report"
+msgstr ""
+
+msgid "Save notifications changes"
 msgstr ""
 
 msgid "Save open values"
@@ -3301,6 +3351,11 @@ msgid "The tracker '%1$s' has been properly restored"
 msgstr ""
 
 msgid ""
+"The tracker does not have an artifact link field, nothing can be displayed "
+"here."
+msgstr ""
+
+msgid ""
 "The tracker does not seem to have the create/reply by mail feature enabled."
 msgstr ""
 
@@ -3532,10 +3587,19 @@ msgstr ""
 msgid "This tracker is deleted"
 msgstr ""
 
+msgid ""
+"This tracker's notifications are disabled, when you use @ to mention "
+"someone, no email will be sent."
+msgstr ""
+
 msgid "This transition already exists."
 msgstr ""
 
 msgid "This type can't be deleted because it is or has been already used."
+msgstr ""
+
+msgid ""
+"This view will be removed soon, it is replaced by the brand new Links tab"
 msgstr ""
 
 msgid "Those rules will be applied on each creation/update of artifacts."
@@ -3652,6 +3716,9 @@ msgid "Tracker deleted"
 msgstr ""
 
 msgid "Tracker does not exist"
+msgstr ""
+
+msgid "Tracker email format"
 msgstr ""
 
 msgid "Tracker global administration"
@@ -4003,6 +4070,12 @@ msgid ""
 "calendar (Outlook, Google Calendar, etc.)."
 msgstr ""
 
+msgid "When you are the author of a change"
+msgstr ""
+
+msgid "When you use @ to mention someone, they will get an email notification."
+msgstr ""
+
 msgid "Workflow"
 msgstr ""
 
@@ -4065,6 +4138,10 @@ msgstr ""
 
 #, php-format
 msgid "You can access the artifact here: %1$s"
+msgstr ""
+
+msgid ""
+"You can add an artifact link field %sin your tracker fields administration%s."
 msgstr ""
 
 #, php-format
@@ -4252,6 +4329,11 @@ msgid ""
 "'assigned to group' permission"
 msgstr ""
 
+msgid ""
+"You will be notified for any changes if you make a comment or change a value "
+"in an artifact."
+msgstr ""
+
 msgid "You will no-longer receive notifications for this artifact"
 msgstr ""
 
@@ -4259,6 +4341,10 @@ msgstr ""
 msgid ""
 "You will not able to edit by hand the field \"%1$s\" since no update and "
 "submit permissions will be granted."
+msgstr ""
+
+msgid ""
+"Your %1$suser preferences%2$s can change the notifications you will receive."
 msgstr ""
 
 msgid ""

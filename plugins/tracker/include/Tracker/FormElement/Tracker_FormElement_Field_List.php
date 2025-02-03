@@ -272,14 +272,8 @@ abstract class Tracker_FormElement_Field_List extends Tracker_FormElement_Field 
     /**
      * Display the field as a Changeset value.
      * Used in CSV data export.
-     *
-     * @param int $artifact_id the corresponding artifact id
-     * @param int $changeset_id the corresponding changeset
-     * @param mixed $value the value of the field
-     *
-     * @return string
      */
-    public function fetchCSVChangesetValue($artifact_id, $changeset_id, $value, $report)
+    public function fetchCSVChangesetValue(int $artifact_id, int $changeset_id, mixed $value, ?Tracker_Report $report): string
     {
         $values = [];
         foreach ($this->getBind()->getChangesetValues($changeset_id) as $v) {
@@ -337,7 +331,7 @@ abstract class Tracker_FormElement_Field_List extends Tracker_FormElement_Field 
         $criterias = [];
 
         foreach ($values_to_match as $value_to_match) {
-            if (! is_numeric($value_to_match)) {
+            if (! $this->isAValidCriteriaValueFromREST($value_to_match)) {
                 throw new Tracker_Report_InvalidRESTCriterionException("Invalid format for criterion field '$this->name' ($this->id)");
             }
 
@@ -351,6 +345,11 @@ abstract class Tracker_FormElement_Field_List extends Tracker_FormElement_Field 
         $this->setCriteriaValue($criterias, $criteria->getReport()->getId());
 
         return count($criterias) > 0;
+    }
+
+    protected function isAValidCriteriaValueFromREST(mixed $value_to_match): bool
+    {
+        return is_numeric($value_to_match);
     }
 
     public function exportCriteriaValueToXML(Tracker_Report_Criteria $criteria, SimpleXMLElement $xml_criteria)
@@ -462,13 +461,7 @@ abstract class Tracker_FormElement_Field_List extends Tracker_FormElement_Field 
         return $value['values'];
     }
 
-    /**
-     * Display the field value as a criteria
-     * @param Tracker_Report_Criteria $criteria
-     * @return string
-     * @see fetchCriteria
-     */
-    public function fetchCriteriaValue($criteria)
+    public function fetchCriteriaValue(Tracker_Report_Criteria $criteria): string
     {
         $hp             = Codendi_HTMLPurifier::instance();
         $html           = '';
@@ -574,22 +567,12 @@ abstract class Tracker_FormElement_Field_List extends Tracker_FormElement_Field 
         return true;
     }
 
-    /**
-     * Fetch the value
-     * @param mixed $value the value of the field
-     * @return string
-     */
-    public function fetchRawValue($value)
+    public function fetchRawValue(mixed $value): string
     {
         return $this->getBind()->fetchRawValue($value);
     }
 
-    /**
-     * Fetch the value in a specific changeset
-     * @param Tracker_Artifact_Changeset $changeset
-     * @return string
-     */
-    public function fetchRawValueFromChangeset($changeset)
+    public function fetchRawValueFromChangeset(Tracker_Artifact_Changeset $changeset): string
     {
         return $this->getBind()->fetchRawValueFromChangeset($changeset);
     }
@@ -602,12 +585,7 @@ abstract class Tracker_FormElement_Field_List extends Tracker_FormElement_Field 
         return new ListValueDao();
     }
 
-    /**
-     * Fetch the html code to display the field value in new artifact submission form
-     *
-     * @return string html
-     */
-    protected function fetchSubmitValue(array $submitted_values)
+    protected function fetchSubmitValue(array $submitted_values): string
     {
         $selected_values = isset($submitted_values[$this->id]) ? $submitted_values[$this->id] : [];
         $default_values  = $this->getSubmitDefaultValues();
@@ -629,14 +607,9 @@ abstract class Tracker_FormElement_Field_List extends Tracker_FormElement_Field 
         return $this->getBind()->getDefaultValues();
     }
 
-     /**
-     * Fetch the html code to display the field value in masschange submission form
-     *
-     * @return string html
-     */
-    protected function fetchSubmitValueMasschange()
+    protected function fetchSubmitValueMasschange(): string
     {
-        return $this->_fetchFieldMasschange('tracker_field_' . $this->id, 'artifact[' . $this->id . ']', $this->getBind()->getDefaultValues());
+        return $this->_fetchFieldMasschange('tracker_field_' . $this->id, 'artifact[' . $this->id . ']');
     }
 
     /**
@@ -645,14 +618,12 @@ abstract class Tracker_FormElement_Field_List extends Tracker_FormElement_Field 
      * @param Artifact                        $artifact         The artifact
      * @param Tracker_Artifact_ChangesetValue $value            The actual value of the field
      * @param array                           $submitted_values The value already submitted by the user
-     *
-     * @return string
      */
     protected function fetchArtifactValue(
         Artifact $artifact,
         ?Tracker_Artifact_ChangesetValue $value,
         array $submitted_values,
-    ) {
+    ): string {
         $values          = $submitted_values[$this->id] ?? [];
         $selected_values = $value ? $value->getListValues() : [];
         return $this->_fetchField(
@@ -665,23 +636,15 @@ abstract class Tracker_FormElement_Field_List extends Tracker_FormElement_Field 
 
      /**
      * Fetch the field value in artifact to be displayed in mail
-     *
-     * @param Artifact                        $artifact The artifact
-     * @param PFUser                          $user     The user who will receive the email
-     * @param bool                            $ignore_perms
-     * @param Tracker_Artifact_ChangesetValue $value    The actual value of the field
-     * @param string                          $format   mail format
-     *
-     * @return string
      */
 
     public function fetchMailArtifactValue(
         Artifact $artifact,
         PFUser $user,
-        $ignore_perms,
+        bool $ignore_perms,
         ?Tracker_Artifact_ChangesetValue $value = null,
-        $format = 'text',
-    ) {
+        string $format = 'text',
+    ): string {
         $output = '';
         switch ($format) {
             case 'html':
@@ -948,10 +911,8 @@ abstract class Tracker_FormElement_Field_List extends Tracker_FormElement_Field 
     /**
      * @param array  $selected_values
      * @param mixed  $submitted_values_for_this_list
-     *
-     * @return string
      */
-    protected function _fetchField(string $id, string $name, $selected_values, $submitted_values_for_this_list = []) //phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+    protected function _fetchField(string $id, string $name, $selected_values, $submitted_values_for_this_list = []): string //phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
     {
         $html     = '';
         $purifier = Codendi_HTMLPurifier::instance();
@@ -1070,14 +1031,13 @@ abstract class Tracker_FormElement_Field_List extends Tracker_FormElement_Field 
         return '</select>';
     }
 
-    protected function _fetchFieldMasschange($id, $name, $selected_values) //phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
+    protected function _fetchFieldMasschange($id, $name): string //phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
     {
-        $purifier   = Codendi_HTMLPurifier::instance();
-        $html       = '';
-        $multiple   = ' ';
-        $size       = ' ';
-        $bind_type  = 'data-bind-type="' . $this->getBind()->getType() . '"';
-        $has_colors = count($this->getDecorators()) > 0;
+        $purifier  = Codendi_HTMLPurifier::instance();
+        $html      = '';
+        $multiple  = ' ';
+        $size      = ' ';
+        $bind_type = 'data-bind-type="' . $this->getBind()->getType() . '"';
 
         if ($this->isMultiple()) {
             $multiple = ' multiple="multiple" ';
@@ -1129,12 +1089,7 @@ abstract class Tracker_FormElement_Field_List extends Tracker_FormElement_Field 
         return $html;
     }
 
-    /**
-     * Fetch the html code to display the field value in tooltip
-     * @param Tracker_Artifact_ChangesetValue_List $value The changeset value of this field
-     * @return string The html code to display the field value in tooltip
-     */
-    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null)
+    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null): string
     {
         $html           = '';
         $last_changeset = $artifact->getLastChangeset();

@@ -40,7 +40,7 @@ class Tracker_FormElement_Field_OpenList extends Tracker_FormElement_Field_List 
     public const OPEN_PREFIX      = 'o';
     public const NEW_VALUE_PREFIX = '!';
 
-    public $default_properties = [
+    public array $default_properties = [
         'hint' => [
             'value' => 'Type in a search term',
             'type'  => 'string',
@@ -58,10 +58,8 @@ class Tracker_FormElement_Field_OpenList extends Tracker_FormElement_Field_List 
      *
      * @param array $values The existing values. default is empty
      * @param mixed $name   A string for a given name or true for the default name (artifact[123]), false for no name.
-     *
-     * @return string html
      */
-    public function fetchOpenList($values = [], $name = true)
+    public function fetchOpenList($values = [], $name = true): string
     {
         $hp   = Codendi_HTMLPurifier::instance();
         $html = '';
@@ -99,10 +97,8 @@ class Tracker_FormElement_Field_OpenList extends Tracker_FormElement_Field_List 
      *
      * @param array $values The existing values. default is empty
      * @param mixed $name   A string for a given name or true for the default name (artifact[123]), false for no name.
-     *
-     * @return string html
      */
-    public function fetchOpenListMasschange($values = [], $name = true)
+    public function fetchOpenListMasschange($values = [], $name = true): string
     {
         $hp   = Codendi_HTMLPurifier::instance();
         $html = '';
@@ -130,12 +126,7 @@ class Tracker_FormElement_Field_OpenList extends Tracker_FormElement_Field_List 
         return $html;
     }
 
-    /**
-     * Fetch the html code to display the field value in new artifact submission form
-     *
-     * @return string html
-     */
-    protected function fetchSubmitValue(array $submitted_values)
+    protected function fetchSubmitValue(array $submitted_values): string
     {
         if (isset($submitted_values[$this->id])) {
             return $this->fetchOpenList($this->toObj($submitted_values[$this->id]));
@@ -149,12 +140,7 @@ class Tracker_FormElement_Field_OpenList extends Tracker_FormElement_Field_List 
         return $this->getBind()->getBindValuesForIds($default_values_ids);
     }
 
-     /**
-     * Fetch the html code to display the field value in masschange submission form
-     *
-     * @return string html
-     */
-    protected function fetchSubmitValueMasschange()
+    protected function fetchSubmitValueMasschange(): string
     {
         return $this->fetchOpenListMasschange();
     }
@@ -165,14 +151,12 @@ class Tracker_FormElement_Field_OpenList extends Tracker_FormElement_Field_List 
      * @param Artifact                        $artifact         The artifact
      * @param Tracker_Artifact_ChangesetValue $value            The actual value of the field
      * @param array                           $submitted_values The value already submitted by the user
-     *
-     * @return string
      */
     protected function fetchArtifactValue(
         Artifact $artifact,
         ?Tracker_Artifact_ChangesetValue $value,
         array $submitted_values,
-    ) {
+    ): string {
         assert($value instanceof Tracker_Artifact_ChangesetValue_List);
         $selected_values = $value ? $value->getListValues() : [];
         if (is_array($submitted_values) && isset($submitted_values[$this->id])) {
@@ -217,22 +201,14 @@ class Tracker_FormElement_Field_OpenList extends Tracker_FormElement_Field_List 
 
     /**
      * Fetch data to display the field value in mail
-     *
-     * @param Artifact                        $artifact The artifact
-     * @param PFUser                          $user     The user who will receive the email
-     * @param bool                            $ignore_perms
-     * @param Tracker_Artifact_ChangesetValue $value    The actual value of the field
-     * @param string                          $format   output format
-     *
-     * @return string
      */
     public function fetchMailArtifactValue(
         Artifact $artifact,
         PFUser $user,
-        $ignore_perms,
+        bool $ignore_perms,
         ?Tracker_Artifact_ChangesetValue $value = null,
-        $format = 'text',
-    ) {
+        string $format = 'text',
+    ): string {
         if (empty($value) || ! $value->getListValues()) {
             return '-';
         }
@@ -246,9 +222,9 @@ class Tracker_FormElement_Field_OpenList extends Tracker_FormElement_Field_List 
                 if ($value !== null) {
                     $selected_values = $value->getListValues();
                 }
-                foreach ($selected_values as $value) {
-                    if ($value->getId() != 100) {
-                        $output .= $value->getLabel();
+                foreach ($selected_values as $new_value) {
+                    if ($new_value->getId() != 100) {
+                        $output .= $new_value->getLabel();
                     }
                 }
                 break;
@@ -547,14 +523,8 @@ class Tracker_FormElement_Field_OpenList extends Tracker_FormElement_Field_List 
     /**
      * Display the field for CSV data export
      * Used in CSV data export
-     *
-     * @param int $artifact_id the corresponding artifact id
-     * @param int $changeset_id the corresponding changeset
-     * @param mixed $value the value of the field
-     *
-     * @return string
      */
-    public function fetchCSVChangesetValue($artifact_id, $changeset_id, $value, $report)
+    public function fetchCSVChangesetValue(int $artifact_id, int $changeset_id, mixed $value, ?Tracker_Report $report): string
     {
         $arr       = [];
         $bindtable = $this->getBind()->getBindtableSqlFragment();
@@ -600,9 +570,23 @@ class Tracker_FormElement_Field_OpenList extends Tracker_FormElement_Field_List 
             return Option::nothing(ParametrizedFromWhere::class);
         }
 
-        $criteria_value = $this->extractCriteriaValue($this->getCriteriaValue($criteria));
-        $openvalues     = [];
-        $bindvalues     = [];
+        $not_extracted_criteria_value = $this->getCriteriaValue($criteria);
+        $criteria_value               = $this->extractCriteriaValue($not_extracted_criteria_value);
+        $openvalues                   = [];
+        $bindvalues                   = [];
+
+        if (
+            count($criteria_value) === 0 && (
+            (is_string($not_extracted_criteria_value) && $not_extracted_criteria_value !== '') ||
+            (is_array($not_extracted_criteria_value) && count($not_extracted_criteria_value) > 0)
+            )
+        ) {
+            // When requested to filter on an unknown value no results should be returned
+            return Option::fromValue(
+                new ParametrizedFromWhere('', '0', [], [])
+            );
+        }
+
         foreach ($criteria_value as $v) {
             if ($v instanceof \Tracker_FormElement_Field_List_UnsavedValue) {
                 //ignore it
@@ -662,7 +646,24 @@ class Tracker_FormElement_Field_OpenList extends Tracker_FormElement_Field_List 
 
     protected function formatCriteriaValue($value_to_match)
     {
+        $first_char_value = $value_to_match[0] ?? '';
+        if ($first_char_value === self::OPEN_PREFIX || $first_char_value === self::BIND_PREFIX) {
+            return $value_to_match;
+        }
         return 'b' . $value_to_match;
+    }
+
+    protected function isAValidCriteriaValueFromREST(mixed $value_to_match): bool
+    {
+        if (! is_scalar($value_to_match)) {
+            return false;
+        }
+        $value_to_match   = (string) $value_to_match;
+        $first_char_value = $value_to_match[0] ?? '';
+        if ($first_char_value === self::OPEN_PREFIX || $first_char_value === self::BIND_PREFIX) {
+            return parent::isAValidCriteriaValueFromREST(substr($value_to_match, 1));
+        }
+        return parent::isAValidCriteriaValueFromREST($value_to_match);
     }
 
     /**
@@ -725,16 +726,8 @@ class Tracker_FormElement_Field_OpenList extends Tracker_FormElement_Field_List 
         return $value;
     }
 
-    /**
-     * Display the field value as a criteria
-     * @param Tracker_Report_Criteria $criteria
-     * @return string
-     * @see fetchCriteria
-     */
-    public function fetchCriteriaValue($criteria)
+    public function fetchCriteriaValue(Tracker_Report_Criteria $criteria): string
     {
-        $hp             = Codendi_HTMLPurifier::instance();
-        $html           = '';
         $criteria_value = $this->extractCriteriaValue($this->getCriteriaValue($criteria));
 
         $name = "criteria[$this->id]";

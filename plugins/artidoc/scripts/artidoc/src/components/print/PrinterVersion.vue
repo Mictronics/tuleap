@@ -41,16 +41,16 @@
                             <ol>
                                 <li
                                     v-for="section in saved_sections"
-                                    v-bind:key="'toc-' + section.id"
+                                    v-bind:key="'toc-' + section.value.id"
                                 >
                                     <a
                                         v-if="are_internal_links_allowed"
-                                        v-bind:href="`#pdf-section-${section.id}`"
+                                        v-bind:href="`#pdf-section-${section.value.id}`"
                                     >
-                                        {{ section.display_title }}
+                                        {{ section.value.display_title }}
                                     </a>
                                     <template v-else>
-                                        {{ section.display_title }}
+                                        {{ section.value.display_title }}
                                     </template>
                                 </li>
                             </ol>
@@ -64,9 +64,9 @@
                                 <ol>
                                     <li
                                         v-for="section in saved_sections"
-                                        v-bind:key="section.id"
+                                        v-bind:key="section.value.id"
                                         class="document-section"
-                                        v-bind:id="`pdf-section-${section.id}`"
+                                        v-bind:id="`pdf-section-${section.value.id}`"
                                     >
                                         <section-printer-version v-bind:section="section" />
                                     </li>
@@ -91,12 +91,12 @@
 
 <script setup lang="ts">
 import { strictInject } from "@tuleap/vue-strict-inject";
-import { SECTIONS_STORE } from "@/stores/sections-store-injection-key";
+import { SECTIONS_COLLECTION } from "@/sections/sections-collection-injection-key";
 import SectionPrinterVersion from "@/components/print/SectionPrinterVersion.vue";
 import { PDF_TEMPLATES_STORE } from "@/stores/pdf-templates-store";
 import { computed } from "vue";
 
-const { saved_sections } = strictInject(SECTIONS_STORE);
+const { saved_sections } = strictInject(SECTIONS_COLLECTION);
 const pdf_templates = strictInject(PDF_TEMPLATES_STORE);
 
 const has_title_page_content = computed(

@@ -45,10 +45,10 @@
         <div v-if="is_in_preview_mode && !is_preview_in_error" v-dompurify-html="interpreted_description"
             data-test="description-preview"></div>
         <div v-if="is_preview_in_error" class="alert alert-error" data-test="description-error">
-            <translate>There was an error in the Markdown preview:</translate>
+            {{ $gettext("There was an error in the Markdown preview:") }}
             {{ error_text }}
         </div>
-        <div class="muted tracker-richtexteditor-help shown" v-bind:id="description_help_id"></div>
+        <p class="text-info tracker-richtexteditor-help shown" v-bind:id="description_help_id"></p>
 
         <section class="ttm-definition-step-expected" v-show="!is_hide_expected">
             <step-definition-arrow-expected />
@@ -68,7 +68,7 @@
                 <div v-if="is_in_preview_mode" v-dompurify-html="interpreted_expected_result"
                     data-test="expected-results-preview"></div>
                 <div class="alert alert-error" v-if="is_preview_in_error" data-test="expected-results-error">
-                    <translate>There was an error in the Markdown preview:</translate>
+                    {{ $gettext("There was an error in the Markdown preview:") }}
                     {{ error_text }}
                 </div>
                 <div class="muted tracker-richtexteditor-help shown" v-bind:id="expected_results_help_id"></div>
@@ -78,7 +78,6 @@
     </div>
 </template>
 
-<!-- eslint-disable vue/no-mutating-props -->
 <script>
 import StepDeletionActionButtonMarkAsDeleted from "./StepDeletionActionButtonMarkAsDeleted.vue";
 import StepDefinitionArrowExpected from "./StepDefinitionArrowExpected.vue";
@@ -116,6 +115,9 @@ export default {
             is_preview_in_error: false,
             error_text: "",
             editors: [],
+            raw_description: this.step.raw_description,
+            raw_expected_results: this.step.raw_expected_results,
+            description_format: this.step.description_format,
         };
     },
     computed: {
@@ -140,13 +142,16 @@ export default {
             return this.expected_results_id + "-help";
         },
         is_current_step_in_html_format() {
-            return this.step.description_format === TEXT_FORMAT_HTML;
+            return this.description_format === TEXT_FORMAT_HTML;
         },
         format_select_id() {
             return "format_" + this.step.uuid + "_" + this.field_id;
         },
         type_select_id() {
             return "type_" + this.step.uuid + "_" + this.field_id;
+        },
+        is_in_edit_mode_without_error() {
+            return !this.is_in_preview_mode && !this.is_preview_in_error;
         },
     },
     created() {
@@ -177,7 +182,7 @@ export default {
             }
         },
     },
-    beforeUnmount() {
+    onUnmounted() {
         if (this.editors) {
             this.editors[0].destroy();
             this.editors[1].destroy();
@@ -187,17 +192,14 @@ export default {
         this.loadEditor();
     },
     methods: {
-        markAsDeleted() {
-            this.$store.commit("setStepDeleted", [this.step, true]);
-        },
         getEditorsContent() {
             if (this.is_current_step_in_html_format && this.areRTEEditorsSet()) {
-                this.step.raw_description = this.editors[1].getContent();
-                this.step.raw_expected_results = this.editors[0].getContent();
+                this.raw_description = this.editors[1].getContent();
+                this.raw_expected_results = this.editors[0].getContent();
             }
         },
         toggleRTE(event, value) {
-            this.step.description_format = value;
+            this.description_format = value;
         },
         toggleStepType(event, value) {
             this.step.step_type = value;
@@ -228,7 +230,7 @@ export default {
             if (document.body.dataset.userLocale) {
                 locale = document.body.dataset.userLocale;
             }
-            const image_upload_factory = new UploadImageFormFactory(document, locale);
+            const image_upload_factory = UploadImageFormFactory(document, locale);
             const help_block = image_upload_factory.createHelpBlock(text_area);
             const editor = RichTextEditorFactory.forFlamingParrotWithExistingFormatSelector(
                 document,
@@ -237,7 +239,7 @@ export default {
 
             const options = {
                 format_selectbox_id: this.format_select_id,
-                format_selectbox_value: this.step.description_format,
+                format_selectbox_value: this.description_format,
                 getAdditionalOptions: (textarea) => getUploadImageOptions(textarea),
                 onFormatChange: (new_format) => {
                     if (help_block) {
@@ -253,6 +255,12 @@ export default {
         loadEditor() {
             this.editors = [this.loadRTE("expected_results"), this.loadRTE("description")];
         },
+        updateDescription(event) {
+            this.raw_description = event.target.value;
+        },
+        updateExpectedResults(event) {
+            this.raw_expected_results = event.target.value;
+        },
         togglePreview() {
             this.is_preview_in_error = false;
             this.error_text = "";
@@ -264,8 +272,8 @@ export default {
 
             this.is_preview_loading = true;
             return Promise.all([
-                postInterpretCommonMark(this.step.raw_description),
-                postInterpretCommonMark(this.step.raw_expected_results),
+                postInterpretCommonMark(this.raw_description),
+                postInterpretCommonMark(this.raw_expected_results),
             ])
                 .then((interpreted_fields) => {
                     this.interpreted_description = interpreted_fields[0];

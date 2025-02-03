@@ -213,7 +213,7 @@ final class ArtidocTest extends DocmanTestExecutionHelper
         $response = $this->getResponse($this->request_factory->createRequest('OPTIONS', 'artidoc/' . $id . '/sections'));
 
         self::assertSame(200, $response->getStatusCode());
-        self::assertSame(['OPTIONS', 'GET', 'PUT', 'POST', 'PATCH'], explode(', ', $response->getHeaderLine('Allow')));
+        self::assertSame(['OPTIONS', 'GET', 'POST', 'PATCH'], explode(', ', $response->getHeaderLine('Allow')));
     }
 
     public function testOptionsSectionsId(): void
@@ -222,27 +222,7 @@ final class ArtidocTest extends DocmanTestExecutionHelper
         $response = $this->getResponse($this->request_factory->createRequest('OPTIONS', 'artidoc_sections/' . $uuid));
 
         self::assertSame(200, $response->getStatusCode());
-        self::assertSame(['OPTIONS', 'GET', 'DELETE'], explode(', ', $response->getHeaderLine('Allow')));
-    }
-
-    /**
-     * @depends testGetRootId
-     */
-    public function testPUTArtidocSections(int $root_id): void
-    {
-        $artidoc_id   = $this->createArtidoc($root_id, 'Artidoc F3 ' . $this->now)['id'];
-        $section_1_id = $this->createRequirementArtifact('Section 1', 'Content of section 1');
-        $section_2_id = $this->createRequirementArtifact('Section 2', 'Content of section 2');
-
-        self::assertCount(0, $this->getArtidocSections($artidoc_id));
-
-        $this->setSectionsForArtidoc($artidoc_id, $section_1_id, $section_2_id);
-
-        $document_content = $this->getArtidocSections($artidoc_id);
-
-        self::assertCount(2, $document_content);
-        self::assertSame($section_1_id, $document_content[0]['artifact']['id']);
-        self::assertSame($section_2_id, $document_content[1]['artifact']['id']);
+        self::assertSame(['OPTIONS', 'GET', 'PUT', 'POST', 'DELETE'], explode(', ', $response->getHeaderLine('Allow')));
     }
 
     /**
@@ -291,16 +271,25 @@ final class ArtidocTest extends DocmanTestExecutionHelper
 
     private function setSectionsForArtidoc(int $artidoc_id, int ...$section_ids): void
     {
-        $put_response = $this->getResponse(
-            $this->request_factory->createRequest('PUT', 'artidoc/' . $artidoc_id . '/sections')->withBody(
-                $this->stream_factory->createStream(json_encode([
-                    'sections' => array_map(static fn($id) => ['artifact' => ['id' => $id]], $section_ids),
-                ], JSON_THROW_ON_ERROR))
-            ),
-            DocmanDataBuilder::DOCMAN_REGULAR_USER_NAME
-        );
-
-        self::assertSame(200, $put_response->getStatusCode());
+        foreach ($section_ids as $section_id) {
+            $post_response = $this->getResponse(
+                $this->request_factory->createRequest('POST', 'artidoc_sections')->withBody(
+                    $this->stream_factory->createStream(json_encode(
+                        [
+                            'artidoc_id' => $artidoc_id,
+                            'section' => [
+                                'artifact' => ['id' => $section_id],
+                                'position' => null,
+                                'content' => null,
+                            ],
+                        ],
+                        JSON_THROW_ON_ERROR
+                    ))
+                ),
+                DocmanDataBuilder::DOCMAN_REGULAR_USER_NAME
+            );
+            self::assertSame(200, $post_response->getStatusCode());
+        }
     }
 
     /**
@@ -318,10 +307,14 @@ final class ArtidocTest extends DocmanTestExecutionHelper
 
         // at the end
         $section_3_post_response = $this->getResponse(
-            $this->request_factory->createRequest('POST', 'artidoc/' . $artidoc_id . '/sections')->withBody(
+            $this->request_factory->createRequest('POST', 'artidoc_sections')->withBody(
                 $this->stream_factory->createStream(json_encode([
-                    'artifact' => ['id' => $section_3_art_id],
-                    'position' => null,
+                    'artidoc_id' => $artidoc_id,
+                    'section' => [
+                        'artifact' => ['id' => $section_3_art_id],
+                        'position' => null,
+                        'content' => null,
+                    ],
                 ], JSON_THROW_ON_ERROR))
             ),
             DocmanDataBuilder::DOCMAN_REGULAR_USER_NAME
@@ -340,18 +333,24 @@ final class ArtidocTest extends DocmanTestExecutionHelper
         $new_section_id = json_decode($section_3_post_response->getBody()->getContents(), null, 512, JSON_THROW_ON_ERROR)->id;
 
         // before another section
-        $post_response = $this->getResponse(
-            $this->request_factory->createRequest('POST', 'artidoc/' . $artidoc_id . '/sections')->withBody(
+        $section_4_post_response = $this->getResponse(
+            $this->request_factory->createRequest('POST', 'artidoc_sections')->withBody(
                 $this->stream_factory->createStream(json_encode([
-                    'artifact' => ['id' => $section_4_art_id],
-                    'position' => [
-                        'before' => $new_section_id,
+                    'artidoc_id' => $artidoc_id,
+                    'section' => [
+                        'artifact' => ['id' => $section_4_art_id],
+                        'position' => [
+                            'before' => $new_section_id,
+                        ],
+                        'content' => null,
                     ],
                 ], JSON_THROW_ON_ERROR))
             ),
             DocmanDataBuilder::DOCMAN_REGULAR_USER_NAME
         );
-        self::assertSame(200, $post_response->getStatusCode());
+        self::assertSame(200, $section_4_post_response->getStatusCode());
+
+        $new_section_id = json_decode($section_4_post_response->getBody()->getContents(), null, 512, JSON_THROW_ON_ERROR)->id;
 
         $this->assertSectionsMatchArtifactIdsForDocument(
             $artidoc_id,
@@ -360,6 +359,36 @@ final class ArtidocTest extends DocmanTestExecutionHelper
             $section_4_art_id,
             $section_3_art_id,
         );
+
+        // with a free text
+        $post_response = $this->getResponse(
+            $this->request_factory->createRequest('POST', 'artidoc_sections')->withBody(
+                $this->stream_factory->createStream(json_encode([
+                    'artidoc_id' => $artidoc_id,
+                    'section' => [
+                        'position' => [
+                            'before' => $new_section_id,
+                        ],
+                        'content' => [
+                            'title' => 'My freetext title',
+                            'description' => 'My freetext description',
+                            'type' => 'freetext',
+                        ],
+                    ],
+                ], JSON_THROW_ON_ERROR))
+            ),
+            DocmanDataBuilder::DOCMAN_REGULAR_USER_NAME
+        );
+        self::assertSame(200, $post_response->getStatusCode());
+        json_decode($post_response->getBody()->getContents(), null, 512, JSON_THROW_ON_ERROR)->id;
+
+        $document_content = $this->getArtidocSections($artidoc_id);
+        self::assertContains('My freetext title', array_map(
+            static function (array $section) {
+                return $section['title'] ?? null;
+            },
+            $document_content
+        ));
     }
 
     /**
@@ -628,5 +657,123 @@ final class ArtidocTest extends DocmanTestExecutionHelper
             )
         );
         self::assertSame(200, $response->getStatusCode());
+    }
+
+    public function testOptionsUpload(): void
+    {
+        $response = $this->getResponse($this->request_factory->createRequest('OPTIONS', 'artidoc_files'));
+
+        self::assertSame(200, $response->getStatusCode());
+        self::assertSame(['OPTIONS', 'POST'], explode(', ', $response->getHeaderLine('Allow')));
+    }
+
+    /**
+     * @depends testGetRootId
+     */
+    public function testUpload(int $root_id): void
+    {
+        $artidoc_id = $this->createArtidoc($root_id, 'Artidoc upload attachment ' . $this->now)['id'];
+
+        $payload = [
+            'artidoc_id' => $artidoc_id,
+            'name' => 'filename.png',
+            'file_size' => 123,
+            'file_type' => 'image/png',
+        ];
+
+        $post_response = $this->getResponse(
+            $this->request_factory->createRequest('POST', 'artidoc_files')->withBody(
+                $this->stream_factory->createStream(json_encode($payload, JSON_THROW_ON_ERROR))
+            ),
+            REST_TestDataBuilder::TEST_BOT_USER_NAME
+        );
+        self::assertSame(403, $post_response->getStatusCode());
+
+        $post_response = $this->getResponse(
+            $this->request_factory->createRequest('POST', 'artidoc_files')->withBody(
+                $this->stream_factory->createStream(json_encode($payload, JSON_THROW_ON_ERROR))
+            ),
+            DocmanDataBuilder::DOCMAN_REGULAR_USER_NAME
+        );
+        self::assertSame(200, $post_response->getStatusCode());
+        $upload_response_json = json_decode($post_response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
+        self::assertTrue(isset($upload_response_json['download_href']));
+        self::assertTrue(isset($upload_response_json['upload_href']));
+    }
+
+    /**
+     * @depends testGetRootId
+     */
+    public function testUpdateFreeTextSection(int $root_id): void
+    {
+        $artidoc_id = $this->createArtidoc($root_id, 'Artidoc freetext ' . $this->now)['id'];
+        $section_id = $this->postFreeTextSection($artidoc_id);
+        $response   = $this->getResponse(
+            $this->request_factory->createRequest(
+                'PUT',
+                'artidoc_sections/' . $section_id
+            )->withBody(
+                $this->stream_factory->createStream(
+                    json_encode(
+                        [
+                            'title' => 'My updated title',
+                            'description' => 'My updated description',
+                        ],
+                    ),
+                )
+            )
+        );
+        self::assertSame(200, $response->getStatusCode());
+        $document_content = $this->getArtidocSections($artidoc_id);
+        self::assertContains('My updated title', array_map(
+            static function (array $section) {
+                return $section['title'] ?? null;
+            },
+            $document_content
+        ));
+    }
+
+    /**
+     * @depends testGetRootId
+     */
+    public function testDeleteFreeTextSection(int $root_id): void
+    {
+        $artidoc_id = $this->createArtidoc($root_id, 'Artidoc delete freetext ' . $this->now)['id'];
+        $section_id = $this->postFreeTextSection($artidoc_id);
+        $response   = $this->getResponse(
+            $this->request_factory->createRequest(
+                'DELETE',
+                'artidoc_sections/' . $section_id
+            )
+        );
+        self::assertSame(204, $response->getStatusCode());
+
+        $document_content = $this->getArtidocSections($artidoc_id);
+        self::assertEmpty($document_content);
+    }
+
+    private function postFreeTextSection(int $id): string
+    {
+        $post_response = $this->getResponse(
+            $this->request_factory->createRequest('POST', 'artidoc_sections')->withBody(
+                $this->stream_factory->createStream(json_encode([
+                    'artidoc_id' => $id,
+                    'section' => [
+                        'position' => null,
+                        'content' => [
+                            'title' => 'My freetext title',
+                            'description' => 'My freetext description',
+                            'type' => 'freetext',
+                        ],
+                    ],
+                ], JSON_THROW_ON_ERROR))
+            ),
+            DocmanDataBuilder::DOCMAN_REGULAR_USER_NAME
+        );
+        self::assertSame(200, $post_response->getStatusCode());
+        json_decode($post_response->getBody()->getContents(), null, 512, JSON_THROW_ON_ERROR)->id;
+
+        $document_content = $this->getArtidocSections($id);
+        return $document_content[0]['id'];
     }
 }

@@ -21,9 +21,9 @@ declare(strict_types=1);
 
 namespace Tuleap\AgileDashboard\REST\v1;
 
-use AgileDashboard_Milestone_Backlog_IBacklogItem;
 use Cardwall_Semantic_CardFields;
 use PFUser;
+use Tuleap\AgileDashboard\Milestone\Backlog\IBacklogItem;
 use Tuleap\Cardwall\BackgroundColor\BackgroundColorBuilder;
 use Tuleap\Project\ProjectBackground\ProjectBackgroundConfiguration;
 use Tuleap\Tracker\Artifact\Artifact;
@@ -38,7 +38,7 @@ final class BacklogItemRepresentationFactory
     ) {
     }
 
-    public function createBacklogItemRepresentation(AgileDashboard_Milestone_Backlog_IBacklogItem $backlog_item): BacklogItemRepresentation
+    public function createBacklogItemRepresentation(IBacklogItem $backlog_item): BacklogItemRepresentation
     {
         $artifact             = $backlog_item->getArtifact();
         $current_user         = $this->user_manager->getCurrentUser();
@@ -50,15 +50,12 @@ final class BacklogItemRepresentationFactory
             $current_user
         );
 
-        $backlog_item_representation = new BacklogItemRepresentation();
-        $backlog_item_representation->build(
+        return BacklogItemRepresentation::build(
             $backlog_item,
             $card_fields,
             $background_color,
-            $this->project_background_configuration
+            $this->project_background_configuration,
         );
-
-        return $backlog_item_representation;
     }
 
     private function getCardFields(

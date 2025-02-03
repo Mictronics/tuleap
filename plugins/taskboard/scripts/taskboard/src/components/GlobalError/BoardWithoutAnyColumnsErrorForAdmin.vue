@@ -23,33 +23,19 @@
             <board-without-any-columns-error-for-admin-illustration />
         </div>
         <h1 class="empty-state-title">
-            <translate>This taskboard is not properly configured</translate>
+            {{ $gettext("This taskboard is not properly configured") }}
         </h1>
         <p class="empty-state-text">
-            <translate>You have to configure the columns mapping.</translate>
+            {{ $gettext("You have to configure the columns mapping.") }}
         </p>
         <a class="tlp-button-primary empty-state-action" v-bind:href="admin_url">
             <i class="fas fa-long-arrow-alt-right tlp-button-icon" aria-hidden="true"></i>
-            <translate>Define columns</translate>
+            {{ $gettext("Define columns") }}
         </a>
     </section>
 </template>
-<script lang="ts">
-import Vue from "vue";
-import { Component } from "vue-property-decorator";
-import { State } from "vuex-class";
-@Component({
-    components: {
-        "board-without-any-columns-error-for-admin-illustration": (): Promise<
-            Record<string, unknown>
-        > =>
-            import(
-                /* webpackChunkName: "taskboard-board-without-any-columns-error-for-admin-illustration" */ "./BoardWithoutAnyColumnsErrorForAdminIllustration.vue"
-            ),
-    },
-})
-export default class BoardWithoutAnyColumnsErrorForAdmin extends Vue {
-    @State
-    readonly admin_url!: string;
-}
+<script setup lang="ts">
+import { useState } from "vuex-composition-helpers";
+import BoardWithoutAnyColumnsErrorForAdminIllustration from "./BoardWithoutAnyColumnsErrorForAdminIllustration.vue";
+const { admin_url } = useState(["admin_url"]);
 </script>

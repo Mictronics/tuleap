@@ -63,7 +63,7 @@ use Tuleap\Project\Service\PluginWithService;
 use Tuleap\Project\Service\ServiceClassnamesCollector;
 use Tuleap\Project\Service\ServiceDisabledCollector;
 use Tuleap\Request\RestrictedUsersAreHandledByPluginEvent;
-use Tuleap\Statistics\CSV\StatisticsServiceUsage;
+use Tuleap\StatisticsCore\StatisticsServiceUsage;
 use Tuleap\User\User_ForgeUserGroupPermissionsFactory;
 
 require_once __DIR__ . '/constants.php';
@@ -869,7 +869,7 @@ class MediaWikiPlugin extends Plugin implements PluginWithService //phpcs:ignore
         );
         $presenter = $builder->buildPresenter($event);
 
-        $templates_dir = ForgeConfig::get('tuleap_dir') . '/plugins/mediawiki/templates/';
+        $templates_dir = __DIR__ . '/../templates/';
         $content       = TemplateRendererFactory::build()
             ->getRenderer($templates_dir)
             ->renderToString('project-admin-permission-per-group', $presenter);

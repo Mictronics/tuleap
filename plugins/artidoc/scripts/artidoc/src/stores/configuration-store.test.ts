@@ -18,7 +18,6 @@
  */
 
 import { describe, it, vi, expect } from "vitest";
-import { InjectedSectionsStoreStub } from "@/helpers/stubs/InjectSectionsStoreStub";
 import type { Tracker } from "@/stores/configuration-store";
 import { initConfigurationStore } from "@/stores/configuration-store";
 import { TrackerStub } from "@/helpers/stubs/TrackerStub";
@@ -30,73 +29,48 @@ import { Fault } from "@tuleap/fault";
 describe("configuration-store", () => {
     describe("saveConfiguration", () => {
         it("should save the new configuration", async () => {
-            const insert = vi.fn();
             vi.spyOn(rest, "putConfiguration").mockReturnValue(okAsync(new Response()));
-
-            const onSuccessfulSave = vi.fn();
-
-            const sections =
-                InjectedSectionsStoreStub.withMockedInsertPendingArtifactSectionForEmptyDocument(
-                    insert,
-                );
 
             const bugs: Tracker = TrackerStub.build(101, "Bugs");
             const tasks: Tracker = TrackerStub.build(102, "Tasks");
 
-            const store = initConfigurationStore(1, null, [bugs, tasks], sections);
+            const store = initConfigurationStore(1, null, [bugs, tasks]);
 
             expect(store.selected_tracker.value).toStrictEqual(null);
 
-            store.saveConfiguration(bugs, onSuccessfulSave);
+            store.saveConfiguration(bugs);
             await flushPromises();
 
             expect(store.selected_tracker.value).toStrictEqual(bugs);
-            expect(insert).toHaveBeenCalled();
             expect(store.is_success.value).toBe(true);
             expect(store.is_error.value).toBe(false);
-            expect(onSuccessfulSave).toHaveBeenCalled();
         });
 
-        it("should expos the error", async () => {
-            const insert = vi.fn();
+        it("should display the error", async () => {
             vi.spyOn(rest, "putConfiguration").mockReturnValue(
                 errAsync(Fault.fromMessage("Bad request")),
             );
 
-            const onSuccessfulSave = vi.fn();
-
-            const sections =
-                InjectedSectionsStoreStub.withMockedInsertPendingArtifactSectionForEmptyDocument(
-                    insert,
-                );
-
             const bugs: Tracker = TrackerStub.build(101, "Bugs");
             const tasks: Tracker = TrackerStub.build(102, "Tasks");
 
-            const store = initConfigurationStore(1, null, [bugs, tasks], sections);
+            const store = initConfigurationStore(1, null, [bugs, tasks]);
 
             expect(store.selected_tracker.value).toStrictEqual(null);
 
-            store.saveConfiguration(bugs, onSuccessfulSave);
+            store.saveConfiguration(bugs);
             await flushPromises();
 
             expect(store.selected_tracker.value).toStrictEqual(null);
-            expect(insert).not.toHaveBeenCalled();
             expect(store.is_success.value).toBe(false);
             expect(store.is_error.value).toBe(true);
             expect(store.error_message.value).toBe("Bad request");
-            expect(onSuccessfulSave).not.toHaveBeenCalled();
         });
     });
 
     describe("resetSuccessFlagFromPreviousCalls", () => {
         it("should put the success flag to false", () => {
-            const store = initConfigurationStore(
-                1,
-                null,
-                [],
-                InjectedSectionsStoreStub.withLoadedSections([]),
-            );
+            const store = initConfigurationStore(1, null, []);
             store.is_success.value = true;
 
             store.resetSuccessFlagFromPreviousCalls();

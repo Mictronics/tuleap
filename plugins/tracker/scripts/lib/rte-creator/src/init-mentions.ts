@@ -24,8 +24,5 @@ export function initMentionsOnEditorDataReady(ckeditor: CKEDITOR.editor): void {
     if (!ckeditor.document) {
         return;
     }
-    const ckeditor_document = ckeditor.document.getBody().$;
-    // Set the ckeditor's iframe document <body> to contentEditable=true otherwise @tuleap/mention will filter it out
-    ckeditor_document.contentEditable = "true";
-    initMentions(ckeditor_document);
+    initMentions(ckeditor.document.getBody().$);
 }

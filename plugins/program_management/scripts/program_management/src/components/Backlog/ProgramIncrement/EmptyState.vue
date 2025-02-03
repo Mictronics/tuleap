@@ -20,7 +20,9 @@
 <template>
     <section class="empty-state-page">
         <empty-svg />
-        <p v-translate class="empty-state-text">There are no program increments yet</p>
+        <p class="empty-state-text">
+            {{ $gettext("There are no program increments yet") }}
+        </p>
         <form v-bind:action="create_new_program_increment" method="post">
             <button
                 class="empty-state-action tlp-button-primary"
@@ -28,42 +30,39 @@
                 v-if="can_create_program_increment"
             >
                 <i class="fas fa-plus tlp-button-icon" aria-hidden="true"></i>
-                <span
-                    v-translate="{
-                        program_increment_sub_label: tracker_program_increment_sub_label,
-                    }"
-                >
-                    Create the first %{ program_increment_sub_label }
-                </span>
+                {{ create_first_label }}
             </button>
         </form>
     </section>
 </template>
-
-<script lang="ts">
-import Vue from "vue";
-import { Component } from "vue-property-decorator";
+<script setup lang="ts">
+import { useNamespacedState } from "vuex-composition-helpers";
+import { useGettext } from "@tuleap/vue2-gettext-composition-helper";
 import EmptySvg from "./EmptySvg.vue";
 import { buildCreateNewProgramIncrement } from "../../../helpers/location-helper";
-import { namespace } from "vuex-class";
 
-const configuration = namespace("configuration");
+const gettext_provider = useGettext();
 
-@Component({
-    components: { EmptySvg },
-})
-export default class EmptyState extends Vue {
-    @configuration.State
-    readonly can_create_program_increment!: boolean;
+const {
+    can_create_program_increment,
+    tracker_program_increment_id,
+    tracker_program_increment_sub_label,
+} = useNamespacedState<{
+    can_create_program_increment: boolean;
+    tracker_program_increment_id: number;
+    tracker_program_increment_sub_label: string;
+}>("configuration", [
+    "can_create_program_increment",
+    "tracker_program_increment_id",
+    "tracker_program_increment_sub_label",
+]);
 
-    @configuration.State
-    readonly tracker_program_increment_id!: number;
+const create_new_program_increment = buildCreateNewProgramIncrement(
+    tracker_program_increment_id.value,
+);
 
-    @configuration.State
-    readonly tracker_program_increment_sub_label!: string;
-
-    get create_new_program_increment(): string {
-        return buildCreateNewProgramIncrement(this.tracker_program_increment_id);
-    }
-}
+const create_first_label = gettext_provider.interpolate(
+    gettext_provider.$gettext("Create the first %{ program_increment_sub_label }"),
+    { program_increment_sub_label: tracker_program_increment_sub_label.value },
+);
 </script>

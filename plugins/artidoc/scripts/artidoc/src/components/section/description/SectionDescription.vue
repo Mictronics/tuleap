@@ -19,11 +19,11 @@
   -->
 
 <template>
-    <section-description-skeleton v-if="is_sections_loading" />
-    <template v-if="!is_sections_loading && can_section_be_edited">
+    <section-description-skeleton v-if="is_loading_sections" />
+    <template v-if="!is_loading_sections && can_section_be_edited">
         <component
             v-bind:is="async_editor"
-            v-bind:upload_url="upload_url"
+            v-bind:post_information="post_information"
             v-bind:add_attachment_to_waiting_list="add_attachment_to_waiting_list"
             v-bind:editable_description="editable_description"
             v-bind:is_edit_mode="is_edit_mode"
@@ -33,11 +33,12 @@
             v-bind:project_id="project_id"
             v-bind:title="title"
             v-bind:input_section_content="input_section_content"
+            v-bind:is_there_any_change="is_there_any_change"
             data-test="editor"
         />
     </template>
     <section-description-read-only
-        v-if="!is_sections_loading && !can_section_be_edited"
+        v-if="!is_loading_sections && !can_section_be_edited"
         v-bind:readonly_value="readonly_description"
     />
 </template>
@@ -49,35 +50,31 @@ import SectionDescriptionReadOnly from "./SectionDescriptionReadOnly.vue";
 import type { EditorSectionContent } from "@/composables/useEditorSectionContent";
 import type { AttachmentFile } from "@/composables/useAttachmentFile";
 import { strictInject } from "@tuleap/vue-strict-inject";
-import { SECTIONS_STORE } from "@/stores/sections-store-injection-key";
 import type { UseUploadFileType } from "@/composables/useUploadFile";
 import { CAN_USER_EDIT_DOCUMENT } from "@/can-user-edit-document-injection-key";
+import type { ArtidocSection } from "@/helpers/artidoc-section.type";
+import { IS_LOADING_SECTIONS } from "@/is-loading-sections-injection-key";
+import type { FileUploadOptions } from "@tuleap/file-upload";
 
-const props = withDefaults(
-    defineProps<{
-        title: string;
-        add_attachment_to_waiting_list: AttachmentFile["addAttachmentToWaitingList"];
-        upload_url: string;
-        editable_description: string;
-        readonly_description: string;
-        is_edit_mode: boolean;
-        is_image_upload_allowed: boolean;
-        is_print_mode?: boolean;
-        upload_file: UseUploadFileType;
-        project_id: number;
-        input_section_content: EditorSectionContent["inputSectionContent"];
-    }>(),
-    {
-        is_print_mode: false,
-    },
-);
+defineProps<{
+    title: string;
+    add_attachment_to_waiting_list: AttachmentFile["addAttachmentToWaitingList"];
+    post_information: FileUploadOptions["post_information"];
+    editable_description: string;
+    readonly_description: string;
+    is_edit_mode: boolean;
+    is_image_upload_allowed: boolean;
+    upload_file: UseUploadFileType;
+    project_id: number;
+    input_section_content: EditorSectionContent["inputSectionContent"];
+    is_there_any_change: boolean;
+    section: ArtidocSection;
+}>();
 
-const { is_sections_loading } = strictInject(SECTIONS_STORE);
+const is_loading_sections = strictInject(IS_LOADING_SECTIONS);
 const can_user_edit_document = strictInject(CAN_USER_EDIT_DOCUMENT);
 
-const can_section_be_edited = computed(
-    () => props.is_print_mode !== true && can_user_edit_document,
-);
+const can_section_be_edited = computed(() => can_user_edit_document);
 
 const async_editor = defineAsyncComponent({
     loader: () => import("./SectionDescriptionEditorProseMirror.vue"),

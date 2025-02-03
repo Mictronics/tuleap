@@ -17,8 +17,8 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { define, dispatch, html } from "hybrids";
 import type { UpdateFunction } from "hybrids";
+import { define, dispatch, html } from "hybrids";
 import { sprintf } from "sprintf-js";
 import prettyKibibytes from "pretty-kibibytes";
 import type { TextEditorInterface } from "@tuleap/plugin-tracker-rich-text-editor";
@@ -37,6 +37,7 @@ import {
 } from "@tuleap/plugin-tracker-constants";
 import type { Option } from "@tuleap/option";
 import { selectOrThrow } from "@tuleap/dom";
+import { initMentions } from "@tuleap/mention";
 import {
     getNoPasteMessage,
     getRTEHelpMessage,
@@ -46,7 +47,7 @@ import {
 } from "../../gettext-catalog";
 import type { FormattedTextControllerType } from "../../domain/common/FormattedTextController";
 import type { FileUploadSetup } from "../../domain/fields/file-field/FileUploadSetup";
-import { WillDisableSubmit } from "../../domain/submit/WillDisableSubmit";
+import { WillDisableSubmit } from "../../domain/AllEvents";
 import { DidUploadImage } from "../../domain/fields/file-field/DidUploadImage";
 
 export interface RichTextEditor {
@@ -56,14 +57,17 @@ export interface RichTextEditor {
     disabled: boolean;
     required: boolean;
     rows: number;
+    allows_mentions: boolean;
+    readonly controller: FormattedTextControllerType;
+}
+interface InternalRichTextEditor extends RichTextEditor {
     textarea: HTMLTextAreaElement;
     editor: TextEditorInterface | undefined;
     is_help_shown: boolean;
     upload_setup: Option<FileUploadSetup>;
-    readonly controller: FormattedTextControllerType;
     render(): HTMLElement;
 }
-export type HostElement = RichTextEditor & HTMLElement;
+export type HostElement = InternalRichTextEditor & HTMLElement;
 
 export const getValidFormat = (host: unknown, value: string): TextFieldFormat => {
     if (isValidTextFormat(value)) {
@@ -108,40 +112,41 @@ function onChange(host: HostElement, ckeditor: CKEDITOR.editor): void {
 }
 
 export function setupImageUpload(host: HostElement, ckeditor: CKEDITOR.editor): void {
-    if (host.upload_setup.isNothing()) {
-        disablePasteOfImages(ckeditor);
-        return;
-    }
-    host.upload_setup.apply((upload_setup) => {
-        const onStartCallback = (): void =>
-            host.controller.onFileUploadStart(
-                WillDisableSubmit(getSubmitDisabledImageUploadReason()),
-            );
-        const onErrorCallback = (error: MaxSizeUploadExceededError | UploadError): void => {
-            if (error instanceof MaxSizeUploadExceededError) {
-                error.loader.message = sprintf(
-                    getUploadSizeExceeded(),
-                    prettyKibibytes(error.max_size_upload),
+    host.upload_setup.match(
+        (upload_setup) => {
+            const onStartCallback = (): void =>
+                host.controller.onFileUploadStart(
+                    WillDisableSubmit(getSubmitDisabledImageUploadReason()),
                 );
-            } else {
-                error.loader.message = getUploadError();
-            }
-            host.controller.onFileUploadError();
-        };
-        const onSuccessCallback = (id: number, download_href: string): void => {
-            host.controller.onFileUploadSuccess(DidUploadImage({ id, download_href }));
-        };
+            const onErrorCallback = (error: MaxSizeUploadExceededError | UploadError): void => {
+                if (error instanceof MaxSizeUploadExceededError) {
+                    error.loader.message = sprintf(
+                        getUploadSizeExceeded(),
+                        prettyKibibytes(error.max_size_upload),
+                    );
+                } else {
+                    error.loader.message = getUploadError();
+                }
+                host.controller.onFileUploadError();
+            };
+            const onSuccessCallback = (id: number, download_href: string): void => {
+                host.controller.onFileUploadSuccess(DidUploadImage({ id, download_href }));
+            };
 
-        const fileUploadRequestHandler = buildFileUploadHandler({
-            ckeditor_instance: ckeditor,
-            max_size_upload: upload_setup.max_size_upload,
-            onStartCallback,
-            onErrorCallback,
-            onSuccessCallback,
-        });
+            const fileUploadRequestHandler = buildFileUploadHandler({
+                ckeditor_instance: ckeditor,
+                max_size_upload: upload_setup.max_size_upload,
+                onStartCallback,
+                onErrorCallback,
+                onSuccessCallback,
+            });
 
-        ckeditor.on("fileUploadRequest", fileUploadRequestHandler, null, null, 4);
-    });
+            ckeditor.on("fileUploadRequest", fileUploadRequestHandler, null, null, 4);
+        },
+        () => {
+            disablePasteOfImages(ckeditor);
+        },
+    );
 }
 
 function disablePasteOfImages(ckeditor: CKEDITOR.editor): void {
@@ -158,12 +163,11 @@ export const createEditor = (host: HostElement): TextEditorInterface | undefined
     if (host.identifier === "") {
         return undefined;
     }
-    const locale = document.body.dataset.userLocale ?? "en_US";
-    const default_format = host.controller.getDefaultTextFormat();
+    const user_preferences = host.controller.getUserPreferences();
     const editor_factory = RichTextEditorFactory.forBurningParrotWithExistingFormatSelector(
         document,
-        locale,
-        default_format,
+        user_preferences.user_locale,
+        user_preferences.default_format,
     );
 
     return editor_factory.createRichTextEditor(host.textarea, {
@@ -192,13 +196,22 @@ export const createEditor = (host: HostElement): TextEditorInterface | undefined
         onEditorInit: (ckeditor): void => {
             onInstanceReady(host, ckeditor);
         },
+        onEditorDataReady: (ckeditor): void => {
+            // This MUST be called after "dataReady" event because calling setData() on CKEditor will kill the event listeners of @tuleap/mention
+            if (!ckeditor.document) {
+                return;
+            }
+            if (host.allows_mentions) {
+                initMentions(ckeditor.document.getBody().$);
+            }
+        },
     });
 };
 
 // Destroy the rich text editor on disconnect
-export const connect = (host: RichTextEditor) => (): void => host.editor?.destroy();
+export const connect = (host: HostElement) => (): void => host.editor?.destroy();
 
-export const renderRichTextEditor = (host: RichTextEditor): UpdateFunction<RichTextEditor> =>
+export const renderRichTextEditor = (host: HostElement): UpdateFunction<RichTextEditor> =>
     html`<textarea
             data-textarea
             data-test="textarea"
@@ -212,9 +225,9 @@ export const renderRichTextEditor = (host: RichTextEditor): UpdateFunction<RichT
         >
 ${host.contentValue}</textarea
         >${host.is_help_shown &&
-        html`<p data-test="help" class="tlp-text-muted">${getRTEHelpMessage()}</p>`} `;
+        html`<p data-test="help" class="tlp-text-info">${getRTEHelpMessage()}</p>`} `;
 
-export const RichTextEditor = define<RichTextEditor>({
+export const RichTextEditor = define<InternalRichTextEditor>({
     tag: "tuleap-artifact-modal-rich-text-editor",
     identifier: {
         value: "",
@@ -236,8 +249,14 @@ export const RichTextEditor = define<RichTextEditor>({
     disabled: false,
     required: false,
     rows: 5,
-    textarea: (host: RichTextEditor): HTMLTextAreaElement =>
-        selectOrThrow(host.render(), "[data-textarea]", HTMLTextAreaElement),
+    allows_mentions: false,
+    textarea: (host: HostElement): HTMLTextAreaElement => {
+        const textarea = selectOrThrow(host.render(), "[data-textarea]", HTMLTextAreaElement);
+        if (host.allows_mentions) {
+            initMentions(textarea);
+        }
+        return textarea;
+    },
     upload_setup: (host, upload_section) => upload_section ?? host.controller.getFileUploadSetup(),
     is_help_shown: false,
     controller: (host, controller) => controller,

@@ -19,23 +19,27 @@
  */
 
 import type { UploadImageFormFactory } from "@tuleap/plugin-tracker-artifact-ckeditor-image-upload";
-import type { RichTextEditorFactory } from "@tuleap/plugin-tracker-rich-text-editor";
+import type {
+    RichTextEditorFactory,
+    TextEditorInterface,
+} from "@tuleap/plugin-tracker-rich-text-editor";
 import { RichTextEditorsCreator } from "./RichTextEditorsCreator";
 import {
     TEXT_FORMAT_COMMONMARK,
     TEXT_FORMAT_HTML,
     TEXT_FORMAT_TEXT,
 } from "@tuleap/plugin-tracker-constants";
+import * as mentions from "@tuleap/mention";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 // Mock @tuleap/mention because it needs jquery in tests
 vi.mock("@tuleap/mention", () => {
-    return { initMentions: vi.fn() };
+    return { initMentions: noop };
 });
 
-const noop = (): void => {
+function noop(): void {
     //Do nothing
-};
+}
 
 describe(`RichTextEditorsCreator`, () => {
     let doc: Document,
@@ -50,21 +54,25 @@ describe(`RichTextEditorsCreator`, () => {
             forbidImageUpload: noop,
         };
         editor_factory = {
-            createRichTextEditor: vi.fn(),
-        } as unknown as RichTextEditorFactory;
-        creator = new RichTextEditorsCreator(doc, image_upload_factory, editor_factory);
+            createRichTextEditor: (textarea, options) => {
+                if (textarea || options) {
+                    //Do nothing
+                }
+            },
+        } as RichTextEditorFactory;
+        creator = RichTextEditorsCreator(doc, image_upload_factory, editor_factory);
     });
 
-    describe(`createNewFollowupEditor()`, () => {
-        it(`when there is no "new followup" textarea in the document, it does nothing`, () => {
+    describe(`createNewCommentEditor()`, () => {
+        it(`when there is no "new comment" textarea in the document, it does nothing`, () => {
             const createRichTextEditor = vi.spyOn(editor_factory, "createRichTextEditor");
 
-            creator.createNewFollowupEditor();
+            creator.createNewCommentEditor();
 
             expect(createRichTextEditor).not.toHaveBeenCalled();
         });
 
-        describe(`when there is a "new followup" textarea in the document`, () => {
+        describe(`when there is a "new comment" textarea in the document`, () => {
             let textarea: HTMLTextAreaElement;
             beforeEach(() => {
                 textarea = doc.createElement("textarea");
@@ -72,12 +80,14 @@ describe(`RichTextEditorsCreator`, () => {
                 doc.body.append(textarea);
             });
 
-            it(`enables image upload and creates a rich text editor on it`, () => {
+            it(`enables image upload, enables mentions and creates a rich text editor on it`, () => {
                 const createRichTextEditor = vi.spyOn(editor_factory, "createRichTextEditor");
                 const createHelpBlock = vi.spyOn(image_upload_factory, "createHelpBlock");
+                const initMentions = vi.spyOn(mentions, "initMentions");
 
-                creator.createNewFollowupEditor();
+                creator.createNewCommentEditor();
 
+                expect(initMentions).toHaveBeenCalled();
                 expect(createHelpBlock).toHaveBeenCalled();
                 expect(createRichTextEditor).toHaveBeenCalled();
                 const options = createRichTextEditor.mock.calls[0][1];
@@ -89,7 +99,7 @@ describe(`RichTextEditorsCreator`, () => {
                 const initiateImageUpload = vi.spyOn(image_upload_factory, "initiateImageUpload");
                 const createRichTextEditor = vi.spyOn(editor_factory, "createRichTextEditor");
 
-                creator.createNewFollowupEditor();
+                creator.createNewCommentEditor();
 
                 const options = createRichTextEditor.mock.calls[0][1];
                 if (options.onEditorInit === undefined) {
@@ -105,34 +115,40 @@ describe(`RichTextEditorsCreator`, () => {
         });
     });
 
-    describe(`createEditFollowupEditor()`, () => {
-        it(`when there is no "edit followup" textarea in the document, it does nothing`, () => {
-            const createRichTextEditor = vi.spyOn(editor_factory, "createRichTextEditor");
+    describe(`createEditCommentEditor()`, () => {
+        const CHANGESET_ID = "1";
 
-            creator.createEditFollowupEditor(1, "text");
-
-            expect(createRichTextEditor).not.toHaveBeenCalled();
-        });
-
-        describe(`when there is an "edit followup" textarea in the document`, () => {
+        describe(`given an "edit comment" textarea`, () => {
             let textarea: HTMLTextAreaElement;
             beforeEach(() => {
                 textarea = doc.createElement("textarea");
-                textarea.id = "tracker_followup_comment_edit_1";
                 doc.body.append(textarea);
             });
 
-            it(`disables image upload and creates a rich text editor on it`, () => {
-                const createRichTextEditor = vi.spyOn(editor_factory, "createRichTextEditor");
+            it(`disables image upload, enables mentions, and creates a rich text editor on the textarea
+                and returns the editor`, () => {
+                const fake_editor = {
+                    init(new_format) {
+                        if (new_format) {
+                            //Do nothing
+                        }
+                    },
+                } as TextEditorInterface;
+                const createRichTextEditor = vi
+                    .spyOn(editor_factory, "createRichTextEditor")
+                    .mockReturnValue(fake_editor);
                 const createHelpBlock = vi.spyOn(image_upload_factory, "createHelpBlock");
+                const initMentions = vi.spyOn(mentions, "initMentions");
 
-                creator.createEditFollowupEditor(1, "html");
+                const result = creator.createEditCommentEditor(textarea, CHANGESET_ID, "html");
 
+                expect(result).toBe(fake_editor);
+                expect(initMentions).toHaveBeenCalled();
                 expect(createHelpBlock).not.toHaveBeenCalled();
                 expect(createRichTextEditor).toHaveBeenCalled();
                 const options = createRichTextEditor.mock.calls[0][1];
 
-                expect(options.format_selectbox_id).toBe("1");
+                expect(options.format_selectbox_id).toBe(CHANGESET_ID);
                 expect(options.format_selectbox_value).toBe("html");
             });
 
@@ -140,7 +156,7 @@ describe(`RichTextEditorsCreator`, () => {
                 const forbidImageUpload = vi.spyOn(image_upload_factory, "forbidImageUpload");
                 const createRichTextEditor = vi.spyOn(editor_factory, "createRichTextEditor");
 
-                creator.createEditFollowupEditor(1, "text");
+                creator.createEditCommentEditor(textarea, CHANGESET_ID, "text");
 
                 const options = createRichTextEditor.mock.calls[0][1];
                 if (options.onEditorInit === undefined) {

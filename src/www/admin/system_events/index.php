@@ -22,7 +22,7 @@
 use Tuleap\SystemEvent\GetSystemEventQueuesEvent;
 
 require_once __DIR__ . '/../../include/pre.php';
-require_once __DIR__ . '/adminPresenter.class.php';
+require_once __DIR__ . '/adminPresenter.php';
 
 $request = HTTPRequest::instance();
 $request->checkUserIsSuperUser();
@@ -141,7 +141,7 @@ $GLOBALS['HTML']->addJavascriptAsset(new \Tuleap\Layout\JavascriptAsset($include
 $renderer = new \Tuleap\Admin\AdminPageRenderer();
 $renderer->renderANoFramedPresenter(
     $title,
-    ForgeConfig::get('codendi_dir') . '/src/templates/admin/system_events/',
+    __DIR__ . '/../../../templates/admin/system_events/',
     'admin-system-events',
     new SystemEvents_adminPresenter(
         $title,

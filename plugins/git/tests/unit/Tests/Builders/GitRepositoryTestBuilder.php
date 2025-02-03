@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace Tuleap\Git\Tests\Builders;
 
+use Git_Backend_Interface;
+use GitDao;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 
 final class GitRepositoryTestBuilder
@@ -30,8 +32,11 @@ final class GitRepositoryTestBuilder
     private string $namespace = '';
     private string $name      = 'unfederal_dictation';
     private \Project $project;
-    private bool $is_migrated_to_gerrit = false;
+    private ?int $migrated_to_gerrit = null;
+    private string $backend_type     = GitDao::BACKEND_GITOLITE;
     private ?\GitRepository $parent_repository;
+    private ?Git_Backend_Interface $backend = null;
+    private string $path                    = 'path/to/repo';
 
     private function __construct(?\GitRepository $parent_repository)
     {
@@ -61,15 +66,27 @@ final class GitRepositoryTestBuilder
         return $this;
     }
 
-    public function migratedToGerrit(): self
+    public function migratedToGerrit(int $id = 1): self
     {
-        $this->is_migrated_to_gerrit = true;
+        $this->migrated_to_gerrit = $id;
         return $this;
     }
 
     public function inProject(\Project $project): self
     {
         $this->project = $project;
+        return $this;
+    }
+
+    public function withBackend(Git_Backend_Interface $backend): self
+    {
+        $this->backend = $backend;
+        return $this;
+    }
+
+    public function withPath(string $path): self
+    {
+        $this->path = $path;
         return $this;
     }
 
@@ -80,13 +97,15 @@ final class GitRepositoryTestBuilder
         $repository->setProject($this->project);
         $repository->setNamespace($this->namespace);
         $repository->setName($this->name);
+        $repository->setRemoteServerId($this->migrated_to_gerrit);
+        $repository->setBackendType($this->backend_type);
+        $repository->setPath($this->path);
 
         if ($this->parent_repository) {
             $repository->setParent($this->parent_repository);
         }
-
-        if ($this->is_migrated_to_gerrit) {
-            $repository->setRemoteServerId('gerrit-server');
+        if ($this->backend !== null) {
+            $repository->setBackend($this->backend);
         }
 
         return $repository;

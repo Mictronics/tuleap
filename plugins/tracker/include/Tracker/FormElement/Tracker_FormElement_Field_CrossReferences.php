@@ -54,7 +54,7 @@ class Tracker_FormElement_Field_CrossReferences extends Tracker_FormElement_Fiel
     public const REST_REF_DIRECTION_OUT  = 'out';
     public const REST_REF_DIRECTION_BOTH = 'both';
 
-    public $default_properties = [];
+    public array $default_properties = [];
 
     public function getCriteriaFromWhere(Tracker_Report_Criteria $criteria): Option
     {
@@ -179,7 +179,7 @@ class Tracker_FormElement_Field_CrossReferences extends Tracker_FormElement_Fiel
         return $crossref_factory;
     }
 
-    public function fetchCSVChangesetValue($artifact_id, $changeset_id, $value, $report = null)
+    public function fetchCSVChangesetValue(int $artifact_id, int $changeset_id, mixed $value, ?Tracker_Report $report = null): string
     {
         $html          = '';
         $crossref_fact = $this->getCrossReferencesFactory($artifact_id);
@@ -191,20 +191,8 @@ class Tracker_FormElement_Field_CrossReferences extends Tracker_FormElement_Fiel
         return $html;
     }
 
-    /**
-     * Display the field value as a criteria
-     *
-     * @param Tracker_Report_Criteria $criteria
-     *
-     * @return string
-     * @see fetchCriteria
-     */
-    public function fetchCriteriaValue($criteria)
+    public function fetchCriteriaValue(Tracker_Report_Criteria $criteria): string
     {
-        $value = $this->getCriteriaValue($criteria);
-        if (! $value) {
-            $value = '';
-        }
         $hp = Codendi_HTMLPurifier::instance();
         return '<input type="text" name="criteria[' . $this->id . ']" value="' . $hp->purify($this->getCriteriaValue($criteria), CODENDI_PURIFIER_CONVERT_HTML) . '" />';
     }
@@ -219,12 +207,7 @@ class Tracker_FormElement_Field_CrossReferences extends Tracker_FormElement_Fiel
         return '';
     }
 
-    /**
-     * Fetch the value
-     * @param mixed $value the value of the field
-     * @return string
-     */
-    public function fetchRawValue($value)
+    public function fetchRawValue(mixed $value): string
     {
         return 'references raw value';
     }
@@ -238,22 +221,12 @@ class Tracker_FormElement_Field_CrossReferences extends Tracker_FormElement_Fiel
         return new Tracker_Report_Criteria_Text_ValueDao();
     }
 
-    /**
-     * Fetch the html code to display the field value in new artifact submission form
-     *
-     * @return string html
-     */
-    protected function fetchSubmitValue(array $submitted_values)
+    protected function fetchSubmitValue(array $submitted_values): string
     {
         return '';
     }
 
-    /**
-     * Fetch the html code to display the field value in masschange submission form
-     *
-     * @return string html
-     */
-    protected function fetchSubmitValueMasschange()
+    protected function fetchSubmitValueMasschange(): string
     {
         return '';
     }
@@ -269,12 +242,8 @@ class Tracker_FormElement_Field_CrossReferences extends Tracker_FormElement_Fiel
 
     /**
      * Fetch the value in a specific changeset
-     *
-     * @param Tracker_Artifact_Changeset $changeset
-     *
-     * @return string
      */
-    public function fetchRawValueFromChangeset($changeset)
+    public function fetchRawValueFromChangeset(Tracker_Artifact_Changeset $changeset): string
     {
         //Nothing special to say here
         return '';
@@ -337,14 +306,12 @@ class Tracker_FormElement_Field_CrossReferences extends Tracker_FormElement_Fiel
      * @param Artifact                        $artifact         The artifact
      * @param Tracker_Artifact_ChangesetValue $value            The actual value of the field
      * @param array                           $submitted_values The value already submitted by the user
-     *
-     * @return string
      */
     public function fetchArtifactValue(
         Artifact $artifact,
         ?Tracker_Artifact_ChangesetValue $value,
         array $submitted_values,
-    ) {
+    ): string {
         return $this->fetchArtifactValueWithEditionFormIfEditable($artifact, $value, $submitted_values);
     }
 
@@ -417,22 +384,14 @@ class Tracker_FormElement_Field_CrossReferences extends Tracker_FormElement_Fiel
 
     /**
      * Fetch data to display the field value in mail
-     *
-     * @param Artifact                        $artifact The artifact
-     * @param PFUser                          $user     The user who will receive the email
-     * @param bool                            $ignore_perms
-     * @param Tracker_Artifact_ChangesetValue $value    The actual value of the field
-     * @param string                          $format   output format
-     *
-     * @return string
      */
     public function fetchMailArtifactValue(
         Artifact $artifact,
         PFUser $user,
-        $ignore_perms,
+        bool $ignore_perms,
         ?Tracker_Artifact_ChangesetValue $value = null,
-        $format = 'text',
-    ) {
+        string $format = 'text',
+    ): string {
         $output = '';
 
         $crf = new CrossReferenceFactory($artifact->getId(), Artifact::REFERENCE_NATURE, $this->getTracker()->getGroupId());
@@ -518,13 +477,7 @@ class Tracker_FormElement_Field_CrossReferences extends Tracker_FormElement_Fiel
         return $GLOBALS['HTML']->getImagePath('ic/both_arrows.png');
     }
 
-    /**
-     * Fetch the html code to display the field value in tooltip
-     *
-     * @param Tracker_Artifact_ChangesetValue_Integer $value The changeset value of this field
-     * @return string The html code to display the field value in tooltip
-     */
-    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null)
+    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null): string
     {
         $html          = '';
         $crossref_fact = new CrossReferenceFactory($artifact->getId(), Artifact::REFERENCE_NATURE, $this->getTracker()->getGroupId());

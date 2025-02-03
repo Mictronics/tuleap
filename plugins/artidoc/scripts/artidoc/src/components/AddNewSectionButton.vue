@@ -37,10 +37,19 @@
             <button
                 type="button"
                 class="tlp-dropdown-menu-item"
-                v-on:click="addNewSection"
+                v-on:click="addNewFreetextSection"
+                data-test="add-freetext-section"
+                v-if="is_freetext_allowed"
+            >
+                {{ $gettext("Add freetext") }}
+            </button>
+            <button
+                type="button"
+                class="tlp-dropdown-menu-item"
+                v-on:click="addNewArtifactSection"
                 data-test="add-new-section"
             >
-                {{ add_new_section_label }}
+                {{ add_new_requirement_label }}
             </button>
             <button
                 type="button"
@@ -60,24 +69,42 @@ import { strictInject } from "@tuleap/vue-strict-inject";
 import { OPEN_CONFIGURATION_MODAL_BUS } from "@/stores/useOpenConfigurationModalBusStore";
 import { OPEN_ADD_EXISTING_SECTION_MODAL_BUS } from "@/composables/useOpenAddExistingSectionModalBus";
 import { isTrackerWithSubmittableSection, CONFIGURATION_STORE } from "@/stores/configuration-store";
-import type { PositionForSection, SectionsStore } from "@/stores/useSectionsStore";
+import type { PositionForSection } from "@/sections/SectionsPositionsForSaveRetriever";
 import type { ArtidocSection, PendingArtifactSection } from "@/helpers/artidoc-section.type";
 import PendingArtifactSectionFactory from "@/helpers/pending-artifact-section.factory";
 import { computed, ref, onMounted, onUnmounted } from "vue";
 import type { Dropdown } from "@tuleap/tlp-dropdown";
 import { createDropdown } from "@tuleap/tlp-dropdown";
+import FreetextSectionFactory from "@/helpers/freetext-section.factory";
+import type { InsertSections } from "@/sections/SectionsInserter";
+import { IS_FREETEXT_ALLOWED } from "@/is-freetext-allowed";
 
 const props = defineProps<{
     position: PositionForSection;
-    insert_section_callback: SectionsStore["insertSection"];
+    sections_inserter: InsertSections;
 }>();
 
 const configuration_store = strictInject(CONFIGURATION_STORE);
 
-const { $gettext } = useGettext();
+const { $gettext, interpolate } = useGettext();
+
+const is_freetext_allowed = strictInject(IS_FREETEXT_ALLOWED);
 
 const add_new_section_label = $gettext("Add new section");
-const add_existing_section_label = $gettext("Add existing section");
+const add_new_requirement_label = computed(() =>
+    configuration_store.selected_tracker.value
+        ? interpolate($gettext("Add new %{tracker_label}"), {
+              tracker_label: configuration_store.selected_tracker.value.item_name,
+          })
+        : add_new_section_label,
+);
+const add_existing_section_label = computed(() =>
+    configuration_store.selected_tracker.value
+        ? interpolate($gettext("Import existing %{tracker_label}"), {
+              tracker_label: configuration_store.selected_tracker.value.item_name,
+          })
+        : $gettext("Import existing section"),
+);
 
 const configuration_bus = strictInject(OPEN_CONFIGURATION_MODAL_BUS);
 const add_existing_section_bus = strictInject(OPEN_ADD_EXISTING_SECTION_MODAL_BUS);
@@ -110,12 +137,26 @@ onUnmounted(() => {
 
 function addExistingSection(): void {
     dropdown?.hide();
+
+    if (configuration_store.selected_tracker.value === null) {
+        openConfigurationModalBeforeInsertingExistingSection();
+        return;
+    }
+
+    openAddExistingSectionModal();
+}
+
+function openAddExistingSectionModal(): void {
     add_existing_section_bus.openModal(props.position, (section: ArtidocSection): void => {
-        props.insert_section_callback(section, props.position);
+        props.sections_inserter.insertSection(section, props.position);
     });
 }
 
-function addNewSection(): void {
+function openConfigurationModalBeforeInsertingExistingSection(): void {
+    configuration_bus.openModal(openAddExistingSectionModal);
+}
+
+function addNewArtifactSection(): void {
     dropdown?.hide();
     if (!is_tracker_with_submittable_section.value) {
         openConfigurationModalBeforeInsertingNewSection();
@@ -123,6 +164,12 @@ function addNewSection(): void {
     }
 
     insertNewSection();
+}
+
+function addNewFreetextSection(): void {
+    dropdown?.hide();
+
+    props.sections_inserter.insertSection(FreetextSectionFactory.pending(), props.position);
 }
 
 function openConfigurationModalBeforeInsertingNewSection(): void {
@@ -142,7 +189,7 @@ function insertNewSection(): void {
         configuration_store.selected_tracker.value,
     );
 
-    props.insert_section_callback(section, props.position);
+    props.sections_inserter.insertSection(section, props.position);
 }
 </script>
 
@@ -181,11 +228,13 @@ ol:has(> .artidoc-section-with-add-button:last-child:hover) + .artidoc-add-new-s
 <style scoped lang="scss">
 @use "@/themes/includes/whitespace";
 @use "@/themes/includes/size";
+@use "@/themes/includes/zindex";
 
 .artidoc-add-new-section-container {
     --add-new-section-button-background-color: var(--tlp-neutral-light-color);
     --add-new-section-button-text-color: var(--tlp-typo-default-text-color);
 
+    z-index: zindex.$dropdown;
     margin: 0 0 0 calc(-1 * #{size.$add-section-button-container-width});
     padding: whitespace.$add-section-button-container-vertical-padding
         whitespace.$add-section-button-container-horizontal-padding;

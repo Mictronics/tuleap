@@ -18,13 +18,15 @@
  */
 
 import type { GroupOfItems, LazyAutocompleter, LazyboxItem } from "@tuleap/lazybox";
-import type { TrackerWithSubmittableSection } from "@/stores/configuration-store";
+import type { TitleFieldDefinition, Tracker } from "@/stores/configuration-store";
 import { getJSON, uri } from "@tuleap/fetch-result";
-import type { ArtidocSection } from "@/helpers/artidoc-section.type";
 import { isArtifactSection } from "@/helpers/artidoc-section.type";
 import type { Language } from "vue3-gettext";
 import type { ColorName } from "@tuleap/core-constants";
-import type { InternalArtidocSectionId } from "@/stores/useSectionsStore";
+import type {
+    ReactiveStoredArtidocSection,
+    SectionsCollection,
+} from "@/sections/SectionsCollection";
 import type { ResultAsync } from "neverthrow";
 import { errAsync, okAsync } from "neverthrow";
 import { Fault } from "@tuleap/fault";
@@ -57,8 +59,9 @@ const items: GroupOfItems = {
 export function searchExistingArtifactsForAutocompleter(
     query: string,
     autocompleter: LazyAutocompleter,
-    tracker: TrackerWithSubmittableSection,
-    sections: readonly (ArtidocSection & InternalArtidocSectionId)[],
+    tracker: Tracker,
+    title_field: TitleFieldDefinition,
+    sections_collection: SectionsCollection,
     gettext_provider: Language,
 ): ResultAsync<boolean, Fault> {
     const { $gettext, interpolate } = gettext_provider;
@@ -76,7 +79,7 @@ export function searchExistingArtifactsForAutocompleter(
     ]);
 
     const q: Record<number, string> = {};
-    q[tracker.title.field_id] = query;
+    q[title_field.field_id] = query;
 
     return getJSON<Artifact[]>(
         uri`/api/trackers/${tracker.id}/artifacts?query=${JSON.stringify(q)}`,
@@ -101,9 +104,10 @@ export function searchExistingArtifactsForAutocompleter(
             const partition: Partition = artifacts.reduce(
                 (partition: Partition, artifact: Artifact): Partition => {
                     if (
-                        sections.some(
-                            (section: ArtidocSection) =>
-                                isArtifactSection(section) && section.artifact.id === artifact.id,
+                        sections_collection.sections.value.some(
+                            (section: ReactiveStoredArtidocSection) =>
+                                isArtifactSection(section.value) &&
+                                section.value.artifact.id === artifact.id,
                         )
                     ) {
                         partition.already_there.push({

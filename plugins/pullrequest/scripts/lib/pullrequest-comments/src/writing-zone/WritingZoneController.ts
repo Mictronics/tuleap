@@ -19,7 +19,7 @@
 
 import { dispatch } from "hybrids";
 import { loadTooltips } from "@tuleap/tooltip";
-import type { HostElement, InternalWritingZone } from "./WritingZone";
+import type { HostElement } from "./WritingZone";
 import { WritingZonePresenter } from "./WritingZonePresenter";
 import { fetchCommonMarkPreview } from "./WritingZoneCommonMarkPreviewFetcher";
 
@@ -29,11 +29,9 @@ export type ControlWritingZone = {
     switchToPreviewMode(host: HostElement): void;
     focusWritingZone(host: HostElement): void;
     blurWritingZone(host: HostElement): void;
-    resetWritingZone(host: HTMLElement & InternalWritingZone): void;
+    resetWritingZone(host: HostElement): void;
     initWritingZone(): WritingZonePresenter;
-    setWritingZoneContent(host: HostElement, content: string): void;
     shouldFocusWritingZoneWhenConnected(): boolean;
-    getDocument(): Document;
 };
 
 export type WritingZoneConfig = {
@@ -58,38 +56,21 @@ export const WritingZoneController = (config: WritingZoneConfig): ControlWriting
         }
     };
 
-    const blurWritingZone = (host: HTMLElement & InternalWritingZone): void => {
+    const blurWritingZone = (host: HostElement): void => {
         host.presenter = WritingZonePresenter.buildBlurred(host.presenter);
-
-        if (host.presenter.is_in_writing_mode && config.document.activeElement === host.textarea) {
-            host.textarea.blur();
-        }
 
         if (host.parentElement) {
             host.parentElement.classList.remove(PARENT_ELEMENT_ACTIVE_CLASS);
         }
     };
 
-    let unsaved_content = "";
-
     return {
-        initWritingZone: (): WritingZonePresenter => {
-            const presenter = WritingZonePresenter.buildInitial(config.project_id);
-            if (unsaved_content) {
-                return WritingZonePresenter.buildWithContent(presenter, unsaved_content);
-            }
-
-            return presenter;
-        },
+        initWritingZone: () => WritingZonePresenter.buildInitial(config.project_id),
 
         onTextareaInput: (host: HostElement): void => {
-            unsaved_content = host.textarea.value;
-
-            dispatch(host, "writing-zone-input", {
-                detail: {
-                    content: host.textarea.value,
-                },
-            });
+            const content = host.textarea.value;
+            host.comment_content = content;
+            dispatch(host, "writing-zone-input", { detail: { content } });
         },
 
         switchToWritingMode: (host: HostElement): void => {
@@ -101,7 +82,7 @@ export const WritingZoneController = (config: WritingZoneConfig): ControlWriting
         },
 
         switchToPreviewMode: (host: HostElement): void => {
-            fetchCommonMarkPreview(host.presenter.project_id, host.textarea.value)
+            fetchCommonMarkPreview(host.presenter.project_id, host.comment_content)
                 .match(
                     (previewed_content: string) => {
                         host.presenter = WritingZonePresenter.buildPreviewMode(
@@ -127,20 +108,15 @@ export const WritingZoneController = (config: WritingZoneConfig): ControlWriting
         focusWritingZone,
         blurWritingZone,
 
-        resetWritingZone: (host: HTMLElement & InternalWritingZone): void => {
+        resetWritingZone: (host: HostElement): void => {
             host.textarea.value = "";
+            host.comment_content = "";
             host.presenter = WritingZonePresenter.buildBlurred(
                 WritingZonePresenter.buildWritingMode(host.presenter),
             );
             blurWritingZone(host);
         },
 
-        setWritingZoneContent: (host: HostElement, content: string): void => {
-            host.presenter = WritingZonePresenter.buildWithContent(host.presenter, content);
-        },
-
         shouldFocusWritingZoneWhenConnected: () => config.focus_writing_zone_when_connected ?? true,
-
-        getDocument: () => config.document,
     };
 };

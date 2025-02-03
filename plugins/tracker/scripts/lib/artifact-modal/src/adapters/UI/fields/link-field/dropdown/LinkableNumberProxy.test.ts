@@ -18,9 +18,8 @@
  */
 
 import { Option } from "@tuleap/option";
+import { CurrentArtifactIdentifier } from "@tuleap/plugin-tracker-artifact-common";
 import { LinkableNumberProxy } from "./LinkableNumberProxy";
-import { CurrentArtifactIdentifierStub } from "../../../../../../tests/stubs/CurrentArtifactIdentifierStub";
-import type { CurrentArtifactIdentifier } from "../../../../../domain/CurrentArtifactIdentifier";
 import type { LinkableNumber } from "../../../../../domain/fields/link-field/LinkableNumber";
 
 describe("LinkableNumberProxy", () => {
@@ -51,7 +50,7 @@ describe("LinkableNumberProxy", () => {
     });
 
     it("should return nothing when the user has entered the current artifact_id", () => {
-        current_artifact_option = Option.fromValue(CurrentArtifactIdentifierStub.withId(105));
+        current_artifact_option = Option.fromValue(CurrentArtifactIdentifier.fromId(105));
         expect(build("105").isNothing()).toBe(true);
     });
 

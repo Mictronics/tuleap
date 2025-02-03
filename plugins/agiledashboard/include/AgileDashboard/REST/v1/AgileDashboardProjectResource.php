@@ -22,6 +22,7 @@ declare(strict_types=1);
 namespace Tuleap\AgileDashboard\REST\v1;
 
 use Luracast\Restler\RestException;
+use Tuleap\AgileDashboard\BacklogItemDao;
 use Tuleap\AgileDashboard\Milestone\ParentTrackerRetriever;
 use Tuleap\AgileDashboard\Milestone\Request\FilteringQueryParser;
 use Tuleap\AgileDashboard\REST\v1\Milestone\MilestoneRepresentationBuilder;
@@ -49,9 +50,9 @@ final class AgileDashboardProjectResource extends AuthenticatedResource
      * @param int $limit  Number of elements displayed per page {@from path} {@min 0} {@max 50}
      * @param int $offset Position of the first element to display {@from path} {@min 0}
      *
-     * @return array {@type \Tuleap\REST\v1\PlanningRepresentationBase}
+     * @return PlanningRepresentationBase[]
      */
-    public function getPlannings($id, $limit = 10, $offset = 0)
+    public function getPlannings($id, $limit = 10, $offset = 0): array
     {
         $this->checkAccess();
 
@@ -103,7 +104,7 @@ final class AgileDashboardProjectResource extends AuthenticatedResource
      * @param int    $offset Position of the first element to display {@from path} {@min 0}
      * @param string $order  In which order milestones are fetched. Default is asc {@from path}{@choice asc,desc}
      *
-     * @return array {@type MilestoneRepresentation}
+     * @return MilestoneRepresentation[]
      */
     public function getMilestones(
         $id,
@@ -112,7 +113,7 @@ final class AgileDashboardProjectResource extends AuthenticatedResource
         $limit = 10,
         $offset = 0,
         $order = 'asc',
-    ) {
+    ): array {
         $this->checkAccess();
 
         $this->sendAllowHeadersForMilestones();
@@ -139,7 +140,7 @@ final class AgileDashboardProjectResource extends AuthenticatedResource
      *
      * @param int $id The id of the project
      */
-    public function optionsMilestones($id)
+    public function optionsMilestones($id): void
     {
         $this->sendAllowHeadersForMilestones();
     }
@@ -161,9 +162,9 @@ final class AgileDashboardProjectResource extends AuthenticatedResource
      * @param int $limit  Number of elements displayed per page {@from path} {@min 0} {@max 100}
      * @param int $offset Position of the first element to display {@from path} {@min 0}
      *
-     * @return array {@type BacklogItemRepresentation}
+     * @return BacklogItemRepresentation[]
      */
-    public function getBacklog($id, $limit = 10, $offset = 0)
+    public function getBacklog($id, $limit = 10, $offset = 0): array
     {
         $this->checkAccess();
 
@@ -187,7 +188,7 @@ final class AgileDashboardProjectResource extends AuthenticatedResource
      *
      * @param int $id Id of the project
      */
-    public function optionsBacklog($id)
+    public function optionsBacklog($id): void
     {
         $this->sendAllowHeadersForBacklog();
     }
@@ -205,7 +206,7 @@ final class AgileDashboardProjectResource extends AuthenticatedResource
      *
      * @throws RestException 500
      */
-    public function putBacklog($id, array $ids)
+    public function putBacklog($id, array $ids): void
     {
         $this->checkAccess();
 
@@ -277,7 +278,7 @@ final class AgileDashboardProjectResource extends AuthenticatedResource
      * @throws RestException 409
      * @throws RestException 400
      */
-    public function patchBacklog($id, ?OrderRepresentation $order = null, ?array $add = null, ?array $remove = null)
+    public function patchBacklog($id, ?OrderRepresentation $order = null, ?array $add = null, ?array $remove = null): void
     {
         $this->checkAccess();
 
@@ -324,9 +325,10 @@ final class AgileDashboardProjectResource extends AuthenticatedResource
         $milestone_factory = \Planning_MilestoneFactory::build();
 
         $backlog_factory = new \AgileDashboard_Milestone_Backlog_BacklogFactory(
-            new \AgileDashboard_BacklogItemDao(),
+            new BacklogItemDao(),
             $tracker_artifact_factory,
             $planning_factory,
+            new \Tuleap\Tracker\Artifact\Dao\ArtifactDao(),
         );
 
         $parent_tracker_retriever = new ParentTrackerRetriever($planning_factory);

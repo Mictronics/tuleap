@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Tuleap\Tracker\Test\Builders\Fields;
 
+use Tracker_Artifact_Changeset;
 use Tracker_Artifact_ChangesetValue;
 use Tracker_FormElement_Field;
 use Tracker_FormElement_FieldVisitor;
@@ -132,20 +133,12 @@ final class ExternalFieldBuilder
             {
             }
 
-            /**
-             * @param Tracker_Report_Criteria $criteria
-             * @return string
-             */
-            public function fetchCriteriaValue($criteria)
+            public function fetchCriteriaValue(Tracker_Report_Criteria $criteria): string
             {
                 return '';
             }
 
-            /**
-             * @param mixed $value
-             * @return string
-             */
-            public function fetchRawValue($value)
+            public function fetchRawValue(mixed $value): string
             {
                 return '';
             }
@@ -160,12 +153,11 @@ final class ExternalFieldBuilder
             {
             }
 
-            /** @return string */
             protected function fetchArtifactValue(
                 Artifact $artifact,
                 ?Tracker_Artifact_ChangesetValue $value,
                 array $submitted_values,
-            ) {
+            ): string {
                 return '';
             }
 
@@ -177,20 +169,17 @@ final class ExternalFieldBuilder
                 return '';
             }
 
-            /** @return string */
-            protected function fetchSubmitValue(array $submitted_values)
+            protected function fetchSubmitValue(array $submitted_values): string
             {
                 return '';
             }
 
-            /** @return string */
-            protected function fetchSubmitValueMasschange()
+            protected function fetchSubmitValueMasschange(): string
             {
                 return '';
             }
 
-            /** @return string */
-            protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null)
+            protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null): string
             {
                 return '';
             }
@@ -200,11 +189,7 @@ final class ExternalFieldBuilder
             {
             }
 
-            /**
-             * @param \Tracker_Artifact_Changeset $changeset
-             * @return string
-             */
-            public function fetchRawValueFromChangeset($changeset)
+            public function fetchRawValueFromChangeset(Tracker_Artifact_Changeset $changeset): string
             {
                 return '';
             }

@@ -27,7 +27,7 @@ use Tuleap\Tracker\Report\Query\ParametrizedSQLFragment;
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 class Tracker_FormElement_Field_LastModifiedBy extends Tracker_FormElement_Field_List implements Tracker_FormElement_Field_ReadOnly
 {
-    public $default_properties = [];
+    public array $default_properties = [];
 
     /**
      * Dynamic value does not really get deleted
@@ -187,13 +187,12 @@ class Tracker_FormElement_Field_LastModifiedBy extends Tracker_FormElement_Field
      * @param Tracker_Artifact_ChangesetValue $value            The actual value of the field
      * @param array                           $submitted_values The value already submitted by the user
      *
-     * @return string
      */
     protected function fetchArtifactValue(
         Artifact $artifact,
         ?Tracker_Artifact_ChangesetValue $value,
         array $submitted_values,
-    ) {
+    ): string {
         return $this->fetchArtifactValueWithEditionFormIfEditable($artifact, $value, $submitted_values);
     }
 
@@ -234,30 +233,22 @@ class Tracker_FormElement_Field_LastModifiedBy extends Tracker_FormElement_Field
 
      /**
      * Fetch the field value in artifact to be displayed in mail
-     *
-     * @param Artifact                        $artifact The artifact
-     * @param PFUser                          $user     The user who will receive the email
-     * @param bool                            $ignore_perms
-     * @param Tracker_Artifact_ChangesetValue $value    The actual value of the field
-     * @param string                          $format   mail format
-     *
-     * @return string
      */
     public function fetchMailArtifactValue(
         Artifact $artifact,
         PFUser $user,
-        $ignore_perms,
+        bool $ignore_perms,
         ?Tracker_Artifact_ChangesetValue $value = null,
-        $format = 'text',
-    ) {
-        $value = new Tracker_FormElement_Field_List_Bind_UsersValue($artifact->getLastModifiedBy());
+        string $format = 'text',
+    ): string {
+        $bind_value = new Tracker_FormElement_Field_List_Bind_UsersValue($artifact->getLastModifiedBy());
 
         switch ($format) {
             case 'html':
                 $output = $this->fetchArtifactValueReadOnly($artifact);
                 break;
             default:
-                $output = $this->getBind()->formatMailArtifactValue($value->getId());
+                $output = $this->getBind()->formatMailArtifactValue($bind_value->getId());
                 break;
         }
         return $output;
@@ -317,10 +308,7 @@ class Tracker_FormElement_Field_LastModifiedBy extends Tracker_FormElement_Field
         return $this->getBind()->formatChangesetValue(new Tracker_FormElement_Field_List_Bind_UsersValue($value));
     }
 
-    /**
-     * @see Tracker_FormElement_Field::fetchTooltipValue()
-     */
-    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null)
+    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null): string
     {
         return $this->fetchArtifactValueReadOnly($artifact, $value);
     }
@@ -338,13 +326,8 @@ class Tracker_FormElement_Field_LastModifiedBy extends Tracker_FormElement_Field
      * Display the field for CSV
      * Used in CSV data export
      *
-     * @param int $artifact_id the corresponding artifact id
-     * @param int $changeset_id the corresponding changeset
-     * @param mixed $value the value of the field
-     *
-     * @return string
      */
-    public function fetchCSVChangesetValue($artifact_id, $changeset_id, $value, $report)
+    public function fetchCSVChangesetValue(int $artifact_id, int $changeset_id, mixed $value, ?Tracker_Report $report): string
     {
         return $this->getBind()->formatChangesetValueForCSV(new Tracker_FormElement_Field_List_Bind_UsersValue($value));
     }

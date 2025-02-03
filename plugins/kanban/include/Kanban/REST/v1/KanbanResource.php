@@ -50,7 +50,6 @@ use PFUser;
 use ReferenceManager;
 use Tracker;
 use Tracker_Artifact_Changeset_ChangesetDataInitializator;
-use Tracker_Artifact_Changeset_Comment;
 use Tracker_Artifact_Changeset_CommentDao;
 use Tracker_Artifact_Changeset_NewChangesetFieldsValidator;
 use Tracker_Artifact_PriorityDao;
@@ -63,6 +62,7 @@ use TransitionFactory;
 use Tuleap\Kanban\RealTime\KanbanRealtimeStructureMessageSender;
 use Tuleap\Kanban\RealTimeMercure\KanbanStructureRealTimeMercure;
 use Tuleap\Kanban\RecentlyVisited\RecentlyVisitedKanbanDao;
+use Tuleap\Notification\Mention\MentionedUserInTextRetriever;
 use Tuleap\RealTimeMercure\Client;
 use Tuleap\RealTimeMercure\ClientBuilder;
 use Tuleap\Search\ItemToIndexQueueEventBased;
@@ -1620,7 +1620,7 @@ final class KanbanResource extends AuthenticatedResource
                 $artifact,
                 $fields_data,
                 '',
-                CommentFormatIdentifier::fromFormatString(Tracker_Artifact_Changeset_Comment::COMMONMARK_COMMENT),
+                CommentFormatIdentifier::COMMONMARK,
                 [],
                 $user,
                 $submission_timestamp,
@@ -1643,6 +1643,7 @@ final class KanbanResource extends AuthenticatedResource
         $fields_retriever         = new FieldsToBeSavedInSpecificOrderRetriever($form_element_factory);
         $usage_dao                = new \Tuleap\Tracker\Admin\ArtifactLinksUsageDao();
 
+        $user_manager = UserManager::instance();
         return new NewChangesetCreator(
             new \Tuleap\DB\DBTransactionExecutorWithConnection(\Tuleap\DB\DBFactory::getMainTuleapDBConnection()),
             ArtifactChangesetSaver::build(),
@@ -1694,6 +1695,7 @@ final class KanbanResource extends AuthenticatedResource
                     $event_dispatcher,
                     new \Tracker_Artifact_Changeset_CommentDao(),
                 ),
+                new MentionedUserInTextRetriever($user_manager),
             ),
         );
     }

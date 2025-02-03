@@ -49,8 +49,8 @@
                     <div class="git-repository-links-spacer"></div>
                     <pull-request-badge
                         v-if="!isGitlabRepository(props.repository)"
-                        v-bind:number-pull-request="number_pull_requests()"
-                        v-bind:repository-id="Number(repository.id)"
+                        v-bind:number_pull_request="number_pull_requests()"
+                        v-bind:repository_id="Number(repository.id)"
                     />
                     <div class="git-repository-card-last-update">
                         <i class="far fa-clock git-repository-card-last-update-icon"></i>
@@ -131,7 +131,7 @@ import { getDashCasedLocale, getProjectId, getUserIsAdmin } from "../repository-
 import { getRepositoryListUrl } from "../breadcrumb-presenter";
 import type { FormattedGitLabRepository, Repository } from "../type";
 import { useGetters } from "vuex-composition-helpers";
-import { useGettext } from "@tuleap/vue2-gettext-composition-helper";
+import { useGettext } from "vue3-gettext";
 
 const gettext_provider = useGettext();
 const DEFAULT_DESCRIPTION = "-- Default description --";

@@ -20,7 +20,6 @@
 
 namespace Tuleap\News;
 
-use ForgeConfig;
 use HTTPRequest;
 use ProjectManager;
 use Service;
@@ -95,7 +94,7 @@ class ChooseNewsItemController
         $items     = $this->data_mapper->fetchAll($this->getProjectFromRequest());
         $presenter = new ChooseNewsPresenter($items, $this->request->get('project_id'));
         $renderer  = TemplateRendererFactory::build()->getRenderer(
-            ForgeConfig::get('codendi_dir') . '/src/templates/news/'
+            __DIR__ . '/../../templates/news/'
         );
 
         $renderer->renderToPage('choose_news', $presenter);
@@ -104,6 +103,7 @@ class ChooseNewsItemController
     private function displayHeader(): void
     {
         $project = (ProjectManager::instance())->getProject($this->request->get('project_id'));
+        \Tuleap\Forum\DeprecatedForum::redirectIfNotAllowed($project, $GLOBALS['Response']);
         news_header(
             \Tuleap\Layout\HeaderConfigurationBuilder::get($GLOBALS['Language']->getText('news_admin_index', 'title'))
                 ->inProject($project, Service::NEWS)

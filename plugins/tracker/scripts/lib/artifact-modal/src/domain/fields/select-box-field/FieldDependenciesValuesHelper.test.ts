@@ -18,10 +18,11 @@
  */
 
 import { FieldDependenciesValuesHelper } from "./FieldDependenciesValuesHelper";
-import { EventDispatcher } from "../../EventDispatcher";
+import type { EventDispatcherType } from "../../AllEvents";
+import { EventDispatcher } from "../../AllEvents";
 import { DidChangeListFieldValue } from "./DidChangeListFieldValue";
-import type { FieldDependenciesRule } from "./FieldDependenciesValuesHelper";
 import type { DidChangeAllowedValues } from "./DidChangeAllowedValues";
+import type { FieldDependenciesRule } from "../../initialization/CurrentArtifactWithTrackerStructure";
 
 const source_field_id = 1050;
 const target_1_field_id = 1051;
@@ -49,7 +50,7 @@ const field_dependencies_rules: readonly FieldDependenciesRule[] = [
 ];
 
 describe("FieldDependenciesValuesHelper", () => {
-    let event_dispatcher: EventDispatcher,
+    let event_dispatcher: EventDispatcherType,
         did_change_allowed_values_events: DidChangeAllowedValues[];
 
     beforeEach(() => {

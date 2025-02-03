@@ -20,7 +20,7 @@
 <template>
     <div>
         <step-definition-actions v-bind:value="step.description_format" v-bind:disabled="true">
-            <step-deletion-action-button-unmark-deletion v-bind:unmark-deletion="unmarkDeletion" />
+            <step-deletion-action-button-unmark-deletion v-bind:step="step" />
         </step-definition-actions>
         <div class="ttm-definition-step-description-deleted">
             <div
@@ -31,7 +31,7 @@
                 <step-definition-arrow-expected />
                 <div class="ttm-definition-step-expected-edit">
                     <div class="ttm-definition-step-expected-edit-title">
-                        <translate>Expected results</translate>
+                        {{ $gettext("Expected results") }}
                     </div>
                     <div
                         v-dompurify-html="step.raw_expected_results"
@@ -68,11 +68,6 @@ export default {
     },
     computed: {
         ...mapGetters(["is_text"]),
-    },
-    methods: {
-        unmarkDeletion() {
-            this.$store.commit("setStepDeleted", [this.step, false]);
-        },
     },
 };
 </script>

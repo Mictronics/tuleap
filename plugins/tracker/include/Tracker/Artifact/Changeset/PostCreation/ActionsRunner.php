@@ -56,7 +56,6 @@ use Tuleap\Tracker\Notifications\ConfigNotificationAssignedToDao;
 use Tuleap\Tracker\Notifications\ConfigNotificationEmailCustomSender;
 use Tuleap\Tracker\Notifications\ConfigNotificationEmailCustomSenderDao;
 use Tuleap\Tracker\Notifications\InvolvedNotificationDao;
-use Tuleap\Tracker\Notifications\Recipient\MentionedUserInCommentRetriever;
 use Tuleap\Tracker\Notifications\RecipientsManager;
 use Tuleap\Tracker\Notifications\Settings\CalendarEventConfigDao;
 use Tuleap\Tracker\Notifications\Settings\UserNotificationSettingsRetriever;
@@ -71,6 +70,8 @@ use Tuleap\Tracker\REST\PermissionsExporter;
 use Tuleap\Tracker\REST\Tracker\PermissionsRepresentationBuilder;
 use Tuleap\Tracker\REST\WorkflowRestBuilder;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeBuilder;
+use Tuleap\Tracker\User\NotificationOnAllUpdatesRetriever;
+use Tuleap\Tracker\User\NotificationOnOwnActionRetriever;
 use Tuleap\Tracker\Webhook\ArtifactPayloadBuilder;
 use Tuleap\Tracker\Webhook\WebhookDao;
 use Tuleap\Tracker\Webhook\WebhookFactory;
@@ -92,6 +93,7 @@ use Tuleap\Webhook\Emitter as WebhookEmitter;
 use UGroupManager;
 use UserHelper;
 use UserManager;
+use UserPreferencesDao;
 
 class ActionsRunner
 {
@@ -117,25 +119,28 @@ class ActionsRunner
 
     public static function build(LoggerInterface $logger): self
     {
-        $webhook_dao                   = new WebhookDao();
-        $user_manager                  = UserManager::instance();
-        $form_element_factory          = Tracker_FormElementFactory::instance();
-        $transition_retriever          = new TransitionRetriever(
+        $webhook_dao                    = new WebhookDao();
+        $user_manager                   = UserManager::instance();
+        $unsubscribers_notification_dao = new UnsubscribersNotificationDAO();
+        $only_status_change_dao         = new UserNotificationOnlyStatusChangeDAO();
+        $user_preferences_dao           = new UserPreferencesDao();
+        $form_element_factory           = Tracker_FormElementFactory::instance();
+        $transition_retriever           = new TransitionRetriever(
             new StateFactory(
                 TransitionFactory::instance(),
                 new SimpleWorkflowDao()
             ),
             new TransitionExtractor()
         );
-        $frozen_fields_detector        = new FrozenFieldDetector(
+        $frozen_fields_detector         = new FrozenFieldDetector(
             $transition_retriever,
             new FrozenFieldsRetriever(
                 new FrozenFieldsDao(),
                 Tracker_FormElementFactory::instance()
             )
         );
-        $ugroup_manager                = new UGroupManager();
-        $permissions_functions_wrapper = new PermissionsFunctionsWrapper();
+        $ugroup_manager                 = new UGroupManager();
+        $permissions_functions_wrapper  = new PermissionsFunctionsWrapper();
 
         $event_manager  = EventManager::instance();
         $task_collector = $event_manager->dispatch(new PostCreationTaskCollectorEvent($logger));
@@ -148,15 +153,16 @@ class ActionsRunner
                 new RecipientsManager(
                     $form_element_factory,
                     $user_manager,
-                    new UnsubscribersNotificationDAO(),
+                    $unsubscribers_notification_dao,
                     new UserNotificationSettingsRetriever(
                         new Tracker_GlobalNotificationDao(),
-                        new UnsubscribersNotificationDAO(),
-                        new UserNotificationOnlyStatusChangeDAO(),
+                        $unsubscribers_notification_dao,
+                        $only_status_change_dao,
                         new InvolvedNotificationDao()
                     ),
-                    new UserNotificationOnlyStatusChangeDAO(),
-                    new MentionedUserInCommentRetriever($user_manager)
+                    $only_status_change_dao,
+                    new NotificationOnAllUpdatesRetriever($user_preferences_dao),
+                    new NotificationOnOwnActionRetriever($user_preferences_dao)
                 ),
                 Tracker_Artifact_MailGateway_RecipientFactory::build(),
                 new MailGatewayConfig(
@@ -225,6 +231,7 @@ class ActionsRunner
                         new WorkflowRestBuilder(),
                     ),
                     new UserAvatarUrlProvider(new AvatarHashDao(), new ComputeAvatarHash()),
+                    new UGroupManager(),
                 ),
             ),
         );

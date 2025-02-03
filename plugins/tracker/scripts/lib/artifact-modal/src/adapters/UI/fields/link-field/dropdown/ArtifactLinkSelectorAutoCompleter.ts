@@ -20,9 +20,9 @@
 import type { GroupCollection, GroupOfItems } from "@tuleap/lazybox";
 import type { Fault } from "@tuleap/fault";
 import type { Option } from "@tuleap/option";
+import type { CurrentArtifactIdentifier } from "@tuleap/plugin-tracker-artifact-common";
 import type { RetrieveMatchingArtifact } from "../../../../../domain/fields/link-field/RetrieveMatchingArtifact";
 import { LinkableNumberProxy } from "./LinkableNumberProxy";
-import type { CurrentArtifactIdentifier } from "../../../../../domain/CurrentArtifactIdentifier";
 import { MatchingArtifactsGroup } from "./MatchingArtifactsGroup";
 import { MatchingArtifactRetrievalFault } from "../../../../../domain/fields/link-field/MatchingArtifactRetrievalFault";
 import { LinkType } from "../../../../../domain/fields/link-field/LinkType";
@@ -39,8 +39,8 @@ import { UserHistoryRetrievalFault } from "../../../../../domain/fields/link-fie
 import type { SearchArtifacts } from "../../../../../domain/fields/link-field/SearchArtifacts";
 import { SearchArtifactsFault } from "../../../../../domain/fields/link-field/SearchArtifactsFault";
 import { ArtifactLinkListDuplicateRemover } from "../ArtifactLinkListDuplicateRemover";
-import type { DispatchEvents } from "../../../../../domain/DispatchEvents";
-import { WillNotifyFault } from "../../../../../domain/WillNotifyFault";
+import type { DispatchEvents } from "../../../../../domain/AllEvents";
+import { WillNotifyFault } from "../../../../../domain/AllEvents";
 
 export type ArtifactLinkSelectorAutoCompleterType = {
     autoComplete(host: LinkField, query: string): void;

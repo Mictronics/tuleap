@@ -29,7 +29,7 @@ use Tuleap\Tracker\FormElement\FieldContentIndexer;
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 class Tracker_FormElement_Field_String extends Tracker_FormElement_Field_Text
 {
-    public $default_properties = [
+    public array $default_properties = [
         'maxchars'      => [
             'value' => 0,
             'type'  => 'string',
@@ -89,13 +89,7 @@ class Tracker_FormElement_Field_String extends Tracker_FormElement_Field_Text
         return $this->getDao()->delete($this->id);
     }
 
-    /**
-     * Fetch the html code to display the field value in new artifact submission form
-     * @param array $submitted_values the values already submitted
-     *
-     * @return string html
-     */
-    protected function fetchSubmitValue(array $submitted_values)
+    protected function fetchSubmitValue(array $submitted_values): string
     {
         $html  = '';
         $value = $this->getValueFromSubmitOrDefault($submitted_values);
@@ -111,11 +105,7 @@ class Tracker_FormElement_Field_String extends Tracker_FormElement_Field_Text
         return $html;
     }
 
-    /**
-     * Fetch the html code to display the field value in masschange submission form
-     * @return string html
-     */
-    protected function fetchSubmitValueMasschange()
+    protected function fetchSubmitValueMasschange(): string
     {
         $html  = '';
         $value = dgettext('tuleap-tracker', 'Unchanged');
@@ -158,14 +148,12 @@ class Tracker_FormElement_Field_String extends Tracker_FormElement_Field_Text
      * @param Artifact                        $artifact         The artifact
      * @param Tracker_Artifact_ChangesetValue $value            The actual value of the field
      * @param array                           $submitted_values The value already submitted by the user
-     *
-     * @return string
      */
     protected function fetchArtifactValue(
         Artifact $artifact,
         ?Tracker_Artifact_ChangesetValue $value,
         array $submitted_values,
-    ) {
+    ): string {
         $html = '';
         if (isset($submitted_values[$this->getId()])) {
             $value = $submitted_values[$this->getId()];
@@ -225,13 +213,7 @@ class Tracker_FormElement_Field_String extends Tracker_FormElement_Field_Text
         return $GLOBALS['HTML']->getImagePath('ic/ui-text-field--plus.png');
     }
 
-    /**
-     * Fetch the html code to display the field value in tooltip
-     *
-     * @param Tracker_Artifact_ChangesetValue_String $value The ChangesetValue_String
-     * @return string The html code to display the field value in tooltip
-     */
-    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null)
+    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null): string
     {
         $hp   = Codendi_HTMLPurifier::instance();
         $html = '';

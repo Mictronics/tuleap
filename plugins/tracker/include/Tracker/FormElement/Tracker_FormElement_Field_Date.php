@@ -38,7 +38,7 @@ class Tracker_FormElement_Field_Date extends Tracker_FormElement_Field
     public const DEFAULT_VALUE_TYPE_TODAY    = 0;
     public const DEFAULT_VALUE_TYPE_REALDATE = 1;
 
-    public $default_properties = [
+    public array $default_properties = [
         'default_value_type' => [
             'type'    => 'radio',
             'value'   => 0,      //default value is today
@@ -466,7 +466,7 @@ class Tracker_FormElement_Field_Date extends Tracker_FormElement_Field
         return $this->formatDateForDisplay($value);
     }
 
-    public function fetchCSVChangesetValue($artifact_id, $changeset_id, $value, $report)
+    public function fetchCSVChangesetValue(int $artifact_id, int $changeset_id, mixed $value, ?Tracker_Report $report): string
     {
         return $this->formatDateForCSV($value);
     }
@@ -507,13 +507,12 @@ class Tracker_FormElement_Field_Date extends Tracker_FormElement_Field
         return $html;
     }
 
-    public function fetchCriteriaValue($criteria)
+    public function fetchCriteriaValue(Tracker_Report_Criteria $criteria): string
     {
         $html = '';
-        if ($criteria->is_advanced) {
+        if ($criteria->is_advanced === true) {
             $html = $this->fetchAdvancedCriteriaValue($criteria);
         } else {
-            $hp             = Codendi_HTMLPurifier::instance();
             $criteria_value = $this->getCriteriaValue($criteria);
             $lt_selected    = '';
             $eq_selected    = '';
@@ -626,22 +625,12 @@ class Tracker_FormElement_Field_Date extends Tracker_FormElement_Field
         return true;
     }
 
-    /**
-     * Fetch the value
-     * @param mixed $value the value of the field
-     * @return string
-     */
-    public function fetchRawValue($value)
+    public function fetchRawValue(mixed $value): string
     {
         return $this->formatDate($value);
     }
 
-    /**
-     * Fetch the value in a specific changeset
-     * @param Tracker_Artifact_Changeset $changeset
-     * @return string
-     */
-    public function fetchRawValueFromChangeset($changeset)
+    public function fetchRawValueFromChangeset(Tracker_Artifact_Changeset $changeset): string
     {
         $value = 0;
         if ($v = $changeset->getValue($this)) {
@@ -663,18 +652,14 @@ class Tracker_FormElement_Field_Date extends Tracker_FormElement_Field
      *
      * @return string html
      */
-    protected function fetchSubmitValue(array $submitted_values)
+    protected function fetchSubmitValue(array $submitted_values): string
     {
         $errors = $this->has_errors ? ['has_error'] : [];
 
         return $this->getFormatter()->fetchSubmitValue($submitted_values, $errors);
     }
 
-     /**
-     * Fetch the html code to display the field value in masschange submission form
-     * @return string html
-     */
-    protected function fetchSubmitValueMasschange()
+    protected function fetchSubmitValueMasschange(): string
     {
         return $this->getFormatter()->fetchSubmitValueMasschange();
     }
@@ -685,14 +670,12 @@ class Tracker_FormElement_Field_Date extends Tracker_FormElement_Field
      * @param Artifact                        $artifact         The artifact
      * @param Tracker_Artifact_ChangesetValue $value            The actual value of the field
      * @param array                           $submitted_values The value already submitted by the user
-     *
-     * @return string
      */
     protected function fetchArtifactValue(
         Artifact $artifact,
         ?Tracker_Artifact_ChangesetValue $value,
         array $submitted_values,
-    ) {
+    ): string {
         $errors = $this->has_errors ? ['has_error'] : [];
 
         return $this->getFormatter()->fetchArtifactValue($value, $submitted_values, $errors);
@@ -700,22 +683,14 @@ class Tracker_FormElement_Field_Date extends Tracker_FormElement_Field
 
     /**
      * Fetch data to display the field value in mail
-     *
-     * @param Artifact                        $artifact The artifact
-     * @param PFUser                          $user     The user who will receive the email
-     * @param bool                            $ignore_perms
-     * @param Tracker_Artifact_ChangesetValue $value    The actual value of the field
-     * @param string                          $format   output format
-     *
-     * @return string
      */
     public function fetchMailArtifactValue(
         Artifact $artifact,
         PFUser $user,
-        $ignore_perms,
+        bool $ignore_perms,
         ?Tracker_Artifact_ChangesetValue $value = null,
-        $format = 'text',
-    ) {
+        string $format = 'text',
+    ): string {
         if (empty($value) || ! $value->getTimestamp()) {
             return '-';
         }
@@ -806,16 +781,10 @@ class Tracker_FormElement_Field_Date extends Tracker_FormElement_Field
         return $GLOBALS['HTML']->getImagePath('calendar/cal--plus.png');
     }
 
-    /**
-     * Fetch the html code to display the field value in tooltip
-     *
-     * @param Tracker_Artifact_ChangesetValue_Date $value The changeset value for this field
-     * @return string
-     */
-    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null)
+    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null): string
     {
         $html = '';
-        if ($value && $value->getTimestamp()) {
+        if ($value && $value instanceof Tracker_Artifact_ChangesetValue_Date && $value->getTimestamp() !== null) {
             $user  = HTTPRequest::instance()->getCurrentUser();
             $html .= $this->isTimeDisplayed()
                 ? DateHelper::relativeDateInlineContext($value->getTimestamp() ?? 0, $user)
@@ -852,6 +821,9 @@ class Tracker_FormElement_Field_Date extends Tracker_FormElement_Field
      */
     public function hasChanges(Artifact $artifact, Tracker_Artifact_ChangesetValue $old_value, $new_value)
     {
+        if (! $old_value instanceof Tracker_Artifact_ChangesetValue_Date) {
+            return false;
+        }
         return strtotime($this->formatDate($old_value->getTimestamp())) != strtotime($new_value);
     }
 

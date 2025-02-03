@@ -20,11 +20,10 @@
 import type { Ref } from "vue";
 import { ref } from "vue";
 import { putConfiguration } from "@/helpers/rest-querier";
-import type { SectionsStore } from "@/stores/useSectionsStore";
 import type { StrictInjectionKey } from "@tuleap/vue-strict-inject";
 import type { Project } from "@/helpers/project.type";
 
-interface TitleFieldDefinition {
+export interface TitleFieldDefinition {
     readonly field_id: number;
     readonly label: string;
     readonly type: "string" | "text";
@@ -50,6 +49,8 @@ interface FileFieldDefinition {
 export interface Tracker {
     readonly id: number;
     readonly label: string;
+    readonly color: string;
+    readonly item_name: string;
     readonly title: null | TitleFieldDefinition;
     readonly description: null | DescriptionFieldDefinition;
     readonly file: null | FileFieldDefinition;
@@ -74,7 +75,7 @@ export interface ConfigurationStore {
     is_error: Ref<boolean>;
     is_success: Ref<boolean>;
     error_message: Ref<string>;
-    saveConfiguration: (new_selected_tracker: Tracker, onSuccessfulSave: () => void) => void;
+    saveConfiguration: (new_selected_tracker: Tracker) => void;
     resetSuccessFlagFromPreviousCalls: () => void;
     current_project: Ref<Project | null>;
 }
@@ -86,7 +87,6 @@ export function initConfigurationStore(
     document_id: number,
     selected_tracker: Tracker | null,
     allowed_trackers: readonly Tracker[],
-    sections_store: SectionsStore,
 ): ConfigurationStore {
     const currently_selected_tracker = ref(selected_tracker);
     const is_saving = ref(false);
@@ -97,7 +97,7 @@ export function initConfigurationStore(
         selected_tracker ? selected_tracker.project : null,
     );
 
-    function saveConfiguration(new_selected_tracker: Tracker, onSuccessfulSave: () => void): void {
+    function saveConfiguration(new_selected_tracker: Tracker): void {
         is_saving.value = true;
         is_error.value = false;
         is_success.value = false;
@@ -106,10 +106,8 @@ export function initConfigurationStore(
         putConfiguration(document_id, new_selected_tracker.id).match(
             () => {
                 currently_selected_tracker.value = new_selected_tracker;
-                sections_store.insertPendingArtifactSectionForEmptyDocument(new_selected_tracker);
                 is_saving.value = false;
                 is_success.value = true;
-                onSuccessfulSave();
             },
             (fault) => {
                 is_saving.value = false;

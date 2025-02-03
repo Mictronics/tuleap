@@ -18,11 +18,11 @@
  */
 
 import { Fault } from "@tuleap/fault";
+import { CurrentArtifactIdentifier } from "@tuleap/plugin-tracker-artifact-common";
 import type { CommentsControllerType } from "./CommentsController";
 import { CommentsController } from "./CommentsController";
 import type { RetrieveComments } from "./RetrieveComments";
 import { RetrieveCommentsStub } from "../../../tests/stubs/RetrieveCommentsStub";
-import { CurrentArtifactIdentifierStub } from "../../../tests/stubs/CurrentArtifactIdentifierStub";
 import { CommentUserPreferencesBuilder } from "../../../tests/builders/CommentUserPreferencesBuilder";
 import type { CommentUserPreferences } from "./CommentUserPreferences";
 import { FollowUpCommentBuilder } from "../../../tests/builders/FollowUpCommentBuilder";
@@ -49,7 +49,7 @@ describe(`CommentsController`, () => {
         CommentsController(
             comments_retriever,
             event_dispatcher,
-            CurrentArtifactIdentifierStub.withId(45),
+            CurrentArtifactIdentifier.fromId(45),
             user_preferences,
         );
 
