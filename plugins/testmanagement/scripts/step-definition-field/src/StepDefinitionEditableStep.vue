@@ -17,30 +17,29 @@
   - along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
   -->
 
-<!-- eslint-disable vue/no-mutating-props -->
 <!-- prettier-ignore -->
 <template>
     <div>
         <div class="ttm-definition-step-actions-format-and-helper-container">
             <input type="hidden" v-bind:name="'artifact[' + field_id + '][id][]'" v-bind:value="step.id" />
-            <step-definition-type v-bind:value="step.step_type" v-bind:type_select_id="type_select_id"
+            <step-definition-type v-bind:value="step_type" v-bind:type_select_id="type_select_id"
                 v-on:type_change="toggleStepType" />
             <input type="hidden" v-bind:name="'artifact[' + field_id + '][step_type][]'"
-                v-bind:value="step.step_type" />
-            <step-definition-actions v-bind:value="step.description_format" v-bind:format_select_id="format_select_id"
+                v-bind:value="step_type" />
+            <step-definition-actions v-bind:value="description_format" v-bind:format_select_id="format_select_id"
                 v-bind:is_in_preview_mode="is_in_preview_mode" v-bind:is_preview_loading="is_preview_loading"
                 v-on:input="toggleRTE" v-on:interpret-content-event="togglePreview">
                 <step-deletion-action-button-mark-as-deleted v-bind:mark-as-deleted="markAsDeleted"
                     v-bind:is_deletion="true" />
             </step-definition-actions>
             <input type="hidden" v-bind:name="'artifact[' + field_id + '][description_format][]'"
-                v-bind:value="step.description_format" />
+                v-bind:value="description_format" />
         </div>
         <textarea ref="description" class="ttm-definition-step-description-textarea" v-bind:id="description_id"
             v-bind:name="'artifact[' + field_id + '][description][]'" v-bind:data-help-id="description_help_id"
             v-bind:data-upload-url="upload_url" v-bind:data-upload-field-name="upload_field_name"
             v-bind:data-upload-max-size="upload_max_size" data-test="description-textarea" rows="3"
-            v-model="step.raw_description" v-show="!is_in_preview_mode && !is_preview_in_error"
+            v-model="raw_description" v-show="!is_in_preview_mode && !is_preview_in_error"
             v-bind:disabled="is_preview_loading"></textarea>
         <div v-if="is_in_preview_mode && !is_preview_in_error" v-dompurify-html="interpreted_description"
             data-test="description-preview"></div>
@@ -48,7 +47,7 @@
             {{ $gettext("There was an error in the Markdown preview:") }}
             {{ error_text }}
         </div>
-        <p class="text-info tracker-richtexteditor-help shown" v-bind:id="description_help_id"></p>
+        <div class="muted tracker-richtexteditor-help shown" v-bind:id="description_help_id"></div>
 
         <section class="ttm-definition-step-expected" v-show="!is_hide_expected">
             <step-definition-arrow-expected />
@@ -63,7 +62,7 @@
                     v-bind:id="expected_results_id" v-bind:name="'artifact[' + field_id + '][expected_results][]'"
                     v-bind:data-help-id="expected_results_help_id" v-bind:data-upload-url="upload_url"
                     v-bind:data-upload-field-name="upload_field_name" v-bind:data-upload-max-size="upload_max_size"
-                    rows="3" v-model="step.raw_expected_results" v-show="!is_in_preview_mode && !is_preview_in_error"
+                    rows="3" v-model="raw_expected_results" v-show="!is_in_preview_mode && !is_preview_in_error"
                     data-test="expected-results-textarea" v-bind:disabled="is_preview_loading"></textarea>
                 <div v-if="is_in_preview_mode" v-dompurify-html="interpreted_expected_result"
                     data-test="expected-results-preview"></div>
@@ -74,7 +73,6 @@
                 <div class="muted tracker-richtexteditor-help shown" v-bind:id="expected_results_help_id"></div>
             </div>
         </section>
-
     </div>
 </template>
 
@@ -118,6 +116,7 @@ export default {
             raw_description: this.step.raw_description,
             raw_expected_results: this.step.raw_expected_results,
             description_format: this.step.description_format,
+            step_type: this.step.step_type,
         };
     },
     computed: {
@@ -155,7 +154,7 @@ export default {
         },
     },
     created() {
-        switch (this.step.step_type) {
+        switch (this.step_type) {
             case "action":
                 this.is_hide_expected = false;
                 break;
@@ -202,7 +201,7 @@ export default {
             this.description_format = value;
         },
         toggleStepType(event, value) {
-            this.step.step_type = value;
+            this.step_type = value;
             switch (value) {
                 case "action":
                     this.is_hide_expected = false;
