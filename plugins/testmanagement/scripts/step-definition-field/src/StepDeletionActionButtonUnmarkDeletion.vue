@@ -18,7 +18,11 @@
   -->
 
 <template>
-    <button class="btn" type="button" v-on:click="unmarkDeletion()">
+    <button
+        class="btn btn-small ttm-definition-step-delete-button"
+        type="button"
+        v-on:click="unmarkDeletion()"
+    >
         <i class="fa fa-undo"></i>
         {{ $gettext("Undo deletion") }}
     </button>
