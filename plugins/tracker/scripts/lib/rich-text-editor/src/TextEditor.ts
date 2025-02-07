@@ -37,9 +37,8 @@ const CKEDITOR_DEFAULT_OPTIONS = {
         ["Link", "Unlink", "Anchor", "Image"],
         ["Source"],
     ],
-    // For some reason extraPlugins doesn"t work to load colorbutton and colordialog
     plugins:
-        "basicstyles,colorbutton,colordialog,copyformatting,format,wysiwygarea,image,link,list,liststyle,removeformat,stylescombo,undo,uploadwidget,uploadimage",
+        "basicstyles,colorbutton,colordialog,copyformatting,format,iframe,wysiwygarea,image,link,list,liststyle,removeformat,stylescombo,undo,uploadwidget,uploadimage",
     stylesSet: [
         { name: "Bold", element: "strong", overrides: { b: true } },
         { name: "Italic", element: "em", overrides: { i: true } },
