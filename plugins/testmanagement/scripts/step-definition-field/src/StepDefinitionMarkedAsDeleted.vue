@@ -27,7 +27,7 @@
                 v-dompurify-html="step.raw_description"
                 v-bind:class="{ 'ttm-definition-step-description-text': is_text }"
             ></div>
-            <section class="ttm-definition-step-expected">
+            <section class="ttm-definition-step-expected" v-if="is_step_type_action">
                 <step-definition-arrow-expected />
                 <div class="ttm-definition-step-expected-edit">
                     <div class="ttm-definition-step-expected-edit-title">
@@ -68,6 +68,9 @@ export default {
     },
     computed: {
         ...mapGetters(["is_text"]),
+        is_step_type_action() {
+            return this.step.step_type === "action";
+        },
     },
 };
 </script>
