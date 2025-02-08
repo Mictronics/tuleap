@@ -29,8 +29,7 @@
             <step-definition-actions v-bind:value="description_format" v-bind:format_select_id="format_select_id"
                 v-bind:is_in_preview_mode="is_in_preview_mode" v-bind:is_preview_loading="is_preview_loading"
                 v-on:input="toggleRTE" v-on:interpret-content-event="togglePreview">
-                <step-deletion-action-button-mark-as-deleted v-bind:mark-as-deleted="markAsDeleted"
-                    v-bind:is_deletion="true" />
+                <step-deletion-action-button-mark-as-deleted v-bind:step="step" />
             </step-definition-actions>
             <input type="hidden" v-bind:name="'artifact[' + field_id + '][description_format][]'"
                 v-bind:value="description_format" />
