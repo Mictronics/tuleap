@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace Tuleap\Artidoc\Stubs;
 
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifier;
+use Tuleap\Artidoc\Domain\Document\Section\Level;
 use Tuleap\Artidoc\REST\v1\ArtifactSectionRepresentation;
 use Tuleap\Artidoc\REST\v1\BuildArtifactSectionRepresentation;
 use Tuleap\Artidoc\REST\v1\RequiredArtifactInformation;
@@ -42,6 +43,7 @@ final class BuildArtifactSectionRepresentationStub implements BuildArtifactSecti
     public function build(
         RequiredArtifactInformation $artifact_information,
         SectionIdentifier $section_identifier,
+        Level $level,
         \PFUser $user,
     ): ArtifactSectionRepresentation {
         $can_user_edit_section = true;
@@ -49,6 +51,7 @@ final class BuildArtifactSectionRepresentationStub implements BuildArtifactSecti
 
         return new ArtifactSectionRepresentation(
             $section_identifier->toString(),
+            $level->value,
             ArtifactReference::build($artifact_information->last_changeset->getArtifact()),
             $artifact_information->title,
             $artifact_information->description,

@@ -28,7 +28,9 @@
         </button>
         <section class="tlp-popover" id="popover-content" ref="popover_content">
             <div class="tlp-popover-header">
-                <h1 class="tlp-popover-title">{{ $gettext("For your information...") }}</h1>
+                <h1 class="tlp-popover-title">
+                    {{ $gettext("For your information...") }}
+                </h1>
             </div>
             <table class="tlp-table">
                 <thead>
@@ -65,7 +67,10 @@
                     <tr>
                         <td>![Image](/path/image.png)</td>
                         <td>
-                            <img class="popover-image-indentation" src="../assets/image_example_commonmark.png" />
+                            <img
+                                class="popover-image-indentation"
+                                src="assets/image_example_commonmark.png"
+                            />
                         </td>
                     </tr>
                     <tr>
@@ -158,7 +163,7 @@ export default {
         });
         document.addEventListener("keyup", this.escapeHandler);
     },
-    destroyed() {
+    unMounted() {
         $(this.$refs.button_helper).popover("destroy");
         document.removeEventListener("keyup", this.escapeHandler);
     },
