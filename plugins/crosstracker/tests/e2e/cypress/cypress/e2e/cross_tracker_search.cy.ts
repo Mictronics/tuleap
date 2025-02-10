@@ -85,6 +85,14 @@ describe("Cross tracker search", function () {
         cy.get("[data-test=crosstrackersearch]").click();
         cy.get("[data-test=dashboard-add-widget-button-submit]").click();
 
+        updateSearchQuery(
+            `SELECT @pretty_title FROM @project.name = "${project_name}" WHERE @id >= 1`,
+        );
+        cy.log("Save results");
+        cy.get("[data-test=cross-tracker-save-report]").click();
+        cy.get("[data-test=cross-tracker-report-success]");
+        cy.reload();
+
         cy.intercept("/api/v1/cross_tracker_reports/*/content*").as("getReportContent");
 
         cy.log("Regular user should be able to run queries");
@@ -93,6 +101,7 @@ describe("Cross tracker search", function () {
             `SELECT @title FROM @project.name = "${project_name}" AND @tracker.name IN ("bug", "task") WHERE @last_update_date > "2018-01-01"`,
         );
         cy.wait("@getReportContent", { timeout: 5000 });
+        cy.get("[data-test=column-header]").should("contain", "Title");
         cy.get("[data-test=cross-tracker-search-widget] [data-test=cell]").then((cell) => {
             cy.wrap(cell).should("contain", "bug");
             cy.wrap(cell).should("contain", "bug 1");
@@ -125,14 +134,9 @@ function editWidget(): void {
 }
 
 function updateSearchQuery(search_query: string): void {
-    clearCodeMirror();
-    // eslint-disable-next-line cypress/require-data-selectors -- ignore for CodeMirror
-    cy.get(".cm-editor").type(search_query);
+    cy.get("[data-test=cross-tracker-search-widget] [data-test=expert-query]")
+        .find("[role=textbox][contenteditable=true]")
+        .invoke("text", search_query);
     cy.get("[data-test=search-report-button]").click();
     cy.get("[data-test=tql-reading-mode-query]").contains(search_query);
-}
-
-function clearCodeMirror(): void {
-    // eslint-disable-next-line cypress/require-data-selectors -- ignore for CodeMirror
-    cy.get(".cm-editor").type("{ctrl}a{del}");
 }

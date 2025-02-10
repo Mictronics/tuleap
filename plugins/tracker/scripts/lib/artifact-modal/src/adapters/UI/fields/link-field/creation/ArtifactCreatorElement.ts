@@ -45,7 +45,7 @@ import type { Tracker } from "../../../../../domain/Tracker";
 import { ProjectIdentifierProxy } from "./ProjectIdentifierProxy";
 import type { ProjectIdentifier } from "../../../../../domain/ProjectIdentifier";
 import type { LinkableArtifact } from "../../../../../domain/fields/link-field/LinkableArtifact";
-import { TrackerIdentifierProxy } from "./TrackerIdentifierProxy";
+import { TrackerIdentifierBuilder } from "./TrackerIdentifierBuilder";
 import type { TrackerIdentifier } from "../../../../../domain/TrackerIdentifier";
 import { WillDisableSubmit } from "../../../../../domain/AllEvents";
 
@@ -184,14 +184,16 @@ export const onProjectChange = (host: InternalArtifactCreator, event: Event): vo
 
 export const onTrackerChange = (host: InternalArtifactCreator, event: Event): void => {
     host.has_tracker_selection_error = !host.tracker_selectbox.checkValidity();
-    TrackerIdentifierProxy.fromChangeEvent(event).match(
-        (tracker_id) => {
-            host.selected_tracker = host.controller.selectTracker(tracker_id);
-        },
-        () => {
-            host.selected_tracker = host.controller.clearTracker();
-        },
-    );
+    TrackerIdentifierBuilder()
+        .buildFromChangeEvent(event)
+        .match(
+            (tracker_id) => {
+                host.selected_tracker = host.controller.selectTracker(tracker_id);
+            },
+            () => {
+                host.selected_tracker = host.controller.clearTracker();
+            },
+        );
 };
 
 type DisconnectFunction = () => void;
@@ -235,16 +237,9 @@ const initListPickers = (host: InternalArtifactCreator): DisconnectFunction => {
     };
 };
 
-export const setErrorMessage = (
-    host: InternalArtifactCreator,
-    new_value: Option<string> | undefined,
-): Option<string> => {
-    if (new_value) {
-        host.render().querySelector("[data-form]")?.scrollIntoView({ block: "center" });
-        return new_value;
-    }
-    return Option.nothing();
-};
+export function onErrorMessageChange(host: InternalArtifactCreator): void {
+    host.render().querySelector("[data-form]")?.scrollIntoView({ block: "center" });
+}
 
 export const renderArtifactCreatorElement = (
     host: InternalArtifactCreator,
@@ -329,15 +324,13 @@ export const renderArtifactCreatorElement = (
 export const ArtifactCreatorElement = define<InternalArtifactCreator>({
     tag: "tuleap-artifact-modal-link-artifact-creator",
     controller: {
-        value: (host, controller: ArtifactCreatorController) => {
+        value: (host, controller) => controller,
+        observe: (host, controller) => {
             const displayer = FaultDisplayer();
             controller.registerFaultListener((fault) => {
                 host.error_message = Option.fromValue(displayer.formatForDisplay(fault));
             });
 
-            return controller;
-        },
-        observe: (host, controller) => {
             host.selected_project = controller.getSelectedProject();
             host.is_loading = true;
 
@@ -359,7 +352,10 @@ export const ArtifactCreatorElement = define<InternalArtifactCreator>({
     available_types: (host, available_types) => available_types,
     current_link_type: (host, current_link_type) => current_link_type,
     is_loading: false,
-    error_message: setErrorMessage,
+    error_message: {
+        value: (host, error_message) => error_message ?? Option.nothing(),
+        observe: onErrorMessageChange,
+    },
     show_error_details: false,
     projects: (host, new_value) => new_value ?? [],
     trackers: (host, new_value) => new_value ?? [],

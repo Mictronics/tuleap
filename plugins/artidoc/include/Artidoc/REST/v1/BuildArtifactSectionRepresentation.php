@@ -21,12 +21,14 @@
 namespace Tuleap\Artidoc\REST\v1;
 
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifier;
+use Tuleap\Artidoc\Domain\Document\Section\Level;
 
 interface BuildArtifactSectionRepresentation
 {
     public function build(
         RequiredArtifactInformation $artifact_information,
         SectionIdentifier $section_identifier,
+        Level $level,
         \PFUser $user,
     ): ArtifactSectionRepresentation;
 }

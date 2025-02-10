@@ -44,9 +44,9 @@ use Tracker_Semantic_TitleFactory;
 use TrackerFactory;
 use Tuleap\CrossTracker\CrossTrackerExpertReport;
 use Tuleap\CrossTracker\CrossTrackerInstrumentation;
-use Tuleap\CrossTracker\CrossTrackerReportDao;
 use Tuleap\CrossTracker\CrossTrackerReportFactory;
 use Tuleap\CrossTracker\CrossTrackerReportNotFoundException;
+use Tuleap\CrossTracker\CrossTrackerWidgetDao;
 use Tuleap\CrossTracker\Field\ReadableFieldRetriever;
 use Tuleap\CrossTracker\Report\CrossTrackerArtifactReportFactory;
 use Tuleap\CrossTracker\Report\Query\Advanced\DuckTypedField\FieldTypeRetrieverWrapper;
@@ -214,22 +214,29 @@ final class CrossTrackerReportsResource extends AuthenticatedResource
      *
      * @param int $id Id of the report
      *
+     * @return CrossTrackerExpertReportRepresentation[]
      *
      * @throws RestException 404
      */
-    public function getId(int $id): CrossTrackerExpertReportRepresentation
+    public function getId(int $id): array
     {
         $this->checkAccess();
         try {
-            $report         = $this->getReport($id);
-            $representation = $this->getReportRepresentation($report, $this->user_manager->getCurrentUser());
+            if (! $this->getCrossTrackerDao()->searchWidgetExistence($id)) {
+                throw new CrossTrackerReportNotFoundException();
+            }
+            $queries         = $this->getWidgetQueries($id);
+            $representations = [];
+            foreach ($queries as $query) {
+                $representations[] = $this->getReportRepresentation($query);
+            }
         } catch (CrossTrackerReportNotFoundException) {
             throw new I18NRestException(404, sprintf(dgettext('tuleap-crosstracker', 'Report with id %d not found'), $id));
         }
 
         $this->sendAllowHeaders();
 
-        return $representation;
+        return $representations;
     }
 
     /**
@@ -273,7 +280,7 @@ final class CrossTrackerReportsResource extends AuthenticatedResource
 
             $expected_report = new CrossTrackerExpertReport($report->getId(), $expert_query, $report->getTitle(), $report->getDescription());
 
-            $this->getUserIsAllowedToSeeReportChecker()->checkUserIsAllowedToSeeReport($current_user, $expected_report);
+            $this->getUserIsAllowedToSeeWidgetChecker()->checkUserIsAllowedToSeeWidget($current_user, $expected_report);
 
             $artifacts = $this->getInstrumentation()->updateQueryDuration(
                 fn() => $this->getArtifactFactory()->getArtifactsMatchingReport(
@@ -324,7 +331,6 @@ final class CrossTrackerReportsResource extends AuthenticatedResource
      * @url PUT {id}
      *
      * @param int $id Id of the report
-     * @param array $trackers_id Tracker id to link to report {@max 25}
      * @param string $expert_query The TQL query saved with the report
      *
      * @status 201
@@ -334,18 +340,26 @@ final class CrossTrackerReportsResource extends AuthenticatedResource
      * @throws RestException 400
      * @throws RestException 404
      */
-    protected function put(int $id, array $trackers_id, string $expert_query = ''): CrossTrackerExpertReportRepresentation
+    protected function put(int $id, string $expert_query = ''): CrossTrackerExpertReportRepresentation
     {
         $this->sendAllowHeaders();
 
         $current_user = $this->user_manager->getCurrentUser();
         try {
-            $report          = $this->getReport($id);
-            $expected_report = new CrossTrackerExpertReport($report->getId(), $expert_query, $report->getTitle(), $report->getDescription());
-            $trackers        = $this->getReportTrackersRetriever()->getReportTrackers($expected_report, $current_user, ForgeConfig::getInt(CrossTrackerArtifactReportFactory::MAX_TRACKER_FROM));
-            $this->checkQueryIsValid($trackers, $expert_query, $current_user, $id);
+            $reports = $this->getWidgetQueries($id);
+            if ($reports === []) {
+                $expected_report = new CrossTrackerExpertReport($id, $expert_query, '', '');
+                $trackers        = $this->getReportTrackersRetriever()->getReportTrackers($expected_report, $current_user, ForgeConfig::getInt(CrossTrackerArtifactReportFactory::MAX_TRACKER_FROM));
+                $this->checkQueryIsValid($trackers, $expert_query, $current_user, $id);
+                $this->getCrossTrackerDao()->insertQuery($id, $expert_query);
+            } else {
+                $report          = $reports[0];
+                $expected_report = new CrossTrackerExpertReport($report->getId(), $expert_query, $report->getTitle(), $report->getDescription());
+                $trackers        = $this->getReportTrackersRetriever()->getReportTrackers($expected_report, $current_user, ForgeConfig::getInt(CrossTrackerArtifactReportFactory::MAX_TRACKER_FROM));
+                $this->checkQueryIsValid($trackers, $expert_query, $current_user, $id);
 
-            $this->getCrossTrackerDao()->updateQuery($id, $expert_query);
+                $this->getCrossTrackerDao()->updateQuery($id, $expert_query);
+            }
         } catch (CrossTrackerReportNotFoundException) {
             throw new I18NRestException(404, sprintf(dgettext('tuleap-crosstracker', 'Report with id %d not found'), $id));
         } catch (FromIsInvalidException $exception) {
@@ -354,7 +368,7 @@ final class CrossTrackerReportsResource extends AuthenticatedResource
             throw new RestException(400, '', SyntaxErrorTranslator::fromSyntaxError($error));
         }
 
-        return $this->getReportRepresentation($expected_report, $current_user);
+        return $this->getReportRepresentation($expected_report);
     }
 
     /**
@@ -369,7 +383,7 @@ final class CrossTrackerReportsResource extends AuthenticatedResource
 
         try {
             $report = new CrossTrackerExpertReport($report_id, $expert_query, '', '');
-            $this->getUserIsAllowedToSeeReportChecker()->checkUserIsAllowedToSeeReport($user, $report);
+            $this->getUserIsAllowedToSeeWidgetChecker()->checkUserIsAllowedToSeeWidget($user, $report);
             $field_checker    = $this->getDuckTypedFieldChecker();
             $metadata_checker = $this->getMetadataChecker();
             $this->getExpertQueryValidator()->validateExpertQuery(
@@ -400,7 +414,7 @@ final class CrossTrackerReportsResource extends AuthenticatedResource
         Header::allowOptionsGetPut();
     }
 
-    private function getReportRepresentation(CrossTrackerExpertReport $report, PFUser $user): CrossTrackerExpertReportRepresentation
+    private function getReportRepresentation(CrossTrackerExpertReport $report): CrossTrackerExpertReportRepresentation
     {
         return CrossTrackerExpertReportRepresentation::fromReport($report);
     }
@@ -431,14 +445,14 @@ final class CrossTrackerReportsResource extends AuthenticatedResource
         }
     }
 
-    private function getCrossTrackerDao(): CrossTrackerReportDao
+    private function getCrossTrackerDao(): CrossTrackerWidgetDao
     {
-        return new CrossTrackerReportDao();
+        return new CrossTrackerWidgetDao();
     }
 
-    private function getUserIsAllowedToSeeReportChecker(): UserIsAllowedToSeeReportChecker
+    private function getUserIsAllowedToSeeWidgetChecker(): UserIsAllowedToSeeWidgetChecker
     {
-        return new UserIsAllowedToSeeReportChecker(
+        return new UserIsAllowedToSeeWidgetChecker(
             $this->getCrossTrackerDao(),
             ProjectManager::instance(),
             new URLVerification()
@@ -451,16 +465,31 @@ final class CrossTrackerReportsResource extends AuthenticatedResource
      */
     private function getReport(int $id): CrossTrackerExpertReport
     {
-        $report_dao     = new CrossTrackerReportDao();
+        $report_dao     = new CrossTrackerWidgetDao();
         $report_factory = new CrossTrackerReportFactory(
             $report_dao
         );
 
         $report       = $report_factory->getById($id);
         $current_user = $this->user_manager->getCurrentUser();
-        $this->getUserIsAllowedToSeeReportChecker()->checkUserIsAllowedToSeeReport($current_user, $report);
+        $this->getUserIsAllowedToSeeWidgetChecker()->checkUserIsAllowedToSeeWidget($current_user, $report);
 
         return $report;
+    }
+
+    /**
+     * @return CrossTrackerExpertReport[]
+     * @throws RestException 403
+     */
+    private function getWidgetQueries(int $id): array
+    {
+        $report_factory = new CrossTrackerReportFactory(new CrossTrackerWidgetDao());
+
+        $queries      = $report_factory->getByWidgetId($id);
+        $current_user = $this->user_manager->getCurrentUser();
+        $this->getUserIsAllowedToSeeWidgetChecker()->checkUserIsAllowedToSeeWidget($current_user, new CrossTrackerExpertReport($id, '', '', ''));
+
+        return $queries;
     }
 
     private function getDuckTypedFieldChecker(): DuckTypedFieldChecker
@@ -567,7 +596,7 @@ final class CrossTrackerReportsResource extends AuthenticatedResource
     private function getFromBuilderVisitor(): FromBuilderVisitor
     {
         $event_manager = EventManager::instance();
-        $report_dao    = new CrossTrackerReportDao();
+        $report_dao    = new CrossTrackerWidgetDao();
         return new FromBuilderVisitor(
             new FromTrackerBuilderVisitor($report_dao),
             new FromProjectBuilderVisitor(
@@ -721,7 +750,7 @@ final class CrossTrackerReportsResource extends AuthenticatedResource
 
     private function getReportTrackersRetriever(): ReportTrackersRetriever
     {
-        $report_dao = new CrossTrackerReportDao();
+        $report_dao = new CrossTrackerWidgetDao();
         return new ReportTrackersRetriever(
             $this->getExpertQueryValidator(),
             $this->getParser(),

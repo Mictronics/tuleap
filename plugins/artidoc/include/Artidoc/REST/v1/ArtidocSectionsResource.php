@@ -43,6 +43,7 @@ use Tuleap\Artidoc\Domain\Document\Section\CollectRequiredSectionInformation;
 use Tuleap\Artidoc\Domain\Document\Section\EmptyTitleFault;
 use Tuleap\Artidoc\Domain\Document\Section\Freetext\Identifier\FreetextIdentifierFactory;
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifier;
+use Tuleap\Artidoc\Domain\Document\Section\Level;
 use Tuleap\Artidoc\Domain\Document\Section\RetrievedSection;
 use Tuleap\Artidoc\Domain\Document\Section\SectionCreator;
 use Tuleap\Artidoc\Domain\Document\Section\SectionRetriever;
@@ -149,6 +150,11 @@ final class ArtidocSectionsResource extends AuthenticatedResource
             throw new RestException(404);
         }
 
+        $level = Level::tryFrom($content->level);
+        if ($level === null) {
+            throw new RestException(400, 'Unknown level. Allowed values: ' . implode(', ', Level::allowed()));
+        }
+
         $user      = UserManager::instance()->getCurrentUser();
         $collector = new RequiredSectionInformationCollector(
             $user,
@@ -157,7 +163,7 @@ final class ArtidocSectionsResource extends AuthenticatedResource
 
         $updater = new SectionUpdater($this->getSectionRetriever($user, $collector), new UpdateFreetextContentDao());
 
-        $updater->update($section_id, $content->title, $content->description)
+        $updater->update($section_id, $content->title, $content->description, $level)
             ->mapErr(
                 function (Fault $fault) {
                     Fault::writeToLogger($fault, RESTLogger::getLogger());
@@ -284,8 +290,13 @@ final class ArtidocSectionsResource extends AuthenticatedResource
             throw new RestException(400, 'Sibling section id is invalid');
         }
 
+        $level = Level::tryFrom($section->level);
+        if ($level === null) {
+            throw new RestException(400, 'Unknown level. Allowed values: ' . implode(', ', Level::allowed()));
+        }
+
         return $this->getSectionCreator($user, $collector)
-            ->create($artidoc_id, $before_section_id, ContentToBeCreatedBuilder::buildFromRepresentation($section))
+            ->create($artidoc_id, $before_section_id, $level, ContentToBeCreatedBuilder::buildFromRepresentation($section))
             ->andThen(
                 fn (SectionIdentifier $section_identifier) =>
                 $this->getSectionRetriever($user, $collector)

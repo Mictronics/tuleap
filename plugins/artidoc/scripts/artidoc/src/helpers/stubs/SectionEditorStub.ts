@@ -18,7 +18,6 @@
  */
 
 import type { SectionEditor } from "@/composables/useSectionEditor";
-import { ref } from "vue";
 import { noop } from "@/helpers/noop";
 
 export const SectionEditorStub = {
@@ -26,17 +25,7 @@ export const SectionEditorStub = {
         editor_actions: {
             saveEditor: noop,
             forceSaveEditor: noop,
-            cancelEditor: noop,
-            refreshSection: noop,
             deleteSection: noop,
-        },
-        editor_section_content: {
-            inputSectionContent: noop,
-            editable_title: ref(""),
-            editable_description: ref(""),
-            getReadonlyDescription: () => "",
-            resetContent: noop,
-            is_there_any_change: ref(false),
         },
     }),
 };

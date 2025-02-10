@@ -29,11 +29,11 @@ import type { ArtifactCreatedEvent, HostElement } from "./ArtifactCreatorElement
 import {
     getTrackerSelectClasses,
     onClickCancel,
+    onErrorMessageChange,
     onProjectChange,
     onSubmit,
     onTrackerChange,
     renderArtifactCreatorElement,
-    setErrorMessage,
 } from "./ArtifactCreatorElement";
 import { ArtifactCreatorController } from "../../../../../domain/fields/link-field/creation/ArtifactCreatorController";
 import { DispatchEventsStub } from "../../../../../../tests/stubs/DispatchEventsStub";
@@ -47,8 +47,7 @@ import type { Tracker } from "../../../../../domain/Tracker";
 import { ProjectIdentifierStub } from "../../../../../../tests/stubs/ProjectIdentifierStub";
 import { TrackerStub } from "../../../../../../tests/stubs/TrackerStub";
 import { ProjectStub } from "../../../../../../tests/stubs/ProjectStub";
-import { TrackerIdentifierStub } from "../../../../../../tests/stubs/TrackerIdentifierStub";
-import type { TrackerIdentifier } from "../../../../../domain/TrackerIdentifier";
+import { TrackerIdentifier } from "../../../../../domain/TrackerIdentifier";
 import { CreateLinkableArtifactStub } from "../../../../../../tests/stubs/CreateLinkableArtifactStub";
 import { LinkableArtifactStub } from "../../../../../../tests/stubs/LinkableArtifactStub";
 import type { CreateLinkableArtifact } from "../../../../../domain/fields/link-field/creation/CreateLinkableArtifact";
@@ -240,7 +239,7 @@ describe(`ArtifactCreatorElement`, () => {
             show_error_details = false;
             projects = [];
             trackers = [];
-            selected_tracker = Option.fromValue(TrackerIdentifierStub.withId(selected_tracker_id));
+            selected_tracker = Option.fromValue(TrackerIdentifier.fromId(selected_tracker_id));
         });
 
         const render = (): HTMLElement => {
@@ -359,39 +358,29 @@ describe(`ArtifactCreatorElement`, () => {
         );
     });
 
-    describe(`setters`, () => {
-        let form: HTMLElement, tracker_selectbox: HTMLSelectElement;
+    describe(`observe`, () => {
+        let form: HTMLElement;
 
         beforeEach(() => {
             form = doc.createElement("div");
             form.setAttribute("data-form", "");
-            tracker_selectbox = doc.createElement("select");
         });
         const getHost = (): HostElement => {
             const target = doc.createElement("div");
             target.append(form);
             return Object.assign(target, {
-                tracker_selectbox,
-                has_tracker_selection_error: false,
                 render: (): HTMLElement => target,
             } as HostElement);
         };
-
-        it(`defaults error message to Nothing`, () => {
-            const result = setErrorMessage(getHost(), undefined);
-            expect(result.isNothing()).toBe(true);
-        });
 
         it(`scrolls the form into view when given an actual error message`, () => {
             const host = getHost();
             const scrollIntoView = jest.fn();
             Object.assign(form, { scrollIntoView });
-            const option = Option.fromValue("Error message");
 
-            const result = setErrorMessage(host, option);
+            onErrorMessageChange(host);
 
             expect(scrollIntoView).toHaveBeenCalled();
-            expect(result).toBe(option);
         });
     });
 });

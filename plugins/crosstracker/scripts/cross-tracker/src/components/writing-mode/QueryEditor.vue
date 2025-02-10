@@ -19,7 +19,7 @@
 
 <template>
     <div class="cross-tracker-expert-content">
-        <div class="cross-tracker-expert-content-query tlp-form-element">
+        <div class="cross-tracker-expert-content-query tlp-form-element" data-test="expert-query">
             <label class="tlp-label" ref="query_label">{{ $gettext("Query") }}</label>
             <p class="tlp-text-info">
                 <i
@@ -99,11 +99,9 @@ onMounted(() => {
             autocomplete: TQL_cross_tracker_autocomplete_keywords,
             parser_definition: buildParserDefinition(cross_tracker_allowed_keywords),
         },
-        props.writing_cross_tracker_report.expert_mode
-            ? $gettext(
-                  `Example: SELECT @pretty_title FROM @project.name = 'my-project' WHERE @title = 'value'`,
-              )
-            : $gettext(`Example: @title = 'value'`),
+        $gettext(
+            `Example: SELECT @pretty_title FROM @project.name = 'my-project' WHERE @title = 'value'`,
+        ),
         props.writing_cross_tracker_report.expert_query,
         submit_form_callback,
         update_callback,

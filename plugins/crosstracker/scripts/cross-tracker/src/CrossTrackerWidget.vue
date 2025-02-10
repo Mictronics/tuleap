@@ -26,7 +26,6 @@
             v-bind:fault="current_fault"
             v-bind:writing_cross_tracker_report="writing_cross_tracker_report"
         />
-        <error-inactive-project-message v-bind:invalid_trackers="invalid_trackers" />
         <div
             class="tlp-alert-success cross-tracker-report-success"
             v-if="current_success.isValue()"
@@ -52,13 +51,9 @@
         />
     </section>
     <section class="tlp-pane-section" v-if="!is_loading">
-        <artifact-table
-            v-if="!isExpertMode()"
-            v-bind:writing_cross_tracker_report="writing_cross_tracker_report"
-        />
         <selectable-table
-            v-if="isExpertMode()"
             v-bind:writing_cross_tracker_report="writing_cross_tracker_report"
+            v-bind:there_is_no_query="there_is_no_query"
         />
     </section>
 </template>
@@ -66,16 +61,14 @@
 import { computed, onMounted, provide, ref } from "vue";
 import { useGettext } from "vue3-gettext";
 import { strictInject } from "@tuleap/vue-strict-inject";
-import ArtifactTable from "./components/table/ArtifactTable.vue";
 import ReadingMode from "./components/reading-mode/ReadingMode.vue";
 import WritingMode from "./components/writing-mode/WritingMode.vue";
 import ErrorMessage from "./components/ErrorMessage.vue";
-import ErrorInactiveProjectMessage from "./components/ErrorInactiveProjectMessage.vue";
-import { getReport } from "./api/rest-querier";
+import { getReports } from "./api/rest-querier";
 import type { WritingCrossTrackerReport } from "./domain/WritingCrossTrackerReport";
 import type { BackendCrossTrackerReport } from "./domain/BackendCrossTrackerReport";
 import type { ReadingCrossTrackerReport } from "./domain/ReadingCrossTrackerReport";
-import type { InvalidTracker, Report } from "./type";
+import type { Report } from "./type";
 import SelectableTable from "./components/selectable-table/SelectableTable.vue";
 import type { ReportState } from "./domain/ReportState";
 import {
@@ -103,7 +96,7 @@ const props = defineProps<{
 const report_state = ref<ReportState>("report-saved");
 provide(REPORT_STATE, report_state);
 const is_loading = ref(true);
-const invalid_trackers = ref<ReadonlyArray<InvalidTracker>>([]);
+const there_is_no_query = ref(true);
 
 const is_reading_mode_shown = computed(
     () =>
@@ -124,7 +117,7 @@ const is_export_allowed = computed<boolean>(() => {
     if (!is_user_admin) {
         return true;
     }
-    return invalid_trackers.value.length === 0;
+    return current_fault.value.isNothing();
 });
 
 provide(IS_EXPORT_ALLOWED, is_export_allowed);
@@ -136,18 +129,22 @@ function initReports(): void {
 
 function loadBackendReport(): void {
     is_loading.value = true;
-    getReport(report_id)
+    getReports(report_id)
         .match(
-            (report: Report) => {
-                props.backend_cross_tracker_report.init(
-                    report.trackers,
-                    report.expert_query,
-                    report.expert_mode,
-                );
-                initReports();
-                if (!report.expert_mode && report.invalid_trackers.length > 0) {
-                    invalid_trackers.value = report.invalid_trackers;
+            (reports: ReadonlyArray<Report>) => {
+                if (reports.length === 0) {
+                    there_is_no_query.value = true;
+                    props.backend_cross_tracker_report.init("");
+                    initReports();
+                    if (is_user_admin) {
+                        report_state.value = "edit-query";
+                    }
+
+                    return;
                 }
+                there_is_no_query.value = false;
+                props.backend_cross_tracker_report.init(reports[0].expert_query);
+                initReports();
             },
             (fault) => {
                 notifyFault(ReportRetrievalFault(fault));
@@ -161,12 +158,6 @@ function loadBackendReport(): void {
 onMounted(() => {
     loadBackendReport();
 });
-
-function isExpertMode(): boolean {
-    return is_reading_mode_shown.value
-        ? props.reading_cross_tracker_report.expert_mode
-        : props.writing_cross_tracker_report.expert_mode;
-}
 
 function handleSwitchWriting(): void {
     if (!is_user_admin) {
@@ -194,7 +185,6 @@ function handleCancelQueryEdition(): void {
 
 function reportSaved(): void {
     initReports();
-    invalid_trackers.value = [];
     report_state.value = "report-saved";
     clearFeedbacks();
     notifySuccess(gettext_provider.$gettext("Report has been successfully saved"));

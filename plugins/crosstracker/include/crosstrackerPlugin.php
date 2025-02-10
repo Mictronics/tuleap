@@ -19,8 +19,7 @@
  */
 
 use Tuleap\Config\GetConfigKeys;
-use Tuleap\CrossTracker\CrossTrackerReportCreator;
-use Tuleap\CrossTracker\CrossTrackerReportDao;
+use Tuleap\CrossTracker\CrossTrackerWidgetDao;
 use Tuleap\CrossTracker\CrossTrackerReportFactory;
 use Tuleap\CrossTracker\Report\CrossTrackerArtifactReportFactory;
 use Tuleap\CrossTracker\Report\ReportInheritanceHandler;
@@ -34,7 +33,6 @@ use Tuleap\Widget\Event\GetWidget;
 
 require_once __DIR__ . '/../../tracker/include/trackerPlugin.php';
 require_once __DIR__ . '/../vendor/autoload.php';
-require_once __DIR__ . '/constants.php';
 
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
 class crosstrackerPlugin extends Plugin
@@ -77,10 +75,10 @@ class crosstrackerPlugin extends Plugin
     public function widgetInstance(GetWidget $get_widget_event): void
     {
         if ($get_widget_event->getName() === ProjectCrossTrackerSearch::NAME) {
-            $report_dao = new CrossTrackerReportDao();
+            $report_dao = new CrossTrackerWidgetDao();
             $get_widget_event->setWidget(
                 new ProjectCrossTrackerSearch(
-                    new CrossTrackerReportCreator($report_dao),
+                    $report_dao,
                     new ReportInheritanceHandler(
                         new CrossTrackerReportFactory($report_dao),
                         $report_dao,
