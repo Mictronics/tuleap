@@ -28,6 +28,7 @@ use Tuleap\Artidoc\Adapter\Document\Section\Identifier\UUIDSectionIdentifierFact
 use Tuleap\Artidoc\Adapter\Document\Section\RetrieveArtidocSectionDao;
 use Tuleap\Artidoc\Adapter\Document\Section\SaveSectionDao;
 use Tuleap\Artidoc\Adapter\Document\Section\SectionsAsserter;
+use Tuleap\Artidoc\Adapter\Document\Section\UpdateLevelDao;
 use Tuleap\Artidoc\Domain\Document\ArtidocWithContext;
 use Tuleap\Artidoc\Domain\Document\Section\ContentToInsert;
 use Tuleap\Artidoc\Domain\Document\Section\Freetext\FreetextContent;
@@ -47,8 +48,8 @@ final class UpdateFreetextContentDaoTest extends TestIntegrationTestCase
     {
         $artidoc = new ArtidocWithContext(new ArtidocDocument(['item_id' => 101]));
         $ids     = $this->createArtidocSections($artidoc, [
-            ContentToInsert::fromFreetext(new FreetextContent('Intro', ''), Level::One),
-            ContentToInsert::fromFreetext(new FreetextContent('Requirements', ''), Level::One),
+            ContentToInsert::fromFreetext(new FreetextContent('Intro', '', Level::One)),
+            ContentToInsert::fromFreetext(new FreetextContent('Requirements', '', Level::One)),
             ContentToInsert::fromArtifactId(1001, Level::One),
             ContentToInsert::fromArtifactId(1002, Level::One),
         ]);
@@ -61,9 +62,9 @@ final class UpdateFreetextContentDaoTest extends TestIntegrationTestCase
         self::assertTrue(Result::isOk($paginated_retrieved_sections->rows[0]->content->apply(
             static fn () => Result::err(Fault::fromMessage('Should get freetext, not an artifact section')),
             static function (RetrievedSectionContentFreetext $freetext) use ($artidoc, $ids) {
-                $dao = new UpdateFreetextContentDao();
+                $dao = new UpdateFreetextContentDao(new UpdateLevelDao());
 
-                $dao->updateFreetextContent($ids[0], $freetext->id, new FreetextContent('Introduction', ''), Level::One);
+                $dao->updateFreetextContent($ids[0], $freetext->id, new FreetextContent('Introduction', '', Level::One));
 
                 SectionsAsserter::assertSectionsForDocument($artidoc, ['Introduction', 'Requirements', 1001, 1002]);
 

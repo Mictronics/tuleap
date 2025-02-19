@@ -22,6 +22,9 @@
 use Tuleap\Search\ItemToIndexQueue;
 use Tuleap\Search\ItemToIndexQueueEventBased;
 use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\DeleteSpecificProperties;
+use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\DuplicateSpecificProperties;
+use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\StringFieldSpecificPropertiesDAO;
 use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
 use Tuleap\Tracker\FormElement\Field\StringField\StringFieldDao;
 use Tuleap\Tracker\FormElement\FieldContentIndexer;
@@ -52,6 +55,16 @@ class Tracker_FormElement_Field_String extends Tracker_FormElement_Field_Text
         return new StringFieldDao();
     }
 
+    protected function getDuplicateSpecificPropertiesDao(): DuplicateSpecificProperties
+    {
+        return new StringFieldSpecificPropertiesDAO();
+    }
+
+    protected function getDeleteSpecificPropertiesDao(): DeleteSpecificProperties
+    {
+        return new StringFieldSpecificPropertiesDAO();
+    }
+
     /**
      * Get the value of this field
      *
@@ -75,18 +88,6 @@ class Tracker_FormElement_Field_String extends Tracker_FormElement_Field_Text
             );
         }
         return $changeset_value;
-    }
-
-    /**
-     * The field is permanently deleted from the db
-     * This hooks is here to delete specific properties,
-     * or specific values of the field.
-     * (The field itself will be deleted later)
-     * @return bool true if success
-     */
-    public function delete()
-    {
-        return $this->getDao()->delete($this->id);
     }
 
     protected function fetchSubmitValue(array $submitted_values): string

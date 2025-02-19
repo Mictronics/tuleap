@@ -22,7 +22,7 @@
     <editor-toolbar v-if="can_user_edit_document" />
     <notification-container />
     <div class="tlp-card">
-        <ol>
+        <ul>
             <li
                 v-for="section in sections_collection.sections.value"
                 v-bind:key="section.value.internal_id"
@@ -36,9 +36,18 @@
                     v-bind:position="{ before: section.value.id }"
                     v-bind:sections_inserter="sections_inserter"
                 />
+                <div
+                    class="artidoc-display-level"
+                    v-bind:class="{
+                        'artidoc-display-level-for-edition': has_add_button,
+                        'artidoc-display-level-for-readonly': !has_add_button,
+                    }"
+                >
+                    {{ section.value.display_level }}
+                </div>
                 <section-container v-bind:section="section" />
             </li>
-        </ol>
+        </ul>
         <add-new-section-button
             class="artidoc-button-add-section-container"
             v-if="has_add_button"
@@ -52,18 +61,18 @@
 
 <script setup lang="ts">
 import type { ArtidocSection } from "@/helpers/artidoc-section.type";
-import { AT_THE_END, getSectionsInserter } from "@/sections/SectionsInserter";
+import { AT_THE_END, getSectionsInserter } from "@/sections/insert/SectionsInserter";
 import AddNewSectionButton from "@/components/AddNewSectionButton.vue";
 import SectionContainer from "@/components/section/SectionContainer.vue";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import { CAN_USER_EDIT_DOCUMENT } from "@/can-user-edit-document-injection-key";
-import { SECTIONS_COLLECTION } from "@/sections/sections-collection-injection-key";
+import { SECTIONS_COLLECTION } from "@/sections/states/sections-collection-injection-key";
 import AddExistingSectionModal from "@/components/AddExistingSectionModal.vue";
 import NotificationContainer from "@/components/NotificationContainer.vue";
 import EditorToolbar from "@/components/toolbar/EditorToolbar.vue";
 import RemoveFreetextSectionModal from "@/components/RemoveFreetextSectionModal.vue";
-import { getSectionsRemover } from "@/sections/SectionsRemover";
-import { SECTIONS_STATES_COLLECTION } from "@/sections/sections-states-collection-injection-key";
+import { getSectionsRemover } from "@/sections/remove/SectionsRemover";
+import { SECTIONS_STATES_COLLECTION } from "@/sections/states/sections-states-collection-injection-key";
 
 const sections_collection = strictInject(SECTIONS_COLLECTION);
 const states_collection = strictInject(SECTIONS_STATES_COLLECTION);
@@ -84,38 +93,25 @@ function getId(section: ArtidocSection): string {
 
 $section-number-padding-left: var(--tlp-small-spacing);
 $section-number-padding-right: var(--tlp-medium-spacing);
-$magic-number-to-align-li-number-with-title: 13px;
-$li-number-top: calc(#{$magic-number-to-align-li-number-with-title} + var(--tlp-medium-spacing));
-$li-number-top-for-first-section: calc(
-    #{$magic-number-to-align-li-number-with-title} + var(--tlp-large-spacing)
+$display-level-top-for-readonly: calc(
+    var(--tlp-large-spacing) + var(--tlp-medium-spacing) + #{size.$header-title-height} - var(--tlp-large-spacing)
 );
-$li-number-top-with-add-button: calc(
-    #{$li-number-top} + #{size.$add-section-button-container-height}
-);
-$li-number-top-for-first-section-with-add-button: calc(
-    #{$li-number-top-for-first-section} + #{size.$add-section-button-container-height}
+$display-level-top-for-edition: calc(
+    #{size.$add-section-button-container-height} + var(--tlp-medium-spacing) + var(
+            --editor-padding
+        ) + #{size.$header-title-height} - var(--tlp-large-spacing)
 );
 
-ol {
+ul {
+    margin: 0;
     padding: 0;
-    counter-reset: item-without-dot;
 }
 
 li {
     position: relative;
-    margin: 0 0 var(--tlp-medium-spacing);
-    counter-increment: item-without-dot;
 
     &::marker {
-        color: transparent; // hack to hide the li number to be displayed in the margin
-    }
-
-    &:last-child {
-        margin: 0;
-
-        > .artidoc-section-container {
-            margin-bottom: 0;
-        }
+        color: transparent; // hack to hide the bullet list to be displayed in the margin
     }
 
     &:first-child {
@@ -123,44 +119,35 @@ li {
             padding-top: var(--tlp-large-spacing);
         }
 
-        &::before {
-            top: $li-number-top-for-first-section;
+        > .artidoc-display-level-for-edition {
+            top: calc($display-level-top-for-edition + var(--tlp-small-spacing));
+        }
+
+        > .artidoc-display-level-for-readonly {
+            top: calc($display-level-top-for-readonly + var(--tlp-small-spacing));
         }
     }
 }
 
-.artidoc-section-with-add-button {
-    margin: 0;
-
-    &::before {
-        top: $li-number-top-with-add-button;
-    }
-
-    &:first-child::before {
-        top: $li-number-top-for-first-section-with-add-button;
-    }
-}
-
-li::before {
-    content: counter(item-without-dot);
-    position: absolute;
-    top: $li-number-top;
-    left: 0;
+.artidoc-display-level {
+    left: var(--tlp-small-spacing);
     width: calc(
         #{whitespace.$section-left-padding} - #{$section-number-padding-left} - #{$section-number-padding-right}
     );
-    padding: 0 $section-number-padding-right 0 $section-number-padding-left;
     color: var(--tlp-dimmed-color-lighter-50);
     font-style: italic;
     font-weight: 600;
     text-align: right;
 }
 
-li[data-is-sticking="true"]::before,
-li[data-is-sticking="true"]:first-child::before {
-    display: inline-block;
-    position: sticky;
-    top: calc(#{$magic-number-to-align-li-number-with-title} + 45px);
+.artidoc-display-level-for-readonly {
+    position: relative;
+    top: $display-level-top-for-readonly;
+}
+
+.artidoc-display-level-for-edition {
+    position: absolute;
+    top: $display-level-top-for-edition;
 }
 
 .tlp-card {

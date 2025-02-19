@@ -21,11 +21,13 @@
 
 declare(strict_types=1);
 
+use Tuleap\ForgeUpgrade\Bucket\ConfigVariableImportToDb\VariableInteger;
+use Tuleap\ForgeUpgrade\Bucket\ConfigVariableImportToDb\VariableString;
+use Tuleap\ForgeUpgrade\Bucket\ConfigVariableImportToDb\ImportConfigVariablesToDb;
+
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
 final class b202501091552_import_configuration_variables extends \Tuleap\ForgeUpgrade\Bucket
 {
-    private const CONFIG_FILE = '/etc/tuleap/plugins/git/etc/config.inc';
-
     public function description()
     {
         return 'Import configuration variables';
@@ -33,43 +35,14 @@ final class b202501091552_import_configuration_variables extends \Tuleap\ForgeUp
 
     public function up(): void
     {
-        $variables = $this->getVariables();
-        if (count($variables) === 0) {
-            return;
-        }
-
-        $this->api->dbh->beginTransaction();
-        $insert_stmt = $this->api->dbh->prepare('INSERT IGNORE INTO forgeconfig(name, value) VALUE (?, ?)');
-        if (isset($variables['git_backup_dir'])) {
-            $insert_stmt->execute(['git_backup_dir', $variables['git_backup_dir']]);
-        }
-
-        if (isset($variables['weeks_number'])) {
-            $insert_stmt->execute(['git_weeks_number', $variables['weeks_number']]);
-        }
-
-        if (isset($variables['git_ssh_url'])) {
-            $insert_stmt->execute(['git_ssh_url', $variables['git_ssh_url']]);
-        }
-
-        if (isset($variables['git_http_url'])) {
-            $insert_stmt->execute(['git_http_url', $variables['git_http_url']]);
-        }
-
-        if (rename(self::CONFIG_FILE, self::CONFIG_FILE . '.tuleapsave_' . time())) {
-            $this->api->dbh->commit();
-        } else {
-            $this->api->dbh->rollBack();
-            throw new \Tuleap\ForgeUpgrade\Bucket\BucketUpgradeNotCompleteException('Could not rename the git configuration file.');
-        }
-    }
-
-    private function getVariables(): array
-    {
-        if (! file_exists(self::CONFIG_FILE)) {
-            return [];
-        }
-        include self::CONFIG_FILE;
-        return get_defined_vars();
+        $importer = new ImportConfigVariablesToDb($this->api->dbh, '/etc/tuleap/plugins/git/etc/config.inc');
+        $importer->import(
+            [
+                VariableString::withSameName('git_backup_dir', '/tmp'),
+                VariableInteger::withNewName('weeks_number', 'git_weeks_number', 12),
+                VariableString::withSameName('git_ssh_url', 'ssh://gitolite@%server_name%/'),
+                VariableString::withSameName('git_http_url', 'https://%server_name%/plugins/git'),
+            ]
+        );
     }
 }

@@ -27,15 +27,14 @@ use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
 final class TextFieldBuilder
 {
-    private string $name = 'text';
+    use FieldBuilderWithPermissions;
+
+    private string $name  = 'text';
+    private string $label = 'Text';
     private \Tracker $tracker;
-    /** @var list<\PFUser> $user_with_read_permissions */
-    private array $user_with_read_permissions = [];
-    /** @var array<int, bool> $read_permissions */
-    private array $read_permissions = [];
-    private bool $is_required       = false;
-    private int $number_of_rows     = 0;
-    private int $number_of_columns  = 0;
+    private bool $is_required      = false;
+    private int $number_of_rows    = 0;
+    private int $number_of_columns = 0;
 
     private function __construct(private readonly int $id)
     {
@@ -53,11 +52,9 @@ final class TextFieldBuilder
         return $this;
     }
 
-    public function withReadPermission(\PFUser $user, bool $user_can_read): self
+    public function withLabel(string $label): self
     {
-        $this->user_with_read_permissions[]           = $user;
-        $this->read_permissions[(int) $user->getId()] = $user_can_read;
-
+        $this->label = $label;
         return $this;
     }
 
@@ -106,7 +103,7 @@ final class TextFieldBuilder
             10,
             15,
             $this->name,
-            '',
+            $this->label,
             '',
             true,
             'P',
@@ -117,9 +114,8 @@ final class TextFieldBuilder
         );
         $field->setTracker($this->tracker);
         $this->setProperties($field);
-        foreach ($this->user_with_read_permissions as $user) {
-            $field->setUserCanRead($user, $this->read_permissions[(int) $user->getId()]);
-        }
+        $this->setPermissions($field);
+
         return $field;
     }
 }

@@ -29,7 +29,10 @@ export function getReports(report_id: number): ResultAsync<ReadonlyArray<Report>
     ).map((reports): ReadonlyArray<Report> => {
         return reports.map((report) => {
             return {
+                uuid: report.uuid,
                 expert_query: report.expert_query,
+                title: report.title,
+                description: report.description,
             };
         });
     });
@@ -40,7 +43,10 @@ export function updateReport(report_id: number, expert_query: string): ResultAsy
         expert_query,
     }).map((report): Report => {
         return {
+            uuid: report.uuid,
             expert_query: report.expert_query,
+            title: report.title,
+            description: report.description,
         };
     });
 }

@@ -32,7 +32,13 @@ import { WritingCrossTrackerReport } from "./domain/WritingCrossTrackerReport";
 import * as rest_querier from "./api/rest-querier";
 import ReadingMode from "./components/reading-mode/ReadingMode.vue";
 import WritingMode from "./components/writing-mode/WritingMode.vue";
-import { IS_USER_ADMIN, REPORT_ID } from "./injection-symbols";
+import {
+    EMITTER,
+    IS_MULTIPLE_QUERY_SUPPORTED,
+    IS_USER_ADMIN,
+    REPORT_ID,
+} from "./injection-symbols";
+import { EmitterStub } from "../tests/stubs/EmitterStub";
 
 vi.useFakeTimers();
 
@@ -51,10 +57,10 @@ describe("CrossTrackerWidget", () => {
         vi.spyOn(rest_querier, "getReports").mockReturnValue(
             okAsync([
                 {
-                    trackers: [],
+                    uuid: "0194dfd6-a489-703b-aabd-9d473212d908",
                     expert_query: "",
-                    invalid_trackers: [],
-                    expert_mode: false,
+                    title: "My title",
+                    description: "",
                 },
             ]),
         );
@@ -72,6 +78,8 @@ describe("CrossTrackerWidget", () => {
                 provide: {
                     [REPORT_ID.valueOf()]: 96,
                     [IS_USER_ADMIN.valueOf()]: is_user_admin,
+                    [EMITTER.valueOf()]: EmitterStub(),
+                    [IS_MULTIPLE_QUERY_SUPPORTED.valueOf()]: true,
                 },
             },
         });
@@ -201,7 +209,10 @@ describe("CrossTrackerWidget", () => {
     describe("loadBackendReport()", () => {
         it("When I load the report, then the reports will be initialized", async () => {
             const expert_query = 'SELECT @title FROM @project.name="TATAYO" WHERE @title != ""';
-            vi.spyOn(rest_querier, "getReports").mockReturnValue(okAsync([{ expert_query }]));
+            const uuid = "0194dfd6-a489-703b-aabd-9d473212d908";
+            vi.spyOn(rest_querier, "getReports").mockReturnValue(
+                okAsync([{ expert_query, title: " TQL query title", description: "", uuid }]),
+            );
             const init = vi.spyOn(backend_cross_tracker_report, "init");
             const duplicateReading = vi.spyOn(reading_cross_tracker_report, "duplicateFromReport");
             const duplicateWriting = vi.spyOn(writing_cross_tracker_report, "duplicateFromReport");
@@ -266,7 +277,9 @@ describe("CrossTrackerWidget", () => {
 
         it(`when user is admin and there is an error selected in the report,
             it does not allow XLSX export`, async () => {
-            vi.spyOn(rest_querier, "getReports").mockReturnValue(okAsync([{ expert_query: "" }]));
+            vi.spyOn(rest_querier, "getReports").mockReturnValue(
+                okAsync([{ expert_query: "", title: "title", description: "", uuid: "" }]),
+            );
 
             const wrapper = getWrapper();
             wrapper.vm.current_fault = Option.fromValue(Fault.fromMessage("Ooops"));

@@ -185,7 +185,6 @@ module.exports = {
             files: [
                 "plugins/baseline/scripts/baseline/src/**/*.vue",
                 "plugins/label/scripts/project-labeled-items/src/**/*.vue",
-                "plugins/program_management/scripts/program_management/src/**/*.vue",
                 "plugins/roadmap/scripts/roadmap-widget/src/**/*.vue",
                 "plugins/taskboard/scripts/taskboard/src/**/*.vue",
                 "plugins/testmanagement/scripts/step-definition-field/**/*.vue",
@@ -320,28 +319,55 @@ module.exports = {
                                 from: "src/adapters/",
                                 except: ["REST"],
                                 message:
-                                    "Adapters should not depend on other adapter without going through the Domain",
+                                    "Adapters should not depend on other adapters without going through the Domain",
                             },
                             {
                                 target: "src/adapters/UI/",
                                 from: "src/adapters/",
                                 except: ["UI"],
                                 message:
-                                    "Adapters should not depend on other adapter without going through the Domain",
+                                    "Adapters should not depend on other adapters without going through the Domain",
+                            },
+                        ],
+                    },
+                ],
+            },
+        },
+        {
+            // Enforce Hexagonal Architecture
+            files: ["plugins/tracker/scripts/lib/link-field/src/**/*.ts"],
+            rules: {
+                "import/no-restricted-paths": [
+                    "error",
+                    {
+                        basePath: "plugins/tracker/scripts/lib/link-field/",
+                        zones: [
+                            {
+                                target: "src/domain/",
+                                from: "src/",
+                                except: ["domain"],
+                                message: "Domain should not depend on the outside world",
+                            },
+                            {
+                                target: "src/adapters/REST/",
+                                from: "src/adapters/",
+                                except: ["REST"],
+                                message:
+                                    "Adapters should not depend on other adapters without going through the Domain",
+                            },
+                            {
+                                target: "src/adapters/UI/",
+                                from: "src/adapters/",
+                                except: ["UI"],
+                                message:
+                                    "Adapters should not depend on other adapters without going through the Domain",
                             },
                             {
                                 target: "src/adapters/Memory/",
                                 from: "src/adapters/",
                                 except: ["Memory"],
                                 message:
-                                    "Adapters should not depend on other adapter without going through the Domain",
-                            },
-                            {
-                                target: "src/adapters/Caller/",
-                                from: "src/adapters/",
-                                except: ["Caller"],
-                                message:
-                                    "Adapters should not depend on other adapter without going through the Domain",
+                                    "Adapters should not depend on other adapters without going through the Domain",
                             },
                         ],
                     },

@@ -24,15 +24,15 @@ import { ref } from "vue";
 import SectionDescription from "./SectionDescription.vue";
 import SectionDescriptionSkeleton from "./SectionDescriptionSkeleton.vue";
 import SectionDescriptionReadOnly from "./SectionDescriptionReadOnly.vue";
-import { SECTIONS_COLLECTION } from "@/sections/sections-collection-injection-key";
+import { SECTIONS_COLLECTION } from "@/sections/states/sections-collection-injection-key";
 import { CAN_USER_EDIT_DOCUMENT } from "@/can-user-edit-document-injection-key";
 import { IS_LOADING_SECTIONS } from "@/is-loading-sections-injection-key";
 import { SectionsCollectionStub } from "@/sections/stubs/SectionsCollectionStub";
-import { noop } from "@/helpers/noop";
+import { SectionAttachmentFilesManagerStub } from "@/sections/stubs/SectionAttachmentFilesManagerStub";
 import { ReactiveStoredArtidocSectionStub } from "@/sections/stubs/ReactiveStoredArtidocSectionStub";
 import FreetextSectionFactory from "@/helpers/freetext-section.factory";
 import { SectionStateStub } from "@/sections/stubs/SectionStateStub";
-import { getSectionEditorStateManager } from "@/sections/SectionEditorStateManager";
+import { getSectionEditorStateManager } from "@/sections/editors/SectionEditorStateManager";
 
 describe("SectionDescription", () => {
     let are_sections_loading: boolean, can_user_edit_document: boolean;
@@ -59,14 +59,12 @@ describe("SectionDescription", () => {
                 },
             },
             props: {
-                post_information: {
-                    upload_url: "/file/upload",
-                    getUploadJsonPayload: noop,
-                },
-                project_id: 101,
                 section,
                 section_state,
                 manage_section_editor_state: getSectionEditorStateManager(section, section_state),
+                manage_section_attachment_files: SectionAttachmentFilesManagerStub.forSection(
+                    section.value,
+                ),
             },
         });
 

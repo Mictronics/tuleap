@@ -19,15 +19,17 @@
 
 import { describe, expect, it, vi } from "vitest";
 import { shallowMount } from "@vue/test-utils";
+import { ref } from "vue";
 import App from "@/App.vue";
 import DocumentView from "@/views/DocumentView.vue";
 import { CONFIGURATION_STORE } from "@/stores/configuration-store";
 import { ConfigurationStoreStub } from "@/helpers/stubs/ConfigurationStoreStub";
 import { CAN_USER_EDIT_DOCUMENT } from "@/can-user-edit-document-injection-key";
 import { DOCUMENT_ID } from "@/document-id-injection-key";
-import { SECTIONS_COLLECTION } from "@/sections/sections-collection-injection-key";
+import { SECTIONS_COLLECTION } from "@/sections/states/sections-collection-injection-key";
 import { SectionsCollectionStub } from "@/sections/stubs/SectionsCollectionStub";
 import * as rest_querier from "./helpers/rest-querier";
+import { IS_LOADING_SECTIONS_FAILED } from "@/is-loading-sections-injection-key";
 
 describe("App", () => {
     it("should load and display the document view", () => {
@@ -40,6 +42,7 @@ describe("App", () => {
                     [CAN_USER_EDIT_DOCUMENT.valueOf()]: true,
                     [DOCUMENT_ID.valueOf()]: 1,
                     [SECTIONS_COLLECTION.valueOf()]: SectionsCollectionStub.withSections([]),
+                    [IS_LOADING_SECTIONS_FAILED.valueOf()]: ref(false),
                 },
             },
         });

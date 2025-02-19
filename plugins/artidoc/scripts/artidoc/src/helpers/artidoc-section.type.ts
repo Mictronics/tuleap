@@ -19,15 +19,12 @@
 
 import type { Tracker } from "@/stores/configuration-store";
 import type { Project } from "@/helpers/project.type";
+import type { Level } from "@/sections/levels/SectionsNumberer";
+import type { FileIdentifier } from "@tuleap/file-upload/dist/file-upload-options";
 
 interface ArtifactFieldValueRepresentation {
     readonly field_id: number;
     readonly label: string;
-}
-
-interface ArtifactFieldValueStringRepresentation extends ArtifactFieldValueRepresentation {
-    readonly type: "string";
-    readonly value: string;
 }
 
 interface ArtifactFieldValueTextRepresentation extends ArtifactFieldValueRepresentation {
@@ -37,14 +34,9 @@ interface ArtifactFieldValueTextRepresentation extends ArtifactFieldValueReprese
     readonly post_processed_value: string;
 }
 
-interface FileInfoRepresentation {
-    id: number;
-    type: string;
-}
-
-export interface ArtifactFieldValueFileFullRepresentation extends ArtifactFieldValueRepresentation {
-    type: "file";
-    file_descriptions: FileInfoRepresentation[];
+export interface ArtifactSectionAttachmentsRepresentation {
+    upload_url: string;
+    attachment_ids: FileIdentifier[];
 }
 
 export interface ArtifactFieldValueCommonmarkRepresentation
@@ -52,27 +44,27 @@ export interface ArtifactFieldValueCommonmarkRepresentation
     readonly commonmark: string;
 }
 
-export type ArtifactTextFieldValueRepresentation =
-    | ArtifactFieldValueCommonmarkRepresentation
-    | ArtifactFieldValueTextRepresentation;
-
 export type ArtidocSection = FreetextSection | SectionBasedOnArtifact;
 
 export type FreetextSection = {
+    readonly type: "freetext";
     id: string;
     title: string;
-    display_title: string;
     description: string;
     attachments: null;
     is_pending: boolean;
+    level: Level;
+    display_level: string;
 };
 
 export type SectionBasedOnArtifact = {
+    readonly type: "artifact";
     id: string;
-    title: ArtifactFieldValueStringRepresentation | ArtifactTextFieldValueRepresentation;
-    display_title: string;
-    description: ArtifactTextFieldValueRepresentation;
-    attachments: ArtifactFieldValueFileFullRepresentation | null;
+    title: string;
+    description: string;
+    attachments: ArtifactSectionAttachmentsRepresentation | null;
+    level: Level;
+    display_level: string;
 };
 
 export interface ArtifactSection extends SectionBasedOnArtifact {
@@ -123,21 +115,9 @@ export function isArtifactSection(section: ArtidocSection): section is ArtifactS
 export function isSectionBasedOnArtifact(
     section: ArtidocSection,
 ): section is SectionBasedOnArtifact {
-    return typeof section.title !== "string";
+    return section.type === "artifact";
 }
 
 export function isFreetextSection(section: ArtidocSection): section is FreetextSection {
-    return typeof section.title === "string";
-}
-
-export function isTitleAString(
-    title: SectionBasedOnArtifact["title"],
-): title is ArtifactFieldValueStringRepresentation {
-    return title.type === "string";
-}
-
-export function isCommonmark(
-    value: ArtifactTextFieldValueRepresentation,
-): value is ArtifactFieldValueCommonmarkRepresentation {
-    return "commonmark" in value;
+    return section.type === "freetext";
 }

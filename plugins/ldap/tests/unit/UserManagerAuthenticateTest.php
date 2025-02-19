@@ -108,17 +108,12 @@ final class UserManagerAuthenticateTest extends \Tuleap\Test\PHPUnit\TestCase
                 {
                     return false;
                 }
-
-                public function computeUnixPassword(ConcealedString $plain_password): string
-                {
-                    return 'hash';
-                }
             }
         );
 
         $this->ldap_user_manager = $this->getMockBuilder(\LDAP_UserManager::class)
             ->onlyMethods(['synchronizeUser', 'getUserManager', 'createAccountFromLdap'])
-            ->setConstructorArgs([$this->ldap, $this->user_sync, $this->username_normalizer, $password_verifier])
+            ->setConstructorArgs([$this->ldap, $this->user_sync, $this->username_normalizer, $password_verifier, new NullLogger()])
             ->getMock();
 
         $this->ldap_user_manager->method('getUserManager')->willReturn($this->user_manager);

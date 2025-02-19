@@ -25,7 +25,7 @@
     >
         <div class="artidoc-dropdown-container">
             <section-dropdown
-                v-bind:editor="editor"
+                v-bind:delete_section="delete_section"
                 v-bind:section="section.value"
                 v-bind:section_state="section_state"
                 v-if="!is_loading_sections"
@@ -46,22 +46,22 @@
             <section-header
                 class="section-header"
                 v-if="!is_loading_sections"
-                v-bind:title="section.value.display_title"
+                v-bind:display_level="''"
+                v-bind:title="section.value.title"
             />
             <section-header-skeleton v-if="is_loading_sections" class="section-header" />
             <section-description
-                v-bind:post_information="section_attachments_manager.getPostInformation()"
-                v-bind:project_id="getProjectId()"
                 v-bind:section="section"
                 v-bind:section_state="section_state"
                 v-bind:manage_section_editor_state="section_editor_state_manager"
+                v-bind:manage_section_attachment_files="section_attachments_manager"
             />
             <section-footer
-                v-bind:editor="editor"
                 v-bind:section="section.value"
                 v-bind:section_state="section_state"
                 v-bind:close_section_editor="section_editor_closer"
                 v-bind:refresh_section="section_refresher"
+                v-bind:save_section="save_section"
             />
         </article>
     </section>
@@ -73,7 +73,6 @@ import type { Ref } from "vue";
 import { useGettext } from "vue3-gettext";
 import { strictInject } from "@tuleap/vue-strict-inject";
 
-import { isPendingArtifactSection, isArtifactSection } from "@/helpers/artidoc-section.type";
 import type { ReactiveStoredArtidocSection } from "@/sections/SectionsCollection";
 import SectionHeader from "./header/SectionHeader.vue";
 import SectionDescription from "./description/SectionDescription.vue";
@@ -84,22 +83,22 @@ import SectionFooter from "./footer/SectionFooter.vue";
 import { SET_GLOBAL_ERROR_MESSAGE } from "@/global-error-message-injection-key";
 import { IS_LOADING_SECTIONS } from "@/is-loading-sections-injection-key";
 import { DOCUMENT_ID } from "@/document-id-injection-key";
-import { SECTIONS_STATES_COLLECTION } from "@/sections/sections-states-collection-injection-key";
-import { TEMPORARY_FLAG_DURATION_IN_MS } from "@/composables/temporary-flag-duration";
-import { SECTIONS_COLLECTION } from "@/sections/sections-collection-injection-key";
-import { FILE_UPLOADS_COLLECTION } from "@/sections/sections-file-uploads-collection-injection-key";
+import { SECTIONS_STATES_COLLECTION } from "@/sections/states/sections-states-collection-injection-key";
+import { TEMPORARY_FLAG_DURATION_IN_MS } from "@/components/temporary-flag-duration";
+import { SECTIONS_COLLECTION } from "@/sections/states/sections-collection-injection-key";
+import { FILE_UPLOADS_COLLECTION } from "@/sections/attachments/sections-file-uploads-collection-injection-key";
 
-import { useSectionEditor } from "@/composables/useSectionEditor";
-
-import { getPendingSectionsReplacer } from "@/sections/PendingSectionsReplacer";
-import { getSectionsUpdater } from "@/sections/SectionsUpdater";
-import { getSectionsRemover } from "@/sections/SectionsRemover";
-import { getSectionsPositionsForSaveRetriever } from "@/sections/SectionsPositionsForSaveRetriever";
-import { getSectionErrorManager } from "@/sections/SectionErrorManager";
-import { getSectionAttachmentFilesManager } from "@/sections/SectionAttachmentFilesManager";
-import { getSectionEditorStateManager } from "@/sections/SectionEditorStateManager";
-import { getSectionEditorCloser } from "@/sections/SectionEditorCloser";
-import { getSectionRefresher } from "@/sections/SectionRefresher";
+import { getPendingSectionsReplacer } from "@/sections/insert/PendingSectionsReplacer";
+import { getSectionsUpdater } from "@/sections/update/SectionsUpdater";
+import { getSectionsRemover } from "@/sections/remove/SectionsRemover";
+import { getSectionsPositionsForSaveRetriever } from "@/sections/save/SectionsPositionsForSaveRetriever";
+import { getSectionErrorManager } from "@/sections/states/SectionErrorManager";
+import { getSectionAttachmentFilesManager } from "@/sections/attachments/SectionAttachmentFilesManager";
+import { getSectionEditorStateManager } from "@/sections/editors/SectionEditorStateManager";
+import { getSectionEditorCloser } from "@/sections/editors/SectionEditorCloser";
+import { getSectionRefresher } from "@/sections/update/SectionRefresher";
+import { getSectionDeletor } from "@/sections/remove/SectionDeletor";
+import { getSectionSaver } from "@/sections/save/SectionSaver";
 
 const props = defineProps<{ section: ReactiveStoredArtidocSection }>();
 const setGlobalErrorMessage = strictInject(SET_GLOBAL_ERROR_MESSAGE);
@@ -169,17 +168,23 @@ const section_refresher = getSectionRefresher(
 
 const { $gettext } = useGettext();
 
-const editor = useSectionEditor(
+const save_section = getSectionSaver(
     document_id,
     props.section,
     section_state,
     error_state_manager,
-    section_attachments_manager,
     getPendingSectionsReplacer(sections_collection, states_collection),
     sections_updater,
-    sections_remover,
     getSectionsPositionsForSaveRetriever(sections_collection),
+    section_attachments_manager,
     section_editor_closer,
+);
+
+const delete_section = getSectionDeletor(
+    props.section.value,
+    section_state,
+    error_state_manager,
+    sections_remover,
     (error: string) => {
         setGlobalErrorMessage({
             message: $gettext("An error occurred while removing the section."),
@@ -189,16 +194,6 @@ const editor = useSectionEditor(
 );
 
 const { is_in_error, is_outdated } = section_state;
-
-function getProjectId(): number {
-    if (isArtifactSection(props.section.value)) {
-        return props.section.value.artifact.tracker.project.id;
-    }
-
-    return isPendingArtifactSection(props.section.value)
-        ? props.section.value.tracker.project.id
-        : 0;
-}
 </script>
 
 <style lang="scss" scoped>

@@ -25,11 +25,11 @@ import { ref } from "vue";
 import { noop } from "@/helpers/noop";
 import ArtifactSectionFactory from "@/helpers/artifact-section.factory";
 import FreetextSectionFactory from "@/helpers/freetext-section.factory";
-import { SECTIONS_COLLECTION } from "@/sections/sections-collection-injection-key";
+import { SECTIONS_COLLECTION } from "@/sections/states/sections-collection-injection-key";
 import { CAN_USER_EDIT_DOCUMENT } from "@/can-user-edit-document-injection-key";
 import { DOCUMENT_ID } from "@/document-id-injection-key";
 import { SET_GLOBAL_ERROR_MESSAGE } from "@/global-error-message-injection-key";
-import { SECTIONS_STATES_COLLECTION } from "@/sections/sections-states-collection-injection-key";
+import { SECTIONS_STATES_COLLECTION } from "@/sections/states/sections-states-collection-injection-key";
 import { IS_LOADING_SECTIONS } from "@/is-loading-sections-injection-key";
 import { SectionsCollectionStub } from "@/sections/stubs/SectionsCollectionStub";
 import { skeleton_sections_collection } from "@/helpers/get-skeleton-sections-collection";
@@ -37,6 +37,10 @@ import { SectionsStatesCollectionStub } from "@/sections/stubs/SectionsStatesCol
 import { ReactiveStoredArtidocSectionStub } from "@/sections/stubs/ReactiveStoredArtidocSectionStub";
 import type { ReactiveStoredArtidocSection } from "@/sections/SectionsCollection";
 import TableOfContents from "./TableOfContents.vue";
+
+const display_level_section1 = "1.";
+const display_level_section2 = "2.";
+const display_level_section3 = "2.1.";
 
 describe("TableOfContents", () => {
     let can_user_edit_document: boolean,
@@ -97,16 +101,19 @@ describe("TableOfContents", () => {
             artifact_section_1 = ReactiveStoredArtidocSectionStub.fromSection(
                 ArtifactSectionFactory.override({
                     artifact: { ...ArtifactSectionFactory.create().artifact, id: 1 },
+                    display_level: display_level_section1,
                 }),
             );
             artifact_section_2 = ReactiveStoredArtidocSectionStub.fromSection(
                 ArtifactSectionFactory.override({
                     artifact: { ...ArtifactSectionFactory.create().artifact, id: 2 },
+                    display_level: display_level_section2,
                 }),
             );
             freetext_section = ReactiveStoredArtidocSectionStub.fromSection(
                 FreetextSectionFactory.override({
-                    display_title: "Freetext section",
+                    title: "Freetext section",
+                    display_level: display_level_section3,
                 }),
             );
 
@@ -150,7 +157,7 @@ describe("TableOfContents", () => {
         });
 
         it("should have an url to redirect to the section", () => {
-            const list = getWrapper().find("ol");
+            const list = getWrapper().find("ul");
             const links = list.findAll("li a");
 
             expect(links.length).toBe(3);
@@ -162,6 +169,13 @@ describe("TableOfContents", () => {
 
         it("should display the table of content title", () => {
             expect(getWrapper().find("h1").text()).toBe("Table of contents");
+        });
+
+        it("should display the number according to display_level", () => {
+            const display_levels = getWrapper().findAll("[data-test=display-level]");
+            expect(display_levels[0].text()).toBe(display_level_section1);
+            expect(display_levels[1].text()).toBe(display_level_section2);
+            expect(display_levels[2].text()).toBe(display_level_section3);
         });
     });
 });

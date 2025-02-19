@@ -27,8 +27,9 @@ use ForgeConfig;
 use PFUser;
 use Tracker;
 use Tuleap\Config\ConfigKey;
+use Tuleap\Config\ConfigKeyCategory;
 use Tuleap\Config\ConfigKeyInt;
-use Tuleap\CrossTracker\CrossTrackerExpertReport;
+use Tuleap\CrossTracker\CrossTrackerQuery;
 use Tuleap\CrossTracker\CrossTrackerInstrumentation;
 use Tuleap\CrossTracker\Report\Query\Advanced\ExpertQueryIsEmptyException;
 use Tuleap\CrossTracker\Report\Query\Advanced\InvalidOrderByBuilder;
@@ -67,6 +68,7 @@ use Tuleap\Tracker\Report\Query\Advanced\SelectablesDoNotExistException;
 use Tuleap\Tracker\Report\Query\Advanced\SelectablesMustBeUniqueException;
 use Tuleap\Tracker\Report\Query\Advanced\SelectLimitExceededException;
 
+#[ConfigKeyCategory('CrossTracker Search')]
 final readonly class CrossTrackerArtifactReportFactory
 {
     #[ConfigKey('Configure the maximum quantity of tracker a cross tracker search expert query can use (default to 0 for no limit)')]
@@ -111,7 +113,7 @@ final readonly class CrossTrackerArtifactReportFactory
      * @throws SyntaxError
      */
     public function getArtifactsMatchingReport(
-        CrossTrackerExpertReport $report,
+        CrossTrackerQuery $report,
         PFUser $current_user,
         int $limit,
         int $offset,
@@ -142,15 +144,12 @@ final readonly class CrossTrackerArtifactReportFactory
      * @throws SyntaxError
      */
     private function getArtifactsMatchingExpertQuery(
-        CrossTrackerExpertReport $report,
+        CrossTrackerQuery $report,
         PFUser $current_user,
         int $limit,
         int $offset,
     ): CrossTrackerReportContentRepresentation {
         $trackers = $this->report_trackers_retriever->getReportTrackers($report, $current_user, ForgeConfig::getInt(self::MAX_TRACKER_FROM));
-        if ($trackers === []) {
-            throw new FromIsInvalidException([dgettext('tuleap-crosstracker', 'No tracker found')]);
-        }
         $this->instrumentation->updateTrackerCount(count($trackers));
 
         $query = $this->getQueryFromReport($report, $current_user, $trackers);
@@ -211,7 +210,7 @@ final readonly class CrossTrackerArtifactReportFactory
      * @throws SyntaxError
      */
     private function getQueryFromReport(
-        CrossTrackerExpertReport $report,
+        CrossTrackerQuery $report,
         PFUser $current_user,
         array $trackers,
     ): Query {

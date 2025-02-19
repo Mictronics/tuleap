@@ -23,7 +23,7 @@
         v-bind:writing_cross_tracker_report="writing_cross_tracker_report"
     />
     <div class="tlp-table-actions" v-if="should_show_export_button">
-        <export-x-l-s-x-button />
+        <export-x-l-s-x-button v-bind:query_id="selected_query?.uuid ?? null" />
     </div>
     <div class="cross-tracker-loader" v-if="is_loading" data-test="loading"></div>
     <div class="overflow-wrapper" v-if="total > 0">
@@ -60,9 +60,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onMounted, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import {
+    EMITTER,
     GET_COLUMN_NAME,
     IS_EXPORT_ALLOWED,
     NOTIFY_FAULT,
@@ -81,6 +82,9 @@ import SelectableCell from "./SelectableCell.vue";
 import type { ColumnName } from "../../domain/ColumnName";
 import EditCell from "./EditCell.vue";
 import ExportXLSXButton from "../ExportXLSXButton.vue";
+import type { RefreshArtifactsEvent } from "../../helpers/emitter-provider";
+import { REFRESH_ARTIFACTS_EVENT } from "../../helpers/emitter-provider";
+import type { Report } from "../../type";
 
 const column_name_getter = strictInject(GET_COLUMN_NAME);
 
@@ -91,7 +95,7 @@ const is_xslx_export_allowed = strictInject(IS_EXPORT_ALLOWED);
 
 const props = defineProps<{
     writing_cross_tracker_report: WritingCrossTrackerReport;
-    there_is_no_query: boolean;
+    selected_query: Report | null;
 }>();
 
 const is_loading = ref(false);
@@ -112,6 +116,7 @@ watch(report_state, () => {
         refreshArtifactList();
     }
 });
+const emitter = strictInject(EMITTER);
 
 function handleNewPage(new_offset: number): void {
     offset = new_offset;
@@ -119,18 +124,27 @@ function handleNewPage(new_offset: number): void {
 }
 
 function refreshArtifactList(): void {
+    resetArtifactList();
+    loadArtifacts();
+}
+
+function resetArtifactList(): void {
     rows.value = [];
     columns.value = new Set<string>();
     is_loading.value = true;
-    loadArtifacts();
 }
 
 onMounted(() => {
     refreshArtifactList();
+    emitter.on(REFRESH_ARTIFACTS_EVENT, handleRefreshArtifactsEvent);
+});
+
+onBeforeUnmount(() => {
+    emitter.off(REFRESH_ARTIFACTS_EVENT);
 });
 
 function loadArtifacts(): void {
-    if (props.there_is_no_query) {
+    if (props.selected_query === null) {
         is_loading.value = false;
         return;
     }
@@ -150,12 +164,36 @@ function loadArtifacts(): void {
         });
 }
 
+function handleRefreshArtifactsEvent(event: RefreshArtifactsEvent): void {
+    resetArtifactList();
+    artifacts_retriever
+        .getSelectableQueryResult(event.query.uuid, event.query.expert_query, limit, offset)
+        .match(
+            (report_with_total) => {
+                columns.value = report_with_total.table.columns;
+                rows.value = report_with_total.table.rows;
+                total.value = report_with_total.total;
+            },
+            (fault) => {
+                notifyFault(ArtifactsRetrievalFault(fault));
+            },
+        )
+        .then(() => {
+            is_loading.value = false;
+        });
+}
+
 function getArtifactsFromReportOrUnsavedQuery(): ResultAsync<ArtifactsTableWithTotal, Fault> {
     if (report_state.value === "report-saved") {
-        return artifacts_retriever.getSelectableReportContent(limit, offset);
+        return artifacts_retriever.getSelectableReportContent(
+            props.selected_query?.uuid ?? "",
+            limit,
+            offset,
+        );
     }
 
     return artifacts_retriever.getSelectableQueryResult(
+        props.selected_query?.uuid ?? "",
         props.writing_cross_tracker_report.expert_query,
         limit,
         offset,

@@ -19,17 +19,17 @@
 use anyhow::{anyhow, Result};
 use std::ffi::{CStr, CString};
 use std::os::raw::c_char;
+use std::path::Path;
 use std::sync::Arc;
 use std::time::Instant;
 use wasmtime::*;
+use wasmtime_wasi::pipe::{MemoryInputPipe, MemoryOutputPipe};
 use wasmtime_wasi::preview1::WasiP1Ctx;
+use wasmtime_wasi::{DirPerms, FilePerms, WasiCtxBuilder};
 use wire::{
     ExecConfig, InternalErrorJson, Limitations, MountPoint, Stats, SuccessResponseJson,
     UserErrorJson,
 };
-use std::path::Path;
-use wasmtime_wasi::pipe::{MemoryInputPipe, MemoryOutputPipe};
-use wasmtime_wasi::{DirPerms, FilePerms, WasiCtxBuilder};
 
 mod wire;
 
@@ -71,10 +71,15 @@ pub unsafe extern "C" fn callWasmModule(
         &config_json.mount_points,
         &config_json.limits,
     ) {
-        Ok(out_struct) => match out_struct.result {
-            Ok(output_message) => success_response(output_message, out_struct.stats),
-            Err(e) => {
-                return match e.downcast_ref::<Trap>() {
+        Ok(out_struct) => match out_struct.exec_error {
+            None => success_response(out_struct.stdout, out_struct.stats),
+            Some(e) => {
+                if let Some(exit) = e.downcast_ref::<wasmtime_wasi::I32Exit>() {
+                    if exit.0 == 0 {
+                        return success_response(out_struct.stdout, out_struct.stats);
+                    }
+                }
+                match e.downcast_ref::<Trap>() {
                         Some(&Trap::Interrupt) => user_error(format!(
                             "The module has exceeded the {} ms of allowed computation time",
                             config_json.limits.max_exec_time_in_ms
@@ -86,7 +91,7 @@ pub unsafe extern "C" fn callWasmModule(
                         ),
                         out_struct.stats),
                         _ => user_error(format!("{}", e.root_cause()), out_struct.stats),
-                    };
+                    }
             }
         },
         Err(e) => internal_error(format!("{}", e)),
@@ -139,7 +144,8 @@ struct StoreState {
 }
 
 struct OutputAndStats {
-    result: Result<String, Error>,
+    stdout: String,
+    exec_error: Option<Error>,
     stats: Stats,
 }
 
@@ -170,13 +176,14 @@ fn compile_and_exec(
     ctx_builder.stdout(stdout.clone());
     ctx_builder.allow_tcp(false);
     ctx_builder.allow_udp(false);
+    ctx_builder.arg("./tuleap-function.wasm");
 
     for mount_point in mount_points {
         ctx_builder.preopened_dir(
             &mount_point.host_path,
             &mount_point.guest_path,
             DirPerms::READ,
-            FilePerms::READ
+            FilePerms::READ,
         )?;
     }
 
@@ -192,7 +199,9 @@ fn compile_and_exec(
     let mut store = Store::new(&engine, my_state);
     store.limiter(|state| &mut state.limits);
 
-    wasmtime_wasi::preview1::add_to_linker_sync(&mut linker, |state: &mut StoreState| &mut state.wasi)?;
+    wasmtime_wasi::preview1::add_to_linker_sync(&mut linker, |state: &mut StoreState| {
+        &mut state.wasi
+    })?;
 
     store.epoch_deadline_trap();
     store.set_epoch_deadline(1);
@@ -229,28 +238,22 @@ fn compile_and_exec(
 
     drop(store);
 
+    let stdout_str = match String::from_utf8(stdout.contents().to_vec()) {
+        Ok(s) => s,
+        Err(e) => return Err(anyhow!(e)),
+    };
+
     match res {
-        Ok(_) => {
-            let str = match String::from_utf8(stdout.contents().to_vec()) {
-                Ok(s) => s,
-                Err(e) => return Err(anyhow!(e)),
-            };
-
-            let output = OutputAndStats {
-                result: Ok(str),
-                stats: statistics,
-            };
-
-            Ok(output)
-        }
-        Err(e) => {
-            let output = OutputAndStats {
-                result: Err(e),
-                stats: statistics,
-            };
-
-            Ok(output)
-        }
+        Ok(_) => Ok(OutputAndStats {
+            stdout: stdout_str,
+            exec_error: None,
+            stats: statistics,
+        }),
+        Err(e) => Ok(OutputAndStats {
+            stdout: stdout_str,
+            exec_error: Some(e),
+            stats: statistics,
+        }),
     }
 }
 

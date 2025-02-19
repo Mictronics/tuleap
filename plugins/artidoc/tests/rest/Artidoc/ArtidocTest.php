@@ -234,7 +234,7 @@ final class ArtidocTest extends DocmanTestExecutionHelper
         $section_1_id = $this->createRequirementArtifact('Section 1', 'Content of section 1');
         $section_2_id = $this->createRequirementArtifact('Section 2', 'Content of section 2');
 
-        $this->setSectionsForArtidoc($artidoc_id, $section_1_id, $section_2_id);
+        $this->importExistingArtifactInArtidoc($artidoc_id, $section_1_id, $section_2_id);
 
         $folder_id = $this->createFolder($root_id, 'Folder to copy item F6 into. ' . $this->now)['id'];
         self::assertCount(0, $this->getFolderContent($folder_id));
@@ -269,19 +269,21 @@ final class ArtidocTest extends DocmanTestExecutionHelper
         self::assertSame($section_2_id, $document_content[1]['artifact']['id']);
     }
 
-    private function setSectionsForArtidoc(int $artidoc_id, int ...$section_ids): void
+    private function importExistingArtifactInArtidoc(int $artidoc_id, int ...$artifact_ids): void
     {
-        foreach ($section_ids as $section_id) {
+        foreach ($artifact_ids as $artifact_id) {
             $post_response = $this->getResponse(
                 $this->request_factory->createRequest('POST', 'artidoc_sections')->withBody(
                     $this->stream_factory->createStream(json_encode(
                         [
                             'artidoc_id' => $artidoc_id,
                             'section' => [
-                                'artifact' => ['id' => $section_id],
+                                'import' => [
+                                    'artifact' => ['id' => $artifact_id],
+                                    'level' => 1,
+                                ],
                                 'position' => null,
                                 'content' => null,
-                                'level' => 1,
                             ],
                         ],
                         JSON_THROW_ON_ERROR
@@ -302,9 +304,28 @@ final class ArtidocTest extends DocmanTestExecutionHelper
         $section_1_art_id = $this->createRequirementArtifact('Section 1', 'Content of section 1');
         $section_2_art_id = $this->createRequirementArtifact('Section 2', 'Content of section 2');
 
-        $this->setSectionsForArtidoc($artidoc_id, $section_1_art_id, $section_2_art_id);
+        $this->importExistingArtifactInArtidoc($artidoc_id, $section_1_art_id, $section_2_art_id);
 
-        $section_3_art_id = $this->createRequirementArtifact('Section 3', 'Content of section 3');
+        $this->assertSectionsMatchContent(
+            $artidoc_id,
+            'Section 1',
+            'Section 2',
+        );
+
+        $this->getResponse(
+            $this->request_factory->createRequest(
+                'PUT',
+                'artidoc/' . $artidoc_id . '/configuration'
+            )->withBody(
+                $this->stream_factory->createStream(
+                    json_encode(
+                        [
+                            'selected_tracker_ids' => [$this->requirements_tracker_id],
+                        ],
+                    ),
+                )
+            )
+        );
 
         // at the end
         $section_3_post_response = $this->getResponse(
@@ -312,10 +333,14 @@ final class ArtidocTest extends DocmanTestExecutionHelper
                 $this->stream_factory->createStream(json_encode([
                     'artidoc_id' => $artidoc_id,
                     'section' => [
-                        'artifact' => ['id' => $section_3_art_id],
                         'position' => null,
-                        'content' => null,
-                        'level' => 1,
+                        'content' => [
+                            'title' => 'Section 3',
+                            'description' => 'Content of section 3',
+                            'type' => 'artifact',
+                            'attachments' => [],
+                            'level' => 1,
+                        ],
                     ],
                 ], JSON_THROW_ON_ERROR))
             ),
@@ -323,16 +348,14 @@ final class ArtidocTest extends DocmanTestExecutionHelper
         );
         self::assertSame(200, $section_3_post_response->getStatusCode());
 
-        $this->assertSectionsMatchArtifactIdsForDocument(
+        $this->assertSectionsMatchContent(
             $artidoc_id,
-            $section_1_art_id,
-            $section_2_art_id,
-            $section_3_art_id,
+            'Section 1',
+            'Section 2',
+            'Section 3',
         );
 
-        $section_4_art_id = $this->createRequirementArtifact('Section 4', 'Content of section 4');
-
-        $new_section_id = json_decode($section_3_post_response->getBody()->getContents(), null, 512, JSON_THROW_ON_ERROR)->id;
+        $section_3_id = json_decode($section_3_post_response->getBody()->getContents(), null, 512, JSON_THROW_ON_ERROR)->id;
 
         // before another section
         $section_4_post_response = $this->getResponse(
@@ -340,12 +363,16 @@ final class ArtidocTest extends DocmanTestExecutionHelper
                 $this->stream_factory->createStream(json_encode([
                     'artidoc_id' => $artidoc_id,
                     'section' => [
-                        'artifact' => ['id' => $section_4_art_id],
                         'position' => [
-                            'before' => $new_section_id,
+                            'before' => $section_3_id,
                         ],
-                        'content' => null,
-                        'level' => 1,
+                        'content' => [
+                            'title' => 'Section 4',
+                            'description' => 'Content of section 4',
+                            'type' => 'artifact',
+                            'attachments' => [],
+                            'level' => 1,
+                        ],
                     ],
                 ], JSON_THROW_ON_ERROR))
             ),
@@ -353,14 +380,12 @@ final class ArtidocTest extends DocmanTestExecutionHelper
         );
         self::assertSame(200, $section_4_post_response->getStatusCode());
 
-        $new_section_id = json_decode($section_4_post_response->getBody()->getContents(), null, 512, JSON_THROW_ON_ERROR)->id;
-
-        $this->assertSectionsMatchArtifactIdsForDocument(
+        $this->assertSectionsMatchContent(
             $artidoc_id,
-            $section_1_art_id,
-            $section_2_art_id,
-            $section_4_art_id,
-            $section_3_art_id,
+            'Section 1',
+            'Section 2',
+            'Section 4',
+            'Section 3',
         );
 
         // with a free text
@@ -370,14 +395,15 @@ final class ArtidocTest extends DocmanTestExecutionHelper
                     'artidoc_id' => $artidoc_id,
                     'section' => [
                         'position' => [
-                            'before' => $new_section_id,
+                            'before' => $section_3_id,
                         ],
                         'content' => [
                             'title' => 'My freetext title',
                             'description' => 'My freetext description',
                             'type' => 'freetext',
+                            'attachments' => [],
+                            'level' => 1,
                         ],
-                        'level' => 1,
                     ],
                 ], JSON_THROW_ON_ERROR))
             ),
@@ -386,13 +412,14 @@ final class ArtidocTest extends DocmanTestExecutionHelper
         self::assertSame(200, $post_response->getStatusCode());
         json_decode($post_response->getBody()->getContents(), null, 512, JSON_THROW_ON_ERROR)->id;
 
-        $document_content = $this->getArtidocSections($artidoc_id);
-        self::assertContains('My freetext title', array_map(
-            static function (array $section) {
-                return $section['title'] ?? null;
-            },
-            $document_content
-        ));
+        $this->assertSectionsMatchContent(
+            $artidoc_id,
+            'Section 1',
+            'Section 2',
+            'Section 4',
+            'My freetext title',
+            'Section 3',
+        );
     }
 
     /**
@@ -405,7 +432,7 @@ final class ArtidocTest extends DocmanTestExecutionHelper
         $section_2_art_id = $this->createRequirementArtifact('Section 2', 'Content of section 2');
         $section_3_art_id = $this->createRequirementArtifact('Section 3', 'Content of section 3');
 
-        $this->setSectionsForArtidoc($artidoc_id, $section_1_art_id, $section_2_art_id, $section_3_art_id);
+        $this->importExistingArtifactInArtidoc($artidoc_id, $section_1_art_id, $section_2_art_id, $section_3_art_id);
 
         $this->assertSectionsMatchArtifactIdsForDocument(
             $artidoc_id,
@@ -439,7 +466,7 @@ final class ArtidocTest extends DocmanTestExecutionHelper
         $section_2_art_id = $this->createRequirementArtifact('Section 2', 'Content of section 2');
         $section_3_art_id = $this->createRequirementArtifact('Section 3', 'Content of section 3');
 
-        $this->setSectionsForArtidoc($artidoc_id, $section_1_art_id, $section_2_art_id, $section_3_art_id);
+        $this->importExistingArtifactInArtidoc($artidoc_id, $section_1_art_id, $section_2_art_id, $section_3_art_id);
 
         $this->assertSectionsMatchArtifactIdsForDocument(
             $artidoc_id,
@@ -493,6 +520,19 @@ final class ArtidocTest extends DocmanTestExecutionHelper
             $artifact_ids,
             array_map(
                 static fn (array $section) => $section['artifact']['id'],
+                $document_content,
+            ),
+        );
+    }
+
+    private function assertSectionsMatchContent(int $artidoc_id, string ...$titles): void
+    {
+        $document_content = $this->getArtidocSections($artidoc_id);
+        self::assertSame(count($titles), count($document_content));
+        self::assertSame(
+            $titles,
+            array_map(
+                static fn (array $section) => $section['title'],
                 $document_content,
             ),
         );
@@ -613,7 +653,7 @@ final class ArtidocTest extends DocmanTestExecutionHelper
         $section_1_id = $this->createRequirementArtifact('Section 1', 'Content of section 1');
         $section_2_id = $this->createRequirementArtifact('Section 2', 'Content of section 2');
 
-        $this->setSectionsForArtidoc($artidoc_id, $section_1_id, $section_2_id);
+        $this->importExistingArtifactInArtidoc($artidoc_id, $section_1_id, $section_2_id);
 
         $document_content = $this->getArtidocSections($artidoc_id);
 
@@ -722,6 +762,7 @@ final class ArtidocTest extends DocmanTestExecutionHelper
                         [
                             'title' => 'My updated title',
                             'description' => 'My updated description',
+                            'attachments' => [],
                             'level' => 1,
                         ],
                     ),
@@ -736,6 +777,48 @@ final class ArtidocTest extends DocmanTestExecutionHelper
             },
             $document_content
         ));
+    }
+
+    /**
+     * @depends testGetRootId
+     */
+    public function testUpdateArtifactSection(int $root_id): void
+    {
+        $artidoc_id = $this->createArtidoc($root_id, 'Artidoc update requirement ' . $this->now)['id'];
+        $req_id     = $this->createRequirementArtifact('Section 1', 'Content of section 1');
+        $this->importExistingArtifactInArtidoc($artidoc_id, $req_id);
+
+        $document_content = $this->getArtidocSections($artidoc_id);
+
+        self::assertCount(1, $document_content);
+
+        $section_id = $document_content[0]['id'];
+
+        $response = $this->getResponse(
+            $this->request_factory->createRequest(
+                'PUT',
+                'artidoc_sections/' . $section_id
+            )->withBody(
+                $this->stream_factory->createStream(
+                    json_encode(
+                        [
+                            'title' => 'My updated title',
+                            'description' => 'My updated description',
+                            'attachments' => [],
+                            'level' => 2,
+                        ],
+                    ),
+                )
+            )
+        );
+        self::assertSame(200, $response->getStatusCode());
+
+        $document_content = $this->getArtidocSections($artidoc_id);
+
+        self::assertCount(1, $document_content);
+        self::assertSame('My updated title', $document_content[0]['title']);
+        self::assertSame('My updated description', $document_content[0]['description']);
+        self::assertSame(2, $document_content[0]['level']);
     }
 
     /**
@@ -769,8 +852,9 @@ final class ArtidocTest extends DocmanTestExecutionHelper
                             'title' => 'My freetext title',
                             'description' => 'My freetext description',
                             'type' => 'freetext',
+                            'attachments' => [],
+                            'level' => 1,
                         ],
-                        'level' => 1,
                     ],
                 ], JSON_THROW_ON_ERROR))
             ),

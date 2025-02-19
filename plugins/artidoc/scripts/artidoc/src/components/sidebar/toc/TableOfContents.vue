@@ -22,7 +22,7 @@
     <h1 class="tlp-pane-title">
         {{ $gettext("Table of contents") }}
     </h1>
-    <ol ref="list" data-is-container="true">
+    <ul ref="list" data-is-container="true">
         <li
             data-test="section-in-toc"
             v-for="(section, index) in sections_collection.sections.value"
@@ -43,6 +43,10 @@
                 v-bind:class="{ 'dragndrop-grip-when-sections-loading': is_loading_sections }"
             >
                 <dragndrop-grip-illustration />
+            </span>
+
+            <span class="toc-display-level" data-test="display-level">
+                {{ section.value.display_level }}
             </span>
 
             <span v-if="is_loading_sections" class="tlp-skeleton-text"></span>
@@ -77,7 +81,7 @@
                 />
             </span>
         </li>
-    </ol>
+    </ul>
 </template>
 
 <script setup lang="ts">
@@ -87,7 +91,7 @@ import type { Ref } from "vue";
 import { isArtifactSection, isSectionBasedOnArtifact } from "@/helpers/artidoc-section.type";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import type { Fault } from "@tuleap/fault";
-import { SECTIONS_COLLECTION } from "@/sections/sections-collection-injection-key";
+import { SECTIONS_COLLECTION } from "@/sections/states/sections-collection-injection-key";
 import DragndropGripIllustration from "@/components/sidebar/toc/DragndropGripIllustration.vue";
 import { CAN_USER_EDIT_DOCUMENT } from "@/can-user-edit-document-injection-key";
 import ReorderArrows from "@/components/sidebar/toc/ReorderArrows.vue";
@@ -99,12 +103,12 @@ import type {
     ReactiveStoredArtidocSection,
 } from "@/sections/SectionsCollection";
 import { DOCUMENT_ID } from "@/document-id-injection-key";
-import { TEMPORARY_FLAG_DURATION_IN_MS } from "@/composables/temporary-flag-duration";
+import { TEMPORARY_FLAG_DURATION_IN_MS } from "@/components/temporary-flag-duration";
 import { SET_GLOBAL_ERROR_MESSAGE } from "@/global-error-message-injection-key";
 import { IS_LOADING_SECTIONS } from "@/is-loading-sections-injection-key";
-import { SECTIONS_STATES_COLLECTION } from "@/sections/sections-states-collection-injection-key";
-import { isCannotReorderSectionsFault } from "@/sections/CannotReorderSectionsFault";
-import { buildSectionsReorderer } from "@/sections/SectionsReorderer";
+import { SECTIONS_STATES_COLLECTION } from "@/sections/states/sections-states-collection-injection-key";
+import { isCannotReorderSectionsFault } from "@/sections/reorder/CannotReorderSectionsFault";
+import { buildSectionsReorderer } from "@/sections/reorder/SectionsReorderer";
 
 const { $gettext } = useGettext();
 
@@ -210,6 +214,7 @@ onUnmounted(() => {
 
 <style scoped lang="scss">
 @use "pkg:@tuleap/drag-and-drop";
+@use "@/themes/includes/viewport-breakpoint";
 
 @keyframes blink-toc-item {
     0% {
@@ -232,15 +237,23 @@ h1 {
     margin: var(--artidoc-sidebar-title-vertical-margin) var(--tlp-medium-spacing);
 }
 
-ol {
+ul {
     height: var(--artidoc-sidebar-content-height);
     padding: 0 0 var(--tlp-medium-spacing);
     overflow: hidden auto;
     list-style-position: inside;
     color: var(--tlp-dimmed-color);
+
+    @media (max-width: viewport-breakpoint.$small-screen-size) {
+        height: fit-content;
+    }
 }
 
 li {
+    &::marker {
+        color: transparent; // hack to hide the li point to be displayed before the title
+    }
+
     position: relative;
     padding: calc(var(--tlp-small-spacing) / 2) var(--tlp-medium-spacing);
 
@@ -249,7 +262,7 @@ li {
     }
 
     &:has(> .dragndrop-grip) {
-        padding-left: var(--tlp-large-spacing);
+        padding-left: var(--tlp-small-spacing);
     }
 
     &:has(> .reorder-arrows) {
@@ -358,20 +371,14 @@ $arrows-overflow: calc(var(--tlp-small-spacing) / 2);
     }
 }
 
+.toc-display-level {
+    font-variant-numeric: tabular-nums;
+}
+
 .section-title,
 .table-of-content-section-title {
     color: var(--tlp-dimmed-color);
     font-size: 0.875rem;
     font-weight: 600;
-}
-
-@media (max-width: 1024px) {
-    .table-of-contents-container {
-        padding-top: 0;
-    }
-
-    ol {
-        height: fit-content;
-    }
 }
 </style>

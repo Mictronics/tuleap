@@ -21,7 +21,7 @@ import { okAsync, errAsync } from "neverthrow";
 import type { ResultAsync } from "neverthrow";
 import { Fault } from "@tuleap/fault";
 import type { ArtidocSection } from "@/helpers/artidoc-section.type";
-import type { RemoveSections } from "@/sections/SectionsRemover";
+import type { RemoveSections } from "@/sections/remove/SectionsRemover";
 
 export type RemoveSectionsStub = RemoveSections & {
     getLastRemovedSection(): ArtidocSection | null;
@@ -37,6 +37,13 @@ export const SectionsRemoverStub = {
                 last_removed_section = section;
 
                 return okAsync(true);
+            },
+        };
+    },
+    withExpectedFault(fault: Fault): RemoveSections {
+        return {
+            removeSection(): ResultAsync<boolean, Fault> {
+                return errAsync(fault);
             },
         };
     },

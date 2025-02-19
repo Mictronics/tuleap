@@ -20,10 +20,13 @@
  */
 
 use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\DeleteSpecificProperties;
+use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\DuplicateSpecificProperties;
+use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\SpecificPropertiesWithMappingDuplicator;
+use Tuleap\Tracker\FormElement\FormElementTypeCannotBeChangedException;
 use Tuleap\Tracker\FormElement\FormElementTypeUpdateErrorException;
 use Tuleap\Tracker\FormElement\XML\XMLFormElement;
 use Tuleap\Tracker\FormElement\XML\XMLFormElementImpl;
-use Tuleap\Tracker\FormElement\FormElementTypeCannotBeChangedException;
 use Tuleap\Tracker\XML\TrackerXmlImportFeedbackCollector;
 
 /**
@@ -269,11 +272,10 @@ abstract class Tracker_FormElement implements Tracker_FormElement_Interface, Tra
                 $this->getTracker()->displayAdminFormElements($layout, $request, $current_user);
                 break;
             case 'admin-formElement-delete':
-                if ($this->delete() && Tracker_FormElementFactory::instance()->deleteFormElement($this->id)) {
-                    $GLOBALS['Response']->addFeedback('info', dgettext('tuleap-tracker', 'Field deleted'));
-                    $GLOBALS['Response']->redirect(TRACKER_BASE_URL . '/?tracker=' . $this->tracker_id . '&func=admin-formElements');
-                }
-                $this->getTracker()->displayAdminFormElements($layout, $request, $current_user);
+                $this->delete();
+                Tracker_FormElementFactory::instance()->deleteFormElement($this->id);
+                $GLOBALS['Response']->addFeedback('info', dgettext('tuleap-tracker', 'Field deleted'));
+                $GLOBALS['Response']->redirect(TRACKER_BASE_URL . '/?tracker=' . $this->tracker_id . '&func=admin-formElements');
                 break;
             default:
                 break;
@@ -401,18 +403,13 @@ abstract class Tracker_FormElement implements Tracker_FormElement_Interface, Tra
     /**
      * Duplicate a field. If the field has custom properties,
      * they should be propagated to the new one
-     *
-     * @param int $from_field_id The id of the field
-     *
-     * @return array the mapping between old values and new ones
      */
-    public function duplicate($from_field_id)
+    public function duplicate(int $from_field_id): SpecificPropertiesWithMappingDuplicator
     {
-        $dao = $this->getDao();
-        if ($dao) {
-            $dao->duplicate($from_field_id, $this->getId());
-        }
-        return [];
+        $duplicator = new SpecificPropertiesWithMappingDuplicator($this->getDuplicateSpecificPropertiesDao());
+        $duplicator->duplicate($from_field_id, $this->getId());
+
+        return $duplicator;
     }
 
     /**
@@ -559,6 +556,22 @@ abstract class Tracker_FormElement implements Tracker_FormElement_Interface, Tra
      * @return DataAccessObject
      */
     protected function getDao()
+    {
+        return null;
+    }
+
+    /**
+     * Get the dao enabling specific properties to be duplicated
+     */
+    protected function getDuplicateSpecificPropertiesDao(): ?DuplicateSpecificProperties
+    {
+        return null;
+    }
+
+    /**
+     * Get the dao enabling specific properties to be deleted
+     */
+    protected function getDeleteSpecificPropertiesDao(): ?DeleteSpecificProperties
     {
         return null;
     }
@@ -790,8 +803,6 @@ abstract class Tracker_FormElement implements Tracker_FormElement_Interface, Tra
                 return dgettext('tuleap-tracker', 'Include week-ends');
             case 'display_time':
                 return dgettext('tuleap-tracker', 'Display time');
-            case 'use_cache':
-                return dgettext('tuleap-tracker', 'Use cache');
             case 'default_value':
             default:
                 return dgettext('tuleap-tracker', 'Default value');
@@ -1023,12 +1034,14 @@ abstract class Tracker_FormElement implements Tracker_FormElement_Interface, Tra
      * This hooks is here to delete specific properties,
      *  specific values of the element... all its dependencies.
      * (The element itself will be deleted later)
-     *
-     * @return bool true if success
      */
-    public function delete()
+    public function delete(): void
     {
-        return true;
+        $dao = $this->getDeleteSpecificPropertiesDao();
+        if (! $dao) {
+            return;
+        }
+        $dao->deleteFieldProperties($this->id);
     }
 
     /**
@@ -1139,15 +1152,9 @@ abstract class Tracker_FormElement implements Tracker_FormElement_Interface, Tra
     }
 
     /**
-     * Say if a user has permission. Checks super user status.
-     * Do not call this directly. Use userCanRead, userCanUpdate or userCanSubmit instead.
-     *
-     * @param string $permission_type PLUGIN_TRACKER_FIELD_READ | PLUGIN_TRACKER_FIELD_UPDATE | PLUGIN_TRACKER_FIELD_SUBMIT
-     * @param PFUser  $user             The user. if null given take the current user
-     *
-     * @return bool
+     * @param self::PERMISSION_* $permission_type
      */
-    protected function userHasPermission($permission_type, ?PFUser $user = null)
+    private function userHasPermission(string $permission_type, PFUser $user): bool
     {
         if ($user instanceof Tracker_Workflow_WorkflowUser) {
             return true;
@@ -1161,9 +1168,6 @@ abstract class Tracker_FormElement implements Tracker_FormElement_Interface, Tra
             return true;
         }
 
-        if (! $user) {
-            $user = $this->getCurrentUser();
-        }
         return $user->isSuperUser() || PermissionsManager::instance()->userHasPermission(
             $this->id,
             $permission_type,
@@ -1180,6 +1184,24 @@ abstract class Tracker_FormElement implements Tracker_FormElement_Interface, Tra
     public function setUserCanRead(PFUser $user, bool $can_read): void
     {
         $this->user_can_read[$user->getId()] = $can_read;
+    }
+
+    /**
+     * @var array<int, bool>
+     */
+    private array $user_can_update = [];
+    public function setUserCanUpdate(PFUser $user, bool $can_update): void
+    {
+        $this->user_can_update[(int) $user->getId()] = $can_update;
+    }
+
+    /**
+     * @var array<int, bool>
+     */
+    private array $user_can_submit = [];
+    public function setUserCanSubmit(PFUser $user, bool $can_submit): void
+    {
+        $this->user_can_submit[(int) $user->getId()] = $can_submit;
     }
 
     /**
@@ -1211,7 +1233,17 @@ abstract class Tracker_FormElement implements Tracker_FormElement_Interface, Tra
      */
     public function userCanUpdate(?PFUser $user = null)
     {
-        return $this->isUpdateable() && $this->userHasPermission(self::PERMISSION_UPDATE, $user);
+        if (! $user) {
+            $user = $this->getCurrentUser();
+        }
+
+        $user_id = (int) $user->getId();
+        if (! isset($this->user_can_update[$user_id])) {
+            $this->user_can_update[$user_id] = $this->isUpdateable()
+                && $this->userHasPermission(self::PERMISSION_UPDATE, $user);
+        }
+
+        return $this->user_can_update[$user_id];
     }
 
     /**
@@ -1223,7 +1255,17 @@ abstract class Tracker_FormElement implements Tracker_FormElement_Interface, Tra
      */
     public function userCanSubmit(?PFUser $user = null)
     {
-        return $this->isSubmitable() && $this->userHasPermission(self::PERMISSION_SUBMIT, $user);
+        if (! $user) {
+            $user = $this->getCurrentUser();
+        }
+
+        $user_id = (int) $user->getId();
+        if (! isset($this->user_can_submit[$user_id])) {
+            $this->user_can_submit[$user_id] = $this->isSubmitable()
+                && $this->userHasPermission(self::PERMISSION_SUBMIT, $user);
+        }
+
+        return $this->user_can_submit[$user_id];
     }
 
     /**
