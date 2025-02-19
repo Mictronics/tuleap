@@ -120,13 +120,13 @@ describe("Artidoc", () => {
         });
 
         cy.get("[data-test=artidoc-section]:last-child").within(() => {
-            cy.intercept("PUT", "*/artifacts/*").as("updateArtifact");
+            cy.intercept("PUT", "*/artidoc_sections/*").as("updateSection");
             cy.intercept("GET", "*/artidoc_sections/*").as("editSection");
 
             pasteImageInSectionDescription("/uploads/tracker/file/*");
             cy.contains("button", "Save").click();
 
-            cy.wait(["@updateArtifact", "@editSection"]);
+            cy.wait(["@updateSection", "@editSection"]);
 
             getSectionTitle().should("contain.text", "Security Requirement (edited)");
             // ignore rule for image pasted in ProseMirror
@@ -233,14 +233,13 @@ function fillInSectionTitleAndDescription({
     title: string;
     description: string;
 }): void {
-    cy.intercept("POST", "*/artifacts").as("createArtifact");
-    cy.intercept("POST", "*/artidoc_sections").as("addSection");
+    cy.intercept("POST", "/api/v1/artidoc_sections").as("addSection");
 
     getSectionTitle().type(title);
     getSectionDescription().type(description);
 
     cy.get("[data-test=section-edition]").contains("button", "Save").click();
-    cy.wait(["@createArtifact", "@addSection"]);
+    cy.wait("@addSection");
 }
 
 function fillInFreeTextSectionTitleAndDescription({

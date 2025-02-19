@@ -10,7 +10,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.0.1\n"
 
 msgid "\"Attachment\" type field cannot be modified during artifact copy."
 msgstr ""
@@ -1927,6 +1927,9 @@ msgstr ""
 "Les liens entre artéfacts peuvent être typés en spécifiant pour chaque lien "
 "sa nature. La liste des natures possibles est définie ci-dessous."
 
+msgid "Links from and to current artifact"
+msgstr "Liens depuis et vers l'artéfact courant"
+
 msgid "Links to other artifacts"
 msgstr "Liens vers d'autres artéfacts"
 
@@ -2052,6 +2055,9 @@ msgstr "Minimum"
 
 msgid "Missing Parameters"
 msgstr "Paramètres manquants"
+
+msgid "Missing artifact link field"
+msgstr "Champ de lien d'artéfacts manquant"
 
 msgid "Missing field in data:"
 msgstr "Valeur de champ manquant:"
@@ -3804,12 +3810,8 @@ msgstr[1] ""
 "que des déclencheurs les impliquent."
 
 #, php-format
-msgid ""
-"The tracker '%1$s' cannot be created. Use '--update' to update an existing "
-"tracker."
-msgstr ""
-"Le tracker '%1$s' ne peut être créé. Utilisez l'option '--update' pour "
-"mettre à jour un tracker."
+msgid "The tracker '%1$s' cannot be created."
+msgstr "L'outil de suivi '%1$s' ne peut être créé."
 
 #, php-format
 msgid "The tracker '%1$s' has been properly restored"
@@ -4496,9 +4498,6 @@ msgstr "Utiliser le champ \"capacity\" pour la courbe théorique"
 
 msgid "Use a Canned Response:"
 msgstr "Utiliser une réponse type&nbsp;:"
-
-msgid "Use cache"
-msgstr "Utiliser la mémoire cache"
 
 #, php-format
 msgid "User '%s' couldn't be added."

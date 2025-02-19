@@ -36,7 +36,6 @@ use Tuleap\Tracker\FormElement\Field\Burndown\BurndownCacheGenerator;
 use Tuleap\Tracker\FormElement\Field\Burndown\BurndownCommonDataBuilder;
 use Tuleap\Tracker\FormElement\Field\Burndown\BurndownDataBuilderForLegacy;
 use Tuleap\Tracker\FormElement\Field\Burndown\BurndownDataBuilderForREST;
-use Tuleap\Tracker\FormElement\Field\Burndown\BurndownFieldDao;
 use Tuleap\Tracker\FormElement\Field\Burndown\BurndownRemainingEffortAdderForLegacy;
 use Tuleap\Tracker\FormElement\Field\Burndown\BurndownRemainingEffortAdderForREST;
 use Tuleap\Tracker\FormElement\Field\Computed\ComputedFieldDao;
@@ -296,20 +295,6 @@ class Tracker_FormElement_Field_Burndown extends Tracker_FormElement_Field imple
                 dgettext('tuleap-tracker', 'You are not allowed to access this field.')
             );
         }
-    }
-
-    /**
-     * Export form element properties into a SimpleXMLElement
-     *
-     * @param SimpleXMLElement &$root The root element of the form element
-     *
-     * @return void
-     */
-    public function exportPropertiesToXML(&$root)
-    {
-        $child = $root->addChild('properties');
-
-        $child->addAttribute('use_cache', '1');
     }
 
     public function getRESTValue(PFUser $user, Tracker_Artifact_Changeset $changeset): ArtifactFieldValueFullRepresentation
@@ -591,14 +576,6 @@ class Tracker_FormElement_Field_Burndown extends Tracker_FormElement_Field imple
     public function accept(Tracker_FormElement_FieldVisitor $visitor)
     {
         return $visitor->visitBurndown($this);
-    }
-
-    /**
-     * @return BurndownFieldDao The dao
-     */
-    protected function getDao()
-    {
-        return new BurndownFieldDao();
     }
 
     /**

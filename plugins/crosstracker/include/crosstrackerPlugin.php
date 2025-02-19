@@ -20,11 +20,11 @@
 
 use Tuleap\Config\GetConfigKeys;
 use Tuleap\CrossTracker\CrossTrackerWidgetDao;
-use Tuleap\CrossTracker\CrossTrackerReportFactory;
 use Tuleap\CrossTracker\Report\CrossTrackerArtifactReportFactory;
 use Tuleap\CrossTracker\Report\ReportInheritanceHandler;
 use Tuleap\CrossTracker\REST\ResourcesInjector;
 use Tuleap\CrossTracker\Widget\ProjectCrossTrackerSearch;
+use Tuleap\CrossTracker\Widget\WidgetPermissionChecker;
 use Tuleap\Plugin\ListeningToEventClass;
 use Tuleap\Plugin\ListeningToEventName;
 use Tuleap\Widget\Event\GetProjectWidgetList;
@@ -80,10 +80,11 @@ class crosstrackerPlugin extends Plugin
                 new ProjectCrossTrackerSearch(
                     $report_dao,
                     new ReportInheritanceHandler(
-                        new CrossTrackerReportFactory($report_dao),
+                        $report_dao,
                         $report_dao,
                         $this->getBackendLogger()
-                    )
+                    ),
+                    new WidgetPermissionChecker($report_dao, \ProjectManager::instance())
                 )
             );
         }
@@ -105,5 +106,6 @@ class crosstrackerPlugin extends Plugin
     public function getConfigKeys(GetConfigKeys $config_keys): void
     {
         $config_keys->addConfigClass(CrossTrackerArtifactReportFactory::class);
+        $config_keys->addConfigClass(ProjectCrossTrackerSearch::class);
     }
 }

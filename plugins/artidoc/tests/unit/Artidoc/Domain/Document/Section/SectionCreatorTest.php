@@ -30,6 +30,7 @@ use Tuleap\Artidoc\Domain\Document\ArtidocWithContext;
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifier;
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifierFactory;
 use Tuleap\Artidoc\Stubs\Domain\Document\RetrieveArtidocWithContextStub;
+use Tuleap\Artidoc\Stubs\Domain\Document\Section\Artifact\CreateArtifactContentStub;
 use Tuleap\Artidoc\Stubs\Domain\Document\Section\CollectRequiredSectionInformationStub;
 use Tuleap\Artidoc\Stubs\Domain\Document\Section\SaveOneSectionStub;
 use Tuleap\DB\DatabaseUUIDV7Factory;
@@ -64,14 +65,14 @@ final class SectionCreatorTest extends TestCase
                 ),
             ),
             $saver,
+            CreateArtifactContentStub::shouldNotBeCalled(),
             $collector,
         );
 
         $result = $creator->create(
             1,
             Option::nothing(SectionIdentifier::class),
-            Level::One,
-            SectionContentToBeCreated::fromArtifact(101)
+            SectionContentToBeCreated::fromImportedArtifact(101, Level::One)
         );
 
         self::assertTrue(Result::isOk($result));
@@ -93,14 +94,14 @@ final class SectionCreatorTest extends TestCase
                 ),
             ),
             $saver,
+            CreateArtifactContentStub::shouldNotBeCalled(),
             $collector,
         );
 
         $result = $creator->create(
             1,
             Option::fromValue($this->identifier_factory->buildFromHexadecimalString(self::ANOTHER_SECTION_ID)),
-            Level::One,
-            SectionContentToBeCreated::fromArtifact(101)
+            SectionContentToBeCreated::fromImportedArtifact(101, Level::One)
         );
 
         self::assertTrue(Result::isOk($result));
@@ -110,7 +111,7 @@ final class SectionCreatorTest extends TestCase
         self::assertSame(self::NEW_SECTION_ID, $result->value->toString());
     }
 
-    public function testHappyPathFreeTextContent(): void
+    public function testHappyPathFreetextContent(): void
     {
         $saver     = SaveOneSectionStub::withGeneratedSectionId($this->identifier_factory, self::NEW_SECTION_ID);
         $collector = CollectRequiredSectionInformationStub::withRequiredInformation();
@@ -122,19 +123,48 @@ final class SectionCreatorTest extends TestCase
                 ),
             ),
             $saver,
+            CreateArtifactContentStub::shouldNotBeCalled(),
             $collector,
         );
 
         $result = $creator->create(
             1,
             Option::fromValue($this->identifier_factory->buildFromHexadecimalString(self::ANOTHER_SECTION_ID)),
-            Level::One,
-            SectionContentToBeCreated::fromFreetext('my title', 'my description'),
+            SectionContentToBeCreated::fromFreetext('my title', 'my description', Level::One),
         );
 
         self::assertTrue(Result::isOk($result));
         self::assertTrue($saver->isSaved(1));
         self::assertFalse($collector->isCalled());
+        self::assertSame(self::NEW_SECTION_ID, $result->value->toString());
+    }
+
+    public function testHappyPathArtifactContent(): void
+    {
+        $saver     = SaveOneSectionStub::withGeneratedSectionId($this->identifier_factory, self::NEW_SECTION_ID);
+        $collector = CollectRequiredSectionInformationStub::withRequiredInformation();
+
+        $creator = new SectionCreator(
+            RetrieveArtidocWithContextStub::withDocumentUserCanWrite(
+                new ArtidocWithContext(
+                    new ArtidocDocument(['item_id' => 1, 'group_id' => self::PROJECT_ID]),
+                ),
+            ),
+            $saver,
+            CreateArtifactContentStub::withCreatedArtifactId(123),
+            $collector,
+        );
+
+        $result = $creator->create(
+            1,
+            Option::fromValue($this->identifier_factory->buildFromHexadecimalString(self::ANOTHER_SECTION_ID)),
+            SectionContentToBeCreated::fromArtifact('my title', 'my description', [], Level::One),
+        );
+
+        self::assertTrue(Result::isOk($result));
+        self::assertTrue($saver->isSaved(1));
+        self::assertFalse($collector->isCalled());
+        self::assertSame(123, $saver->getSavedBeforeForId(1)->artifact_id->unwrapOr(null));
         self::assertSame(self::NEW_SECTION_ID, $result->value->toString());
     }
 
@@ -150,14 +180,14 @@ final class SectionCreatorTest extends TestCase
                 ),
             ),
             $saver,
+            CreateArtifactContentStub::shouldNotBeCalled(),
             $collector,
         );
 
         $result = $creator->create(
             1,
             Option::fromValue($this->identifier_factory->buildFromHexadecimalString(self::ANOTHER_SECTION_ID)),
-            Level::One,
-            SectionContentToBeCreated::fromArtifact(101)
+            SectionContentToBeCreated::fromImportedArtifact(101, Level::One)
         );
 
         self::assertTrue(Result::isErr($result));
@@ -165,7 +195,7 @@ final class SectionCreatorTest extends TestCase
         self::assertFalse($saver->isSaved(1));
     }
 
-    private function provideArtidocPOSTSectionRepresentation(): array
+    public static function provideArtidocPOSTSectionRepresentation(): array
     {
         return [
             [101, null],
@@ -190,6 +220,7 @@ final class SectionCreatorTest extends TestCase
                 ),
             ),
             $saver,
+            CreateArtifactContentStub::shouldNotBeCalled(),
             $collector,
         );
 
@@ -198,8 +229,7 @@ final class SectionCreatorTest extends TestCase
             $before_section_id === null
                 ? Option::nothing(SectionIdentifier::class)
             : Option::fromValue($this->identifier_factory->buildFromHexadecimalString(self::ANOTHER_SECTION_ID)),
-            Level::One,
-            SectionContentToBeCreated::fromArtifact($artifact_id)
+            SectionContentToBeCreated::fromImportedArtifact($artifact_id, Level::One)
         );
 
         self::assertTrue(Result::isErr($result));
@@ -219,14 +249,14 @@ final class SectionCreatorTest extends TestCase
                 ),
             ),
             $saver,
+            CreateArtifactContentStub::shouldNotBeCalled(),
             $collector,
         );
 
         $result = $creator->create(
             1,
             Option::fromValue($this->identifier_factory->buildFromHexadecimalString(self::ANOTHER_SECTION_ID)),
-            Level::One,
-            SectionContentToBeCreated::fromArtifact(101)
+            SectionContentToBeCreated::fromImportedArtifact(101, Level::One)
         );
 
         self::assertTrue(Result::isErr($result));
@@ -241,14 +271,14 @@ final class SectionCreatorTest extends TestCase
         $creator = new SectionCreator(
             RetrieveArtidocWithContextStub::withoutDocument(),
             $saver,
+            CreateArtifactContentStub::shouldNotBeCalled(),
             $collector,
         );
 
         $result = $creator->create(
             1,
             Option::fromValue($this->identifier_factory->buildFromHexadecimalString(self::ANOTHER_SECTION_ID)),
-            Level::One,
-            SectionContentToBeCreated::fromArtifact(101)
+            SectionContentToBeCreated::fromImportedArtifact(101, Level::One)
         );
 
         self::assertTrue(Result::isErr($result));
@@ -267,14 +297,14 @@ final class SectionCreatorTest extends TestCase
                 ),
             ),
             $saver,
+            CreateArtifactContentStub::shouldNotBeCalled(),
             $collector,
         );
 
         $result = $creator->create(
             1,
             Option::fromValue($this->identifier_factory->buildFromHexadecimalString(self::ANOTHER_SECTION_ID)),
-            Level::One,
-            SectionContentToBeCreated::fromArtifact(101)
+            SectionContentToBeCreated::fromImportedArtifact(101, Level::One)
         );
 
         self::assertTrue(Result::isErr($result));

@@ -1711,6 +1711,9 @@ msgid ""
 "artifacts. Here is the list of allowed types for this platform."
 msgstr ""
 
+msgid "Links from and to current artifact"
+msgstr ""
+
 msgid "Links to other artifacts"
 msgstr ""
 
@@ -1821,6 +1824,9 @@ msgid "Minimum"
 msgstr ""
 
 msgid "Missing Parameters"
+msgstr ""
+
+msgid "Missing artifact link field"
 msgstr ""
 
 msgid "Missing field in data:"
@@ -3341,9 +3347,7 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, php-format
-msgid ""
-"The tracker '%1$s' cannot be created. Use '--update' to update an existing "
-"tracker."
+msgid "The tracker '%1$s' cannot be created."
 msgstr ""
 
 #, php-format
@@ -3949,9 +3953,6 @@ msgid "Use \"capacity\" field for ideal initial effort"
 msgstr ""
 
 msgid "Use a Canned Response:"
-msgstr ""
-
-msgid "Use cache"
 msgstr ""
 
 #, php-format

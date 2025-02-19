@@ -22,24 +22,24 @@ import type { VueWrapper } from "@vue/test-utils";
 import { shallowMount } from "@vue/test-utils";
 import type { ComponentPublicInstance } from "vue";
 import { createGettext } from "vue3-gettext";
-import { SectionEditorStub } from "@/helpers/stubs/SectionEditorStub";
 import SectionFooter from "./SectionFooter.vue";
 import ArtifactSectionFactory from "@/helpers/artifact-section.factory";
-import { CreateStoredSections } from "@/sections/CreateStoredSections";
-import type { SectionState } from "@/sections/SectionStateBuilder";
+import { CreateStoredSections } from "@/sections/states/CreateStoredSections";
+import type { SectionState } from "@/sections/states/SectionStateBuilder";
 import { SectionStateStub } from "@/sections/stubs/SectionStateStub";
 import { SectionEditorCloserStub } from "@/sections/stubs/SectionEditorCloserStub";
 import { SectionRefresherStub } from "@/sections/stubs/SectionRefresherStub";
+import { SaveSectionStub } from "@/sections/stubs/SaveSectionStub";
 
 describe("SectionFooter", () => {
     function getWrapper(section_state: SectionState): VueWrapper<ComponentPublicInstance> {
         return shallowMount(SectionFooter, {
             propsData: {
-                editor: SectionEditorStub.build(),
                 section: CreateStoredSections.fromArtidocSection(ArtifactSectionFactory.create()),
                 section_state,
                 close_section_editor: SectionEditorCloserStub.withExpectedCall(),
                 refresh_section: SectionRefresherStub.withNoExpectedCall(),
+                save_section: SaveSectionStub.withNoExpectedCall(),
             },
             global: {
                 plugins: [createGettext({ silent: true })],

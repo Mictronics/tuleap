@@ -27,14 +27,12 @@ use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
 final class StringFieldBuilder
 {
+    use FieldBuilderWithPermissions;
+
     private string $label     = 'Title';
     private string $name      = 'title';
     private bool $is_required = false;
     private \Tracker $tracker;
-    /** @var list<\PFUser> */
-    private array $user_with_read_permissions = [];
-    /** @var array<int, bool> */
-    private array $read_permissions = [];
 
     private function __construct(private readonly int $id)
     {
@@ -70,13 +68,6 @@ final class StringFieldBuilder
         return $this;
     }
 
-    public function withReadPermission(\PFUser $user, bool $user_can_read): self
-    {
-        $this->user_with_read_permissions[]           = $user;
-        $this->read_permissions[(int) $user->getId()] = $user_can_read;
-        return $this;
-    }
-
     public function build(): Tracker_FormElement_Field_String
     {
         $field = new Tracker_FormElement_Field_String(
@@ -94,9 +85,8 @@ final class StringFieldBuilder
             null
         );
         $field->setTracker($this->tracker);
-        foreach ($this->user_with_read_permissions as $user) {
-            $field->setUserCanRead($user, $this->read_permissions[(int) $user->getId()]);
-        }
+        $this->setPermissions($field);
+
         return $field;
     }
 }

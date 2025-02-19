@@ -26,7 +26,7 @@ use Psr\Log\LoggerInterface;
 use Tuleap\Artidoc\Domain\Document\Artidoc;
 use Tuleap\Tracker\RetrieveTracker;
 
-final readonly class ConfiguredTrackerRetriever
+final readonly class ConfiguredTrackerRetriever implements RetrieveConfiguredTracker
 {
     public function __construct(
         private SearchConfiguredTracker $dao,
@@ -45,12 +45,26 @@ final readonly class ConfiguredTrackerRetriever
 
         $tracker = $this->retrieve_tracker->getTrackerById($tracker_id);
         if ($tracker === null) {
-            $this->logger->warning("Artidoc #{$document->getId()} is configured with not found tracker #{$tracker_id}.");
+            $this->logger->warning(
+                sprintf(
+                    'Artidoc #%s is configured with not found tracker #%s.',
+                    $document->getId(),
+                    $tracker_id,
+                )
+            );
+
             return null;
         }
 
         if ($tracker->isDeleted()) {
-            $this->logger->warning("Artidoc #{$document->getId()} is configured with a deleted tracker #{$tracker_id}.");
+            $this->logger->warning(
+                sprintf(
+                    'Artidoc #%s is configured with a deleted tracker #%s.',
+                    $document->getId(),
+                    $tracker_id,
+                )
+            );
+
             return null;
         }
 

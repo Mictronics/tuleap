@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Tuleap\Artidoc\REST\v1;
 
+use Tracker_Artifact_ChangesetValue_Text;
 use Tracker_Semantic_Description;
 use Tracker_Semantic_Title;
 use Tuleap\Artidoc\Domain\Document\ArtidocWithContext;
@@ -29,10 +30,7 @@ use Tuleap\NeverThrow\Err;
 use Tuleap\NeverThrow\Fault;
 use Tuleap\NeverThrow\Ok;
 use Tuleap\NeverThrow\Result;
-use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Artifact\RetrieveArtifact;
-use Tuleap\Tracker\REST\Artifact\ArtifactFieldValueFullRepresentation;
-use Tuleap\Tracker\REST\Artifact\ArtifactTextFieldValueRepresentation;
 
 final readonly class RequiredArtifactInformationBuilder implements BuildRequiredArtifactInformation
 {
@@ -40,44 +38,107 @@ final readonly class RequiredArtifactInformationBuilder implements BuildRequired
     {
     }
 
-    public function getRequiredArtifactInformation(ArtidocWithContext $artidoc, Artifact|int $artifact, \PFUser $user): Ok|Err
+    public function getRequiredArtifactInformation(ArtidocWithContext $artidoc, int $artifact_id, \PFUser $user): Ok|Err
     {
-        $artifact = $artifact instanceof Artifact ? $artifact : $this->artifact_retriever->getArtifactById($artifact);
+        $artifact = $this->artifact_retriever->getArtifactById($artifact_id);
         if (! $artifact || ! $artifact->userCanView($user)) {
-            return Result::err(Fault::fromMessage('User cannot read artifact #{$artifact->getId()}'));
+            return Result::err(Fault::fromMessage(
+                sprintf(
+                    'User cannot read artifact #%s',
+                    $artifact_id,
+                )
+            ));
         }
 
         $last_changeset = $artifact->getLastChangeset();
         if ($last_changeset === null) {
-            return Result::err(Fault::fromMessage("No changeset for artifact #{$artifact->getId()} of artidoc #{$artidoc->document->getId()}"));
+            return Result::err(Fault::fromMessage(
+                sprintf(
+                    'No changeset for artifact #%s of artidoc #%s',
+                    $artifact->getId(),
+                    $artidoc->document->getId(),
+                )
+            ));
         }
 
         $title_field = Tracker_Semantic_Title::load($artifact->getTracker())->getField();
         if (! $title_field) {
-            return Result::err(Fault::fromMessage("There is no title field for artifact #{$artifact->getId()} of artidoc #{$artidoc->document->getId()}"));
+            return Result::err(Fault::fromMessage(
+                sprintf(
+                    'There is no title field for artifact #%s of artidoc #%s',
+                    $artifact->getId(),
+                    $artidoc->document->getId(),
+                )
+            ));
         }
         if (! $title_field->userCanRead($user)) {
-            return Result::err(Fault::fromMessage("User cannot read title of artifact #{$artifact->getId()} of artidoc #{$artidoc->document->getId()}"));
+            return Result::err(Fault::fromMessage(
+                sprintf(
+                    'User cannot read title of artifact #%s of artidoc #%s',
+                    $artifact->getId(),
+                    $artidoc->document->getId(),
+                )
+            ));
         }
 
-        $title = $title_field->getFullRESTValue($user, $last_changeset);
-        if (! $title instanceof ArtifactFieldValueFullRepresentation && ! $title instanceof ArtifactTextFieldValueRepresentation) {
-            return Result::err(Fault::fromMessage("There is no title data for artifact #{$artifact->getId()} of artidoc #{$artidoc->document->getId()}"));
+        $title_field_value = $last_changeset->getValue($title_field);
+        if (! $title_field_value instanceof Tracker_Artifact_ChangesetValue_Text) {
+            return Result::err(Fault::fromMessage(
+                sprintf(
+                    'There is no title data for artifact #%s of artidoc #%s',
+                    $artifact->getId(),
+                    $artidoc->document->getId(),
+                )
+            ));
         }
+        $title = $title_field_value->getContentAsText();
 
         $description_field = Tracker_Semantic_Description::load($artifact->getTracker())->getField();
         if (! $description_field) {
-            return Result::err(Fault::fromMessage("There is no description field for artifact #{$artifact->getId()} of artidoc #{$artidoc->document->getId()}"));
+            return Result::err(Fault::fromMessage(
+                sprintf(
+                    'There is no description field for artifact #%s of artidoc #%s',
+                    $artifact->getId(),
+                    $artidoc->document->getId(),
+                )
+            ));
         }
         if (! $description_field->userCanRead($user)) {
-            return Result::err(Fault::fromMessage("User cannot read title of artifact #{$artifact->getId()} of artidoc #{$artidoc->document->getId()}"));
+            return Result::err(Fault::fromMessage(
+                sprintf(
+                    'User cannot read title of artifact #%s of artidoc #%s',
+                    $artifact->getId(),
+                    $artidoc->document->getId(),
+                )
+            ));
         }
 
-        $description = $description_field->getFullRESTValue($user, $last_changeset);
-        if (! $description instanceof ArtifactTextFieldValueRepresentation) {
-            return Result::err(Fault::fromMessage("There is no description data for artifact #{$artifact->getId()} of artidoc #{$artidoc->document->getId()}"));
+        $description_field_value = $last_changeset->getValue($description_field);
+        if (! $description_field_value instanceof Tracker_Artifact_ChangesetValue_Text) {
+            return Result::err(Fault::fromMessage(
+                sprintf(
+                    'There is no description data for artifact #%s of artidoc #%s',
+                    $artifact->getId(),
+                    $artidoc->document->getId(),
+                )
+            ));
         }
 
-        return Result::ok(new RequiredArtifactInformation($last_changeset, $title_field, $title, $description_field, $description));
+        $textual_formats = [
+            Tracker_Artifact_ChangesetValue_Text::COMMONMARK_CONTENT,
+            Tracker_Artifact_ChangesetValue_Text::TEXT_CONTENT,
+        ];
+        $description     = in_array($description_field_value->getFormat(), $textual_formats, true)
+            ? Tracker_Artifact_ChangesetValue_Text::getCommonMarkInterpreter(\Codendi_HTMLPurifier::instance())
+                ->getInterpretedContent($description_field_value->getText())
+            : $description_field_value->getText();
+
+        return Result::ok(new RequiredArtifactInformation(
+            $last_changeset,
+            $title_field,
+            $title,
+            $description_field,
+            $description,
+        ));
     }
 }

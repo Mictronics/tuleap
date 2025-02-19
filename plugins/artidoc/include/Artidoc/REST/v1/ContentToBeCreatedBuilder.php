@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tuleap\Artidoc\REST\v1;
 
 use Luracast\Restler\RestException;
+use Tuleap\Artidoc\Domain\Document\Section\Level;
 use Tuleap\Artidoc\Domain\Document\Section\SectionContentToBeCreated;
 
 /**
@@ -31,28 +32,47 @@ use Tuleap\Artidoc\Domain\Document\Section\SectionContentToBeCreated;
  */
 final class ContentToBeCreatedBuilder
 {
-    public static function buildFromRepresentation(ArtidocSectionPOSTRepresentation $section): SectionContentToBeCreated
+    public static function buildFromRepresentation(POSTSectionRepresentation $section): SectionContentToBeCreated
     {
-        if ($section->artifact !== null && $section->content !== null) {
-            throw new RestException(400, dgettext('tuleap-artidoc', "The properties 'artifact' and 'content' can not be used at the same time"));
+        if ($section->import !== null && $section->content !== null) {
+            throw new RestException(400, dgettext('tuleap-artidoc', "The properties 'import' and 'content' can not be used at the same time"));
         }
 
         $content = null;
-        if ($section->artifact !== null) {
-            $content = SectionContentToBeCreated::fromArtifact(
-                $section->artifact->id
+        if ($section->import !== null) {
+            $content = SectionContentToBeCreated::fromImportedArtifact(
+                $section->import->artifact->id,
+                self::getLevel($section->import->level),
             );
-        } elseif ($section->content) {
+        } elseif ($section->content !== null && $section->content->type === 'freetext') {
             $content = SectionContentToBeCreated::fromFreetext(
                 $section->content->title,
-                $section->content->description
+                $section->content->description,
+                self::getLevel($section->content->level),
+            );
+        } elseif ($section->content !== null && $section->content->type === 'artifact') {
+            $content = SectionContentToBeCreated::fromArtifact(
+                $section->content->title,
+                $section->content->description,
+                $section->content->attachments,
+                self::getLevel($section->content->level),
             );
         }
 
         if (! $content) {
-            throw new RestException(400, dgettext('tuleap-artidoc', 'No artifact id or section content provided'));
+            throw new RestException(400, dgettext('tuleap-artidoc', 'No artifact to import or section content provided'));
         }
 
         return $content;
+    }
+
+    private static function getLevel(int $submitted_level): Level
+    {
+        $level = Level::tryFrom($submitted_level);
+        if ($level === null) {
+            throw new RestException(400, 'Unknown level. Allowed values: ' . implode(', ', Level::allowed()));
+        }
+
+        return $level;
     }
 }

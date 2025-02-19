@@ -75,7 +75,7 @@
 </template>
 
 <script setup lang="ts">
-import type { SectionEditor } from "@/composables/useSectionEditor";
+import type { DeleteSection } from "@/sections/remove/SectionDeletor";
 import { useGettext } from "vue3-gettext";
 import {
     isSectionBasedOnArtifact,
@@ -89,18 +89,16 @@ import { strictInject } from "@tuleap/vue-strict-inject";
 import { REMOVE_FREETEXT_SECTION_MODAL } from "@/composables/useRemoveFreetextSectionModal";
 import { moveDropdownMenuInDocumentBody } from "@/helpers/move-dropdownmenu-in-document-body";
 import type { StoredArtidocSection } from "@/sections/SectionsCollection";
-import type { SectionState } from "@/sections/SectionStateBuilder";
+import type { SectionState } from "@/sections/states/SectionStateBuilder";
 
 const remove_freetext_section = strictInject(REMOVE_FREETEXT_SECTION_MODAL);
 
 const { $gettext } = useGettext();
 const props = defineProps<{
-    editor: SectionEditor;
     section: StoredArtidocSection;
     section_state: SectionState;
+    delete_section: DeleteSection;
 }>();
-
-const { deleteSection } = props.editor.editor_actions;
 
 const { is_section_editable } = props.section_state;
 
@@ -137,7 +135,7 @@ watch(trigger, () => {
 
 function onDelete(): void {
     if (is_artifact_section) {
-        deleteSection();
+        props.delete_section.deleteSection();
         return;
     }
     remove_freetext_section.openModal(props.section);

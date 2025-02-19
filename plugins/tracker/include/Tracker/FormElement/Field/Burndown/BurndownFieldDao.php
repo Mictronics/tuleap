@@ -21,40 +21,9 @@
 
 namespace Tuleap\Tracker\FormElement\Field\Burndown;
 
-use Tuleap\Tracker\FormElement\SpecificPropertiesDao;
 
-class BurndownFieldDao extends SpecificPropertiesDao
+class BurndownFieldDao extends \DataAccessObject
 {
-    public function __construct()
-    {
-        parent::__construct();
-        $this->table_name = 'tracker_field_burndown';
-    }
-
-    public function save($field_id, $row)
-    {
-        $field_id  = $this->da->escapeInt($field_id);
-        $use_cache = (int) (isset($row['use_cache']) && $row['use_cache']);
-
-        $sql = "REPLACE INTO tracker_field_burndown (field_id, use_cache)
-                VALUES ($field_id, $use_cache)";
-
-        return $this->update($sql);
-    }
-
-    public function duplicate(int $from_field_id, int $to_field_id): bool
-    {
-        $from_field_id = $this->da->escapeInt($from_field_id);
-        $to_field_id   = $this->da->escapeInt($to_field_id);
-
-        $sql = "REPLACE INTO tracker_field_burndown (field_id, use_cache)
-                SELECT $to_field_id, use_cache
-                FROM $this->table_name
-                WHERE field_id = $from_field_id";
-
-        return $this->update($sql);
-    }
-
     /**
      * SUM(): Magic trick
      * The request returns values for 2 fields, start_date and duration

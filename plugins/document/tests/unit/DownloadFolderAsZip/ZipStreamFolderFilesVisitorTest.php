@@ -55,11 +55,18 @@ class ZipStreamFolderFilesVisitorTest extends \Tuleap\Test\PHPUnit\TestCase
         );
 
         $root_folder = $this->getRootFolderWithItems();
+        $matcher     = self::exactly(2);
 
-        $this->zip->expects(self::exactly(2))->method('addFileFromPath')->withConsecutive(
-            ['/my files/file.pdf', '/path/to/file'],
-            ['/my files/an embedded file.html', '/path/to/embedded'],
-        );
+        $this->zip->expects($matcher)->method('addFileFromPath')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame('/my files/file.pdf', $parameters[0]);
+                self::assertSame('/path/to/file', $parameters[1]);
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame('/my files/an embedded_file.html', $parameters[0]);
+                self::assertSame('/path/to/embedded', $parameters[1]);
+            }
+        });
 
         $root_folder->accept($visitor, ['path' => '', 'base_folder_id' => $root_folder->getId()]);
     }
@@ -74,7 +81,11 @@ class ZipStreamFolderFilesVisitorTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $root_folder = $this->getRootFolderWithItems();
 
-        $this->zip->method('addFileFromPath')->willThrowException(new FileNotFoundException('/path'));
+        $this->zip->method('addFileFromPath')->willThrowException(new class extends FileNotFoundException {
+            public function __construct()
+            {
+            }
+        });
 
         $this->error_logging_helper->expects(self::atLeast(1))->method('logFileNotFoundException');
 
@@ -91,7 +102,12 @@ class ZipStreamFolderFilesVisitorTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $root_folder = $this->getRootFolderWithItems();
 
-        $this->zip->method('addFileFromPath')->willThrowException(new FileNotReadableException('/path'));
+        $this->zip->method('addFileFromPath')->willThrowException(new class extends FileNotReadableException
+        {
+            public function __construct()
+            {
+            }
+        });
 
         $this->error_logging_helper->expects(self::atLeast(1))->method('logFileNotReadableException');
 
@@ -107,11 +123,18 @@ class ZipStreamFolderFilesVisitorTest extends \Tuleap\Test\PHPUnit\TestCase
         );
 
         $root_folder = $this->getRootFolderWithItems(true);
+        $matcher     = self::exactly(2);
 
-        $this->zip->expects(self::exactly(2))->method('addFileFromPath')->withConsecutive(
-            ['/my files/file.pdf', '/path/to/file'],
-            ['/my files/an embedded file.html', '/path/to/embedded'],
-        );
+        $this->zip->expects($matcher)->method('addFileFromPath')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame('/my files/file.pdf', $parameters[0]);
+                self::assertSame('/path/to/file', $parameters[1]);
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame('/my files/an embedded_file.html', $parameters[0]);
+                self::assertSame('/path/to/embedded', $parameters[1]);
+            }
+        });
 
         $this->error_logging_helper->expects(self::atLeast(1))->method('logCorruptedFile');
 
@@ -145,7 +168,7 @@ class ZipStreamFolderFilesVisitorTest extends \Tuleap\Test\PHPUnit\TestCase
         $file = new Docman_File(['item_id' => 5, 'title' => 'a file in pdf']);
         $file->setCurrentVersion(new Docman_Version(['path' => '/path/to/file', 'filename' => 'file.pdf']));
 
-        $embedded = new Docman_EmbeddedFile(['item_id' => 6, 'title' => 'an embedded file']);
+        $embedded = new Docman_EmbeddedFile(['item_id' => 6, 'title' => 'an embedded/file']);
         $embedded->setCurrentVersion(new Docman_Version(['path' => '/path/to/embedded']));
 
         $subfolder->setItems(

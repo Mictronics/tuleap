@@ -22,6 +22,17 @@
         class="tlp-pane-section"
         v-bind:class="{ 'reading-mode-shown': is_reading_mode_shown }"
     >
+        <div
+            class="action-buttons"
+            v-if="is_multiple_query_supported && report_state !== 'edit-query'"
+        >
+            <action-buttons
+                v-bind:writing_cross_tracker_report="writing_cross_tracker_report"
+                v-bind:reading_cross_tracker_report="reading_cross_tracker_report"
+                v-bind:queries="queries"
+                v-bind:selected_query="selected_query"
+            />
+        </div>
         <error-message
             v-bind:fault="current_fault"
             v-bind:writing_cross_tracker_report="writing_cross_tracker_report"
@@ -53,12 +64,12 @@
     <section class="tlp-pane-section" v-if="!is_loading">
         <selectable-table
             v-bind:writing_cross_tracker_report="writing_cross_tracker_report"
-            v-bind:there_is_no_query="there_is_no_query"
+            v-bind:selected_query="selected_query"
         />
     </section>
 </template>
 <script setup lang="ts">
-import { computed, onMounted, provide, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, provide, ref } from "vue";
 import { useGettext } from "vue3-gettext";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import ReadingMode from "./components/reading-mode/ReadingMode.vue";
@@ -73,7 +84,9 @@ import SelectableTable from "./components/selectable-table/SelectableTable.vue";
 import type { ReportState } from "./domain/ReportState";
 import {
     CLEAR_FEEDBACKS,
+    EMITTER,
     IS_EXPORT_ALLOWED,
+    IS_MULTIPLE_QUERY_SUPPORTED,
     IS_USER_ADMIN,
     NOTIFY_FAULT,
     REPORT_ID,
@@ -81,9 +94,13 @@ import {
 } from "./injection-symbols";
 import { useFeedbacks } from "./composables/useFeedbacks";
 import { ReportRetrievalFault } from "./domain/ReportRetrievalFault";
+import ActionButtons from "./components/actions/ActionButtons.vue";
+import { SWITCH_QUERY_EVENT } from "./helpers/emitter-provider";
 
 const report_id = strictInject(REPORT_ID);
 const is_user_admin = strictInject(IS_USER_ADMIN);
+const emitter = strictInject(EMITTER);
+const is_multiple_query_supported = strictInject(IS_MULTIPLE_QUERY_SUPPORTED);
 
 const gettext_provider = useGettext();
 
@@ -96,7 +113,8 @@ const props = defineProps<{
 const report_state = ref<ReportState>("report-saved");
 provide(REPORT_STATE, report_state);
 const is_loading = ref(true);
-const there_is_no_query = ref(true);
+const queries = ref<ReadonlyArray<Report>>([]);
+const selected_query = ref<Report | null>(null);
 
 const is_reading_mode_shown = computed(
     () =>
@@ -132,8 +150,9 @@ function loadBackendReport(): void {
     getReports(report_id)
         .match(
             (reports: ReadonlyArray<Report>) => {
+                queries.value = reports;
                 if (reports.length === 0) {
-                    there_is_no_query.value = true;
+                    selected_query.value = null;
                     props.backend_cross_tracker_report.init("");
                     initReports();
                     if (is_user_admin) {
@@ -142,7 +161,7 @@ function loadBackendReport(): void {
 
                     return;
                 }
-                there_is_no_query.value = false;
+                selected_query.value = reports[0];
                 props.backend_cross_tracker_report.init(reports[0].expert_query);
                 initReports();
             },
@@ -157,6 +176,11 @@ function loadBackendReport(): void {
 
 onMounted(() => {
     loadBackendReport();
+    emitter.on(SWITCH_QUERY_EVENT, handleSwitchQuery);
+});
+
+onBeforeUnmount(() => {
+    emitter.off(SWITCH_QUERY_EVENT);
 });
 
 function handleSwitchWriting(): void {
@@ -167,6 +191,18 @@ function handleSwitchWriting(): void {
     props.writing_cross_tracker_report.duplicateFromReport(props.reading_cross_tracker_report);
     report_state.value = "edit-query";
     clearFeedbacks();
+}
+
+function handleSwitchQuery(): void {
+    if (!is_user_admin) {
+        return;
+    }
+
+    clearFeedbacks();
+    // Dummy report state to make sure the change is taken in account after changing the selected query
+    // This will be removed later when the report_state will be removed or reworked
+    report_state.value = "report-saved";
+    report_state.value = "result-preview";
 }
 
 function handlePreviewResult(): void {
@@ -207,5 +243,9 @@ defineExpose({
 <style lang="scss" scoped>
 .reading-mode-shown {
     border: 0;
+}
+
+.action-buttons {
+    margin: 0 0 var(--tlp-medium-spacing);
 }
 </style>
