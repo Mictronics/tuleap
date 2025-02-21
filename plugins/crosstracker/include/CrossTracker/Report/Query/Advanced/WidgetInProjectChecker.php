@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace Tuleap\CrossTracker\Report\Query\Advanced;
 
-use Tuleap\CrossTracker\SearchCrossTrackerWidget;
+use Tuleap\CrossTracker\Widget\SearchCrossTrackerWidget;
 
 final readonly class WidgetInProjectChecker
 {
