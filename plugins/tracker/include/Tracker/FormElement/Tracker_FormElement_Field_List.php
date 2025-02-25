@@ -34,6 +34,8 @@ use Tuleap\Tracker\FormElement\Field\ListFields\ListValueDao;
 use Tuleap\Tracker\FormElement\Field\XMLCriteriaValueCache;
 use Tuleap\Tracker\FormElement\ListFormElementTypeUpdater;
 use Tuleap\Tracker\FormElement\TransitionListValidator;
+use Tuleap\Tracker\Report\Criteria\CriteriaListValueDAO;
+use Tuleap\Tracker\Report\Criteria\DeleteReportCriteriaValue;
 use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
 use Tuleap\Tracker\XML\TrackerXmlImportFeedbackCollector;
 
@@ -237,6 +239,11 @@ abstract class Tracker_FormElement_Field_List extends Tracker_FormElement_Field 
     protected function getCriteriaDao()
     {
         return new Tracker_Report_Criteria_List_ValueDao();
+    }
+
+    public function getDeleteCriteriaValueDAO(): DeleteReportCriteriaValue
+    {
+        return new CriteriaListValueDAO();
     }
 
     public function fetchChangesetValue(
@@ -1492,10 +1499,11 @@ abstract class Tracker_FormElement_Field_List extends Tracker_FormElement_Field 
      */
     public function process(Tracker_IDisplayTrackerLayout $layout, $request, $current_user)
     {
-        parent::process($layout, $request, $current_user);
         if ($request->get('func') == 'get-values') {
             $GLOBALS['Response']->sendJSON($this->getBind()->fetchFormattedForJson());
+            return;
         }
+        parent::process($layout, $request, $current_user);
     }
 
     public function fetchFormattedForJson()

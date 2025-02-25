@@ -32,6 +32,8 @@ use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindVisitor;
 use Tuleap\Tracker\FormElement\Field\ListFields\OpenListChangesetValueDao;
 use Tuleap\Tracker\FormElement\Field\ListFields\OpenListFieldDao;
 use Tuleap\Tracker\FormElement\Field\ListFields\OpenListValueDao;
+use Tuleap\Tracker\Report\Criteria\CriteriaOpenListValueDAO;
+use Tuleap\Tracker\Report\Criteria\DeleteReportCriteriaValue;
 use Tuleap\Tracker\Report\Query\ParametrizedFrom;
 use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
 use Tuleap\Tracker\Report\Query\ParametrizedSQLFragment;
@@ -283,6 +285,11 @@ class Tracker_FormElement_Field_OpenList extends Tracker_FormElement_Field_List 
     protected function getSearchSpecificPropertiesDao(): SearchSpecificProperties
     {
         return new OpenListSpecificPropertiesDAO();
+    }
+
+    public function getDeleteCriteriaValueDAO(): DeleteReportCriteriaValue
+    {
+        return new CriteriaOpenListValueDAO();
     }
 
     public static function getFactoryLabel()
@@ -1073,12 +1080,11 @@ class Tracker_FormElement_Field_OpenList extends Tracker_FormElement_Field_List 
      */
     public function process(Tracker_IDisplayTrackerLayout $layout, $request, $current_user)
     {
-        parent::process($layout, $request, $current_user);
-
         if ($request->get('func') === 'textboxlist') {
             $GLOBALS['Response']->sendJSON($this->textboxlist($request->get('keyword'), $limit = 10));
             exit();
         }
+        parent::process($layout, $request, $current_user);
     }
 
     public function getSelectDefaultValues($default_values)
@@ -1095,7 +1101,7 @@ class Tracker_FormElement_Field_OpenList extends Tracker_FormElement_Field_List 
                     <input id="tracker_field_default"
                            name="bind[default][]"
                            style="width:98%"
-                           type="text"></div>
+                           type="text">
                     <input id="field_id" type="hidden"
                            value="' . $this->getId() . '">
                   </div>';

@@ -1,6 +1,8 @@
 <?php
-/**
- * Copyright (c) STMicroelectronics 2012. All rights reserved
+/*
+ * Copyright (c) Enalean, 2025 - Present. All Rights Reserved.
+ *
+ * This file is a part of Tuleap.
  *
  * Tuleap is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,18 +18,11 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * ArchiveDeletedItemsPluginDescriptor
- */
-class ArchiveDeletedItemsPluginDescriptor extends PluginDescriptor
+declare(strict_types=1);
+
+namespace Tuleap\Tracker\Report\Criteria;
+
+interface DeleteReportCriteriaValue
 {
-    /**
-     * Constructor
-     *
-     * @return Void
-     */
-    public function __construct()
-    {
-        parent::__construct(dgettext('tuleap-archivedeleteditems', 'Archive deleted items'), dgettext('tuleap-archivedeleteditems', 'This plugin will move files that should be purged (permanently deleted) in a dedicated filesystem for an external archiving (archiving process itself is not managed by this plugin).'));
-    }
+    public function deleteCriteriaFieldValue(\Tracker_Report_Criteria $criteria): void;
 }

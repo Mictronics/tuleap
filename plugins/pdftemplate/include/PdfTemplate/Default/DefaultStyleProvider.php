@@ -1,6 +1,8 @@
 <?php
 /**
- * Copyright (c) STMicroelectronics 2012. All rights reserved
+ * Copyright (c) Enalean, 2025 - Present. All Rights Reserved.
+ *
+ * This file is a part of Tuleap.
  *
  * Tuleap is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -16,21 +18,17 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
+declare(strict_types=1);
+
+namespace Tuleap\PdfTemplate\Default;
+
 /**
- * ArchiveDeletedItemsInfo
+ * @psalm-immutable
  */
-class ArchiveDeletedItemsPluginInfo extends PluginFileInfo
+final readonly class DefaultStyleProvider
 {
-    /**
-     * Constructor
-     *
-     * @param ArchivedeleteditemsPlugin $plugin Plugin instance
-     *
-     * @return Void
-     */
-    public function __construct(ArchivedeleteditemsPlugin $plugin)
+    public static function getDefaultStyles(): string
     {
-        parent::__construct($plugin, 'archivedeleteditems');
-        $this->setPluginDescriptor(new ArchiveDeletedItemsPluginDescriptor());
+        return file_get_contents(__DIR__ . '/pdf-template-default.css');
     }
 }
