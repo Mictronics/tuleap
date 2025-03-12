@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace Tuleap\OAuth2Server\Administration;
 
 use Laminas\HttpHandlerRunner\Emitter\EmitterInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\Http\Message\ServerRequestInterface;
 use Tuleap\Http\HTTPFactoryBuilder;
 use Tuleap\Http\Response\RedirectWithFeedbackFactory;
@@ -32,6 +33,7 @@ use Tuleap\OAuth2Server\App\OAuth2AppRemover;
 use Tuleap\Request\ForbiddenException;
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class DeleteAppControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -68,9 +70,9 @@ final class DeleteAppControllerTest extends \Tuleap\Test\PHPUnit\TestCase
     }
 
     /**
-     * @dataProvider dataProviderInvalidBody
      * @param array|null $parsed_body
      */
+    #[DataProvider('dataProviderInvalidBody')]
     public function testHandleRedirectsWithErrorWhenDataIsInvalid($parsed_body): void
     {
         $request  = $this->buildProjectAdminRequest()->withParsedBody($parsed_body);

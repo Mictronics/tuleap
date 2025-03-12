@@ -29,7 +29,9 @@ use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use Tuleap\Http\HTTPFactoryBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ClientWrapperTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -76,7 +78,7 @@ final class ClientWrapperTest extends \Tuleap\Test\PHPUnit\TestCase
         $response = \Mockery::mock(ResponseInterface::class);
 
         $response->shouldReceive('getStatusCode')->andReturn(403);
-        $response->shouldReceive('getBody')->andReturn('');
+        $response->shouldReceive('getBody')->andReturn(HTTPFactoryBuilder::streamFactory()->createStream());
         $response->shouldReceive('getReasonPhrase')->andReturn('Forbidden');
         $this->factory->shouldReceive('createRequest')
             ->withArgs(['GET', 'https://example.com/rest/api/3/project'])->once()->andReturn(\Mockery::spy(RequestInterface::class));

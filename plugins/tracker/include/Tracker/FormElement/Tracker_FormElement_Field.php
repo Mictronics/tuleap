@@ -25,6 +25,7 @@ use Tuleap\Search\ItemToIndexQueue;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
 use Tuleap\Tracker\FormElement\Field\XMLCriteriaValueCache;
+use Tuleap\Tracker\Report\Criteria\DeleteReportCriteriaValue;
 use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
 use Tuleap\Tracker\Rule\TrackerRulesDateValidator;
 use Tuleap\Tracker\Rule\TrackerRulesListValidator;
@@ -90,6 +91,11 @@ abstract class Tracker_FormElement_Field extends Tracker_FormElement implements 
      * @return Tracker_Report_Criteria_ValueDao|null
      */
     abstract protected function getCriteriaDao();
+
+    public function getDeleteCriteriaValueDAO(): ?DeleteReportCriteriaValue
+    {
+        return null;
+    }
 
     protected $criteria_value;
     /**
@@ -323,12 +329,14 @@ abstract class Tracker_FormElement_Field extends Tracker_FormElement implements 
 
     /**
      * Delete the criteria value
-     * @param Criteria $criteria the corresponding criteria
      */
-    public function deleteCriteriaValue($criteria)
+    public function deleteCriteriaValue(Tracker_Report_Criteria $criteria): void
     {
-        $this->getCriteriaDao()->delete($criteria->report->id, $criteria->id);
-        return $this;
+        $dao = $this->getDeleteCriteriaValueDAO();
+        if (! $dao) {
+            return;
+        }
+        $dao->deleteCriteriaFieldValue($criteria);
     }
 
     /**
@@ -813,7 +821,7 @@ abstract class Tracker_FormElement_Field extends Tracker_FormElement implements 
      */
     abstract public function fetchRawValueFromChangeset(Tracker_Artifact_Changeset $changeset): string;
 
-    public function fetchAdmin($tracker)
+    public function fetchAdmin($tracker): string
     {
         $hp       = Codendi_HTMLPurifier::instance();
         $html     = '';
@@ -825,14 +833,17 @@ abstract class Tracker_FormElement_Field extends Tracker_FormElement implements 
         $html         .= '<div class="tracker-admin-field-controls">';
                 $html .= '<a class="edit-field" href="' . $this->getAdminEditUrl() . '">' . $GLOBALS['HTML']->getImage('ic/edit.png', ['alt' => 'edit']) . '</a> ';
         if ($usage_in_semantics->areThereSemanticsUsingField() === false && $this->canBeRemovedFromUsage()) {
-            $html .= '<a href="?' . http_build_query([
-                'tracker'  => $tracker->id,
-                'func'     => 'admin-formElement-remove',
-                'formElement'    => $this->id,
-            ]) . '">' . $GLOBALS['HTML']->getImage('ic/cross.png', ['alt' => 'remove']) . '</a>';
+            $csrf_token = $this->getCSRFTokenForElementUpdate();
+            $html      .= '<form method="POST" action="?">';
+            $html      .= $csrf_token->fetchHTMLInput();
+            $html      .= '<input type="hidden" name="func" value="' . $hp->purify(\Tracker::TRACKER_ACTION_NAME_FORM_ELEMENT_REMOVE) . '" />';
+            $html      .= '<input type="hidden" name="tracker" value="' . $hp->purify((string) $tracker->getId()) . '" />';
+            $html      .= '<input type="hidden" name="formElement" value="' . $hp->purify((string) $this->id) . '" />';
+            $html      .= '<button type="submit" class="btn-link">' . $GLOBALS['HTML']->getImage('ic/cross.png', ['alt' => 'remove']) . '</button>';
+            $html      .= '</form>';
         } else {
             $cannot_remove_message = $usage_in_semantics->getUsages() . ' ' . $this->getCannotRemoveMessage();
-            $html                 .= '<span style="color:gray;" title="' . $cannot_remove_message . '">';
+            $html                 .= '<span style="color:gray;" title="' . $hp->purify($cannot_remove_message) . '">';
             $html                 .= $GLOBALS['HTML']->getImage('ic/cross-disabled.png', ['alt' => 'remove']);
             $html                 .= '</span>';
         }

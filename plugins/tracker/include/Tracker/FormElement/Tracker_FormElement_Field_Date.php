@@ -24,9 +24,12 @@ use Tuleap\Option\Option;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\DateFieldSpecificPropertiesDAO;
 use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\DeleteSpecificProperties;
-use Tuleap\Tracker\FormElement\Field\Date\DateFieldDao;
+use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\SaveSpecificFieldProperties;
+use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\SearchSpecificProperties;
 use Tuleap\Tracker\FormElement\Field\Date\DateValueDao;
 use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
+use Tuleap\Tracker\Report\Criteria\CriteriaDateValueDAO;
+use Tuleap\Tracker\Report\Criteria\DeleteReportCriteriaValue;
 use Tuleap\Tracker\Report\Query\ParametrizedFrom;
 use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
 use Tuleap\Tracker\Report\Query\ParametrizedSQLFragment;
@@ -248,22 +251,22 @@ class Tracker_FormElement_Field_Date extends Tracker_FormElement_Field
         return $value;
     }
 
-    /**
-     * Return the Field_Date_Dao
-     *
-     * @return DateFieldDao The dao
-     */
-    protected function getDao()
-    {
-        return new DateFieldDao();
-    }
-
     protected function getDuplicateSpecificPropertiesDao(): ?DateFieldSpecificPropertiesDAO
     {
         return new DateFieldSpecificPropertiesDAO();
     }
 
     protected function getDeleteSpecificPropertiesDao(): DeleteSpecificProperties
+    {
+        return new DateFieldSpecificPropertiesDAO();
+    }
+
+    protected function getSearchSpecificPropertiesDao(): SearchSpecificProperties
+    {
+        return new DateFieldSpecificPropertiesDAO();
+    }
+
+    protected function getSaveSpecificPropertiesDao(): SaveSpecificFieldProperties
     {
         return new DateFieldSpecificPropertiesDAO();
     }
@@ -453,6 +456,11 @@ class Tracker_FormElement_Field_Date extends Tracker_FormElement_Field
     protected function getCriteriaDao()
     {
         return new Tracker_Report_Criteria_Date_ValueDao();
+    }
+
+    public function getDeleteCriteriaValueDAO(): DeleteReportCriteriaValue
+    {
+        return new CriteriaDateValueDAO();
     }
 
     public function fetchChangesetValue(

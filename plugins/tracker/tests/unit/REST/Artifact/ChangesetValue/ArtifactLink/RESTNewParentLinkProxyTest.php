@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Tuleap\Tracker\REST\Artifact\ChangesetValue\ArtifactLink;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class RESTNewParentLinkProxyTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public static function dataProviderValidPayloads(): array
@@ -32,9 +33,7 @@ final class RESTNewParentLinkProxyTest extends \Tuleap\Test\PHPUnit\TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderValidPayloads
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderValidPayloads')]
     public function testItBuildsFromPayload(array $payload): void
     {
         $parent = RESTNewParentLinkProxy::fromRESTPayload($payload);
@@ -52,9 +51,7 @@ final class RESTNewParentLinkProxyTest extends \Tuleap\Test\PHPUnit\TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderRejectedPayloads
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderRejectedPayloads')]
     public function testItThrowsWhenPayloadIsInvalid(array $payload): void
     {
         $this->expectException(\Tracker_FormElement_InvalidFieldValueException::class);
@@ -69,9 +66,7 @@ final class RESTNewParentLinkProxyTest extends \Tuleap\Test\PHPUnit\TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderInvalidIds
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderInvalidIds')]
     public function testItDoesNotForbidInvalidArtifactIds(array $payload): void
     {
         $parent = RESTNewParentLinkProxy::fromRESTPayload($payload);

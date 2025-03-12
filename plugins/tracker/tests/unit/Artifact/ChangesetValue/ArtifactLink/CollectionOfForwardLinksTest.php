@@ -26,6 +26,7 @@ use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Stub\ForwardLinkStub;
 use Tuleap\Tracker\Test\Stub\ReverseLinkStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class CollectionOfForwardLinksTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private const FIRST_ARTIFACT_ID  = 804;
@@ -127,9 +128,7 @@ final class CollectionOfForwardLinksTest extends \Tuleap\Test\PHPUnit\TestCase
         yield 'Add type' => [ForwardLinkStub::withNoType(386), ForwardLinkStub::withType(386, '_is_child')];
     }
 
-    /**
-     * @dataProvider provideChangeOfType
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideChangeOfType')]
     public function testItReturnsACollectionOfLinksThatHaveChangedType(
         ForwardLinkStub $existing,
         ForwardLinkStub $submitted,

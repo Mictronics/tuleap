@@ -26,11 +26,10 @@ namespace Tuleap\SVN\AccessControl;
 use Tuleap\SVNCore\SVNAccessFileContent;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class DuplicateSectionDetectorTest extends TestCase
 {
-    /**
-     * @dataProvider getTestWarnWhenPathIsUsedTwice
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getTestWarnWhenPathIsUsedTwice')]
     public function testWarnWhenPathIsUsedTwice(string $source, int $nb_faults): void
     {
         $svn_access_file = new SVNAccessFileContent(

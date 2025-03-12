@@ -19,7 +19,11 @@
   -->
 
 <template>
-    <editor-toolbar v-if="can_user_edit_document" />
+    <editor-toolbar
+        v-if="can_user_edit_document"
+        v-bind:sections="sections_collection"
+        v-bind:states_collection="states_collection"
+    />
     <notification-container />
     <div class="tlp-card">
         <ul>
@@ -29,6 +33,7 @@
                 v-bind:id="getId(section.value)"
                 v-bind:class="{ 'artidoc-section-with-add-button': has_add_button }"
                 data-test="artidoc-section"
+                v-bind:data-test-type="`${section.value.type}-section`"
             >
                 <add-new-section-button
                     class="artidoc-button-add-section-container"
@@ -41,6 +46,7 @@
                     v-bind:class="{
                         'artidoc-display-level-for-edition': has_add_button,
                         'artidoc-display-level-for-readonly': !has_add_button,
+                        [`level-${section.value.level}`]: true,
                     }"
                 >
                     {{ section.value.display_level }}
@@ -73,12 +79,18 @@ import EditorToolbar from "@/components/toolbar/EditorToolbar.vue";
 import RemoveFreetextSectionModal from "@/components/RemoveFreetextSectionModal.vue";
 import { getSectionsRemover } from "@/sections/remove/SectionsRemover";
 import { SECTIONS_STATES_COLLECTION } from "@/sections/states/sections-states-collection-injection-key";
+import { getSectionsNumberer } from "@/sections/levels/SectionsNumberer";
 
 const sections_collection = strictInject(SECTIONS_COLLECTION);
 const states_collection = strictInject(SECTIONS_STATES_COLLECTION);
 const can_user_edit_document = strictInject(CAN_USER_EDIT_DOCUMENT);
 
-const sections_inserter = getSectionsInserter(sections_collection, states_collection);
+const sections_numberer = getSectionsNumberer(sections_collection);
+const sections_inserter = getSectionsInserter(
+    sections_collection,
+    states_collection,
+    sections_numberer,
+);
 const sections_remover = getSectionsRemover(sections_collection, states_collection);
 const has_add_button = can_user_edit_document;
 
@@ -93,14 +105,6 @@ function getId(section: ArtidocSection): string {
 
 $section-number-padding-left: var(--tlp-small-spacing);
 $section-number-padding-right: var(--tlp-medium-spacing);
-$display-level-top-for-readonly: calc(
-    var(--tlp-large-spacing) + var(--tlp-medium-spacing) + #{size.$header-title-height} - var(--tlp-large-spacing)
-);
-$display-level-top-for-edition: calc(
-    #{size.$add-section-button-container-height} + var(--tlp-medium-spacing) + var(
-            --editor-padding
-        ) + #{size.$header-title-height} - var(--tlp-large-spacing)
-);
 
 ul {
     margin: 0;
@@ -120,11 +124,43 @@ li {
         }
 
         > .artidoc-display-level-for-edition {
-            top: calc($display-level-top-for-edition + var(--tlp-small-spacing));
+            &.level-1 {
+                top: calc(
+                    #{size.$header-level-1-top-offset-for-edition} + var(--tlp-small-spacing)
+                );
+            }
+
+            &.level-2 {
+                top: calc(
+                    #{size.$header-level-2-top-offset-for-edition} + var(--tlp-small-spacing)
+                );
+            }
+
+            &.level-3 {
+                top: calc(
+                    #{size.$header-level-3-top-offset-for-edition} + var(--tlp-small-spacing)
+                );
+            }
         }
 
         > .artidoc-display-level-for-readonly {
-            top: calc($display-level-top-for-readonly + var(--tlp-small-spacing));
+            &.level-1 {
+                top: calc(
+                    #{size.$header-level-1-top-offset-for-readonly} + var(--tlp-small-spacing)
+                );
+            }
+
+            &.level-2 {
+                top: calc(
+                    #{size.$header-level-2-top-offset-for-readonly} + var(--tlp-small-spacing)
+                );
+            }
+
+            &.level-3 {
+                top: calc(
+                    #{size.$header-level-3-top-offset-for-readonly} + var(--tlp-small-spacing)
+                );
+            }
         }
     }
 }
@@ -142,12 +178,34 @@ li {
 
 .artidoc-display-level-for-readonly {
     position: relative;
-    top: $display-level-top-for-readonly;
+
+    &.level-1 {
+        top: size.$header-level-1-top-offset-for-readonly;
+    }
+
+    &.level-2 {
+        top: size.$header-level-2-top-offset-for-readonly;
+    }
+
+    &.level-3 {
+        top: size.$header-level-3-top-offset-for-readonly;
+    }
 }
 
 .artidoc-display-level-for-edition {
     position: absolute;
-    top: $display-level-top-for-edition;
+
+    &.level-1 {
+        top: size.$header-level-1-top-offset-for-edition;
+    }
+
+    &.level-2 {
+        top: size.$header-level-2-top-offset-for-edition;
+    }
+
+    &.level-3 {
+        top: size.$header-level-3-top-offset-for-edition;
+    }
 }
 
 .tlp-card {

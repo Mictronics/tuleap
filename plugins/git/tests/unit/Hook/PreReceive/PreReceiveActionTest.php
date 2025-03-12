@@ -36,6 +36,7 @@ use Tuleap\WebAssembly\WASMCaller;
 use Tuleap\ForgeConfigSandbox;
 use Tuleap\WebAssembly\WASMCallerStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class PreReceiveActionTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use ForgeConfigSandbox;
@@ -100,9 +101,7 @@ final class PreReceiveActionTest extends \Tuleap\Test\PHPUnit\TestCase
         self::assertTrue(Result::isErr($result));
     }
 
-    /**
-     * @dataProvider dataProviderInvalidResponseWASMCall
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderInvalidResponseWASMCall')]
     public function testRejectPushWhenReceivingAnIncorrectlyFormattedResponseFromTheWASMCall(string $invalid_response): void
     {
         $git_repository = $this->createStub(GitRepository::class);

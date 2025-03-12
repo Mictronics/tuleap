@@ -25,11 +25,10 @@ namespace Tuleap\OAuth2ServerCore\App;
 use Tuleap\Authentication\SplitToken\SplitTokenVerificationStringHasher;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class NewOAuth2AppTest extends \Tuleap\Test\PHPUnit\TestCase
 {
-    /**
-     * @dataProvider dataProviderInvalidData
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderInvalidData')]
     public function testFromAppDataThrowsWhenDataIsInvalid(string $app_name, string $redirect_uri): void
     {
         $this->expectException(InvalidAppDataException::class);
@@ -54,9 +53,7 @@ final class NewOAuth2AppTest extends \Tuleap\Test\PHPUnit\TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderValidData
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderValidData')]
     public function testFromProjectAdminAppDataReturnsANewOauth2AppToBeSavedInDatabase(
         string $redirect_uri,
         bool $use_pkce,
@@ -77,9 +74,7 @@ final class NewOAuth2AppTest extends \Tuleap\Test\PHPUnit\TestCase
         self::assertSame($project, $new_app->getProject());
     }
 
-    /**
-     * @dataProvider dataProviderValidData
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderValidData')]
     public function testFromSiteAdminAppDataReturnsANewOauth2AppToBeSavedInDatabase(
         string $redirect_uri,
         bool $use_pkce,

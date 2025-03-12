@@ -37,15 +37,16 @@ use Tuleap\Test\Builders\HTTPRequestBuilder;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Stubs\EventDispatcherStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ScrumConfigurationUpdaterTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use GlobalResponseMock;
 
     private const PROJECT_ID = 165;
 
-    private ConfigurationResponse & MockObject $response;
+    private ConfigurationResponse&MockObject $response;
     private EventDispatcherStub $event_dispatcher;
-    private ConfigurationUpdater & MockObject $explicit_backlog_updater;
+    private ConfigurationUpdater&MockObject $explicit_backlog_updater;
     private ConfigurationDao&MockObject $configuration_dao;
     private UpdateMilestonesInSidebarConfig&MockObject $update_sidebar_config;
     private \Project $project;

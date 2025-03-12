@@ -22,18 +22,19 @@ declare(strict_types=1);
 
 namespace Tuleap\Kanban\Home;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tuleap\CSRFSynchronizerTokenPresenter;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\CSRFSynchronizerTokenStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class KanbanHomePresenterTest extends TestCase
 {
     /**
      *
      * @psalm-param list<array{id: int, name: string, used: bool}> $trackers
-     *
-     * @dataProvider dataProviderTrackersWithKanbanUsage
      */
+    #[DataProvider('dataProviderTrackersWithKanbanUsage')]
     public function testAreTrackersAvailable(array $trackers, bool $expected): void
     {
         $presenter = new KanbanHomePresenter(

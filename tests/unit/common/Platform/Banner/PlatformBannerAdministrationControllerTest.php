@@ -30,10 +30,11 @@ use Tuleap\Test\Builders\LayoutInspector;
 use Tuleap\Test\Builders\TestLayout;
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class PlatformBannerAdministrationControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
-    private AdminPageRenderer & \PHPUnit\Framework\MockObject\MockObject $renderer;
-    private BannerRetriever & \PHPUnit\Framework\MockObject\Stub $banner_retriever;
+    private AdminPageRenderer&\PHPUnit\Framework\MockObject\MockObject $renderer;
+    private BannerRetriever&\PHPUnit\Framework\MockObject\Stub $banner_retriever;
     private \PFUser $user;
 
     protected function setUp(): void
@@ -67,9 +68,9 @@ final class PlatformBannerAdministrationControllerTest extends \Tuleap\Test\PHPU
             ->method('renderAPresenter')
             ->with(
                 'Platform banner',
-                self::isType('string'),
+                self::isString(),
                 'administration',
-                self::isType('array')
+                self::isArray()
             );
 
         $this->process();

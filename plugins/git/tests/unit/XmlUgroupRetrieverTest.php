@@ -30,6 +30,7 @@ use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use UGroupManager;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class XmlUgroupRetrieverTest extends TestCase
 {
     private XmlUgroupRetriever $retriever;
@@ -58,7 +59,7 @@ final class XmlUgroupRetrieverTest extends TestCase
             'group_id'  => 101,
         ]);
 
-        $ugroup_manager->method('getUGroupByName')->with($this->project, self::isType('string'))
+        $ugroup_manager->method('getUGroupByName')->with($this->project, self::isString())
             ->willReturnCallback(fn(Project $project, string $name) => match ($name) {
                 'Contributors'    => $this->ugroup_01,
                 'project_members' => $this->ugroup_02,

@@ -23,6 +23,11 @@ import { html } from "lit";
 import {
     buildToolbarController,
     createProseMirrorEditorToolbar,
+    BASIC_TEXT_ITEMS_GROUP,
+    LINK_ITEMS_GROUP,
+    LIST_ITEMS_GROUP,
+    SCRIPTS_ITEMS_GROUP,
+    TEXT_STYLES_ITEMS_GROUP,
 } from "@tuleap/prose-mirror-editor-toolbar";
 import { getToolbarDemoBus, initToolbarDemo } from "./toolbar-interactions-emulation";
 import type {
@@ -31,7 +36,10 @@ import type {
     ScriptElements,
     StyleElements,
     TextElements,
+    AdditionalElementPosition,
+    ItemGroupName,
 } from "@tuleap/prose-mirror-editor-toolbar";
+import { buildCustomButton } from "./CustomButton";
 
 const getTemplate = (args: ProseMirrorEditorToolbarProps): TemplateResult => {
     const toolbar_bus = getToolbarDemoBus();
@@ -59,10 +67,21 @@ const getTemplate = (args: ProseMirrorEditorToolbarProps): TemplateResult => {
         bullet_list: args.list_elements.includes("bullet_list"),
     };
     toolbar.style_elements = {
-        headings: args.style_elements.includes("headings"),
+        headings:
+            args.style_elements.includes("headings") && !args.style_elements.includes("subtitles"),
         text: args.style_elements.includes("text"),
         preformatted: args.style_elements.includes("preformatted"),
+        subtitles:
+            args.style_elements.includes("subtitles") && !args.style_elements.includes("headings"),
     };
+
+    toolbar.additional_elements = [
+        {
+            position: args.custom_button_position,
+            target_name: args.custom_button_target_group_name,
+            item_element: buildCustomButton(args.is_toolbar_disabled),
+        },
+    ];
 
     initToolbarDemo(toolbar_bus, args.is_toolbar_disabled);
 
@@ -75,6 +94,8 @@ type ProseMirrorEditorToolbarProps = {
     link_elements: Array<keyof LinkElements>;
     list_elements: Array<keyof ListElements>;
     style_elements: Array<keyof StyleElements>;
+    custom_button_position: AdditionalElementPosition;
+    custom_button_target_group_name: ItemGroupName;
     is_toolbar_disabled: boolean;
 };
 
@@ -90,6 +111,8 @@ const meta: Meta<ProseMirrorEditorToolbarProps> = {
     },
     args: {
         is_toolbar_disabled: false,
+        custom_button_position: "at_the_end",
+        custom_button_target_group_name: LINK_ITEMS_GROUP,
         text_elements: ["bold", "code", "quote", "italic"],
         style_elements: ["headings", "text", "preformatted"],
         list_elements: ["ordered_list", "bullet_list"],
@@ -112,7 +135,7 @@ const meta: Meta<ProseMirrorEditorToolbarProps> = {
             name: "style_elements",
             description: "Enable style options in the text-style select box",
             control: "check",
-            options: ["headings", "text", "preformatted"],
+            options: ["headings", "subtitles", "text", "preformatted"],
         },
         list_elements: {
             name: "list_elements",
@@ -131,6 +154,24 @@ const meta: Meta<ProseMirrorEditorToolbarProps> = {
             description: "Enable script buttons in the toolbar",
             control: "check",
             options: ["subscript", "superscript"],
+        },
+        custom_button_position: {
+            name: "Custom button position in the toolbar",
+            description: "Custom button position in the toolbar",
+            control: "select",
+            options: ["before", "after", "at_the_start", "at_the_end"],
+        },
+        custom_button_target_group_name: {
+            name: "Custom button target group name",
+            description: "The name of the target group of items",
+            control: "select",
+            options: [
+                BASIC_TEXT_ITEMS_GROUP,
+                LIST_ITEMS_GROUP,
+                LINK_ITEMS_GROUP,
+                SCRIPTS_ITEMS_GROUP,
+                TEXT_STYLES_ITEMS_GROUP,
+            ],
         },
     },
 };

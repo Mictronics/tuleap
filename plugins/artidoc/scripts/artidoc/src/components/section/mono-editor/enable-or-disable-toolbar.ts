@@ -22,6 +22,8 @@ import { Plugin, PluginKey } from "prosemirror-state";
 import type { ToolbarBus } from "@tuleap/prose-mirror-editor";
 import type { EditorView } from "prosemirror-view";
 import type { ResolvedPos, NodeType } from "prosemirror-model";
+import type { ReactiveStoredArtidocSection } from "@/sections/SectionsCollection";
+import type { HeadingsButtonState } from "@/toolbar/HeadingsButtonState";
 
 const isCurrentPositionInsideAnAncestorNodeWithType = (
     position: ResolvedPos,
@@ -34,12 +36,22 @@ const isCurrentPositionInsideAnAncestorNodeWithType = (
     }
     return false;
 };
-export const EnableOrDisableToolbarPlugin = (toolbar_bus: ToolbarBus): Plugin =>
+export const EnableOrDisableToolbarPlugin = (
+    toolbar_bus: ToolbarBus,
+    headings_button_state: HeadingsButtonState,
+    section: ReactiveStoredArtidocSection,
+): Plugin =>
     new Plugin({
         key: new PluginKey("enable-or-disable-toolbar"),
         view(): PluginView {
             return {
                 update: (view: EditorView): void => {
+                    if (!view.hasFocus()) {
+                        toolbar_bus.disableToolbar();
+                        headings_button_state.deactivateButton();
+                        return;
+                    }
+
                     const { selection, schema } = view.state;
                     const is_cursor_in_description = isCurrentPositionInsideAnAncestorNodeWithType(
                         selection.$from,
@@ -48,9 +60,12 @@ export const EnableOrDisableToolbarPlugin = (toolbar_bus: ToolbarBus): Plugin =>
 
                     if (is_cursor_in_description) {
                         toolbar_bus.enableToolbar();
-                    } else {
-                        toolbar_bus.disableToolbar();
+                        headings_button_state.deactivateButton();
+                        return;
                     }
+
+                    toolbar_bus.disableToolbar();
+                    headings_button_state.activateButtonForSection(section);
                 },
             };
         },

@@ -39,6 +39,7 @@ use Tuleap\Baseline\Support\DateTimeFactory;
 use Tuleap\Test\Builders\UserTestBuilder;
 use UserManager;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class ComparisonRepositoryAdapterTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use CurrentUserContext;
@@ -64,7 +65,7 @@ class ComparisonRepositoryAdapterTest extends \Tuleap\Test\PHPUnit\TestCase
     /** @var DateTimeInterface */
     private $now;
 
-    /** @before */
+        #[\PHPUnit\Framework\Attributes\Before]
     public function createInstance(): void
     {
         $now = DateTimeImmutable::createFromFormat('Y-m-d H:i:s', '2019-05-17 09:33:22');
@@ -133,7 +134,7 @@ class ComparisonRepositoryAdapterTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $this->db
             ->method('safeQuery')
-            ->with(self::isType('string'), [1])
+            ->with(self::isString(), [1])
             ->willReturn(
                 [
                     [
@@ -182,7 +183,7 @@ class ComparisonRepositoryAdapterTest extends \Tuleap\Test\PHPUnit\TestCase
     {
         $this->db
             ->method('safeQuery')
-            ->with(self::isType('string'), [1])
+            ->with(self::isString(), [1])
             ->willReturn([]);
 
         $comparison = $this->repository->findById($this->current_user, 1);
@@ -205,7 +206,7 @@ class ComparisonRepositoryAdapterTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $this->db
             ->method('safeQuery')
-            ->with(self::isType('string'), [1])
+            ->with(self::isString(), [1])
             ->willReturn(
                 [
                     [
@@ -248,7 +249,7 @@ class ComparisonRepositoryAdapterTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $this->db
             ->method('safeQuery')
-            ->with(self::isType('string'), [1])
+            ->with(self::isString(), [1])
             ->willReturn(
                 [
                     [
@@ -280,7 +281,7 @@ class ComparisonRepositoryAdapterTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $this->db
             ->method('safeQuery')
-            ->with(self::isType('string'), [1])
+            ->with(self::isString(), [1])
             ->willReturn(
                 [
                     [
@@ -303,7 +304,7 @@ class ComparisonRepositoryAdapterTest extends \Tuleap\Test\PHPUnit\TestCase
     public function testFindByProject(): void
     {
         $this->db->method('safeQuery')
-            ->with(self::isType('string'), [102, 10, 3])
+            ->with(self::isString(), [102, 10, 3])
             ->willReturn(
                 [
                     [
@@ -359,7 +360,7 @@ class ComparisonRepositoryAdapterTest extends \Tuleap\Test\PHPUnit\TestCase
     public function testFindByProjectIgnoresBaselinesWhereBaseBaselineIsNotFound(): void
     {
         $this->db->method('safeQuery')
-            ->with(self::isType('string'), [102, 10, 3])
+            ->with(self::isString(), [102, 10, 3])
             ->willReturn(
                 [
                     [
@@ -395,7 +396,7 @@ class ComparisonRepositoryAdapterTest extends \Tuleap\Test\PHPUnit\TestCase
     {
         $project = ProjectFactory::oneWithId(102);
         $this->db->method('single')
-            ->with(self::isType('string'), [102])
+            ->with(self::isString(), [102])
             ->willReturn(233);
 
         $count = $this->repository->countByProject($project);

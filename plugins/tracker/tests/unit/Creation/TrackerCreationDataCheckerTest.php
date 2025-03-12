@@ -29,6 +29,7 @@ use Tuleap\Tracker\Creation\JiraImporter\PendingJiraImportDao;
 use Tuleap\Tracker\TrackerIsInvalidException;
 use function PHPUnit\Framework\assertEquals;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class TrackerCreationDataCheckerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -383,9 +384,7 @@ final class TrackerCreationDataCheckerTest extends \Tuleap\Test\PHPUnit\TestCase
         );
     }
 
-    /**
-     * @dataProvider getShortNamesAndCorrespondingConversions
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getShortNamesAndCorrespondingConversions')]
     public function testItConvertsGivenStringToValidShortName(string $expected, string $wished): void
     {
         assertEquals($expected, TrackerCreationDataChecker::getShortNameWithValidFormat($wished));

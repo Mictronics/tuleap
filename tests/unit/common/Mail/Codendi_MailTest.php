@@ -29,8 +29,8 @@ use org\bovigo\vfs\vfsStream;
 use Tuleap\ForgeConfigSandbox;
 use Tuleap_Template_Mail;
 
-// phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
-final class Codendi_MailTest extends \Tuleap\Test\PHPUnit\TestCase
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
+final class Codendi_MailTest extends \Tuleap\Test\PHPUnit\TestCase // phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
 {
     use ForgeConfigSandbox;
 
@@ -59,7 +59,7 @@ final class Codendi_MailTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $tpl = $this->createMock(Tuleap_Template_Mail::class);
         $tpl->expects(self::once())->method('set')->willReturn(['body', $body]);
-        $tpl->expects(self::once())->method('fetch');
+        $tpl->expects(self::once())->method('fetch')->willReturn('body content');
 
         $mail = new Codendi_Mail();
         $mail->setLookAndFeelTemplate($tpl);

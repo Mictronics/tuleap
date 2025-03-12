@@ -25,6 +25,7 @@ namespace Tuleap\OAuth2Server\Administration;
 use Tuleap\OAuth2ServerCore\App\AppDao;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class OAuth2AppProjectVerifierTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -58,9 +59,7 @@ final class OAuth2AppProjectVerifierTest extends \Tuleap\Test\PHPUnit\TestCase
         self::assertTrue($this->project_verifier->isASiteLevelApp(1));
     }
 
-    /**
-     * @dataProvider dataProviderAppNotPartOfExpectedProject
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderAppNotPartOfExpectedProject')]
     public function testAppIsNotPartOfTheExpectedProject(?int $app_project_id): void
     {
         $this->app_dao->method('searchProjectIDByClientID')->willReturn($app_project_id);

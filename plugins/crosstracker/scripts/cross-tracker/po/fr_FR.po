@@ -13,8 +13,17 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.5\n"
 
+msgid "\"%{title}\" query preview"
+msgstr "Aperçu de la requête \"%{title}\""
+
 msgid "%{from} – %{to} of %{total}"
 msgstr "%{from} – %{to} sur %{total}"
+
+msgid "All artifacts created in the last 10 days"
+msgstr "Tous les artéfacts créés ces 10 derniers jours"
+
+msgid "All open artifacts"
+msgstr "Tous les artéfacts ouverts"
 
 msgid "An error occurred: %{error}"
 msgstr "Une erreur s'est produite : %{error}"
@@ -33,6 +42,9 @@ msgstr "Annuler"
 
 msgid "Choose another query"
 msgstr "Choisir une autre requête"
+
+msgid "Create new query"
+msgstr "Créer une nouvelle requête"
 
 msgid "Description"
 msgstr "Description"
@@ -69,6 +81,17 @@ msgstr "Premier"
 msgid "Id"
 msgstr "Id"
 
+msgid ""
+"If you click on one of the suggested query, your content will be replaced."
+msgstr ""
+"Si vous cliquez sur l'une des requêtes suggérées, votre contenu sera remplacé"
+
+msgid ""
+"If you validate, this query will replace your content. You can't undo it."
+msgstr ""
+"Si vous validez, cette requête remplacera votre contenu. Vous ne pouvez pas "
+"revenir en arrière."
+
 msgid "Last"
 msgstr "Dernier"
 
@@ -78,11 +101,23 @@ msgstr "Mis à jour par"
 msgid "Last update date"
 msgstr "Mis à jour le"
 
+msgid "Name your query"
+msgstr "Nommer votre requête"
+
 msgid "Next"
 msgstr "Suivant"
 
 msgid "No artifact found"
 msgstr "Aucun artéfact trouvé"
+
+msgid "Open artifacts assigned to me"
+msgstr "Les artéfacts ouverts qui me sont assignés"
+
+msgid "Open artifacts assigned to me in my projects"
+msgstr "Les artéfacts ouverts qui me sont assignés dans mes projets"
+
+msgid "Overwrite current query"
+msgstr "Remplacer la requête actuelle"
 
 msgid "Please create a new query."
 msgstr "Veuillez créer une nouvelle requête."
@@ -96,11 +131,26 @@ msgstr "Projet"
 msgid "Query"
 msgstr "Requête"
 
+msgid "Query created with success!"
+msgstr "Requête créée avec succés !"
+
+msgid "Query creation is under implementation"
+msgstr "La création de requête est en cours d'implémentation"
+
 msgid "Query is empty"
 msgstr "La requête est vide"
 
+msgid "Query suggestions"
+msgstr "Requêtes suggérées"
+
+msgid "Query title"
+msgstr "Titre de la requête"
+
 msgid "Report has been successfully saved"
 msgstr "Rapport enregistré avec succès"
+
+msgid "Save"
+msgstr "Sauvegarder"
 
 msgid "Save report"
 msgstr "Enregistrer le rapport"
@@ -132,6 +182,9 @@ msgstr "Outil de suivi"
 msgid "User avatar"
 msgstr "Avatar de l'utilisateur"
 
+msgid "Write your description"
+msgstr "Écrire votre description"
+
 msgid ""
 "You can use: AND, OR, WITH PARENT, WITHOUT PARENT, WITH CHILDREN, WITHOUT "
 "CHILDREN, BETWEEN(), NOW(), MYSELF(), OPEN(), IN(), NOT IN(), MY_PROJECTS(), "
@@ -139,4 +192,4 @@ msgid ""
 msgstr ""
 "Vous pouvez utiliser : AND, OR, WITH PARENT, WITHOUT PARENT, WITH CHILDREN, "
 "WITHOUT CHILDREN, BETWEEN(), NOW(), MYSELF(), OPEN(), IN(), NOT IN(), "
-"MY_PROJECTS(), parenthèses. Ctrl + Espace active l’auto-complétion."
+"MY_PROJECTS(), parenthèses. Ctrl + Espace active l'auto-complétion."

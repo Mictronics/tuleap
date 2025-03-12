@@ -23,6 +23,7 @@ namespace Tuleap\Tracker\Workflow\PostAction\Update\Internal;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Tuleap\Tracker\Workflow\PostAction\Update\CIBuildValue;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class CIBuildValidatorTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -35,13 +36,14 @@ class CIBuildValidatorTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->ci_build_validator = new CIBuildValueValidator();
     }
 
-    /** @doesNotPerformAssertions */
     public function testValidateDoesNotThrowWhenValid()
     {
         $first_ci_build  = new CIBuildValue('https://example.com');
         $second_ci_build = new CIBuildValue('https://example.com/2');
 
         $this->ci_build_validator->validate($first_ci_build, $second_ci_build);
+
+        $this->expectNotToPerformAssertions();
     }
 
     public function testValidateThrowsWhenInvalidJobUrl()

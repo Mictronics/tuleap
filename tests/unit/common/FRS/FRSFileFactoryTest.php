@@ -48,10 +48,12 @@ use TestHelper;
 use Tuleap\ForgeConfigSandbox;
 use Tuleap\GlobalLanguageMock;
 use Tuleap\TemporaryTestDirectory;
+use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use UserManager;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class FRSFileFactoryTest extends TestCase
 {
     use ForgeConfigSandbox;
@@ -567,12 +569,11 @@ class FRSFileFactoryTest extends TestCase
 
         $file = $this->createMock(FRSFile::class);
         $file->method('getFileID')->willReturn(12);
+        $file->method('getReleaseID')->willReturn(123);
         $file->method('getFileName')->willReturn('p1_r1/toto.xls');
         $file->method('getFileLocation')->willReturn(ForgeConfig::get('ftp_frs_dir_prefix') . '/prj/p1_r1/toto.xls');
-        $project = $this->createMock(Project::class);
+        $project = ProjectTestBuilder::aProject()->build();
         $file->method('getGroup')->willReturn($project);
-        $file->method('getReleaseID')->willReturn(self::isType('int'));
-        $project->method('getGroupId')->willReturn(self::isType('int'));
         $this->createReleaseDir('prj', 'p1_r1');
         self::assertTrue(is_dir(ForgeConfig::get('ftp_frs_dir_prefix') . '/prj/p1_r1/'));
 
@@ -613,9 +614,9 @@ class FRSFileFactoryTest extends TestCase
 
         $file = $this->createMock(FRSFile::class);
         $file->method('getFileID')->willReturn(5);
+        $file->method('getReleaseID')->willReturn(123);
         $file->method('getFileName')->willReturn('p1_r1/toto.xls');
         $file->method('getFileLocation')->willReturn(ForgeConfig::get('ftp_frs_dir_prefix') . '/prj/p1_r1/toto.xls');
-        $file->method('getReleaseID')->willReturn(self::isType('int'));
         self::assertTrue(is_dir(dirname(ForgeConfig::get('ftp_frs_dir_prefix') . '/prj/p1_r1/')));
 
         $dao = $this->createMock(FRSFileDao::class);
@@ -653,12 +654,10 @@ class FRSFileFactoryTest extends TestCase
         $backend = $this->createMock(BackendSystem::class);
         $file    = $this->createMock(FRSFile::class);
         $file->method('getFileID')->willReturn(12);
+        $file->method('getReleaseID')->willReturn(123);
         $file->method('getFileName')->willReturn('p2_r1/toto.xls');
         $file->method('getFileLocation')->willReturn(ForgeConfig::get('ftp_frs_dir_prefix') . '/prj/p2_r1/toto.xls');
-        $project = $this->createMock(Project::class);
-        $file->method('getGroup')->willReturn($project);
-        $file->method('getReleaseID')->willReturn(self::isType('int'));
-        $project->method('getGroupId')->willReturn(self::isType('int'));
+        $file->method('getGroup')->willReturn(ProjectTestBuilder::aProject()->build());
         self::assertTrue(is_dir(dirname(ForgeConfig::get('ftp_frs_dir_prefix') . '/prj/p2_r1/')));
         $backend->method('chgrp')->willReturn(true);
 
@@ -701,11 +700,11 @@ class FRSFileFactoryTest extends TestCase
 
         $file = $this->createMock(FRSFile::class);
         $file->method('getFileID')->willReturn(12);
+        $file->method('getReleaseID')->willReturn(123);
         $file->method('getFileName')->willReturn('p3_r1/toto.xls');
         $file->method('getFileLocation')->willReturn(ForgeConfig::get('ftp_frs_dir_prefix') . '/prj/p3_r1/toto.xls');
-        $project = $this->createMock(Project::class);
+        $project = ProjectTestBuilder::aProject()->build();
         $file->method('getGroup')->willReturn($project);
-        $file->method('getReleaseID')->willReturn(self::isType('int'));
         self::assertTrue(is_dir(dirname(ForgeConfig::get('ftp_frs_dir_prefix') . '/prj/p3_r1/')));
 
         $dao = $this->createMock(FRSFileDao::class);

@@ -25,6 +25,7 @@ namespace Tuleap\Baseline\REST;
 
 require_once __DIR__ . '/../bootstrap.php';
 
+use PHPUnit\Framework\Attributes\Before;
 use Tuleap\Baseline\Domain\ComparisonService;
 use Tuleap\Baseline\Domain\ComparisonsPage;
 use Tuleap\Baseline\Domain\CurrentUserProvider;
@@ -35,6 +36,7 @@ use Tuleap\Baseline\Domain\ProjectRepository;
 use Tuleap\Baseline\REST\Exception\NotFoundRestException;
 use Tuleap\Baseline\Support\CurrentUserContext;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ProjectComparisonControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use CurrentUserContext;
@@ -52,9 +54,7 @@ final class ProjectComparisonControllerTest extends \Tuleap\Test\PHPUnit\TestCas
 
     private ProjectIdentifier $a_project;
 
-    /**
-     * @before
-     */
+    #[Before]
     public function createInstance(): void
     {
         $this->current_user_provider = $this->createMock(CurrentUserProvider::class);
@@ -70,7 +70,7 @@ final class ProjectComparisonControllerTest extends \Tuleap\Test\PHPUnit\TestCas
         );
     }
 
-    /** @before */
+    #[Before]
     public function createEntities(): void
     {
         $this->a_project = ProjectFactory::one();

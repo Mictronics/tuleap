@@ -24,11 +24,10 @@ namespace Tuleap\Project\Webhook;
 
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ProjectCreatedPayloadTest extends \Tuleap\Test\PHPUnit\TestCase
 {
-    /**
-     * @dataProvider ownerDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('ownerDataProvider')]
     public function testPayloadCreation(bool $has_owner): void
     {
         $project = $this->createMock(\Project::class);

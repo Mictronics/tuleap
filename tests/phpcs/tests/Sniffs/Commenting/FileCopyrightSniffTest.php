@@ -22,13 +22,13 @@ declare(strict_types=1);
 
 namespace TuleapCodingStandard\Sniffs\Commenting;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use SlevomatCodingStandard\Sniffs\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FileCopyrightSniffTest extends TestCase
 {
-    /**
-     * @dataProvider providerValidFiles
-     */
+    #[DataProvider('providerValidFiles')]
     public function testNoErrorWhenCopyrightBlockIsPresent(string $path): void
     {
         $report = self::checkFile($path);

@@ -55,6 +55,7 @@ use Tuleap\Test\Stubs\EventDispatcherStub;
 use Tuleap\Test\Stubs\ExtractAndSaveCrossReferencesStub;
 use Tuleap\Test\Stubs\User\Avatar\ProvideUserAvatarUrlStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class PATCHCommentHandlerTest extends TestCase
 {
     private const CURRENT_USER_ID = 105;
@@ -159,9 +160,7 @@ final class PATCHCommentHandlerTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider generateDestinationGitExceptions
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('generateDestinationGitExceptions')]
     public function testUserCannotSeeThePullRequest(\Throwable $throwable): void
     {
         $this->pull_request_permission_checker = CheckUserCanAccessPullRequestStub::withException($throwable);

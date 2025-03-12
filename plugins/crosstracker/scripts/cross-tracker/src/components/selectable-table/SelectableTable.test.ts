@@ -17,7 +17,6 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { Mock } from "vitest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { VueWrapper } from "@vue/test-utils";
 import { shallowMount } from "@vue/test-utils";
@@ -27,15 +26,13 @@ import { en_US_LOCALE } from "@tuleap/core-constants";
 import { nextTick, ref } from "vue";
 import SelectableTable from "./SelectableTable.vue";
 import { getGlobalTestOptions } from "../../helpers/global-options-for-tests";
-import { WritingCrossTrackerReport } from "../../domain/WritingCrossTrackerReport";
 import {
     DATE_FORMATTER,
     DATE_TIME_FORMATTER,
     EMITTER,
     GET_COLUMN_NAME,
     IS_EXPORT_ALLOWED,
-    NOTIFY_FAULT,
-    REPORT_ID,
+    WIDGET_ID,
     REPORT_STATE,
     RETRIEVE_ARTIFACTS_TABLE,
 } from "../../injection-symbols";
@@ -55,7 +52,10 @@ import SelectableCell from "./SelectableCell.vue";
 import ExportXLSXButton from "../ExportXLSXButton.vue";
 import { ColumnNameGetter } from "../../domain/ColumnNameGetter";
 import { createVueGettextProviderPassThrough } from "../../helpers/vue-gettext-provider-for-test";
-import { EmitterStub } from "../../../tests/stubs/EmitterStub";
+import type { Query } from "../../type";
+import type { EmitterProvider, Events, NotifyFaultEvent } from "../../helpers/emitter-provider";
+import { NOTIFY_FAULT_EVENT } from "../../helpers/emitter-provider";
+import mitt from "mitt";
 
 vi.useFakeTimers();
 
@@ -64,18 +64,28 @@ const NUMERIC_COLUMN_NAME = "remaining_effort";
 const TEXT_COLUMN_NAME = "details";
 
 describe(`SelectableTable`, () => {
-    let errorSpy: Mock,
-        report_state: ReportState,
-        is_xslx_export_allowed: boolean,
-        writing_cross_tracker_report: WritingCrossTrackerReport;
+    let report_state: ReportState;
+    let is_xslx_export_allowed: boolean;
+    let writing_query: Query;
+    let emitter: EmitterProvider;
+    let dispatched_fault_events: NotifyFaultEvent[];
 
     beforeEach(() => {
-        errorSpy = vi.fn();
         report_state = "report-saved";
         is_xslx_export_allowed = true;
 
-        writing_cross_tracker_report = new WritingCrossTrackerReport();
-        writing_cross_tracker_report.expert_query = `SELECT start_date WHERE start_date != ''`;
+        writing_query = {
+            id: "",
+            tql_query: `SELECT start_date WHERE start_date != ''`,
+            title: "",
+            description: "",
+        };
+
+        emitter = mitt<Events>();
+        dispatched_fault_events = [];
+        emitter.on(NOTIFY_FAULT_EVENT, (event) => {
+            dispatched_fault_events.push(event);
+        });
     });
 
     const getWrapper = (
@@ -96,23 +106,16 @@ describe(`SelectableTable`, () => {
                     ),
                     [RETRIEVE_ARTIFACTS_TABLE.valueOf()]: table_retriever,
                     [REPORT_STATE.valueOf()]: ref(report_state),
-                    [NOTIFY_FAULT.valueOf()]: errorSpy,
-                    [REPORT_ID.valueOf()]: 15,
+                    [WIDGET_ID.valueOf()]: 15,
                     [IS_EXPORT_ALLOWED.valueOf()]: ref(is_xslx_export_allowed),
                     [GET_COLUMN_NAME.valueOf()]: ColumnNameGetter(
                         createVueGettextProviderPassThrough(),
                     ),
-                    [EMITTER.valueOf()]: EmitterStub(),
+                    [EMITTER.valueOf()]: emitter,
                 },
             },
             props: {
-                writing_cross_tracker_report,
-                selected_query: {
-                    uuid: "0194dfd6-a489-703b-aabd-9d473212d908",
-                    expert_query: "SELECT @pretty_title FROM @project = 'self' WHERE @id = 1",
-                    title: "My awesome query",
-                    description: "",
-                },
+                writing_query,
             },
         });
     };
@@ -194,8 +197,8 @@ describe(`SelectableTable`, () => {
 
             await vi.runOnlyPendingTimersAsync();
 
-            expect(errorSpy).toHaveBeenCalled();
-            expect(errorSpy.mock.calls[0][0].isArtifactsRetrieval()).toBe(true);
+            expect(dispatched_fault_events).toHaveLength(1);
+            expect(dispatched_fault_events[0].fault.isArtifactsRetrieval()).toBe(true);
         });
     });
     describe("loadArtifact()", () => {

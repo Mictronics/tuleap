@@ -22,11 +22,22 @@ import type { ColorName } from "@tuleap/core-constants";
 
 export type TrackerReference = Pick<TrackerResponseWithProject, "id" | "label" | "project">;
 
-export type ReportRepresentation = {
-    readonly uuid: string;
-    readonly expert_query: string;
+export type WidgetRepresentation = {
+    readonly queries: ReadonlyArray<QueryRepresentation>;
+};
+
+export type QueryRepresentation = {
+    readonly id: string;
+    readonly tql_query: string;
     readonly title: string;
     readonly description: string;
+};
+
+export type PostQueryRepresentation = {
+    widget_id: number;
+    tql_query: string;
+    title: string;
+    description?: string;
 };
 
 export const DATE_SELECTABLE_TYPE = "date";
@@ -181,7 +192,7 @@ export type Selectable =
     | ArtifactSelectable
     | UnsupportedSelectable;
 
-export type SelectableReportContentRepresentation = {
+export type SelectableQueryContentRepresentation = {
     readonly artifacts: ReadonlyArray<ArtifactRepresentation>;
     readonly selected: ReadonlyArray<Selectable>;
 };

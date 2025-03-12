@@ -44,6 +44,7 @@ use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\User\OAuth2\Scope\OAuth2ScopeIdentifier;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AuthorizationEndpointControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private AuthorizationEndpointController $controller;
@@ -190,9 +191,7 @@ final class AuthorizationEndpointControllerTest extends \Tuleap\Test\PHPUnit\Tes
         self::assertSame($response, $this->controller->handle($request));
     }
 
-    /**
-     * @dataProvider dataProviderInvalidEssentialQueryParameters
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderInvalidEssentialQueryParameters')]
     public function testHandleThrowsForbiddenWhenEssentialQueryParametersAreInvalid(array $query_parameters): void
     {
         $user = UserTestBuilder::aUser()->withId(102)->build();
@@ -240,9 +239,7 @@ final class AuthorizationEndpointControllerTest extends \Tuleap\Test\PHPUnit\Tes
         $this->controller->handle($request);
     }
 
-    /**
-     * @dataProvider dataProviderInvalidQueryParameters
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderInvalidQueryParameters')]
     public function testHandleRedirectsWithErrorWhenQueryParametersAreInvalid(
         array $query_parameters,
         string $expected_redirection_url,
@@ -335,9 +332,7 @@ final class AuthorizationEndpointControllerTest extends \Tuleap\Test\PHPUnit\Tes
         self::assertSame($response, $this->controller->handle($request));
     }
 
-    /**
-     * @dataProvider dataProviderSupportedRequestHTTPMethod
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderSupportedRequestHTTPMethod')]
     public function testHandleRedirectsWithAuthorizationCodeWhenAPreviousAuthorizationHasBeenGranted(string $request_http_method): void
     {
         $user = UserTestBuilder::aUser()->withId(102)->build();

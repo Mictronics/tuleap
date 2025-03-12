@@ -31,6 +31,7 @@ use Tuleap\TestManagement\TrackerDefinitionNotValidException;
 use Tuleap\TestManagement\TrackerExecutionNotValidException;
 use Valid_UInt;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AdminControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use GlobalResponseMock;
@@ -54,8 +55,6 @@ final class AdminControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function setUp(): void
     {
-        parent::setUp();
-
         $this->config               = $this->createMock(Config::class);
         $this->field_usage_detector = $this->createMock(FieldUsageDetector::class);
 
@@ -71,6 +70,9 @@ final class AdminControllerTest extends \Tuleap\Test\PHPUnit\TestCase
         $event_manager = $this->createMock(\EventManager::class);
         $event_manager->method('processEvent');
 
+        $project_history_dao = $this->createMock(\ProjectHistoryDao::class);
+        $project_history_dao->method('addHistory');
+
         return new AdminController(
             $request,
             $this->config,
@@ -79,7 +81,8 @@ final class AdminControllerTest extends \Tuleap\Test\PHPUnit\TestCase
             $this->field_usage_detector,
             $this->tracker_checker,
             new Valid_UInt(),
-            $this->createMock(AdminTrackersRetriever::class)
+            $this->createMock(AdminTrackersRetriever::class),
+            $project_history_dao
         );
     }
 

@@ -26,6 +26,7 @@ use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\Export\Pdf\Template\Identifier\PdfTemplateIdentifierFactory;
 use Tuleap\Export\Pdf\Template\PdfTemplate;
 use Tuleap\PdfTemplate\CreateTemplate;
+use Tuleap\PdfTemplate\PdfTemplateBuilder;
 
 final class CreateTemplateStub implements CreateTemplate
 {
@@ -57,7 +58,7 @@ final class CreateTemplateStub implements CreateTemplate
     ): PdfTemplate {
         $this->called = true;
 
-        return new PdfTemplate(
+        return PdfTemplateBuilder::build(
             (new PdfTemplateIdentifierFactory(new DatabaseUUIDV7Factory()))->buildIdentifier(),
             $label,
             $description,

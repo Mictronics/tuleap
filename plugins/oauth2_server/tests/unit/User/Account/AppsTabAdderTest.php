@@ -25,13 +25,14 @@ namespace Tuleap\OAuth2Server\User\Account;
 use Tuleap\User\Account\AccountTabPresenter;
 use Tuleap\User\Account\AccountTabPresenterCollection;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AppsTabAdderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testAddTabs(): void
     {
         $collection = $this->createMock(AccountTabPresenterCollection::class);
         $collection->expects(self::once())->method('add')
-            ->with(self::isType('string'), self::isInstanceOf(AccountTabPresenter::class));
+            ->with(self::isString(), self::isInstanceOf(AccountTabPresenter::class));
         $collection->method('getCurrentHref');
 
         (new AppsTabAdder())->addTabs($collection);

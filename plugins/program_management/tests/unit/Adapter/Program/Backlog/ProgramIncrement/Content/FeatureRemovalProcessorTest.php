@@ -38,12 +38,13 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkUpdater;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FeatureRemovalProcessorTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private const USER_ID = 635;
     private SearchProgramIncrementLinkedToFeature $program_increments_dao;
-    private \Tracker_ArtifactFactory & MockObject $artifact_factory;
-    private ArtifactLinkUpdater & MockObject $artifact_link_updater;
+    private \Tracker_ArtifactFactory&MockObject $artifact_factory;
+    private ArtifactLinkUpdater&MockObject $artifact_link_updater;
 
     protected function setUp(): void
     {
@@ -118,9 +119,7 @@ final class FeatureRemovalProcessorTest extends \Tuleap\Test\PHPUnit\TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderExceptions
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderExceptions')]
     public function testItWrapsExceptions(\Throwable $exception): void
     {
         $program_increment_ids        = [['id' => 25]];

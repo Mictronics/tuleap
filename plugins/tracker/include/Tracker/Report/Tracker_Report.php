@@ -21,7 +21,8 @@
 
 use GuzzleHttp\Psr7\ServerRequest;
 use Tuleap\DB\DBFactory;
-use Tuleap\Layout\IncludeAssets;
+use Tuleap\DB\DBTransactionExecutorWithConnection;
+use Tuleap\Layout\CssViteAsset;
 use Tuleap\Option\Option;
 use Tuleap\Project\MappingRegistry;
 use Tuleap\Tracker\Admin\ArtifactLinksUsageDao;
@@ -605,7 +606,7 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
         $html .= '<ul id="tracker_query">' . implode('', $criteria_fetched) . '</ul>';
 
         $html .= '<div align="center">';
-        $html .= '<button type="submit" name="tracker_query_submit" class="btn btn-primary">';
+        $html .= '<button type="submit" data-test="submit-report-search" name="tracker_query_submit" class="btn btn-primary">';
         $html .= '<i class="fa fa-search"></i> ';
         $html .= $GLOBALS['Language']->getText('global', 'btn_search');
         $html .= '</button>';
@@ -1028,13 +1029,13 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
             $html .= '</div>';
 
             if ($request->get('should-display-created-tracker-modal')) {
-                $assets = new IncludeAssets(
+                $assets = new \Tuleap\Layout\IncludeViteAssets(
                     __DIR__ . '/../../../scripts/tracker-creation/frontend-assets',
                     '/assets/trackers/tracker-creation'
                 );
 
-                $GLOBALS['Response']->addJavascriptAsset(new \Tuleap\Layout\JavascriptAsset($assets, 'tracker-creation-success.js'));
-                $GLOBALS['Response']->addCssAsset(new \Tuleap\Layout\CssAssetWithoutVariantDeclinaisons($assets, 'tracker-creation-success-style'));
+                $GLOBALS['Response']->addJavascriptAsset(new \Tuleap\Layout\JavascriptAsset($assets, 'src/success-modal/success-modal.ts'));
+                $GLOBALS['Response']->addCssAsset(CssViteAsset::fromFileName($assets, 'themes/success-modal.scss'));
 
                 $renderer = TemplateRendererFactory::build()->getRenderer(
                     TRACKER_TEMPLATE_DIR  . '/tracker-creation/'
@@ -1175,18 +1176,17 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
 
     /**
      * Remove a formElement from criteria
-     * @param int $formElement_id the formElement used for the criteria
      */
-    public function removeCriteria($formElement_id)
+    private function removeCriteria(Tracker_FormElement_Field $field): void
     {
         $criteria = $this->getCriteria();
-        if (isset($criteria[$formElement_id])) {
-            if ($this->getCriteriaDao()->delete($this->id, $formElement_id)) {
-                $criteria[$formElement_id]->delete();
-                unset($criteria[$formElement_id]);
-            }
+        if (! isset($criteria[$field->getId()])) {
+            return;
         }
-        return $this;
+
+        $criteria[$field->getId()]->deleteFieldValueFromCriteria();
+        $this->getCriteriaDao()->deleteFieldFromCriteriaList($this->id, $field->getId());
+        unset($criteria[$field->getId()]);
     }
 
     public function addCriteria(Tracker_Report_Criteria $criteria): int
@@ -1514,7 +1514,10 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
                 ]));
                 break;
             case self::ACTION_DELETE:
-                $this->delete();
+                $transaction = new DBTransactionExecutorWithConnection(DBFactory::getMainTuleapDBConnection());
+                $transaction->execute(function () {
+                    $this->delete();
+                });
                 $GLOBALS['Response']->redirect('?' . http_build_query([
                     'tracker'   => $this->tracker_id,
                 ]));
@@ -1729,7 +1732,7 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
     /**
      * Delete the report and its renderers
      */
-    protected function delete()
+    protected function delete(): void
     {
         //Delete user preferences
         $dao = new UserPreferencesDao();
@@ -1737,7 +1740,7 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
 
         //Delete criteria
         foreach ($this->getCriteria() as $criteria) {
-            $this->removeCriteria($criteria->field->id);
+            $this->removeCriteria($criteria->field);
         }
 
         //Delete renderers

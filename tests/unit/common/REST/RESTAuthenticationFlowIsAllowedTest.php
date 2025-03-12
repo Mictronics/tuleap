@@ -31,6 +31,7 @@ use Tuleap\User\AccessKey\AccessKeyException;
 use Tuleap\User\OAuth2\OAuth2Exception;
 use User_LoginException;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class RESTAuthenticationFlowIsAllowedTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -87,9 +88,7 @@ final class RESTAuthenticationFlowIsAllowedTest extends \Tuleap\Test\PHPUnit\Tes
         $this->assertTrue($this->rest_authentication_flow->isAllowed($this->createMock(ApiMethodInfo::class)));
     }
 
-    /**
-     * @dataProvider dataProviderExceptionsAuthentication
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderExceptionsAuthentication')]
     public function testAllExceptionsNotRelatedToADevelopmentIssueIsProperlyReturnedToTheUserAndLogged(\Exception $exception, int $expected_code): void
     {
         $_SERVER['REQUEST_METHOD'] = 'POST';

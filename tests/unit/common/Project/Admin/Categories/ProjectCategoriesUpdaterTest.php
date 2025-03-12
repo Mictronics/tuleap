@@ -29,6 +29,7 @@ use TroveCat;
 use TroveCatFactory;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class ProjectCategoriesUpdaterTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private Project $project;
@@ -37,7 +38,7 @@ class ProjectCategoriesUpdaterTest extends \Tuleap\Test\PHPUnit\TestCase
     private TroveCatFactory&MockObject $factory;
     private ProjectHistoryDao&MockObject $history_dao;
 
-    /** @before */
+        #[\PHPUnit\Framework\Attributes\Before]
     public function instantiateMocks(): void
     {
         $this->project         = ProjectTestBuilder::aProject()->withId(42)->build();

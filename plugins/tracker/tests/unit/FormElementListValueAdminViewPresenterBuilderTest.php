@@ -31,6 +31,7 @@ use Tuleap\Tracker\Colorpicker\ColorpickerMountPointPresenter;
 use Tuleap\Tracker\FormElement\FormElementListValueAdminViewPresenter;
 use Tuleap\Tracker\FormElement\FormElementListValueAdminViewPresenterBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FormElementListValueAdminViewPresenterBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -72,10 +73,6 @@ final class FormElementListValueAdminViewPresenterBuilderTest extends \Tuleap\Te
             $decorator,
             true,
             false,
-            '/plugins/tracker/?tracker=5&func=admin-formElement-update&formElement=111&bind-update=1&bind%5Bdelete%5D=666',
-            'Show/hide this value',
-            'Show/hide this value',
-            '',
             false
         );
 
@@ -105,10 +102,6 @@ final class FormElementListValueAdminViewPresenterBuilderTest extends \Tuleap\Te
             $decorator,
             false,
             false,
-            '/plugins/tracker/?tracker=5&func=admin-formElement-update&formElement=111&bind-update=1&bind%5Bdelete%5D=100',
-            '"None" value cannot be hidden',
-            'cannot hide',
-            '--exclamation-hidden',
             false
         );
 
@@ -133,10 +126,6 @@ final class FormElementListValueAdminViewPresenterBuilderTest extends \Tuleap\Te
             $decorator,
             true,
             false,
-            '/plugins/tracker/?tracker=5&func=admin-formElement-update&formElement=111&bind-update=1&bind%5Bdelete%5D=100',
-            'Show/hide this value',
-            'Show/hide this value',
-            '',
             true
         );
 

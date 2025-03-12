@@ -25,7 +25,9 @@
 namespace Tuleap\Date;
 
 use DateTime;
+use PHPUnit\Framework\Attributes\DataProvider;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class DatePeriodWithOpenDaysTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private int $week_day_timestamp;
@@ -106,9 +108,7 @@ class DatePeriodWithOpenDaysTest extends \Tuleap\Test\PHPUnit\TestCase
         self::assertNull($date_period->getEndDate());
     }
 
-    /**
-     * @dataProvider providerForNumberOfDaysSinceStart
-     */
+    #[DataProvider('providerForNumberOfDaysSinceStart')]
     public function testGetNumberOfDaysSinceStart(
         $start_date,
         $duration,
@@ -164,9 +164,7 @@ class DatePeriodWithOpenDaysTest extends \Tuleap\Test\PHPUnit\TestCase
         ];
     }
 
-    /**
-     * @dataProvider providerForIsTodayWithinDatePeriod
-     */
+    #[DataProvider('providerForIsTodayWithinDatePeriod')]
     public function testIsTodayWithinDatePeriod(
         $start_date,
         $duration,
@@ -222,9 +220,7 @@ class DatePeriodWithOpenDaysTest extends \Tuleap\Test\PHPUnit\TestCase
         ];
     }
 
-    /**
-     * @dataProvider providerForGetNumberOfDaysUntilEnd
-     */
+    #[DataProvider('providerForGetNumberOfDaysUntilEnd')]
     public function testGetNumberOfDaysUntilEnd(
         $start_date,
         $duration,
@@ -367,9 +363,7 @@ class DatePeriodWithOpenDaysTest extends \Tuleap\Test\PHPUnit\TestCase
         self::assertSame($this->following_week_day_timestamp, $date_period->getEndDate());
     }
 
-    /**
-     * @dataProvider provideEndDateData
-     */
+    #[DataProvider('provideEndDateData')]
     public function testCreationFromEndDate(
         string $start_date,
         string $end_date,

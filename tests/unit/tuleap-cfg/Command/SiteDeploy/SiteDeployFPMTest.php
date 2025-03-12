@@ -31,6 +31,7 @@ use TuleapCfg\Command\SiteDeploy\FPM\FPMSessionFiles;
 use TuleapCfg\Command\SiteDeploy\FPM\FPMSessionRedis;
 use TuleapCfg\Command\SiteDeploy\FPM\SiteDeployFPM;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class SiteDeployFPMTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use TemporaryTestDirectory;
@@ -313,7 +314,7 @@ final class SiteDeployFPMTest extends \Tuleap\Test\PHPUnit\TestCase
         {
             public function getProcess(array $args): Process
             {
-                return new Process([]);
+                return new Process(['/bin/sh', '-c', 'true']);
             }
         };
     }

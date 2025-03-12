@@ -30,6 +30,7 @@ use Tuleap\Test\DB\DBTransactionExecutorPassthrough;
 use Tuleap\Tracker\Workflow\PostAction\Update\SetFloatValue;
 use Tuleap\Tracker\Workflow\PostAction\Update\TransitionFactory;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class SetFloatValueRepositoryTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -44,9 +45,7 @@ class SetFloatValueRepositoryTest extends \Tuleap\Test\PHPUnit\TestCase
      */
     private $set_float_value_dao;
 
-    /**
-     * @before
-     */
+    #[\PHPUnit\Framework\Attributes\Before]
     public function createRepository()
     {
         $this->set_float_value_dao = Mockery::mock(Transition_PostAction_Field_FloatDao::class);

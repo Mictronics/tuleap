@@ -24,6 +24,7 @@ namespace Tuleap\Taskboard\REST;
 
 use REST_TestDataBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class TaskboardCellTest extends \RestBase
 {
     /** @var int */
@@ -43,9 +44,7 @@ final class TaskboardCellTest extends \RestBase
         }
     }
 
-    /**
-     * @dataProvider getUserNameAndExpectedStatusCode
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getUserNameAndExpectedStatusCode')]
     public function testPATCHCellReordersCardsOfASwimlane(string $user_name, int $expected_status_code): void
     {
         $US2_swimlane_id = self::$swimlane_ids['US2'];

@@ -19,9 +19,9 @@
 
 import type { TrackerProjectRepresentation } from "@tuleap/plugin-tracker-rest-api-types";
 
-export type Report = {
-    readonly uuid: string;
-    readonly expert_query: string;
+export type Query = {
+    readonly id: string;
+    readonly tql_query: string;
     readonly title: string;
     readonly description: string;
 };
@@ -46,4 +46,14 @@ export type User = {
     readonly id: number;
     readonly display_name: string;
     readonly user_url: string;
+};
+
+export type WidgetData = {
+    readonly widget_id: number;
+    readonly is_widget_admin: boolean;
+    readonly documentation_base_url: string;
+    readonly is_multiple_query_supported: boolean;
+    readonly dashboard_type: string;
+    readonly title_attribute: string;
+    readonly default_title: string;
 };

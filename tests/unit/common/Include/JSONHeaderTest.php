@@ -21,6 +21,7 @@
 namespace Tuleap;
 
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class JSONHeaderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testStartsWithHeaderInfo(): void
@@ -28,9 +29,7 @@ final class JSONHeaderTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->assertMatchesRegularExpression('/^X-JSON:.*/', JSONHeader::getHeaderForPrototypeJS('something'));
     }
 
-    /**
-     * @dataProvider contentProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('contentProvider')]
     public function testJsonFormat($entry, string $expected): void
     {
         self::assertSame(

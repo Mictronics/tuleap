@@ -28,6 +28,7 @@ use Tuleap\Tracker\Workflow\PostAction\Update\HiddenFieldsetsValue;
 use Tuleap\Tracker\Workflow\PostAction\Update\PostActionCollection;
 use Tuleap\Tracker\Workflow\PostAction\Update\TransitionFactory;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class HiddenFieldsetsValueUpdaterTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -47,9 +48,7 @@ class HiddenFieldsetsValueUpdaterTest extends \Tuleap\Test\PHPUnit\TestCase
      */
     private $hidden_fieldsets_value_validator;
 
-    /**
-     * @before
-     */
+    #[\PHPUnit\Framework\Attributes\Before]
     public function createUpdater()
     {
         $this->hidden_fieldsets_value_repository = Mockery::mock(HiddenFieldsetsValueRepository::class);

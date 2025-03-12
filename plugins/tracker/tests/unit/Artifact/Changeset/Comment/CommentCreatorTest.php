@@ -31,6 +31,7 @@ use Tuleap\Tracker\FormElement\Field\Text\TextValueValidator;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class CommentCreatorTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private const CHANGESET_ID         = 3338;
@@ -176,9 +177,7 @@ final class CommentCreatorTest extends \Tuleap\Test\PHPUnit\TestCase
         ];
     }
 
-    /**
-     * @dataProvider generateComments
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('generateComments')]
     public function testItSavesCommentAndExtractsCrossReferences(CommentCreation $comment): void
     {
         $this->dao->expects(self::once())

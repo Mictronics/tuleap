@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Tuleap\Tracker\Artifact\Changeset;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tuleap\NeverThrow\Err;
 use Tuleap\NeverThrow\Fault;
 use Tuleap\NeverThrow\Ok;
@@ -34,6 +35,7 @@ use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
 use Tuleap\Tracker\Test\Stub\CreateNewChangesetStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class CommentOnlyChangesetCreatorTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private const COMMENT_BODY         = 'roisteringly reconvalescent';
@@ -104,9 +106,7 @@ final class CommentOnlyChangesetCreatorTest extends \Tuleap\Test\PHPUnit\TestCas
         ];
     }
 
-    /**
-     * @dataProvider dataProviderExceptions
-     */
+    #[DataProvider('dataProviderExceptions')]
     public function testItReturnsErrWhenThereIsAnExceptionDuringChangesetCreation(\Throwable $exception): void
     {
         $this->inner_creator = CreateNewChangesetStub::withException($exception);

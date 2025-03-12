@@ -25,6 +25,7 @@ namespace Tuleap\Tracker\Artifact\ChangesetValue\ArtifactLink;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Test\Stub\ReverseLinkStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class CollectionOfReverseLinksTest extends TestCase
 {
     private const ARTIFACT_ID_1 = 15;
@@ -83,9 +84,7 @@ final class CollectionOfReverseLinksTest extends TestCase
         yield 'Add type' => [ReverseLinkStub::withNoType(643), ReverseLinkStub::withType(643, '_is_child')];
     }
 
-    /**
-     * @dataProvider provideChangeOfType
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideChangeOfType')]
     public function testItReturnsACollectionOfLinksThatHaveChangedType(
         ReverseLinkStub $existing,
         ReverseLinkStub $submitted,

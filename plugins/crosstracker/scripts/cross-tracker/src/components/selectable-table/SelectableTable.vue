@@ -18,12 +18,9 @@
   -->
 
 <template>
-    <empty-state
-        v-if="is_table_empty"
-        v-bind:writing_cross_tracker_report="writing_cross_tracker_report"
-    />
+    <empty-state v-if="is_table_empty" v-bind:tql_query="writing_query.tql_query" />
     <div class="tlp-table-actions" v-if="should_show_export_button">
-        <export-x-l-s-x-button v-bind:query_id="selected_query?.uuid ?? null" />
+        <export-x-l-s-x-button v-bind:current_query="writing_query" />
     </div>
     <div class="cross-tracker-loader" v-if="is_loading" data-test="loading"></div>
     <div class="overflow-wrapper" v-if="total > 0">
@@ -60,17 +57,15 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import {
     EMITTER,
     GET_COLUMN_NAME,
     IS_EXPORT_ALLOWED,
-    NOTIFY_FAULT,
     REPORT_STATE,
     RETRIEVE_ARTIFACTS_TABLE,
 } from "../../injection-symbols";
-import type { WritingCrossTrackerReport } from "../../domain/WritingCrossTrackerReport";
 import type { ArtifactsTable } from "../../domain/ArtifactsTable";
 import type { ResultAsync } from "neverthrow";
 import type { Fault } from "@tuleap/fault";
@@ -83,19 +78,17 @@ import type { ColumnName } from "../../domain/ColumnName";
 import EditCell from "./EditCell.vue";
 import ExportXLSXButton from "../ExportXLSXButton.vue";
 import type { RefreshArtifactsEvent } from "../../helpers/emitter-provider";
-import { REFRESH_ARTIFACTS_EVENT } from "../../helpers/emitter-provider";
-import type { Report } from "../../type";
+import { NOTIFY_FAULT_EVENT, REFRESH_ARTIFACTS_EVENT } from "../../helpers/emitter-provider";
+import type { Query } from "../../type";
 
 const column_name_getter = strictInject(GET_COLUMN_NAME);
 
 const artifacts_retriever = strictInject(RETRIEVE_ARTIFACTS_TABLE);
 const report_state = strictInject(REPORT_STATE);
-const notifyFault = strictInject(NOTIFY_FAULT);
 const is_xslx_export_allowed = strictInject(IS_EXPORT_ALLOWED);
 
 const props = defineProps<{
-    writing_cross_tracker_report: WritingCrossTrackerReport;
-    selected_query: Report | null;
+    writing_query: Query;
 }>();
 
 const is_loading = ref(false);
@@ -111,11 +104,6 @@ const should_show_export_button = computed(
     () => is_xslx_export_allowed.value && !is_table_empty.value,
 );
 
-watch(report_state, () => {
-    if (report_state.value === "report-saved" || report_state.value === "result-preview") {
-        refreshArtifactList();
-    }
-});
 const emitter = strictInject(EMITTER);
 
 function handleNewPage(new_offset: number): void {
@@ -144,7 +132,7 @@ onBeforeUnmount(() => {
 });
 
 function loadArtifacts(): void {
-    if (props.selected_query === null) {
+    if (props.writing_query.tql_query === "") {
         is_loading.value = false;
         return;
     }
@@ -156,7 +144,10 @@ function loadArtifacts(): void {
                 total.value = report_with_total.total;
             },
             (fault) => {
-                notifyFault(ArtifactsRetrievalFault(fault));
+                emitter.emit(NOTIFY_FAULT_EVENT, {
+                    fault: ArtifactsRetrievalFault(fault),
+                    tql_query: props.writing_query.tql_query,
+                });
             },
         )
         .then(() => {
@@ -167,7 +158,7 @@ function loadArtifacts(): void {
 function handleRefreshArtifactsEvent(event: RefreshArtifactsEvent): void {
     resetArtifactList();
     artifacts_retriever
-        .getSelectableQueryResult(event.query.uuid, event.query.expert_query, limit, offset)
+        .getSelectableQueryResult(event.query.tql_query, limit, offset)
         .match(
             (report_with_total) => {
                 columns.value = report_with_total.table.columns;
@@ -175,7 +166,10 @@ function handleRefreshArtifactsEvent(event: RefreshArtifactsEvent): void {
                 total.value = report_with_total.total;
             },
             (fault) => {
-                notifyFault(ArtifactsRetrievalFault(fault));
+                emitter.emit(NOTIFY_FAULT_EVENT, {
+                    fault: ArtifactsRetrievalFault(fault),
+                    tql_query: event.query.tql_query,
+                });
             },
         )
         .then(() => {
@@ -186,15 +180,14 @@ function handleRefreshArtifactsEvent(event: RefreshArtifactsEvent): void {
 function getArtifactsFromReportOrUnsavedQuery(): ResultAsync<ArtifactsTableWithTotal, Fault> {
     if (report_state.value === "report-saved") {
         return artifacts_retriever.getSelectableReportContent(
-            props.selected_query?.uuid ?? "",
+            props.writing_query.id,
             limit,
             offset,
         );
     }
 
     return artifacts_retriever.getSelectableQueryResult(
-        props.selected_query?.uuid ?? "",
-        props.writing_cross_tracker_report.expert_query,
+        props.writing_query.tql_query,
         limit,
         offset,
     );

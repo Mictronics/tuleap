@@ -26,6 +26,7 @@ use Tuleap\REST\Exceptions\InvalidJsonException;
 use Tuleap\REST\I18NRestException;
 use Tuleap\REST\JsonDecoder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class UserGroupQueryParameterParserTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -33,9 +34,7 @@ class UserGroupQueryParameterParserTest extends \Tuleap\Test\PHPUnit\TestCase
      */
     private $parser;
 
-    /**
-     * @before
-     */
+    #[\PHPUnit\Framework\Attributes\Before]
     public function instanciateParser()
     {
         $this->parser = new UserGroupQueryParameterParser(new JsonDecoder());

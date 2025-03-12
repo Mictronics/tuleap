@@ -29,6 +29,7 @@ use Tuleap\OAuth2ServerCore\App\LastGeneratedClientSecret;
 use Tuleap\OAuth2ServerCore\App\OAuth2App;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AdminOAuth2AppsPresenterBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -51,9 +52,7 @@ final class AdminOAuth2AppsPresenterBuilderTest extends \Tuleap\Test\PHPUnit\Tes
         $this->presenter_builder   = new AdminOAuth2AppsPresenterBuilder($this->app_factory, $this->client_secret_store);
     }
 
-    /**
-     * @dataProvider dataProviderLastCreatedApp
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderLastCreatedApp')]
     public function testBuildTransformsProjectAppsIntoPresenters(
         ?LastGeneratedClientSecret $last_generated_client_secret,
         ?LastCreatedOAuth2AppPresenter $expected_last_created_oauth2_presenter,
@@ -84,9 +83,7 @@ final class AdminOAuth2AppsPresenterBuilderTest extends \Tuleap\Test\PHPUnit\Tes
         $this->assertEquals($expected, $this->presenter_builder->buildProjectAdministration($csrf_token, $project));
     }
 
-    /**
-     * @dataProvider dataProviderLastCreatedApp
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderLastCreatedApp')]
     public function testBuildTransformsSiteAppsIntoPresenters(
         ?LastGeneratedClientSecret $last_generated_client_secret,
         ?LastCreatedOAuth2AppPresenter $expected_last_created_oauth2_presenter,

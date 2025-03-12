@@ -19,14 +19,17 @@
 import type { VueWrapper } from "@vue/test-utils";
 import { shallowMount } from "@vue/test-utils";
 import { getGlobalTestOptions } from "../../helpers/global-options-for-tests";
-import { EMITTER, REPORT_ID } from "../../injection-symbols";
+import { EMITTER, IS_USER_ADMIN, WIDGET_ID } from "../../injection-symbols";
 import { beforeEach, expect, vi, describe, it } from "vitest";
-import { ReadingCrossTrackerReport } from "../../domain/ReadingCrossTrackerReport";
-import { WritingCrossTrackerReport } from "../../domain/WritingCrossTrackerReport";
 import ChooseQueryButton from "./ChooseQueryButton.vue";
 import { EmitterStub } from "../../../tests/stubs/EmitterStub";
-import type { Report } from "../../type";
-import { REFRESH_ARTIFACTS_EVENT, SWITCH_QUERY_EVENT } from "../../helpers/emitter-provider";
+import type { Query } from "../../type";
+import {
+    REFRESH_ARTIFACTS_EVENT,
+    SWITCH_QUERY_EVENT,
+    CREATE_NEW_QUERY_EVENT,
+    UPDATE_WIDGET_TITLE_EVENT,
+} from "../../helpers/emitter-provider";
 
 vi.mock("@tuleap/tlp-dropdown", () => ({
     createDropdown: (): void => {
@@ -35,68 +38,79 @@ vi.mock("@tuleap/tlp-dropdown", () => ({
 }));
 
 describe("ChooseQueryButton", () => {
-    let reading_cross_tracker_report: ReadingCrossTrackerReport,
-        writing_cross_tracker_report: WritingCrossTrackerReport,
-        emitter: EmitterStub;
+    let backend_query: Query;
+    let emitter: EmitterStub;
 
     const FIRST_FILTERED_TITLE = "All artifacts' Ids of the current project";
     const SECOND_FILTERED_TITLE = "Get all Talbot";
 
-    const queries: ReadonlyArray<Report> = [
+    const queries: ReadonlyArray<Query> = [
         {
-            uuid: "0194dfd6-a489-703b-aabd-9d473212d908",
-            expert_query: "SELECT @id FROM @project = 'self' WHERE @id>1",
+            id: "0194dfd6-a489-703b-aabd-9d473212d908",
+            tql_query: "SELECT @id FROM @project = 'self' WHERE @id>1",
             title: FIRST_FILTERED_TITLE,
             description: "",
         },
         {
-            uuid: "00000000-03e8-70c0-9e41-6ea7a4e2b78d",
-            expert_query: "SELECT @pretty_title FROM @project = 'self' WHERE @id>1",
+            id: "00000000-03e8-70c0-9e41-6ea7a4e2b78d",
+            tql_query: "SELECT @pretty_title FROM @project = 'self' WHERE @id>1",
             title: "Beautiful titles project artifacts",
             description: "",
         },
         {
-            uuid: "00000000-1770-7214-b3ed-b92974949193",
-            expert_query: "SELECT @id FROM @project.name = 'Talbot' WHERE @id>1",
+            id: "00000000-1770-7214-b3ed-b92974949193",
+            tql_query: "SELECT @id FROM @project.name = 'Talbot' WHERE @id>1",
             title: SECOND_FILTERED_TITLE,
             description: "",
         },
     ];
-    const report_id = 15;
+    const widget_id = 15;
     const getWrapper = (): VueWrapper<InstanceType<typeof ChooseQueryButton>> => {
         return shallowMount(ChooseQueryButton, {
             global: {
                 ...getGlobalTestOptions(),
                 provide: {
-                    [REPORT_ID.valueOf()]: report_id,
+                    [WIDGET_ID.valueOf()]: widget_id,
                     [EMITTER.valueOf()]: emitter,
+                    [IS_USER_ADMIN.valueOf()]: true,
                 },
             },
             props: {
-                reading_cross_tracker_report,
-                writing_cross_tracker_report,
+                backend_query,
                 queries,
-                selected_query: null,
             },
         });
     };
     beforeEach(() => {
         emitter = EmitterStub();
-        reading_cross_tracker_report = new ReadingCrossTrackerReport();
-        writing_cross_tracker_report = new WritingCrossTrackerReport();
+        backend_query = { id: "", tql_query: "", title: "", description: "" };
     });
 
     it("should send events which updates the TQL query displayed and the artifact result", async () => {
         const wrapper = getWrapper();
         await wrapper.find("[data-test=query]").trigger("click");
 
-        expect(emitter.emitted_event_name.length).toBe(2);
+        expect(emitter.emitted_event_name.length).toBe(3);
         expect(emitter.emitted_event_name[0]).toBe(REFRESH_ARTIFACTS_EVENT);
         expect(emitter.emitted_event_message[0].unwrapOr("")).toStrictEqual({
             query: queries[0],
         });
         expect(emitter.emitted_event_name[1]).toBe(SWITCH_QUERY_EVENT);
-        expect(emitter.emitted_event_message[1].isNothing()).toBe(true);
+        expect(emitter.emitted_event_message[1].unwrapOr("")).toStrictEqual({
+            query: queries[0],
+        });
+        expect(emitter.emitted_event_name[2]).toBe(UPDATE_WIDGET_TITLE_EVENT);
+        expect(emitter.emitted_event_message[2].unwrapOr("")).toStrictEqual({
+            new_title: queries[0].title,
+        });
+    });
+
+    it("should send the new query creation event when the `Create new query` button is clicked", async () => {
+        const wrapper = getWrapper();
+        await wrapper.find("[data-test=query-create-new-button]").trigger("click");
+
+        expect(emitter.emitted_event_name.length).toBe(1);
+        expect(emitter.emitted_event_name[0]).toBe(CREATE_NEW_QUERY_EVENT);
     });
 
     it.each([

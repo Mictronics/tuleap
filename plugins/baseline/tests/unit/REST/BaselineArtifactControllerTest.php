@@ -37,6 +37,7 @@ use Tuleap\REST\JsonDecoder;
 use Tuleap\REST\QueryParameterParser;
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class BaselineArtifactControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private BaselineArtifactController $controller;
@@ -52,7 +53,7 @@ final class BaselineArtifactControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 
     private UserProxy $current_user;
 
-    /** @before */
+        #[\PHPUnit\Framework\Attributes\Before]
     public function createInstance(): void
     {
         $this->current_user = UserProxy::fromUser(UserTestBuilder::aUser()->build());

@@ -29,6 +29,7 @@ use Tuleap\GlobalLanguageMock;
 use Tuleap\Layout\BaseLayout;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ServicePOSTDataBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use GlobalLanguageMock;
@@ -392,9 +393,7 @@ final class ServicePOSTDataBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->service_postdata_builder->buildFromRequest($request, $project, $service, $response);
     }
 
-    /**
-     * @dataProvider provideLabelAndDescription
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideLabelAndDescription')]
     public function testBuildFromRequestAndUseInternalLabelAndDescriptionInsteadOfInternationalizedOne(
         string $submitted_label,
         string $submitted_description,

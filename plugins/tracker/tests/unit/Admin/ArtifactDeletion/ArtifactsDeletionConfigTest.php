@@ -24,14 +24,15 @@ namespace Tuleap\Tracker\Admin\ArtifactDeletion;
 
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ArtifactsDeletionConfigTest extends TestCase
 {
-    private ArtifactsDeletionConfigDAO|\PHPUnit\Framework\MockObject\Stub $dao;
+    private ArtifactsDeletionConfigDAO|\PHPUnit\Framework\MockObject\MockObject $dao;
     private ArtifactsDeletionConfig $config;
 
     protected function setUp(): void
     {
-        $this->dao    = $this->createStub(ArtifactsDeletionConfigDAO::class);
+        $this->dao    = $this->createMock(ArtifactsDeletionConfigDAO::class);
         $this->config = new ArtifactsDeletionConfig($this->dao);
     }
 

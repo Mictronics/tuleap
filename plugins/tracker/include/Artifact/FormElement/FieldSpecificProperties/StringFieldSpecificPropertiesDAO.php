@@ -24,7 +24,7 @@ namespace Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties;
 
 use Tuleap\DB\DataAccessObject;
 
-final class StringFieldSpecificPropertiesDAO extends DataAccessObject implements DuplicateSpecificProperties, DeleteSpecificProperties
+final class StringFieldSpecificPropertiesDAO extends DataAccessObject implements DuplicateSpecificProperties, DeleteSpecificProperties, SearchSpecificProperties, SaveSpecificFieldProperties
 {
     public function duplicate(int $from_field_id, int $to_field_id): void
     {
@@ -36,5 +36,36 @@ final class StringFieldSpecificPropertiesDAO extends DataAccessObject implements
     public function deleteFieldProperties(int $field_id): void
     {
         $this->getDB()->delete('tracker_field_string', ['field_id' => $field_id]);
+    }
+
+    /**
+     * @return array{field_id: int, maxchars: int, size: int, default_value: string}
+     */
+    public function searchByFieldId(int $field_id): ?array
+    {
+        $sql = 'SELECT *
+                FROM tracker_field_string
+                WHERE field_id = ? ';
+
+        return $this->getDB()->row($sql, $field_id);
+    }
+
+    public function saveSpecificProperties(int $field_id, array $row): void
+    {
+        $maxchars = 0;
+        if (isset($row['maxchars']) && (int) $row['maxchars']) {
+            $maxchars = $row['maxchars'];
+        }
+
+        $size = 30;
+        if (isset($row['size']) && (int) $row['size']) {
+            $size = $row['size'];
+        }
+
+        $default_value = $row['default_value'] ?? '';
+
+        $sql = 'REPLACE INTO tracker_field_string (field_id, maxchars, size, default_value)
+                VALUES (?, ?, ?, ?)';
+        $this->getDB()->run($sql, $field_id, $maxchars, $size, $default_value);
     }
 }

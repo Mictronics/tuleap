@@ -184,6 +184,11 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
     public final const TRACKER_EVENT_FETCH_ADMIN_BUTTONS = 'tracker_event_fetch_admin_buttons';
     private const PROMOTED_ITEM_PREFIX                   = 'tracker-';
 
+    public final const TRACKER_ACTION_NAME_FORM_ELEMENT_UPDATE_VIEW = 'admin-formElement-update-view';
+    public final const TRACKER_ACTION_NAME_FORM_ELEMENT_UPDATE      = 'admin-formElement-update';
+    public final const TRACKER_ACTION_NAME_FORM_ELEMENT_REMOVE      = 'admin-formElement-remove';
+    public final const TRACKER_ACTION_NAME_FORM_ELEMENT_DELETE      = 'admin-formElement-delete';
+
     public $id;
     public $group_id;
     public $name;
@@ -695,28 +700,25 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
             case 'admin':
             case 'admin-formElements':
                 if ($this->userIsAdmin($current_user)) {
-                    if (is_array($request->get('add-formElement'))) {
+                    $form_element_admin_url = TRACKER_BASE_URL . '/?' . http_build_query(['func' => 'admin-formElements', 'tracker' => $this->getId()]);
+                    $csrf_token             = new CSRFSynchronizerToken($form_element_admin_url);
+                    if ($request->isPost() && is_array($request->get('add-formElement'))) {
+                        $csrf_token->check();
                         $formElement_id = key($request->get('add-formElement'));
                         if (Tracker_FormElementFactory::instance()->addFormElement($formElement_id)) {
                             $GLOBALS['Response']->addFeedback('info', dgettext('tuleap-tracker', 'Field added to the form'));
-                            $GLOBALS['Response']->redirect(TRACKER_BASE_URL . '/?tracker=' . (int) $this->getId() . '&func=admin-formElements');
+                            $GLOBALS['Response']->redirect($form_element_admin_url);
                         }
-                    } elseif (is_array($request->get('create-formElement'))) {
+                    } elseif ($request->isPost() && is_array($request->get('create-formElement'))) {
                         $type = key($request->get('create-formElement'));
                         if ($request->get('docreate-formElement') && is_array($request->get('formElement_data'))) {
+                            $csrf_token->check();
                             try {
                                 $this->createFormElement($type, $request->get('formElement_data'), $current_user);
                             } catch (Exception $e) {
                                 $GLOBALS['Response']->addFeedback('error', $e->getMessage());
                             }
-                            $GLOBALS['Response']->redirect(
-                                TRACKER_BASE_URL . '/?' . http_build_query(
-                                    [
-                                        'tracker' => $this->getId(),
-                                        'func'    => $func,
-                                    ]
-                                )
-                            );
+                            $GLOBALS['Response']->redirect($form_element_admin_url);
                         } else {
                             Tracker_FormElementFactory::instance()->displayAdminCreateFormElement($layout, $request, $current_user, $type, $this);
                             exit;
@@ -728,9 +730,10 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
                     $GLOBALS['Response']->redirect(TRACKER_BASE_URL . '/?tracker=' . $this->getId());
                 }
                 break;
-            case 'admin-formElement-update':
-            case 'admin-formElement-remove':
-            case 'admin-formElement-delete':
+            case self::TRACKER_ACTION_NAME_FORM_ELEMENT_UPDATE_VIEW:
+            case self::TRACKER_ACTION_NAME_FORM_ELEMENT_UPDATE:
+            case self::TRACKER_ACTION_NAME_FORM_ELEMENT_REMOVE:
+            case self::TRACKER_ACTION_NAME_FORM_ELEMENT_DELETE:
                 if ($this->userIsAdmin($current_user)) {
                     if ($formElement = Tracker_FormElementFactory::instance()->getFormElementById((int) $request->get('formElement'))) {
                         $formElement->process($layout, $request, $current_user);
@@ -824,6 +827,7 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
                 }
                 break;
             case 'submit-artifact':
+                $this->checkIsAnAcceptableRequestForTrackerViewArtifactManipulation($request);
                 header('X-Frame-Options: SAMEORIGIN');
                 $action = new Tracker_Action_CreateArtifact(
                     $this,
@@ -834,6 +838,7 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
                 $action->process($layout, $request, $current_user);
                 break;
             case 'submit-copy-artifact':
+                $this->checkIsAnAcceptableRequestForTrackerViewArtifactManipulation($request);
                 if (! $this->isCopyAllowed()) {
                     $GLOBALS['Response']->addFeedback(
                         'error',
@@ -875,6 +880,7 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
                 $action->process($layout, $request, $current_user);
                 break;
             case 'submit-artifact-in-place':
+                $this->checkIsAnAcceptableRequestForTrackerViewArtifactManipulation($request);
                 $action = new Tracker_Action_CreateArtifactFromModal($request, $this, $this->getArtifactCreator(), $this->getTrackerArtifactFactory());
                 $action->process($current_user);
                 break;
@@ -988,6 +994,15 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
                 break;
         }
         return;
+    }
+
+    private function checkIsAnAcceptableRequestForTrackerViewArtifactManipulation(HTTPRequest $request): void
+    {
+        if (! $request->isPost()) {
+            $GLOBALS['Response']->redirect($this->getUri());
+        }
+        $csrf_token = new CSRFSynchronizerToken($this->getUri());
+        $csrf_token->check();
     }
 
     /**
@@ -1495,7 +1510,6 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
         $this->displayAdminFormElementsHeader($layout, $title);
 
         echo '<h2 class="almost-tlp-title">' . $title . '</h2>';
-        echo '<form name="form1" method="POST" action="' . TRACKER_BASE_URL . '/?tracker=' . (int) $this->id . '&amp;func=admin-formElements">';
 
         echo '  <div class="tracker-admin-fields">
                     <div>';
@@ -1504,8 +1518,7 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
                     <div>';
         echo $this->fetchAdminFormElements();
         echo '      </div>
-                </div>
-              </form>';
+                </div>';
         $this->displayAdminFooter($layout);
     }
 
@@ -2263,7 +2276,7 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
                 $is_valid = true;
                 $i        = 0;
                 $lines    = [];
-                while ($line = fgetcsv($f, 0, $separator)) {
+                while ($line = fgetcsv($f, 0, $separator, '"', '\\')) {
                     if ($line === false) {
                         $GLOBALS['Response']->addFeedback('error', sprintf(dgettext('tuleap-tracker', 'Error in CSV file at line %1$s'), $i));
                         $is_valid = false;

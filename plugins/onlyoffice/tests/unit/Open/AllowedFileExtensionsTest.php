@@ -24,11 +24,10 @@ namespace Tuleap\OnlyOffice\Open;
 
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AllowedFileExtensionsTest extends TestCase
 {
-    /**
-     * @dataProvider getExtensionsToTest
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getExtensionsToTest')]
     public function testIsFilenameAllowedToBeOpenInOnlyOffice(string $ext, bool $expected): void
     {
         self::assertEquals(
@@ -83,9 +82,7 @@ final class AllowedFileExtensionsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getEditableExtensionsToTest
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getEditableExtensionsToTest')]
     public function testIsFilenameAllowedToBeEditedInOnlyOffice(string $ext, bool $expected): void
     {
         self::assertSame(

@@ -29,14 +29,13 @@ use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\InvalidTypeParameterExcep
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeCreatorInterface;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenter;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ArtifactLinkTypeImporterTest extends \Tuleap\Test\PHPUnit\TestCase
 {
-    /**
-     * @dataProvider getData
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getData')]
     public function testImportOfArtifactLinkTypes(array $urls, ?TypePresenter $type, TypeCreatorInterface $creator, callable $expectations, callable $tests): void
     {
-        $client       = new class extends \Tuleap\Tracker\Test\Tracker\Creation\JiraImporter\Stub\JiraCloudClientStub {
+        $client       = new class extends \Tuleap\Tracker\Test\Stub\Creation\JiraImporter\JiraCloudClientStub {
         };
         $client->urls = $urls;
 

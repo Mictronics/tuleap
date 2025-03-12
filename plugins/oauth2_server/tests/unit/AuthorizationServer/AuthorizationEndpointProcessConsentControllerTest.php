@@ -37,6 +37,7 @@ use Tuleap\OAuth2ServerCore\AuthorizationServer\AuthorizationCodeResponseFactory
 use Tuleap\Request\ForbiddenException;
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AuthorizationEndpointProcessConsentControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -180,9 +181,7 @@ final class AuthorizationEndpointProcessConsentControllerTest extends \Tuleap\Te
         ];
     }
 
-    /**
-     * @dataProvider dataProviderInvalidBodyParams
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderInvalidBodyParams')]
     public function testHandleThrowsForbiddenWhenInvalidBodyParams(array $body_params): void
     {
         $this->user_manager->method('getCurrentUser')

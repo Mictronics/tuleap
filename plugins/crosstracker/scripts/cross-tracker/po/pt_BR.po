@@ -12,7 +12,16 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.4.4\n"
 
+msgid "\"%{title}\" query preview"
+msgstr ""
+
 msgid "%{from} – %{to} of %{total}"
+msgstr ""
+
+msgid "All artifacts created in the last 10 days"
+msgstr ""
+
+msgid "All open artifacts"
 msgstr ""
 
 msgid "An error occurred: %{error}"
@@ -31,6 +40,9 @@ msgid "Cancel"
 msgstr "Cancelar"
 
 msgid "Choose another query"
+msgstr ""
+
+msgid "Create new query"
 msgstr ""
 
 msgid "Description"
@@ -65,6 +77,14 @@ msgstr ""
 msgid "Id"
 msgstr ""
 
+msgid ""
+"If you click on one of the suggested query, your content will be replaced."
+msgstr ""
+
+msgid ""
+"If you validate, this query will replace your content. You can't undo it."
+msgstr ""
+
 msgid "Last"
 msgstr ""
 
@@ -74,10 +94,22 @@ msgstr ""
 msgid "Last update date"
 msgstr ""
 
+msgid "Name your query"
+msgstr ""
+
 msgid "Next"
 msgstr ""
 
 msgid "No artifact found"
+msgstr ""
+
+msgid "Open artifacts assigned to me"
+msgstr ""
+
+msgid "Open artifacts assigned to me in my projects"
+msgstr ""
+
+msgid "Overwrite current query"
 msgstr ""
 
 msgid "Please create a new query."
@@ -92,10 +124,25 @@ msgstr "Projeto"
 msgid "Query"
 msgstr ""
 
+msgid "Query created with success!"
+msgstr ""
+
+msgid "Query creation is under implementation"
+msgstr ""
+
 msgid "Query is empty"
 msgstr ""
 
+msgid "Query suggestions"
+msgstr ""
+
+msgid "Query title"
+msgstr ""
+
 msgid "Report has been successfully saved"
+msgstr ""
+
+msgid "Save"
 msgstr ""
 
 msgid "Save report"
@@ -127,6 +174,9 @@ msgstr ""
 
 msgid "User avatar"
 msgstr "Avatar do Usuário"
+
+msgid "Write your description"
+msgstr ""
 
 msgid ""
 "You can use: AND, OR, WITH PARENT, WITHOUT PARENT, WITH CHILDREN, WITHOUT "

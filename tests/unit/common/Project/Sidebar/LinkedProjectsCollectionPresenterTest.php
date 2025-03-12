@@ -28,6 +28,7 @@ use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\CheckProjectAccessStub;
 use Tuleap\Test\Stubs\SearchLinkedProjectsStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class LinkedProjectsCollectionPresenterTest extends TestCase
 {
     public static function dataProviderContext(): array
@@ -38,9 +39,7 @@ final class LinkedProjectsCollectionPresenterTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderContext
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderContext')]
     public function testItBuildsPresenterWithChildrenFromEvent(bool $is_in_children_context): void
     {
         $first_project  = ProjectTestBuilder::aProject()

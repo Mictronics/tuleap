@@ -28,6 +28,7 @@ use Tuleap\OAuth2ServerCore\OAuth2TestScope;
 use Tuleap\OAuth2ServerCore\Grant\AuthorizationCode\OAuth2AuthorizationCode;
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class PKCECodeVerifierTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -66,9 +67,7 @@ final class PKCECodeVerifierTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->pkce_code_verifier->verifyCode($auth_code, null);
     }
 
-    /**
-     * @dataProvider dataProviderMalformedCodeVerifier
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderMalformedCodeVerifier')]
     public function testThrowsWhenCodeVerifierHasNotTheExpectedFormat(string $code_verifier): void
     {
         $auth_code = $this->buildAuthorizationCode('code_challenge');

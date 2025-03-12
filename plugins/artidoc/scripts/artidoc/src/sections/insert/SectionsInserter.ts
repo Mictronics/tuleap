@@ -27,12 +27,10 @@ import type {
     AtTheEnd,
 } from "@/sections/save/SectionsPositionsForSaveRetriever";
 import type { ArtidocSection } from "@/helpers/artidoc-section.type";
+import { isPendingSection } from "@/helpers/artidoc-section.type";
 import { CreateStoredSections } from "@/sections/states/CreateStoredSections";
 import type { SectionsStatesCollection } from "@/sections/states/SectionsStatesCollection";
-import {
-    initLevelAccordingToPreviousSectionLevel,
-    updateDisplayLevelToSections,
-} from "@/sections/levels/SectionsNumberer";
+import type { NumberSections } from "@/sections/levels/SectionsNumberer";
 
 export type InsertSections = {
     insertSection(section: ArtidocSection, position: PositionForSection): void;
@@ -43,6 +41,7 @@ export const AT_THE_END: AtTheEnd = null;
 export const getSectionsInserter = (
     sections_collection: SectionsCollection,
     states_collection: SectionsStatesCollection,
+    sections_numberer: NumberSections,
 ): InsertSections => {
     const NOT_FOUND = -1;
 
@@ -57,30 +56,47 @@ export const getSectionsInserter = (
         return sections.findIndex((sibling) => sibling.value.id === position.before);
     };
 
+    function removeExistingLonelyPendingSection(): void {
+        if (sections_collection.sections.value.length !== 1) {
+            return;
+        }
+
+        const existing_section = sections_collection.sections.value[0].value;
+        if (!isPendingSection(existing_section)) {
+            return;
+        }
+
+        const state = states_collection.getSectionState(existing_section);
+        const has_changed =
+            state.edited_title.value !== existing_section.title ||
+            state.edited_description.value !== existing_section.description;
+
+        if (has_changed) {
+            return;
+        }
+
+        states_collection.destroySectionState(existing_section);
+        sections_collection.sections.value.splice(0, 1);
+    }
+
     return {
         insertSection(section, position): void {
-            const index = getIndexWhereSectionShouldBeInserted(
-                sections_collection.sections.value,
-                position,
-            );
+            removeExistingLonelyPendingSection();
+
             const new_section = ref(CreateStoredSections.fromArtidocSection(section));
             states_collection.createStateForSection(new_section);
-            if (index === NOT_FOUND) {
-                sections_collection.sections.value.push(new_section);
-                new_section.value.level = initLevelAccordingToPreviousSectionLevel(
-                    sections_collection.sections.value,
-                    sections_collection.sections.value.length - 1,
-                );
-                updateDisplayLevelToSections(sections_collection.sections.value);
-                return;
-            }
-            sections_collection.sections.value.splice(index, 0, new_section);
 
-            new_section.value.level = initLevelAccordingToPreviousSectionLevel(
-                sections_collection.sections.value,
-                index,
-            );
-            updateDisplayLevelToSections(sections_collection.sections.value);
+            if (position === AT_THE_END) {
+                sections_collection.sections.value.push(new_section);
+            } else {
+                const index = getIndexWhereSectionShouldBeInserted(
+                    sections_collection.sections.value,
+                    position,
+                );
+                sections_collection.sections.value.splice(index, 0, new_section);
+            }
+
+            sections_numberer.setInsertedSectionLevel(new_section);
         },
     };
 };

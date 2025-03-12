@@ -105,26 +105,14 @@ id = "RUSTSEC-2024-0384"
 reason = "Not used in production, see https://github.com/bytecodealliance/wasmtime/issues/9591"
 ignoreUntil = 2025-04-12
 
-# Go stdlib
+## paste
 [[IgnoredVulns]]
-id = "GO-2025-3447"
-reason = "No impact in Tuleap situation, not building for ppc64"
-ignoreUntil = 2025-02-28
+id = "RUSTSEC-2024-0436"
+reason = "Repository archive notification. see https://github.com/bytecodealliance/wasmtime/issues/10356"
+ignoreUntil = 2025-04-10
 
-# vault-tuleap-plugin
-## github.com/hashicorp/yamux
+# PrismJS
 [[IgnoredVulns]]
-id = "GO-2025-3408"
-reason = "vault-tuleap-plugin is not exposed to untrusted connections"
-ignoreUntil = 2025-02-28
-
-[[IgnoredVulns]]
-id = "GHSA-29qp-crvh-w22m"
-reason = "vault-tuleap-plugin is not exposed to untrusted connections"
-ignoreUntil = 2025-02-28
-
-# ESBuild
-[[IgnoredVulns]]
-id = "GHSA-67mh-4wv8-2f99"
-reason = "No direct impact, the development server is not being used"
-ignoreUntil = 2025-03-11
+id = "GHSA-x7hr-w5r2-h6wg"
+reason = "No direct impact, prism-autoloader is not being used"
+ignoreUntil = 2025-04-04

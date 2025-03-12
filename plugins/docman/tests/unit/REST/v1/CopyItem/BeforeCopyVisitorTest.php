@@ -38,6 +38,7 @@ use Tuleap\Docman\ItemType\DoesItemHasExpectedTypeVisitor;
 use Tuleap\Docman\Upload\Document\DocumentOngoingUploadRetriever;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class BeforeCopyVisitorTest extends TestCase
 {
     private const VISITOR_PROCESSABLE_CLASSES = [
@@ -49,9 +50,7 @@ final class BeforeCopyVisitorTest extends TestCase
         Docman_Empty::class,
     ];
 
-    /**
-     * @dataProvider dataProviderProcessableItemClasses
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderProcessableItemClasses')]
     public function testAllExpectedItemTypesCanBeProcessed(string $processed_item_class): void
     {
         $item_factory = $this->createMock(Docman_ItemFactory::class);
@@ -76,9 +75,7 @@ final class BeforeCopyVisitorTest extends TestCase
         self::assertEquals('Title', $expectation_for_copy->getExpectedTitle());
     }
 
-    /**
-     * @dataProvider dataProviderProcessableItemClasses
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderProcessableItemClasses')]
     public function testProcessingOfANonExpectedItemTypeIsRejected(string $processed_item_class): void
     {
         $document_ongoing_upload_retriever = $this->createMock(DocumentOngoingUploadRetriever::class);

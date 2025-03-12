@@ -23,8 +23,9 @@ use Tuleap\Option\Option;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\IntegerFieldSpecificPropertiesDAO;
 use Tuleap\Tracker\FormElement\Field\Integer\ChangesChecker;
-use Tuleap\Tracker\FormElement\Field\Integer\IntegerFieldDao;
 use Tuleap\Tracker\FormElement\Field\Integer\IntegerValueDao;
+use Tuleap\Tracker\Report\Criteria\CriteriaAlphaNumValueDAO;
+use Tuleap\Tracker\Report\Criteria\DeleteReportCriteriaValue;
 use Tuleap\Tracker\Report\Query\ParametrizedFrom;
 use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
 use Tuleap\Tracker\Report\Query\ParametrizedSQLFragment;
@@ -105,6 +106,11 @@ class Tracker_FormElement_Field_Integer extends Tracker_FormElement_Field_Numeri
         return new Tracker_Report_Criteria_Int_ValueDao();
     }
 
+    public function getDeleteCriteriaValueDAO(): DeleteReportCriteriaValue
+    {
+        return new CriteriaAlphaNumValueDAO();
+    }
+
     public function canBeUsedToSortReport()
     {
         return true;
@@ -125,17 +131,22 @@ class Tracker_FormElement_Field_Integer extends Tracker_FormElement_Field_Numeri
         return new IntegerValueDao();
     }
 
-    protected function getDao()
-    {
-        return new IntegerFieldDao();
-    }
-
     protected function getDuplicateSpecificPropertiesDao(): IntegerFieldSpecificPropertiesDAO
     {
         return new IntegerFieldSpecificPropertiesDAO();
     }
 
     protected function getDeleteSpecificPropertiesDao(): IntegerFieldSpecificPropertiesDAO
+    {
+        return new IntegerFieldSpecificPropertiesDAO();
+    }
+
+    protected function getSearchSpecificPropertiesDao(): IntegerFieldSpecificPropertiesDAO
+    {
+        return new IntegerFieldSpecificPropertiesDAO();
+    }
+
+    protected function getSaveSpecificPropertiesDao(): IntegerFieldSpecificPropertiesDAO
     {
         return new IntegerFieldSpecificPropertiesDAO();
     }

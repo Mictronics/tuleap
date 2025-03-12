@@ -31,12 +31,13 @@ use Tuleap\Test\Builders\ServiceBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\Stubs\EventDispatcherStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ProjectSidebarToolsBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use GlobalLanguageMock;
     use ForgeConfigSandbox;
 
-    private \Project & \PHPUnit\Framework\MockObject\Stub $project;
+    private \Project&\PHPUnit\Framework\MockObject\Stub $project;
     private EventDispatcherStub $event_dispatcher;
     private \PFUser $user;
 

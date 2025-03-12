@@ -41,6 +41,7 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\Config\ConfigUpdaterStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class MeilisearchSaveAdminSettingsControllerTest extends TestCase
 {
     use ForgeConfigSandbox;
@@ -84,9 +85,7 @@ final class MeilisearchSaveAdminSettingsControllerTest extends TestCase
         self::assertEmpty($config_updater->getAllUpdatedConfig());
     }
 
-    /**
-     * @dataProvider dataProviderInvalidSettings
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderInvalidSettings')]
     public function testRejectsInvalidSettings(array $body): void
     {
         $config_updater = ConfigUpdaterStub::build();

@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Tuleap\Git\GitPHP;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class CommitTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public const COMMIT_CONTENT = <<<EOF
@@ -134,9 +135,7 @@ IdFV7BORBPs0tJG5MsN6VKsC4czW822OP2RQ8WOTOPreRxELUnkEAAAAAAAA
 EOF;
 
 
-    /**
-     * @dataProvider commitsProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('commitsProvider')]
     public function testContentIsRetrievedWhenAPGPSignatureIsPresent(
         $commit_content,
         $author_name,

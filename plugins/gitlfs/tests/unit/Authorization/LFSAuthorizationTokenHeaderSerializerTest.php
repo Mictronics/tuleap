@@ -27,6 +27,7 @@ use Tuleap\Authentication\SplitToken\SplitToken;
 use Tuleap\Authentication\SplitToken\SplitTokenVerificationString;
 use Tuleap\Cryptography\ConcealedString;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class LFSAuthorizationTokenHeaderSerializerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testAuthorizationTokenCanBeSerializedToHeaderAndUnserialized(): void
@@ -46,9 +47,7 @@ final class LFSAuthorizationTokenHeaderSerializerTest extends \Tuleap\Test\PHPUn
         );
     }
 
-    /**
-     * @dataProvider incorrectlyFormattedIdentifierProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('incorrectlyFormattedIdentifierProvider')]
     public function testBuildingFromAnIncorrectlyFormattedIdentifierIsRejected(string $incorrectly_formatted_identifier): void
     {
         $serializer = new LFSAuthorizationTokenHeaderSerializer();

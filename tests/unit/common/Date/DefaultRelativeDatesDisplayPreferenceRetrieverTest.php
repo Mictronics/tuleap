@@ -22,8 +22,10 @@ declare(strict_types=1);
 
 namespace Tuleap\Date;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tuleap\ForgeConfigSandbox;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class DefaultRelativeDatesDisplayPreferenceRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use ForgeConfigSandbox;
@@ -51,8 +53,8 @@ class DefaultRelativeDatesDisplayPreferenceRetrieverTest extends \Tuleap\Test\PH
 
     /**
      * @var $preference_set_by_site_admin string|false
-     * @dataProvider dataProviderPreferenceAndPlacement
      */
+    #[DataProvider('dataProviderPreferenceAndPlacement')]
     public function testItReturnsADefaultRelativeDatesDisplayPreference(
         $preference_set_by_site_admin,
         string $position_from_context,

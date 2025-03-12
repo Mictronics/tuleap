@@ -27,13 +27,12 @@ use ForgeConfig;
 use Project;
 use Tuleap\ForgeConfigSandbox;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class DefaultProjectVisibilityRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use ForgeConfigSandbox;
 
-    /**
-     * @dataProvider providerLegacySetting
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('providerLegacySetting')]
     public function testLegacyIsProjectPublicSettingIsSupported(int $setting_value, string $expected_access): void
     {
         ForgeConfig::set('sys_is_project_public', $setting_value);
@@ -51,9 +50,7 @@ final class DefaultProjectVisibilityRetrieverTest extends \Tuleap\Test\PHPUnit\T
         ];
     }
 
-    /**
-     * @dataProvider providerSettingDefaultVisibility
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('providerSettingDefaultVisibility')]
     public function testAllPossibleProjectVisibilityCanBeSetAsTheDefaultValue(
         string $setting_value,
         bool $are_restricted_allowed,

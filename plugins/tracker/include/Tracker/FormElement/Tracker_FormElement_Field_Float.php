@@ -24,9 +24,12 @@ use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\DeleteSpecificProperties;
 use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\DuplicateSpecificProperties;
 use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\FloatFieldSpecificPropertiesDAO;
+use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\SaveSpecificFieldProperties;
+use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\SearchSpecificProperties;
 use Tuleap\Tracker\FormElement\Field\FloatingPointNumber\ChangesChecker;
-use Tuleap\Tracker\FormElement\Field\FloatingPointNumber\FloatFieldDao;
 use Tuleap\Tracker\FormElement\Field\FloatingPointNumber\FloatValueDao;
+use Tuleap\Tracker\Report\Criteria\CriteriaAlphaNumValueDAO;
+use Tuleap\Tracker\Report\Criteria\DeleteReportCriteriaValue;
 use Tuleap\Tracker\Report\Query\ParametrizedFrom;
 use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
 use Tuleap\Tracker\Report\Query\ParametrizedSQLFragment;
@@ -121,6 +124,11 @@ class Tracker_FormElement_Field_Float extends Tracker_FormElement_Field_Numeric
         return new Tracker_Report_Criteria_Float_ValueDao();
     }
 
+    public function getDeleteCriteriaValueDAO(): DeleteReportCriteriaValue
+    {
+        return new CriteriaAlphaNumValueDAO();
+    }
+
     public function fetchChangesetValue(
         int $artifact_id,
         int $changeset_id,
@@ -140,17 +148,22 @@ class Tracker_FormElement_Field_Float extends Tracker_FormElement_Field_Numeric
         return new FloatValueDao();
     }
 
-    protected function getDao()
-    {
-        return new FloatFieldDao();
-    }
-
     protected function getDuplicateSpecificPropertiesDao(): ?DuplicateSpecificProperties
     {
         return new FloatFieldSpecificPropertiesDAO();
     }
 
     protected function getDeleteSpecificPropertiesDao(): DeleteSpecificProperties
+    {
+        return new FloatFieldSpecificPropertiesDAO();
+    }
+
+    protected function getSearchSpecificPropertiesDao(): SearchSpecificProperties
+    {
+        return new FloatFieldSpecificPropertiesDAO();
+    }
+
+    protected function getSaveSpecificPropertiesDao(): SaveSpecificFieldProperties
     {
         return new FloatFieldSpecificPropertiesDAO();
     }

@@ -67,6 +67,7 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\EventDispatcherStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class DocmanItemCreatorTest extends TestCase
 {
     private Docman_MetadataValueDao&MockObject $metadata_value_dao;
@@ -114,9 +115,7 @@ final class DocmanItemCreatorTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider permissionsForGroupsSetRepresentationDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('permissionsForGroupsSetRepresentationDataProvider')]
     public function testEmptyDocumentCanBeCreated(?DocmanItemPermissionsForGroupsSetRepresentation $permissions_for_groups_set): void
     {
         $parent_item  = new Docman_Item(['item_id' => 11]);
@@ -177,9 +176,7 @@ final class DocmanItemCreatorTest extends TestCase
         self::assertSame(12, $created_item_representation->id);
     }
 
-    /**
-     * @dataProvider permissionsForGroupsSetRepresentationDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('permissionsForGroupsSetRepresentationDataProvider')]
     public function testOtherTypeDocumentCanBeCreated(?DocmanItemPermissionsForGroupsSetRepresentation $permissions_for_groups_set): void
     {
         $parent_item  = new Docman_Folder(['item_id' => 11]);
@@ -250,9 +247,7 @@ final class DocmanItemCreatorTest extends TestCase
         self::assertSame(12, $created_item_representation->id);
     }
 
-    /**
-     * @dataProvider permissionsForGroupsSetRepresentationDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('permissionsForGroupsSetRepresentationDataProvider')]
     public function testOtherTypeDocumentCannotBeCreatedIfWeDontKnowTheGivenType(?DocmanItemPermissionsForGroupsSetRepresentation $permissions_for_groups_set): void
     {
         $parent_item  = new Docman_Folder(['item_id' => 11]);
@@ -295,9 +290,7 @@ final class DocmanItemCreatorTest extends TestCase
             );
     }
 
-    /**
-     * @dataProvider permissionsForGroupsSetRepresentationDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('permissionsForGroupsSetRepresentationDataProvider')]
     public function testWikiDocumentCanBeCreated(?DocmanItemPermissionsForGroupsSetRepresentation $permissions_for_groups_set): void
     {
         $parent_item  = new Docman_Item(['item_id' => 11]);
@@ -507,9 +500,7 @@ final class DocmanItemCreatorTest extends TestCase
             );
     }
 
-    /**
-     * @dataProvider permissionsForGroupsSetRepresentationDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('permissionsForGroupsSetRepresentationDataProvider')]
     public function testLinkDocumentCanBeCreated(?DocmanItemPermissionsForGroupsSetRepresentation $permissions_for_groups_set): void
     {
         $parent_item  = new Docman_Item(['item_id' => 11]);
@@ -584,9 +575,7 @@ final class DocmanItemCreatorTest extends TestCase
         self::assertSame(12, $created_item_representation->id);
     }
 
-    /**
-     * @dataProvider permissionsForGroupsSetRepresentationDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('permissionsForGroupsSetRepresentationDataProvider')]
     public function testFolderCanBeCreated(?DocmanItemPermissionsForGroupsSetRepresentation $permissions_for_groups_set): void
     {
         $parent_item  = new Docman_Item(['item_id' => 11]);
@@ -644,9 +633,7 @@ final class DocmanItemCreatorTest extends TestCase
         self::assertSame(12, $created_item_representation->id);
     }
 
-    /**
-     * @dataProvider permissionsForGroupsSetRepresentationDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('permissionsForGroupsSetRepresentationDataProvider')]
     public function testEmbeddedFileCanBeCreated(?DocmanItemPermissionsForGroupsSetRepresentation $permissions_for_groups_set): void
     {
         $parent_item  = new Docman_Item(['item_id' => 11]);

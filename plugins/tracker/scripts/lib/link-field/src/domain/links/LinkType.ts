@@ -17,18 +17,18 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import type { LinkDirection } from "@tuleap/plugin-tracker-constants";
 import {
-    UNTYPED_LINK,
+    FORWARD_DIRECTION,
     IS_CHILD_LINK_TYPE,
     MIRRORED_MILESTONE_LINK_TYPE,
+    REVERSE_DIRECTION,
+    UNTYPED_LINK,
 } from "@tuleap/plugin-tracker-constants";
-
-export const FORWARD_DIRECTION = "forward";
-export const REVERSE_DIRECTION = "reverse";
 
 export interface LinkType {
     readonly shortname: string;
-    readonly direction: "forward" | "reverse";
+    readonly direction: LinkDirection;
     readonly label: string;
 }
 

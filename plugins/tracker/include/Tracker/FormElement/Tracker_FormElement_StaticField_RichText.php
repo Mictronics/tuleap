@@ -21,7 +21,6 @@
 
 use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\DeleteSpecificProperties;
 use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\RichTextFieldSpecificPropertiesDAO;
-use Tuleap\Tracker\FormElement\Field\StaticField\RichText\RichTextFieldDao;
 
 class Tracker_FormElement_StaticField_RichText extends Tracker_FormElement_StaticField // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
@@ -39,7 +38,7 @@ class Tracker_FormElement_StaticField_RichText extends Tracker_FormElement_Stati
 
     public function getRichText()
     {
-        if ($row = $this->getDao()->searchByFieldId($this->id)->getRow()) {
+        if ($row = $this->getSearchSpecificPropertiesDao()->searchByFieldId($this->id)) {
             $hp    = Codendi_HTMLPurifier::instance();
             $value = $row['static_value'];
             return $hp->purify($value, CODENDI_PURIFIER_FULL);
@@ -48,17 +47,22 @@ class Tracker_FormElement_StaticField_RichText extends Tracker_FormElement_Stati
         }
     }
 
-    protected function getDao()
-    {
-        return new RichTextFieldDao();
-    }
-
     protected function getDuplicateSpecificPropertiesDao(): ?RichTextFieldSpecificPropertiesDAO
     {
         return new RichTextFieldSpecificPropertiesDAO();
     }
 
     protected function getDeleteSpecificPropertiesDao(): DeleteSpecificProperties
+    {
+        return new RichTextFieldSpecificPropertiesDAO();
+    }
+
+    protected function getSearchSpecificPropertiesDao(): RichTextFieldSpecificPropertiesDAO
+    {
+        return new RichTextFieldSpecificPropertiesDAO();
+    }
+
+    protected function getSaveSpecificPropertiesDao(): RichTextFieldSpecificPropertiesDAO
     {
         return new RichTextFieldSpecificPropertiesDAO();
     }
@@ -74,19 +78,22 @@ class Tracker_FormElement_StaticField_RichText extends Tracker_FormElement_Stati
 
     public function fetchAdmin($tracker)
     {
-        $html  = '';
-        $html .= '<div class="tracker-admin-field" id="tracker-admin-formElements_' . $this->id . '">';
-        $html .= '<div class="tracker-admin-field-controls">';
-        $html .= '<a class="edit-field" href="' . $this->getAdminEditUrl() . '">' . $GLOBALS['HTML']->getImage('ic/edit.png', ['alt' => 'edit']) . '</a> ';
-        $html .= '<a href="?' . http_build_query([
-            'tracker'  => $this->tracker_id,
-            'func'     => 'admin-formElement-remove',
-            'formElement' => $this->id,
-        ]) . '">' . $GLOBALS['HTML']->getImage('ic/cross.png', ['alt' => 'remove']) . '</a>';
-        $html .= '</div>';
-        $html .= '<br />';
-        $html .= $this->fetchAdminFormElement();
-        $html .= '</div>';
+        $html_purifier = Codendi_HTMLPurifier::instance();
+        $html          = '<div class="tracker-admin-field" id="tracker-admin-formElements_' . $html_purifier->purify((string) $this->id) . '">';
+        $html         .= '<div class="tracker-admin-field-controls">';
+        $html         .= '<a class="edit-field" href="' . $this->getAdminEditUrl() . '">' . $GLOBALS['HTML']->getImage('ic/edit.png', ['alt' => 'edit']) . '</a> ';
+        $csrf_token    = $this->getCSRFTokenForElementUpdate();
+        $html         .= '<form method="POST" action="?">';
+        $html         .= $csrf_token->fetchHTMLInput();
+        $html         .= '<input type="hidden" name="func" value="' . $html_purifier->purify(\Tracker::TRACKER_ACTION_NAME_FORM_ELEMENT_REMOVE) . '" />';
+        $html         .= '<input type="hidden" name="tracker" value="' . $html_purifier->purify((string) $tracker->getId()) . '" />';
+        $html         .= '<input type="hidden" name="formElement" value="' . $html_purifier->purify((string) $this->id) . '" />';
+        $html         .= '<button type="submit" class="btn-link">' . $GLOBALS['HTML']->getImage('ic/cross.png', ['alt' => 'remove']) . '</button>';
+        $html         .= '</form>';
+        $html         .= '</div>';
+        $html         .= '<br />';
+        $html         .= $this->fetchAdminFormElement();
+        $html         .= '</div>';
         return $html;
     }
 

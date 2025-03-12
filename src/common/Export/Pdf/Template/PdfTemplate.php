@@ -29,16 +29,20 @@ use Tuleap\Export\Pdf\Template\Identifier\PdfTemplateIdentifier;
  */
 final readonly class PdfTemplate
 {
+    public string $style;
+
     public function __construct(
         public PdfTemplateIdentifier $identifier,
         public string $label,
         public string $description,
-        public string $style,
+        public string $default_style,
+        public string $user_style,
         public string $title_page_content,
         public string $header_content,
         public string $footer_content,
         public \PFUser $last_updated_by,
         public \DateTimeImmutable $last_updated_date,
     ) {
+        $this->style = $this->default_style . ' ' . $this->user_style;
     }
 }

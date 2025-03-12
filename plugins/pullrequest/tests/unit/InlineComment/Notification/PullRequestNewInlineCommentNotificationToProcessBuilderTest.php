@@ -41,14 +41,15 @@ use Tuleap\Test\Stubs\ProvideAndRetrieveUserStub;
 use Tuleap\Test\Stubs\RetrieveUserByIdStub;
 use UserHelper;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class PullRequestNewInlineCommentNotificationToProcessBuilderTest extends TestCase
 {
     private RetrieveUserByIdStub $user_retriever;
     private InlineCommentSearcherStub $inline_comment_searcher;
-    private OwnerRetriever & MockObject $owner_retriever;
-    private InlineCommentCodeContextExtractor & MockObject $code_context_extractor;
-    private UserHelper & MockObject $user_helper;
-    private HTMLURLBuilder & MockObject $html_url_builder;
+    private OwnerRetriever&MockObject $owner_retriever;
+    private InlineCommentCodeContextExtractor&MockObject $code_context_extractor;
+    private UserHelper&MockObject $user_helper;
+    private HTMLURLBuilder&MockObject $html_url_builder;
     private PullRequest $pull_request;
     private \PFUser $change_user;
     private SearchPullRequestStub $pull_request_dao;

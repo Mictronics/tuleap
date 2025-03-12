@@ -24,6 +24,7 @@ namespace Tuleap\DynamicCredentials\Credential;
 
 require_once __DIR__ . '/../bootstrap.php';
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class CredentialIdentifierExtractorTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testExtractionOfTheIdentifierFromProperlyFormattedUsername(): void
@@ -34,9 +35,7 @@ final class CredentialIdentifierExtractorTest extends \Tuleap\Test\PHPUnit\TestC
         $this->assertEquals('identifier', $extractor->extract($username));
     }
 
-    /**
-     * @dataProvider incorrectlyFormattedUsernameProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('incorrectlyFormattedUsernameProvider')]
     public function testRejectionWhenUsernameIsIncorrectlyFormatted(string $username): void
     {
         $extractor = new CredentialIdentifierExtractor();

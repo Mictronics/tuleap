@@ -17,7 +17,6 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { Mock } from "vitest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { VueWrapper } from "@vue/test-utils";
 import { shallowMount } from "@vue/test-utils";
@@ -25,26 +24,52 @@ import { errAsync, okAsync } from "neverthrow";
 import { ref } from "vue";
 import { Fault } from "@tuleap/fault";
 import ReadingMode from "./ReadingMode.vue";
-import { BackendCrossTrackerReport } from "../../domain/BackendCrossTrackerReport";
-import { ReadingCrossTrackerReport } from "../../domain/ReadingCrossTrackerReport";
 import * as rest_querier from "../../api/rest-querier";
-import type { Report } from "../../type";
+import type { Query } from "../../type";
 import { getGlobalTestOptions } from "../../helpers/global-options-for-tests";
-import { IS_USER_ADMIN, NOTIFY_FAULT, REPORT_ID, REPORT_STATE } from "../../injection-symbols";
+import { EMITTER, IS_USER_ADMIN, REPORT_STATE, WIDGET_ID } from "../../injection-symbols";
+import type {
+    EmitterProvider,
+    Events,
+    NotifyFaultEvent,
+    RefreshArtifactsEvent,
+} from "../../helpers/emitter-provider";
+import { NOTIFY_FAULT_EVENT, REFRESH_ARTIFACTS_EVENT } from "../../helpers/emitter-provider";
+import mitt from "mitt";
 
 describe("ReadingMode", () => {
-    let backend_cross_tracker_report: BackendCrossTrackerReport,
-        reading_cross_tracker_report: ReadingCrossTrackerReport,
+    let backend_query: Query,
+        reading_query: Query,
         is_user_admin: boolean,
         has_error: boolean,
-        errorSpy: Mock;
+        emitter: EmitterProvider;
+    let dispatched_fault_events: NotifyFaultEvent[];
+    let dispatched_refresh_events: RefreshArtifactsEvent[];
 
     beforeEach(() => {
-        backend_cross_tracker_report = new BackendCrossTrackerReport();
-        reading_cross_tracker_report = new ReadingCrossTrackerReport();
+        backend_query = {
+            id: "00000000-03e8-70c0-9e41-6ea7a4e2b78d",
+            tql_query: "",
+            title: "",
+            description: "",
+        };
+        reading_query = {
+            id: "00000000-03e8-70c0-9e41-6ea7a4e2b78d",
+            tql_query: "",
+            title: "",
+            description: "",
+        };
         is_user_admin = true;
         has_error = false;
-        errorSpy = vi.fn();
+        emitter = mitt<Events>();
+        dispatched_fault_events = [];
+        dispatched_refresh_events = [];
+        emitter.on(NOTIFY_FAULT_EVENT, (event) => {
+            dispatched_fault_events.push(event);
+        });
+        emitter.on(REFRESH_ARTIFACTS_EVENT, (event) => {
+            dispatched_refresh_events.push(event);
+        });
     });
 
     function instantiateComponent(): VueWrapper<InstanceType<typeof ReadingMode>> {
@@ -53,15 +78,15 @@ describe("ReadingMode", () => {
                 ...getGlobalTestOptions(),
                 provide: {
                     [REPORT_STATE.valueOf()]: ref("result-preview"),
-                    [NOTIFY_FAULT.valueOf()]: errorSpy,
-                    [REPORT_ID.valueOf()]: 875,
+                    [WIDGET_ID.valueOf()]: 875,
                     [IS_USER_ADMIN.valueOf()]: is_user_admin,
+                    [EMITTER.valueOf()]: emitter,
                 },
             },
             props: {
                 has_error,
-                backend_cross_tracker_report,
-                reading_cross_tracker_report,
+                backend_query,
+                reading_query,
             },
         });
     }
@@ -90,30 +115,30 @@ describe("ReadingMode", () => {
 
     describe("saveReport()", () => {
         it(`will update the backend report and emit a "saved" event`, async () => {
-            const initBackend = vi.spyOn(backend_cross_tracker_report, "init");
-            initBackend.mockImplementation(() => Promise.resolve());
-            const duplicateBackend = vi.spyOn(backend_cross_tracker_report, "duplicateFromReport");
             const expert_query =
                 'SELECT @description FROM @project.name="TOTOYA" WHERE @ddescription != ""';
-            const report = { expert_query } as Report;
+            const query: Query = {
+                id: reading_query.id,
+                tql_query: expert_query,
+                title: reading_query.title,
+                description: reading_query.description,
+            };
 
-            const updateReport = vi
-                .spyOn(rest_querier, "updateReport")
-                .mockReturnValue(okAsync(report));
+            const updateQuery = vi
+                .spyOn(rest_querier, "updateQuery")
+                .mockReturnValue(okAsync(query));
             const wrapper = instantiateComponent();
 
             await wrapper.get("[data-test=cross-tracker-save-report]").trigger("click");
 
-            expect(duplicateBackend).toHaveBeenCalledWith(reading_cross_tracker_report);
-            expect(updateReport).toHaveBeenCalled();
-            expect(initBackend).toHaveBeenCalledWith(expert_query);
+            expect(updateQuery).toHaveBeenCalled();
             const emitted = wrapper.emitted("saved");
             expect(emitted).toBeDefined();
         });
 
         it("Given the report is in error, then nothing will happen", async () => {
             has_error = true;
-            const updateReport = vi.spyOn(rest_querier, "updateReport");
+            const updateReport = vi.spyOn(rest_querier, "updateQuery");
 
             const wrapper = instantiateComponent();
             await wrapper.get("[data-test=cross-tracker-save-report]").trigger("click");
@@ -122,7 +147,7 @@ describe("ReadingMode", () => {
         });
 
         it("When there is a REST error, then it will be shown", async () => {
-            vi.spyOn(rest_querier, "updateReport").mockReturnValue(
+            vi.spyOn(rest_querier, "updateQuery").mockReturnValue(
                 errAsync(Fault.fromMessage("Report not found")),
             );
 
@@ -130,8 +155,8 @@ describe("ReadingMode", () => {
 
             await wrapper.get("[data-test=cross-tracker-save-report]").trigger("click");
 
-            expect(errorSpy).toHaveBeenCalled();
-            expect(errorSpy.mock.calls[0][0].isSaveReport()).toBe(true);
+            expect(dispatched_fault_events).toHaveLength(1);
+            expect(dispatched_fault_events[0].fault.isSaveReport()).toBe(true);
         });
     });
 
@@ -142,6 +167,10 @@ describe("ReadingMode", () => {
             await wrapper.get("[data-test=cross-tracker-cancel-report]").trigger("click");
 
             expect(wrapper.emitted("discard-unsaved-report")).toBeDefined();
+            expect(dispatched_refresh_events).toHaveLength(1);
+            expect(dispatched_refresh_events[0]).toStrictEqual({
+                query: backend_query,
+            });
         });
     });
 });

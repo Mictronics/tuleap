@@ -33,6 +33,7 @@ use Tuleap\Request\ProjectRetriever;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class UpdateControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private HTTPRequest&MockObject $request;
@@ -45,7 +46,7 @@ final class UpdateControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 
     private UpdateCategoriesProcessor&MockObject $update_processor;
 
-    /** @before */
+        #[\PHPUnit\Framework\Attributes\Before]
     public function instantiateMocks(): void
     {
         $this->request               = $this->createMock(HTTPRequest::class);

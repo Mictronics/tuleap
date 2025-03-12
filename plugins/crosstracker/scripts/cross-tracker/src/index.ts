@@ -22,9 +22,6 @@ import { createApp } from "vue";
 import { getPOFileFromLocaleWithoutExtension, initVueGettext } from "@tuleap/vue3-gettext-init";
 import { createGettext } from "vue3-gettext";
 import { getLocaleOrThrow, getTimezoneOrThrow, IntlFormatter } from "@tuleap/date-helper";
-import { ReadingCrossTrackerReport } from "./domain/ReadingCrossTrackerReport";
-import { WritingCrossTrackerReport } from "./domain/WritingCrossTrackerReport";
-import { BackendCrossTrackerReport } from "./domain/BackendCrossTrackerReport";
 import CrossTrackerWidget from "./CrossTrackerWidget.vue";
 import {
     DATE_FORMATTER,
@@ -32,10 +29,15 @@ import {
     DOCUMENTATION_BASE_URL,
     EMITTER,
     GET_COLUMN_NAME,
+    GET_SUGGESTED_QUERIES,
     IS_MULTIPLE_QUERY_SUPPORTED,
     IS_USER_ADMIN,
-    REPORT_ID,
+    WIDGET_ID,
     RETRIEVE_ARTIFACTS_TABLE,
+    DASHBOARD_TYPE,
+    NEW_QUERY_CREATOR,
+    UPDATE_WIDGET_TITLE,
+    DEFAULT_WIDGET_TITLE,
 } from "./injection-symbols";
 import { ArtifactsTableRetriever } from "./api/ArtifactsTableRetriever";
 import { ArtifactsTableBuilder } from "./api/ArtifactsTableBuilder";
@@ -43,7 +45,11 @@ import VueDOMPurifyHTML from "vue-dompurify-html";
 import { ColumnNameGetter } from "./domain/ColumnNameGetter";
 import type { Events } from "./helpers/emitter-provider";
 import mitt from "mitt";
-import { getDatasetItemOrThrow, selectOrThrow } from "@tuleap/dom";
+import { getAttributeOrThrow, selectOrThrow } from "@tuleap/dom";
+import { SuggestedQueries } from "./domain/SuggestedQueriesGetter";
+import { NewQueryCreator } from "./api/NewQueryCreator";
+import type { WidgetData } from "./type";
+import { WidgetTitleUpdater } from "./WidgetTitleUpdater";
 
 document.addEventListener("DOMContentLoaded", async () => {
     const locale = getLocaleOrThrow(document);
@@ -67,41 +73,40 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        const documentation_url = getDatasetItemOrThrow(
-            widget_element,
-            "data-documentation-base-url",
-        );
-        const report_id_string = getDatasetItemOrThrow(widget_element, "data-report-id");
-        const report_id = Number.parseInt(report_id_string, 10);
-        const is_widget_admin = Boolean(
-            getDatasetItemOrThrow(widget_element, "data-is-widget-admin"),
-        );
-        const is_multiple_query_supported = Boolean(
-            getDatasetItemOrThrow(widget_element, "data-is-multiple-query-supported"),
-        );
+        const widget_json_data = getAttributeOrThrow(widget_element, "data-widget-json-data");
+        const widget_data: WidgetData = JSON.parse(widget_json_data);
+        const emitter = mitt<Events>();
 
-        const backend_report = new BackendCrossTrackerReport();
-        const reading_report = new ReadingCrossTrackerReport();
-        const writing_report = new WritingCrossTrackerReport();
+        const title_element = selectOrThrow(
+            document,
+            `[data-widget-title="${widget_data.title_attribute}"]`,
+        );
+        const widget_title_updater = WidgetTitleUpdater(emitter, title_element);
+
+        const new_query_creator = NewQueryCreator();
 
         const vue_mount_point = selectOrThrow(widget_element, ".vue-mount-point");
 
-        createApp(CrossTrackerWidget, {
-            backend_cross_tracker_report: backend_report,
-            reading_cross_tracker_report: reading_report,
-            writing_cross_tracker_report: writing_report,
-        })
+        createApp(CrossTrackerWidget)
             .use(gettext_plugin)
             .use(VueDOMPurifyHTML)
             .provide(DATE_FORMATTER, date_formatter)
             .provide(DATE_TIME_FORMATTER, date_time_formatter)
-            .provide(RETRIEVE_ARTIFACTS_TABLE, ArtifactsTableRetriever(ArtifactsTableBuilder()))
-            .provide(REPORT_ID, report_id)
-            .provide(IS_USER_ADMIN, is_widget_admin)
-            .provide(DOCUMENTATION_BASE_URL, documentation_url)
+            .provide(
+                RETRIEVE_ARTIFACTS_TABLE,
+                ArtifactsTableRetriever(widget_data.widget_id, ArtifactsTableBuilder()),
+            )
+            .provide(WIDGET_ID, widget_data.widget_id)
+            .provide(IS_USER_ADMIN, widget_data.is_widget_admin)
+            .provide(DOCUMENTATION_BASE_URL, widget_data.documentation_base_url)
             .provide(GET_COLUMN_NAME, column_name_getter)
-            .provide(EMITTER, mitt<Events>())
-            .provide(IS_MULTIPLE_QUERY_SUPPORTED, is_multiple_query_supported)
+            .provide(EMITTER, emitter)
+            .provide(IS_MULTIPLE_QUERY_SUPPORTED, widget_data.is_multiple_query_supported)
+            .provide(GET_SUGGESTED_QUERIES, SuggestedQueries({ $gettext: gettext_plugin.$gettext }))
+            .provide(DASHBOARD_TYPE, widget_data.dashboard_type)
+            .provide(NEW_QUERY_CREATOR, new_query_creator)
+            .provide(UPDATE_WIDGET_TITLE, widget_title_updater)
+            .provide(DEFAULT_WIDGET_TITLE, widget_data.default_title)
             .mount(vue_mount_point);
     }
 });

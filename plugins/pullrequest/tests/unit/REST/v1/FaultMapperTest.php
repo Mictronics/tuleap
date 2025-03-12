@@ -36,6 +36,7 @@ use Tuleap\PullRequest\InlineComment\RootInlineCommentHasAParentFault;
 use Tuleap\PullRequest\PullRequest\REST\v1\UserNotFoundFault;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FaultMapperTest extends TestCase
 {
     public static function dataProviderFaults(): iterable
@@ -51,9 +52,7 @@ final class FaultMapperTest extends TestCase
         yield 'Inline comment has a parent' => [RootInlineCommentHasAParentFault::fromParentCommentId(15), 400];
     }
 
-    /**
-     * @dataProvider dataProviderFaults
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderFaults')]
     public function testItMapsFaultsToRestExceptions(Fault $fault, int $expected_status_code): void
     {
         $this->expectException(RestException::class);

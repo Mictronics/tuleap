@@ -30,6 +30,7 @@ use Tuleap\Test\DB\DBTransactionExecutorPassthrough;
 use Tuleap\Tracker\Workflow\PostAction\Update\SetIntValue;
 use Tuleap\Tracker\Workflow\PostAction\Update\TransitionFactory;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class SetIntValueRepositoryTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -44,9 +45,7 @@ class SetIntValueRepositoryTest extends \Tuleap\Test\PHPUnit\TestCase
      */
     private $set_int_value_dao;
 
-    /**
-     * @before
-     */
+    #[\PHPUnit\Framework\Attributes\Before]
     public function createRepository()
     {
         $this->set_int_value_dao = Mockery::mock(Transition_PostAction_Field_IntDao::class);

@@ -45,6 +45,7 @@ use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class GitlabMergeRequestCreatorTest extends TestCase
 {
     private GitlabMergeRequestCreator $creator;
@@ -314,9 +315,7 @@ final class GitlabMergeRequestCreatorTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider provideGitLabAPIToRetrieveGitlabProjectExceptions
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideGitLabAPIToRetrieveGitlabProjectExceptions')]
     public function testItThrowAnExceptionIfGitlabAPIToRetrieveGitlabProjectHasError(Exception $exception): void
     {
         $user = $this->buildMockUser();
@@ -382,9 +381,7 @@ final class GitlabMergeRequestCreatorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideGitLabAPIExceptions
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideGitLabAPIExceptions')]
     public function testItThrowAnExceptionIfGitlabCreateMergeRequestAPIHasError(Exception $exception): void
     {
         $user = $this->buildMockUser();

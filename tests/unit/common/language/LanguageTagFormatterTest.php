@@ -22,12 +22,12 @@ declare(strict_types=1);
 
 namespace Tuleap\language;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class LanguageTagFormatterTest extends \Tuleap\Test\PHPUnit\TestCase
 {
-    /**
-     * @dataProvider dataProviderLanguageTags
-     */
+    #[DataProvider('dataProviderLanguageTags')]
     public function testFormatAsRFC5646LanguageTag($input, $expected_output): void
     {
         self::assertSame($expected_output, LanguageTagFormatter::formatAsRFC5646LanguageTag($input));

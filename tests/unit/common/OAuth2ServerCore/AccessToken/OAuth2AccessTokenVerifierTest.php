@@ -41,6 +41,7 @@ use Tuleap\User\OAuth2\AccessToken\OAuth2AccessTokenNotFoundException;
 use Tuleap\User\OAuth2\ResourceServer\GrantedAuthorization;
 use Tuleap\User\OAuth2\Scope\OAuth2ScopeIdentifier;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class OAuth2AccessTokenVerifierTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -170,9 +171,7 @@ final class OAuth2AccessTokenVerifierTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->verifier->getGrantedAuthorization($access_token, $required_scope);
     }
 
-    /**
-     * @dataProvider dataProviderScopeFailures
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderScopeFailures')]
     public function testVerificationFailsWhenTheRequiredScopeCannotBeApproved(AuthenticationScope ...$scopes_matching_access_token): void
     {
         $expected_user = new \PFUser(['user_id' => 103, 'language_id' => 'en']);

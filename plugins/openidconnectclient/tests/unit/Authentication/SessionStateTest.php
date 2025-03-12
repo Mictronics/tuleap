@@ -24,11 +24,10 @@ namespace Tuleap\OpenIDConnectClient\Authentication;
 
 use Tuleap\Cryptography\ConcealedString;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class SessionStateTest extends \Tuleap\Test\PHPUnit\TestCase
 {
-    /**
-     * @dataProvider dataProviderSessionStates
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderSessionStates')]
     public function testCanBeTransformedToAMinimalRepresentationAndBuiltFromIt(SessionState $session_state): void
     {
         $representation        = $session_state->convertToMinimalRepresentation();

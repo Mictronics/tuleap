@@ -33,11 +33,13 @@ use Tuleap\Artidoc\Stubs\Domain\Document\RetrieveArtidocWithContextStub;
 use Tuleap\Artidoc\Stubs\Domain\Document\Section\Artifact\CreateArtifactContentStub;
 use Tuleap\Artidoc\Stubs\Domain\Document\Section\CollectRequiredSectionInformationStub;
 use Tuleap\Artidoc\Stubs\Domain\Document\Section\SaveOneSectionStub;
+use Tuleap\Artidoc\Stubs\Domain\Document\Section\SearchAllSectionsStub;
 use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\NeverThrow\Result;
 use Tuleap\Option\Option;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class SectionCreatorTest extends TestCase
 {
     public const DUMMY_SECTION_ID   = '018f77dc-eebb-73b3-9dfd-a294e5cfa1b5';
@@ -46,6 +48,8 @@ final class SectionCreatorTest extends TestCase
 
     private const PROJECT_ID = 101;
 
+    private const IMPORT_ARTIFACT_ID = 102;
+
     private SectionIdentifierFactory $identifier_factory;
 
     protected function setUp(): void
@@ -53,10 +57,10 @@ final class SectionCreatorTest extends TestCase
         $this->identifier_factory = new UUIDSectionIdentifierFactory(new DatabaseUUIDV7Factory());
     }
 
-    public function testHappyPathAtTheEnd(): void
+    public function testHappyPathImportAtTheEnd(): void
     {
         $saver     = SaveOneSectionStub::withGeneratedSectionId($this->identifier_factory, self::NEW_SECTION_ID);
-        $collector = CollectRequiredSectionInformationStub::withRequiredInformation();
+        $collector = CollectRequiredSectionInformationStub::withRequiredInformationFor(self::IMPORT_ARTIFACT_ID);
 
         $creator = new SectionCreator(
             RetrieveArtidocWithContextStub::withDocumentUserCanWrite(
@@ -67,25 +71,26 @@ final class SectionCreatorTest extends TestCase
             $saver,
             CreateArtifactContentStub::shouldNotBeCalled(),
             $collector,
+            SearchAllSectionsStub::withoutSections(),
         );
 
         $result = $creator->create(
             1,
             Option::nothing(SectionIdentifier::class),
-            SectionContentToBeCreated::fromImportedArtifact(101, Level::One)
+            SectionContentToBeCreated::fromImportedArtifact(self::IMPORT_ARTIFACT_ID, Level::One)
         );
 
         self::assertTrue(Result::isOk($result));
         self::assertTrue($saver->isSaved(1));
         self::assertTrue($collector->isCalled());
-        self::assertSame(101, $saver->getSavedEndForId(1)->artifact_id->unwrapOr(null));
+        self::assertSame(self::IMPORT_ARTIFACT_ID, $saver->getSavedEndForId(1)->artifact_id->unwrapOr(null));
         self::assertSame(self::NEW_SECTION_ID, $result->value->toString());
     }
 
-    public function testHappyPathBeforeSection(): void
+    public function testHappyPathImportBeforeSection(): void
     {
         $saver     = SaveOneSectionStub::withGeneratedSectionId($this->identifier_factory, self::NEW_SECTION_ID);
-        $collector = CollectRequiredSectionInformationStub::withRequiredInformation();
+        $collector = CollectRequiredSectionInformationStub::withRequiredInformationFor(self::IMPORT_ARTIFACT_ID);
 
         $creator = new SectionCreator(
             RetrieveArtidocWithContextStub::withDocumentUserCanWrite(
@@ -96,25 +101,26 @@ final class SectionCreatorTest extends TestCase
             $saver,
             CreateArtifactContentStub::shouldNotBeCalled(),
             $collector,
+            SearchAllSectionsStub::withoutSections(),
         );
 
         $result = $creator->create(
             1,
             Option::fromValue($this->identifier_factory->buildFromHexadecimalString(self::ANOTHER_SECTION_ID)),
-            SectionContentToBeCreated::fromImportedArtifact(101, Level::One)
+            SectionContentToBeCreated::fromImportedArtifact(self::IMPORT_ARTIFACT_ID, Level::One)
         );
 
         self::assertTrue(Result::isOk($result));
         self::assertTrue($saver->isSaved(1));
         self::assertTrue($collector->isCalled());
-        self::assertSame(101, $saver->getSavedBeforeForId(1)->artifact_id->unwrapOr(null));
+        self::assertSame(self::IMPORT_ARTIFACT_ID, $saver->getSavedBeforeForId(1)->artifact_id->unwrapOr(null));
         self::assertSame(self::NEW_SECTION_ID, $result->value->toString());
     }
 
     public function testHappyPathFreetextContent(): void
     {
         $saver     = SaveOneSectionStub::withGeneratedSectionId($this->identifier_factory, self::NEW_SECTION_ID);
-        $collector = CollectRequiredSectionInformationStub::withRequiredInformation();
+        $collector = CollectRequiredSectionInformationStub::shouldNotBeCalled();
 
         $creator = new SectionCreator(
             RetrieveArtidocWithContextStub::withDocumentUserCanWrite(
@@ -125,6 +131,7 @@ final class SectionCreatorTest extends TestCase
             $saver,
             CreateArtifactContentStub::shouldNotBeCalled(),
             $collector,
+            SearchAllSectionsStub::withoutSections(),
         );
 
         $result = $creator->create(
@@ -142,7 +149,7 @@ final class SectionCreatorTest extends TestCase
     public function testHappyPathArtifactContent(): void
     {
         $saver     = SaveOneSectionStub::withGeneratedSectionId($this->identifier_factory, self::NEW_SECTION_ID);
-        $collector = CollectRequiredSectionInformationStub::withRequiredInformation();
+        $collector = CollectRequiredSectionInformationStub::shouldNotBeCalled();
 
         $creator = new SectionCreator(
             RetrieveArtidocWithContextStub::withDocumentUserCanWrite(
@@ -153,6 +160,7 @@ final class SectionCreatorTest extends TestCase
             $saver,
             CreateArtifactContentStub::withCreatedArtifactId(123),
             $collector,
+            SearchAllSectionsStub::withoutSections(),
         );
 
         $result = $creator->create(
@@ -168,10 +176,10 @@ final class SectionCreatorTest extends TestCase
         self::assertSame(self::NEW_SECTION_ID, $result->value->toString());
     }
 
-    public function testFaultWhenUnableToFindSiblingSection(): void
+    public function testHappyPathInEmptyDocument(): void
     {
-        $saver     = SaveOneSectionStub::withUnableToFindSiblingSection(self::NEW_SECTION_ID);
-        $collector = CollectRequiredSectionInformationStub::withRequiredInformation();
+        $saver     = SaveOneSectionStub::withGeneratedSectionId($this->identifier_factory, self::NEW_SECTION_ID);
+        $collector = CollectRequiredSectionInformationStub::withRequiredInformationFor(self::IMPORT_ARTIFACT_ID);
 
         $creator = new SectionCreator(
             RetrieveArtidocWithContextStub::withDocumentUserCanWrite(
@@ -182,12 +190,151 @@ final class SectionCreatorTest extends TestCase
             $saver,
             CreateArtifactContentStub::shouldNotBeCalled(),
             $collector,
+            SearchAllSectionsStub::withoutSections(),
+        );
+
+        $result = $creator->create(
+            1,
+            Option::nothing(SectionIdentifier::class),
+            SectionContentToBeCreated::fromImportedArtifact(self::IMPORT_ARTIFACT_ID, Level::One)
+        );
+
+        self::assertTrue(Result::isOk($result));
+        self::assertTrue($saver->isSaved(1));
+        self::assertTrue($collector->isCalled());
+        self::assertSame(self::IMPORT_ARTIFACT_ID, $saver->getSavedEndForId(1)->artifact_id->unwrapOr(null));
+        self::assertSame(self::NEW_SECTION_ID, $result->value->toString());
+    }
+
+    public function testHappyPathInDocumentWithExistingSection(): void
+    {
+        $existing_section_artifact_id_1 = 201;
+        $existing_section_artifact_id_2 = 202;
+
+        $saver     = SaveOneSectionStub::withGeneratedSectionId($this->identifier_factory, self::NEW_SECTION_ID);
+        $collector = CollectRequiredSectionInformationStub::withRequiredInformationFor(
+            self::IMPORT_ARTIFACT_ID,
+            $existing_section_artifact_id_1,
+            $existing_section_artifact_id_2,
+        );
+
+        $creator = new SectionCreator(
+            RetrieveArtidocWithContextStub::withDocumentUserCanWrite(
+                new ArtidocWithContext(
+                    new ArtidocDocument(['item_id' => 1, 'group_id' => self::PROJECT_ID]),
+                ),
+            ),
+            $saver,
+            CreateArtifactContentStub::shouldNotBeCalled(),
+            $collector,
+            SearchAllSectionsStub::withSections([
+                RetrievedSection::fromArtifact(
+                    [
+                        'id'          => $this->identifier_factory->buildIdentifier(),
+                        'level'       => Level::One->value,
+                        'item_id'     => 1,
+                        'artifact_id' => $existing_section_artifact_id_1,
+                        'rank'        => 1,
+                    ]
+                ),
+                RetrievedSection::fromArtifact(
+                    [
+                        'id'          => $this->identifier_factory->buildIdentifier(),
+                        'level'       => Level::One->value,
+                        'item_id'     => 1,
+                        'artifact_id' => $existing_section_artifact_id_2,
+                        'rank'        => 2,
+                    ]
+                ),
+            ]),
+        );
+
+        $result = $creator->create(
+            1,
+            Option::nothing(SectionIdentifier::class),
+            SectionContentToBeCreated::fromImportedArtifact(self::IMPORT_ARTIFACT_ID, Level::One)
+        );
+
+        self::assertTrue(Result::isOk($result));
+        self::assertTrue($saver->isSaved(1));
+        self::assertTrue($collector->isCalled());
+        self::assertSame(self::IMPORT_ARTIFACT_ID, $saver->getSavedEndForId(1)->artifact_id->unwrapOr(null));
+        self::assertSame(self::NEW_SECTION_ID, $result->value->toString());
+    }
+
+    public function testFaultIfDocumentContainAnExistingSectionThatIsNotReadableForCurrentUser(): void
+    {
+        $existing_section_artifact_id_1 = 201;
+        $existing_section_artifact_id_2 = 202;
+
+        $saver     = SaveOneSectionStub::withGeneratedSectionId($this->identifier_factory, self::NEW_SECTION_ID);
+        $collector = CollectRequiredSectionInformationStub::withRequiredInformationFor(
+            self::IMPORT_ARTIFACT_ID,
+            $existing_section_artifact_id_1,
+        )->andMissingRequiredInformationFor($existing_section_artifact_id_2);
+
+        $creator = new SectionCreator(
+            RetrieveArtidocWithContextStub::withDocumentUserCanWrite(
+                new ArtidocWithContext(
+                    new ArtidocDocument(['item_id' => 1, 'group_id' => self::PROJECT_ID]),
+                ),
+            ),
+            $saver,
+            CreateArtifactContentStub::shouldNotBeCalled(),
+            $collector,
+            SearchAllSectionsStub::withSections([
+                RetrievedSection::fromArtifact(
+                    [
+                        'id'          => $this->identifier_factory->buildIdentifier(),
+                        'level'       => Level::One->value,
+                        'item_id'     => 1,
+                        'artifact_id' => $existing_section_artifact_id_1,
+                        'rank'        => 1,
+                    ]
+                ),
+                RetrievedSection::fromArtifact(
+                    [
+                        'id'          => $this->identifier_factory->buildIdentifier(),
+                        'level'       => Level::One->value,
+                        'item_id'     => 1,
+                        'artifact_id' => $existing_section_artifact_id_2,
+                        'rank'        => 2,
+                    ]
+                ),
+            ]),
+        );
+
+        $result = $creator->create(
+            1,
+            Option::nothing(SectionIdentifier::class),
+            SectionContentToBeCreated::fromImportedArtifact(self::IMPORT_ARTIFACT_ID, Level::One)
+        );
+
+        self::assertTrue(Result::isErr($result));
+        self::assertFalse($saver->isSaved(1));
+    }
+
+    public function testFaultWhenUnableToFindSiblingSection(): void
+    {
+        $saver     = SaveOneSectionStub::withUnableToFindSiblingSection(self::NEW_SECTION_ID);
+        $collector = CollectRequiredSectionInformationStub::withRequiredInformationFor(self::IMPORT_ARTIFACT_ID);
+
+        $creator = new SectionCreator(
+            RetrieveArtidocWithContextStub::withDocumentUserCanWrite(
+                new ArtidocWithContext(
+                    new ArtidocDocument(['item_id' => 1, 'group_id' => self::PROJECT_ID]),
+                ),
+            ),
+            $saver,
+            CreateArtifactContentStub::shouldNotBeCalled(),
+            $collector,
+            SearchAllSectionsStub::withoutSections(),
         );
 
         $result = $creator->create(
             1,
             Option::fromValue($this->identifier_factory->buildFromHexadecimalString(self::ANOTHER_SECTION_ID)),
-            SectionContentToBeCreated::fromImportedArtifact(101, Level::One)
+            SectionContentToBeCreated::fromImportedArtifact(self::IMPORT_ARTIFACT_ID, Level::One)
         );
 
         self::assertTrue(Result::isErr($result));
@@ -203,15 +350,13 @@ final class SectionCreatorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideArtidocPOSTSectionRepresentation
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideArtidocPOSTSectionRepresentation')]
     public function testFaultWhenArtifactIsAlreadyReferencedInTheDocumentByAnotherSection(
         int $artifact_id,
         ?string $before_section_id,
     ): void {
         $saver     = SaveOneSectionStub::withAlreadyExistingSectionWithSameArtifact(self::NEW_SECTION_ID);
-        $collector = CollectRequiredSectionInformationStub::withRequiredInformation();
+        $collector = CollectRequiredSectionInformationStub::withRequiredInformationFor($artifact_id);
 
         $creator = new SectionCreator(
             RetrieveArtidocWithContextStub::withDocumentUserCanWrite(
@@ -222,6 +367,7 @@ final class SectionCreatorTest extends TestCase
             $saver,
             CreateArtifactContentStub::shouldNotBeCalled(),
             $collector,
+            SearchAllSectionsStub::withoutSections(),
         );
 
         $result = $creator->create(
@@ -240,7 +386,7 @@ final class SectionCreatorTest extends TestCase
     public function testFaultWhenArtifactDoesNotHaveRequiredInformation(): void
     {
         $saver     = SaveOneSectionStub::withAlreadyExistingSectionWithSameArtifact(self::NEW_SECTION_ID);
-        $collector = CollectRequiredSectionInformationStub::withoutRequiredInformation();
+        $collector = CollectRequiredSectionInformationStub::withoutRequiredInformation(self::IMPORT_ARTIFACT_ID);
 
         $creator = new SectionCreator(
             RetrieveArtidocWithContextStub::withDocumentUserCanWrite(
@@ -251,12 +397,13 @@ final class SectionCreatorTest extends TestCase
             $saver,
             CreateArtifactContentStub::shouldNotBeCalled(),
             $collector,
+            SearchAllSectionsStub::withoutSections(),
         );
 
         $result = $creator->create(
             1,
             Option::fromValue($this->identifier_factory->buildFromHexadecimalString(self::ANOTHER_SECTION_ID)),
-            SectionContentToBeCreated::fromImportedArtifact(101, Level::One)
+            SectionContentToBeCreated::fromImportedArtifact(self::IMPORT_ARTIFACT_ID, Level::One)
         );
 
         self::assertTrue(Result::isErr($result));
@@ -266,13 +413,14 @@ final class SectionCreatorTest extends TestCase
     public function testFaultWhenDocumentCannotBeRetrieved(): void
     {
         $saver     = SaveOneSectionStub::withGeneratedSectionId($this->identifier_factory, self::NEW_SECTION_ID);
-        $collector = CollectRequiredSectionInformationStub::withRequiredInformation();
+        $collector = CollectRequiredSectionInformationStub::shouldNotBeCalled();
 
         $creator = new SectionCreator(
             RetrieveArtidocWithContextStub::withoutDocument(),
             $saver,
             CreateArtifactContentStub::shouldNotBeCalled(),
             $collector,
+            SearchAllSectionsStub::withoutSections(),
         );
 
         $result = $creator->create(
@@ -288,7 +436,7 @@ final class SectionCreatorTest extends TestCase
     public function testFaultWhenDocumentIsNotWritable(): void
     {
         $saver     = SaveOneSectionStub::withGeneratedSectionId($this->identifier_factory, self::NEW_SECTION_ID);
-        $collector = CollectRequiredSectionInformationStub::withRequiredInformation();
+        $collector = CollectRequiredSectionInformationStub::shouldNotBeCalled();
 
         $creator = new SectionCreator(
             RetrieveArtidocWithContextStub::withDocumentUserCanRead(
@@ -299,6 +447,7 @@ final class SectionCreatorTest extends TestCase
             $saver,
             CreateArtifactContentStub::shouldNotBeCalled(),
             $collector,
+            SearchAllSectionsStub::withoutSections(),
         );
 
         $result = $creator->create(

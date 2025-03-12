@@ -29,11 +29,12 @@ use Tuleap\JiraImport\JiraAgile\JiraBoard;
 use Tuleap\Tracker\Creation\JiraImporter\UnexpectedFormatException;
 use function PHPUnit\Framework\assertEquals;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class JiraBoardBacklogRetrieverFromAPITest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testItCatchesIfJiraReturnsAPayloadWeCannotWorkWith(): void
     {
-        $client = new class extends \Tuleap\Tracker\Test\Tracker\Creation\JiraImporter\Stub\JiraCloudClientStub
+        $client = new class extends \Tuleap\Tracker\Test\Stub\Creation\JiraImporter\JiraCloudClientStub
         {
             public int $called = 0;
 
@@ -62,7 +63,7 @@ final class JiraBoardBacklogRetrieverFromAPITest extends \Tuleap\Test\PHPUnit\Te
 
     public function testItQueriesTheURL(): void
     {
-        $client = new class extends \Tuleap\Tracker\Test\Tracker\Creation\JiraImporter\Stub\JiraCloudClientStub
+        $client = new class extends \Tuleap\Tracker\Test\Stub\Creation\JiraImporter\JiraCloudClientStub
         {
             public int $called = 0;
 
@@ -90,7 +91,7 @@ final class JiraBoardBacklogRetrieverFromAPITest extends \Tuleap\Test\PHPUnit\Te
 
     public function testItReturnsEmptySetWhenNoIssues(): void
     {
-        $client = new class extends \Tuleap\Tracker\Test\Tracker\Creation\JiraImporter\Stub\JiraCloudClientStub
+        $client = new class extends \Tuleap\Tracker\Test\Stub\Creation\JiraImporter\JiraCloudClientStub
         {
             public int $called = 0;
 
@@ -117,7 +118,7 @@ final class JiraBoardBacklogRetrieverFromAPITest extends \Tuleap\Test\PHPUnit\Te
 
     public function testItReturnsOneIssue(): void
     {
-        $client = new class extends \Tuleap\Tracker\Test\Tracker\Creation\JiraImporter\Stub\JiraCloudClientStub
+        $client = new class extends \Tuleap\Tracker\Test\Stub\Creation\JiraImporter\JiraCloudClientStub
         {
             public int $called = 0;
 
@@ -156,7 +157,7 @@ final class JiraBoardBacklogRetrieverFromAPITest extends \Tuleap\Test\PHPUnit\Te
 
     public function testItReturnsIssuesOnSeveralPages(): void
     {
-        $client = new class extends \Tuleap\Tracker\Test\Tracker\Creation\JiraImporter\Stub\JiraCloudClientStub
+        $client = new class extends \Tuleap\Tracker\Test\Stub\Creation\JiraImporter\JiraCloudClientStub
         {
             public int $called = 0;
 

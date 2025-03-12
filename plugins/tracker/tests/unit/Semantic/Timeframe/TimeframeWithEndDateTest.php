@@ -30,6 +30,7 @@ use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetValueDateTestBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class TimeframeWithEndDateTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private TimeframeWithEndDate $timeframe;
@@ -73,8 +74,8 @@ final class TimeframeWithEndDateTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testItReturnsItsConfigDescription(): void
     {
-        $this->start_date_field->expects($this->any())->method('getLabel')->will(self::returnValue('Start date'));
-        $this->end_date_field->expects($this->any())->method('getLabel')->will(self::returnValue('End date'));
+        $this->start_date_field->expects($this->any())->method('getLabel')->willReturn('Start date');
+        $this->end_date_field->expects($this->any())->method('getLabel')->willReturn('End date');
 
         $this->assertEquals(
             'Timeframe is based on start date field "Start date" and end date field "End date".',
@@ -125,16 +126,16 @@ final class TimeframeWithEndDateTest extends \Tuleap\Test\PHPUnit\TestCase
      */
     public function testItDoesNotExportToRESTWhenUserCanReadFields(bool $can_read_start_date, bool $can_read_end_date): void
     {
-        $this->start_date_field->expects(self::any())->method('userCanRead')->will(self::returnValue($can_read_start_date));
-        $this->end_date_field->expects(self::any())->method('userCanRead')->will(self::returnValue($can_read_end_date));
+        $this->start_date_field->expects(self::any())->method('userCanRead')->willReturn($can_read_start_date);
+        $this->end_date_field->expects(self::any())->method('userCanRead')->willReturn($can_read_end_date);
 
         $this->assertNull($this->timeframe->exportToREST($this->user));
     }
 
     public function testItExportsToREST(): void
     {
-        $this->start_date_field->expects(self::any())->method('userCanRead')->will(self::returnValue(true));
-        $this->end_date_field->expects(self::any())->method('userCanRead')->will(self::returnValue(true));
+        $this->start_date_field->expects(self::any())->method('userCanRead')->willReturn(true);
+        $this->end_date_field->expects(self::any())->method('userCanRead')->willReturn(true);
 
         $this->assertEquals(
             new SemanticTimeframeWithEndDateRepresentation(
@@ -150,7 +151,7 @@ final class TimeframeWithEndDateTest extends \Tuleap\Test\PHPUnit\TestCase
         $dao     = $this->getMockBuilder(SemanticTimeframeDao::class)->disableOriginalConstructor()->getMock();
         $tracker = TrackerTestBuilder::aTracker()->withId(113)->build();
 
-        $dao->expects(self::once())->method('save')->with(113, 1001, null, 1003, null)->will(self::returnValue(true));
+        $dao->expects(self::once())->method('save')->with(113, 1001, null, 1003, null)->willReturn(true);
 
         self::assertTrue(
             $this->timeframe->save($tracker, $dao)
@@ -161,8 +162,8 @@ final class TimeframeWithEndDateTest extends \Tuleap\Test\PHPUnit\TestCase
     {
         $start_date = '01/20/2021';
 
-        $this->start_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
-        $this->end_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
+        $this->start_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
+        $this->end_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
 
         $artifact = $this->anArtifactWithoutEndDate($start_date);
 
@@ -182,8 +183,8 @@ final class TimeframeWithEndDateTest extends \Tuleap\Test\PHPUnit\TestCase
         $start_date = '07/01/2013';
         $end_date   = '07/03/2013';
 
-        $this->start_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
-        $this->end_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
+        $this->start_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
+        $this->end_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
 
         $artifact = $this->anArtifact($start_date, $end_date);
 
@@ -202,8 +203,8 @@ final class TimeframeWithEndDateTest extends \Tuleap\Test\PHPUnit\TestCase
     {
         $start_date = '07/01/2013';
 
-        $this->start_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
-        $this->end_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(false));
+        $this->start_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
+        $this->end_date_field->expects(self::once())->method('userCanRead')->willReturn(false);
 
         $artifact = $this->anArtifactWithoutEndDate($start_date);
 
@@ -222,8 +223,8 @@ final class TimeframeWithEndDateTest extends \Tuleap\Test\PHPUnit\TestCase
     {
         $start_date = '07/01/2013';
 
-        $this->start_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
-        $this->end_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
+        $this->start_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
+        $this->end_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
 
         $artifact = $this->anArtifactWithoutEndDate($start_date);
 
@@ -243,8 +244,8 @@ final class TimeframeWithEndDateTest extends \Tuleap\Test\PHPUnit\TestCase
         $start_date = '07/01/2013';
         $end_date   = '07/03/2013';
 
-        $this->start_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
-        $this->end_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
+        $this->start_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
+        $this->end_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
 
         $artifact = $this->anArtifact($start_date, $end_date);
 
@@ -265,8 +266,8 @@ final class TimeframeWithEndDateTest extends \Tuleap\Test\PHPUnit\TestCase
         $logger     = $this->getMockBuilder(LoggerInterface::class)->disableOriginalConstructor()->getMock();
 
         $logger->expects(self::once())->method('warning');
-        $this->start_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
-        $this->end_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(false));
+        $this->start_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
+        $this->end_date_field->expects(self::once())->method('userCanRead')->willReturn(false);
 
         $artifact = $this->anArtifactWithoutEndDate($start_date);
 
@@ -289,8 +290,8 @@ final class TimeframeWithEndDateTest extends \Tuleap\Test\PHPUnit\TestCase
         $logger     = $this->getMockBuilder(LoggerInterface::class)->disableOriginalConstructor()->getMock();
 
         $logger->expects(self::once())->method('warning');
-        $this->start_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
-        $this->end_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
+        $this->start_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
+        $this->end_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
 
         $artifact = $this->anArtifactWithoutEndDate($start_date);
 
@@ -311,8 +312,8 @@ final class TimeframeWithEndDateTest extends \Tuleap\Test\PHPUnit\TestCase
     {
         $start_date = '07/01/2013';
 
-        $this->start_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
-        $this->end_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
+        $this->start_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
+        $this->end_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
 
         $artifact = $this->anArtifactWithoutEndDate($start_date);
 
@@ -328,8 +329,8 @@ final class TimeframeWithEndDateTest extends \Tuleap\Test\PHPUnit\TestCase
     {
         $start_date = '07/01/2013';
 
-        $this->start_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
-        $this->end_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(false));
+        $this->start_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
+        $this->end_date_field->expects(self::once())->method('userCanRead')->willReturn(false);
 
         $artifact = $this->anArtifactWithoutEndDate($start_date);
 
@@ -345,8 +346,8 @@ final class TimeframeWithEndDateTest extends \Tuleap\Test\PHPUnit\TestCase
     {
         $start_date = '07/01/2013';
 
-        $this->start_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
-        $this->end_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
+        $this->start_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
+        $this->end_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
 
         $artifact = $this->anArtifactWithoutEndDate($start_date);
 
@@ -363,8 +364,8 @@ final class TimeframeWithEndDateTest extends \Tuleap\Test\PHPUnit\TestCase
         $start_date = '07/01/2013';
         $end_date   = '07/15/2013';
 
-        $this->start_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
-        $this->end_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
+        $this->start_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
+        $this->end_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
 
         $artifact = $this->anArtifact($start_date, $end_date);
 
@@ -381,15 +382,15 @@ final class TimeframeWithEndDateTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testItReturnsTrueWhenUserCanReadFields(): void
     {
-        $this->start_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
-        $this->end_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
+        $this->start_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
+        $this->end_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
 
         self::assertTrue($this->timeframe->userCanReadTimeframeFields($this->user));
     }
 
     public function testItReturnsFalseWhenUserCannotReadFields(): void
     {
-        $this->start_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(false));
+        $this->start_date_field->expects(self::once())->method('userCanRead')->willReturn(false);
         // end_date_field->userCanRead is not called cause of && operator
 
         self::assertFalse($this->timeframe->userCanReadTimeframeFields($this->user));
@@ -397,8 +398,8 @@ final class TimeframeWithEndDateTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testItReturnsTrueWhenAllFieldsAreZero(): void
     {
-        $this->start_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
-        $this->end_date_field->expects(self::once())->method('userCanRead')->will(self::returnValue(true));
+        $this->start_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
+        $this->end_date_field->expects(self::once())->method('userCanRead')->willReturn(true);
 
         $artifact = $this->anArtifactWithoutAnyValue();
 
@@ -411,8 +412,8 @@ final class TimeframeWithEndDateTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testItReturnsFalseWhenAtLeastOneFieldIsNotZero(): void
     {
-        $this->start_date_field->expects(self::exactly(3))->method('userCanRead')->will(self::returnValue(true));
-        $this->end_date_field->expects(self::exactly(3))->method('userCanRead')->will(self::returnValue(true));
+        $this->start_date_field->expects(self::exactly(3))->method('userCanRead')->willReturn(true);
+        $this->end_date_field->expects(self::exactly(3))->method('userCanRead')->willReturn(true);
 
         $start_date = '07/01/2013';
         $end_date   = '07/15/2013';
@@ -457,7 +458,7 @@ final class TimeframeWithEndDateTest extends \Tuleap\Test\PHPUnit\TestCase
             ->disableOriginalConstructor()
             ->getMock();
 
-        $mock->expects($this->any())->method('getId')->will($this->returnValue($field_id));
+        $mock->expects($this->any())->method('getId')->willReturn($field_id);
 
         return $mock;
     }

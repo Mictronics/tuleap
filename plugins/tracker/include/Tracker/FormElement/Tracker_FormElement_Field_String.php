@@ -24,10 +24,13 @@ use Tuleap\Search\ItemToIndexQueueEventBased;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\DeleteSpecificProperties;
 use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\DuplicateSpecificProperties;
+use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\SaveSpecificFieldProperties;
+use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\SearchSpecificProperties;
 use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\StringFieldSpecificPropertiesDAO;
 use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
-use Tuleap\Tracker\FormElement\Field\StringField\StringFieldDao;
 use Tuleap\Tracker\FormElement\FieldContentIndexer;
+use Tuleap\Tracker\Report\Criteria\CriteriaAlphaNumValueDAO;
+use Tuleap\Tracker\Report\Criteria\DeleteReportCriteriaValue;
 
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 class Tracker_FormElement_Field_String extends Tracker_FormElement_Field_Text
@@ -50,11 +53,6 @@ class Tracker_FormElement_Field_String extends Tracker_FormElement_Field_Text
         ],
     ];
 
-    protected function getDao(): StringFieldDao
-    {
-        return new StringFieldDao();
-    }
-
     protected function getDuplicateSpecificPropertiesDao(): DuplicateSpecificProperties
     {
         return new StringFieldSpecificPropertiesDAO();
@@ -63,6 +61,21 @@ class Tracker_FormElement_Field_String extends Tracker_FormElement_Field_Text
     protected function getDeleteSpecificPropertiesDao(): DeleteSpecificProperties
     {
         return new StringFieldSpecificPropertiesDAO();
+    }
+
+    protected function getSaveSpecificPropertiesDao(): SaveSpecificFieldProperties
+    {
+        return new StringFieldSpecificPropertiesDAO();
+    }
+
+    protected function getSearchSpecificPropertiesDao(): SearchSpecificProperties
+    {
+        return new StringFieldSpecificPropertiesDAO();
+    }
+
+    public function getDeleteCriteriaValueDAO(): DeleteReportCriteriaValue
+    {
+        return new CriteriaAlphaNumValueDAO();
     }
 
     /**

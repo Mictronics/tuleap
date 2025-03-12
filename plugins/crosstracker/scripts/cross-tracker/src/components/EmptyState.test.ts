@@ -19,29 +19,22 @@
 
 import type { VueWrapper } from "@vue/test-utils";
 import { shallowMount } from "@vue/test-utils";
-import { WritingCrossTrackerReport } from "../domain/WritingCrossTrackerReport";
 import { getGlobalTestOptions } from "../helpers/global-options-for-tests";
 import { expect, describe, it } from "vitest";
 import EmptyState from "./EmptyState.vue";
 
 describe("EmptyState", () => {
-    const getWrapper = (
-        writing_cross_tracker_report: WritingCrossTrackerReport,
-    ): VueWrapper<InstanceType<typeof EmptyState>> => {
+    const getWrapper = (tql_query: string): VueWrapper<InstanceType<typeof EmptyState>> => {
         return shallowMount(EmptyState, {
             global: {
                 ...getGlobalTestOptions(),
             },
-            props: {
-                writing_cross_tracker_report,
-            },
+            props: { tql_query },
         });
     };
 
     it(`display no artifact message if expert mode when no tracker`, () => {
-        const writing_cross_tracker_report = new WritingCrossTrackerReport();
-        writing_cross_tracker_report.expert_query = `SELECT start_date FROM @project='self' WHERE start_date != ''`;
-        const wrapper = getWrapper(writing_cross_tracker_report);
+        const wrapper = getWrapper(`SELECT start_date FROM @project='self' WHERE start_date != ''`);
         expect(wrapper.find("[data-test=selectable-empty-state-title]").text()).toContain(
             "No artifact found",
         );
