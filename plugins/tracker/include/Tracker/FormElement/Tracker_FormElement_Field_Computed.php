@@ -22,6 +22,7 @@ use Tuleap\Option\Option;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Artifact\ChangesetValueComputed;
 use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\ComputedFieldSpecificPropertiesDAO;
+use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\SaveSpecificFieldProperties;
 use Tuleap\Tracker\DAO\ComputedDao;
 use Tuleap\Tracker\FormElement\ComputedFieldCalculator;
 use Tuleap\Tracker\FormElement\Field\Computed\ComputedFieldDao;
@@ -629,6 +630,11 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
         return new ComputedFieldSpecificPropertiesDAO();
     }
 
+    protected function getSaveSpecificPropertiesDao(): SaveSpecificFieldProperties
+    {
+        return new ComputedFieldSpecificPropertiesDAO();
+    }
+
     public function getCriteriaFromWhere(Tracker_Report_Criteria $criteria): Option
     {
         return Option::nothing(ParametrizedFromWhere::class);
@@ -700,12 +706,12 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
         $required = $this->required ? ' <span class="highlight">*</span>' : '';
 
         $html  = '<div>';
-        $html .= '<div class="tracker_artifact_field tracker_artifact_field-computed editable ' . $extra_class . '">';
+        $html .= '<div class="tracker_artifact_field tracker_artifact_field-computed editable ' . $extra_class . '" data-test="artifact-form-element">';
 
         $title = $purifier->purify(sprintf(dgettext('tuleap-tracker', 'Edit the field "%1$s"'), $this->getLabel()));
         $html .= '<button type="button" title="' . $title . '" class="tracker_formelement_edit ' . $submit_class . '">' . $purifier->purify($this->getLabel())  . $required . '</button>';
         $html .= '<label for="tracker_artifact_' . $this->id . '" title="' . $purifier->purify($this->description) .
-            '" class="tracker_formelement_label">' . $purifier->purify($this->getLabel())  . $required . '</label>';
+            '" class="tracker_formelement_label" data-test="field-label">' . $purifier->purify($this->getLabel())  . $required . '</label>';
 
         $html .= '<div class="input-append" data-field-id="' . $this->getId() . '">';
 

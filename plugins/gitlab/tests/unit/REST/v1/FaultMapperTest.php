@@ -34,6 +34,7 @@ use Tuleap\Gitlab\Permission\UserIsNotGitAdministratorFault;
 use Tuleap\NeverThrow\Fault;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FaultMapperTest extends TestCase
 {
     public static function dataProviderFaults(): iterable
@@ -47,9 +48,7 @@ final class FaultMapperTest extends TestCase
         yield 'Default to error 500 for unknown Fault' => [Fault::fromMessage('Unmapped fault'), 500];
     }
 
-    /**
-     * @dataProvider dataProviderFaults
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderFaults')]
     public function testItMapsFaultsToRestExceptions(Fault $fault, int $expected_status_code): void
     {
         $this->expectException(RestException::class);

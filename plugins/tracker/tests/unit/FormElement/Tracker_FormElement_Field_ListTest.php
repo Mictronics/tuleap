@@ -22,11 +22,12 @@
 declare(strict_types=1);
 
 use Tuleap\Tracker\Artifact\Artifact;
-use Tuleap\Tracker\FormElement\Field\ListFields\ListFieldDao;
+use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\ListFieldSpecificPropertiesDAO;
 use Tuleap\Tracker\FormElement\Field\ListFields\ListValueDao;
 use Tuleap\Tracker\FormElement\TransitionListValidator;
 use Tuleap\Tracker\XML\TrackerXmlImportFeedbackCollector;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class Tracker_FormElement_Field_ListTest extends \Tuleap\Test\PHPUnit\TestCase //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
 {
     use \Tuleap\GlobalResponseMock;
@@ -372,7 +373,7 @@ final class Tracker_FormElement_Field_ListTest extends \Tuleap\Test\PHPUnit\Test
     {
         $tracker = Mockery::mock(Tracker::class);
         $factory = Mockery::mock(Tracker_FormElement_Field_List_BindFactory::class);
-        $dao     = Mockery::mock(ListFieldDao::class);
+        $dao     = Mockery::mock(ListFieldSpecificPropertiesDAO::class);
 
         $this->list_field->shouldReceive('getBindFactory')->andReturn($factory);
         $this->list_field->shouldReceive('getListDao')->andReturn($dao);
@@ -382,7 +383,7 @@ final class Tracker_FormElement_Field_ListTest extends \Tuleap\Test\PHPUnit\Test
 
         $this->bind->shouldReceive('saveObject')->once();
 
-        $dao->shouldReceive('save')->withArgs([66, 'users']);
+        $dao->shouldReceive('saveBindForFieldId')->withArgs([66, 'users']);
 
         $this->list_field->afterSaveObject($tracker, false, false);
     }

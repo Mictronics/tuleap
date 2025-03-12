@@ -27,9 +27,10 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Log\NullLogger;
 use Tuleap\Http\HTTPFactoryBuilder;
 use Tuleap\Tracker\Creation\JiraImporter\JiraConnectionException;
-use Tuleap\Tracker\Test\Tracker\Creation\JiraImporter\Stub\JiraCloudClientStub;
-use Tuleap\Tracker\Test\Tracker\Creation\JiraImporter\Stub\JiraServerClientStub;
+use Tuleap\Tracker\Test\Stub\Creation\JiraImporter\JiraCloudClientStub;
+use Tuleap\Tracker\Test\Stub\Creation\JiraImporter\JiraServerClientStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class JiraTimetrackingConfigurationRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private JiraCloudClientStub $jira_client;

@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Tuleap\TestPlan;
 
+use PHPUnit\Framework\Attributes\Depends;
 use Project;
 use Tracker;
 use TrackerFactory;
@@ -33,6 +34,7 @@ use Tuleap\Option\Option;
 use Tuleap\TestManagement\Config;
 use Tuleap\Tracker\NewDropdown\TrackerNewDropdownLinkPresenterBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class TestPlanHeaderOptionsProviderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -158,9 +160,7 @@ final class TestPlanHeaderOptionsProviderTest extends \Tuleap\Test\PHPUnit\TestC
         return $section;
     }
 
-    /**
-     * @depends testItAddsLinkToCampaignInCurrentContextSection
-     */
+    #[Depends('testItAddsLinkToCampaignInCurrentContextSection')]
     public function testItSetASpecialDataAttributeSoThatTestPlanAppCanSelectItMoreEasily(
         NewDropdownLinkSectionPresenter $section,
     ): void {

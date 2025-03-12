@@ -37,6 +37,7 @@ use Tuleap\Tracker\Test\Builders\Fields\OpenListFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\RadioButtonFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class InvalidOrderByListCheckerTest extends TestCase
 {
     protected function tearDown(): void
@@ -63,9 +64,7 @@ final class InvalidOrderByListCheckerTest extends TestCase
         yield 'It rejects open list' => [OpenListFieldBuilder::anOpenListField()->build(), false];
     }
 
-    /**
-     * @dataProvider generateFields
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('generateFields')]
     public function testItAllowsSingleValueListFields(Tracker_FormElement_Field_List $list, bool $is_allowed): void
     {
         $checker = new InvalidOrderByListChecker(

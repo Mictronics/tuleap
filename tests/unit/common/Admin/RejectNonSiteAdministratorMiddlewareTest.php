@@ -30,6 +30,7 @@ use Tuleap\Http\Server\NullServerRequest;
 use Tuleap\Request\ForbiddenException;
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class RejectNonSiteAdministratorMiddlewareTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private MockObject&\UserManager $user_manager;
@@ -46,11 +47,11 @@ final class RejectNonSiteAdministratorMiddlewareTest extends \Tuleap\Test\PHPUni
         $user = UserTestBuilder::aUser()->withSiteAdministrator()->build();
 
         $handler = $this->createMock(RequestHandlerInterface::class);
-        $handler->expects(self::once())->method('handle')->will(self::returnCallback(function (ServerRequestInterface $enriched_request) use ($user): ResponseInterface {
+        $handler->expects(self::once())->method('handle')->willReturnCallback(function (ServerRequestInterface $enriched_request) use ($user): ResponseInterface {
             self::assertSame($user, $enriched_request->getAttribute(\PFUser::class));
 
             return $this->createMock(ResponseInterface::class);
-        }));
+        });
         $this->user_manager->expects(self::once())->method('getCurrentUser')->willReturn($user);
 
         $this->middleware->process(new NullServerRequest(), $handler);

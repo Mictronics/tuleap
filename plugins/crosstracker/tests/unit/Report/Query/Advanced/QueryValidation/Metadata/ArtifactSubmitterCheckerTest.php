@@ -44,6 +44,7 @@ use Tuleap\Tracker\Report\Query\Advanced\Grammar\NotInComparison;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\SimpleValueWrapper;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\StatusOpenValueWrapper;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ArtifactSubmitterCheckerTest extends TestCase
 {
     private const CURRENT_USER_NAME = 'mmishra';
@@ -101,9 +102,7 @@ final class ArtifactSubmitterCheckerTest extends TestCase
         yield '!=' => [new NotEqualComparison($metadata, new InValueWrapper([$empty_value]))];
     }
 
-    /**
-     * @dataProvider generateInvalidComparisonsToEmptyString
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('generateInvalidComparisonsToEmptyString')]
     public function testItForbidsEmptyValueForComparisons(Comparison $comparison): void
     {
         $this->expectException(EmptyStringComparisonException::class);

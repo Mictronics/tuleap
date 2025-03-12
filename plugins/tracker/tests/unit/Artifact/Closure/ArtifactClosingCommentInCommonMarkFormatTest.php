@@ -22,9 +22,11 @@ declare(strict_types=1);
 
 namespace Tuleap\Tracker\Artifact\Closure;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Test\Stubs\ReferenceStringStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ArtifactClosingCommentInCommonMarkFormatTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private const USERNAME_CLOSING_THE_ARTIFACT = 'lgilhooly';
@@ -71,9 +73,7 @@ final class ArtifactClosingCommentInCommonMarkFormatTest extends \Tuleap\Test\PH
         ];
     }
 
-    /**
-     * @dataProvider provideClosingKeywords
-     */
+    #[DataProvider('provideClosingKeywords')]
     public function testItBuildsComment(?ClosingKeyword $keyword, string $expected_comment): void
     {
         self::assertSame($expected_comment, $this->buildComment($keyword)->getBody());

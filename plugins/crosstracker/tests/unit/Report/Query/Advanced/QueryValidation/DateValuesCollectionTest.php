@@ -33,6 +33,7 @@ use Tuleap\Tracker\Report\Query\Advanced\Grammar\InValueWrapper;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\SimpleValueWrapper;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\StatusOpenValueWrapper;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class DateValuesCollectionTest extends TestCase
 {
     public function testItReturnsOkForSimpleValue(): void
@@ -88,9 +89,7 @@ final class DateValuesCollectionTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider generateBetweenValuesIncludingCurrentDateTime
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('generateBetweenValuesIncludingCurrentDateTime')]
     public function testItAllowsBetweenValuesIncludingCurrentDateTime(
         BetweenValueWrapper $wrapper,
         string $valid_date_string,
@@ -101,9 +100,7 @@ final class DateValuesCollectionTest extends TestCase
         self::assertContains($valid_date_string, $date_values);
     }
 
-    /**
-     * @dataProvider generateBetweenValuesIncludingCurrentDateTime
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('generateBetweenValuesIncludingCurrentDateTime')]
     public function testItRejectsBetweenValuesIncludingCurrentDateTimeWhenForbidden(
         BetweenValueWrapper $wrapper,
     ): void {

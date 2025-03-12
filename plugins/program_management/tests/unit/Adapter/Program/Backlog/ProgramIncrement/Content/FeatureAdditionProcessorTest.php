@@ -40,6 +40,7 @@ use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkUpdater;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FeatureAdditionProcessorTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private const PROGRAM_INCREMENT_ID = 37;
@@ -47,7 +48,7 @@ final class FeatureAdditionProcessorTest extends \Tuleap\Test\PHPUnit\TestCase
     private const PROGRAM_ID           = 110;
     private const USER_ID              = 123;
     private RetrieveFullArtifactStub $artifact_retriever;
-    private ArtifactLinkUpdater & MockObject $artifact_link_updater;
+    private ArtifactLinkUpdater&MockObject $artifact_link_updater;
     private Artifact $artifact;
 
     protected function setUp(): void
@@ -83,9 +84,7 @@ final class FeatureAdditionProcessorTest extends \Tuleap\Test\PHPUnit\TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderExceptions
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderExceptions')]
     public function testItWrapsExceptions(\Throwable $exception): void
     {
         $feature_addition = $this->buildFeatureAddition();

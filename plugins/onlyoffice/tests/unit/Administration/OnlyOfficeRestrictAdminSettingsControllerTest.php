@@ -40,6 +40,7 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\DB\UUIDTestContext;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class OnlyOfficeRestrictAdminSettingsControllerTest extends TestCase
 {
     use ForgeConfigSandbox;
@@ -187,9 +188,7 @@ final class OnlyOfficeRestrictAdminSettingsControllerTest extends TestCase
         self::assertFalse($restrictor->hasBeenUnrestricted());
     }
 
-    /**
-     * @dataProvider dataProviderInvalidSettings
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderInvalidSettings')]
     public function testRejectsInvalidSettings(array $body): void
     {
         $server_id = new UUIDTestContext();

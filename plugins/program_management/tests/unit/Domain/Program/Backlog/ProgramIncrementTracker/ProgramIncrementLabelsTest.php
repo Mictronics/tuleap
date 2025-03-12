@@ -26,6 +26,7 @@ use Tuleap\ProgramManagement\Tests\Stub\TrackerReferenceStub;
 use Tuleap\ProgramManagement\Tests\Stub\RetrieveProgramIncrementLabelsStub;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ProgramIncrementLabelsTest extends TestCase
 {
     public static function dataProviderLabels(): array
@@ -38,9 +39,7 @@ final class ProgramIncrementLabelsTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderLabels
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderLabels')]
     public function testItBuildsLabelsFromProgramIncrementTracker(?string $label, ?string $sub_label): void
     {
         $program_increment_tracker = TrackerReferenceStub::withDefaults();

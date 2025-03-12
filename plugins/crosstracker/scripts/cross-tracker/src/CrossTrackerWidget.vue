@@ -18,6 +18,7 @@
   -->
 
 <template>
+    <feedback-message />
     <read-query
         v-if="widget_pane === 'query-active'"
         v-on:switch-to-create-query-pane="handleCreateNewQuery"
@@ -30,15 +31,28 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { strictInject } from "@tuleap/vue-strict-inject";
-import { EMITTER, IS_MULTIPLE_QUERY_SUPPORTED, IS_USER_ADMIN } from "./injection-symbols";
-import { CREATE_NEW_QUERY } from "./helpers/emitter-provider";
+import {
+    DEFAULT_WIDGET_TITLE,
+    EMITTER,
+    IS_MULTIPLE_QUERY_SUPPORTED,
+    IS_USER_ADMIN,
+    UPDATE_WIDGET_TITLE,
+} from "./injection-symbols";
+import {
+    CLEAR_FEEDBACK_EVENT,
+    CREATE_NEW_QUERY_EVENT,
+    UPDATE_WIDGET_TITLE_EVENT,
+} from "./helpers/emitter-provider";
 import CreateNewQuery from "./components/query/creation/CreateNewQuery.vue";
 import { QUERY_ACTIVE_PANE, QUERY_CREATION_PANE } from "./domain/WidgetPaneDisplay";
 import ReadQuery from "./components/ReadQuery.vue";
+import FeedbackMessage from "./components/feedback/FeedbackMessage.vue";
 
 const is_user_admin = strictInject(IS_USER_ADMIN);
 const emitter = strictInject(EMITTER);
 const is_multiple_query_supported = strictInject(IS_MULTIPLE_QUERY_SUPPORTED);
+const widget_title_updater = strictInject(UPDATE_WIDGET_TITLE);
+const default_widget_title = strictInject(DEFAULT_WIDGET_TITLE);
 
 const widget_pane = ref(QUERY_ACTIVE_PANE);
 
@@ -47,14 +61,22 @@ function displayActiveQuery(): void {
 }
 
 onMounted(() => {
-    emitter.on(CREATE_NEW_QUERY, handleCreateNewQuery);
+    emitter.on(CREATE_NEW_QUERY_EVENT, handleCreateNewQuery);
+    if (is_multiple_query_supported) {
+        widget_title_updater.listenToUpdateTitle();
+    }
 });
 
 onBeforeUnmount(() => {
-    emitter.off(CREATE_NEW_QUERY);
+    emitter.off(CREATE_NEW_QUERY_EVENT);
+    if (is_multiple_query_supported) {
+        widget_title_updater.removeListener();
+    }
 });
 
 function handleCreateNewQuery(): void {
+    emitter.emit(CLEAR_FEEDBACK_EVENT);
+    emitter.emit(UPDATE_WIDGET_TITLE_EVENT, { new_title: default_widget_title });
     widget_pane.value = QUERY_CREATION_PANE;
 }
 </script>

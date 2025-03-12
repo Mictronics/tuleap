@@ -27,8 +27,9 @@ use Tuleap\Taskboard\Tracker\TaskboardTracker;
 use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\OpenListFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
-use Tuleap\Tracker\Test\Stub\Tracker\FormElement\Field\ListFields\RetrieveUsedListFieldStub;
+use Tuleap\Tracker\Test\Stub\FormElement\Field\ListFields\RetrieveUsedListFieldStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FreestyleMappedFieldRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private SearchMappedFieldStub $search_mapped_field;

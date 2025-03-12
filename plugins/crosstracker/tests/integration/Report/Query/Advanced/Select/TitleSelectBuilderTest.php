@@ -26,15 +26,16 @@ use Codendi_HTMLPurifier;
 use PFUser;
 use ProjectUGroup;
 use Tracker;
-use Tuleap\CrossTracker\CrossTrackerQuery;
 use Tuleap\CrossTracker\Report\Query\Advanced\CrossTrackerFieldTestCase;
 use Tuleap\CrossTracker\Report\Query\Advanced\ResultBuilder\Representations\TextResultRepresentation;
+use Tuleap\CrossTracker\Tests\CrossTrackerQueryTestBuilder;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\UUID;
 use Tuleap\Markdown\CommonMarkInterpreter;
 use Tuleap\Test\Builders\CoreDatabaseBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerDatabaseBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class TitleSelectBuilderTest extends CrossTrackerFieldTestCase
 {
     private UUID $uuid;
@@ -110,13 +111,10 @@ final class TitleSelectBuilderTest extends CrossTrackerFieldTestCase
     public function testItReturnsColumns(): void
     {
         $result = $this->getQueryResults(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @title FROM @project = 'self' WHERE @title = '' OR @title != ''",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @title FROM @project = 'self' WHERE @title = '' OR @title != ''",
+                )->build(),
             $this->user,
         );
         self::assertSame(2, $result->getTotalSize());

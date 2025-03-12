@@ -39,6 +39,7 @@ use Tuleap\Baseline\REST\Exception\NotFoundRestException;
 use Tuleap\REST\I18NRestException;
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class BaselineControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private BaselineController $controller;
@@ -59,9 +60,7 @@ final class BaselineControllerTest extends \Tuleap\Test\PHPUnit\TestCase
     private $baseline_service;
     private UserProxy $current_user;
 
-    /**
-     * @before
-     */
+    #[\PHPUnit\Framework\Attributes\Before]
     public function createInstance(): void
     {
         $this->current_user = UserProxy::fromUser(UserTestBuilder::aUser()->build());
@@ -80,7 +79,7 @@ final class BaselineControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 
     private BaselineArtifact $an_artifact;
 
-    /** @before */
+        #[\PHPUnit\Framework\Attributes\Before]
     public function createAnArtifact(): void
     {
         $this->an_artifact = BaselineArtifactFactory::one()->build();

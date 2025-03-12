@@ -24,6 +24,7 @@ namespace Tuleap\Gitlab\Repository\Webhook\PostPush\Branch;
 use Tuleap\Gitlab\Repository\Webhook\WebhookTuleapReference;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class BranchNameTuleapReferenceParserTest extends TestCase
 {
     private BranchNameTuleapReferenceParser $parser;
@@ -35,9 +36,7 @@ class BranchNameTuleapReferenceParserTest extends TestCase
         $this->parser = new BranchNameTuleapReferenceParser();
     }
 
-    /**
-     * @dataProvider branchNamesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('branchNamesProvider')]
     public function testItRetrievesTheReferenceInTheBranchName(string $branch_name, bool $found): void
     {
         $reference = $this->parser->extractTuleapReferenceFromBranchName($branch_name);

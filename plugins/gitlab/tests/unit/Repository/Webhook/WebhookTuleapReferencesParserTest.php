@@ -21,6 +21,7 @@ declare(strict_types=1);
 
 namespace Tuleap\Gitlab\Repository\Webhook;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class WebhookTuleapReferencesParserTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -163,9 +164,7 @@ final class WebhookTuleapReferencesParserTest extends \Tuleap\Test\PHPUnit\TestC
         self::assertEmpty($references, "{$char}TULEAP-123 should not be parsed");
     }
 
-    /**
-     * @dataProvider resolveKeywordsProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('resolveKeywordsProvider')]
     public function testItRetrievesTheTuleapReferenceAndTheCloseKeywordResolvesWhenGiven(
         string $message,
         bool $reference_must_be_found,
@@ -231,9 +230,7 @@ final class WebhookTuleapReferencesParserTest extends \Tuleap\Test\PHPUnit\TestC
         self::assertNotNull($references[3]->getClosingKeyword());
     }
 
-    /**
-     * @dataProvider closeKeywordsProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('closeKeywordsProvider')]
     public function testItRetrievesTheTuleapReferenceAndTheCloseKeywordClosesWhenGiven(
         string $message,
         bool $reference_must_be_found,
@@ -299,9 +296,7 @@ final class WebhookTuleapReferencesParserTest extends \Tuleap\Test\PHPUnit\TestC
         self::assertNotNull($references[3]->getClosingKeyword());
     }
 
-    /**
-     * @dataProvider fixKeywordsProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('fixKeywordsProvider')]
     public function testItRetrievesTheTuleapReferenceAndTheCloseKeywordFixesWhenGiven(
         string $message,
         bool $reference_must_be_found,
@@ -367,9 +362,7 @@ final class WebhookTuleapReferencesParserTest extends \Tuleap\Test\PHPUnit\TestC
         self::assertNotNull($references[3]->getClosingKeyword());
     }
 
-    /**
-     * @dataProvider implementKeywordsProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('implementKeywordsProvider')]
     public function testItRetrievesTheTuleapReferenceAndTheCloseKeywordImplementsWhenGiven(
         string $message,
         bool $reference_must_be_found,

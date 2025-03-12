@@ -28,6 +28,7 @@ use org\bovigo\vfs\vfsStreamFile;
 use PHPUnit\Framework\MockObject\MockObject;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class PackTest extends TestCase
 {
     private const SHA1_PACK = 'e9760fd950093eb1efd59a6200469e8c2d8c9632';
@@ -91,9 +92,7 @@ final class PackTest extends TestCase
         $this->project->method('GetPath')->willReturn($git_repository->url());
     }
 
-    /**
-     * @dataProvider objectReferenceProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('objectReferenceProvider')]
     public function testContainsObject($object_reference, $expected, $pack_index_path): void
     {
         $this->pack_index_file->withContent(file_get_contents($pack_index_path));
@@ -124,9 +123,7 @@ final class PackTest extends TestCase
         return $full_reference_tests;
     }
 
-    /**
-     * @dataProvider objectProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('objectProvider')]
     public function testGetObject($object_reference, $sha256_expected_content, $expected_type, $pack_index_path): void
     {
         $this->pack_index_file->withContent(file_get_contents($pack_index_path));

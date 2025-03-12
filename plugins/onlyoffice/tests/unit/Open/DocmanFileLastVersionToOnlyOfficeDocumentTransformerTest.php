@@ -32,6 +32,7 @@ use Tuleap\Test\DB\UUIDTestContext;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\ProjectByIDFactoryStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class DocmanFileLastVersionToOnlyOfficeDocumentTransformerTest extends TestCase
 {
     private const PROJECT_ID = 101;
@@ -79,9 +80,7 @@ class DocmanFileLastVersionToOnlyOfficeDocumentTransformerTest extends TestCase
         self::assertTrue(Result::isErr($result));
     }
 
-    /**
-     * @dataProvider dataProviderHappyPath
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderHappyPath')]
     public function testHappyPath(string $filename, bool $user_can_write_it, bool $expected_can_be_edited): void
     {
         $provider = $this->getTransformer(self::ONLYOFFICE_IS_AVAILABLE);

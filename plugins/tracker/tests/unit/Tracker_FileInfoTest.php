@@ -22,6 +22,7 @@
 declare(strict_types=1);
 
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class Tracker_FileInfoTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use \Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
@@ -85,9 +86,7 @@ final class Tracker_FileInfoTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->assertNull($this->file_info_2->getThumbnailPath(), "A file that is not an image doesn't have any thumbnail (for now)");
     }
 
-    /**
-     * @dataProvider dataProviderIsImage
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderIsImage')]
     public function testIsImage(string $filetype, bool $is_image): void
     {
         $fi = new Tracker_FileInfo(1, Mockery::mock(Tracker_FormElement_Field::class), 102, 'description', 'image', 10, $filetype);
@@ -108,9 +107,7 @@ final class Tracker_FileInfoTest extends \Tuleap\Test\PHPUnit\TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderHumanReadableFilesize
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderHumanReadableFilesize')]
     public function testHumanReadableFilesize(int $size, string $expected_human_readable_filesize): void
     {
         $f = new Tracker_FileInfo(1, Mockery::mock(Tracker_FormElement_Field::class), 102, 'description', 'name', $size, 'text/plain');

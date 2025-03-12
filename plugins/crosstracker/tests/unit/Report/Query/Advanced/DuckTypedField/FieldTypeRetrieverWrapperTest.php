@@ -35,6 +35,7 @@ use Tuleap\Tracker\Test\Builders\Fields\StringFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\TextFieldBuilder;
 use Tuleap\Tracker\Test\Stub\RetrieveFieldTypeStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FieldTypeRetrieverWrapperTest extends TestCase
 {
     public function testItReturnsDatetime(): void
@@ -90,9 +91,7 @@ final class FieldTypeRetrieverWrapperTest extends TestCase
         yield 'string field' => [StringFieldBuilder::aStringField(856)->build()];
     }
 
-    /**
-     * @dataProvider notHandledTypeProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('notHandledTypeProvider')]
     public function testItNotHandleFormElement(Tracker_FormElement $form_element): void
     {
         $retriever = new FieldTypeRetrieverWrapper(RetrieveFieldTypeStub::withType('not-handled-type'));

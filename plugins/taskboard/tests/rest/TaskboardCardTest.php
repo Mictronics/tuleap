@@ -25,6 +25,7 @@ namespace Tuleap\Taskboard\REST;
 use REST_TestDataBuilder;
 use RestBase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class TaskboardCardTest extends RestBase
 {
     /**
@@ -45,9 +46,7 @@ class TaskboardCardTest extends RestBase
         }
     }
 
-    /**
-     * @dataProvider getUserName
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getUserName')]
     public function testOPTIONSChildren(string $user_name): void
     {
         $response = $this->getResponse(
@@ -58,9 +57,7 @@ class TaskboardCardTest extends RestBase
         $this->assertEquals(['OPTIONS', 'GET'], explode(', ', $response->getHeaderLine('Allow')));
     }
 
-    /**
-     * @dataProvider getUserName
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getUserName')]
     public function testGETChildren(string $user_name): void
     {
         $response = $this->getResponse(
@@ -75,9 +72,7 @@ class TaskboardCardTest extends RestBase
         $this->assertStringMatchesFormat('tasks #%i', $cards[0]['xref']);
     }
 
-    /**
-     * @dataProvider getUserName
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getUserName')]
     public function testGETNoChildrenWhenNoMilestoneGiven(string $user_name): void
     {
         $response = $this->getResponse(
@@ -87,9 +82,7 @@ class TaskboardCardTest extends RestBase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
-    /**
-     * @dataProvider getUserName
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getUserName')]
     public function testGETNoChildrenWhenWrongMilestoneGiven(string $user_name): void
     {
         $response = $this->getResponse(
@@ -99,9 +92,7 @@ class TaskboardCardTest extends RestBase
         $this->assertEquals(404, $response->getStatusCode());
     }
 
-    /**
-     * @dataProvider getUserName
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getUserName')]
     public function testOPTIONSId(string $user_name): void
     {
         $response = $this->getResponse(
@@ -112,9 +103,7 @@ class TaskboardCardTest extends RestBase
         $this->assertEquals(['OPTIONS', 'GET', 'PATCH'], explode(', ', $response->getHeaderLine('Allow')));
     }
 
-    /**
-     * @dataProvider getUserName
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getUserName')]
     public function testGetId(string $user_name): void
     {
         $response = $this->getResponse(

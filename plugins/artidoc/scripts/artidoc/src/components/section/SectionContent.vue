@@ -22,11 +22,12 @@
         v-bind:data-test="
             section_state.is_section_in_edit_mode.value ? 'section-edition' : undefined
         "
+        v-bind:class="`artidoc-section-level-${section.value.level}`"
     >
         <div class="artidoc-dropdown-container">
             <section-dropdown
                 v-bind:delete_section="delete_section"
-                v-bind:section="section.value"
+                v-bind:section="section"
                 v-bind:section_state="section_state"
                 v-if="!is_loading_sections"
             />
@@ -45,9 +46,9 @@
         >
             <section-header
                 class="section-header"
+                v-bind:class="{ 'section-header-with-border': section.value.level === LEVEL_1 }"
                 v-if="!is_loading_sections"
-                v-bind:display_level="''"
-                v-bind:title="section.value.title"
+                v-bind:section="section"
             />
             <section-header-skeleton v-if="is_loading_sections" class="section-header" />
             <section-description
@@ -99,6 +100,7 @@ import { getSectionEditorCloser } from "@/sections/editors/SectionEditorCloser";
 import { getSectionRefresher } from "@/sections/update/SectionRefresher";
 import { getSectionDeletor } from "@/sections/remove/SectionDeletor";
 import { getSectionSaver } from "@/sections/save/SectionSaver";
+import { LEVEL_1 } from "@/sections/levels/SectionsNumberer";
 
 const props = defineProps<{ section: ReactiveStoredArtidocSection }>();
 const setGlobalErrorMessage = strictInject(SET_GLOBAL_ERROR_MESSAGE);
@@ -181,7 +183,7 @@ const save_section = getSectionSaver(
 );
 
 const delete_section = getSectionDeletor(
-    props.section.value,
+    props.section,
     section_state,
     error_state_manager,
     sections_remover,
@@ -195,6 +197,24 @@ const delete_section = getSectionDeletor(
 
 const { is_in_error, is_outdated } = section_state;
 </script>
+
+<style lang="scss">
+artidoc-section-description,
+.section-description {
+    h1 {
+        font-size: 20px;
+        line-height: 1;
+    }
+
+    h2 {
+        font-size: 18px;
+    }
+
+    h3 {
+        font-size: 17px;
+    }
+}
+</style>
 
 <style lang="scss" scoped>
 @use "@/themes/includes/whitespace";
@@ -221,7 +241,10 @@ section {
 
 .section-header {
     margin-bottom: var(--tlp-medium-spacing);
-    border-bottom: 1px solid var(--tlp-neutral-normal-color);
     background: var(--tuleap-artidoc-section-background);
+}
+
+.section-header-with-border {
+    border-bottom: 1px solid var(--tlp-neutral-normal-color);
 }
 </style>

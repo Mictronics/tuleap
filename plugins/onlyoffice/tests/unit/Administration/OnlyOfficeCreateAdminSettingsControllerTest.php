@@ -34,6 +34,7 @@ use Tuleap\Request\ForbiddenException;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class OnlyOfficeCreateAdminSettingsControllerTest extends TestCase
 {
     use ForgeConfigSandbox;
@@ -54,9 +55,7 @@ final class OnlyOfficeCreateAdminSettingsControllerTest extends TestCase
         self::assertTrue($creator->hasBeenCreated());
     }
 
-    /**
-     * @dataProvider dataProviderInvalidSettings
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderInvalidSettings')]
     public function testRejectsInvalidSettings(array $body): void
     {
         $controller = $this->buildController(ICreateDocumentServerStub::buildSelf());

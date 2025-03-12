@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tuleap\Tracker\Notifications\RemoveRecipient;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\Log\NullLogger;
 use Tracker_Artifact_Changeset;
 use Tuleap\Test\Builders\UserTestBuilder;
@@ -33,11 +34,10 @@ use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class RemoveRecipientWhenTheyAreInStatusUpdateOnlyModeTest extends TestCase
 {
-    /**
-     * @dataProvider getTestData
-     */
+    #[DataProvider('getTestData')]
     public function testRemoval(array $expected, bool $has_subscribed, bool $has_changed): void
     {
         $strategy = new RemoveRecipientWhenTheyAreInStatusUpdateOnlyMode(

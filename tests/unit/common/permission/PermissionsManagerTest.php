@@ -22,11 +22,9 @@
 use Tuleap\Project\Duplication\DuplicationUserGroupMapping;
 
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class PermissionsManagerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
-    /**
-     * @doesNotPerformAssertions
-     */
     public function testDuplicatePermissionsPassParameters(): void
     {
         $source           = 123;
@@ -44,11 +42,10 @@ class PermissionsManagerTest extends \Tuleap\Test\PHPUnit\TestCase
         $permissionsManager = new PermissionsManager($dao);
 
         $permissionsManager->duplicatePermissions($source, $target, $permission_types, $duplication_mapping);
+
+        $this->expectNotToPerformAssertions();
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
     public function testDuplicateSameProjectShouldNotHaveUgroupMapping(): void
     {
         $source           = 123;
@@ -60,11 +57,10 @@ class PermissionsManagerTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $permissionsManager = new PermissionsManager($dao);
         $permissionsManager->duplicateWithStatic($source, $target, $permission_types);
+
+        $this->expectNotToPerformAssertions();
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
     public function testDuplicateNewProjectShouldHaveUgroupMapping(): void
     {
         $source           = 123;
@@ -79,11 +75,10 @@ class PermissionsManagerTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $permissionsManager = new PermissionsManager($dao);
         $permissionsManager->duplicateWithStaticMapping($source, $target, $permission_types, $ugroup_mapping);
+
+        $this->expectNotToPerformAssertions();
     }
 
-    /**
-     * @doesNotPerformAssertions
-     */
     public function testDuplicateOtherProjectShouldNotHaveUgroupMapping(): void
     {
         $source           = 123;
@@ -96,5 +91,7 @@ class PermissionsManagerTest extends \Tuleap\Test\PHPUnit\TestCase
         $permissionsManager = new PermissionsManager($dao);
 
         $permissionsManager->duplicateWithoutStatic($source, $target, $permission_types);
+
+        $this->expectNotToPerformAssertions();
     }
 }

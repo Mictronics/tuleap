@@ -31,6 +31,7 @@ use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Validation\Validator;
 use Tuleap\OpenIDConnectClient\Provider\Provider;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class IDTokenVerifierTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -203,9 +204,7 @@ final class IDTokenVerifierTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->id_token_verifier->validate($provider, $nonce, $id_token);
     }
 
-    /**
-     * @dataProvider dataProviderValidIDToken
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderValidIDToken')]
     public function testItAcceptsAValidIDToken(bool $with_jwks_key): void
     {
         $provider = $this->createMock(\Tuleap\OpenIDConnectClient\Provider\Provider::class);

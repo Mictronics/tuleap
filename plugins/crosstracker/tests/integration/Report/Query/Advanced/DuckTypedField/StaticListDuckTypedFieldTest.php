@@ -26,14 +26,15 @@ use PFUser;
 use ProjectUGroup;
 use Tracker;
 use Tracker_FormElement_Field_List;
-use Tuleap\CrossTracker\CrossTrackerQuery;
 use Tuleap\CrossTracker\Report\Query\Advanced\CrossTrackerFieldTestCase;
+use Tuleap\CrossTracker\Tests\CrossTrackerQueryTestBuilder;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\UUID;
 use Tuleap\GlobalLanguageMock;
 use Tuleap\Test\Builders\CoreDatabaseBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerDatabaseBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class StaticListDuckTypedFieldTest extends CrossTrackerFieldTestCase
 {
     use GlobalLanguageMock;
@@ -151,13 +152,10 @@ final class StaticListDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testEqualEmpty(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE list_field = ''",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE list_field = ''",
+                )->build(),
             $this->project_member
         );
 
@@ -168,13 +166,10 @@ final class StaticListDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testEqualValue(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE list_field = 'cheese'",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE list_field = 'cheese'",
+                )->build(),
             $this->project_member
         );
 
@@ -185,13 +180,10 @@ final class StaticListDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testPermissionsEqual(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE list_field = 'cheese'",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE list_field = 'cheese'",
+                )->build(),
             $this->project_admin
         );
 
@@ -206,13 +198,10 @@ final class StaticListDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testMultipleEqual(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE list_field = 'cheese' OR list_field = 'lead'",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE list_field = 'cheese' OR list_field = 'lead'",
+                )->build(),
             $this->project_member
         );
 
@@ -226,13 +215,10 @@ final class StaticListDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testMultipleEqualAnd(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE list_field = 'cheese' AND list_field = 'lead'",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE list_field = 'cheese' AND list_field = 'lead'",
+                )->build(),
             $this->project_member
         );
 
@@ -243,13 +229,10 @@ final class StaticListDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testNotEqualEmpty(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE list_field != ''",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE list_field != ''",
+                )->build(),
             $this->project_member
         );
 
@@ -263,13 +246,10 @@ final class StaticListDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testNotEqualValue(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE list_field != 'lead'",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE list_field != 'lead'",
+                )->build(),
             $this->project_member
         );
 
@@ -283,13 +263,10 @@ final class StaticListDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testPermissionsNotEqual(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE list_field != 'lead'",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE list_field != 'lead'",
+                )->build(),
             $this->project_admin
         );
 
@@ -304,13 +281,10 @@ final class StaticListDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testMultipleNotEqual(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE list_field != 'cheese' AND list_field != 'lead'",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE list_field != 'cheese' AND list_field != 'lead'",
+                )->build(),
             $this->project_member
         );
 
@@ -321,13 +295,10 @@ final class StaticListDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testInValue(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE list_field IN('cheese')",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE list_field IN('cheese')",
+                )->build(),
             $this->project_member
         );
 
@@ -338,13 +309,10 @@ final class StaticListDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testPermissionsIn(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE list_field IN('cheese')",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE list_field IN('cheese')",
+                )->build(),
             $this->project_admin
         );
 
@@ -359,13 +327,10 @@ final class StaticListDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testInValues(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE list_field IN('lead', 'cheese')",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE list_field IN('lead', 'cheese')",
+                )->build(),
             $this->project_member
         );
 
@@ -379,13 +344,10 @@ final class StaticListDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testMultipleIn(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE list_field IN('lead') AND list_field IN('cheese')",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE list_field IN('lead') AND list_field IN('cheese')",
+                )->build(),
             $this->project_member
         );
 
@@ -396,13 +358,10 @@ final class StaticListDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testNotInValue(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE list_field NOT IN('lead')",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE list_field NOT IN('lead')",
+                )->build(),
             $this->project_member
         );
 
@@ -416,13 +375,10 @@ final class StaticListDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testPermissionsNotIn(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE list_field NOT IN('lead')",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE list_field NOT IN('lead')",
+                )->build(),
             $this->project_admin
         );
 
@@ -437,13 +393,10 @@ final class StaticListDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testNotInValues(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE list_field NOT IN('lead', 'cheese')",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE list_field NOT IN('lead', 'cheese')",
+                )->build(),
             $this->project_member
         );
 
@@ -454,13 +407,10 @@ final class StaticListDuckTypedFieldTest extends CrossTrackerFieldTestCase
     public function testMultipleNotInValue(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE list_field NOT IN('lead') AND list_field NOT IN ('cheese')",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE list_field NOT IN('lead') AND list_field NOT IN ('cheese')",
+                )->build(),
             $this->project_member
         );
 

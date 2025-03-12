@@ -27,6 +27,7 @@ use Tuleap\Tracker\Artifact\XMLImport\MoveImportConfig;
 use Tuleap\Tracker\Artifact\XMLImport\TrackerNoXMLImportLoggedConfig;
 use Tuleap\Tracker\Artifact\XMLImport\TrackerXmlImportConfig;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class PostCreationContextTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public static function dataProviderSendNotifications(): array
@@ -37,9 +38,7 @@ final class PostCreationContextTest extends \Tuleap\Test\PHPUnit\TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderSendNotifications
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderSendNotifications')]
     public function testItBuildsWithNoConfig(bool $send_notifications): void
     {
         $context = PostCreationContext::withNoConfig($send_notifications);
@@ -47,9 +46,7 @@ final class PostCreationContextTest extends \Tuleap\Test\PHPUnit\TestCase
         self::assertInstanceOf(TrackerNoXMLImportLoggedConfig::class, $context->getImportConfig());
     }
 
-    /**
-     * @dataProvider dataProviderSendNotifications
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderSendNotifications')]
     public function testItBuildsWithConfig(bool $send_notifications): void
     {
         $user        = UserTestBuilder::buildWithDefaults();

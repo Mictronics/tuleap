@@ -21,9 +21,11 @@
 namespace Tuleap\Project\REST;
 
 use Luracast\Restler\RestException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class UserRESTReferenceRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private \UserManager&MockObject $user_manager;
@@ -34,9 +36,9 @@ final class UserRESTReferenceRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
     }
 
     /**
-     * @dataProvider userReferenceProvider
      * @param \PFUser|\PFUser[]|null $user_manager_return_value
      */
+    #[DataProvider('userReferenceProvider')]
     public function testGetUserFromReference(
         string $reference_used,
         string $expected_user_manager_call,

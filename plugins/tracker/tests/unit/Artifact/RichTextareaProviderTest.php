@@ -34,6 +34,7 @@ use Tuleap\Tracker\Test\Builders\Fields\FileFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\TextFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class RichTextareaProviderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use ForgeConfigSandbox;
@@ -41,7 +42,7 @@ final class RichTextareaProviderTest extends \Tuleap\Test\PHPUnit\TestCase
     private const PROJECT_ID      = 196;
     private const UPLOAD_MAX_SIZE = 1024;
 
-    private FileUploadDataProvider & Stub $first_usable_field_data_getter;
+    private FileUploadDataProvider&Stub $first_usable_field_data_getter;
 
     public function setUp(): void
     {

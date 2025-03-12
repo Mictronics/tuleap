@@ -27,7 +27,8 @@ import type { Query } from "../../type";
 import {
     REFRESH_ARTIFACTS_EVENT,
     SWITCH_QUERY_EVENT,
-    CREATE_NEW_QUERY,
+    CREATE_NEW_QUERY_EVENT,
+    UPDATE_WIDGET_TITLE_EVENT,
 } from "../../helpers/emitter-provider";
 
 vi.mock("@tuleap/tlp-dropdown", () => ({
@@ -89,7 +90,7 @@ describe("ChooseQueryButton", () => {
         const wrapper = getWrapper();
         await wrapper.find("[data-test=query]").trigger("click");
 
-        expect(emitter.emitted_event_name.length).toBe(2);
+        expect(emitter.emitted_event_name.length).toBe(3);
         expect(emitter.emitted_event_name[0]).toBe(REFRESH_ARTIFACTS_EVENT);
         expect(emitter.emitted_event_message[0].unwrapOr("")).toStrictEqual({
             query: queries[0],
@@ -98,6 +99,10 @@ describe("ChooseQueryButton", () => {
         expect(emitter.emitted_event_message[1].unwrapOr("")).toStrictEqual({
             query: queries[0],
         });
+        expect(emitter.emitted_event_name[2]).toBe(UPDATE_WIDGET_TITLE_EVENT);
+        expect(emitter.emitted_event_message[2].unwrapOr("")).toStrictEqual({
+            new_title: queries[0].title,
+        });
     });
 
     it("should send the new query creation event when the `Create new query` button is clicked", async () => {
@@ -105,7 +110,7 @@ describe("ChooseQueryButton", () => {
         await wrapper.find("[data-test=query-create-new-button]").trigger("click");
 
         expect(emitter.emitted_event_name.length).toBe(1);
-        expect(emitter.emitted_event_name[0]).toBe(CREATE_NEW_QUERY);
+        expect(emitter.emitted_event_name[0]).toBe(CREATE_NEW_QUERY_EVENT);
     });
 
     it.each([

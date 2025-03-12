@@ -35,10 +35,11 @@ use Tuleap\Tracker\Creation\JiraImporter\FromJiraTrackerCreator;
 use Tuleap\Tracker\Creation\JiraImporter\Import\AlwaysThereFieldsExporter;
 use Tuleap\Tracker\Creation\JiraImporter\Import\ErrorCollector;
 use Tuleap\Tracker\Creation\JiraImporter\Import\Values\StatusValuesCollection;
-use Tuleap\Tracker\Test\Tracker\Creation\JiraImporter\Stub\JiraCloudClientStub;
+use Tuleap\Tracker\Test\Stub\Creation\JiraImporter\JiraCloudClientStub;
 use Tuleap\Tracker\XML\IDGenerator;
 use Tuleap\Tracker\XML\XMLTracker;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class JiraToTuleapFieldTypeMapperTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private LoggerInterface $logger;
@@ -674,9 +675,7 @@ final class JiraToTuleapFieldTypeMapperTest extends \Tuleap\Test\PHPUnit\TestCas
         ];
     }
 
-    /**
-     * @dataProvider getJiraFieldsAreMappedToXMLObjects
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getJiraFieldsAreMappedToXMLObjects')]
     public function testJiraFieldsAreMappedToXMLObjects(JiraFieldAPIRepresentation $jira_field, callable $tests): void
     {
         $xml_tracker = $this->mapper->exportFieldToXml(

@@ -42,6 +42,7 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\DB\DBTransactionExecutorPassthrough;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class DocumentToUploadCreatorTest extends TestCase
 {
     use ForgeConfigSandbox;
@@ -62,9 +63,7 @@ final class DocumentToUploadCreatorTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider permissionsForGroupsDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('permissionsForGroupsDataProvider')]
     public function testCreation(?DocmanItemPermissionsForGroupsSet $permissions_for_groups): void
     {
         $metadata_creator = $this->createMock(DocumentMetadataCreator::class);

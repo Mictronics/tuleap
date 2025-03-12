@@ -25,15 +25,16 @@ namespace Tuleap\CrossTracker\Report\Query\Advanced\Select;
 use PFUser;
 use ProjectUGroup;
 use Tracker;
-use Tuleap\CrossTracker\CrossTrackerQuery;
 use Tuleap\CrossTracker\Report\Query\Advanced\CrossTrackerFieldTestCase;
 use Tuleap\CrossTracker\Report\Query\Advanced\ResultBuilder\Representations\ProjectRepresentation;
+use Tuleap\CrossTracker\Tests\CrossTrackerQueryTestBuilder;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\UUID;
 use Tuleap\Project\Icons\EmojiCodepointConverter;
 use Tuleap\Test\Builders\CoreDatabaseBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerDatabaseBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ProjectNameSelectBuilderTest extends CrossTrackerFieldTestCase
 {
     private UUID $uuid;
@@ -89,13 +90,10 @@ final class ProjectNameSelectBuilderTest extends CrossTrackerFieldTestCase
     public function testItReturnsColumns(): void
     {
         $result = $this->getQueryResults(
-            new CrossTrackerQuery(
-                $this->uuid,
-                'SELECT @project.name FROM @project = "self" WHERE @id >= 1',
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    'SELECT @project.name FROM @project = "self" WHERE @id >= 1',
+                )->build(),
             $this->user,
         );
 

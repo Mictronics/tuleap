@@ -36,6 +36,7 @@ use Tuleap\Git\Repository\GitPHPProjectRetriever;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FilesHeaderPresenterBuilderTest extends TestCase
 {
     use ForgeConfigSandbox;
@@ -385,9 +386,7 @@ final class FilesHeaderPresenterBuilderTest extends TestCase
         self::assertFalse($presenter->can_display_selector);
     }
 
-    /**
-     * @dataProvider provideActionsThatShouldNotDisplayTheSelector
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideActionsThatShouldNotDisplayTheSelector')]
     public function testSelectorIsNotDisplayedIfWeAreOnACommitView($action): void
     {
         $this->request->params = ['a' => $action];

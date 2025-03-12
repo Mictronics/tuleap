@@ -34,6 +34,7 @@ use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\User\Avatar\ProvideUserAvatarUrlStub;
 use Tuleap\User\REST\MinimalUserRepresentation;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class PullRequestMinimalRepresentationTest extends TestCase
 {
     private const PULL_REQUEST_ID         = 21;
@@ -48,7 +49,7 @@ final class PullRequestMinimalRepresentationTest extends TestCase
     private const FIRST_REVIEWER_USER_ID  = 126;
     private const SECOND_REVIEWER_USER_ID = 187;
 
-    private GitoliteAccessURLGenerator & Stub $url_generator;
+    private GitoliteAccessURLGenerator&Stub $url_generator;
     private PullRequest $pull_request;
     private MinimalUserRepresentation $pull_request_creator;
 
@@ -147,9 +148,7 @@ final class PullRequestMinimalRepresentationTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider generateStatus
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('generateStatus')]
     public function testItExpandsOneLetterStatusToWordStatus(PullRequest $pull_request, string $expected_status): void
     {
         $this->url_generator->method('getHTTPURL')->willReturn('https://example.com/git');

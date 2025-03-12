@@ -34,12 +34,13 @@ use Tuleap\ProgramManagement\Tests\Stub\SearchByWorkflowStub;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AddToTopBacklogPostActionFactoryTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private const TRANSITION_ID = 923;
     private const PROJECT_ID    = 101;
     private Transition $transition;
-    private \Workflow & MockObject $workflow;
+    private \Workflow&MockObject $workflow;
     private SearchByTransitionIdStub $search_transition;
     private SearchByWorkflowStub $search_by_workflow;
     private \Project $project;

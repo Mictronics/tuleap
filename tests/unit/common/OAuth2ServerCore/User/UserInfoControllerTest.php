@@ -34,6 +34,7 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\User\OAuth2\ResourceServer\GrantedAuthorization;
 use Tuleap\User\OAuth2\ResourceServer\OAuth2ResourceServerMiddleware;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class UserInfoControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use ForgeConfigSandbox;
@@ -52,9 +53,7 @@ final class UserInfoControllerTest extends \Tuleap\Test\PHPUnit\TestCase
         );
     }
 
-    /**
-     * @dataProvider dataProviderScopes
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderScopes')]
     public function testReturnsAJSONObjectWithAskedClaims(
         GrantedAuthorization $authorization,
         string $expected_json,

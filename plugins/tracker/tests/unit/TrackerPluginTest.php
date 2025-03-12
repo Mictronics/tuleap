@@ -26,6 +26,7 @@ use trackerPlugin;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\User\Preferences\UserPreferencesGetDefaultValue;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class TrackerPluginTest extends TestCase
 {
     private function getPlugin(): trackerPlugin
@@ -40,9 +41,7 @@ final class TrackerPluginTest extends TestCase
         yield "Value is '1'" => ['1', false];
     }
 
-    /**
-     * @dataProvider provideUserPreferenceValues
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideUserPreferenceValues')]
     public function testItSetsADefaultValueForTrackerCommentOrderUserPreference(
         string|false $value,
         bool $should_have_default_value,

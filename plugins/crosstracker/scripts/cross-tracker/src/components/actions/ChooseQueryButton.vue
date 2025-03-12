@@ -74,9 +74,10 @@ import { EMITTER, IS_USER_ADMIN } from "../../injection-symbols";
 import type { Query } from "../../type";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import {
-    CREATE_NEW_QUERY,
+    CREATE_NEW_QUERY_EVENT,
     REFRESH_ARTIFACTS_EVENT,
     SWITCH_QUERY_EVENT,
+    UPDATE_WIDGET_TITLE_EVENT,
 } from "../../helpers/emitter-provider";
 
 const dropdown_trigger = ref<HTMLElement>();
@@ -122,6 +123,7 @@ function updateFilter(event: Event): void {
 function updateSelectedQuery(query: Query): void {
     emitter.emit(REFRESH_ARTIFACTS_EVENT, { query });
     emitter.emit(SWITCH_QUERY_EVENT, { query });
+    emitter.emit(UPDATE_WIDGET_TITLE_EVENT, { new_title: query.title });
     resetFilter();
     dropdown?.hide();
 }
@@ -134,7 +136,7 @@ function resetFilter(): void {
 }
 
 function handleCreateNewQueryButton(): void {
-    emitter.emit(CREATE_NEW_QUERY);
+    emitter.emit(CREATE_NEW_QUERY_EVENT);
 }
 
 onBeforeUnmount(() => {

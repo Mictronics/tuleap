@@ -28,6 +28,7 @@ use Tuleap\Tracker\Workflow\PostAction\Update\PostActionCollection;
 use Tuleap\Tracker\Workflow\PostAction\Update\SetDateValue;
 use Tuleap\Tracker\Workflow\PostAction\Update\TransitionFactory;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class SetDateValueUpdaterTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -49,9 +50,7 @@ class SetDateValueUpdaterTest extends \Tuleap\Test\PHPUnit\TestCase
      */
     private $tracker;
 
-    /**
-     * @before
-     */
+    #[\PHPUnit\Framework\Attributes\Before]
     public function createUpdater()
     {
         $this->set_date_value_repository = Mockery::mock(SetDateValueRepository::class);

@@ -27,6 +27,7 @@ use Tuleap\REST\I18NRestException;
 use Tuleap\Tracker\Workflow\PostAction\Update\SetDateValue;
 use Workflow;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class SetDateValueJsonParserTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
@@ -36,9 +37,7 @@ class SetDateValueJsonParserTest extends \Tuleap\Test\PHPUnit\TestCase
      */
     private $parser;
 
-    /**
-     * @before
-     */
+    #[\PHPUnit\Framework\Attributes\Before]
     public function createParser()
     {
         $this->parser = new SetDateValueJsonParser();

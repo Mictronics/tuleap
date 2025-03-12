@@ -35,6 +35,9 @@ import {
     WIDGET_ID,
     RETRIEVE_ARTIFACTS_TABLE,
     DASHBOARD_TYPE,
+    NEW_QUERY_CREATOR,
+    UPDATE_WIDGET_TITLE,
+    DEFAULT_WIDGET_TITLE,
 } from "./injection-symbols";
 import { ArtifactsTableRetriever } from "./api/ArtifactsTableRetriever";
 import { ArtifactsTableBuilder } from "./api/ArtifactsTableBuilder";
@@ -44,7 +47,9 @@ import type { Events } from "./helpers/emitter-provider";
 import mitt from "mitt";
 import { getAttributeOrThrow, selectOrThrow } from "@tuleap/dom";
 import { SuggestedQueries } from "./domain/SuggestedQueriesGetter";
+import { NewQueryCreator } from "./api/NewQueryCreator";
 import type { WidgetData } from "./type";
+import { WidgetTitleUpdater } from "./WidgetTitleUpdater";
 
 document.addEventListener("DOMContentLoaded", async () => {
     const locale = getLocaleOrThrow(document);
@@ -70,6 +75,15 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         const widget_json_data = getAttributeOrThrow(widget_element, "data-widget-json-data");
         const widget_data: WidgetData = JSON.parse(widget_json_data);
+        const emitter = mitt<Events>();
+
+        const title_element = selectOrThrow(
+            document,
+            `[data-widget-title="${widget_data.title_attribute}"]`,
+        );
+        const widget_title_updater = WidgetTitleUpdater(emitter, title_element);
+
+        const new_query_creator = NewQueryCreator();
 
         const vue_mount_point = selectOrThrow(widget_element, ".vue-mount-point");
 
@@ -86,10 +100,13 @@ document.addEventListener("DOMContentLoaded", async () => {
             .provide(IS_USER_ADMIN, widget_data.is_widget_admin)
             .provide(DOCUMENTATION_BASE_URL, widget_data.documentation_base_url)
             .provide(GET_COLUMN_NAME, column_name_getter)
-            .provide(EMITTER, mitt<Events>())
+            .provide(EMITTER, emitter)
             .provide(IS_MULTIPLE_QUERY_SUPPORTED, widget_data.is_multiple_query_supported)
             .provide(GET_SUGGESTED_QUERIES, SuggestedQueries({ $gettext: gettext_plugin.$gettext }))
             .provide(DASHBOARD_TYPE, widget_data.dashboard_type)
+            .provide(NEW_QUERY_CREATOR, new_query_creator)
+            .provide(UPDATE_WIDGET_TITLE, widget_title_updater)
+            .provide(DEFAULT_WIDGET_TITLE, widget_data.default_title)
             .mount(vue_mount_point);
     }
 });

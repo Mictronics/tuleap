@@ -25,13 +25,14 @@ namespace Tuleap\CrossTracker\Report\Query\Advanced\Metadata;
 use PFUser;
 use ProjectUGroup;
 use Tracker;
-use Tuleap\CrossTracker\CrossTrackerQuery;
 use Tuleap\CrossTracker\Report\Query\Advanced\CrossTrackerFieldTestCase;
+use Tuleap\CrossTracker\Tests\CrossTrackerQueryTestBuilder;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\UUID;
 use Tuleap\Test\Builders\CoreDatabaseBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerDatabaseBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class TitleMetadataTest extends CrossTrackerFieldTestCase
 {
     private UUID $uuid;
@@ -121,13 +122,10 @@ final class TitleMetadataTest extends CrossTrackerFieldTestCase
     public function testEqualEmpty(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE @title = ''",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE @title = ''",
+                )->build(),
             $this->project_member
         );
 
@@ -138,13 +136,10 @@ final class TitleMetadataTest extends CrossTrackerFieldTestCase
     public function testEqualValue(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE @title = 'title'",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE @title = 'title'",
+                )->build(),
             $this->project_member
         );
 
@@ -155,13 +150,10 @@ final class TitleMetadataTest extends CrossTrackerFieldTestCase
     public function testPermissionsEqual(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE @title = 'title'",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE @title = 'title'",
+                )->build(),
             $this->project_admin
         );
 
@@ -172,13 +164,10 @@ final class TitleMetadataTest extends CrossTrackerFieldTestCase
     public function testMultipleEqual(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE @title = 'title' OR @title = 'MyArtifact'",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE @title = 'title' OR @title = 'MyArtifact'",
+                )->build(),
             $this->project_member
         );
 
@@ -189,13 +178,10 @@ final class TitleMetadataTest extends CrossTrackerFieldTestCase
     public function testNotEqualEmpty(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE @title != ''",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE @title != ''",
+                )->build(),
             $this->project_member
         );
 
@@ -206,13 +192,10 @@ final class TitleMetadataTest extends CrossTrackerFieldTestCase
     public function testNotEqualValue(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE @title != 'MyArtifact'",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE @title != 'MyArtifact'",
+                )->build(),
             $this->project_member
         );
 
@@ -226,13 +209,10 @@ final class TitleMetadataTest extends CrossTrackerFieldTestCase
     public function testPermissionsNotEqual(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE @title != 'MyArtifact'",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE @title != 'MyArtifact'",
+                )->build(),
             $this->project_admin
         );
 
@@ -247,13 +227,10 @@ final class TitleMetadataTest extends CrossTrackerFieldTestCase
     public function testMultipleNotEqual(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE @title != 'MyArtifact' AND @title != ''",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE @title != 'MyArtifact' AND @title != ''",
+                )->build(),
             $this->project_member
         );
 

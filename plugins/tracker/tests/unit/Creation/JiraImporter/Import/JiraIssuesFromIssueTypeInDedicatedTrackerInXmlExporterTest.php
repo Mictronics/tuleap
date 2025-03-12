@@ -92,6 +92,7 @@ use UserXMLExporter;
 use XML_RNGValidator;
 use XML_SimpleXMLCDATAFactory;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class JiraIssuesFromIssueTypeInDedicatedTrackerInXmlExporterTest extends TestCase
 {
     use ForgeConfigSandbox;
@@ -161,9 +162,7 @@ final class JiraIssuesFromIssueTypeInDedicatedTrackerInXmlExporterTest extends T
         ];
     }
 
-    /**
-     * @dataProvider debugTracesProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('debugTracesProvider')]
     public function testImportFromDebugTraces(string $fixture_path, bool $is_jira_cloud, ?int $jira_major_version, array $users): void
     {
         $root = vfsStream::setup();

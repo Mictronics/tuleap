@@ -26,14 +26,15 @@ use DateTime;
 use PFUser;
 use ProjectUGroup;
 use Tracker;
-use Tuleap\CrossTracker\CrossTrackerQuery;
 use Tuleap\CrossTracker\Report\Query\Advanced\CrossTrackerFieldTestCase;
 use Tuleap\CrossTracker\Report\Query\Advanced\ResultBuilder\Representations\DateResultRepresentation;
+use Tuleap\CrossTracker\Tests\CrossTrackerQueryTestBuilder;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\UUID;
 use Tuleap\Test\Builders\CoreDatabaseBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerDatabaseBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class DateSelectBuilderTest extends CrossTrackerFieldTestCase
 {
     private UUID $uuid;
@@ -127,13 +128,10 @@ final class DateSelectBuilderTest extends CrossTrackerFieldTestCase
     public function testItReturnsColumns(): void
     {
         $result = $this->getQueryResults(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT date_field FROM @project = 'self' WHERE date_field = '' OR date_field != ''",
-                '',
-                '',
-                1
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT date_field FROM @project = 'self' WHERE date_field = '' OR date_field != ''"
+                )->build(),
             $this->user,
         );
 

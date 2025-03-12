@@ -35,6 +35,7 @@ use Tuleap\Tracker\Creation\JiraImporter\Import\Structure\ListFieldMapping;
 use Tuleap\Tracker\Creation\JiraImporter\Import\Structure\ScalarFieldMapping;
 use Tuleap\Tracker\Creation\JiraImporter\Import\Values\StatusValuesCollection;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class SemanticsXMLExporterTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testExportsTheSemantics(): void
@@ -87,7 +88,7 @@ final class SemanticsXMLExporterTest extends \Tuleap\Test\PHPUnit\TestCase
         );
 
         $collection = new StatusValuesCollection(
-            new class extends \Tuleap\Tracker\Test\Tracker\Creation\JiraImporter\Stub\JiraCloudClientStub {
+            new class extends \Tuleap\Tracker\Test\Stub\Creation\JiraImporter\JiraCloudClientStub {
             },
             new NullLogger()
         );

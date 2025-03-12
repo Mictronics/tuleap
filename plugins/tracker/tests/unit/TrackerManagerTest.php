@@ -36,18 +36,19 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class TrackerManagerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use GlobalLanguageMock;
     use GlobalResponseMock;
 
-    private \Tracker & MockObject $tracker;
+    private \Tracker&MockObject $tracker;
     private \PFUser $user;
-    private \Tracker_URL & Stub $url;
-    private Artifact & MockObject $artifact;
-    private \Tracker_Report & MockObject $report;
-    private \Tracker_FormElement_Interface & MockObject $formElement;
-    private \TrackerManager & MockObject $tm;
+    private \Tracker_URL&Stub $url;
+    private Artifact&MockObject $artifact;
+    private \Tracker_Report&MockObject $report;
+    private \Tracker_FormElement_Interface&MockObject $formElement;
+    private \TrackerManager&MockObject $tm;
 
     protected function setUp(): void
     {

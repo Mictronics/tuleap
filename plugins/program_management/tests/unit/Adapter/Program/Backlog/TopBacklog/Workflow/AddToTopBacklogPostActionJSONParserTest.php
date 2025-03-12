@@ -27,6 +27,7 @@ use Tuleap\ProgramManagement\Tests\Stub\VerifyIsPlannableStub;
 use Tuleap\REST\I18NRestException;
 use Workflow;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AddToTopBacklogPostActionJSONParserTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private AddToTopBacklogPostActionJSONParser $parser;
@@ -43,9 +44,7 @@ final class AddToTopBacklogPostActionJSONParserTest extends \Tuleap\Test\PHPUnit
         self::assertTrue($this->parser->accept(['id' => 12, 'type' => 'program_management_add_to_top_backlog']));
     }
 
-    /**
-     * @dataProvider dataProviderInvalidJSONPayload
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderInvalidJSONPayload')]
     public function testDoesNotAcceptUnknownAction(array $json): void
     {
         self::assertFalse($this->parser->accept($json));

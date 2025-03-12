@@ -28,6 +28,7 @@ use Tuleap\Tracker\Workflow\PostAction\Update\FrozenFieldsValue;
 use Tuleap\Tracker\Workflow\PostAction\Update\PostActionCollection;
 use Tuleap\Tracker\Workflow\PostAction\Update\TransitionFactory;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class FrozenFieldsUpdaterTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -47,9 +48,7 @@ class FrozenFieldsUpdaterTest extends \Tuleap\Test\PHPUnit\TestCase
      */
     private $frozen_fields_validator;
 
-    /**
-     * @before
-     */
+    #[\PHPUnit\Framework\Attributes\Before]
     public function createUpdater()
     {
         $this->frozen_fields_repository = Mockery::mock(FrozenFieldsValueRepository::class);

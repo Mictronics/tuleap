@@ -28,6 +28,7 @@ use Tuleap\Tracker\Test\Builders\ArtifactValuesRepresentationBuilder;
 
 require_once __DIR__ . '/../../../bootstrap.php';
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class TestStatusAccordingToStepsStatusChangesBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private const NOT_RUN_ID = 101;
@@ -85,9 +86,7 @@ class TestStatusAccordingToStepsStatusChangesBuilderTest extends \Tuleap\Test\PH
         $this->assertEmpty($changes);
     }
 
-    /**
-     * @dataProvider stepsStatusProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('stepsStatusProvider')]
     public function testPassWhenAllStepsPassed(array $steps_defined_in_test, array $steps_changes, $expected_status)
     {
         $changes = [];

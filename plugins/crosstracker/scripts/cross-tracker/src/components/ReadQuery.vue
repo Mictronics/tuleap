@@ -28,11 +28,6 @@
         >
             <action-buttons v-bind:backend_query="backend_query" v-bind:queries="queries" />
         </div>
-        <feedback-message
-            v-bind:current_fault="current_fault"
-            v-bind:current_success="current_success"
-            v-bind:query="writing_query"
-        />
         <div class="cross-tracker-loader" v-if="is_loading"></div>
         <reading-mode
             v-if="is_reading_mode_shown"
@@ -67,21 +62,24 @@ import type { Query } from "../type";
 import SelectableTable from "../components/selectable-table/SelectableTable.vue";
 import type { ReportState } from "../domain/ReportState";
 import {
-    CLEAR_FEEDBACKS,
     EMITTER,
     IS_EXPORT_ALLOWED,
     IS_MULTIPLE_QUERY_SUPPORTED,
     IS_USER_ADMIN,
-    NOTIFY_FAULT,
     WIDGET_ID,
     REPORT_STATE,
 } from "../injection-symbols";
-import { useFeedbacks } from "../composables/useFeedbacks";
 import { ReportRetrievalFault } from "../domain/ReportRetrievalFault";
 import ActionButtons from "../components/actions/ActionButtons.vue";
-import type { SwitchQueryEvent } from "../helpers/emitter-provider";
-import { SWITCH_QUERY_EVENT } from "../helpers/emitter-provider";
-import FeedbackMessage from "./feedback/FeedbackMessage.vue";
+import type { CreatedQueryEvent, SwitchQueryEvent } from "../helpers/emitter-provider";
+import {
+    UPDATE_WIDGET_TITLE_EVENT,
+    CLEAR_FEEDBACK_EVENT,
+    NOTIFY_SUCCESS_EVENT,
+    NOTIFY_FAULT_EVENT,
+    NEW_QUERY_CREATED_EVENT,
+    SWITCH_QUERY_EVENT,
+} from "../helpers/emitter-provider";
 
 const emit = defineEmits<{
     (e: "switch-to-create-query-pane"): void;
@@ -110,20 +108,16 @@ const is_reading_mode_shown = computed(
         !is_loading.value,
 );
 
-const { current_fault, current_success, notifyFault, notifySuccess, clearFeedbacks } =
-    useFeedbacks();
-provide(NOTIFY_FAULT, notifyFault);
-provide(CLEAR_FEEDBACKS, clearFeedbacks);
-const has_error = computed<boolean>(() => current_fault.value.isValue());
+const has_error = ref<boolean>(false);
 
 const is_export_allowed = computed<boolean>(() => {
-    if (report_state.value !== "report-saved" || has_error.value === true) {
+    if (report_state.value !== "report-saved" || has_error.value) {
         return false;
     }
     if (!is_user_admin) {
         return true;
     }
-    return current_fault.value.isNothing();
+    return !has_error.value;
 });
 
 provide(IS_EXPORT_ALLOWED, is_export_allowed);
@@ -149,11 +143,19 @@ function loadBackendReport(): void {
 
                     return;
                 }
+
                 backend_query.value = reports[0];
                 initQueries();
+                if (is_multiple_query_supported) {
+                    emitter.emit(UPDATE_WIDGET_TITLE_EVENT, {
+                        new_title: backend_query.value.title,
+                    });
+                }
+                has_error.value = false;
             },
             (fault) => {
-                notifyFault(ReportRetrievalFault(fault));
+                emitter.emit(NOTIFY_FAULT_EVENT, { fault: ReportRetrievalFault(fault) });
+                has_error.value = true;
             },
         )
         .then(() => {
@@ -162,13 +164,19 @@ function loadBackendReport(): void {
 }
 
 onMounted(() => {
-    loadBackendReport();
     emitter.on(SWITCH_QUERY_EVENT, handleSwitchQuery);
+    emitter.on(NEW_QUERY_CREATED_EVENT, handleAddQuery);
+    loadBackendReport();
 });
 
 onBeforeUnmount(() => {
     emitter.off(SWITCH_QUERY_EVENT);
+    emitter.off(NEW_QUERY_CREATED_EVENT);
 });
+
+function handleAddQuery(new_query: CreatedQueryEvent): void {
+    queries.value = queries.value.concat([new_query.created_query]);
+}
 
 function handleSwitchWriting(): void {
     if (!is_user_admin) {
@@ -177,47 +185,47 @@ function handleSwitchWriting(): void {
 
     writing_query.value = reading_query.value;
     report_state.value = "edit-query";
-    clearFeedbacks();
+    emitter.emit(CLEAR_FEEDBACK_EVENT);
 }
 
 function handleSwitchQuery(event: SwitchQueryEvent): void {
     backend_query.value = event.query;
     initQueries();
 
-    clearFeedbacks();
+    emitter.emit(CLEAR_FEEDBACK_EVENT);
 }
 
 function handlePreviewResult(query: Query): void {
     writing_query.value = query;
     reading_query.value = query;
     report_state.value = "result-preview";
-    clearFeedbacks();
+    emitter.emit(CLEAR_FEEDBACK_EVENT);
 }
 
 function handleCancelQueryEdition(): void {
     reading_query.value = backend_query.value;
     report_state.value = "report-saved";
-    clearFeedbacks();
+    emitter.emit(CLEAR_FEEDBACK_EVENT);
 }
 
 function reportSaved(query: Query): void {
     backend_query.value = query;
     initQueries();
     report_state.value = "report-saved";
-    clearFeedbacks();
-    notifySuccess(gettext_provider.$gettext("Report has been successfully saved"));
+    emitter.emit(CLEAR_FEEDBACK_EVENT);
+    emitter.emit(NOTIFY_SUCCESS_EVENT, {
+        message: gettext_provider.$gettext("Report has been successfully saved"),
+    });
 }
 
 function unsavedReportDiscarded(): void {
     initQueries();
     report_state.value = "report-saved";
-    clearFeedbacks();
+    emitter.emit(CLEAR_FEEDBACK_EVENT);
 }
 
 defineExpose({
     report_state,
-    current_fault,
-    current_success,
     is_export_allowed,
 });
 </script>

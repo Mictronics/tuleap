@@ -58,10 +58,7 @@ export const getSectionSaver = (
 ): SaveSection => {
     function getLatestVersionOfCurrentSection(): ResultAsync<ArtidocSection, Fault> {
         if (isArtifactSection(section.value) || isFreetextSection(section.value)) {
-            return getSection(section.value.id).map((recovered_section) => {
-                recovered_section.display_level = section.value.display_level;
-                return recovered_section;
-            });
+            return getSection(section.value.id);
         }
         return okAsync(section.value);
     }
@@ -105,6 +102,7 @@ export const getSectionSaver = (
                     if (isArtifactSection(artidoc_section) || isFreetextSection(artidoc_section)) {
                         update_sections.updateSection(artidoc_section);
                     }
+                    section_state.initial_level.value = section.value.level;
                     close_section_editor.closeEditor();
                     section_state.is_being_saved.value = false;
                     section_state.is_just_saved.value = true;
@@ -134,7 +132,7 @@ export const getSectionSaver = (
                 ) {
                     update_sections.updateSection(artidoc_section);
                 }
-
+                section_state.initial_level.value = section.value.level;
                 close_section_editor.closeEditor();
                 section_state.is_being_saved.value = false;
                 section_state.is_just_saved.value = true;

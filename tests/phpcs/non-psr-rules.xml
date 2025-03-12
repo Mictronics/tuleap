@@ -34,10 +34,13 @@
     <!-- Force space around logical operators -->
     <rule ref="Squiz.WhiteSpace.LogicalOperatorSpacing"/>
     <!-- Forbid space around typehint union (Ok|Err) and force replacing Type|null by ?Type -->)
-    <rule ref="SlevomatCodingStandard.TypeHints.UnionTypeHintFormat">
+    <rule ref="SlevomatCodingStandard.TypeHints.DNFTypeHintFormat">
         <properties>
-            <property name="withSpaces" value="no"/>
+            <property name="enable" value="yes"/>
+            <property name="withSpacesAroundOperators" value="no"/>
+            <property name="withSpacesInsideParentheses" value="no"/>
             <property name="shortNullable" value="yes"/>
+            <property name="nullPosition" value="last"/>
         </properties>
     </rule>
     <!-- Force space after a type cast -->
@@ -219,4 +222,14 @@
     <!-- Force trailing comma in multilines arrays and function/method declaration -->
     <rule ref="SlevomatCodingStandard.Arrays.TrailingArrayComma"/>
     <rule ref="SlevomatCodingStandard.Functions.RequireTrailingCommaInDeclaration"/>
+    <!-- Make PHP attribute usages consistent -->
+    <rule ref="SlevomatCodingStandard.Attributes.AttributeAndTargetSpacing">
+      <properties>
+        <property name="linesCount" value="0"/>
+      </properties>
+    </rule>
+    <rule ref="SlevomatCodingStandard.Attributes.DisallowAttributesJoining"/>
+    <rule ref="SlevomatCodingStandard.Attributes.RequireAttributeAfterDocComment"/>
+    <!-- Enforce some PHPUnit test behaviors -->
+    <rule ref="./TuleapCodingStandard/Sniffs/Test/EnforcePHPUnitAttributesSniff.php"/>
 </ruleset>

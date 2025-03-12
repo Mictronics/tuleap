@@ -25,13 +25,14 @@ namespace Tuleap\CrossTracker\Report\Query\Advanced\Metadata;
 use PFUser;
 use ProjectUGroup;
 use Tracker;
-use Tuleap\CrossTracker\CrossTrackerQuery;
 use Tuleap\CrossTracker\Report\Query\Advanced\CrossTrackerFieldTestCase;
+use Tuleap\CrossTracker\Tests\CrossTrackerQueryTestBuilder;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\UUID;
 use Tuleap\Test\Builders\CoreDatabaseBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerDatabaseBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class StatusMetadataTest extends CrossTrackerFieldTestCase
 {
     private UUID $uuid;
@@ -111,13 +112,10 @@ final class StatusMetadataTest extends CrossTrackerFieldTestCase
     public function testEqualOpen(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE @status = OPEN()",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE @status = OPEN()",
+                )->build(),
             $this->project_member
         );
 
@@ -128,13 +126,10 @@ final class StatusMetadataTest extends CrossTrackerFieldTestCase
     public function testPermissionsEqualOpen(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE @status = OPEN()",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE @status = OPEN()",
+                )->build(),
             $this->project_admin
         );
 
@@ -145,13 +140,10 @@ final class StatusMetadataTest extends CrossTrackerFieldTestCase
     public function testMultipleEqual(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE @status = OPEN() OR @status = OPEN()",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE @status = OPEN() OR @status = OPEN()",
+                )->build(),
             $this->project_member
         );
 
@@ -162,13 +154,10 @@ final class StatusMetadataTest extends CrossTrackerFieldTestCase
     public function testNotEqualOpen(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE @status != OPEN()",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE @status != OPEN()",
+                )->build(),
             $this->project_member
         );
 
@@ -179,13 +168,10 @@ final class StatusMetadataTest extends CrossTrackerFieldTestCase
     public function testPermissionsNotEqual(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE @status != OPEN()",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE @status != OPEN()",
+                )->build(),
             $this->project_admin
         );
 
@@ -196,13 +182,10 @@ final class StatusMetadataTest extends CrossTrackerFieldTestCase
     public function testMultipleNotEqual(): void
     {
         $artifacts = $this->getMatchingArtifactIds(
-            new CrossTrackerQuery(
-                $this->uuid,
-                "SELECT @id FROM @project = 'self' WHERE @status != OPEN() AND @status != OPEN()",
-                '',
-                '',
-                1,
-            ),
+            CrossTrackerQueryTestBuilder::aQuery()
+                ->withUUID($this->uuid)->withTqlQuery(
+                    "SELECT @id FROM @project = 'self' WHERE @status != OPEN() AND @status != OPEN()",
+                )->build(),
             $this->project_member
         );
 

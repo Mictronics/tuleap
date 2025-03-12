@@ -28,6 +28,7 @@ use Tuleap\Tracker\Workflow\PostAction\Update\PostActionCollection;
 use Tuleap\Tracker\Workflow\PostAction\Update\SetFloatValue;
 use Tuleap\Tracker\Workflow\PostAction\Update\TransitionFactory;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class SetFloatValueUpdaterTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -52,9 +53,7 @@ class SetFloatValueUpdaterTest extends \Tuleap\Test\PHPUnit\TestCase
      */
     private $tracker;
 
-    /**
-     * @before
-     */
+    #[\PHPUnit\Framework\Attributes\Before]
     public function createUpdater()
     {
         $this->set_float_value_repository = Mockery::mock(SetFloatValueRepository::class);

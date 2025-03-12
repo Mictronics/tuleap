@@ -63,6 +63,10 @@ import { getSectionStateBuilder } from "@/sections/states/SectionStateBuilder";
 import { skeleton_sections_collection } from "@/helpers/get-skeleton-sections-collection";
 import { PROJECT_ID } from "@/project-id-injection-key";
 import { IS_LOADING_SECTIONS_FAILED } from "@/is-loading-sections-injection-key";
+import { HEADINGS_BUTTON_STATE } from "@/headings-button-state-injection-key";
+import { getHeadingsButtonState } from "@/toolbar/HeadingsButtonState";
+import { watchUpdateSectionsLevels } from "@/sections/levels/SectionsNumbersWatcher";
+import { getSectionsNumberer } from "@/sections/levels/SectionsNumberer";
 
 document.addEventListener("DOMContentLoaded", async () => {
     const vue_mount_point = document.getElementById("artidoc-mountpoint");
@@ -84,6 +88,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const app = createApp(App);
 
     app.provide(TOOLBAR_BUS, buildToolbarBus());
+    app.provide(HEADINGS_BUTTON_STATE, getHeadingsButtonState());
 
     const can_user_edit_document = Boolean(
         getAttributeOrThrow(vue_mount_point, "data-can-user-edit-document"),
@@ -113,6 +118,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         can_user_edit_document,
         is_loading_failed,
     );
+
+    watchUpdateSectionsLevels(sections_collection, getSectionsNumberer(sections_collection));
 
     app.provide(SECTIONS_COLLECTION, sections_collection);
     app.provide(SECTIONS_STATES_COLLECTION, states_collection);

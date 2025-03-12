@@ -59,7 +59,7 @@ export const ADDITIONAL_ITEMS_GROUP: ItemGroupName = "additional_items";
 
 export type ItemGroup = {
     name: ItemGroupName;
-    element: unknown;
+    elements: unknown[];
 };
 
 export type ProseMirrorToolbarElement = {
@@ -97,12 +97,15 @@ export type LinkElements = {
 
 export type StyleElements = {
     headings: boolean;
+    subtitles: boolean;
     text: boolean;
     preformatted: boolean;
 };
 
+export type AdditionalElementPosition = "before" | "after" | "at_the_start" | "at_the_end";
+
 export type AdditionalElement = {
-    position: "before" | "after";
+    position: AdditionalElementPosition;
     target_name: ItemGroupName;
     item_element: HTMLElement;
 };
@@ -158,11 +161,9 @@ export const renderToolbar = (
         host.text_elements?.quote;
     const basic_text_items: ItemGroup = {
         name: BASIC_TEXT_ITEMS_GROUP,
-        element: has_at_least_one_basic_text_element
-            ? html`<span class="prose-mirror-button-group">
-                  ${bold_item} ${italic_item} ${quote_item} ${code_item}
-              </span>`
-            : html``,
+        elements: has_at_least_one_basic_text_element
+            ? [bold_item, italic_item, quote_item, code_item]
+            : [],
     };
 
     const ordered = host.list_elements?.ordered_list;
@@ -187,12 +188,10 @@ export const renderToolbar = (
 
     const list_items: ItemGroup = {
         name: LIST_ITEMS_GROUP,
-        element:
+        elements:
             host.list_elements?.ordered_list || host.list_elements?.bullet_list
-                ? html`<span class="prose-mirror-button-group"
-                      >${bullet_item} ${ordered_item}</span
-                  >`
-                : html``,
+                ? [bullet_item, ordered_item]
+                : [],
     };
     const subscript = host.script_elements?.subscript;
     const subscript_item = subscript
@@ -216,11 +215,7 @@ export const renderToolbar = (
         host.script_elements?.subscript || host.script_elements?.superscript;
     const supersubscript_items: ItemGroup = {
         name: SCRIPTS_ITEMS_GROUP,
-        element: has_supersubscript_elements
-            ? html`<span class="prose-mirror-button-group">
-                  ${subscript_item} ${superscript_item}
-              </span>`
-            : html``,
+        elements: has_supersubscript_elements ? [subscript_item, superscript_item] : [],
     };
 
     const link_item = host.link_elements?.link
@@ -252,30 +247,27 @@ export const renderToolbar = (
         host.link_elements?.link || host.link_elements?.unlink || host.link_elements?.image;
     const link_items: ItemGroup = {
         name: LINK_ITEMS_GROUP,
-        element: has_at_least_one_link_element
-            ? html`<span class="prose-mirror-button-group">
-                  ${link_item} ${unlink_item} ${image_item}
-              </span>`
-            : html``,
+        elements: has_at_least_one_link_element ? [link_item, unlink_item, image_item] : [],
     };
 
     const has_at_least_one_style_element_activated =
         host.style_elements !== null &&
         (host.style_elements.headings ||
+            host.style_elements.subtitles ||
             host.style_elements.text ||
             host.style_elements.preformatted);
     const text_style_item: ItemGroup = {
         name: TEXT_STYLES_ITEMS_GROUP,
-        element: has_at_least_one_style_element_activated
-            ? html` <span class="prose-mirror-button-group">
-                  <text-style-item
+        elements: has_at_least_one_style_element_activated
+            ? [
+                  html`<text-style-item
                       toolbar_bus="${host.controller.getToolbarBus()}"
                       style_elements="${host.style_elements}"
                       gettext_provider="${gettext_provider}"
                       is_disabled="${host.is_disabled}"
-                  ></text-style-item>
-              </span>`
-            : html``,
+                  ></text-style-item>`,
+              ]
+            : [],
     };
 
     const default_item_groups_collection: ItemGroup[] = [
@@ -291,9 +283,25 @@ export const renderToolbar = (
             ${buildToolbarItems(
                 default_item_groups_collection,
                 host.additional_elements ? host.additional_elements : [],
-            ).map((items) => html`${items.element}`)}
+            ).map((items) => {
+                if (items.elements.length === 0) {
+                    return html``;
+                }
+
+                return html`
+                    <span class="prose-mirror-button-group">
+                        ${items.elements.map((item) => html` ${item} `)}
+                    </span>
+                `;
+            })}
         </div>
     `.style(scss_styles);
+};
+
+const checkToolbarItemsValidity = (host: ProseMirrorToolbarElement): void => {
+    if (host.style_elements && host.style_elements.headings && host.style_elements.subtitles) {
+        throw new Error("You cannot activate headings and subtitles together.");
+    }
 };
 
 initGettext(
@@ -313,6 +321,8 @@ initGettext(
         is_disabled: {
             value: true,
             connect: (host) => {
+                checkToolbarItemsValidity(host);
+
                 host.controller.getToolbarBus().setView({
                     toggleToolbarState: (is_enabled: boolean): void => {
                         host.is_disabled = !is_enabled;

@@ -34,15 +34,14 @@ use Tuleap\Test\Stubs\CheckProjectAccessStub;
 use Tuleap\User\ForgePermissionsRetriever;
 use User_ForgeUserGroupPermission;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class UserPermissionsBuilderTest extends TestCase
 {
     private const READER_UGROUP_ID = 103;
     private const WRITER_UGROUP_ID = 104;
     private const ADMIN_UGROUP_ID  = 105;
 
-    /**
-     * @dataProvider getAdminTestData
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getAdminTestData')]
     public function testGetPermissionsForAdmin(
         PFUser $user,
         Project $project,
@@ -210,9 +209,7 @@ final class UserPermissionsBuilderTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getReadersTestData
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getReadersTestData')]
     public function testGetPermissionsForReaders(
         PFUser $user,
         Project $project,

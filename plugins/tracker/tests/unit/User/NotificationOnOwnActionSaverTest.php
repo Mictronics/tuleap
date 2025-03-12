@@ -22,10 +22,12 @@ declare(strict_types=1);
 
 namespace Tuleap\Tracker\User;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\StoreUserPreferenceStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class NotificationOnOwnActionSaverTest extends TestCase
 {
     private const USER_ID = 241;
@@ -53,9 +55,7 @@ final class NotificationOnOwnActionSaverTest extends TestCase
         yield 'Enabled → Enabled' => [true, true, false, NotificationOnOwnActionSaver::VALUE_NOTIF];
     }
 
-    /**
-     * @dataProvider generateChanges
-     */
+    #[DataProvider('generateChanges')]
     public function testItHandlesChanges(
         bool $stored_preference,
         bool $new_preference,

@@ -30,6 +30,7 @@ use Tuleap\Baseline\Factory\BaselineFactory;
 use Tuleap\Baseline\Support\DateTimeFactory;
 use Tuleap\GlobalLanguageMock;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class BaselineArtifactControllerIntTest extends IntegrationTestCaseWithStubs
 {
     use GlobalLanguageMock;
@@ -40,7 +41,7 @@ class BaselineArtifactControllerIntTest extends IntegrationTestCaseWithStubs
     /** @var BaselineArtifactController */
     private $controller;
 
-    /** @before */
+        #[\PHPUnit\Framework\Attributes\Before]
     public function getTestedComponent(): void
     {
         $this->controller = $this->getContainer()->get(BaselineArtifactController::class);

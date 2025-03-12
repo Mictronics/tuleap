@@ -43,6 +43,7 @@ export const getSectionEditorStateManager = (
     resetContent(): void {
         section_state.edited_title.value = section.value.title;
         section_state.edited_description.value = section.value.description;
+        section.value.level = section_state.initial_level.value;
         section_state.is_section_in_edit_mode.value = false;
     },
     markEditorAsReset(): void {

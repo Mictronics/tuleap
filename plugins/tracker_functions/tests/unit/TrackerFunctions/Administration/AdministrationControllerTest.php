@@ -32,13 +32,14 @@ use Tuleap\Test\Builders\TestLayout;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\EventDispatcherStub;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
+use Tuleap\Tracker\Test\Stub\DisplayTrackerLayoutStub;
 use Tuleap\Tracker\Test\Stub\RetrieveTrackerStub;
-use Tuleap\Tracker\Test\Stub\Tracker\DisplayTrackerLayoutStub;
 use Tuleap\TrackerFunctions\Logs\LogLinePresenterBuilder;
 use Tuleap\TrackerFunctions\Stubs\Administration\CheckFunctionIsActivatedStub;
 use Tuleap\TrackerFunctions\Stubs\Logs\RetrieveLogsForTrackerStub;
 use Tuleap\TrackerFunctions\WASM\FindWASMFunctionPath;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AdministrationControllerTest extends TestCase
 {
     use TemporaryTestDirectory;

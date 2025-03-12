@@ -48,6 +48,7 @@ use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Artifact\RecentlyVisited\VisitRecorder;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class MilestoneControllerTest extends TestCase
 {
     use GlobalLanguageMock;
@@ -64,7 +65,7 @@ final class MilestoneControllerTest extends TestCase
 
     public function setUp(): void
     {
-        $GLOBALS['Language']->method('getText')->willReturn(self::returnCallback(static fn(string $domain, string $text) => $text));
+        $GLOBALS['Language']->method('getText')->willReturnCallback(static fn(string $domain, string $text) => $text);
 
         $this->milestone_factory = $this->createMock(Planning_MilestoneFactory::class);
         $project_manager         = $this->createMock(ProjectManager::class);

@@ -46,8 +46,10 @@ import { artidoc_editor_schema } from "../mono-editor/artidoc-editor-schema";
 import { renderArtidocSectionNode } from "@/components/section/description/render-artidoc-section-node";
 import { setupMonoEditorPlugins } from "../mono-editor/setupMonoEditorPlugins";
 import { getProjectIdFromSection } from "@/helpers/get-project-id-from-section";
+import { HEADINGS_BUTTON_STATE } from "@/headings-button-state-injection-key";
 
 const toolbar_bus = strictInject(TOOLBAR_BUS);
+const headings_button_state = strictInject(HEADINGS_BUTTON_STATE);
 
 const props = defineProps<{
     section: ReactiveStoredArtidocSection;
@@ -117,12 +119,16 @@ onMounted(async () => {
         area_editor.value,
         setupUploadPlugin,
         setupInputPlugin,
-        () => setupMonoEditorPlugins(toolbar_bus),
+        () => setupMonoEditorPlugins(toolbar_bus, headings_button_state, props.section),
         is_upload_allowed,
         renderArtidocSectionNode(props.section),
         getProjectIdFromSection(props.section.value) ?? current_project_id,
         toolbar_bus,
-        artidoc_editor_schema,
+        {
+            custom_editor_nodes: artidoc_editor_schema,
+            are_headings_enabled: false,
+            are_subtitles_enabled: true,
+        },
     );
     editorView.value = useEditorInstance.editor;
 });
@@ -136,11 +142,29 @@ artidoc-section-title {
     display: block;
     margin: 0 0 var(--tlp-large-spacing);
     padding: 0 0 var(--tlp-small-spacing);
+}
+
+.artidoc-section-level-1 artidoc-section-title {
     border-bottom: 1px solid var(--tlp-neutral-normal-color);
     color: var(--tlp-dark-color);
     font-size: 36px;
     font-weight: 600;
     line-height: 40px;
+}
+
+.artidoc-section-level-2 artidoc-section-title {
+    color: var(--tlp-dark-color);
+    font-size: 28px;
+    font-weight: 400;
+    line-height: 36px;
+}
+
+.artidoc-section-level-3 artidoc-section-title {
+    color: var(--tlp-dimmed-color);
+    font-size: 20px;
+    font-weight: 600;
+    line-height: 24px;
+    text-transform: uppercase;
 }
 
 artidoc-section-description {

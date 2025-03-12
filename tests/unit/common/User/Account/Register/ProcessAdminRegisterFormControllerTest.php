@@ -28,6 +28,7 @@ use Tuleap\Test\Builders\HTTPRequestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class ProcessAdminRegisterFormControllerTest extends TestCase
 {
     public function testAdminShouldProvideAPassword(): void
@@ -46,9 +47,7 @@ class ProcessAdminRegisterFormControllerTest extends TestCase
         self::assertTrue($form_processor->isPasswordNeeded());
     }
 
-    /**
-     * @dataProvider getNonAdminUsers
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getNonAdminUsers')]
     public function testRejectForNonAdmin(\PFUser $user): void
     {
         $this->expectException(ForbiddenException::class);

@@ -22,6 +22,7 @@
 declare(strict_types=1);
 
 //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class MetadataListOfValuesElementFactoryTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testCloneValues(): void
@@ -154,9 +155,7 @@ final class MetadataListOfValuesElementFactoryTest extends \Tuleap\Test\PHPUnit\
         self::assertArrayHasKey(PLUGIN_DOCMAN_ITEM_STATUS_REJECTED, $statuses);
     }
 
-    /**
-     * @dataProvider dataProviderDocmanStatus
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderDocmanStatus')]
     public function testItReturnsTheExpectedStatus(int $status_id): void
     {
         $metadata_list_of_values_element_factory = new Docman_MetadataListOfValuesElementFactory();
@@ -176,9 +175,7 @@ final class MetadataListOfValuesElementFactoryTest extends \Tuleap\Test\PHPUnit\
         ];
     }
 
-    /**
-     * @dataProvider dataProviderDocmanStatus
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderDocmanStatus')]
     public function testItReturnsNoneStatusIfTheExpectedStatusIDIsZero(): void
     {
         $metadata_list_of_values_element_factory = new Docman_MetadataListOfValuesElementFactory();

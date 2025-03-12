@@ -54,4 +54,6 @@ export type WidgetData = {
     readonly documentation_base_url: string;
     readonly is_multiple_query_supported: boolean;
     readonly dashboard_type: string;
+    readonly title_attribute: string;
+    readonly default_title: string;
 };

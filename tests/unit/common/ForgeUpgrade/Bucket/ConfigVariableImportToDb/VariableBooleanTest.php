@@ -25,11 +25,10 @@ namespace Tuleap\ForgeUpgrade\Bucket\ConfigVariableImportToDb;
 
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class VariableBooleanTest extends TestCase
 {
-    /**
-     * @dataProvider dataForBooleanTests
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataForBooleanTests')]
     public function testBooleanConversion(string $expected, mixed $value): void
     {
         self::assertEquals($expected, VariableBoolean::withSameName('foo', true)->getValueAsString($value));

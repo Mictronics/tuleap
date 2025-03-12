@@ -29,6 +29,7 @@ use Tuleap\ProgramManagement\Tests\Stub\RetrieveFullTrackerFromIdStub;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class TrackerConfigurationCheckerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private const PROGRAM_ID = 197;
@@ -73,9 +74,7 @@ final class TrackerConfigurationCheckerTest extends \Tuleap\Test\PHPUnit\TestCas
         ];
     }
 
-    /**
-     * @dataProvider dataProviderMethodUnderTest
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderMethodUnderTest')]
     public function testItReturnsVoidWhenTrackerIsValid(callable $method_under_test): void
     {
         $project = ProjectTestBuilder::aProject()->withId(self::PROGRAM_ID)->build();
@@ -85,18 +84,14 @@ final class TrackerConfigurationCheckerTest extends \Tuleap\Test\PHPUnit\TestCas
         $method_under_test(RetrieveFullTrackerFromIdStub::withTracker($tracker));
     }
 
-    /**
-     * @dataProvider dataProviderMethodUnderTest
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderMethodUnderTest')]
     public function testItThrowsWhenGivenTrackerCannotBeFound(callable $method_under_test): void
     {
         $this->expectException(PlanTrackerNotFoundException::class);
         $method_under_test(RetrieveFullTrackerFromIdStub::withNoTracker());
     }
 
-    /**
-     * @dataProvider dataProviderMethodUnderTest
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderMethodUnderTest')]
     public function testItThrowsWhenGivenTrackerIsNotFromGivenProgram(callable $method_under_test): void
     {
         $project = ProjectTestBuilder::aProject()->withId(106)->build();

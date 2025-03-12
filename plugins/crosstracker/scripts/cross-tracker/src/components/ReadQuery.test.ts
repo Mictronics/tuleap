@@ -23,7 +23,6 @@ import { shallowMount } from "@vue/test-utils";
 import { nextTick } from "vue";
 import { errAsync, okAsync } from "neverthrow";
 import { Fault } from "@tuleap/fault";
-import { Option } from "@tuleap/option";
 import { getGlobalTestOptions } from "../helpers/global-options-for-tests";
 import * as rest_querier from "../api/rest-querier";
 import ReadingMode from "../components/reading-mode/ReadingMode.vue";
@@ -34,16 +33,59 @@ import {
     IS_USER_ADMIN,
     WIDGET_ID,
 } from "../injection-symbols";
-import { EmitterStub } from "../../tests/stubs/EmitterStub";
 import ReadQuery from "./ReadQuery.vue";
+import type {
+    EmitterProvider,
+    Events,
+    NotifyFaultEvent,
+    NotifySuccessEvent,
+    SwitchQueryEvent,
+    UpdateWidgetTitleEvent,
+} from "../helpers/emitter-provider";
+import {
+    UPDATE_WIDGET_TITLE_EVENT,
+    CLEAR_FEEDBACK_EVENT,
+    NOTIFY_FAULT_EVENT,
+    NOTIFY_SUCCESS_EVENT,
+    SWITCH_QUERY_EVENT,
+} from "../helpers/emitter-provider";
+import type { Query } from "../type";
+import mitt from "mitt";
 
 vi.useFakeTimers();
 
 describe("ReadQuery", () => {
     let is_user_admin: boolean;
+    let dispatched_switch_query_events: SwitchQueryEvent[];
+    let dispatched_clear_feedback_events: true[];
+    let dispatched_fault_events: NotifyFaultEvent[];
+    let dispatched_success_events: NotifySuccessEvent[];
+    let dispatched_updated_title_events: UpdateWidgetTitleEvent[];
+    let emitter: EmitterProvider;
 
     beforeEach(() => {
         is_user_admin = true;
+        dispatched_switch_query_events = [];
+        dispatched_clear_feedback_events = [];
+        dispatched_fault_events = [];
+        dispatched_success_events = [];
+        dispatched_updated_title_events = [];
+        emitter = mitt<Events>();
+        emitter.on(SWITCH_QUERY_EVENT, (event) => {
+            dispatched_switch_query_events.push(event);
+        });
+        emitter.on(CLEAR_FEEDBACK_EVENT, () => {
+            dispatched_clear_feedback_events.push(true);
+        });
+        emitter.on(NOTIFY_FAULT_EVENT, (event) => {
+            dispatched_fault_events.push(event);
+        });
+        emitter.on(NOTIFY_SUCCESS_EVENT, (event) => {
+            dispatched_success_events.push(event);
+        });
+        emitter.on(UPDATE_WIDGET_TITLE_EVENT, (event) => {
+            dispatched_updated_title_events.push(event);
+        });
 
         vi.spyOn(rest_querier, "getQueries").mockReturnValue(
             okAsync([
@@ -64,7 +106,7 @@ describe("ReadQuery", () => {
                 provide: {
                     [WIDGET_ID.valueOf()]: 96,
                     [IS_USER_ADMIN.valueOf()]: is_user_admin,
-                    [EMITTER.valueOf()]: EmitterStub(),
+                    [EMITTER.valueOf()]: emitter,
                     [IS_MULTIPLE_QUERY_SUPPORTED.valueOf()]: true,
                 },
             },
@@ -83,7 +125,7 @@ describe("ReadQuery", () => {
             wrapper.findComponent(ReadingMode).vm.$emit("switch-to-writing-mode");
 
             expect(wrapper.vm.report_state).toBe("edit-query");
-            expect(wrapper.vm.current_fault.isNothing()).toBe(true);
+            expect(dispatched_clear_feedback_events).toHaveLength(1);
         });
 
         it(`Given I am not admin,
@@ -112,8 +154,7 @@ describe("ReadQuery", () => {
             wrapper.findComponent(WritingMode).vm.$emit("cancel-query-edition");
 
             expect(wrapper.vm.report_state).toBe("report-saved");
-            expect(wrapper.vm.current_fault.isNothing()).toBe(true);
-            expect(wrapper.vm.current_success.isNothing()).toBe(true);
+            expect(dispatched_clear_feedback_events).toHaveLength(2);
         });
     });
 
@@ -136,8 +177,7 @@ describe("ReadQuery", () => {
             });
 
             expect(wrapper.vm.report_state).toBe("result-preview");
-            expect(wrapper.vm.current_fault.isNothing()).toBe(true);
-            expect(wrapper.vm.current_success.isNothing()).toBe(true);
+            expect(dispatched_clear_feedback_events).toHaveLength(2);
         });
     });
 
@@ -165,8 +205,9 @@ describe("ReadQuery", () => {
             });
 
             expect(wrapper.vm.report_state).toBe("report-saved");
-            expect(wrapper.vm.current_fault.isNothing()).toBe(true);
-            expect(wrapper.vm.current_success.unwrapOr(null)).toStrictEqual(expect.any(String));
+            expect(dispatched_fault_events).toHaveLength(0);
+            expect(dispatched_success_events).toHaveLength(1);
+            expect(dispatched_success_events[0].message).toStrictEqual(expect.any(String));
         });
     });
 
@@ -190,8 +231,7 @@ describe("ReadQuery", () => {
             wrapper.findComponent(ReadingMode).vm.$emit("discard-unsaved-report");
 
             expect(wrapper.vm.report_state).toBe("report-saved");
-            expect(wrapper.vm.current_fault.isNothing()).toBe(true);
-            expect(wrapper.vm.current_success.isNothing()).toBe(true);
+            expect(dispatched_clear_feedback_events).toHaveLength(3);
         });
     });
 
@@ -212,10 +252,11 @@ describe("ReadQuery", () => {
             vi.spyOn(rest_querier, "getQueries").mockReturnValue(
                 errAsync(Fault.fromMessage("Report 41 not found")),
             );
-            const wrapper = getWrapper();
+            getWrapper();
             await vi.runOnlyPendingTimersAsync();
 
-            expect(wrapper.vm.current_fault.unwrapOr(null)?.isReportRetrieval()).toBe(true);
+            expect(dispatched_fault_events).toHaveLength(1);
+            expect(dispatched_fault_events[0].fault.isReportRetrieval()).toBe(true);
         });
 
         it("Force edit mode when widget has no query", async () => {
@@ -224,6 +265,28 @@ describe("ReadQuery", () => {
             await vi.runOnlyPendingTimersAsync();
 
             expect(wrapper.vm.report_state).toBe("edit-query");
+        });
+
+        it("Does not emit a SWITCH_QUERY_EVENT when there are no queries", () => {
+            vi.spyOn(rest_querier, "getQueries").mockReturnValue(okAsync([]));
+            getWrapper();
+
+            expect(dispatched_switch_query_events.length).toBe(0);
+        });
+
+        it("Does emit a UPDATE_WIDGET_TITLE_EVENT with the first query as parameter once done loading", async () => {
+            const query = 'SELECT @title FROM @project.name="TATAYO" WHERE @title != ""';
+            const uuid1 = "0194dfd6-a489-703b-aabd-9d473212d908";
+            const uuid2 = "01952813-7ae7-7a27-bcc0-4a9c660dccb4";
+            const queries: ReadonlyArray<Query> = [
+                { tql_query: query, title: "TQL query title 1", description: "", id: uuid1 },
+                { tql_query: query, title: "TQL query title 2", description: "", id: uuid2 },
+            ];
+            vi.spyOn(rest_querier, "getQueries").mockReturnValue(okAsync(queries));
+            getWrapper();
+            await vi.runOnlyPendingTimersAsync();
+
+            expect(dispatched_updated_title_events[0].new_title).toStrictEqual(queries[0].title);
         });
     });
 
@@ -238,9 +301,12 @@ describe("ReadQuery", () => {
             expect(wrapper.vm.is_export_allowed).toBe(false);
         });
 
-        it(`when there was an error, it does not allow XLSX export`, () => {
+        it(`when there was an error, it does not allow XLSX export`, async () => {
+            vi.spyOn(rest_querier, "getQueries").mockReturnValue(
+                errAsync(Fault.fromMessage("Oops an error")),
+            );
             const wrapper = getWrapper();
-            wrapper.vm.current_fault = Option.fromValue(Fault.fromMessage("Ooops"));
+            await vi.runOnlyPendingTimersAsync();
 
             expect(wrapper.vm.is_export_allowed).toBe(false);
         });
@@ -256,11 +322,10 @@ describe("ReadQuery", () => {
         it(`when user is admin and there is an error selected in the report,
             it does not allow XLSX export`, async () => {
             vi.spyOn(rest_querier, "getQueries").mockReturnValue(
-                okAsync([{ tql_query: "", title: "title", description: "", id: "" }]),
+                errAsync(Fault.fromMessage("Ooops an error")),
             );
 
             const wrapper = getWrapper();
-            wrapper.vm.current_fault = Option.fromValue(Fault.fromMessage("Ooops"));
 
             await vi.runOnlyPendingTimersAsync();
 
@@ -268,7 +333,7 @@ describe("ReadQuery", () => {
         });
 
         it(`when user is admin and there are no invalid trackers,
-            it allows CSV export`, () => {
+            it allows xlsx export`, () => {
             const wrapper = getWrapper();
 
             expect(wrapper.vm.is_export_allowed).toBe(true);

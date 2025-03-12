@@ -35,15 +35,16 @@ use Tuleap\Test\Builders\TestLayout;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\Stubs\EventDispatcherStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AdminControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use GlobalLanguageMock;
 
     private const PROJECT_ID = 123;
-    private \Codendi_Request & Stub $request;
+    private \Codendi_Request&Stub $request;
     private ConfigurationDao&MockObject $configuration_dao;
-    private \EventManager & Stub $event_manager;
-    private CountElementsModeChecker & Stub $count_element_mode_checker;
+    private \EventManager&Stub $event_manager;
+    private CountElementsModeChecker&Stub $count_element_mode_checker;
     private \PFUser $user;
 
     protected function setUp(): void

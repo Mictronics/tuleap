@@ -22,12 +22,14 @@ declare(strict_types=1);
 
 namespace Tuleap\User\Account\Register;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tuleap\Layout\BaseLayout;
 use Tuleap\Request\ForbiddenException;
 use Tuleap\Test\Builders\HTTPRequestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class DisplayAdminRegisterFormControllerTest extends TestCase
 {
     public function testAdminShouldProvideAPassword(): void
@@ -46,9 +48,7 @@ class DisplayAdminRegisterFormControllerTest extends TestCase
         self::assertTrue($form_displayer->isPasswordNeeded());
     }
 
-    /**
-     * @dataProvider getNonAdminUsers
-     */
+    #[DataProvider('getNonAdminUsers')]
     public function testRejectForNonAdmin(\PFUser $user): void
     {
         $this->expectException(ForbiddenException::class);

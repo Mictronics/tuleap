@@ -34,13 +34,14 @@ use Tuleap\Tracker\Admin\MoveArtifacts\MoveActionAllowedDAO;
 use Tuleap\Tracker\Artifact\Changeset\Comment\PrivateComment\TrackerPrivateCommentUGroupEnabledDao;
 use Tuleap\Tracker\PromotedTrackerDao;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
-use Tuleap\Tracker\Test\Stub\Tracker\FormElement\RetrieveFormElementsForTrackerStub;
-use Tuleap\Tracker\Test\Stub\Tracker\Notifications\Settings\CheckEventShouldBeSentInNotificationStub;
+use Tuleap\Tracker\Test\Stub\FormElement\RetrieveFormElementsForTrackerStub;
+use Tuleap\Tracker\Test\Stub\Notifications\Settings\CheckEventShouldBeSentInNotificationStub;
 use Tuleap\Tracker\TrackerColor;
 use Tuleap\Tracker\Webhook\WebhookXMLExporter;
 use Tuleap\Tracker\Workflow\SimpleMode\SimpleWorkflowXMLExporter;
 use UserXMLExporter;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class TrackerStructureXMLExporterTest extends TestCase
 {
     private const TRACKER_ID = 110;

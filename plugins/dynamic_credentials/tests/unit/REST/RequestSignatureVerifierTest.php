@@ -26,6 +26,7 @@ use Tuleap\Cryptography\Asymmetric\SignaturePublicKey;
 use Tuleap\Cryptography\ConcealedString;
 use Tuleap\Option\Option;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class RequestSignatureVerifierTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use \Tuleap\ForgeConfigSandbox;
@@ -40,9 +41,7 @@ final class RequestSignatureVerifierTest extends \Tuleap\Test\PHPUnit\TestCase
         \ForgeConfig::set('sys_default_domain', self::USED_DOMAIN);
     }
 
-    /**
-     * @dataProvider signedParameterProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('signedParameterProvider')]
     public function testSignatureIsValid(string $signature, string $parameter, bool $expected_result): void
     {
         $request_signature_verifier = new RequestSignatureVerifier(

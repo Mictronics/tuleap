@@ -46,6 +46,7 @@ use Tuleap\Tracker\Report\Query\Advanced\Grammar\NotEqualComparison;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\SimpleValueWrapper;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\StatusOpenValueWrapper;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class SubmissionDateCheckerTest extends TestCase
 {
     private Metadata $metadata;
@@ -119,9 +120,7 @@ final class SubmissionDateCheckerTest extends TestCase
         yield "<= ''" => [new LesserThanOrEqualComparison($metadata, $empty_value)];
     }
 
-    /**
-     * @dataProvider generateInvalidComparisonsToEmptyString
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('generateInvalidComparisonsToEmptyString')]
     public function testItForbidsEmptyValueForComparisons(Comparison $comparison): void
     {
         $this->expectException(EmptyStringComparisonException::class);

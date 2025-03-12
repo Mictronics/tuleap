@@ -36,6 +36,7 @@ use Tuleap\Tracker\REST\TrackerRepresentation;
 use Tuleap\Tracker\Test\Stub\RetrieveUsedFieldsStub;
 use Tuleap\User\REST\UserRepresentation;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FlatArtifactRepresentationTransformerTest extends TestCase
 {
     public function testTransformRepresentationWithMultipleFieldValues(): void
@@ -91,9 +92,7 @@ final class FlatArtifactRepresentationTransformerTest extends TestCase
         self::assertSame('Something is not OK.', (string) $result->error);
     }
 
-    /**
-     * @dataProvider dataProviderFieldValues
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderFieldValues')]
     public function testTransformAllFieldValues(
         ArtifactFieldValueFullRepresentation|ArtifactFieldValueTextRepresentation|ArtifactFieldComputedValueFullRepresentation|ArtifactFieldValueListFullRepresentation|ArtifactFieldValueOpenListFullRepresentation $field_value,
         array $expected_flat_value,

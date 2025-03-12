@@ -30,6 +30,7 @@ use Tracker_FormElement_Field_List;
 use Tracker_FormElement_Field_List_Bind_Static;
 use XMLImportHelper;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FieldValueMatcherTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -94,9 +95,7 @@ final class FieldValueMatcherTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->matcher     = new FieldValueMatcher($this->user_finder);
     }
 
-    /**
-     * @dataProvider dataProviderMatchingValue
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderMatchingValue')]
     public function testItMatchesValueByDuckTyping(
         \Tracker_FormElement_Field_List_BindValue $source_value,
         array $values,
@@ -171,9 +170,7 @@ final class FieldValueMatcherTest extends \Tuleap\Test\PHPUnit\TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderMatchingValue
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderMatchingValue')]
     public function testItMatchesBindValueByDuckTyping(
         \Tracker_FormElement_Field_List_BindValue $source_value,
         array $values,
