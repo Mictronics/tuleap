@@ -884,10 +884,12 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
                 $action = new Tracker_Action_CreateArtifactFromModal($request, $this, $this->getArtifactCreator(), $this->getTrackerArtifactFactory());
                 $action->process($current_user);
                 break;
-            case 'admin-hierarchy':
+            case HierarchyController::HIERARCHY_VIEW:
                 if ($this->userIsAdmin($current_user)) {
+                    $hierarchy_controller = $this->getHierarchyController($request);
+                    $hierarchy_controller->includeHeaderAssets();
                     $this->displayAdminHeader($layout, 'hierarchy', dgettext('tuleap-tracker', 'Hierarchy'));
-                    $this->getHierarchyController($request)->edit();
+                    $hierarchy_controller->edit();
                     $this->displayAdminFooter($layout);
                 } else {
                     $GLOBALS['Response']->addFeedback('error', dgettext('tuleap-tracker', 'Access denied. You don\'t have permissions to perform this action.'));
@@ -1032,7 +1034,9 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
             new Tracker_Workflow_Trigger_RulesDao(),
             new ArtifactLinksUsageDao(),
             EventManager::instance(),
-            new ProjectHistoryDao()
+            new ProjectHistoryDao(),
+            $GLOBALS['Response'],
+            new CSRFSynchronizerToken('/plugins/tracker/?' . http_build_query(['tracker' => $this->getId(), 'func' => HierarchyController::HIERARCHY_VIEW]))
         );
 
         return $controller;

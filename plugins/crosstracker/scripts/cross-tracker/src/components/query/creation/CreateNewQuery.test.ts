@@ -42,6 +42,7 @@ import QuerySelectableTable from "../QuerySelectableTable.vue";
 import { PostNewQueryStub } from "../../../../tests/stubs/PostNewQueryStub";
 import type { PostNewQuery } from "../../../domain/PostNewQuery";
 import mitt from "mitt";
+import QueryDisplayedByDefaultSwitch from "../QueryDisplayedByDefaultSwitch.vue";
 
 vi.useFakeTimers();
 
@@ -52,8 +53,8 @@ describe("CreateNewQuery", () => {
     let dispatched_search_events: true[];
     let emitter: EmitterProvider;
 
-    const QueryEditorForCreation = {
-        name: "QueryEditorForCreation",
+    const QueryEditor = {
+        name: "QueryEditor",
         template: "<div>custom query editor</div>",
         methods: {
             updateEditor: (tql_query: string): string => tql_query,
@@ -86,7 +87,7 @@ describe("CreateNewQuery", () => {
         return shallowMount(CreateNewQuery, {
             global: {
                 ...getGlobalTestOptions(),
-                stubs: { QueryEditorForCreation },
+                stubs: { QueryEditor },
                 provide: {
                     [WIDGET_ID.valueOf()]: 96,
                     [EMITTER.valueOf()]: emitter,
@@ -118,7 +119,7 @@ describe("CreateNewQuery", () => {
             const wrapper = getWrapper();
             wrapper.findComponent(TitleInput).vm.$emit("update:title", "Some title");
             wrapper
-                .findComponent(QueryEditorForCreation)
+                .findComponent(QueryEditor)
                 .vm.$emit("update:tql_query", "SELECT @id FROM @project = 'self' WHERE @id > 1 ");
             await vi.runOnlyPendingTimersAsync();
 
@@ -133,7 +134,7 @@ describe("CreateNewQuery", () => {
             const wrapper = getWrapper();
             wrapper.findComponent(TitleInput).vm.$emit("update:title", "Some title");
             wrapper
-                .findComponent(QueryEditorForCreation)
+                .findComponent(QueryEditor)
                 .vm.$emit("update:tql_query", "SELECT @id FROM @project = 'self' WHERE @id > 1 ");
 
             await vi.runOnlyPendingTimersAsync();
@@ -150,7 +151,7 @@ describe("CreateNewQuery", () => {
     it("update the fields and the editor when the query has been chosen", () => {
         const tql_query = "SELECT @id FROM @project='self' WHERE @id > 1";
         const wrapper = getWrapper();
-        const editor_component = wrapper.getComponent(QueryEditorForCreation);
+        const editor_component = wrapper.getComponent(QueryEditor);
         const editor_spy = vi.spyOn(editor_component.vm, "updateEditor");
         wrapper.findComponent(QuerySuggested).vm.$emit("query-chosen", {
             title: "Original title",
@@ -169,7 +170,7 @@ describe("CreateNewQuery", () => {
             const wrapper = getWrapper();
 
             wrapper
-                .findComponent(QueryEditorForCreation)
+                .findComponent(QueryEditor)
                 .vm.$emit("update:tql_query", "SELECT @id FROM @project = 'self' WHERE @id > 1 ");
 
             await vi.runOnlyPendingTimersAsync();
@@ -182,7 +183,7 @@ describe("CreateNewQuery", () => {
             const wrapper = getWrapper();
 
             wrapper
-                .findComponent(QueryEditorForCreation)
+                .findComponent(QueryEditor)
                 .vm.$emit("trigger-search", "SELECT @id FROM @project = 'self' WHERE @id > 1 ");
 
             await wrapper.find("[data-test=query-creation-search-button]").trigger("click");
@@ -194,7 +195,7 @@ describe("CreateNewQuery", () => {
             const wrapper = getWrapper();
 
             wrapper
-                .findComponent(QueryEditorForCreation)
+                .findComponent(QueryEditor)
                 .vm.$emit("update:tql_query", "SELECT @id FROM @project = 'self' WHERE @id > 1 ");
             wrapper.findComponent(TitleInput).vm.$emit("update:title", "Some title");
 
@@ -230,12 +231,23 @@ describe("CreateNewQuery", () => {
     });
     describe("Saving a new query", () => {
         it("saves a new query result when the save button is clicked", async () => {
-            const wrapper = getWrapper(PostNewQueryStub.withDefaultContent());
-
+            const title = "Some title";
+            const description = "";
+            const is_default = true;
+            const tql_query = "SELECT @id FROM @project = 'self' WHERE @id > 1 ";
+            const wrapper = getWrapper(
+                PostNewQueryStub.withCallback((query_to_post) => {
+                    expect(query_to_post.title).toStrictEqual(title);
+                    expect(query_to_post.description).toStrictEqual(description);
+                    expect(query_to_post.is_default).toStrictEqual(is_default);
+                    expect(query_to_post.tql_query).toStrictEqual(tql_query);
+                }),
+            );
+            wrapper.findComponent(QueryEditor).vm.$emit("update:tql_query", tql_query);
+            wrapper.findComponent(TitleInput).vm.$emit("update:title", title);
             wrapper
-                .findComponent(QueryEditorForCreation)
-                .vm.$emit("update:tql_query", "SELECT @id FROM @project = 'self' WHERE @id > 1 ");
-            wrapper.findComponent(TitleInput).vm.$emit("update:title", "Some title");
+                .findComponent(QueryDisplayedByDefaultSwitch)
+                .vm.$emit("update:is_default_query", is_default);
 
             await vi.runOnlyPendingTimersAsync();
 
@@ -254,7 +266,7 @@ describe("CreateNewQuery", () => {
             const wrapper = getWrapper(PostNewQueryStub.withFault(Fault.fromMessage("Error")));
 
             wrapper
-                .findComponent(QueryEditorForCreation)
+                .findComponent(QueryEditor)
                 .vm.$emit("update:tql_query", "SELECT @id FROM @project = 'self' WHERE @id > 1 ");
             wrapper.findComponent(TitleInput).vm.$emit("update:title", "Some title");
 

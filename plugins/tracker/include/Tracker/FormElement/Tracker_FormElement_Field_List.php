@@ -21,9 +21,6 @@
 
 use Tuleap\Option\Option;
 use Tuleap\Tracker\Artifact\Artifact;
-use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\DeleteSpecificProperties;
-use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\ListFieldSpecificPropertiesDAO;
-use Tuleap\Tracker\Artifact\FormElement\FieldSpecificProperties\SpecificPropertiesWithMappingDuplicator;
 use Tuleap\Tracker\FormElement\Field\FieldDao;
 use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
 use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindDefaultValueDao;
@@ -31,6 +28,9 @@ use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindStaticValueUnchanged;
 use Tuleap\Tracker\FormElement\Field\ListFields\ItemsDataset\ItemsDatasetBuilder;
 use Tuleap\Tracker\FormElement\Field\ListFields\ListValueDao;
 use Tuleap\Tracker\FormElement\Field\XMLCriteriaValueCache;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\DeleteSpecificProperties;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\ListFieldSpecificPropertiesDAO;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\SpecificPropertiesWithMappingDuplicator;
 use Tuleap\Tracker\FormElement\ListFormElementTypeUpdater;
 use Tuleap\Tracker\FormElement\TransitionListValidator;
 use Tuleap\Tracker\Report\Criteria\CriteriaListValueDAO;
@@ -994,7 +994,7 @@ abstract class Tracker_FormElement_Field_List extends Tracker_FormElement_Field 
             $required = 'required ';
         }
 
-        $html .= "<select $id $name $multiple $size $bind_type $required";
+        $html .= "<select $id $name $multiple $size $bind_type $required data-test='form-element-field-list'>'";
         if ($data_target_fields_ids !== '') {
             $html .= $data_target_fields_ids;
         }
@@ -1013,7 +1013,7 @@ abstract class Tracker_FormElement_Field_List extends Tracker_FormElement_Field 
 
         $styles       = $list_bind->getSelectOptionStyles($value_id);
         $selected     = $is_selected ? 'selected="selected"' : '';
-        $option_start = '<option value="'
+        $option_start = '<option data-test="field-list-value" value="'
                         . $value_id
                         . '" '
                         . $selected
@@ -1175,7 +1175,7 @@ abstract class Tracker_FormElement_Field_List extends Tracker_FormElement_Field 
             $child = $node->addChild('bind');
             $bf    = new Tracker_FormElement_Field_List_BindFactory();
             $child->addAttribute('type', $bf->getType($this->getBind()));
-            $this->getBind()->exportToXML($child, $xmlMapping, $project_export_context, $user_xml_exporter);
+            $this->getBind()->exportBindToXml($child, $xmlMapping, $project_export_context, $user_xml_exporter);
         }
         return $node;
     }

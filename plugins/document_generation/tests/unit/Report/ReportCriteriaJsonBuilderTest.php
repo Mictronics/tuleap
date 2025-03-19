@@ -27,11 +27,8 @@ use Tracker;
 use Tracker_FormElement_Field_Date;
 use Tracker_FormElement_Field_List;
 use Tracker_FormElement_Field_List_Bind_Static;
-use Tracker_FormElement_Field_List_Bind_StaticValue;
 use Tracker_FormElement_Field_List_Bind_Ugroups;
-use Tracker_FormElement_Field_List_Bind_UgroupsValue;
 use Tracker_FormElement_Field_List_Bind_Users;
-use Tracker_FormElement_Field_List_Bind_UsersValue;
 use Tracker_FormElement_Field_List_UnsavedValue;
 use Tracker_FormElement_Field_OpenList;
 use Tracker_FormElement_Field_String;
@@ -42,6 +39,9 @@ use Tracker_Report_Criteria;
 use Tuleap\GlobalLanguageMock;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
+use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticValueBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\List\ListUserValueBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\List\ListUserGroupValueBuilder;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ReportCriteriaJsonBuilderTest extends TestCase
@@ -233,8 +233,8 @@ final class ReportCriteriaJsonBuilderTest extends TestCase
         $user_bind
             ->method('getValue')
             ->willReturnMap([
-                ['101', new Tracker_FormElement_Field_List_Bind_UsersValue(101, 'User01', 'User Name 01')],
-                ['102', new Tracker_FormElement_Field_List_Bind_UsersValue(102, 'User02', 'User Name 02')],
+                ['101', ListUserValueBuilder::aUserWithId(101)->withDisplayedName('User Name 01')->build()],
+                ['102', ListUserValueBuilder::aUserWithId(102)->withDisplayedName('User Name 02')->build()],
             ]);
 
         $list_user_field
@@ -275,8 +275,8 @@ final class ReportCriteriaJsonBuilderTest extends TestCase
         $group_bind
             ->method('getValue')
             ->willReturnMap([
-                ['115', new Tracker_FormElement_Field_List_Bind_UgroupsValue(115, $ugroup_01, false)],
-                ['172', new Tracker_FormElement_Field_List_Bind_UgroupsValue(172, $ugroup_02, false)],
+                ['115', ListUserGroupValueBuilder::aUserGroupValue($ugroup_01)->withId(115)->build()],
+                ['172', ListUserGroupValueBuilder::aUserGroupValue($ugroup_02)->withId(172)->build()],
             ]);
 
         $list_groups_field
@@ -311,8 +311,8 @@ final class ReportCriteriaJsonBuilderTest extends TestCase
         $static_bind
             ->method('getValue')
             ->willReturnMap([
-                ['299', new Tracker_FormElement_Field_List_Bind_StaticValue(299, 'Static value 01', '', 1, false)],
-                ['300', new Tracker_FormElement_Field_List_Bind_StaticValue(300, 'Static value 02', '', 2, false)],
+                ['299', ListStaticValueBuilder::aStaticValue('Static value 01')->withId(299)->build()],
+                ['300', ListStaticValueBuilder::aStaticValue('Static value 02')->withId(300)->build()],
             ]);
 
         $list_static_field
@@ -356,20 +356,8 @@ final class ReportCriteriaJsonBuilderTest extends TestCase
             ->method('extractCriteriaValue')
             ->with('b14,b15,!abc')
             ->willReturn([
-                new Tracker_FormElement_Field_List_Bind_StaticValue(
-                    14,
-                    'a',
-                    '',
-                    1,
-                    false
-                ),
-                new Tracker_FormElement_Field_List_Bind_StaticValue(
-                    15,
-                    'b',
-                    '',
-                    2,
-                    false
-                ),
+                ListStaticValueBuilder::aStaticValue('a')->withId(14)->build(),
+                ListStaticValueBuilder::aStaticValue('b')->withId(15)->build(),
                 new Tracker_FormElement_Field_List_UnsavedValue(
                     'abc'
                 ),

@@ -32,6 +32,9 @@ use Tuleap\ProgramManagement\Tests\Builder\SynchronizedFieldReferencesBuilder;
 use Tuleap\ProgramManagement\Tests\Stub\DurationFieldReferenceStub;
 use Tuleap\ProgramManagement\Tests\Stub\EndDateFieldReferenceStub;
 use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticValueBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\List\ListUserGroupValueBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\List\ListUserValueBuilder;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FieldValuesGathererTest extends \Tuleap\Test\PHPUnit\TestCase
@@ -222,8 +225,8 @@ final class FieldValuesGathererTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testItReturnsStatusValuesWithStaticBind(): void
     {
-        $first_bind_value  = new \Tracker_FormElement_Field_List_Bind_StaticValue(557, 'Planned', '', 0, false);
-        $second_bind_value = new \Tracker_FormElement_Field_List_Bind_StaticValue(698, 'Current', '', 1, false);
+        $first_bind_value  = ListStaticValueBuilder::aStaticValue('Planned')->withId(557)->build();
+        $second_bind_value = ListStaticValueBuilder::aStaticValue('Current')->withId(698)->build();
         $changeset_value   = new \Tracker_Artifact_ChangesetValue_List(
             9331,
             $this->changeset,
@@ -242,8 +245,8 @@ final class FieldValuesGathererTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testItReturnsStatusValuesWithUsersBind(): void
     {
-        $first_bind_value  = new \Tracker_FormElement_Field_List_Bind_UsersValue(138, 'mgregg', 'Meridith Gregg');
-        $second_bind_value = new \Tracker_FormElement_Field_List_Bind_UsersValue(129, 'mmantel', 'Mildred Mantel');
+        $first_bind_value  = ListUserValueBuilder::aUserWithId(138)->withDisplayedName('Meridith Gregg')->build();
+        $second_bind_value = ListUserValueBuilder::aUserWithId(129)->withDisplayedName('Mildred Mantel')->build();
         $changeset_value   = new \Tracker_Artifact_ChangesetValue_List(
             9331,
             $this->changeset,
@@ -266,12 +269,12 @@ final class FieldValuesGathererTest extends \Tuleap\Test\PHPUnit\TestCase
             'ugroup_id' => \ProjectUGroup::PROJECT_MEMBERS,
             'name'      => \ProjectUGroup::NORMALIZED_NAMES[\ProjectUGroup::PROJECT_MEMBERS],
         ]);
-        $first_bind_value  = new \Tracker_FormElement_Field_List_Bind_UgroupsValue(95, $first_ugroup, false);
+        $first_bind_value  = ListUserGroupValueBuilder::aUserGroupValue($first_ugroup)->withId(95)->build();
         $second_ugroup     = new \ProjectUGroup([
             'ugroup_id' => 351,
             'name'      => 'bicyanide benzothiopyran',
         ]);
-        $second_bind_value = new \Tracker_FormElement_Field_List_Bind_UgroupsValue(265, $second_ugroup, false);
+        $second_bind_value = ListUserGroupValueBuilder::aUserGroupValue($second_ugroup)->withId(256)->build();
         $changeset_value   = new \Tracker_Artifact_ChangesetValue_List(
             9331,
             $this->changeset,

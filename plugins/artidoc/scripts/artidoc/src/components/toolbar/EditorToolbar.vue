@@ -50,26 +50,24 @@
 </template>
 
 <script setup lang="ts">
-import { onMounted, ref, watch } from "vue";
+import { onMounted, onBeforeUnmount, ref, watch } from "vue";
 import {
     buildToolbarController,
     TEXT_STYLES_ITEMS_GROUP,
 } from "@tuleap/prose-mirror-editor-toolbar";
 import { TOOLBAR_BUS } from "@/toolbar-bus-injection-key";
 import { strictInject } from "@tuleap/vue-strict-inject";
-import { onClickActivateOrDeactivateToolbar } from "@/helpers/toolbar-activator";
+import { getOnClickOutsideToolbarDeactivator } from "@/helpers/OnClickOutsideToolbarDeactivator";
 import type { SectionsCollection } from "@/sections/SectionsCollection";
 import type { SectionsStatesCollection } from "@/sections/states/SectionsStatesCollection";
 import { createHeadingButton } from "@/toolbar/create-heading-button";
 import { HEADINGS_BUTTON_STATE } from "@/headings-button-state-injection-key";
-import { isUpdateSectionLevelEvent } from "@/toolbar/HeadingsButton";
-import { IS_FREETEXT_ALLOWED } from "@/is-freetext-allowed";
 import { getSectionsNumberer } from "@/sections/levels/SectionsNumberer";
+import { getUpdateSectionLevelEventHandler } from "@/sections/levels/UpdateSectionLevelEventHandler";
 
 const toolbar_bus = strictInject(TOOLBAR_BUS);
 const headings_button_state = strictInject(HEADINGS_BUTTON_STATE);
 const controller = buildToolbarController(toolbar_bus);
-const is_freetext_allowed = strictInject(IS_FREETEXT_ALLOWED);
 
 const toolbar = ref<HTMLElement | undefined>();
 
@@ -77,58 +75,38 @@ const props = defineProps<{
     sections: SectionsCollection;
     states_collection: SectionsStatesCollection;
 }>();
-const sections_numberer = getSectionsNumberer(props.sections);
 
-const headings_button = is_freetext_allowed
-    ? createHeadingButton(headings_button_state.active_section.value)
-    : undefined;
+const headings_button = createHeadingButton(headings_button_state.active_section.value);
 
-if (headings_button) {
-    headings_button.addEventListener("update-section-level", (event): void => {
-        if (!isUpdateSectionLevelEvent(event)) {
-            return;
-        }
+const level_update_handler = getUpdateSectionLevelEventHandler(
+    headings_button,
+    headings_button_state,
+    props.states_collection,
+    getSectionsNumberer(props.sections),
+);
 
-        const level = event.detail.level;
-        const section = headings_button_state.active_section.value;
+headings_button.addEventListener("update-section-level", level_update_handler.handle);
 
-        if (section === undefined || section.value.level === level) {
-            return;
-        }
+watch(
+    () => headings_button_state.active_section.value,
+    (active_section) => {
+        headings_button.section = active_section !== undefined ? active_section.value : undefined;
+    },
+);
 
-        const section_state = props.states_collection.getSectionState(section.value);
-        section_state.is_section_in_edit_mode.value = section_state.initial_level.value !== level;
-
-        sections_numberer.setSectionLevel(section, level);
-
-        headings_button.section = section.value;
-    });
-
-    watch(
-        () => headings_button_state.is_button_active.value,
-        (is_button_active) => {
-            headings_button.is_disabled = !is_button_active;
-        },
-    );
-
-    watch(
-        () => headings_button_state.active_section.value,
-        (active_section) => {
-            headings_button.section =
-                active_section !== undefined ? active_section.value : undefined;
-        },
-    );
-}
+const toolbar_deactivator = getOnClickOutsideToolbarDeactivator(
+    document,
+    toolbar,
+    toolbar_bus,
+    headings_button_state,
+);
 
 onMounted(() => {
-    if (toolbar.value) {
-        onClickActivateOrDeactivateToolbar(
-            document,
-            toolbar.value,
-            toolbar_bus,
-            headings_button_state,
-        );
-    }
+    toolbar_deactivator.startListening();
+});
+
+onBeforeUnmount(() => {
+    toolbar_deactivator.stopListening();
 });
 </script>
 

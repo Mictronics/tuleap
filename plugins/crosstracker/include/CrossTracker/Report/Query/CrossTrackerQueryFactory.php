@@ -24,7 +24,14 @@ namespace Tuleap\CrossTracker\Report\Query;
 
 use Tuleap\CrossTracker\CrossTrackerQuery;
 use Tuleap\CrossTracker\REST\v1\CrossTrackerQueryNotFoundException;
+use Tuleap\CrossTracker\REST\v1\Representation\CrossTrackerQueryPostRepresentation;
+use Tuleap\CrossTracker\REST\v1\Representation\CrossTrackerQueryPutRepresentation;
+use Tuleap\DB\DatabaseUUIDV7Factory;
+use Tuleap\DB\UUID;
 
+/**
+ * @psalm-import-type CrossTrackerQueryRow from CrossTrackerQueryDao
+ */
 final readonly class CrossTrackerQueryFactory
 {
     public function __construct(
@@ -42,7 +49,7 @@ final readonly class CrossTrackerQueryFactory
             throw new CrossTrackerQueryNotFoundException();
         }
 
-        return new CrossTrackerQuery($query_row['id'], $query_row['query'], $query_row['title'], $query_row['description'], $query_row['widget_id']);
+        return self::fromRow($query_row);
     }
 
     /**
@@ -54,9 +61,77 @@ final readonly class CrossTrackerQueryFactory
 
         $result = [];
         foreach ($rows as $row) {
-            $result[] = new CrossTrackerQuery($row['id'], $row['query'], $row['title'], $row['description'], $row['widget_id']);
+            $result[] = self::fromRow($row);
         }
 
         return $result;
+    }
+
+    public static function fromTqlQueryAndWidgetId(string $tql_query, int $widget_id): CrossTrackerQuery
+    {
+        $uuid_factory = new DatabaseUUIDV7Factory();
+        return new CrossTrackerQuery(
+            $uuid_factory->buildUUIDFromBytesData($uuid_factory->buildUUIDBytes()),
+            $tql_query,
+            '',
+            '',
+            $widget_id,
+            false
+        );
+    }
+
+    public static function fromQueryPostRepresentation(CrossTrackerQueryPOSTRepresentation $query_post_representation,): CrossTrackerQuery
+    {
+        $uuid_factory = new DatabaseUUIDV7Factory();
+        return new CrossTrackerQuery(
+            $uuid_factory->buildUUIDFromBytesData($uuid_factory->buildUUIDBytes()),
+            $query_post_representation->tql_query,
+            $query_post_representation->title,
+            $query_post_representation->description,
+            $query_post_representation->widget_id,
+            $query_post_representation->is_default,
+        );
+    }
+
+    public static function fromCreatedQuery(UUID $uuid, CrossTrackerQuery $new_query): CrossTrackerQuery
+    {
+        return new CrossTrackerQuery(
+            $uuid,
+            $new_query->getQuery(),
+            $new_query->getTitle(),
+            $new_query->getDescription(),
+            $new_query->getWidgetId(),
+            $new_query->isDefault(),
+        );
+    }
+
+    /** @psalm-param CrossTrackerQueryRow $row  */
+    private static function fromRow(array $row): CrossTrackerQuery
+    {
+        return new CrossTrackerQuery($row['id'], $row['query'], $row['title'], $row['description'], $row['widget_id'], $row['is_default']);
+    }
+
+    public static function fromQueryToEdit(CrossTrackerQuery $query_to_edit, CrossTrackerQueryPutRepresentation $new_query): CrossTrackerQuery
+    {
+        return new CrossTrackerQuery(
+            $query_to_edit->getUUID(),
+            $new_query->tql_query,
+            $new_query->title,
+            $new_query->description,
+            $new_query->widget_id,
+            $new_query->is_default,
+        );
+    }
+
+    public static function fromUpdatedQuery(UUID $uuid, CrossTrackerQuery $new_query): CrossTrackerQuery
+    {
+        return new CrossTrackerQuery(
+            $uuid,
+            $new_query->getQuery(),
+            $new_query->getTitle(),
+            $new_query->getDescription(),
+            $new_query->getWidgetId(),
+            $new_query->isDefault(),
+        );
     }
 }

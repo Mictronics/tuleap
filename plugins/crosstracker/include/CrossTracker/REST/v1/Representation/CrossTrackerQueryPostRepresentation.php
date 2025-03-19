@@ -43,4 +43,8 @@ final class CrossTrackerQueryPostRepresentation
      * @var string The query description {@required false}
      */
     public string $description;
+    /**
+     * @var bool The query is displayed by default or not {@required false}
+     */
+    public bool $is_default = false;
 }

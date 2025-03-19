@@ -33,7 +33,6 @@ import { UPLOAD_MAX_SIZE } from "@/max-upload-size-injecion-keys";
 import { IS_USER_ANONYMOUS } from "@/is-user-anonymous";
 import { NOTIFICATION_COLLECTION } from "@/sections/notifications/notification-collection-injection-key";
 import { TOOLBAR_BUS } from "@/toolbar-bus-injection-key";
-import { IS_FREETEXT_ALLOWED } from "@/is-freetext-allowed";
 import { SECTIONS_STATES_COLLECTION } from "@/sections/states/sections-states-collection-injection-key";
 import { FILE_UPLOADS_COLLECTION } from "@/sections/attachments/sections-file-uploads-collection-injection-key";
 import { CONFIGURATION_STORE, initConfigurationStore } from "@/stores/configuration-store";
@@ -67,6 +66,7 @@ import { HEADINGS_BUTTON_STATE } from "@/headings-button-state-injection-key";
 import { getHeadingsButtonState } from "@/toolbar/HeadingsButtonState";
 import { watchUpdateSectionsLevels } from "@/sections/levels/SectionsNumbersWatcher";
 import { getSectionsNumberer } from "@/sections/levels/SectionsNumberer";
+import { ARE_FIELDS_ENABLED } from "@/are-fields-enabled";
 
 document.addEventListener("DOMContentLoaded", async () => {
     const vue_mount_point = document.getElementById("artidoc-mountpoint");
@@ -137,8 +137,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         Number.parseInt(getAttributeOrThrow(vue_mount_point, "data-upload-max-size"), 10),
     );
     app.provide(
-        IS_FREETEXT_ALLOWED,
-        Number.parseInt(getAttributeOrThrow(vue_mount_point, "data-is-freetext-allowed"), 10),
+        ARE_FIELDS_ENABLED,
+        Number.parseInt(getAttributeOrThrow(vue_mount_point, "data-are-fields-enabled"), 10),
     );
     app.provide(CONFIGURATION_STORE, configuration_store);
     app.provide(

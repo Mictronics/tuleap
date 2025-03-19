@@ -32,6 +32,7 @@ final class CrossTrackerQueryTestBuilder
     private string $title       = '';
     private string $description = '';
     private int $widget_id      = 1;
+    private bool $is_default    = false;
 
     private function __construct()
     {
@@ -70,6 +71,7 @@ final class CrossTrackerQueryTestBuilder
             $this->title,
             $this->description,
             $this->widget_id,
+            $this->is_default
         );
     }
 }

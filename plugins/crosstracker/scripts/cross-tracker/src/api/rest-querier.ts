@@ -17,7 +17,7 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { getJSON, postJSON, putJSON, uri } from "@tuleap/fetch-result";
+import { del, getJSON, postJSON, putJSON, uri } from "@tuleap/fetch-result";
 import { type ResultAsync } from "neverthrow";
 import type { Fault } from "@tuleap/fault";
 import type { Query } from "../type";
@@ -32,6 +32,7 @@ export function getQueries(widget_id: number): ResultAsync<ReadonlyArray<Query>,
                     tql_query: query.tql_query,
                     title: query.title,
                     description: query.description,
+                    is_default: query.is_default,
                 };
             });
         },
@@ -50,10 +51,11 @@ export function updateQuery(query: Query, widget_id: number): ResultAsync<Query,
             tql_query: query.tql_query,
             title: query.title,
             description: query.description,
+            is_default: query.is_default,
         };
     });
 }
-
+// to be removed when the feature flag will be removed, see NewQueryCreator to create new query
 export function createQuery(query: Query, widget_id: number): ResultAsync<Query, Fault> {
     return postJSON<QueryRepresentation>(uri`/api/v1/crosstracker_query`, {
         widget_id,
@@ -66,6 +68,11 @@ export function createQuery(query: Query, widget_id: number): ResultAsync<Query,
             tql_query: query.tql_query,
             title: query.title,
             description: query.description,
+            is_default: query.is_default,
         };
     });
+}
+
+export function deleteQuery(query: Query): ResultAsync<null, Fault> {
+    return del(uri`/api/v1/crosstracker_query/${query.id}`).map(() => null);
 }

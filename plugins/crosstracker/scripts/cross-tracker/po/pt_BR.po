@@ -27,6 +27,9 @@ msgstr ""
 msgid "An error occurred: %{error}"
 msgstr ""
 
+msgid "Are you sure you want to permanently delete it?"
+msgstr ""
+
 msgid "Artifact"
 msgstr ""
 
@@ -45,10 +48,22 @@ msgstr ""
 msgid "Create new query"
 msgstr ""
 
+msgid "Default"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Delete the query"
+msgstr ""
+
 msgid "Description"
 msgstr "Descrição"
 
 msgid "Edit"
+msgstr ""
+
+msgid "Error while deleting the query: %{error}"
 msgstr ""
 
 msgid "Error while exporting the report as .xlsx: %{error}"
@@ -94,6 +109,9 @@ msgstr ""
 msgid "Last update date"
 msgstr ""
 
+msgid "Make this query displayed by default"
+msgstr ""
+
 msgid "Name your query"
 msgstr ""
 
@@ -130,6 +148,9 @@ msgstr ""
 msgid "Query creation is under implementation"
 msgstr ""
 
+msgid "Query details & tools"
+msgstr ""
+
 msgid "Query is empty"
 msgstr ""
 
@@ -137,6 +158,9 @@ msgid "Query suggestions"
 msgstr ""
 
 msgid "Query title"
+msgstr ""
+
+msgid "Query updated with success!"
 msgstr ""
 
 msgid "Report has been successfully saved"
@@ -166,6 +190,13 @@ msgstr ""
 msgid "There is no artifact matching the query."
 msgstr ""
 
+msgid ""
+"This action cannot be undone, and you will no longer have a default query."
+msgstr ""
+
+msgid "This action cannot be undone."
+msgstr ""
+
 msgid "Title"
 msgstr "Título"
 
@@ -174,6 +205,9 @@ msgstr ""
 
 msgid "User avatar"
 msgstr "Avatar do Usuário"
+
+msgid "Warning: This query is set as the default."
+msgstr ""
 
 msgid "Write your description"
 msgstr ""

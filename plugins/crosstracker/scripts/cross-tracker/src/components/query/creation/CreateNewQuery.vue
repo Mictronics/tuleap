@@ -25,12 +25,13 @@
             <description-text-area v-model:description="description" />
         </div>
         <div class="tlp-form-element">
-            <query-editor-for-creation
+            <query-editor
                 v-model:tql_query="tql_query"
                 v-on:trigger-search="handleSearch"
                 ref="query_editor"
             />
         </div>
+        <query-displayed-by-default-switch v-model:is_default_query="is_default_query" />
         <div class="query-creation-action-buttons">
             <button
                 type="button"
@@ -93,7 +94,6 @@
 </template>
 
 <script setup lang="ts">
-import QueryEditorForCreation from "./QueryEditorForCreation.vue";
 import TitleInput from "../TitleInput.vue";
 import DescriptionTextArea from "../DescriptionTextArea.vue";
 import { computed, ref } from "vue";
@@ -111,13 +111,15 @@ import {
 import QuerySelectableTable from "../QuerySelectableTable.vue";
 import type { PostQueryRepresentation } from "../../../api/cross-tracker-rest-api-types";
 import { useGettext } from "vue3-gettext";
+import QueryDisplayedByDefaultSwitch from "../QueryDisplayedByDefaultSwitch.vue";
+import QueryEditor from "../QueryEditor.vue";
 
 const { $gettext } = useGettext();
 
 const emit = defineEmits<{
     (e: "return-to-active-query-pane"): void;
 }>();
-const query_editor = ref<InstanceType<typeof QueryEditorForCreation>>();
+const query_editor = ref<InstanceType<typeof QueryEditor>>();
 
 const emitter = strictInject(EMITTER);
 const widget_id = strictInject(WIDGET_ID);
@@ -127,6 +129,7 @@ const new_query_creator = strictInject(NEW_QUERY_CREATOR);
 const title = ref("");
 const description = ref("");
 const tql_query = ref("");
+const is_default_query = ref(false);
 
 const searched_tql_query = ref("");
 
@@ -164,6 +167,7 @@ function handleSaveButton(): void {
         description: description.value,
         title: title.value,
         widget_id,
+        is_default: is_default_query.value,
     };
     new_query_creator
         .postNewQuery(new_query)
