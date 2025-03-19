@@ -34,6 +34,7 @@ use PFUser;
 use PHPUnit\Framework\MockObject\MockObject;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class UserAccountManagerPushSSHKeysTest extends TestCase
 {
     private PFUser $user;
@@ -104,19 +105,53 @@ final class UserAccountManagerPushSSHKeysTest extends TestCase
     public function testItCallsTheDriverToAddAndRemoveKeysTheRightNumberOfTimes(): void
     {
         $pushed_keys = ['key1', 'key2'];
+        $matcher     = self::exactly(4);
 
-        $this->gerrit_driver->expects(self::exactly(4))->method('addSSHKeyToAccount')->withConsecutive(
-            [$this->remote_server1, $this->gerrit_user, $pushed_keys[0]],
-            [$this->remote_server1, $this->gerrit_user, $pushed_keys[1]],
-            [$this->remote_server2, $this->gerrit_user, $pushed_keys[0]],
-            [$this->remote_server2, $this->gerrit_user, $pushed_keys[1]],
-        );
-        $this->gerrit_driver->expects(self::exactly(4))->method('removeSSHKeyFromAccount')->withConsecutive(
-            [$this->remote_server1, $this->gerrit_user, $pushed_keys[0]],
-            [$this->remote_server1, $this->gerrit_user, $pushed_keys[1]],
-            [$this->remote_server2, $this->gerrit_user, $pushed_keys[0]],
-            [$this->remote_server2, $this->gerrit_user, $pushed_keys[1]],
-        );
+        $this->gerrit_driver->expects($matcher)->method('addSSHKeyToAccount')->willReturnCallback(function (...$parameters) use ($matcher, $pushed_keys) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame($this->remote_server1, $parameters[0]);
+                self::assertSame($this->gerrit_user, $parameters[1]);
+                self::assertSame($pushed_keys[0], $parameters[2]);
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame($this->remote_server1, $parameters[0]);
+                self::assertSame($this->gerrit_user, $parameters[1]);
+                self::assertSame($pushed_keys[1], $parameters[2]);
+            }
+            if ($matcher->numberOfInvocations() === 3) {
+                self::assertSame($this->remote_server2, $parameters[0]);
+                self::assertSame($this->gerrit_user, $parameters[1]);
+                self::assertSame($pushed_keys[0], $parameters[2]);
+            }
+            if ($matcher->numberOfInvocations() === 4) {
+                self::assertSame($this->remote_server2, $parameters[0]);
+                self::assertSame($this->gerrit_user, $parameters[1]);
+                self::assertSame($pushed_keys[1], $parameters[2]);
+            }
+        });
+        $matcher = self::exactly(4);
+        $this->gerrit_driver->expects($matcher)->method('removeSSHKeyFromAccount')->willReturnCallback(function (...$parameters) use ($matcher, $pushed_keys) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame($this->remote_server1, $parameters[0]);
+                self::assertSame($this->gerrit_user, $parameters[1]);
+                self::assertSame($pushed_keys[0], $parameters[2]);
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame($this->remote_server1, $parameters[0]);
+                self::assertSame($this->gerrit_user, $parameters[1]);
+                self::assertSame($pushed_keys[1], $parameters[2]);
+            }
+            if ($matcher->numberOfInvocations() === 3) {
+                self::assertSame($this->remote_server2, $parameters[0]);
+                self::assertSame($this->gerrit_user, $parameters[1]);
+                self::assertSame($pushed_keys[0], $parameters[2]);
+            }
+            if ($matcher->numberOfInvocations() === 4) {
+                self::assertSame($this->remote_server2, $parameters[0]);
+                self::assertSame($this->gerrit_user, $parameters[1]);
+                self::assertSame($pushed_keys[1], $parameters[2]);
+            }
+        });
 
         $this->user_account_manager->pushSSHKeys($this->user);
     }

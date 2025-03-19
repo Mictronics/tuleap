@@ -43,7 +43,8 @@ import {
 } from "@/is-loading-sections-injection-key";
 import { DOCUMENT_ID } from "@/document-id-injection-key";
 import { getSectionsLoader } from "@/sections/SectionsLoader";
-import { SECTIONS_COLLECTION } from "@/sections/sections-collection-injection-key";
+import { SECTIONS_COLLECTION } from "@/sections/states/sections-collection-injection-key";
+import { getSectionsNumberer } from "@/sections/levels/SectionsNumberer";
 
 const { scrollToAnchor } = useScrollToAnchor();
 
@@ -51,11 +52,11 @@ const error_message = ref<GlobalErrorMessage | null>(null);
 const has_error_message = computed(() => error_message.value !== null);
 const container = ref<HTMLElement>();
 const is_loading_sections = ref(true);
-const is_loading_failed = ref(false);
+const is_loading_failed = strictInject(IS_LOADING_SECTIONS_FAILED);
 const sections_collection = strictInject(SECTIONS_COLLECTION);
+const sections_numberer = getSectionsNumberer(sections_collection);
 
 provide(IS_LOADING_SECTIONS, is_loading_sections);
-provide(IS_LOADING_SECTIONS_FAILED, is_loading_failed);
 provide(
     SET_GLOBAL_ERROR_MESSAGE,
     (message: GlobalErrorMessage | null) => (error_message.value = message),
@@ -65,7 +66,8 @@ getSectionsLoader(strictInject(DOCUMENT_ID))
     .loadSections()
     .match(
         (collection) => {
-            sections_collection.replaceAll(collection);
+            sections_collection.replaceAll(collection.map((section) => ref(section)));
+            sections_numberer.updateSectionsLevels();
             is_loading_sections.value = false;
 
             const hash = window.location.hash.slice(1);

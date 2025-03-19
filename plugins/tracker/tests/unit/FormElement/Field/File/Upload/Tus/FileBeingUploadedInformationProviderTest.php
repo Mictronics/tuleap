@@ -30,6 +30,7 @@ use Tuleap\Test\Stubs\CurrentRequestUserProviderStub;
 use Tuleap\Tracker\FormElement\Field\File\Upload\FileOngoingUploadDao;
 use Tuleap\Upload\PathAllocator;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FileBeingUploadedInformationProviderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -57,9 +58,9 @@ final class FileBeingUploadedInformationProviderTest extends \Tuleap\Test\PHPUni
 
         $file_information = $data_store->getFileInformation($server_request);
 
-        $this->assertSame($item_id, $file_information->getID());
-        $this->assertSame(123456, $file_information->getLength());
-        $this->assertSame(0, $file_information->getOffset());
+        self::assertSame($item_id, $file_information->getID());
+        self::assertSame(123456, $file_information->getLength());
+        self::assertSame(0, $file_information->getOffset());
     }
 
     public function testFileInformationCannotBeFoundIfRequestAttributesAreMissing(): void

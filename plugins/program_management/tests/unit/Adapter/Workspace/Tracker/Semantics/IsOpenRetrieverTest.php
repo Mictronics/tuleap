@@ -29,6 +29,7 @@ use Tuleap\ProgramManagement\Tests\Stub\RetrieveFullArtifactStub;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Artifact\Artifact;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class IsOpenRetrieverTest extends TestCase
 {
     private static function isUserStoryOpen(Artifact $artifact): bool
@@ -46,23 +47,19 @@ final class IsOpenRetrieverTest extends TestCase
     public static function dataProviderMethodUnderTest(): array
     {
         return [
-            ['User Story' => [self::class, 'isUserStoryOpen']],
-            ['Feature' => [self::class, 'isFeatureOpen']],
+            'User Story' => [[self::class, 'isUserStoryOpen']],
+            'Feature' => [[self::class, 'isFeatureOpen']],
         ];
     }
 
-    /**
-     * @dataProvider dataProviderMethodUnderTest
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderMethodUnderTest')]
     public function testItReturnsTrue(callable $method_under_test): void
     {
         $artifact = $this->createConfiguredMock(Artifact::class, ['isOpen' => true]);
         self::assertTrue($method_under_test($artifact));
     }
 
-    /**
-     * @dataProvider dataProviderMethodUnderTest
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderMethodUnderTest')]
     public function testItReturnsFalse(callable $method_under_test): void
     {
         $artifact = $this->createConfiguredMock(Artifact::class, ['isOpen' => false]);

@@ -33,6 +33,7 @@ use ForgeConfig;
 use Generator;
 use MailBuilder;
 use PFUser;
+use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\MockObject\MockObject;
 use TemplateRendererFactory;
 use TestHelper;
@@ -53,6 +54,7 @@ use Tuleap\Test\Stubs\TemplateRendererStub;
 use UGroupManager;
 use UserManager;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class NotificationsManager_MoveTest extends TestCase //phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
 {
     use ForgeConfigSandbox;
@@ -187,8 +189,8 @@ final class NotificationsManager_MoveTest extends TestCase //phpcs:ignore Squiz.
      * @param $lc bool c is listened
      * @param $ld bool d is listened
      * @param $res 'item'|'from'|'from_wo_c'|'to'|'to_wo_b'|'none' expected result
-     * @dataProvider provideTestVariations
      */
+    #[DataProvider('provideTestVariations')]
     public function testNotification(bool $dr, bool $br, bool $cr, bool $lb, bool $lc, bool $ld, string $res): void
     {
         $a = new Docman_Item(['item_id' => 102, 'parent_id' => 0]);
@@ -206,16 +208,16 @@ final class NotificationsManager_MoveTest extends TestCase //phpcs:ignore Squiz.
 
         $item_factory = $this->createMock(Docman_ItemFactory::class);
         $item_factory->method('getItemFromDb')->willReturnMap([
-            $a->getId() => $a,
-            $b->getId() => $b,
-            $c->getId() => $c,
-            $d->getId() => $d,
+            $a->getId() => [$a],
+            $b->getId() => [$b],
+            $c->getId() => [$c],
+            $d->getId() => [$d],
         ]);
 
         $user_manager = $this->createMock(UserManager::class);
         $user_manager->method('getUserById')->willReturnMap([
-            $user->getId()     => $user,
-            $listener->getId() => $listener,
+            $user->getId()     => [$user],
+            $listener->getId() => [$listener],
         ]);
 
         $permissions_manager = $this->createMock(Docman_PermissionsManager::class);

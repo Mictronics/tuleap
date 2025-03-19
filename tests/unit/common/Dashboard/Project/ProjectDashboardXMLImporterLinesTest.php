@@ -26,6 +26,7 @@ namespace Tuleap\Dashboard\Project;
 use SimpleXMLElement;
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ProjectDashboardXMLImporterLinesTest extends ProjectDashboardXMLImporterBase
 {
     private \PFUser $user;
@@ -331,15 +332,33 @@ final class ProjectDashboardXMLImporterLinesTest extends ProjectDashboardXMLImpo
         $widget_heartbeat->method('isUnique');
         $widget_heartbeat->method('getId');
         $widget_heartbeat->method('create');
-        $this->widget_factory->method('getInstanceByWidgetName')
-            ->withConsecutive(['projectmembers'], ['projectheartbeat'])
-            ->willReturnOnConsecutiveCalls($widget_members, $widget_heartbeat);
+        $matcher = $this->exactly(2);
+        $this->widget_factory->expects($matcher)->method('getInstanceByWidgetName')->willReturnCallback(function (...$parameters) use ($matcher, $widget_members, $widget_heartbeat) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame('projectmembers', $parameters[0]);
+                return $widget_members;
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame('projectheartbeat', $parameters[0]);
+                return $widget_heartbeat;
+            }
+        });
+        $matcher = self::exactly(2);
 
-        $this->widget_dao->expects(self::exactly(2))->method('insertWidgetInColumnWithRank')
-            ->withConsecutive(
-                ['projectmembers', 0, 122, 1],
-                ['projectheartbeat', 0, 122, 2],
-            );
+        $this->widget_dao->expects($matcher)->method('insertWidgetInColumnWithRank')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame('projectmembers', $parameters[0]);
+                self::assertSame(0, $parameters[1]);
+                self::assertSame(122, $parameters[2]);
+                self::assertSame(1, $parameters[3]);
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame('projectheartbeat', $parameters[0]);
+                self::assertSame(0, $parameters[1]);
+                self::assertSame(122, $parameters[2]);
+                self::assertSame(2, $parameters[3]);
+            }
+        });
 
         $this->disabled_widgets_checker->method('isWidgetDisabled')->willReturn(false);
 
@@ -428,12 +447,22 @@ final class ProjectDashboardXMLImporterLinesTest extends ProjectDashboardXMLImpo
         $widget->method('setOwner');
         $widget->method('create');
         $this->widget_factory->method('getInstanceByWidgetName')->with('projectheartbeat')->willReturn($widget);
+        $matcher = self::exactly(2);
 
-        $this->widget_dao->expects(self::exactly(2))->method('insertWidgetInColumnWithRank')
-            ->withConsecutive(
-                ['projectheartbeat', 0, 122, 1],
-                ['projectheartbeat', 0, 222, 1],
-            );
+        $this->widget_dao->expects($matcher)->method('insertWidgetInColumnWithRank')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame('projectheartbeat', $parameters[0]);
+                self::assertSame(0, $parameters[1]);
+                self::assertSame(122, $parameters[2]);
+                self::assertSame(1, $parameters[3]);
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame('projectheartbeat', $parameters[0]);
+                self::assertSame(0, $parameters[1]);
+                self::assertSame(222, $parameters[2]);
+                self::assertSame(1, $parameters[3]);
+            }
+        });
 
         $this->disabled_widgets_checker->method('isWidgetDisabled')->willReturn(false);
 
@@ -547,15 +576,33 @@ final class ProjectDashboardXMLImporterLinesTest extends ProjectDashboardXMLImpo
         $widget_heartbeat->method('isUnique');
         $widget_heartbeat->method('setOwner');
         $widget_heartbeat->method('create');
-        $this->widget_factory->method('getInstanceByWidgetName')
-            ->withConsecutive(['projectmembers'], ['projectheartbeat'])
-            ->willReturnOnConsecutiveCalls($widget_members, $widget_heartbeat);
+        $matcher = $this->exactly(2);
+        $this->widget_factory->expects($matcher)->method('getInstanceByWidgetName')->willReturnCallback(function (...$parameters) use ($matcher, $widget_members, $widget_heartbeat) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame('projectmembers', $parameters[0]);
+                return $widget_members;
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame('projectheartbeat', $parameters[0]);
+                return $widget_heartbeat;
+            }
+        });
+        $matcher = self::exactly(2);
 
-        $this->widget_dao->expects(self::exactly(2))->method('insertWidgetInColumnWithRank')
-            ->withConsecutive(
-                ['projectmembers', 0, 122, 1],
-                ['projectheartbeat', 0, 124, 1],
-            );
+        $this->widget_dao->expects($matcher)->method('insertWidgetInColumnWithRank')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame('projectmembers', $parameters[0]);
+                self::assertSame(0, $parameters[1]);
+                self::assertSame(122, $parameters[2]);
+                self::assertSame(1, $parameters[3]);
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame('projectheartbeat', $parameters[0]);
+                self::assertSame(0, $parameters[1]);
+                self::assertSame(124, $parameters[2]);
+                self::assertSame(1, $parameters[3]);
+            }
+        });
 
         $this->widget_dao->expects(self::once())->method('adjustLayoutAccordinglyToNumberOfWidgets')->with(2, 12);
 
@@ -603,15 +650,33 @@ final class ProjectDashboardXMLImporterLinesTest extends ProjectDashboardXMLImpo
         $widget_heartbeat->method('isUnique');
         $widget_heartbeat->method('setOwner');
         $widget_heartbeat->method('create');
-        $this->widget_factory->method('getInstanceByWidgetName')
-            ->withConsecutive(['projectmembers'], ['projectheartbeat'])
-            ->willReturnOnConsecutiveCalls($widget_members, $widget_heartbeat);
+        $matcher = $this->exactly(2);
+        $this->widget_factory->expects($matcher)->method('getInstanceByWidgetName')->willReturnCallback(function (...$parameters) use ($matcher, $widget_members, $widget_heartbeat) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame('projectmembers', $parameters[0]);
+                return $widget_members;
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame('projectheartbeat', $parameters[0]);
+                return $widget_heartbeat;
+            }
+        });
+        $matcher = self::exactly(2);
 
-        $this->widget_dao->expects(self::exactly(2))->method('insertWidgetInColumnWithRank')
-            ->withConsecutive(
-                ['projectmembers', 0, 122, 1],
-                ['projectheartbeat', 0, 124, 1],
-            );
+        $this->widget_dao->expects($matcher)->method('insertWidgetInColumnWithRank')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame('projectmembers', $parameters[0]);
+                self::assertSame(0, $parameters[1]);
+                self::assertSame(122, $parameters[2]);
+                self::assertSame(1, $parameters[3]);
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame('projectheartbeat', $parameters[0]);
+                self::assertSame(0, $parameters[1]);
+                self::assertSame(124, $parameters[2]);
+                self::assertSame(1, $parameters[3]);
+            }
+        });
 
         $this->widget_dao->expects(self::once())->method('updateLayout')->with(12, 'two-columns-small-big');
 
@@ -658,15 +723,33 @@ final class ProjectDashboardXMLImporterLinesTest extends ProjectDashboardXMLImpo
         $widget_heartbeat->method('isUnique');
         $widget_heartbeat->method('setOwner');
         $widget_heartbeat->method('create');
-        $this->widget_factory->method('getInstanceByWidgetName')
-            ->withConsecutive(['projectmembers'], ['projectheartbeat'])
-            ->willReturnOnConsecutiveCalls($widget_members, $widget_heartbeat);
+        $matcher = $this->exactly(2);
+        $this->widget_factory->expects($matcher)->method('getInstanceByWidgetName')->willReturnCallback(function (...$parameters) use ($matcher, $widget_members, $widget_heartbeat) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame('projectmembers', $parameters[0]);
+                return $widget_members;
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame('projectheartbeat', $parameters[0]);
+                return $widget_heartbeat;
+            }
+        });
+        $matcher = self::exactly(2);
 
-        $this->widget_dao->expects(self::exactly(2))->method('insertWidgetInColumnWithRank')
-            ->withConsecutive(
-                ['projectmembers', 0, 122, 1],
-                ['projectheartbeat', 0, 124, 1],
-            );
+        $this->widget_dao->expects($matcher)->method('insertWidgetInColumnWithRank')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame('projectmembers', $parameters[0]);
+                self::assertSame(0, $parameters[1]);
+                self::assertSame(122, $parameters[2]);
+                self::assertSame(1, $parameters[3]);
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame('projectheartbeat', $parameters[0]);
+                self::assertSame(0, $parameters[1]);
+                self::assertSame(124, $parameters[2]);
+                self::assertSame(1, $parameters[3]);
+            }
+        });
 
         $this->widget_dao->expects(self::never())->method('updateLayout');
         $this->widget_dao->expects(self::once())->method('adjustLayoutAccordinglyToNumberOfWidgets');

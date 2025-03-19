@@ -29,8 +29,9 @@ use Tuleap\Taskboard\Column\FieldValuesToColumnMapping\Freestyle\SearchMappedFie
 use Tuleap\Taskboard\Tracker\TaskboardTracker;
 use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
-use Tuleap\Tracker\Test\Stub\Tracker\FormElement\Field\ListFields\RetrieveUsedListFieldStub;
+use Tuleap\Tracker\Test\Stub\FormElement\Field\ListFields\RetrieveUsedListFieldStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class MappedFieldRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private \Cardwall_FieldProviders_SemanticStatusFieldRetriever&MockObject $status_retriever;

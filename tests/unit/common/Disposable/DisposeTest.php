@@ -25,6 +25,7 @@ namespace Tuleap\Disposable;
 use Tuleap\Disposable\Tests\TestDisposable;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class DisposeTest extends TestCase
 {
     public function testItReturnsTheValueFromItsCallbackAndDisposes(): void
@@ -68,7 +69,7 @@ final class DisposeTest extends TestCase
         $was_caught = false;
         try {
             Dispose::using($disposable, static function () {
-                trigger_error('Fatal error', E_USER_ERROR);
+                @trigger_error('Fatal error', E_USER_ERROR);
             });
         } catch (\Throwable) {
             $was_caught = true;

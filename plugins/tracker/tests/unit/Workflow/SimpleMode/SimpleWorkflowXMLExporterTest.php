@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace Tuleap\Tracker\Workflow\SimpleMode;
 
-use Mockery;
-use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use SimpleXMLElement;
 use Tuleap\Tracker\Workflow\SimpleMode\State\TransitionExtractor;
 use Tuleap\Tracker\Workflow\SimpleMode\State\State;
@@ -31,65 +29,62 @@ use Tuleap\Tracker\Workflow\SimpleMode\State\StateFactory;
 use Workflow;
 use Workflow_Transition_ConditionsCollection;
 
-class SimpleWorkflowXMLExporterTest extends \Tuleap\Test\PHPUnit\TestCase
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
+final class SimpleWorkflowXMLExporterTest extends \Tuleap\Test\PHPUnit\TestCase
 {
-    use MockeryPHPUnitIntegration;
-
-    public function testItExportsTheSimpleWorkflowInXML()
+    public function testItExportsTheSimpleWorkflowInXML(): void
     {
         $xml           = new SimpleXMLElement('<simple_workflow/>');
-        $dao           = Mockery::mock(SimpleWorkflowDao::class);
+        $dao           = $this->createMock(SimpleWorkflowDao::class);
         $extractor     = new TransitionExtractor();
-        $state_factory = Mockery::mock(StateFactory::class);
+        $state_factory = $this->createMock(StateFactory::class);
 
         $exporter = new SimpleWorkflowXMLExporter($dao, $state_factory, $extractor);
 
-        $workflow = Mockery::mock(Workflow::class);
+        $workflow = $this->createMock(Workflow::class);
 
-        $workflow->shouldReceive('getFieldId')->once()->andReturn(114);
-        $workflow->shouldReceive('isUsed')->once()->andReturn(true);
-        $workflow->shouldReceive('getId')->once()->andReturn('999');
-        $dao->shouldReceive('searchStatesForWorkflow')->with(999)->once()->andReturn([
+        $workflow->expects(self::once())->method('getFieldId')->willReturn(114);
+        $workflow->expects(self::once())->method('isUsed')->willReturn(true);
+        $workflow->expects(self::once())->method('getId')->willReturn('999');
+        $dao->expects(self::once())->method('searchStatesForWorkflow')->with(999)->willReturn([
             ['to_id' => 200],
             ['to_id' => 201],
         ]);
 
-        $transition_01 = Mockery::mock(\Transition::class);
-        $transition_02 = Mockery::mock(\Transition::class);
-        $transition_03 = Mockery::mock(\Transition::class);
+        $transition_01 = $this->createMock(\Transition::class);
+        $transition_02 = $this->createMock(\Transition::class);
+        $transition_03 = $this->createMock(\Transition::class);
 
-        $transition_01->shouldReceive('getIdFrom')->andReturn('');
-        $transition_02->shouldReceive('getIdFrom')->andReturn('');
-        $transition_03->shouldReceive('getIdFrom')->andReturn('410');
+        $transition_01->method('getIdFrom')->willReturn('');
+        $transition_02->method('getIdFrom')->willReturn('');
+        $transition_03->method('getIdFrom')->willReturn('410');
 
-        $post_action_01 = Mockery::mock(\Transition_PostAction_CIBuild::class);
-        $post_action_02 = Mockery::mock(\Transition_PostAction_Field_Int::class);
+        $post_action_01 = $this->createMock(\Transition_PostAction_CIBuild::class);
+        $post_action_02 = $this->createMock(\Transition_PostAction_Field_Int::class);
 
-        $transition_01->shouldReceive('getPostActions')->andReturn([]);
-        $transition_03->shouldReceive('getPostActions')->andReturn([
+        $transition_01->method('getPostActions')->willReturn([]);
+        $transition_03->method('getPostActions')->willReturn([
             $post_action_01,
             $post_action_02,
         ]);
 
-        $post_action_01->shouldReceive('exportToXML')->once();
-        $post_action_02->shouldReceive('exportToXML')->once();
+        $post_action_01->expects(self::once())->method('exportToXML');
+        $post_action_02->expects(self::once())->method('exportToXML');
 
-        $conditions_collection_01 = Mockery::mock(Workflow_Transition_ConditionsCollection::class);
-        $conditions_collection_02 = Mockery::mock(Workflow_Transition_ConditionsCollection::class);
+        $conditions_collection_01 = $this->createMock(Workflow_Transition_ConditionsCollection::class);
+        $conditions_collection_02 = $this->createMock(Workflow_Transition_ConditionsCollection::class);
 
-        $transition_01->shouldReceive('getConditions')->andReturn($conditions_collection_01);
-        $transition_03->shouldReceive('getConditions')->andReturn($conditions_collection_02);
+        $transition_01->method('getConditions')->willReturn($conditions_collection_01);
+        $transition_03->method('getConditions')->willReturn($conditions_collection_02);
 
-        $conditions_collection_01->shouldReceive('exportToXML')->once();
-        $conditions_collection_02->shouldReceive('exportToXML')->once();
+        $conditions_collection_01->expects(self::once())->method('exportToXML');
+        $conditions_collection_02->expects(self::once())->method('exportToXML');
 
-        $state_factory->shouldReceive('getStateFromValueId')
-            ->with($workflow, 200)
-            ->andReturn(new State(200, [$transition_01]));
-
-        $state_factory->shouldReceive('getStateFromValueId')
-            ->with($workflow, 201)
-            ->andReturn(new State(201, [$transition_02, $transition_03]));
+        $state_factory->method('getStateFromValueId')
+            ->willReturnCallback(static fn (Workflow $workflow, int $value_id) => match ($value_id) {
+                200 => new State(200, [$transition_01]),
+                201 => new State(201, [$transition_02, $transition_03])
+            });
 
         $mapping = [
             'F114' => '114',
@@ -111,8 +106,8 @@ class SimpleWorkflowXMLExporterTest extends \Tuleap\Test\PHPUnit\TestCase
         $xml_state_01 = $xml->states->state[0];
         $xml_state_02 = $xml->states->state[1];
 
-        $this->assertSame((string) $xml_state_01->to_id['REF'], 'V114-0');
-        $this->assertSame((string) $xml_state_02->to_id['REF'], 'V114-1');
+        self::assertSame((string) $xml_state_01->to_id['REF'], 'V114-0');
+        self::assertSame((string) $xml_state_02->to_id['REF'], 'V114-1');
 
         $xml_state_01_transitions = $xml_state_01->transitions;
         $xml_state_02_transitions = $xml_state_02->transitions;
@@ -120,8 +115,8 @@ class SimpleWorkflowXMLExporterTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->assertCount(1, $xml_state_01_transitions->transition);
         $this->assertCount(2, $xml_state_02_transitions->transition);
 
-        $this->assertSame((string) $xml_state_01_transitions->transition->from_id['REF'], 'null');
-        $this->assertSame((string) $xml_state_02_transitions->transition[0]->from_id['REF'], 'null');
-        $this->assertSame((string) $xml_state_02_transitions->transition[1]->from_id['REF'], 'V114-2');
+        self::assertSame((string) $xml_state_01_transitions->transition->from_id['REF'], 'null');
+        self::assertSame((string) $xml_state_02_transitions->transition[0]->from_id['REF'], 'null');
+        self::assertSame((string) $xml_state_02_transitions->transition[1]->from_id['REF'], 'V114-2');
     }
 }

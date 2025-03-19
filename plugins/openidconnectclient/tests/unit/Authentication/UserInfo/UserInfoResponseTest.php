@@ -23,7 +23,9 @@ declare(strict_types=1);
 namespace Tuleap\OpenIDConnectClient\Authentication\UserInfo;
 
 use Psr\Http\Message\ResponseInterface;
+use Tuleap\Http\HTTPFactoryBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class UserInfoResponseTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testContentTypeNotAnnouncedAsJSONIsRejected(): void
@@ -40,7 +42,7 @@ final class UserInfoResponseTest extends \Tuleap\Test\PHPUnit\TestCase
     {
         $http_response = $this->createMock(ResponseInterface::class);
         $http_response->method('getHeaderLine')->willReturn('application/json');
-        $http_response->method('getBody')->willReturn('{NotJSONValid');
+        $http_response->method('getBody')->willReturn(HTTPFactoryBuilder::streamFactory()->createStream(json_encode('{NotJSONValid')));
 
         $this->expectException(IncorrectlyFormattedUserInfoResponseException::class);
 
@@ -60,7 +62,7 @@ final class UserInfoResponseTest extends \Tuleap\Test\PHPUnit\TestCase
         foreach (['application/json', 'application/json; charset=UTF-8'] as $content_type) {
             $http_response = $this->createMock(ResponseInterface::class);
             $http_response->method('getHeaderLine')->willReturn($content_type);
-            $http_response->method('getBody')->willReturn(json_encode($claims));
+            $http_response->method('getBody')->willReturn(HTTPFactoryBuilder::streamFactory()->createStream(json_encode($claims)));
 
             $user_info_response = UserInfoResponse::buildFromHTTPResponse($http_response);
             self::assertSame($claims, $user_info_response->getClaims());

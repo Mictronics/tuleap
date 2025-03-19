@@ -28,32 +28,88 @@ import {
     SOMEWHERE_IN_THE_DESCRIPTION_POSITION,
     SOMEWHERE_IN_THE_TITLE_POSITION,
 } from "./test-mono-editor-helper";
+import { getHeadingsButtonState } from "@/toolbar/HeadingsButtonState";
+import ArtifactSectionFactory from "@/helpers/artifact-section.factory";
+import { ReactiveStoredArtidocSectionStub } from "@/sections/stubs/ReactiveStoredArtidocSectionStub";
+import type { EditorView } from "prosemirror-view";
+import type { EditorState } from "prosemirror-state";
 
 describe("enable-or-disable-toolbar", () => {
-    const toolbar_bus = buildToolbarBus();
-
-    const state = initStateWithPlugins([EnableOrDisableToolbarPlugin(toolbar_bus)]);
-    const view = initViewWithState(state);
+    let enableToolbar: MockInstance,
+        disableToolbar: MockInstance,
+        activateHeadingButtonForSection: MockInstance,
+        deactivateHeadingButton: MockInstance,
+        view: EditorView,
+        state: EditorState;
 
     const setCursorPosition = (position: number): void => {
         view.dispatch(state.tr.setSelection(TextSelection.create(state.doc, position)));
     };
 
-    let enableToolbar: MockInstance;
-    let disableToolbar: MockInstance;
-
     beforeEach(() => {
+        const toolbar_bus = buildToolbarBus();
+        const headings_button = getHeadingsButtonState();
+
+        state = initStateWithPlugins([
+            EnableOrDisableToolbarPlugin(
+                toolbar_bus,
+                headings_button,
+                ReactiveStoredArtidocSectionStub.fromSection(ArtifactSectionFactory.create()),
+            ),
+        ]);
+        view = initViewWithState(state);
+
         enableToolbar = vi.spyOn(toolbar_bus, "enableToolbar");
         disableToolbar = vi.spyOn(toolbar_bus, "disableToolbar");
+        activateHeadingButtonForSection = vi.spyOn(headings_button, "activateButtonForSection");
+        deactivateHeadingButton = vi.spyOn(headings_button, "deactivateButton");
     });
 
-    it("should enable the toolbar, when the current selection is in the description", () => {
-        setCursorPosition(SOMEWHERE_IN_THE_DESCRIPTION_POSITION);
-        expect(enableToolbar).toHaveBeenCalledOnce();
+    describe("When the editor gets the focus", () => {
+        it("should enable the toolbar and deactivate the headings button, when the current selection is in the description", () => {
+            setCursorPosition(SOMEWHERE_IN_THE_DESCRIPTION_POSITION);
+            vi.resetAllMocks();
+
+            view.focus();
+
+            expect(enableToolbar).toHaveBeenCalledOnce();
+            expect(deactivateHeadingButton).toHaveBeenCalledOnce();
+        });
+
+        it("should disable the toolbar and activate the headings button, when the current selection is in the title", () => {
+            setCursorPosition(SOMEWHERE_IN_THE_TITLE_POSITION);
+            vi.resetAllMocks();
+
+            view.focus();
+
+            expect(disableToolbar).toHaveBeenCalledOnce();
+            expect(activateHeadingButtonForSection).toHaveBeenCalledOnce();
+        });
     });
 
-    it("should disable the toolbar, when the current selection is in the title", () => {
-        setCursorPosition(SOMEWHERE_IN_THE_TITLE_POSITION);
-        expect(disableToolbar).toHaveBeenCalledOnce();
+    describe("When the view is updated", () => {
+        beforeEach(() => {
+            view.hasFocus = (): boolean => true;
+        });
+
+        it("should disable the toolbar and deactivate the headings button when the view is not focused", () => {
+            view.hasFocus = (): boolean => false;
+
+            setCursorPosition(SOMEWHERE_IN_THE_TITLE_POSITION);
+            expect(disableToolbar).toHaveBeenCalledOnce();
+            expect(deactivateHeadingButton).toHaveBeenCalledOnce();
+        });
+
+        it("should enable the toolbar and deactivate the headings button, when the current selection is in the description", () => {
+            setCursorPosition(SOMEWHERE_IN_THE_DESCRIPTION_POSITION);
+            expect(enableToolbar).toHaveBeenCalledOnce();
+            expect(deactivateHeadingButton).toHaveBeenCalledOnce();
+        });
+
+        it("should disable the toolbar and activate the headings button, when the current selection is in the title", () => {
+            setCursorPosition(SOMEWHERE_IN_THE_TITLE_POSITION);
+            expect(disableToolbar).toHaveBeenCalledOnce();
+            expect(activateHeadingButtonForSection).toHaveBeenCalledOnce();
+        });
     });
 });

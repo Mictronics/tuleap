@@ -38,6 +38,7 @@ use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Semantic\Status\Done\SemanticDone;
 use Tuleap\Tracker\Semantic\Status\Done\SemanticDoneFactory;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class VelocityCalculatorTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private VelocityCalculator $calculator;
@@ -94,7 +95,7 @@ final class VelocityCalculatorTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $calculated_effort = $this->calculator->calculate($this->artifact, $this->user);
 
-        $this->assertSame(15, $calculated_effort);
+        self::assertSame(15, $calculated_effort);
     }
 
     public function testItCalculatesVelocityBasedOnInitialEffortBoundToAListField(): void
@@ -119,7 +120,7 @@ final class VelocityCalculatorTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $calculated_effort = $this->calculator->calculate($this->artifact, $this->user);
 
-        $this->assertSame(15, $calculated_effort);
+        self::assertSame(15, $calculated_effort);
     }
 
     public function testItReturnsZeroIfNoLinkedArtifacts(): void
@@ -130,7 +131,7 @@ final class VelocityCalculatorTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $calculated_effort = $this->calculator->calculate($this->artifact, $this->user);
 
-        $this->assertSame(0, $calculated_effort);
+        self::assertSame(0, $calculated_effort);
     }
 
     public function testItReturnsZeroIfLinkedArtifactsHAveNoInitialEffortSemantic(): void
@@ -143,7 +144,7 @@ final class VelocityCalculatorTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $calculated_effort = $this->calculator->calculate($this->artifact, $this->user);
 
-        $this->assertSame(0, $calculated_effort);
+        self::assertSame(0, $calculated_effort);
     }
 
     public function testItReturnsZeroIfLinkedArtifactsHAveNoSemanticInitialEffortField(): void
@@ -154,7 +155,7 @@ final class VelocityCalculatorTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $calculated_effort = $this->calculator->calculate($this->artifact, $this->user);
 
-        $this->assertSame(0, $calculated_effort);
+        self::assertSame(0, $calculated_effort);
     }
 
     public function testItReturnsZeroIfLinkedArtifactsHAveNoDoneSemantic(): void
@@ -170,7 +171,7 @@ final class VelocityCalculatorTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $calculated_effort = $this->calculator->calculate($this->artifact, $this->user);
 
-        $this->assertSame(0, $calculated_effort);
+        self::assertSame(0, $calculated_effort);
     }
 
     public function testItReturnsZeroIfLinkedArtifactsHaveNoLastChangeset(): void
@@ -185,7 +186,7 @@ final class VelocityCalculatorTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $calculated_effort = $this->calculator->calculate($this->artifact, $this->user);
 
-        $this->assertSame(0, $calculated_effort);
+        self::assertSame(0, $calculated_effort);
     }
 
     public function testItReturnsZeroIfLinkedArtifactsLastChangesetHaveNoValueForInitialEffortField(): void
@@ -206,7 +207,7 @@ final class VelocityCalculatorTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $calculated_effort = $this->calculator->calculate($this->artifact, $this->user);
 
-        $this->assertSame(0, $calculated_effort);
+        self::assertSame(0, $calculated_effort);
     }
 
     public function testItReturnsZeroIfLinkedArtifactsValueForInitialEffortFieldIsNotANumeric(): void
@@ -231,7 +232,7 @@ final class VelocityCalculatorTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $calculated_effort = $this->calculator->calculate($this->artifact, $this->user);
 
-        $this->assertSame(0, $calculated_effort);
+        self::assertSame(0, $calculated_effort);
     }
 
     private function mockSemanticInitialEffort(

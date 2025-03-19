@@ -35,6 +35,7 @@ use Tuleap\Tracker\Test\Builders\LinkWithDirectionRepresentationBuilder;
 use Tuleap\Tracker\Test\Stub\ForwardLinkStub;
 use Tuleap\Tracker\Test\Stub\RetrieveForwardLinksStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class NewArtifactLinkChangesetValueBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private const REMOVED_ARTIFACT_ID          = 103;
@@ -138,6 +139,6 @@ final class NewArtifactLinkChangesetValueBuilderTest extends \Tuleap\Test\PHPUni
 
         $reverse_links = $update_value->getSubmittedReverseLinks()->unwrapOr(new CollectionOfReverseLinks([]))->links;
         self::assertCount(1, $reverse_links);
-        $this->assertSame(48, $reverse_links[0]->getSourceArtifactId());
+        self::assertSame(48, $reverse_links[0]->getSourceArtifactId());
     }
 }

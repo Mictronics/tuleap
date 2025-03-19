@@ -38,6 +38,7 @@ use Tuleap\Tracker\Test\Stub\RetrieveUsedFieldsStub;
 use Tuleap\Tracker\Test\Stub\Semantic\GetTitleSemanticStub;
 use Tuleap\Tracker\Test\Stub\VerifySubmissionPermissionStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class TrackerRepresentationBuilderTest extends TestCase
 {
     private const PROJECT_ID        = 205;
@@ -86,9 +87,7 @@ final class TrackerRepresentationBuilderTest extends TestCase
         self::assertInstanceOf(CompleteTrackerRepresentation::class, $representation[0]);
     }
 
-    /**
-     * @dataProvider getPaginatedRepresentations
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getPaginatedRepresentations')]
     public function testItReturnsAPaginatedCollectionOfTheProjectTrackers(int $offset, int $expected_tracker_id): void
     {
         $this->limit  = 1;
@@ -100,7 +99,7 @@ final class TrackerRepresentationBuilderTest extends TestCase
         self::assertSame($expected_tracker_id, $tracker_representations[0]->id);
     }
 
-    private function getPaginatedRepresentations(): array
+    public static function getPaginatedRepresentations(): array
     {
         return [
             [0, self::FIRST_TRACKER_ID],

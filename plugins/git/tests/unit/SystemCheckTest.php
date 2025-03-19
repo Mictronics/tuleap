@@ -30,6 +30,7 @@ use PluginConfigChecker;
 use Psr\Log\NullLogger;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class SystemCheckTest extends TestCase
 {
     private Git_GitoliteDriver&MockObject $driver;
@@ -54,7 +55,7 @@ final class SystemCheckTest extends TestCase
     {
         $this->driver->expects(self::once())->method('checkAuthorizedKeys');
         $this->gitgc->expects(self::once())->method('cleanUpGitoliteAdminWorkingCopy');
-        $this->plugin->method('getPluginEtcRoot');
+        $this->plugin->method('getPluginEtcRoot')->willReturn('/do/not/exist');
 
         $this->system_check->process();
     }

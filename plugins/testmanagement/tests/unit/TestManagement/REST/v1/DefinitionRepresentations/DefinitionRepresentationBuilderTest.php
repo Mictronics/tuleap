@@ -26,6 +26,7 @@ namespace Tuleap\TestManagement\REST\v1\DefinitionRepresentations;
 use PFUser;
 use PHPUnit\Framework\MockObject\MockObject;
 use Tracker_Artifact_Changeset;
+use Tracker_Artifact_ChangesetValue;
 use Tracker_Artifact_ChangesetValue_Text;
 use Tuleap\Markdown\ContentInterpretor;
 use Tuleap\Test\Builders\ProjectTestBuilder;
@@ -38,6 +39,7 @@ use Tuleap\Tracker\REST\Artifact\ArtifactRepresentation;
 use Tuleap\Tracker\REST\Artifact\ArtifactRepresentationBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class DefinitionRepresentationBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private MockObject&\Tracker_FormElementFactory $tracker_form_element_factory;
@@ -89,7 +91,7 @@ final class DefinitionRepresentationBuilderTest extends \Tuleap\Test\PHPUnit\Tes
 
         $definition_artifact = $this->mockDefinitionArtifact($user, $tracker_id);
 
-        $this->mockChangesetValue($definition_artifact, $changeset, $field, $text_field);
+        $this->mockChangesetValue($definition_artifact, $changeset, $text_field);
 
         $this->assertTrackerFormElementFactory($user, $field);
 
@@ -113,15 +115,10 @@ final class DefinitionRepresentationBuilderTest extends \Tuleap\Test\PHPUnit\Tes
 
     public function testItGetsDefaultEmptyTextRepresentationIfTheDescriptionFieldIsNull(): void
     {
-        $user       = UserTestBuilder::aUser()->build();
-        $changeset  = $this->createMock(Tracker_Artifact_Changeset::class);
-        $field      = $this->createMock(\Tracker_FormElement_Field::class);
-        $text_field = $this->createMock(Tracker_Artifact_ChangesetValue_Text::class);
+        $user = UserTestBuilder::aUser()->build();
 
         $tracker_id          = 1450;
         $definition_artifact = $this->mockDefinitionArtifact($user, $tracker_id);
-
-        $this->mockChangesetValue($definition_artifact, $changeset, $field, $text_field);
 
         $this->tracker_form_element_factory->method('getUsedFieldByNameForUser')
             ->willReturnCallback(
@@ -153,7 +150,7 @@ final class DefinitionRepresentationBuilderTest extends \Tuleap\Test\PHPUnit\Tes
 
         $definition_artifact = $this->mockDefinitionArtifact($user, $tracker_id);
 
-        $this->mockChangesetValue($definition_artifact, $changeset, $field, $text_field);
+        $this->mockChangesetValue($definition_artifact, $changeset, $text_field);
 
         $this->assertTrackerFormElementFactory($user, $field);
 
@@ -186,7 +183,7 @@ final class DefinitionRepresentationBuilderTest extends \Tuleap\Test\PHPUnit\Tes
 
         $definition_artifact = $this->mockDefinitionArtifact($user, $tracker_id);
 
-        $this->mockChangesetValue($definition_artifact, $changeset, $field, $text_field);
+        $this->mockChangesetValue($definition_artifact, $changeset, $text_field);
 
         $this->conformance_validator->method('isArtifactADefinition')->with(
             $definition_artifact
@@ -199,7 +196,7 @@ final class DefinitionRepresentationBuilderTest extends \Tuleap\Test\PHPUnit\Tes
         $this->assertTrackerFormElementFactory($user, $field);
 
         $text_field->method('getText')->willReturn('wololo');
-        $text_field->method('getValue')->willReturn(self::any());
+        $text_field->method('getValue')->willReturn('');
 
 
         $this->purifier->method('purifyHTMLWithReferences')->willReturn('wololo');
@@ -227,7 +224,7 @@ final class DefinitionRepresentationBuilderTest extends \Tuleap\Test\PHPUnit\Tes
         $text_field          = $this->createMock(Tracker_Artifact_ChangesetValue_Text::class);
         $definition_artifact = $this->mockDefinitionArtifact($user, 111);
 
-        $this->mockChangesetValue($definition_artifact, $changeset, $field, $text_field);
+        $this->mockChangesetValue($definition_artifact, $changeset, $text_field);
 
         $this->assertTrackerFormElementFactory($user, $field);
 
@@ -269,6 +266,8 @@ final class DefinitionRepresentationBuilderTest extends \Tuleap\Test\PHPUnit\Tes
         $definition_artifact->method('getTrackerId')->willReturn($tracker_id);
         $definition_artifact->method('getStatus')->willReturn('open');
 
+        $definition_artifact->method('getLastChangeset')->willReturn(null);
+
         $this->conformance_validator->method('isArtifactADefinition')->with(
             $definition_artifact
         )->willReturn(true);
@@ -282,12 +281,19 @@ final class DefinitionRepresentationBuilderTest extends \Tuleap\Test\PHPUnit\Tes
 
     private function mockChangesetValue(
         MockObject&Artifact $definition_artifact,
-        Tracker_Artifact_Changeset $changeset,
-        \Tracker_FormElement_Field $field,
-        Tracker_Artifact_ChangesetValue_Text $text_field,
+        Tracker_Artifact_Changeset $expected_changeset,
+        Tracker_Artifact_ChangesetValue $changeset_value,
     ): void {
-        $definition_artifact->method('getLastChangeset')->willReturn($changeset);
-        $definition_artifact->method('getValue')->with($field, $changeset)->willReturn($text_field, null);
+        $definition_artifact->method('getLastChangeset')->willReturn($expected_changeset);
+        $matcher = $this->atLeastOnce();
+        $definition_artifact->expects($matcher)->method('getValue')->willReturnCallback(
+            function () use ($matcher, $changeset_value): ?Tracker_Artifact_ChangesetValue {
+                if ($matcher->numberOfInvocations() === 1) {
+                    return $changeset_value;
+                }
+                return null;
+            }
+        );
     }
 
     private function mockArtifactRepresentationBuilder(Artifact $definition_artifact): void

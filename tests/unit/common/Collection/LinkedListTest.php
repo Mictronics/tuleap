@@ -26,6 +26,7 @@ namespace Tuleap\Collection;
 use LinkedList;
 use stdClass;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class LinkedListTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testOrder(): void
@@ -39,13 +40,13 @@ class LinkedListTest extends \Tuleap\Test\PHPUnit\TestCase
         $l->add($a);
         $it      = $l->iterator();
         $element = $it->current();
-        $this->assertSame($element, $c);
+        self::assertSame($element, $c);
         $it->next();
         $element = $it->current();
-        $this->assertSame($element, $b);
+        self::assertSame($element, $b);
         $it->next();
         $element = $it->current();
-        $this->assertSame($element, $a);
+        self::assertSame($element, $a);
     }
 
     public function testEqualsDifferentOrder(): void

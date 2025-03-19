@@ -26,6 +26,7 @@ use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Tracker_FormElement_Field_List_Bind_StaticValue_None;
 use Tuleap\GlobalLanguageMock;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class BindValuesAdderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -57,6 +58,6 @@ final class BindValuesAdderTest extends \Tuleap\Test\PHPUnit\TestCase
         $expected_values = [new Tracker_FormElement_Field_List_Bind_StaticValue_None(), $value];
 
         $this->assertInstanceOf(Tracker_FormElement_Field_List_Bind_StaticValue_None::class, $expected_values[0]);
-        $this->assertSame($expected_values[1], $result[1]);
+        self::assertSame($expected_values[1], $result[1]);
     }
 }

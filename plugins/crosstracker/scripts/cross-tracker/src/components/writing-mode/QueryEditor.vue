@@ -19,7 +19,7 @@
 
 <template>
     <div class="cross-tracker-expert-content">
-        <div class="cross-tracker-expert-content-query tlp-form-element">
+        <div class="cross-tracker-expert-content-query tlp-form-element" data-test="expert-query">
             <label class="tlp-label" ref="query_label">{{ $gettext("Query") }}</label>
             <p class="tlp-text-info">
                 <i
@@ -73,25 +73,28 @@ import {
     insertAllowedFieldInCodeMirror,
 } from "@tuleap/plugin-tracker-tql-codemirror";
 import { Option } from "@tuleap/option";
-import type { WritingCrossTrackerReport } from "../../domain/WritingCrossTrackerReport";
+import type { Query } from "../../type";
 
 const { $gettext } = useGettext();
 
-const props = defineProps<{ writing_cross_tracker_report: WritingCrossTrackerReport }>();
+const props = defineProps<{ writing_query: Query }>();
 const emit = defineEmits<{ (e: "trigger-search"): void }>();
+const tql_query = ref<string>(props.writing_query.tql_query);
 
 let code_mirror_instance: Option<TQLCodeMirrorEditor> = Option.nothing();
 
 const query_label = ref<HTMLElement>();
 
 onMounted(() => {
+    tql_query.value = props.writing_query.tql_query;
+
     const submit_form_callback = (editor: TQLCodeMirrorEditor): void => {
-        props.writing_cross_tracker_report.setExpertQuery(editor.state.doc.toString());
+        tql_query.value = editor.state.doc.toString();
         emit("trigger-search");
     };
 
     const update_callback = (editor: TQLCodeMirrorEditor): void => {
-        props.writing_cross_tracker_report.setExpertQuery(editor.state.doc.toString());
+        tql_query.value = editor.state.doc.toString();
     };
 
     const editor = buildTQLEditor(
@@ -99,12 +102,10 @@ onMounted(() => {
             autocomplete: TQL_cross_tracker_autocomplete_keywords,
             parser_definition: buildParserDefinition(cross_tracker_allowed_keywords),
         },
-        props.writing_cross_tracker_report.expert_mode
-            ? $gettext(
-                  `Example: SELECT @pretty_title FROM @project.name = 'my-project' WHERE @title = 'value'`,
-              )
-            : $gettext(`Example: @title = 'value'`),
-        props.writing_cross_tracker_report.expert_query,
+        $gettext(
+            `Example: SELECT @pretty_title FROM @project.name = 'my-project' WHERE @title = 'value'`,
+        ),
+        tql_query.value,
         submit_form_callback,
         update_callback,
     );
@@ -127,5 +128,5 @@ function clearEditor(): void {
     });
 }
 
-defineExpose({ clearEditor });
+defineExpose({ clearEditor, tql_query });
 </script>

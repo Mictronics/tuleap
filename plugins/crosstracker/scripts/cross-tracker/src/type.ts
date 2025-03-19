@@ -17,44 +17,14 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type {
-    TrackerProjectRepresentation,
-    TrackerResponseWithProject,
-} from "@tuleap/plugin-tracker-rest-api-types";
+import type { TrackerProjectRepresentation } from "@tuleap/plugin-tracker-rest-api-types";
 
-export type InvalidTracker = {
-    readonly id: number;
-    readonly label: string;
-    readonly project: { readonly label: string };
-};
-export type TrackerInfo = Pick<TrackerResponseWithProject, "id" | "label">;
-export type ProjectInfo = Pick<TrackerProjectRepresentation, "id" | "uri" | "label">;
-
-export type SelectedTracker = {
-    readonly tracker_id: number;
-};
-
-export type TrackerAndProject = {
-    readonly project: Pick<ProjectInfo, "id" | "label">;
-    readonly tracker: TrackerInfo;
-};
-
-export type TrackerToUpdate = {
-    readonly tracker_id: number;
-    readonly tracker_label: string;
-    readonly project_label: string;
-};
-
-export type Report = {
-    readonly trackers: ReadonlyArray<TrackerAndProject>;
-    readonly expert_query: string;
-    readonly invalid_trackers: ReadonlyArray<InvalidTracker>;
-    readonly expert_mode: boolean;
-};
-
-export type ArtifactsCollection = {
-    readonly artifacts: ReadonlyArray<Artifact>;
-    readonly total: number;
+export type Query = {
+    readonly id: string;
+    readonly tql_query: string;
+    readonly title: string;
+    readonly description: string;
+    readonly is_default: boolean;
 };
 
 export type Artifact = {
@@ -77,4 +47,14 @@ export type User = {
     readonly id: number;
     readonly display_name: string;
     readonly user_url: string;
+};
+
+export type WidgetData = {
+    readonly widget_id: number;
+    readonly is_widget_admin: boolean;
+    readonly documentation_base_url: string;
+    readonly is_multiple_query_supported: boolean;
+    readonly dashboard_type: string;
+    readonly title_attribute: string;
+    readonly default_title: string;
 };

@@ -22,32 +22,19 @@
     <article>
         <section-header
             class="section-header"
-            v-bind:title="section.value.display_title"
+            v-bind:class="{ 'section-header-with-border': section.value.level === LEVEL_1 }"
+            v-bind:section="section"
             v-bind:is_print_mode="true"
-            v-bind:is_freetext="!isArtifactSection(section.value)"
         />
-        <section-description-read-only v-bind:readonly_value="readonly_description" />
+        <section-description-read-only v-bind:section="section" />
     </article>
 </template>
 
 <script setup lang="ts">
 import type { ReactiveStoredArtidocSection } from "@/sections/SectionsCollection";
-import { isArtifactSection } from "@/helpers/artidoc-section.type";
 import SectionHeader from "@/components/section/header/SectionHeader.vue";
-import { computed } from "vue";
-import { useEditorSectionContent } from "@/composables/useEditorSectionContent";
 import SectionDescriptionReadOnly from "@/components/section/description/SectionDescriptionReadOnly.vue";
+import { LEVEL_1 } from "@/sections/levels/SectionsNumberer";
 
-const props = defineProps<{ section: ReactiveStoredArtidocSection }>();
-
-const content = computed(() =>
-    useEditorSectionContent(props.section, {
-        showActionsButtons: noop,
-        hideActionsButtons: noop,
-    }),
-);
-
-const readonly_description = computed(() => content.value.getReadonlyDescription());
-
-function noop(): void {}
+defineProps<{ section: ReactiveStoredArtidocSection }>();
 </script>

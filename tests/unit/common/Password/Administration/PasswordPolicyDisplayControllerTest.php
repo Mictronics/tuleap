@@ -30,6 +30,7 @@ use Tuleap\Test\Builders\LayoutBuilder;
 use Tuleap\Test\Builders\TemplateRendererFactoryBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class PasswordPolicyDisplayControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use TemporaryTestDirectory;
@@ -47,6 +48,7 @@ final class PasswordPolicyDisplayControllerTest extends \Tuleap\Test\PHPUnit\Tes
             TemplateRendererFactoryBuilder::get()->withPath($this->getTmpDir())->build(),
             $this->configuration_retriever
         );
+        $_SERVER['REQUEST_URI']        = '/some_page';
     }
 
     protected function tearDown(): void
@@ -54,6 +56,7 @@ final class PasswordPolicyDisplayControllerTest extends \Tuleap\Test\PHPUnit\Tes
         if (isset($GLOBALS['_SESSION'])) {
             unset($GLOBALS['_SESSION']);
         }
+        unset($_SERVER['REQUEST_URI']);
     }
 
     public function testProcessRendersThePage(): void

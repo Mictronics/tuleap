@@ -22,12 +22,14 @@ declare(strict_types=1);
 
 namespace Tuleap\DynamicCredentials\User;
 
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Tuleap\DynamicCredentials\Credential\Credential;
 use Tuleap\DynamicCredentials\Credential\CredentialNotFoundException;
 use Tuleap\DynamicCredentials\Session\DynamicCredentialSession;
 use Tuleap\DynamicCredentials\Session\DynamicCredentialSessionNotInitializedException;
 use Tuleap\GlobalLanguageMock;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class DynamicUserCreatorTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use GlobalLanguageMock;
@@ -66,9 +68,7 @@ final class DynamicUserCreatorTest extends \Tuleap\Test\PHPUnit\TestCase
         self::assertFalse($user->isActive());
     }
 
-    /**
-     * @runInSeparateProcess
-     */
+    #[RunInSeparateProcess]
     public function testCurrentUserIsLogoutWhenCredentialIsExpired(): void
     {
         $dynamic_credential_session = $this->createMock(DynamicCredentialSession::class);
@@ -94,9 +94,7 @@ final class DynamicUserCreatorTest extends \Tuleap\Test\PHPUnit\TestCase
         $dynamic_user_creator->getDynamicUser([]);
     }
 
-    /**
-     * @runInSeparateProcess
-     */
+    #[RunInSeparateProcess]
     public function testCurrentUserIsLogoutWhenCredentialIsNotFound(): void
     {
         $dynamic_credential_session = $this->createMock(DynamicCredentialSession::class);

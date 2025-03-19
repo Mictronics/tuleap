@@ -12,13 +12,22 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.4.4\n"
 
+msgid "\"%{title}\" query preview"
+msgstr ""
+
 msgid "%{from} – %{to} of %{total}"
 msgstr ""
 
-msgid "Add"
-msgstr "Adicionar"
+msgid "All artifacts created in the last 10 days"
+msgstr ""
+
+msgid "All open artifacts"
+msgstr ""
 
 msgid "An error occurred: %{error}"
+msgstr ""
+
+msgid "Are you sure you want to permanently delete it?"
 msgstr ""
 
 msgid "Artifact"
@@ -33,7 +42,19 @@ msgstr ""
 msgid "Cancel"
 msgstr "Cancelar"
 
-msgid "Click to see the documentation for advanced mode"
+msgid "Choose another query"
+msgstr ""
+
+msgid "Create new query"
+msgstr ""
+
+msgid "Default"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Delete the query"
 msgstr ""
 
 msgid "Description"
@@ -42,19 +63,13 @@ msgstr "Descrição"
 msgid "Edit"
 msgstr ""
 
+msgid "Error while deleting the query: %{error}"
+msgstr ""
+
 msgid "Error while exporting the report as .xlsx: %{error}"
 msgstr ""
 
-msgid "Error while exporting the report to CSV: %{error}"
-msgstr ""
-
 msgid "Error while fetching the artifacts matching the query: %{error}"
-msgstr ""
-
-msgid "Error while fetching the list of projects you are member of: %{error}"
-msgstr ""
-
-msgid "Error while fetching the list of trackers of this project: %{error}"
 msgstr ""
 
 msgid "Error while fetching the report: %{error}"
@@ -63,18 +78,9 @@ msgstr ""
 msgid "Error while saving the report: %{error}"
 msgstr ""
 
-msgid "Example: @title = 'value'"
-msgstr ""
-
 msgid ""
 "Example: SELECT @pretty_title FROM @project.name = 'my-project' WHERE @title "
 "= 'value'"
-msgstr ""
-
-msgid "Expert mode"
-msgstr ""
-
-msgid "Export CSV"
 msgstr ""
 
 msgid "Export XSLX"
@@ -86,7 +92,12 @@ msgstr ""
 msgid "Id"
 msgstr ""
 
-msgid "If you update the query, these trackers will be removed from it."
+msgid ""
+"If you click on one of the suggested query, your content will be replaced."
+msgstr ""
+
+msgid ""
+"If you validate, this query will replace your content. You can't undo it."
 msgstr ""
 
 msgid "Last"
@@ -98,7 +109,10 @@ msgstr ""
 msgid "Last update date"
 msgstr ""
 
-msgid "Load more"
+msgid "Make this query displayed by default"
+msgstr ""
+
+msgid "Name your query"
 msgstr ""
 
 msgid "Next"
@@ -107,16 +121,13 @@ msgstr ""
 msgid "No artifact found"
 msgstr ""
 
-msgid "No trackers selected"
+msgid "Open artifacts assigned to me"
 msgstr ""
 
-msgid "Please add trackers by clicking on \"No tracker selected\" above."
+msgid "Open artifacts assigned to me in my projects"
 msgstr ""
 
-msgid "Please choose…"
-msgstr ""
-
-msgid "Please create a new query by clicking on \"No tracker selected\" above."
+msgid "Overwrite current query"
 msgstr ""
 
 msgid "Please create a new query."
@@ -131,10 +142,31 @@ msgstr "Projeto"
 msgid "Query"
 msgstr ""
 
+msgid "Query created with success!"
+msgstr ""
+
+msgid "Query creation is under implementation"
+msgstr ""
+
+msgid "Query details & tools"
+msgstr ""
+
 msgid "Query is empty"
 msgstr ""
 
+msgid "Query suggestions"
+msgstr ""
+
+msgid "Query title"
+msgstr ""
+
+msgid "Query updated with success!"
+msgstr ""
+
 msgid "Report has been successfully saved"
+msgstr ""
+
+msgid "Save"
 msgstr ""
 
 msgid "Save report"
@@ -155,10 +187,14 @@ msgstr "Enviado por"
 msgid "Submitted on"
 msgstr ""
 
-msgid "The initial query contains trackers from inactive projects:"
+msgid "There is no artifact matching the query."
 msgstr ""
 
-msgid "There is no artifact matching the query."
+msgid ""
+"This action cannot be undone, and you will no longer have a default query."
+msgstr ""
+
+msgid "This action cannot be undone."
 msgstr ""
 
 msgid "Title"
@@ -167,11 +203,14 @@ msgstr "Título"
 msgid "Tracker"
 msgstr ""
 
-msgid "Tracker selection is limited to 25 trackers"
-msgstr ""
-
 msgid "User avatar"
 msgstr "Avatar do Usuário"
+
+msgid "Warning: This query is set as the default."
+msgstr ""
+
+msgid "Write your description"
+msgstr ""
 
 msgid ""
 "You can use: AND, OR, WITH PARENT, WITHOUT PARENT, WITH CHILDREN, WITHOUT "

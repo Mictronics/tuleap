@@ -28,27 +28,31 @@ use Tuleap\Artidoc\Adapter\Document\Section\Identifier\UUIDSectionIdentifierFact
 use Tuleap\Artidoc\Adapter\Document\Section\RetrieveArtidocSectionDao;
 use Tuleap\Artidoc\Adapter\Document\Section\SaveSectionDao;
 use Tuleap\Artidoc\Adapter\Document\Section\SectionsAsserter;
+use Tuleap\Artidoc\Adapter\Document\Section\UpdateLevelDao;
 use Tuleap\Artidoc\Domain\Document\ArtidocWithContext;
 use Tuleap\Artidoc\Domain\Document\Section\ContentToInsert;
 use Tuleap\Artidoc\Domain\Document\Section\Freetext\FreetextContent;
 use Tuleap\Artidoc\Domain\Document\Section\Freetext\Identifier\FreetextIdentifierFactory;
 use Tuleap\Artidoc\Domain\Document\Section\Freetext\RetrievedSectionContentFreetext;
+use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifier;
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifierFactory;
+use Tuleap\Artidoc\Domain\Document\Section\Level;
 use Tuleap\DB\DBFactory;
 use Tuleap\NeverThrow\Fault;
 use Tuleap\NeverThrow\Result;
 use Tuleap\Test\PHPUnit\TestIntegrationTestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class UpdateFreetextContentDaoTest extends TestIntegrationTestCase
 {
     public function testUpdateFreetextContent(): void
     {
         $artidoc = new ArtidocWithContext(new ArtidocDocument(['item_id' => 101]));
-        $this->createArtidocSections($artidoc, [
-            ContentToInsert::fromFreetext(new FreetextContent('Intro', '')),
-            ContentToInsert::fromFreetext(new FreetextContent('Requirements', '')),
-            ContentToInsert::fromArtifactId(1001),
-            ContentToInsert::fromArtifactId(1002),
+        $ids     = $this->createArtidocSections($artidoc, [
+            ContentToInsert::fromFreetext(new FreetextContent('Intro', '', Level::One)),
+            ContentToInsert::fromFreetext(new FreetextContent('Requirements', '', Level::One)),
+            ContentToInsert::fromArtifactId(1001, Level::One),
+            ContentToInsert::fromArtifactId(1002, Level::One),
         ]);
         SectionsAsserter::assertSectionsForDocument($artidoc, ['Intro', 'Requirements', 1001, 1002]);
 
@@ -58,10 +62,10 @@ final class UpdateFreetextContentDaoTest extends TestIntegrationTestCase
         self::assertCount(1, $paginated_retrieved_sections->rows);
         self::assertTrue(Result::isOk($paginated_retrieved_sections->rows[0]->content->apply(
             static fn () => Result::err(Fault::fromMessage('Should get freetext, not an artifact section')),
-            static function (RetrievedSectionContentFreetext $freetext) use ($artidoc) {
-                $dao = new UpdateFreetextContentDao();
+            static function (RetrievedSectionContentFreetext $freetext) use ($artidoc, $ids) {
+                $dao = new UpdateFreetextContentDao(new UpdateLevelDao());
 
-                $dao->updateFreetextContent($freetext->id, new FreetextContent('Introduction', ''));
+                $dao->updateFreetextContent($ids[0], $freetext->id, new FreetextContent('Introduction', '', Level::One));
 
                 SectionsAsserter::assertSectionsForDocument($artidoc, ['Introduction', 'Requirements', 1001, 1002]);
 
@@ -70,7 +74,10 @@ final class UpdateFreetextContentDaoTest extends TestIntegrationTestCase
         )));
     }
 
-    private function createArtidocSections(ArtidocWithContext $artidoc, array $content): void
+    /**
+     * @return list<SectionIdentifier>
+     */
+    private function createArtidocSections(ArtidocWithContext $artidoc, array $content): array
     {
         $dao = new SaveSectionDao($this->getSectionIdentifierFactory(), $this->getFreetextIdentifierFactory());
 
@@ -85,9 +92,17 @@ final class UpdateFreetextContentDaoTest extends TestIntegrationTestCase
             $artidoc->document->getId(),
         );
 
+        $ids = [];
         foreach ($content as $content_to_insert) {
-            $dao->saveSectionAtTheEnd($artidoc, $content_to_insert);
+            $dao->saveSectionAtTheEnd($artidoc, $content_to_insert)
+                ->andThen(static function (SectionIdentifier $id) use (&$ids) {
+                    $ids[] = $id;
+
+                    return Result::ok($id);
+                });
         }
+
+        return $ids;
     }
 
     /**

@@ -46,6 +46,7 @@ use Tuleap\Tracker\Test\Stub\RetrieveUsedArtifactLinkFieldsStub;
 use Tuleap\Tracker\Test\Stub\RetrieveUsedFieldsStub;
 use Tuleap\Tracker\Test\Stub\RetrieveViewableArtifactStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class PUTHandlerTest extends TestCase
 {
     use GlobalResponseMock;
@@ -117,9 +118,7 @@ final class PUTHandlerTest extends TestCase
         yield 'Attachment is not found' => [new \Tracker_Artifact_Attachment_FileNotFoundException(), 404];
     }
 
-    /**
-     * @dataProvider provideExceptions
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideExceptions')]
     public function testItMapsExceptionsToRestExceptions(\Throwable $throwable, int $expected_status_code): void
     {
         $this->changeset_creator = CreateNewChangesetStub::withException($throwable);

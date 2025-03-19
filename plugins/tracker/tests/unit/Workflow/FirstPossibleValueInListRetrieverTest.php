@@ -34,11 +34,13 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Rule\FirstValidValueAccordingToDependenciesRetriever;
+use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticValueBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Test\Stub\BindValueIdCollectionStub;
 use Workflow;
 use Workflow_Transition_ConditionFactory;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FirstPossibleValueInListRetrieverTest extends TestCase
 {
     private const FIRST_VALUE_ID                  = 101;
@@ -138,7 +140,7 @@ final class FirstPossibleValueInListRetrieverTest extends TestCase
     public function testItReturnFirstValueWhenNoWorkflow(): void
     {
         $this->artifact->method('getWorkflow')->willReturn(null);
-        $this->assertSame(
+        self::assertSame(
             self::FIRST_VALUE_ID,
             $this->first_possible_value_retriever->getFirstPossibleValue(
                 $this->artifact,
@@ -172,7 +174,7 @@ final class FirstPossibleValueInListRetrieverTest extends TestCase
         $this->workflow->method('getGlobalRulesManager')->willReturn($this->tracker_rules_manager);
         $this->tracker_rules_manager->method('getAllListRulesByTrackerWithOrder')->willReturn([]);
 
-        $this->assertSame(
+        self::assertSame(
             self::SECOND_VALUE_ID,
             $this->first_possible_value_retriever->getFirstPossibleValue(
                 $this->artifact,
@@ -258,7 +260,7 @@ final class FirstPossibleValueInListRetrieverTest extends TestCase
         $this->artifact->method('getValue')->with($this->field_changed)->willReturn($changeset_value);
         $changeset_value->method('getValue')->willReturn([self::ORIGINAL_FIELD_CHANGED_VALUE_ID]);
 
-        $this->assertSame(
+        self::assertSame(
             self::THIRD_VALUE_ID,
             $this->first_possible_value_retriever->getFirstPossibleValue(
                 $this->artifact,
@@ -323,41 +325,11 @@ final class FirstPossibleValueInListRetrieverTest extends TestCase
 
     private function setUpTestValues(): void
     {
-        $this->test_value_1        = new \Tracker_FormElement_Field_List_Bind_StaticValue(
-            self::FIRST_VALUE_ID,
-            'value test 1',
-            'description',
-            12,
-            0
-        );
-        $this->test_value_2        = new \Tracker_FormElement_Field_List_Bind_StaticValue(
-            self::SECOND_VALUE_ID,
-            'value test 2',
-            'description',
-            12,
-            0
-        );
-        $this->test_value_3        = new \Tracker_FormElement_Field_List_Bind_StaticValue(
-            self::THIRD_VALUE_ID,
-            'value test 3',
-            'description',
-            12,
-            0
-        );
-        $this->test_value_4        = new \Tracker_FormElement_Field_List_Bind_StaticValue(
-            self::FOURTH_VALUE_ID,
-            'value test 4',
-            'description',
-            12,
-            0
-        );
-        $this->value_from_artifact = new \Tracker_FormElement_Field_List_Bind_StaticValue(
-            self::ORIGINAL_FIELD_CHANGED_VALUE_ID,
-            'value from artifact',
-            'description',
-            12,
-            0
-        );
+        $this->test_value_1        = ListStaticValueBuilder::aStaticValue('value test 1')->withId(self::FIRST_VALUE_ID)->build();
+        $this->test_value_2        = ListStaticValueBuilder::aStaticValue('value test 2')->withId(self::SECOND_VALUE_ID)->build();
+        $this->test_value_3        = ListStaticValueBuilder::aStaticValue('value test 3')->withId(self::THIRD_VALUE_ID)->build();
+        $this->test_value_4        = ListStaticValueBuilder::aStaticValue('value test 4')->withId(self::FOURTH_VALUE_ID)->build();
+        $this->value_from_artifact = ListStaticValueBuilder::aStaticValue('value from artifact')->withId(self::ORIGINAL_FIELD_CHANGED_VALUE_ID)->build();
     }
 
     private function setUpRules(\Tracker $tracker): void

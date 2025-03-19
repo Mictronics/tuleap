@@ -32,7 +32,7 @@ use Tuleap\Tracker\Artifact\Changeset\PostCreation\PostCreationTaskConfiguration
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
-use Tuleap\Tracker\Test\Stub\Tracker\Webhook\ArtifactPayloadBuilderStub;
+use Tuleap\Tracker\Test\Stub\Webhook\ArtifactPayloadBuilderStub;
 use Tuleap\TrackerFunctions\Logs\FunctionLogLineStatus;
 use Tuleap\TrackerFunctions\Stubs\Administration\CheckFunctionIsActivatedStub;
 use Tuleap\TrackerFunctions\Stubs\Logs\SaveFunctionLogStub;
@@ -43,6 +43,7 @@ use Tuleap\TrackerFunctions\Stubs\WASM\WASMResponseExecutorStub;
 use Tuleap\TrackerFunctions\WASM\WASMResponseRepresentation;
 use UserManager;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class CustomCodeExecutionTaskTest extends TestCase
 {
     private const WASM_FILE = __FILE__;
@@ -87,7 +88,7 @@ final class CustomCodeExecutionTaskTest extends TestCase
         $task      = new CustomCodeExecutionTask(
             $logger,
             ArtifactPayloadBuilderStub::withEmptyPayload(),
-            WASMFunctionPathHelperStub::withPath(''),
+            WASMFunctionPathHelperStub::withPath('/something'),
             $caller,
             WASMResponseExecutorStub::buildOk(),
             SaveFunctionLogStub::build(),
@@ -112,7 +113,7 @@ final class CustomCodeExecutionTaskTest extends TestCase
         $task      = new CustomCodeExecutionTask(
             $logger,
             ArtifactPayloadBuilderStub::withEmptyPayload(),
-            WASMFunctionPathHelperStub::withPath(''),
+            WASMFunctionPathHelperStub::withPath('/something'),
             $caller,
             WASMResponseExecutorStub::buildOk(),
             SaveFunctionLogStub::build(),
@@ -137,7 +138,7 @@ final class CustomCodeExecutionTaskTest extends TestCase
         $task      = new CustomCodeExecutionTask(
             $logger,
             ArtifactPayloadBuilderStub::withEmptyPayload(),
-            WASMFunctionPathHelperStub::withPath(''),
+            WASMFunctionPathHelperStub::withPath('/something'),
             $caller,
             WASMResponseExecutorStub::buildOk(),
             SaveFunctionLogStub::build(),

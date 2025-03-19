@@ -27,6 +27,7 @@ use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\EventDispatcherStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ServiceClassnameRetrieverTest extends TestCase
 {
     private const PLUGIN_SERVICE_SHORTNAME = 'plugin_service';
@@ -41,9 +42,7 @@ final class ServiceClassnameRetrieverTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider getServicesWithoutSpecificImplementation
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getServicesWithoutSpecificImplementation')]
     public function testReturnsService(string $name): void
     {
         $retriever = new ServiceClassnameRetriever(EventDispatcherStub::withIdentityCallback());
@@ -57,7 +56,7 @@ final class ServiceClassnameRetrieverTest extends TestCase
     /**
      * @return list<string[]>
      */
-    private function getServicesWithoutSpecificImplementation(): array
+    public static function getServicesWithoutSpecificImplementation(): array
     {
         return [
             [Service::SUMMARY],

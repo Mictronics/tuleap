@@ -18,6 +18,7 @@
  */
 
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class Tracker_FormElement_View_AdminTest extends \Tuleap\Test\PHPUnit\TestCase //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
     use \Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
@@ -28,7 +29,7 @@ final class Tracker_FormElement_View_AdminTest extends \Tuleap\Test\PHPUnit\Test
         $result = $admin->fetchCustomHelpForShared();
         $this->assertMatchesRegularExpression('%Bugs%', $result);
         $this->assertMatchesRegularExpression('%Tuleap%', $result);
-        $this->assertMatchesRegularExpression('%<a href="' . TRACKER_BASE_URL . '/\?tracker=101&func=admin-formElement-update&formElement=666"%', $result);
+        $this->assertMatchesRegularExpression('%<a href="' . TRACKER_BASE_URL . '/\?tracker=101&func=admin-formElement-update-view&formElement=666"%', $result);
     }
 
     public function givenAnAdminWithOriginalProjectAndTracker(string $projectName, string $trackerName): Tracker_FormElement_View_Admin

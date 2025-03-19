@@ -31,6 +31,7 @@ use Tuleap\OAuth2ServerCore\Grant\AuthorizationCode\OAuth2GrantAccessTokenFromAu
 use Tuleap\OAuth2ServerCore\Grant\RefreshToken\OAuth2GrantAccessTokenFromRefreshToken;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AccessTokenGrantControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -81,7 +82,7 @@ final class AccessTokenGrantControllerTest extends \Tuleap\Test\PHPUnit\TestCase
         );
 
         $response = $this->controller->handle($request);
-        $this->assertSame($expected_response, $response);
+        self::assertSame($expected_response, $response);
     }
 
     public function testSuccessfullyGrantAccessTokenWithRefreshToken(): void
@@ -98,7 +99,7 @@ final class AccessTokenGrantControllerTest extends \Tuleap\Test\PHPUnit\TestCase
         );
 
         $response = $this->controller->handle($request);
-        $this->assertSame($expected_response, $response);
+        self::assertSame($expected_response, $response);
     }
 
     public function testRejectsRequestThatDoesNotHaveAnExplicitGrantType(): void

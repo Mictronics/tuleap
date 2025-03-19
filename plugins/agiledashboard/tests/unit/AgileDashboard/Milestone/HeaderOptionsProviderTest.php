@@ -41,8 +41,9 @@ use Tuleap\Tracker\NewDropdown\TrackerNewDropdownLinkPresenterBuilder;
 use Tuleap\Tracker\Permission\TrackerPermissionType;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
-use Tuleap\Tracker\Test\Stub\Tracker\Permission\RetrieveUserPermissionOnTrackersStub;
+use Tuleap\Tracker\Test\Stub\Permission\RetrieveUserPermissionOnTrackersStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class HeaderOptionsProviderTest extends TestCase
 {
     private HeaderOptionsProvider $provider;

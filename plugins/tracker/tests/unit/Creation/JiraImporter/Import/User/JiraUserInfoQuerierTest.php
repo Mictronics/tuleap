@@ -25,23 +25,22 @@ namespace Tuleap\Tracker\Creation\JiraImporter\Import\User;
 
 use Psr\Log\NullLogger;
 use Tuleap\Test\PHPUnit\TestCase;
-use Tuleap\Tracker\Test\Tracker\Creation\JiraImporter\Stub\JiraCloudClientStub;
-use Tuleap\Tracker\Test\Tracker\Creation\JiraImporter\Stub\JiraServerClientStub;
+use Tuleap\Tracker\Test\Stub\Creation\JiraImporter\JiraCloudClientStub;
+use Tuleap\Tracker\Test\Stub\Creation\JiraImporter\JiraServerClientStub;
 use function PHPUnit\Framework\assertEquals;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class JiraUserInfoQuerierTest extends TestCase
 {
     public function testItFetchesJiraCloudUserInfoBasedOnAccountId(): void
     {
-        $client  = new class extends JiraCloudClientStub {
-            public array $urls = [
-                '/rest/api/2/user?accountId=e8a4sd5d6' => [
-                    'displayName' => 'Jeannot',
-                    'accountId' => 'e8a4sd5d6',
-                    'emailAddress' => 'john.doe@example.com',
-                ],
-            ];
-        };
+        $client  = JiraCloudClientStub::aJiraCloudClient([
+            '/rest/api/2/user?accountId=e8a4sd5d6' => [
+                'displayName'  => 'Jeannot',
+                'accountId'    => 'e8a4sd5d6',
+                'emailAddress' => 'john.doe@example.com',
+            ],
+        ]);
         $querier = new JiraUserInfoQuerier($client, new NullLogger());
 
         $jira_cloud_user = $querier->retrieveUserFromJiraAPI('e8a4sd5d6');
@@ -52,16 +51,14 @@ final class JiraUserInfoQuerierTest extends TestCase
 
     public function testItFetchesJiraCloudUserInfo(): void
     {
-        $client  = new class extends JiraServerClientStub {
-            public array $urls = [
-                '/rest/api/2/user?key=john.doe%40example.com' => [
-                    'self' => 'https://jira.example.com/rest/api/2/user?username=john.doe%40example.com',
-                    'displayName' => 'Jeannot',
-                    'name' => 'john.doe%40example.com',
-                    'emailAddress' => 'john.doe@example.com',
-                ],
-            ];
-        };
+        $client  = JiraServerClientStub::aJiraServerClient([
+            '/rest/api/2/user?key=john.doe%40example.com' => [
+                'self'         => 'https://jira.example.com/rest/api/2/user?username=john.doe%40example.com',
+                'displayName'  => 'Jeannot',
+                'name'         => 'john.doe%40example.com',
+                'emailAddress' => 'john.doe@example.com',
+            ],
+        ]);
         $querier = new JiraUserInfoQuerier($client, new NullLogger());
 
         $jira_cloud_user = $querier->retrieveUserFromJiraAPI('john.doe%40example.com');

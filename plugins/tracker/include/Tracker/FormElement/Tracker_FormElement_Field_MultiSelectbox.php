@@ -20,9 +20,12 @@
  */
 
 use Tuleap\Tracker\Artifact\Artifact;
-use Tuleap\Tracker\FormElement\Field\ListFields\MultiSelectboxFieldDao;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\DeleteSpecificProperties;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\MultiSelectboxFieldSpecificPropertiesDAO;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\SaveSpecificFieldProperties;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\SearchSpecificProperties;
 
-class Tracker_FormElement_Field_MultiSelectbox extends Tracker_FormElement_Field_Selectbox
+class Tracker_FormElement_Field_MultiSelectbox extends Tracker_FormElement_Field_Selectbox // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
     public array $default_properties = [
         'size' => [
@@ -32,26 +35,24 @@ class Tracker_FormElement_Field_MultiSelectbox extends Tracker_FormElement_Field
         ],
     ];
 
+    protected function getDeleteSpecificPropertiesDao(): DeleteSpecificProperties
+    {
+        return new MultiSelectboxFieldSpecificPropertiesDAO();
+    }
+
+    protected function getSearchSpecificPropertiesDao(): SearchSpecificProperties
+    {
+        return new MultiSelectboxFieldSpecificPropertiesDAO();
+    }
+
+    protected function getSaveSpecificPropertiesDao(): SaveSpecificFieldProperties
+    {
+        return new MultiSelectboxFieldSpecificPropertiesDAO();
+    }
+
     public function isMultiple(): bool
     {
         return true;
-    }
-
-    protected function getDao()
-    {
-        return new MultiSelectboxFieldDao();
-    }
-
-    /**
-     * The field is permanently deleted from the db
-     * This hooks is here to delete specific properties,
-     * or specific values of the field.
-     * (The field itself will be deleted later)
-     * @return bool true if success
-     */
-    public function delete()
-    {
-        return $this->getDao()->delete($this->id);
     }
 
     protected function getMaxSize()

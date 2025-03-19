@@ -25,6 +25,7 @@ namespace Tuleap\GitLFS\GitPHPDisplay;
 use GitRepository;
 use PFUser;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class DownloadURLBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private GitRepository&\PHPUnit\Framework\MockObject\MockObject $repository;
@@ -55,7 +56,7 @@ EOS;
 
         $expected = 'plugins/git-lfs/1/objects/eca87262c137f4847c6a78fcb8e035a7cb725570f5a70af91c591d77fa7e9d1a';
 
-        $this->assertSame($expected, $this->download_url_builder->buildDownloadURL($this->repository, $this->user, $file));
+        self::assertSame($expected, $this->download_url_builder->buildDownloadURL($this->repository, $this->user, $file));
     }
 
     public function testItReturnsEmptyUrlIfFileIsNotWellFormed(): void
@@ -68,7 +69,7 @@ size 12
 EOS;
         $this->repository->method('userCanRead')->with($this->user)->willReturn(true);
 
-        $this->assertSame('', $this->download_url_builder->buildDownloadURL($this->repository, $this->user, $file));
+        self::assertSame('', $this->download_url_builder->buildDownloadURL($this->repository, $this->user, $file));
     }
 
     public function testItReturnsEmptyUrlIfUserCannotReadTheRepository(): void
@@ -82,6 +83,6 @@ EOS;
 
         $this->repository->method('userCanRead')->with($this->user)->willReturn(false);
 
-        $this->assertSame('', $this->download_url_builder->buildDownloadURL($this->repository, $this->user, $file));
+        self::assertSame('', $this->download_url_builder->buildDownloadURL($this->repository, $this->user, $file));
     }
 }

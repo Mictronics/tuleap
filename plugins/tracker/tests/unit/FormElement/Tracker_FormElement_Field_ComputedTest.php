@@ -40,6 +40,7 @@ use Tuleap\Tracker\FormElement\Field\Computed\ComputedFieldDao;
 use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
 
 // phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class Tracker_FormElement_Field_ComputedTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -64,7 +65,7 @@ final class Tracker_FormElement_Field_ComputedTest extends \Tuleap\Test\PHPUnit\
         $xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><field />');
         $computed_field->exportPropertiesToXML($xml);
 
-        $this->assertSame('12.34', (string) $xml->properties['default_value']);
+        self::assertSame('12.34', (string) $xml->properties['default_value']);
     }
 
     public function testItDoesNotExportNullDefaultValueInXML()

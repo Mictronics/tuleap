@@ -25,6 +25,7 @@ namespace Tuleap\File;
 use org\bovigo\vfs\vfsStream;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FileWriterTest extends TestCase
 {
     public function testWriteExpectedContent(): void
@@ -37,9 +38,7 @@ final class FileWriterTest extends TestCase
         self::assertSame($content, file_get_contents($file_path));
     }
 
-    /**
-     * @dataProvider dataProviderPermissions
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderPermissions')]
     public function testCreateFileWithExpectedPermissions(int $chmod): void
     {
         $file_path = vfsStream::setup()->url() . '/my_file';
@@ -49,7 +48,7 @@ final class FileWriterTest extends TestCase
         self::assertSame($chmod, fileperms($file_path) & 0777);
     }
 
-    protected function dataProviderPermissions(): array
+    public static function dataProviderPermissions(): array
     {
         return [
             [0600],

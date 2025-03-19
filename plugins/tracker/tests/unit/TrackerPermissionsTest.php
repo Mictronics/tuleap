@@ -21,7 +21,6 @@
 
 namespace Tuleap\Tracker;
 
-use Codendi_Request;
 use HTTPRequest;
 use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
@@ -51,6 +50,7 @@ use Workflow;
 use WorkflowFactory;
 use WorkflowManager;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -161,7 +161,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
      */
     private $user_manager;
 
-    public function setUp(): void
+    protected function setUp(): void
     {
         $this->project         = ProjectTestBuilder::aProject()->withAccess(\Project::ACCESS_PUBLIC)->withId(101)->build();
         $this->project_private = ProjectTestBuilder::aProject()->withAccess(\Project::ACCESS_PRIVATE)->withId(102)->build();
@@ -378,7 +378,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
         ];
     }
 
-    public function tearDown(): void
+    protected function tearDown(): void
     {
         WorkflowFactory::clearInstance();
         UserManager::clearInstance();
@@ -389,7 +389,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
     // New artifact permissions
     public function testItDelegatesPermissionToVerifier(): void
     {
-        $request_new_artifact = Mockery::mock(Codendi_Request::class);
+        $request_new_artifact = Mockery::mock(HTTPRequest::class);
         $request_new_artifact->shouldReceive('get')->withArgs(['func'])->andReturns('new-artifact');
 
         $this->tracker->shouldReceive('getTrackerArtifactSubmissionPermission')->andReturns(VerifySubmissionPermissionStub::withSubmitPermission());
@@ -399,7 +399,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testItDoesNotDIsplaySubmitWhenUserHasNoPermissions(): void
     {
-        $request_new_artifact = Mockery::mock(Codendi_Request::class);
+        $request_new_artifact = Mockery::mock(HTTPRequest::class);
         $request_new_artifact->shouldReceive('get')->withArgs(['func'])->andReturns('new-artifact');
 
         $this->tracker->shouldReceive('getTrackerArtifactSubmissionPermission')->andReturns(VerifySubmissionPermissionStub::withoutSubmitPermission());
@@ -414,10 +414,11 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
     // Tracker admin permissions
     public function testPermsAdminTrackerSiteAdmin()
     {
-        $request_admin_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin');
         $request_admin_tracker->shouldReceive('get')->withArgs(['add-formElement']);
         $request_admin_tracker->shouldReceive('get')->withArgs(['create-formElement']);
+        $request_admin_tracker->shouldReceive('isPost')->andReturns(false);
 
         // site admin can access tracker admin part
         $this->tracker->shouldReceive('displayAdminFormElements')->once();
@@ -426,10 +427,11 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminTrackerProjectAdmin()
     {
-        $request_admin_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin');
         $request_admin_tracker->shouldReceive('get')->withArgs(['add-formElement']);
         $request_admin_tracker->shouldReceive('get')->withArgs(['create-formElement']);
+        $request_admin_tracker->shouldReceive('isPost')->andReturns(false);
 
         // project admin can access tracker admin part
         $this->tracker->shouldReceive('displayAdminFormElements')->once();
@@ -438,10 +440,11 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminTrackerTrackerAdmin()
     {
-        $request_admin_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin');
         $request_admin_tracker->shouldReceive('get')->withArgs(['add-formElement']);
         $request_admin_tracker->shouldReceive('get')->withArgs(['create-formElement']);
+        $request_admin_tracker->shouldReceive('isPost')->andReturns(false);
 
         // tracker admin can access tracker admin part
         $this->tracker1->shouldReceive('displayAdminFormElements')->once();
@@ -452,10 +455,9 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminTrackerTracker1Admin()
     {
-        $request_admin_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin');
-        $request_admin_tracker->shouldReceive('get')->withArgs(['add-formElement'])->once();
-        $request_admin_tracker->shouldReceive('get')->withArgs(['create-formElement'])->once();
+        $request_admin_tracker->shouldReceive('isPost')->andReturns(false);
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();
         $GLOBALS['Response']->shouldReceive('redirect')->once();
@@ -469,10 +471,9 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminTrackerTracker2Admin()
     {
-        $request_admin_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin');
-        $request_admin_tracker->shouldReceive('get')->withArgs(['add-formElement'])->once();
-        $request_admin_tracker->shouldReceive('get')->withArgs(['create-formElement'])->once();
+        $request_admin_tracker->shouldReceive('isPost')->andReturns(false);
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();
         $GLOBALS['Response']->shouldReceive('redirect')->once();
@@ -486,7 +487,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminTrackerProjectMember()
     {
-        $request_admin_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin');
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();
@@ -499,7 +500,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminTrackerRegisteredUser()
     {
-        $request_admin_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin');
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();
@@ -524,7 +525,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
     // Tracker admin edit option permissions
     public function testPermsAdminEditOptionsTrackerSiteAdmin()
     {
-        $request_admin_editoptions_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_editoptions_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_editoptions_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-editoptions');
         $request_admin_editoptions_tracker->shouldReceive('get')->withArgs(['update']);
 
@@ -535,7 +536,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminEditOptionsTrackerProjectAdmin()
     {
-        $request_admin_editoptions_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_editoptions_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_editoptions_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-editoptions');
         $request_admin_editoptions_tracker->shouldReceive('get')->withArgs(['update']);
 
@@ -546,7 +547,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminEditOptionsTrackerTrackerAdmin()
     {
-        $request_admin_editoptions_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_editoptions_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_editoptions_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-editoptions');
         $request_admin_editoptions_tracker->shouldReceive('get')->withArgs(['update'])->twice();
 
@@ -567,7 +568,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminEditOptionsTrackerTracker1Admin()
     {
-        $request_admin_editoptions_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_editoptions_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_editoptions_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-editoptions');
         $request_admin_editoptions_tracker->shouldReceive('get')->withArgs(['update'])->once();
 
@@ -591,7 +592,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminEditOptionsTrackerTracker2Admin()
     {
-        $request_admin_editoptions_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_editoptions_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_editoptions_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-editoptions');
         $request_admin_editoptions_tracker->shouldReceive('get')->withArgs(['update'])->once();
 
@@ -615,7 +616,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminEditOptionsTrackerProjectMember()
     {
-        $request_admin_editoptions_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_editoptions_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_editoptions_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-editoptions');
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();
@@ -628,7 +629,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminEditOptionsTrackerRegisteredUser()
     {
-        $request_admin_editoptions_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_editoptions_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_editoptions_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-editoptions');
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();
@@ -642,7 +643,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
     // Tracker "admin perms" permissions
     public function testPermsAdminPermsTrackerSiteAdmin()
     {
-        $request_admin_perms_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_perms_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_perms_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-perms');
 
         // site admin can access tracker admin part
@@ -652,7 +653,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminPermsTrackerProjectAdmin()
     {
-        $request_admin_perms_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_perms_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_perms_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-perms');
 
         // project admin can access tracker admin part
@@ -662,7 +663,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminPermsTrackerTrackerAdmin()
     {
-        $request_admin_perms_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_perms_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_perms_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-perms');
 
         // tracker admin can access tracker admin part
@@ -674,7 +675,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminPermsTrackerTracker1Admin()
     {
-        $request_admin_perms_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_perms_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_perms_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-perms');
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();
@@ -688,7 +689,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminPermsTrackerTracker2Admin()
     {
-        $request_admin_perms_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_perms_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_perms_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-perms');
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();
@@ -703,7 +704,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminPermsTrackerProjectMember()
     {
-        $request_admin_perms_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_perms_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_perms_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-perms');
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();
@@ -716,7 +717,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminPermsTrackerRegisteredUser()
     {
-        $request_admin_perms_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_perms_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_perms_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-perms');
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();
@@ -730,7 +731,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
     // Tracker "admin perms tracker" permissions
     public function testPermsAdminPermsTrackerTrackerSiteAdmin()
     {
-        $request_admin_perms_tracker_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_perms_tracker_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_perms_tracker_tracker->shouldReceive('get')->withArgs(['func'])->andReturns(
             'admin-perms-tracker'
         );
@@ -742,7 +743,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminPermsTrackerTrackerProjectAdmin()
     {
-        $request_admin_perms_tracker_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_perms_tracker_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_perms_tracker_tracker->shouldReceive('get')->withArgs(['func'])->andReturns(
             'admin-perms-tracker'
         );
@@ -758,7 +759,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminPermsTrackerTrackerTrackerAdmin()
     {
-        $request_admin_perms_tracker_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_perms_tracker_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_perms_tracker_tracker->shouldReceive('get')->withArgs(['func'])->andReturns(
             'admin-perms-tracker'
         );
@@ -780,7 +781,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminPermsTrackerTrackerTracker1Admin()
     {
-        $request_admin_perms_tracker_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_perms_tracker_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_perms_tracker_tracker->shouldReceive('get')->withArgs(['func'])->andReturns(
             'admin-perms-tracker'
         );
@@ -805,7 +806,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminPermsTrackerTrackerTracker2Admin()
     {
-        $request_admin_perms_tracker_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_perms_tracker_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_perms_tracker_tracker->shouldReceive('get')->withArgs(['func'])->andReturns(
             'admin-perms-tracker'
         );
@@ -830,7 +831,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminPermsTrackerTrackerProjectMember()
     {
-        $request_admin_perms_tracker_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_perms_tracker_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_perms_tracker_tracker->shouldReceive('get')->withArgs(['func'])->andReturns(
             'admin-perms-tracker'
         );
@@ -849,7 +850,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminPermsTrackerTrackerRegisteredUser()
     {
-        $request_admin_perms_tracker_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_perms_tracker_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_perms_tracker_tracker->shouldReceive('get')->withArgs(['func'])->andReturns(
             'admin-perms-tracker'
         );
@@ -865,10 +866,9 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
     // Tracker "admin form elements" permissions
     public function testPermsAdminFormElementTrackerSiteAdmin()
     {
-        $request_admin_formelement_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_formelement_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_formelement_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-formElements');
-        $request_admin_formelement_tracker->shouldReceive('get')->withArgs(['add-formElement'])->once();
-        $request_admin_formelement_tracker->shouldReceive('get')->withArgs(['create-formElement']);
+        $request_admin_formelement_tracker->shouldReceive('isPost')->andReturns(false);
 
         // site admin can access tracker admin part
         $this->tracker->shouldReceive('displayAdminFormElements')->once();
@@ -877,10 +877,9 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminFormElementTrackerProjectAdmin()
     {
-        $request_admin_formelement_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_formelement_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_formelement_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-formElements');
-        $request_admin_formelement_tracker->shouldReceive('get')->withArgs(['add-formElement'])->once();
-        $request_admin_formelement_tracker->shouldReceive('get')->withArgs(['create-formElement'])->once();
+        $request_admin_formelement_tracker->shouldReceive('isPost')->andReturns(false);
 
         // project admin can access tracker admin part
         $this->tracker->shouldReceive('displayAdminFormElements')->once();
@@ -889,10 +888,9 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminFormElementTrackerTrackerAdmin()
     {
-        $request_admin_formelement_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_formelement_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_formelement_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-formElements');
-        $request_admin_formelement_tracker->shouldReceive('get')->withArgs(['add-formElement'])->twice();
-        $request_admin_formelement_tracker->shouldReceive('get')->withArgs(['create-formElement'])->twice();
+        $request_admin_formelement_tracker->shouldReceive('isPost')->andReturns(false);
 
         // tracker admin can access tracker admin part
         $this->tracker1->shouldReceive('displayAdminFormElements')->once();
@@ -911,10 +909,9 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminFormElementTrackerTracker1Admin()
     {
-        $request_admin_formelement_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_formelement_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_formelement_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-formElements');
-        $request_admin_formelement_tracker->shouldReceive('get')->withArgs(['add-formElement'])->once();
-        $request_admin_formelement_tracker->shouldReceive('get')->withArgs(['create-formElement'])->once();
+        $request_admin_formelement_tracker->shouldReceive('isPost')->andReturns(false);
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();
         $GLOBALS['Response']->shouldReceive('redirect')->once();
@@ -936,10 +933,9 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminFormElementTrackerTracker2Admin()
     {
-        $request_admin_formelement_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_formelement_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_formelement_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-formElements');
-        $request_admin_formelement_tracker->shouldReceive('get')->withArgs(['add-formElement'])->once();
-        $request_admin_formelement_tracker->shouldReceive('get')->withArgs(['create-formElement'])->once();
+        $request_admin_formelement_tracker->shouldReceive('isPost')->andReturns(false);
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();
         $GLOBALS['Response']->shouldReceive('redirect')->once();
@@ -960,7 +956,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminFormElementTrackerProjectMember()
     {
-        $request_admin_formelement_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_formelement_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_formelement_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-formElements');
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();
@@ -973,7 +969,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminFormElementTrackerRegisteredUser()
     {
-        $request_admin_formelement_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_formelement_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_formelement_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-formElements');
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();
@@ -987,7 +983,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
     // Tracker "admin semantic" permissions
     public function testPermsAdminSemanticTrackerSiteAdmin()
     {
-        $request_admin_semantic_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_semantic_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_semantic_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-semantic');
 
         // site admin can access tracker admin part
@@ -997,7 +993,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminSemanticTrackerProjectAdmin()
     {
-        $request_admin_semantic_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_semantic_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_semantic_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-semantic');
 
         // project admin can access tracker admin part
@@ -1007,7 +1003,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminSemanticTrackerTrackerAdmin()
     {
-        $request_admin_semantic_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_semantic_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_semantic_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-semantic');
 
         // tracker admin can access tracker admin part
@@ -1026,7 +1022,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminSemanticTrackerTracker1Admin()
     {
-        $request_admin_semantic_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_semantic_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_semantic_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-semantic');
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();
@@ -1040,7 +1036,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminSemanticTrackerTracker2Admin()
     {
-        $request_admin_semantic_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_semantic_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_semantic_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-semantic');
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();
@@ -1054,7 +1050,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminSemanticTrackerProjectMember()
     {
-        $request_admin_semantic_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_semantic_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_semantic_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-semantic');
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();
@@ -1067,7 +1063,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminSemanticTrackerRegisteredUser()
     {
-        $request_admin_semantic_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_semantic_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_semantic_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-semantic');
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();
@@ -1081,7 +1077,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
     // Tracker "admin canned" permissions
     public function testPermsAdminCannedTrackerSiteAdmin()
     {
-        $request_admin_canned_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_canned_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_canned_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-canned');
 
         // site admin can access tracker admin part
@@ -1091,7 +1087,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminCannedTrackerProjectAdmin()
     {
-        $request_admin_canned_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_canned_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_canned_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-canned');
 
         // project admin can access tracker admin part
@@ -1101,7 +1097,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminCannedTrackerTrackerAdmin()
     {
-        $request_admin_canned_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_canned_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_canned_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-canned');
 
         // tracker admin can access tracker admin part
@@ -1112,7 +1108,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminCannedTrackerTracker1Admin()
     {
-        $request_admin_canned_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_canned_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_canned_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-canned');
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();
@@ -1126,7 +1122,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminCannedTrackerTracker2Admin()
     {
-        $request_admin_canned_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_canned_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_canned_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-canned');
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();
@@ -1140,7 +1136,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminCannedTrackerProjectMember()
     {
-        $request_admin_canned_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_canned_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_canned_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-canned');
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();
@@ -1153,7 +1149,7 @@ final class TrackerPermissionsTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testPermsAdminCannedTrackerRegisteredUser()
     {
-        $request_admin_canned_tracker = Mockery::mock(Codendi_Request::class);
+        $request_admin_canned_tracker = Mockery::mock(HTTPRequest::class);
         $request_admin_canned_tracker->shouldReceive('get')->withArgs(['func'])->andReturns('admin-canned');
 
         $GLOBALS['Response']->shouldReceive('addFeedback')->withArgs(['error', Mockery::any()])->once();

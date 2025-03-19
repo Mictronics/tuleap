@@ -26,6 +26,7 @@ use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Mockery\MockInterface;
 use Tuleap\Tracker\Workflow\PostAction\Update\Internal\PostActionUpdater;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class PostActionCollectionUpdaterTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -44,9 +45,7 @@ class PostActionCollectionUpdaterTest extends \Tuleap\Test\PHPUnit\TestCase
      */
     private $post_action_updater2;
 
-    /**
-     * @before
-     */
+    #[\PHPUnit\Framework\Attributes\Before]
     public function createUpdater()
     {
         $this->post_action_updater1 = Mockery::mock(PostActionUpdater::class);

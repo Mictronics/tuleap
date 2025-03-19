@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace Tuleap\Password\HaveIBeenPwned;
 
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class PwnedPasswordCheckerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public const API_RESPONSE_EXAMPLE = <<<EOF
@@ -35,9 +36,7 @@ DD41FB439C6EEB61BBE84136C182CEA04FC:4
 BF009320A70F9353613B0550167C2E57EDE:5
 EOF;
 
-    /**
-     * @dataProvider passwordProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('passwordProvider')]
     public function testCompromisedPasswordIsRightlyIdentified(string $password, bool $expected): void
     {
         $retriever = $this->createMock(PwnedPasswordRangeRetriever::class);

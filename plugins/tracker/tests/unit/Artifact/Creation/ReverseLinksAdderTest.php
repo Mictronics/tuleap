@@ -40,12 +40,13 @@ use Tuleap\Tracker\FormElement\ArtifactLinkFieldDoesNotExistFault;
 use Tuleap\Tracker\Semantic\SemanticNotSupportedException;
 use Tuleap\Tracker\Semantic\SemanticNotSupportedFault;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
+use Tuleap\Tracker\Test\Stub\Artifact\ChangesetValue\ArtifactLink\ConvertAddReverseLinksStub;
 use Tuleap\Tracker\Test\Stub\CreateNewChangesetStub;
 use Tuleap\Tracker\Test\Stub\ForwardLinkStub;
 use Tuleap\Tracker\Test\Stub\NewParentLinkStub;
 use Tuleap\Tracker\Test\Stub\ReverseLinkStub;
-use Tuleap\Tracker\Test\Stub\Tracker\Artifact\ChangesetValue\ArtifactLink\ConvertAddReverseLinksStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ReverseLinksAdderTest extends TestCase
 {
     private const CURRENT_ARTIFACT_ID  = 1;
@@ -163,9 +164,7 @@ final class ReverseLinksAdderTest extends TestCase
         self::assertSame(0, $changeset_creator->getCallsCount());
     }
 
-    /**
-     * @dataProvider provideFaults
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideFaults')]
     public function testExceptionWhenChangesetConverterFaults(Fault $fault, \Exception $expected_exception): void
     {
         $submitter = UserTestBuilder::buildWithDefaults();
@@ -214,7 +213,7 @@ final class ReverseLinksAdderTest extends TestCase
         self::assertSame(0, $changeset_creator->getCallsCount());
     }
 
-    public function provideFaults(): array
+    public static function provideFaults(): array
     {
         return [
             [

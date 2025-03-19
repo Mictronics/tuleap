@@ -24,17 +24,25 @@
         v-on:click="switchToWritingMode"
         data-test="cross-tracker-reading-mode"
     >
-        <tracker-list-reading-mode
-            v-bind:reading_cross_tracker_report="props.reading_cross_tracker_report"
-            data-test="tracker-list-reading-mode"
-            v-if="!props.reading_cross_tracker_report.expert_mode"
-        />
-        <tlp-syntax-highlighting v-if="!isExpertQueryEmpty()" data-test="tql-reading-mode-query">
+        <label
+            v-if="is_description_displayed"
+            class="tlp-label"
+            v-bind:for="syntax_highlighted_query_id"
+            data-test="query-description"
+        >
+            {{ props.reading_query.description }}
+        </label>
+        <tlp-syntax-highlighting
+            v-bind:id="syntax_highlighted_query_id"
+            v-if="!isExpertQueryEmpty()"
+            data-test="tql-reading-mode-query"
+        >
             <code class="language-tql cross-tracker-reading-mode-query">{{
-                props.reading_cross_tracker_report.expert_query
+                props.reading_query.tql_query
             }}</code>
         </tlp-syntax-highlighting>
     </div>
+    <reading-mode-action-buttons v-bind:current_query="reading_query" />
     <div class="actions" v-if="report_state === 'result-preview'">
         <button
             type="button"
@@ -67,38 +75,49 @@
 import { computed, ref } from "vue";
 import { useGettext } from "vue3-gettext";
 import { strictInject } from "@tuleap/vue-strict-inject";
-import TrackerListReadingMode from "./TrackerListReadingMode.vue";
-import { updateReport } from "../../api/rest-querier";
-import type { ReadingCrossTrackerReport } from "../../domain/ReadingCrossTrackerReport";
-import type { Report } from "../../type";
-import type { BackendCrossTrackerReport } from "../../domain/BackendCrossTrackerReport";
-import { IS_USER_ADMIN, NOTIFY_FAULT, REPORT_ID, REPORT_STATE } from "../../injection-symbols";
+import { updateQuery, createQuery } from "../../api/rest-querier";
+import type { Query } from "../../type";
+import {
+    EMITTER,
+    IS_MULTIPLE_QUERY_SUPPORTED,
+    IS_USER_ADMIN,
+    REPORT_STATE,
+    WIDGET_ID,
+} from "../../injection-symbols";
 import { SaveReportFault } from "../../domain/SaveReportFault";
+import { NOTIFY_FAULT_EVENT, REFRESH_ARTIFACTS_EVENT } from "../../helpers/emitter-provider";
+import ReadingModeActionButtons from "./ReadingModeActionButtons.vue";
 
 const { $gettext } = useGettext();
 const report_state = strictInject(REPORT_STATE);
-const notifyFault = strictInject(NOTIFY_FAULT);
-const report_id = strictInject(REPORT_ID);
+const widget_id = strictInject(WIDGET_ID);
 const is_user_admin = strictInject(IS_USER_ADMIN);
+const is_multiple_query_supported = strictInject(IS_MULTIPLE_QUERY_SUPPORTED);
 
 const props = defineProps<{
     has_error: boolean;
-    reading_cross_tracker_report: ReadingCrossTrackerReport;
-    backend_cross_tracker_report: BackendCrossTrackerReport;
+    reading_query: Query;
+    backend_query: Query;
 }>();
 
 const emit = defineEmits<{
     (e: "switch-to-writing-mode"): void;
-    (e: "saved"): void;
+    (e: "saved", query: Query): void;
     (e: "discard-unsaved-report"): void;
 }>();
+const emitter = strictInject(EMITTER);
 
 const is_loading = ref(false);
 
+const is_description_displayed = computed<boolean>(
+    () => is_multiple_query_supported && props.reading_query.description !== "",
+);
 const is_save_disabled = computed(() => is_loading.value === true || props.has_error);
 
+const syntax_highlighted_query_id = "syntax-highlighted-query-" + widget_id;
+
 function isExpertQueryEmpty(): boolean {
-    return props.reading_cross_tracker_report.expert_query === "";
+    return props.reading_query.tql_query === "";
 }
 
 function switchToWritingMode(): void {
@@ -112,25 +131,38 @@ function saveReport(): void {
     if (is_save_disabled.value) {
         return;
     }
-
     is_loading.value = true;
 
-    props.backend_cross_tracker_report.duplicateFromReport(props.reading_cross_tracker_report);
-    const tracker_ids = props.backend_cross_tracker_report.getTrackerIds();
-    const new_expert_query = props.backend_cross_tracker_report.getExpertQuery();
+    if (props.reading_query.id === "") {
+        // It is a new query
+        createQuery(props.reading_query, widget_id)
+            .match(
+                (query: Query) => {
+                    emit("saved", query);
+                },
+                (fault) => {
+                    emitter.emit(NOTIFY_FAULT_EVENT, {
+                        fault: SaveReportFault(fault),
+                        tql_query: props.reading_query.tql_query,
+                    });
+                },
+            )
+            .then(() => {
+                is_loading.value = false;
+            });
+        return;
+    }
 
-    updateReport(report_id, tracker_ids, new_expert_query)
+    updateQuery(props.reading_query, widget_id)
         .match(
-            (report: Report) => {
-                props.backend_cross_tracker_report.init(
-                    report.trackers,
-                    report.expert_query,
-                    report.expert_mode,
-                );
-                emit("saved");
+            (query: Query) => {
+                emit("saved", query);
             },
             (fault) => {
-                notifyFault(SaveReportFault(fault));
+                emitter.emit(NOTIFY_FAULT_EVENT, {
+                    fault: SaveReportFault(fault),
+                    tql_query: props.reading_query.tql_query,
+                });
             },
         )
         .then(() => {
@@ -140,6 +172,7 @@ function saveReport(): void {
 
 function cancelReport(): void {
     emit("discard-unsaved-report");
+    emitter.emit(REFRESH_ARTIFACTS_EVENT, { query: props.backend_query });
 }
 </script>
 
@@ -147,7 +180,7 @@ function cancelReport(): void {
 .report {
     display: flex;
     flex-direction: column;
-    margin: calc(-1 * var(--tlp-small-spacing));
+    margin: var(--tlp-medium-spacing) 0;
     padding: var(--tlp-small-spacing);
     border-radius: var(--tlp-small-radius);
     color: var(--tlp-main-color);

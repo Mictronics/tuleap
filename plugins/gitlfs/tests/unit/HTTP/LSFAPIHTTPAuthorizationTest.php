@@ -33,6 +33,7 @@ use Tuleap\GitLFS\Authorization\User\UserTokenVerifier;
 use Tuleap\GitLFS\Batch\Request\BatchRequest;
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class LSFAPIHTTPAuthorizationTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private UserTokenVerifier&\PHPUnit\Framework\MockObject\MockObject $token_verifier;
@@ -57,7 +58,7 @@ final class LSFAPIHTTPAuthorizationTest extends \Tuleap\Test\PHPUnit\TestCase
         $expected_user = UserTestBuilder::aUser()->build();
         $this->token_verifier->method('getUser')->willReturn($expected_user);
 
-        $this->assertSame(
+        self::assertSame(
             $expected_user,
             $lfs_http_api_authorization->getUserFromAuthorizationToken(
                 $request,
@@ -80,7 +81,7 @@ final class LSFAPIHTTPAuthorizationTest extends \Tuleap\Test\PHPUnit\TestCase
         $expected_user = UserTestBuilder::aUser()->build();
         $this->token_verifier->method('getUser')->willReturn($expected_user);
 
-        $this->assertSame(
+        self::assertSame(
             $expected_user,
             $lfs_http_api_authorization->getUserFromAuthorizationToken(
                 $request,
@@ -108,7 +109,7 @@ final class LSFAPIHTTPAuthorizationTest extends \Tuleap\Test\PHPUnit\TestCase
             }
         );
 
-        $this->assertSame(
+        self::assertSame(
             $expected_user,
             $lfs_http_api_authorization->getUserFromAuthorizationToken(
                 $request,

@@ -29,6 +29,7 @@ use REST_TestDataBuilder;
 use Tuleap\Docman\Test\rest\DocmanDataBuilder;
 use Tuleap\Docman\Test\rest\Helper\DocmanHardcodedMetadataExecutionHelper;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class HardcodedMetadataTest extends DocmanHardcodedMetadataExecutionHelper
 {
     /**
@@ -361,7 +362,7 @@ class HardcodedMetadataTest extends DocmanHardcodedMetadataExecutionHelper
             $this->request_factory->createRequest('POST', 'docman_folders/' . $root_id . '/files')->withBody($this->stream_factory->createStream($query))
         );
         $this->assertEquals(201, $response1->getStatusCode());
-        $this->assertSame(
+        self::assertSame(
             $response1_json['file_properties']['upload_href'],
             json_decode($response2->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR)['file_properties']['upload_href']
         );

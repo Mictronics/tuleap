@@ -26,6 +26,7 @@ use Tuleap\Cryptography\ConcealedString;
 use Tuleap\NeverThrow\Result;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class CallbackURLSaveTokenIdentifierExtractorTest extends TestCase
 {
     public function testCanExtractTokenIdentifierFromACorrectCallbackURL(): void
@@ -39,9 +40,7 @@ final class CallbackURLSaveTokenIdentifierExtractorTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider dataProviderInvalidURLs
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderInvalidURLs')]
     public function testReturnsAnErrorWhenTokenIdentifierCannotBeExtracted(string $url): void
     {
         $res = (new CallbackURLSaveTokenIdentifierExtractor())->extractSaveTokenIdentifierFromTheCallbackURL(

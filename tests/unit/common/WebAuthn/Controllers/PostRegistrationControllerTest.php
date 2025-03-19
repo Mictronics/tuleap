@@ -52,6 +52,7 @@ use Webauthn\PublicKeyCredentialParameters;
 use Webauthn\PublicKeyCredentialRpEntity;
 use function Psl\Json\encode as psl_json_encode;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class PostRegistrationControllerTest extends TestCase
 {
     private WebAuthnCredentialSourceDaoStub $source_dao;
@@ -72,9 +73,7 @@ final class PostRegistrationControllerTest extends TestCase
         self::assertSame(401, $response->getStatusCode());
     }
 
-    /**
-     * @dataProvider getTest400Data
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getTest400Data')]
     public function testItReturnsError400(
         string|array $body,
     ): void {

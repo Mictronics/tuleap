@@ -33,6 +33,7 @@ use Tuleap\Tracker\Admin\MoveArtifacts\MoveActionAllowedDAO;
 use Tuleap\Tracker\Artifact\ActionButtons\MoveArtifactActionAllowedByPluginRetriever;
 use Tuleap\Tracker\Artifact\Artifact;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class BeforeMoveCheckerTest extends TestCase
 {
     use ForgeConfigSandbox;
@@ -46,7 +47,7 @@ final class BeforeMoveCheckerTest extends TestCase
 
     protected function setUp(): void
     {
-        $this->project_status_verificator = $this->createStub(ProjectStatusVerificator::class);
+        $this->project_status_verificator = $this->createMock(ProjectStatusVerificator::class);
         $this->event_manager              = $this->createStub(\EventManager::class);
         $this->move_dao                   = $this->createMock(MoveActionAllowedDAO::class);
 

@@ -18,204 +18,95 @@
   -->
 
 <template>
-    <section
-        class="tlp-pane-section"
-        v-bind:class="{ 'reading-mode-shown': is_reading_mode_shown }"
-    >
-        <error-message
-            v-bind:fault="current_fault"
-            v-bind:writing_cross_tracker_report="writing_cross_tracker_report"
-        />
-        <error-inactive-project-message v-bind:invalid_trackers="invalid_trackers" />
-        <div
-            class="tlp-alert-success cross-tracker-report-success"
-            v-if="current_success.isValue()"
-            data-test="cross-tracker-report-success"
-        >
-            {{ current_success.unwrapOr("") }}
-        </div>
-        <div class="cross-tracker-loader" v-if="is_loading"></div>
-        <reading-mode
-            v-if="is_reading_mode_shown"
-            v-bind:backend_cross_tracker_report="backend_cross_tracker_report"
-            v-bind:reading_cross_tracker_report="reading_cross_tracker_report"
-            v-bind:has_error="has_error"
-            v-on:switch-to-writing-mode="handleSwitchWriting"
-            v-on:saved="reportSaved"
-            v-on:discard-unsaved-report="unsavedReportDiscarded"
-        />
-        <writing-mode
-            v-if="report_state === 'edit-query'"
-            v-bind:writing_cross_tracker_report="writing_cross_tracker_report"
-            v-on:preview-result="handlePreviewResult"
-            v-on:cancel-query-edition="handleCancelQueryEdition"
-        />
-    </section>
-    <section class="tlp-pane-section" v-if="!is_loading">
-        <artifact-table
-            v-if="!isExpertMode()"
-            v-bind:writing_cross_tracker_report="writing_cross_tracker_report"
-        />
-        <selectable-table
-            v-if="isExpertMode()"
-            v-bind:writing_cross_tracker_report="writing_cross_tracker_report"
-        />
-    </section>
+    <feedback-message />
+    <read-query
+        v-if="widget_pane === 'query-active'"
+        v-on:switch-to-create-query-pane="handleCreateNewQuery"
+    />
+    <create-new-query
+        v-else-if="widget_pane === 'query-creation' && is_multiple_query_supported && is_user_admin"
+        v-on:return-to-active-query-pane="displayActiveQuery"
+    />
+    <edit-query
+        v-else-if="widget_pane === 'query-edition'"
+        v-bind:query="query_to_edit"
+        v-on:return-to-active-query-pane="displayActiveQuery"
+    />
 </template>
 <script setup lang="ts">
-import { computed, onMounted, provide, ref } from "vue";
-import { useGettext } from "vue3-gettext";
+import { onBeforeUnmount, onMounted, ref } from "vue";
 import { strictInject } from "@tuleap/vue-strict-inject";
-import ArtifactTable from "./components/table/ArtifactTable.vue";
-import ReadingMode from "./components/reading-mode/ReadingMode.vue";
-import WritingMode from "./components/writing-mode/WritingMode.vue";
-import ErrorMessage from "./components/ErrorMessage.vue";
-import ErrorInactiveProjectMessage from "./components/ErrorInactiveProjectMessage.vue";
-import { getReport } from "./api/rest-querier";
-import type { WritingCrossTrackerReport } from "./domain/WritingCrossTrackerReport";
-import type { BackendCrossTrackerReport } from "./domain/BackendCrossTrackerReport";
-import type { ReadingCrossTrackerReport } from "./domain/ReadingCrossTrackerReport";
-import type { InvalidTracker, Report } from "./type";
-import SelectableTable from "./components/selectable-table/SelectableTable.vue";
-import type { ReportState } from "./domain/ReportState";
 import {
-    CLEAR_FEEDBACKS,
-    IS_EXPORT_ALLOWED,
+    DEFAULT_WIDGET_TITLE,
+    EMITTER,
+    IS_MULTIPLE_QUERY_SUPPORTED,
     IS_USER_ADMIN,
-    NOTIFY_FAULT,
-    REPORT_ID,
-    REPORT_STATE,
+    UPDATE_WIDGET_TITLE,
 } from "./injection-symbols";
-import { useFeedbacks } from "./composables/useFeedbacks";
-import { ReportRetrievalFault } from "./domain/ReportRetrievalFault";
+import type { EditQueryEvent } from "./helpers/emitter-provider";
+import {
+    CLEAR_FEEDBACK_EVENT,
+    CREATE_NEW_QUERY_EVENT,
+    EDIT_QUERY_EVENT,
+    UPDATE_WIDGET_TITLE_EVENT,
+} from "./helpers/emitter-provider";
+import CreateNewQuery from "./components/query/creation/CreateNewQuery.vue";
+import {
+    QUERY_ACTIVE_PANE,
+    QUERY_CREATION_PANE,
+    QUERY_EDITION_PANE,
+} from "./domain/WidgetPaneDisplay";
+import ReadQuery from "./components/ReadQuery.vue";
+import FeedbackMessage from "./components/feedback/FeedbackMessage.vue";
+import EditQuery from "./components/query/edition/EditQuery.vue";
+import type { Query } from "./type";
 
-const report_id = strictInject(REPORT_ID);
 const is_user_admin = strictInject(IS_USER_ADMIN);
+const emitter = strictInject(EMITTER);
+const is_multiple_query_supported = strictInject(IS_MULTIPLE_QUERY_SUPPORTED);
+const widget_title_updater = strictInject(UPDATE_WIDGET_TITLE);
+const default_widget_title = strictInject(DEFAULT_WIDGET_TITLE);
 
-const gettext_provider = useGettext();
+const widget_pane = ref(QUERY_ACTIVE_PANE);
 
-const props = defineProps<{
-    backend_cross_tracker_report: BackendCrossTrackerReport;
-    reading_cross_tracker_report: ReadingCrossTrackerReport;
-    writing_cross_tracker_report: WritingCrossTrackerReport;
-}>();
-
-const report_state = ref<ReportState>("report-saved");
-provide(REPORT_STATE, report_state);
-const is_loading = ref(true);
-const invalid_trackers = ref<ReadonlyArray<InvalidTracker>>([]);
-
-const is_reading_mode_shown = computed(
-    () =>
-        (report_state.value === "report-saved" || report_state.value === "result-preview") &&
-        !is_loading.value,
-);
-
-const { current_fault, current_success, notifyFault, notifySuccess, clearFeedbacks } =
-    useFeedbacks();
-provide(NOTIFY_FAULT, notifyFault);
-provide(CLEAR_FEEDBACKS, clearFeedbacks);
-const has_error = computed<boolean>(() => current_fault.value.isValue());
-
-const is_export_allowed = computed<boolean>(() => {
-    if (report_state.value !== "report-saved" || has_error.value === true) {
-        return false;
-    }
-    if (!is_user_admin) {
-        return true;
-    }
-    return invalid_trackers.value.length === 0;
+const query_to_edit = ref<Query>({
+    description: "",
+    id: "",
+    is_default: false,
+    title: "",
+    tql_query: "",
 });
 
-provide(IS_EXPORT_ALLOWED, is_export_allowed);
-
-function initReports(): void {
-    props.reading_cross_tracker_report.duplicateFromReport(props.backend_cross_tracker_report);
-    props.writing_cross_tracker_report.duplicateFromReport(props.reading_cross_tracker_report);
-}
-
-function loadBackendReport(): void {
-    is_loading.value = true;
-    getReport(report_id)
-        .match(
-            (report: Report) => {
-                props.backend_cross_tracker_report.init(
-                    report.trackers,
-                    report.expert_query,
-                    report.expert_mode,
-                );
-                initReports();
-                if (!report.expert_mode && report.invalid_trackers.length > 0) {
-                    invalid_trackers.value = report.invalid_trackers;
-                }
-            },
-            (fault) => {
-                notifyFault(ReportRetrievalFault(fault));
-            },
-        )
-        .then(() => {
-            is_loading.value = false;
-        });
+function displayActiveQuery(): void {
+    widget_pane.value = QUERY_ACTIVE_PANE;
 }
 
 onMounted(() => {
-    loadBackendReport();
-});
-
-function isExpertMode(): boolean {
-    return is_reading_mode_shown.value
-        ? props.reading_cross_tracker_report.expert_mode
-        : props.writing_cross_tracker_report.expert_mode;
-}
-
-function handleSwitchWriting(): void {
-    if (!is_user_admin) {
-        return;
+    emitter.on(CREATE_NEW_QUERY_EVENT, handleCreateNewQuery);
+    emitter.on(EDIT_QUERY_EVENT, handleEditQuery);
+    if (is_multiple_query_supported) {
+        widget_title_updater.listenToUpdateTitle();
     }
-
-    props.writing_cross_tracker_report.duplicateFromReport(props.reading_cross_tracker_report);
-    report_state.value = "edit-query";
-    clearFeedbacks();
-}
-
-function handlePreviewResult(): void {
-    props.reading_cross_tracker_report.duplicateFromWritingReport(
-        props.writing_cross_tracker_report,
-    );
-    report_state.value = "result-preview";
-    clearFeedbacks();
-}
-
-function handleCancelQueryEdition(): void {
-    props.reading_cross_tracker_report.duplicateFromReport(props.backend_cross_tracker_report);
-    report_state.value = "report-saved";
-    clearFeedbacks();
-}
-
-function reportSaved(): void {
-    initReports();
-    invalid_trackers.value = [];
-    report_state.value = "report-saved";
-    clearFeedbacks();
-    notifySuccess(gettext_provider.$gettext("Report has been successfully saved"));
-}
-
-function unsavedReportDiscarded(): void {
-    initReports();
-    report_state.value = "report-saved";
-    clearFeedbacks();
-}
-
-defineExpose({
-    report_state,
-    current_fault,
-    current_success,
-    is_export_allowed,
 });
-</script>
 
-<style lang="scss" scoped>
-.reading-mode-shown {
-    border: 0;
+onBeforeUnmount(() => {
+    emitter.off(CREATE_NEW_QUERY_EVENT);
+    emitter.off(EDIT_QUERY_EVENT);
+    if (is_multiple_query_supported) {
+        widget_title_updater.removeListener();
+    }
+});
+
+function handleCreateNewQuery(): void {
+    emitter.emit(CLEAR_FEEDBACK_EVENT);
+    emitter.emit(UPDATE_WIDGET_TITLE_EVENT, { new_title: default_widget_title });
+    widget_pane.value = QUERY_CREATION_PANE;
 }
-</style>
+
+function handleEditQuery(query_to_edit_event: EditQueryEvent): void {
+    query_to_edit.value = query_to_edit_event.query_to_edit;
+    widget_pane.value = QUERY_EDITION_PANE;
+    emitter.emit(CLEAR_FEEDBACK_EVENT);
+    emitter.emit(UPDATE_WIDGET_TITLE_EVENT, { new_title: query_to_edit_event.query_to_edit.title });
+}
+</script>

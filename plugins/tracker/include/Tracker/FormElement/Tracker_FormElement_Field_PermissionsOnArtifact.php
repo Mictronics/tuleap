@@ -28,6 +28,8 @@ use Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifact
 use Tuleap\Tracker\FormElement\PermissionsOnArtifactUGroupRetriever;
 use Tuleap\Tracker\FormElement\PermissionsOnArtifactUsageFormatter;
 use Tuleap\Tracker\FormElement\PermissionsOnArtifactValidator;
+use Tuleap\Tracker\Report\Criteria\CriteriaPermissionsOnArtifactValueDAO;
+use Tuleap\Tracker\Report\Criteria\DeleteReportCriteriaValue;
 use Tuleap\Tracker\Report\Query\ParametrizedFrom;
 use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
 use Tuleap\Tracker\REST\v1\TrackerFieldsRepresentations\PermissionsOnArtifacts;
@@ -52,19 +54,6 @@ class Tracker_FormElement_Field_PermissionsOnArtifact extends Tracker_FormElemen
      */
     public function getDefaultValue()
     {
-    }
-
-    /**
-     * The field is permanently deleted from the db
-     * This hooks is here to delete specific properties,
-     * or specific values of the field.
-     * (The field itself will be deleted later)
-     *
-     * @return bool true if success
-     */
-    public function delete()
-    {
-        return true;
     }
 
     /**
@@ -249,6 +238,7 @@ class Tracker_FormElement_Field_PermissionsOnArtifact extends Tracker_FormElemen
             . 'id="' . $hp->purify('artifact_' . $field_id . '_perms_ugroups' . ($is_read_only ? '_ro' : '')) . '" '
             . 'multiple '
             . 'size="8" '
+            . 'data-test="artifact-permissions-selectbox" '
             . (($this->isRequired()) ? 'required="required"' : '' )
             . (($is_read_only) ? 'disabled="disabled"' : '' )
             . '>';
@@ -475,12 +465,12 @@ class Tracker_FormElement_Field_PermissionsOnArtifact extends Tracker_FormElemen
             return $html;
         }
 
-        if ($criteria->is_advanced === true) {
+        if ((bool) $criteria->is_advanced === true) {
             $multiple = ' multiple="multiple" ';
             $size     = ' size="' . min(7, count($user_groups) + 2) . '" ';
         }
 
-        $html .= '<select id="tracker_report_criteria_' . ($criteria->is_advanced === true ? 'adv_' : '') . $this->id . '"
+        $html .= '<select id="tracker_report_criteria_' . ((bool) $criteria->is_advanced === true ? 'adv_' : '') . $this->id . '"
                           name="' . $name . '" ' .
                           $size .
                           $multiple . '>';
@@ -550,6 +540,11 @@ class Tracker_FormElement_Field_PermissionsOnArtifact extends Tracker_FormElemen
     protected function getCriteriaDao()
     {
         return new Tracker_Report_Criteria_PermissionsOnArtifact_ValueDao();
+    }
+
+    public function getDeleteCriteriaValueDAO(): DeleteReportCriteriaValue
+    {
+        return new CriteriaPermissionsOnArtifactValueDAO();
     }
 
     /**
@@ -839,6 +834,7 @@ class Tracker_FormElement_Field_PermissionsOnArtifact extends Tracker_FormElemen
             $html        .= '<input type="checkbox"
                         name="artifact[' . $field_id . '][use_artifact_permissions]"
                         id="artifact_' . $field_id . '_use_artifact_permissions' . $read_only_id . '"
+                        data-test="artifact-permission-enable-checkbox"
                         value="1" ' .
                 (($can_user_restrict_permissions_to_nobody == true) ? 'checked="checked"' : '') .
                 (($disabled == true) ? 'disabled="disabled"' : '') .

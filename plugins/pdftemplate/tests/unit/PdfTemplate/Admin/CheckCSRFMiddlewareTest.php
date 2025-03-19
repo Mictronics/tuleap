@@ -29,6 +29,7 @@ use Tuleap\Request\CaptureRequestHandler;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\CSRFSynchronizerTokenStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class CheckCSRFMiddlewareTest extends TestCase
 {
     public function testProcess(): void
@@ -43,7 +44,7 @@ final class CheckCSRFMiddlewareTest extends TestCase
 
         $request = new NullServerRequest();
 
-        $this->assertSame(
+        self::assertSame(
             $response,
             $middleware->process($request, $handler)
         );

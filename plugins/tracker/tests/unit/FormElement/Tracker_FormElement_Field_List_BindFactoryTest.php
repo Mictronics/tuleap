@@ -21,6 +21,7 @@
 
 use User\XML\Import\IFindUserFromXMLReference;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class Tracker_FormElement_Field_List_BindFactoryTest extends \Tuleap\Test\PHPUnit\TestCase //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
     use \Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
@@ -91,9 +92,9 @@ final class Tracker_FormElement_Field_List_BindFactoryTest extends \Tuleap\Test\
             ]
         );
         $bind->getInstanceFromXML($xml, $field, $mapping, Mockery::mock(IFindUserFromXMLReference::class));
-        $this->assertSame($v1, $mapping['F6-V0']);
-        $this->assertSame($v2, $mapping['F6-V1']);
-        $this->assertSame($v3, $mapping['F6-V2']);
+        self::assertSame($v1, $mapping['F6-V0']);
+        self::assertSame($v2, $mapping['F6-V1']);
+        self::assertSame($v3, $mapping['F6-V2']);
     }
 
     public function testImportUsers(): void

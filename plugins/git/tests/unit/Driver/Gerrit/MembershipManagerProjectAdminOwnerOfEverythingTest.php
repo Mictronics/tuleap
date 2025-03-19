@@ -38,6 +38,7 @@ use Tuleap\Test\Builders\ProjectUGroupTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use UGroupManager;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class MembershipManagerProjectAdminOwnerOfEverythingTest extends TestCase
 {
     private Git_Driver_Gerrit&MockObject $driver;
@@ -101,11 +102,19 @@ final class MembershipManagerProjectAdminOwnerOfEverythingTest extends TestCase
     {
         $this->membership_manager->method('doesGroupExistOnServer')->willReturn(false);
         $this->driver->method('doesTheGroupExist')->willReturn(false);
-        $this->driver->expects(self::exactly(2))->method('createGroup')
-            ->withConsecutive(
-                [$this->remote_server, 'w3c/project_admins', 'w3c/project_admins'],
-                [$this->remote_server, 'w3c/coders', 'w3c/project_admins'],
-            );
+        $matcher = self::exactly(2);
+        $this->driver->expects($matcher)->method('createGroup')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame($this->remote_server, $parameters[0]);
+                self::assertSame('w3c/project_admins', $parameters[1]);
+                self::assertSame('w3c/project_admins', $parameters[2]);
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame($this->remote_server, $parameters[0]);
+                self::assertSame('w3c/coders', $parameters[1]);
+                self::assertSame('w3c/project_admins', $parameters[2]);
+            }
+        });
         $this->remote_server->method('getId');
 
         $this->membership_manager->createGroupForServer($this->remote_server, $this->ugroup);

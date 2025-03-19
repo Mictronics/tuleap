@@ -24,6 +24,7 @@ use Tuleap\GitLFS\Batch\Response\Action\BatchResponseActions;
 use Tuleap\GitLFS\LFSObject\LFSObject;
 use Tuleap\GitLFS\LFSObject\LFSObjectID;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class BatchResponseObjectWithActionsTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testBatchResponseObjectsWithActionsCanBeSerialized(): void
@@ -44,8 +45,8 @@ final class BatchResponseObjectWithActionsTest extends \Tuleap\Test\PHPUnit\Test
         $response_object            = new BatchResponseObjectWithActions($lfs_object, $action_content);
         $serialized_response_object = json_decode(json_encode($response_object));
 
-        $this->assertSame($oid, $serialized_response_object->oid);
-        $this->assertSame($size, $serialized_response_object->size);
+        self::assertSame($oid, $serialized_response_object->oid);
+        self::assertSame($size, $serialized_response_object->size);
         $this->assertEquals(new \stdClass(), $serialized_response_object->actions);
     }
 }

@@ -44,8 +44,9 @@ use Tuleap\Tracker\Test\Builders\ChangesetValueListTestBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
-use Tuleap\Tracker\Test\Stub\Tracker\FormElement\Field\ListFields\RetrieveUsedListFieldStub;
+use Tuleap\Tracker\Test\Stub\FormElement\Field\ListFields\RetrieveUsedListFieldStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class CardColumnFinderTest extends TestCase
 {
     private const ONGOING_COLUMN_ID       = 60;
@@ -55,7 +56,7 @@ final class CardColumnFinderTest extends TestCase
     private const DONE_BIND_VALUE_ID      = 1758;
     private const CANCELLED_BIND_VALUE_ID = 3116;
     private const MAPPED_FIELD_ID         = 1311;
-    private ColumnFactory & Stub $column_factory;
+    private ColumnFactory&Stub $column_factory;
     private \PFUser $user;
     private \Tracker_FormElement_Field_Selectbox $mapped_list_field;
     private \Tracker_FormElement_Field_List_Bind_Static $list_bind;

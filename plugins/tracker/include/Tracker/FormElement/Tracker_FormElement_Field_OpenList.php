@@ -26,9 +26,15 @@ use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
 use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindParameters;
 use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindStaticValueUnchanged;
 use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindVisitor;
-use Tuleap\Tracker\FormElement\Field\ListFields\OpenListValueDao;
-use Tuleap\Tracker\FormElement\Field\ListFields\OpenListFieldDao;
 use Tuleap\Tracker\FormElement\Field\ListFields\OpenListChangesetValueDao;
+use Tuleap\Tracker\FormElement\Field\ListFields\OpenListFieldDao;
+use Tuleap\Tracker\FormElement\Field\ListFields\OpenListValueDao;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\DeleteSpecificProperties;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\OpenListSpecificPropertiesDAO;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\SaveSpecificFieldProperties;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\SearchSpecificProperties;
+use Tuleap\Tracker\Report\Criteria\CriteriaOpenListValueDAO;
+use Tuleap\Tracker\Report\Criteria\DeleteReportCriteriaValue;
 use Tuleap\Tracker\Report\Query\ParametrizedFrom;
 use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
 use Tuleap\Tracker\Report\Query\ParametrizedSQLFragment;
@@ -270,6 +276,26 @@ class Tracker_FormElement_Field_OpenList extends Tracker_FormElement_Field_List 
     protected function getDao()
     {
         return new OpenListFieldDao();
+    }
+
+    protected function getDeleteSpecificPropertiesDao(): DeleteSpecificProperties
+    {
+        return new OpenListSpecificPropertiesDAO();
+    }
+
+    protected function getSearchSpecificPropertiesDao(): SearchSpecificProperties
+    {
+        return new OpenListSpecificPropertiesDAO();
+    }
+
+    public function getDeleteCriteriaValueDAO(): DeleteReportCriteriaValue
+    {
+        return new CriteriaOpenListValueDAO();
+    }
+
+    protected function getSaveSpecificPropertiesDao(): SaveSpecificFieldProperties
+    {
+        return new OpenListSpecificPropertiesDAO();
     }
 
     public static function getFactoryLabel()
@@ -1060,12 +1086,11 @@ class Tracker_FormElement_Field_OpenList extends Tracker_FormElement_Field_List 
      */
     public function process(Tracker_IDisplayTrackerLayout $layout, $request, $current_user)
     {
-        parent::process($layout, $request, $current_user);
-
         if ($request->get('func') === 'textboxlist') {
             $GLOBALS['Response']->sendJSON($this->textboxlist($request->get('keyword'), $limit = 10));
             exit();
         }
+        parent::process($layout, $request, $current_user);
     }
 
     public function getSelectDefaultValues($default_values)
@@ -1082,7 +1107,7 @@ class Tracker_FormElement_Field_OpenList extends Tracker_FormElement_Field_List 
                     <input id="tracker_field_default"
                            name="bind[default][]"
                            style="width:98%"
-                           type="text"></div>
+                           type="text">
                     <input id="field_id" type="hidden"
                            value="' . $this->getId() . '">
                   </div>';

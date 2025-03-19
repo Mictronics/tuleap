@@ -26,27 +26,5 @@ use DataAccessObject;
 
 abstract class SpecificPropertiesDao extends DataAccessObject
 {
-    public function searchByFieldId($field_id)
-    {
-        $field_id = $this->da->escapeInt($field_id);
-        $sql      = "SELECT *
-                FROM $this->table_name
-                WHERE field_id = $field_id ";
-        return $this->retrieve($sql);
-    }
-
-    public function delete($field_id)
-    {
-        $field_id = $this->da->escapeInt($field_id);
-        $sql      = "DELETE FROM $this->table_name
-                WHERE field_id = $field_id ";
-        return $this->retrieve($sql);
-    }
-
     abstract public function save($field_id, $row);
-
-    /**
-     * Duplicate specific properties of field
-     */
-    abstract public function duplicate(int $from_field_id, int $to_field_id): bool;
 }

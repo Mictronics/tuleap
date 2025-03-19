@@ -19,15 +19,16 @@
   -->
 
 <template>
-    <div v-dompurify-html="readonly_value" ref="root"></div>
+    <div v-dompurify-html="section.value.description" class="section-description" ref="root"></div>
 </template>
 
 <script setup lang="ts">
 import { loadTooltips } from "@tuleap/tooltip";
 import { onMounted, ref } from "vue";
+import type { ReactiveStoredArtidocSection } from "@/sections/SectionsCollection";
 
 defineProps<{
-    readonly_value: string;
+    section: ReactiveStoredArtidocSection;
 }>();
 
 const root = ref<HTMLElement | null>(null);
@@ -38,3 +39,9 @@ onMounted(() => {
     }
 });
 </script>
+
+<style lang="scss">
+.section-description pre {
+    margin: 0 0 var(--tlp-medium-spacing);
+}
+</style>

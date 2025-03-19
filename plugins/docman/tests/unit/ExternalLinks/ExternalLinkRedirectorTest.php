@@ -28,6 +28,7 @@ use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ExternalLinkRedirectorTest extends TestCase
 {
     private HTTPRequest&MockObject $request;
@@ -67,8 +68,17 @@ final class ExternalLinkRedirectorTest extends TestCase
         $folder_id      = 10;
         $root_folder_id = 3;
         $redirector     = new ExternalLinkRedirector(UserTestBuilder::buildWithDefaults(), $this->request, $folder_id, $root_folder_id);
+        $matcher        = $this->exactly(2);
 
-        $this->request->method('exist')->withConsecutive(['action'], ['group_id'])->willReturn(false);
+        $this->request->expects($matcher)->method('exist')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame('action', $parameters[0]);
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame('group_id', $parameters[0]);
+            }
+            return false;
+        });
 
         $redirector->checkAndStoreIfUserHasToBeenRedirected();
         self::assertFalse($redirector->shouldRedirectUserOnNewUI());

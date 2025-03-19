@@ -32,8 +32,8 @@ import {
     useOpenConfigurationModalBusStore,
 } from "@/stores/useOpenConfigurationModalBusStore";
 import { createGettext } from "vue3-gettext";
-import type { InsertSections } from "@/sections/SectionsInserter";
-import { AT_THE_END } from "@/sections/SectionsInserter";
+import type { InsertSections } from "@/sections/insert/SectionsInserter";
+import { AT_THE_END } from "@/sections/insert/SectionsInserter";
 import { TrackerStub } from "@/helpers/stubs/TrackerStub";
 import type { OpenAddExistingSectionModalBus } from "@/composables/useOpenAddExistingSectionModalBus";
 import {
@@ -41,7 +41,6 @@ import {
     useOpenAddExistingSectionModalBus,
 } from "@/composables/useOpenAddExistingSectionModalBus";
 import { SectionsInserterStub } from "@/sections/stubs/SectionsInserterStub";
-import { IS_FREETEXT_ALLOWED } from "@/is-freetext-allowed";
 
 vi.mock("@tuleap/tlp-dropdown");
 
@@ -68,7 +67,6 @@ describe("AddNewSectionButton", () => {
                     [CONFIGURATION_STORE.valueOf()]: configuration_store,
                     [OPEN_CONFIGURATION_MODAL_BUS.valueOf()]: configuration_bus,
                     [OPEN_ADD_EXISTING_SECTION_MODAL_BUS.valueOf()]: add_existing_section_bus,
-                    [IS_FREETEXT_ALLOWED.valueOf()]: true,
                 },
             },
         });
@@ -151,7 +149,6 @@ describe("AddNewSectionButton", () => {
                 ...ConfigurationStoreStub.bugs,
                 title: null,
                 description: {
-                    field_id: 1002,
                     label: "Description",
                     type: "text",
                     default_value: { format: "html", content: "" },
@@ -175,7 +172,6 @@ describe("AddNewSectionButton", () => {
                 ...ConfigurationStoreStub.bugs,
                 title: null,
                 description: {
-                    field_id: 1002,
                     label: "Description",
                     type: "text",
                     default_value: { format: "html", content: "" },
@@ -284,7 +280,6 @@ describe("AddNewSectionButton", () => {
                     default_value: "",
                 },
                 description: {
-                    field_id: 1002,
                     label: "Description",
                     type: "text",
                     default_value: { format: "html", content: "" },
@@ -322,7 +317,6 @@ describe("AddNewSectionButton", () => {
                     default_value: "",
                 },
                 description: {
-                    field_id: 1002,
                     label: "Description",
                     type: "text",
                     default_value: { format: "html", content: "" },

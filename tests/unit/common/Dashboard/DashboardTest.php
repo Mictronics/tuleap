@@ -22,6 +22,7 @@
 namespace Tuleap\Dashboard;
 
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class DashboardTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public static function dashboardLayoutProvider()
@@ -52,9 +53,7 @@ class DashboardTest extends \Tuleap\Test\PHPUnit\TestCase
         ];
     }
 
-    /**
-     * @dataProvider dashboardLayoutProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dashboardLayoutProvider')]
     public function testOneColumnIsValidWithOneColumn(Dashboard $dashboard, $layout, $column_count, $expected)
     {
         $this->assertEquals($dashboard->isLayoutValid($layout, $column_count), $expected);

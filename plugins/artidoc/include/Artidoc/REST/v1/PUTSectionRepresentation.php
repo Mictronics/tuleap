@@ -27,9 +27,14 @@ namespace Tuleap\Artidoc\REST\v1;
  */
 final class PUTSectionRepresentation
 {
+    /**
+     * @param list<int> $attachments
+     */
     private function __construct(
         public string $title,
         public string $description,
+        public array $attachments,
+        public int $level,
     ) {
     }
 }

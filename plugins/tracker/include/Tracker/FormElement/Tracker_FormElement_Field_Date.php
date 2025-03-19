@@ -22,9 +22,14 @@
 use Tuleap\Date\DateHelper;
 use Tuleap\Option\Option;
 use Tuleap\Tracker\Artifact\Artifact;
-use Tuleap\Tracker\FormElement\Field\Date\DateFieldDao;
 use Tuleap\Tracker\FormElement\Field\Date\DateValueDao;
 use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\DateFieldSpecificPropertiesDAO;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\DeleteSpecificProperties;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\SaveSpecificFieldProperties;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\SearchSpecificProperties;
+use Tuleap\Tracker\Report\Criteria\CriteriaDateValueDAO;
+use Tuleap\Tracker\Report\Criteria\DeleteReportCriteriaValue;
 use Tuleap\Tracker\Report\Query\ParametrizedFrom;
 use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
 use Tuleap\Tracker\Report\Query\ParametrizedSQLFragment;
@@ -246,27 +251,24 @@ class Tracker_FormElement_Field_Date extends Tracker_FormElement_Field
         return $value;
     }
 
-    /**
-     * Return the Field_Date_Dao
-     *
-     * @return DateFieldDao The dao
-     */
-    protected function getDao()
+    protected function getDuplicateSpecificPropertiesDao(): ?DateFieldSpecificPropertiesDAO
     {
-        return new DateFieldDao();
+        return new DateFieldSpecificPropertiesDAO();
     }
 
-    /**
-     * The field is permanently deleted from the db
-     * This hooks is here to delete specific properties,
-     * or specific values of the field.
-     * (The field itself will be deleted later)
-     *
-     * @return bool true if success
-     */
-    public function delete()
+    protected function getDeleteSpecificPropertiesDao(): DeleteSpecificProperties
     {
-        return $this->getDao()->delete($this->id);
+        return new DateFieldSpecificPropertiesDAO();
+    }
+
+    protected function getSearchSpecificPropertiesDao(): SearchSpecificProperties
+    {
+        return new DateFieldSpecificPropertiesDAO();
+    }
+
+    protected function getSaveSpecificPropertiesDao(): SaveSpecificFieldProperties
+    {
+        return new DateFieldSpecificPropertiesDAO();
     }
 
     public function getCriteriaFromWhere(Tracker_Report_Criteria $criteria): Option
@@ -456,6 +458,11 @@ class Tracker_FormElement_Field_Date extends Tracker_FormElement_Field
         return new Tracker_Report_Criteria_Date_ValueDao();
     }
 
+    public function getDeleteCriteriaValueDAO(): DeleteReportCriteriaValue
+    {
+        return new CriteriaDateValueDAO();
+    }
+
     public function fetchChangesetValue(
         int $artifact_id,
         int $changeset_id,
@@ -510,7 +517,7 @@ class Tracker_FormElement_Field_Date extends Tracker_FormElement_Field
     public function fetchCriteriaValue(Tracker_Report_Criteria $criteria): string
     {
         $html = '';
-        if ($criteria->is_advanced === true) {
+        if ((bool) $criteria->is_advanced === true) {
             $html = $this->fetchAdvancedCriteriaValue($criteria);
         } else {
             $criteria_value = $this->getCriteriaValue($criteria);

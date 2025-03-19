@@ -24,14 +24,15 @@ namespace Tuleap\DB;
 
 use Tuleap\ForgeConfigSandbox;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class DBFactoryTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use ForgeConfigSandbox;
 
     public function testConnectionsAreOnlyCreatedOncePerDatabaseName(): void
     {
-        $this->assertSame(DBFactory::getMainTuleapDBConnection(), DBFactory::getMainTuleapDBConnection());
-        $this->assertSame(DBFactory::getDBConnection('my_db'), DBFactory::getDBConnection('my_db'));
+        self::assertSame(DBFactory::getMainTuleapDBConnection(), DBFactory::getMainTuleapDBConnection());
+        self::assertSame(DBFactory::getDBConnection('my_db'), DBFactory::getDBConnection('my_db'));
     }
 
     public function testConnectionsForDifferentDatabaseNameAreDifferent(): void

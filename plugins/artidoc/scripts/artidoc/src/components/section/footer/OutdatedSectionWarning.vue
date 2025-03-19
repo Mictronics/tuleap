@@ -31,7 +31,7 @@
                 type="button"
                 class="tlp-button-warning"
                 data-test="force-save"
-                v-on:click="editor_actions.forceSaveEditor"
+                v-on:click="save_section.forceSave"
             >
                 {{ $gettext("Force save") }}
             </button>
@@ -39,7 +39,7 @@
                 type="button"
                 class="tlp-button-warning"
                 data-test="refresh"
-                v-on:click="editor_actions.refreshSection"
+                v-on:click="refresh_section.refreshSection"
             >
                 {{ $gettext("Load new section") }}
             </button>
@@ -49,10 +49,12 @@
 
 <script setup lang="ts">
 import { useGettext } from "vue3-gettext";
-import type { SectionEditorActions } from "@/composables/useSectionEditor";
+import type { RefreshSection } from "@/sections/update/SectionRefresher";
+import type { SaveSection } from "@/sections/save/SectionSaver";
 
 defineProps<{
-    editor_actions: Pick<SectionEditorActions, "refreshSection" | "forceSaveEditor">;
+    save_section: SaveSection;
+    refresh_section: RefreshSection;
 }>();
 
 const { $gettext } = useGettext();

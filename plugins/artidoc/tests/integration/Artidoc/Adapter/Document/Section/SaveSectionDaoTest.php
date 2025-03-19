@@ -29,10 +29,12 @@ use Tuleap\Artidoc\Domain\Document\ArtidocWithContext;
 use Tuleap\Artidoc\Domain\Document\Section\ContentToInsert;
 use Tuleap\Artidoc\Domain\Document\Section\Freetext\Identifier\FreetextIdentifierFactory;
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifierFactory;
+use Tuleap\Artidoc\Domain\Document\Section\Level;
 use Tuleap\DB\DBFactory;
 use Tuleap\NeverThrow\Result;
 use Tuleap\Test\PHPUnit\TestIntegrationTestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class SaveSectionDaoTest extends TestIntegrationTestCase
 {
     private ArtidocWithContext $artidoc_101;
@@ -50,19 +52,19 @@ final class SaveSectionDaoTest extends TestIntegrationTestCase
 
         $dao->saveSectionAtTheEnd(
             $this->artidoc_101,
-            ContentToInsert::fromArtifactId(1001),
+            ContentToInsert::fromArtifactId(1001, Level::One),
         );
         $dao->saveSectionAtTheEnd(
             $this->artidoc_101,
-            ContentToInsert::fromArtifactId(1002),
+            ContentToInsert::fromArtifactId(1002, Level::One),
         );
         $dao->saveSectionAtTheEnd(
             $this->artidoc_102,
-            ContentToInsert::fromArtifactId(1003),
+            ContentToInsert::fromArtifactId(1003, Level::One),
         );
         $dao->saveSectionAtTheEnd(
             $this->artidoc_101,
-            ContentToInsert::fromArtifactId(1004),
+            ContentToInsert::fromArtifactId(1004, Level::One),
         );
 
         SectionsAsserter::assertSectionsForDocument($this->artidoc_101, [1001, 1002, 1004]);
@@ -75,20 +77,20 @@ final class SaveSectionDaoTest extends TestIntegrationTestCase
 
         $dao->saveSectionAtTheEnd(
             $this->artidoc_101,
-            ContentToInsert::fromArtifactId(1001),
+            ContentToInsert::fromArtifactId(1001, Level::One),
         );
         $dao->saveSectionAtTheEnd(
             $this->artidoc_101,
-            ContentToInsert::fromArtifactId(1002),
+            ContentToInsert::fromArtifactId(1002, Level::One),
         );
         $dao->saveSectionAtTheEnd(
             $this->artidoc_102,
-            ContentToInsert::fromArtifactId(1003),
+            ContentToInsert::fromArtifactId(1003, Level::One),
         );
 
         $result = $dao->saveSectionAtTheEnd(
             $this->artidoc_101,
-            ContentToInsert::fromArtifactId(1001),
+            ContentToInsert::fromArtifactId(1001, Level::One),
         );
         self::assertTrue(Result::isErr($result));
         self::assertInstanceOf(AlreadyExistingSectionWithSameArtifactFault::class, $result->error);
@@ -101,15 +103,15 @@ final class SaveSectionDaoTest extends TestIntegrationTestCase
         [$uuid_1, $uuid_2, $uuid_3] = [
             $dao->saveSectionAtTheEnd(
                 $this->artidoc_101,
-                ContentToInsert::fromArtifactId(1001),
+                ContentToInsert::fromArtifactId(1001, Level::One),
             )->unwrapOr(null),
             $dao->saveSectionAtTheEnd(
                 $this->artidoc_101,
-                ContentToInsert::fromArtifactId(1002),
+                ContentToInsert::fromArtifactId(1002, Level::One),
             )->unwrapOr(null),
             $dao->saveSectionAtTheEnd(
                 $this->artidoc_101,
-                ContentToInsert::fromArtifactId(1003),
+                ContentToInsert::fromArtifactId(1003, Level::One),
             )->unwrapOr(null),
         ];
 
@@ -119,17 +121,17 @@ final class SaveSectionDaoTest extends TestIntegrationTestCase
 
         $dao->saveSectionBefore(
             $this->artidoc_101,
-            ContentToInsert::fromArtifactId(1004),
+            ContentToInsert::fromArtifactId(1004, Level::One),
             $uuid_1,
         );
         $dao->saveSectionBefore(
             $this->artidoc_101,
-            ContentToInsert::fromArtifactId(1005),
+            ContentToInsert::fromArtifactId(1005, Level::One),
             $uuid_2,
         );
         $dao->saveSectionBefore(
             $this->artidoc_101,
-            ContentToInsert::fromArtifactId(1006),
+            ContentToInsert::fromArtifactId(1006, Level::One),
             $uuid_3,
         );
 
@@ -143,15 +145,15 @@ final class SaveSectionDaoTest extends TestIntegrationTestCase
         [$uuid_1] = [
             $dao->saveSectionAtTheEnd(
                 $this->artidoc_101,
-                ContentToInsert::fromArtifactId(1001),
+                ContentToInsert::fromArtifactId(1001, Level::One),
             )->unwrapOr(null),
             $dao->saveSectionAtTheEnd(
                 $this->artidoc_101,
-                ContentToInsert::fromArtifactId(1002),
+                ContentToInsert::fromArtifactId(1002, Level::One),
             ),
             $dao->saveSectionAtTheEnd(
                 $this->artidoc_101,
-                ContentToInsert::fromArtifactId(1003),
+                ContentToInsert::fromArtifactId(1003, Level::One),
             ),
         ];
 
@@ -159,7 +161,7 @@ final class SaveSectionDaoTest extends TestIntegrationTestCase
 
         $result = $dao->saveSectionBefore(
             $this->artidoc_101,
-            ContentToInsert::fromArtifactId(1003),
+            ContentToInsert::fromArtifactId(1003, Level::One),
             $uuid_1,
         );
         self::assertTrue(Result::isErr($result));
@@ -173,15 +175,15 @@ final class SaveSectionDaoTest extends TestIntegrationTestCase
         [, $uuid_2] = [
             $dao->saveSectionAtTheEnd(
                 $this->artidoc_101,
-                ContentToInsert::fromArtifactId(1001),
+                ContentToInsert::fromArtifactId(1001, Level::One),
             ),
             $dao->saveSectionAtTheEnd(
                 $this->artidoc_101,
-                ContentToInsert::fromArtifactId(1002),
+                ContentToInsert::fromArtifactId(1002, Level::One),
             )->unwrapOr(null),
             $dao->saveSectionAtTheEnd(
                 $this->artidoc_101,
-                ContentToInsert::fromArtifactId(1003),
+                ContentToInsert::fromArtifactId(1003, Level::One),
             ),
         ];
 
@@ -192,7 +194,7 @@ final class SaveSectionDaoTest extends TestIntegrationTestCase
 
         $result = $dao->saveSectionBefore(
             $this->artidoc_101,
-            ContentToInsert::fromArtifactId(1004),
+            ContentToInsert::fromArtifactId(1004, Level::One),
             $uuid_2,
         );
         self::assertTrue(Result::isErr($result));
@@ -241,7 +243,7 @@ final class SaveSectionDaoTest extends TestIntegrationTestCase
     private function getArtifactIdsToInsert(int ...$artifact_ids): array
     {
         return array_map(
-            static fn ($id) => ContentToInsert::fromArtifactId($id),
+            static fn ($id) => ContentToInsert::fromArtifactId($id, Level::One),
             $artifact_ids,
         );
     }

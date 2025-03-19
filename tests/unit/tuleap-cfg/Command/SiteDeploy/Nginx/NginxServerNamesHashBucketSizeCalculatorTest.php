@@ -22,13 +22,13 @@ declare(strict_types=1);
 
 namespace TuleapCfg\Command\SiteDeploy\Nginx;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class NginxServerNamesHashBucketSizeCalculatorTest extends TestCase
 {
-    /**
-     * @dataProvider dataProviderServerNamesExpectedHashBucketSize
-     */
+    #[DataProvider('dataProviderServerNamesExpectedHashBucketSize')]
     public function testHashBucketSizeCalculation(int $server_name_size, int $expected_hash_bucket_size): void
     {
         $cpu_information        = new FakeX8664CPUInformationStub();
@@ -37,7 +37,7 @@ final class NginxServerNamesHashBucketSizeCalculatorTest extends TestCase
         self::assertSame($expected_hash_bucket_size, $bucket_size_calculator->computeServerNamesHashBucketSize(str_repeat('a', $server_name_size)));
     }
 
-    public function dataProviderServerNamesExpectedHashBucketSize(): array
+    public static function dataProviderServerNamesExpectedHashBucketSize(): array
     {
         return [
             [11, 64],

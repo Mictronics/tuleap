@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tuleap\Tracker\Creation\JiraImporter\Import\Artifact\Changelog;
 
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class CreationStateListValueFormatterTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -44,7 +45,7 @@ class CreationStateListValueFormatterTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $formatted_value = $this->formatter->formatListValue($value);
 
-        $this->assertSame(['id' => '10000'], $formatted_value);
+        self::assertSame(['id' => '10000'], $formatted_value);
     }
 
     public function testItFormatsMultipleListValue(): void
@@ -53,7 +54,7 @@ class CreationStateListValueFormatterTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $formatted_value = $this->formatter->formatListValue($value);
 
-        $this->assertSame(
+        self::assertSame(
             [
                 ['id' => '10000'],
                 ['id' => '10001'],
@@ -68,7 +69,7 @@ class CreationStateListValueFormatterTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $formatted_value = $this->formatter->formatMultiUserListValues($value);
 
-        $this->assertSame(
+        self::assertSame(
             [
                 ['id' => '105'],
                 ['id' => '106'],

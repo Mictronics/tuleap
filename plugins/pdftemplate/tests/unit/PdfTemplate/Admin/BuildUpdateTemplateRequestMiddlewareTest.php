@@ -38,6 +38,7 @@ use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\FeedbackSerializerStub;
 use Tuleap\Test\Stubs\User\Avatar\ProvideUserAvatarUrlStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class BuildUpdateTemplateRequestMiddlewareTest extends TestCase
 {
     use GlobalLanguageMock;
@@ -77,7 +78,7 @@ final class BuildUpdateTemplateRequestMiddlewareTest extends TestCase
             ->withAttribute('id', $template->identifier->toString())
             ->withParsedBody(['label' => $template->label, 'description' => 'updated description']);
 
-        $this->assertSame(
+        self::assertSame(
             $response,
             $middleware->process($request, $handler)
         );
@@ -110,7 +111,7 @@ final class BuildUpdateTemplateRequestMiddlewareTest extends TestCase
 
         $this->expectException(NotFoundException::class);
 
-        $this->assertSame(
+        self::assertSame(
             $response,
             $middleware->process($request, $handler)
         );
@@ -138,7 +139,7 @@ final class BuildUpdateTemplateRequestMiddlewareTest extends TestCase
 
         $this->expectException(NotFoundException::class);
 
-        $this->assertSame(
+        self::assertSame(
             $response,
             $middleware->process($request, $handler)
         );
@@ -166,7 +167,7 @@ final class BuildUpdateTemplateRequestMiddlewareTest extends TestCase
 
         $this->expectException(NotFoundException::class);
 
-        $this->assertSame(
+        self::assertSame(
             $response,
             $middleware->process($request, $handler)
         );
@@ -193,7 +194,7 @@ final class BuildUpdateTemplateRequestMiddlewareTest extends TestCase
 
         $this->expectException(\LogicException::class);
 
-        $this->assertSame(
+        self::assertSame(
             $response,
             $middleware->process($request, $handler)
         );

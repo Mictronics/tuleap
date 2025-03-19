@@ -28,11 +28,20 @@ namespace Tuleap\Artidoc\REST\v1;
 final class POSTContentSectionRepresentation
 {
     /**
-     * @var string type of content {@choice freetext}
+     * @var string type of content {@choice freetext,artifact}
      */
     public string $type;
-    public function __construct(public string $title, public string $description, string $type)
-    {
+
+    /**
+     * @param list<int> $attachments
+     */
+    public function __construct(
+        public string $title,
+        public string $description,
+        string $type,
+        public array $attachments,
+        public int $level,
+    ) {
         $this->type = $type;
     }
 }

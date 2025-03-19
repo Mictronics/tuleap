@@ -23,8 +23,14 @@ use Tuleap\Search\ItemToIndexQueue;
 use Tuleap\Search\ItemToIndexQueueEventBased;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
-use Tuleap\Tracker\FormElement\Field\StringField\StringFieldDao;
 use Tuleap\Tracker\FormElement\FieldContentIndexer;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\DeleteSpecificProperties;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\DuplicateSpecificProperties;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\SaveSpecificFieldProperties;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\SearchSpecificProperties;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\StringFieldSpecificPropertiesDAO;
+use Tuleap\Tracker\Report\Criteria\CriteriaAlphaNumValueDAO;
+use Tuleap\Tracker\Report\Criteria\DeleteReportCriteriaValue;
 
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 class Tracker_FormElement_Field_String extends Tracker_FormElement_Field_Text
@@ -47,9 +53,29 @@ class Tracker_FormElement_Field_String extends Tracker_FormElement_Field_Text
         ],
     ];
 
-    protected function getDao(): StringFieldDao
+    protected function getDuplicateSpecificPropertiesDao(): DuplicateSpecificProperties
     {
-        return new StringFieldDao();
+        return new StringFieldSpecificPropertiesDAO();
+    }
+
+    protected function getDeleteSpecificPropertiesDao(): DeleteSpecificProperties
+    {
+        return new StringFieldSpecificPropertiesDAO();
+    }
+
+    protected function getSaveSpecificPropertiesDao(): SaveSpecificFieldProperties
+    {
+        return new StringFieldSpecificPropertiesDAO();
+    }
+
+    protected function getSearchSpecificPropertiesDao(): SearchSpecificProperties
+    {
+        return new StringFieldSpecificPropertiesDAO();
+    }
+
+    public function getDeleteCriteriaValueDAO(): DeleteReportCriteriaValue
+    {
+        return new CriteriaAlphaNumValueDAO();
     }
 
     /**
@@ -75,18 +101,6 @@ class Tracker_FormElement_Field_String extends Tracker_FormElement_Field_Text
             );
         }
         return $changeset_value;
-    }
-
-    /**
-     * The field is permanently deleted from the db
-     * This hooks is here to delete specific properties,
-     * or specific values of the field.
-     * (The field itself will be deleted later)
-     * @return bool true if success
-     */
-    public function delete()
-    {
-        return $this->getDao()->delete($this->id);
     }
 
     protected function fetchSubmitValue(array $submitted_values): string
@@ -187,6 +201,7 @@ class Tracker_FormElement_Field_String extends Tracker_FormElement_Field_Text
             $value = $this->getDefaultValue();
         }
         $html .= '<input type="text"
+                         data-test="field-default-value"
                          size="' . $this->getProperty('size') . '"
                          ' . ($this->getProperty('maxchars') ? 'maxlength="' . $this->getProperty('maxchars') . '"' : '')  . '
                          value="' .  $hp->purify($value, CODENDI_PURIFIER_CONVERT_HTML) . '" autocomplete="off" />';

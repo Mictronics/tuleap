@@ -19,12 +19,20 @@
 
 import { describe, it, expect } from "vitest";
 import { renderArtidocSectionNode } from "./render-artidoc-section-node";
+import { ReactiveStoredArtidocSectionStub } from "@/sections/stubs/ReactiveStoredArtidocSectionStub";
+import FreetextSectionFactory from "@/helpers/freetext-section.factory";
 
 describe("render-artidoc-section-node", () => {
     it("Given a title and a description, Then it should render an artidoc-section node", () => {
         const title = "The title";
         const description = "<p>The description</p>";
-        const section_node = renderArtidocSectionNode(title, description);
+        const section = ReactiveStoredArtidocSectionStub.fromSection(
+            FreetextSectionFactory.override({
+                title,
+                description,
+            }),
+        );
+        const section_node = renderArtidocSectionNode(section);
 
         const title_element = section_node.querySelector<HTMLElement>("artidoc-section-title");
         const description_element = section_node.querySelector<HTMLElement>(

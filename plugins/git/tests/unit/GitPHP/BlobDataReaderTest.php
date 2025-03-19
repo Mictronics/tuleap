@@ -24,11 +24,10 @@ namespace Tuleap\Git\GitPHP;
 
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class BlobDataReaderTest extends TestCase
 {
-    /**
-     * @dataProvider provideStringInVariousEncodings
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideStringInVariousEncodings')]
     public function testGetDataStringInUTF8(string $string): void
     {
         $blob = $this->createMock(Blob::class);
@@ -39,9 +38,7 @@ final class BlobDataReaderTest extends TestCase
         self::assertTrue(mb_check_encoding($data_reader->getDataStringInUTF8($blob), 'UTF-8'));
     }
 
-    /**
-     * @dataProvider provideStringInVariousEncodings
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideStringInVariousEncodings')]
     public function testGetDataLinesInUTF8(string $string): void
     {
         $blob = $this->createMock(Blob::class);
@@ -56,9 +53,7 @@ final class BlobDataReaderTest extends TestCase
         }
     }
 
-    /**
-     * @dataProvider provideStringInVariousEncodings
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideStringInVariousEncodings')]
     public function testConvertToUTF8(string $string): void
     {
         $data_reader = new BlobDataReader();
@@ -66,7 +61,7 @@ final class BlobDataReaderTest extends TestCase
         self::assertTrue(mb_check_encoding($data_reader->convertToUTF8($string), 'UTF-8'));
     }
 
-    public function provideStringInVariousEncodings(): iterable
+    public static function provideStringInVariousEncodings(): iterable
     {
         $lyrics = <<<EOS
         Tes lèvres entrouvertes et puis cette blessure

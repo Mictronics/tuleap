@@ -43,13 +43,12 @@ use Tuleap\WebAuthn\Source\GetAllCredentialSourceByUserId;
 use function Psl\Json\decode as psl_json_decode;
 use function Psl\Json\encode as psl_json_encode;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class PostAuthenticationChallengeControllerTest extends TestCase
 {
     use ForgeConfigSandbox;
 
-    /**
-     * @dataProvider getTest400Data
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getTest400Data')]
     public function testItReturnsError400ForAnonymous(
         string|array $body,
     ): void {

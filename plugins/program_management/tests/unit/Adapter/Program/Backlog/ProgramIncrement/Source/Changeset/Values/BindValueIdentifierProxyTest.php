@@ -22,24 +22,23 @@ declare(strict_types=1);
 
 namespace Tuleap\ProgramManagement\Adapter\Program\Backlog\ProgramIncrement\Source\Changeset\Values;
 
+use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticValueBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\List\ListUserValueBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\List\ListUserGroupValueBuilder;
+
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class BindValueIdentifierProxyTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testItBuildsFromStaticBindValue(): void
     {
-        $bind_value = new \Tracker_FormElement_Field_List_Bind_StaticValue(
-            '3860',
-            'Planned',
-            'A Planned Progam Increment',
-            0,
-            false
-        );
+        $bind_value = ListStaticValueBuilder::aStaticValue('Planned')->withId(3860)->build();
         $identifier = BindValueIdentifierProxy::fromListBindValue($bind_value);
         self::assertSame(3860, $identifier->getId());
     }
 
     public function testItBuildsFromUsersBindValue(): void
     {
-        $bind_value = new \Tracker_FormElement_Field_List_Bind_UsersValue(110, 'dmahomly', 'Darrick Mahomly');
+        $bind_value = ListUserValueBuilder::aUserWithId(110)->withDisplayedName('Darrick Mahomly')->build();
         $identifier = BindValueIdentifierProxy::fromListBindValue($bind_value);
         self::assertSame(110, $identifier->getId());
     }
@@ -50,7 +49,7 @@ final class BindValueIdentifierProxyTest extends \Tuleap\Test\PHPUnit\TestCase
             'ugroup_id' => \ProjectUGroup::PROJECT_MEMBERS,
             'name'      => \ProjectUGroup::NORMALIZED_NAMES[\ProjectUGroup::PROJECT_MEMBERS],
         ]);
-        $bind_value = new \Tracker_FormElement_Field_List_Bind_UgroupsValue(492, $ugroup, false);
+        $bind_value = ListUserGroupValueBuilder::aUserGroupValue($ugroup)->withId(492)->build();
         $identifier = BindValueIdentifierProxy::fromListBindValue($bind_value);
         self::assertSame(492, $identifier->getId());
     }

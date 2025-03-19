@@ -27,6 +27,7 @@ use Tuleap\Authentication\SplitToken\SplitTokenVerificationString;
 use Tuleap\Authentication\SplitToken\SplitTokenVerificationStringHasher;
 use Tuleap\GitLFS\Authorization\User\Operation\UserOperation;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class UserTokenVerifierTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private UserAuthorizationDAO&\PHPUnit\Framework\MockObject\MockObject $dao;
@@ -69,7 +70,7 @@ final class UserTokenVerifierTest extends \Tuleap\Test\PHPUnit\TestCase
         ]);
         $this->hasher->method('verifyHash')->with($verification_string, 'valid')->willReturn(true);
 
-        $this->assertSame(
+        self::assertSame(
             $user,
             $verifier->getUser($this->current_time, $user_token, $repository, $operation)
         );

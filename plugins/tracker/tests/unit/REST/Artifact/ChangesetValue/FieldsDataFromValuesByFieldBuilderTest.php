@@ -33,6 +33,7 @@ use Tuleap\Tracker\Test\Builders\Fields\TextFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Test\Stub\RetrieveUsedFieldsStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FieldsDataFromValuesByFieldBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private const TRACKER_ID        = 101;
@@ -120,7 +121,7 @@ final class FieldsDataFromValuesByFieldBuilderTest extends \Tuleap\Test\PHPUnit\
         );
 
         $fields_data = $this->buildFromValuesByField($payload);
-        $this->assertSame([
+        self::assertSame([
             self::INT_FIELD_ID    => self::INT_VALUE,
             self::FLOAT_FIELD_ID  => self::FLOAT_VALUE,
             self::STRING_FIELD_ID => self::STRING_VALUE,

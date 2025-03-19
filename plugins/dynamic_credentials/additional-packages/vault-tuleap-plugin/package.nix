@@ -7,7 +7,7 @@ pkgs.buildGoModule {
 
   src = ./.;
 
-  vendorHash = "sha256-53TJELZGOWf0dgRdBqwkI5esiqDmyteI6rZzwrdxVz8=";
+  vendorHash = "sha256-H6kwjVnOaYTF+vLBov5WrgK0DfGca3Rhr2f3h2lrgbk=";
 
-  CGO_ENABLED=0;
+  env.CGO_ENABLED=0;
 }

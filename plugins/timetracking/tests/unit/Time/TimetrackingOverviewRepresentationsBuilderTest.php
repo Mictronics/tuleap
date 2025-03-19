@@ -35,6 +35,7 @@ use Tuleap\Timetracking\REST\v1\TimetrackingOverviewRepresentationsBuilder;
 use Tuleap\Tracker\REST\CompleteTrackerRepresentation;
 use Tuleap\Tracker\TrackerColor;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class TimetrackingOverviewRepresentationsBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -136,7 +137,8 @@ final class TimetrackingOverviewRepresentationsBuilderTest extends \Tuleap\Test\
             $this->tracker,
             [],
             [],
-            []
+            [],
+            null
         );
 
         $this->permissions_retriever->method('userCanSeeAllTimesInTracker')->with(

@@ -21,6 +21,7 @@
 use Tuleap\GlobalLanguageMock;
 
 //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class Rule_UserNameTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use GlobalLanguageMock;
@@ -76,9 +77,7 @@ class Rule_UserNameTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->assertFalse($r->isReservedName('forgeron'));
     }
 
-    /**
-     * @dataProvider dataForUnixTestProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataForUnixTestProvider')]
     public function testIsUnixValid(bool $expected_result, string $given_username): void
     {
         $rules = new Rule_UserName();

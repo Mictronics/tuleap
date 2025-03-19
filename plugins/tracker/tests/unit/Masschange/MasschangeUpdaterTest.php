@@ -43,15 +43,16 @@ use Tuleap\Tracker\Test\Builders\ChangesetValueListTestBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
 use Tuleap\Tracker\Test\Stub\CreateNewChangesetStub;
+use Tuleap\Tracker\Test\Stub\FormElement\Field\ListFields\RetrieveUsedListFieldStub;
 use Tuleap\Tracker\Test\Stub\RetrieveArtifactStub;
-use Tuleap\Tracker\Test\Stub\Tracker\FormElement\Field\ListFields\RetrieveUsedListFieldStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class MasschangeUpdaterTest extends TestCase
 {
     use GlobalResponseMock;
 
     private const USER_ID = 963;
-    private Tracker_ArtifactDao & MockObject $artifact_dao;
+    private Tracker_ArtifactDao&MockObject $artifact_dao;
     private RetrieveUsedListField $form_element_factory;
     private RetrieveArtifact $artifact_factory;
     private CreateNewChangesetStub $changeset_creator;
@@ -171,11 +172,18 @@ final class MasschangeUpdaterTest extends TestCase
                         ->build();
 
         $this->artifact_factory = RetrieveArtifactStub::withArtifacts($artifact_201, $artifact_202);
+        $matcher                = self::exactly(2);
 
-        $this->artifact_dao->expects(self::exactly(2))->method('createUnsubscribeNotification')->withConsecutive(
-            [201, self::USER_ID],
-            [202, self::USER_ID]
-        );
+        $this->artifact_dao->expects($matcher)->method('createUnsubscribeNotification')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame(201, $parameters[0]);
+                self::assertSame(self::USER_ID, $parameters[1]);
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame(202, $parameters[0]);
+                self::assertSame(self::USER_ID, $parameters[1]);
+            }
+        });
 
         $expected_artifacts = [$artifact_201, $artifact_202];
 

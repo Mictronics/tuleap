@@ -19,6 +19,21 @@
  */
 const now = Date.now();
 
+const functional_requirements = [
+    {
+        title: "Create a new document",
+        description: "",
+    },
+    {
+        title: "Edit an existing document",
+        description: "",
+    },
+    {
+        title: "Save a document",
+        description: "",
+    },
+];
+
 const requirements = [
     {
         title: "Functional Requirement",
@@ -40,69 +55,63 @@ const requirements = [
 const structures = [
     {
         title: "Introduction",
-        description: "With description of how requirements should be described",
+        description: "With description of how requirements should be described.",
+    },
+    {
+        title: "Requirements",
+        description: "",
     },
 ];
 
 describe("Artidoc", () => {
-    it("Creates an artidoc document", function () {
+    const project_name = `artidoc-${now}`;
+
+    before(() => {
         cy.projectAdministratorSession();
-        const project_name = `artidoc-${now}`;
-        cy.createNewPublicProjectFromAnotherOne(project_name, "artidoc-template-project").then(
-            () => {
+        cy.createNewPublicProjectFromAnotherOne(project_name, "artidoc-template-project")
+            .then((project_id) => {
                 cy.addProjectMember(project_name, "projectMember");
-            },
-        );
 
-        cy.log("Create document");
-        cy.projectMemberSession();
-        cy.visitProjectService(project_name, "Documents");
-        cy.get("[data-test=document-new-item]").click();
-        cy.contains("[data-test=other_item_type]", "Artidoc").click();
-        cy.intercept("*/docman_folders/*/others").as("createDocument");
-        cy.get("[data-test=document-new-item-title]").type("Artidoc requirements{enter}");
-
-        cy.wait("@createDocument")
-            .then((interception) => interception.response?.body.id)
-            .then((document_id): void => {
-                const url = "/artidoc/" + encodeURIComponent(document_id);
-
-                cy.get("[data-test=document-folder-subitem-link]").click();
-                cy.log(
-                    "Wait for section to be loaded, intercepting section load does not do the trick",
-                );
-                cy.get("[data-test=states-section]");
-                cy.get("[data-test=artidoc-configuration-tracker]").last().select("Requirements");
-                cy.intercept("/api/artidoc/*/configuration").as("saveConfiguration");
-                cy.get("[data-test=artidoc-configuration-submit-button]").click();
-                cy.wait("@saveConfiguration");
-
-                cy.regularUserSession();
-                cy.visit(url);
-                cy.log("User with read rights should see an empty state");
-                cy.contains("This document is empty");
-
-                cy.projectMemberSession();
-                cy.visit(url);
+                return cy.getTrackerIdFromREST(project_id, "requirements");
+            })
+            .then((tracker_id) => {
+                cy.projectAdministratorSession();
+                cy.createArtifact({
+                    tracker_id,
+                    artifact_title: "An important requirement",
+                    title_field_name: "title",
+                }).as("artifact_to_reference_id");
             });
+    });
+
+    it("Creates an artidoc document", function () {
+        createDocument("Artidoc requirements").then((url) => {
+            cy.regularUserSession();
+            cy.visit(url);
+            cy.log("User with read rights should see an empty state");
+            cy.contains("This document is empty");
+
+            cy.projectMemberSession();
+            cy.visit(url);
+        });
 
         cy.get("[data-test=artidoc-section]:first-child").within(() => {
             cy.log("User with write rights should see a form to enter a new section");
-            fillInSectionTitleAndDescription(requirements[0]);
+            createSectionWithTitleAndDescription(requirements[0]);
         });
 
         cy.log("User should be able to add a section at the beginning");
         cy.get("[data-test=artidoc-add-new-section-trigger]").first().click();
         cy.get("[data-test=add-new-section]").first().click({ force: true });
         cy.get("[data-test=artidoc-section]:first-child").within(() => {
-            fillInSectionTitleAndDescription(requirements[1]);
+            createSectionWithTitleAndDescription(requirements[1]);
         });
 
         cy.log("User should be able to add a section at the end");
         cy.get("[data-test=artidoc-add-new-section-trigger]").last().click();
         cy.get("[data-test=add-new-section]").last().click({ force: true });
         cy.get("[data-test=artidoc-section]:last-child").within(() => {
-            fillInSectionTitleAndDescription(requirements[2]);
+            createSectionWithTitleAndDescription(requirements[2]);
         });
 
         cy.log("Check that the document has now section in given order");
@@ -116,17 +125,16 @@ describe("Artidoc", () => {
         ]);
 
         cy.get("[data-test=artidoc-section]:last-child").within(() => {
-            getSectionTitle().type("{end} (edited)");
-        });
+            cy.intercept("PUT", "*/artidoc_sections/*").as("updateSection");
+            cy.intercept("GET", "*/artidoc_sections/*").as("RefreshSection");
 
-        cy.get("[data-test=artidoc-section]:last-child").within(() => {
-            cy.intercept("PUT", "*/artifacts/*").as("updateArtifact");
-            cy.intercept("GET", "*/artidoc_sections/*").as("editSection");
+            getSectionTitle().type("{end} (edited)");
 
             pasteImageInSectionDescription("/uploads/tracker/file/*");
             cy.contains("button", "Save").click();
 
-            cy.wait(["@updateArtifact", "@editSection"]);
+            cy.wait(["@updateSection", "@RefreshSection"]);
+            waitSectionToBeSaved();
 
             getSectionTitle().should("contain.text", "Security Requirement (edited)");
             // ignore rule for image pasted in ProseMirror
@@ -159,7 +167,7 @@ describe("Artidoc", () => {
         cy.get("[data-test=artidoc-add-new-section-trigger]").first().click();
         cy.get("[data-test=add-freetext-section]").first().click({ force: true });
         cy.get("[data-test=artidoc-section]:first-child").within(() => {
-            fillInFreeTextSectionTitleAndDescription(structures[0]);
+            createSectionWithTitleAndDescription(structures[0]);
         });
 
         cy.reload();
@@ -176,7 +184,8 @@ describe("Artidoc", () => {
             pasteImageInSectionDescription("/uploads/artidoc/sections/file/*");
             cy.contains("button", "Save").click();
 
-            cy.wait(["@editSection"]);
+            cy.wait(["@RefreshSection"]);
+            waitSectionToBeSaved();
 
             // ignore rule for image pasted in ProseMirror
             // eslint-disable-next-line cypress/require-data-selectors
@@ -188,6 +197,8 @@ describe("Artidoc", () => {
             "Security Requirement (edited)",
             "Performance Requirement",
         ]);
+
+        testCrossReferenceExtraction(this.artifact_to_reference_id);
 
         cy.intercept("DELETE", "*/artidoc_sections/*").as("deleteSection");
         cy.log("Users should be able to delete a freetext section");
@@ -210,7 +221,236 @@ describe("Artidoc", () => {
             "Performance Requirement",
         ]);
     });
+
+    it("Handles many levels of section", () => {
+        createDocument("Level of sections");
+
+        createStructuredSections();
+
+        assertTocContains([
+            "1. Introduction",
+            "2. Requirements",
+            "2.1. Functional Requirement",
+            "2.2. Performance Requirement",
+            "2.3. Security Requirement",
+        ]);
+
+        cy.log("Change level of Requirements section");
+        setNthSectionLevel(1, 3);
+
+        assertTocContains([
+            "1. Introduction",
+            "1.1.1. Requirements",
+            "1.2. Functional Requirement",
+            "1.3. Performance Requirement",
+            "1.4. Security Requirement",
+        ]);
+
+        cy.log("Change level of Functional Requirement section");
+        setNthSectionLevel(2, 3);
+
+        assertTocContains([
+            "1. Introduction",
+            "1.1.1. Requirements",
+            "1.1.2. Functional Requirement",
+            "1.2. Performance Requirement",
+            "1.3. Security Requirement",
+        ]);
+    });
+
+    it("Handles tricky scenarios about level for sections", () => {
+        cy.intercept("POST", "/api/v1/artidoc_sections").as("addSection");
+        createDocument("Tricky scenarios about level");
+
+        cy.log("Change level of pending default section");
+
+        getSectionTitle().type(requirements[0].title);
+        getSectionDescription().type(requirements[0].description);
+        getSectionTitle().type("{end}");
+        cy.get("[data-test=change-section-level]").click();
+        cy.get(`[data-test=change-section-level-2]`).click();
+
+        assertTocContains(["1.1. Functional Requirement"]);
+
+        cy.log(
+            "Make sure that section is switched to edit mode if we change its level after being saved",
+        );
+
+        cy.get("[data-test=section-edition]").contains("button", "Save").click();
+        cy.wait("@addSection");
+        waitSectionToBeSaved();
+        getSectionTitle().type("{end}");
+        cy.get("[data-test=change-section-level]").click();
+        cy.get(`[data-test=change-section-level-1]`).click();
+
+        cy.get(`[data-test=section-edition]`).should("exist");
+        cy.get("[data-test=section-edition]").contains("button", "Cancel").click();
+        cy.get(`[data-test=section-edition]`).should("not.exist");
+
+        cy.log(
+            "If we change both description and level, and bring back level to its original value, then section should still be in edit mode",
+        );
+
+        const added_word = "supercalifragilisticexpialidocious";
+        getSectionDescription().type(`{end}${added_word}`);
+        getSectionTitle().type("{end}");
+        cy.get(`[data-test=change-section-level-2]`).should("have.class", "artidoc-selected-level");
+        cy.get("[data-test=change-section-level]").click();
+        cy.get(`[data-test=change-section-level-1]`).click();
+        assertTocContains(["1. Functional Requirement"]);
+        cy.get("[data-test=change-section-level]").click();
+        cy.get(`[data-test=change-section-level-2]`).click();
+        assertTocContains(["1.1. Functional Requirement"]);
+
+        cy.get(`[data-test=section-edition]`).should("exist");
+        cy.get("[data-test=section-edition]").contains("button", "Cancel").click();
+        assertTocContains(["1.1. Functional Requirement"]);
+        getSectionDescription().should("not.contain.text", added_word);
+    });
+
+    it("Handles reordering of sections in blocks", () => {
+        createDocument("Structured sections");
+        cy.log("Create structured sections");
+        createStructuredSections();
+
+        cy.get("[data-test=artidoc-add-new-section-trigger]").eq(3).click();
+        cy.get("[data-test=add-new-section]").eq(3).click({ force: true });
+        cy.get("[data-test=artidoc-section]")
+            .eq(3)
+            .within(() => {
+                createSectionWithTitleAndDescription(functional_requirements[0]);
+            });
+        setNthSectionLevel(3, 3);
+
+        for (let i = 1; i < functional_requirements.length; ++i) {
+            cy.get("[data-test=artidoc-add-new-section-trigger]")
+                .eq(3 + i)
+                .click();
+            cy.get("[data-test=add-new-section]")
+                .eq(3 + i)
+                .click({ force: true });
+            cy.get("[data-test=artidoc-section]")
+                .eq(3 + i)
+                .within(() => {
+                    createSectionWithTitleAndDescription(functional_requirements[i]);
+                });
+        }
+
+        assertTocContains([
+            "1. Introduction",
+            "2. Requirements",
+            "2.1. Functional Requirement",
+            "2.1.1. Create a new document",
+            "2.1.2. Edit an existing document",
+            "2.1.3. Save a document",
+            "2.2. Performance Requirement",
+            "2.3. Security Requirement",
+        ]);
+
+        cy.log("Move up a section without children");
+        cy.intercept("PATCH", "/api/artidoc/*/sections").as("patchSectionsOrder");
+
+        cy.get("[data-test=move-up]").eq(4).click({ force: true });
+        cy.wait("@patchSectionsOrder");
+        assertTocContains([
+            "1. Introduction",
+            "2. Requirements",
+            "2.1. Functional Requirement",
+            "2.1.1. Create a new document",
+            "2.1.2. Save a document",
+            "2.1.3. Edit an existing document",
+            "2.2. Performance Requirement",
+            "2.3. Security Requirement",
+        ]);
+
+        cy.log("Move down a section with children");
+        cy.get("[data-test=move-down]").eq(1).click({ force: true });
+        cy.wait("@patchSectionsOrder");
+        assertTocContains([
+            "1. Introduction",
+            "2. Requirements",
+            "2.1. Performance Requirement",
+            "2.2. Functional Requirement",
+            "2.2.1. Create a new document",
+            "2.2.2. Save a document",
+            "2.2.3. Edit an existing document",
+            "2.3. Security Requirement",
+        ]);
+
+        cy.log("Move up a section with children");
+        cy.get("[data-test=move-up]").eq(0).click({ force: true });
+        cy.wait("@patchSectionsOrder");
+        assertTocContains([
+            "1. Requirements",
+            "1.1. Performance Requirement",
+            "1.2. Functional Requirement",
+            "1.2.1. Create a new document",
+            "1.2.2. Save a document",
+            "1.2.3. Edit an existing document",
+            "1.3. Security Requirement",
+            "2. Introduction",
+        ]);
+    });
+
+    function createDocument(name: string): Cypress.Chainable<string> {
+        cy.log("Create document");
+        cy.projectMemberSession();
+        cy.visitProjectService(project_name, "Documents");
+        cy.get("[data-test=document-new-item]").click();
+        cy.contains("[data-test=other_item_type]", "Artidoc").click();
+        cy.intercept("*/docman_folders/*/others").as("createDocument");
+        cy.get("[data-test=document-new-item-title]").type(name + "{enter}");
+
+        return cy
+            .wait("@createDocument")
+            .then((interception) => interception.response?.body.id)
+            .then((document_id): Cypress.Chainable<string> => {
+                const url = "/artidoc/" + encodeURIComponent(document_id);
+
+                cy.contains("[data-test=document-folder-subitem-link]", name).click();
+                cy.log(
+                    "Wait for section to be loaded, intercepting section load does not do the trick",
+                );
+                cy.get("[data-test=states-section]");
+                cy.get("[data-test=artidoc-configuration-tracker]").last().select("Requirements");
+                cy.intercept("/api/artidoc/*/configuration").as("saveConfiguration");
+                cy.get("[data-test=artidoc-configuration-submit-button]").click();
+                cy.wait("@saveConfiguration");
+
+                return cy.wrap(url);
+            });
+    }
 });
+
+function testCrossReferenceExtraction(artifact_to_reference_id: number): void {
+    const insertArtifactReferenceAndAssertItHasBeenProcessed = (reference_id: number): void => {
+        getSectionDescription().type(`{enter} See art #${reference_id} for more information.`);
+
+        cy.get("[data-test=section-edition]").contains("button", "Save").click();
+        cy.wait(["@updateSection", "@RefreshSection"]);
+
+        getSectionDescription()
+            .get("async-cross-reference")
+            .should("contain.text", `art #${reference_id}`);
+    };
+
+    cy.log("User should be able to reference artifacts in freetext and artifact sections");
+    [
+        cy.get("[data-test-type=freetext-section]").first(),
+        cy.get("[data-test-type=artifact-section]").first(),
+    ].forEach((section) => {
+        section.within(() => {
+            waitSectionToBeSaved();
+            insertArtifactReferenceAndAssertItHasBeenProcessed(artifact_to_reference_id);
+        });
+    });
+}
+
+function waitSectionToBeSaved(): void {
+    // Wait for the data-test attribute to disappear. It means that the changes in the section have been processed.
+    // This function helps to prevent Cypress to edit a section while its state is not stabilized yet, making tests flaky.
+    cy.get(`[data-test=section-edition]`).should("not.exist");
+}
 
 function getSectionTitle(): Cypress.Chainable<JQuery<HTMLElement>> {
     // ignore rule because this tag is generated by ProseMirror
@@ -226,35 +466,23 @@ function getSectionDescription(): Cypress.Chainable<JQuery<HTMLElement>> {
     return cy.get("artidoc-section-description");
 }
 
-function fillInSectionTitleAndDescription({
+function createSectionWithTitleAndDescription({
     title,
     description,
 }: {
     title: string;
     description: string;
 }): void {
-    cy.intercept("POST", "*/artifacts").as("createArtifact");
-    cy.intercept("POST", "*/artidoc_sections").as("addSection");
+    cy.intercept("POST", "/api/v1/artidoc_sections").as("addSection");
 
     getSectionTitle().type(title);
-    getSectionDescription().type(description);
+    if (description.length > 0) {
+        getSectionDescription().type(description);
+    }
 
     cy.get("[data-test=section-edition]").contains("button", "Save").click();
-    cy.wait(["@createArtifact", "@addSection"]);
-}
-
-function fillInFreeTextSectionTitleAndDescription({
-    title,
-    description,
-}: {
-    title: string;
-    description: string;
-}): void {
-    getSectionTitle().type(title);
-    getSectionDescription().type(description);
-
-    cy.get("[data-test=section-edition]").contains("button", "Save").click();
-    cy.wait("@editSection");
+    cy.wait("@addSection");
+    waitSectionToBeSaved();
 }
 
 function pasteImageInSectionDescription(url_to_intercept: string): void {
@@ -304,4 +532,69 @@ function assertDocumentContainsSections(expected_sections: Array<string>): void 
                 getSectionTitle().should("contain.text", value);
             });
     });
+}
+
+function assertTocContains(expected_toc: Array<string>): void {
+    cy.get("[data-test=section-in-toc]").should("have.length", expected_toc.length);
+    expected_toc.forEach((value, key) => {
+        cy.get("[data-test=section-in-toc]").eq(key).contains(value);
+    });
+}
+
+function setNthSectionLevel(index: number, level: number): void {
+    cy.get("[data-test=artidoc-section]")
+        .eq(index)
+        .within(() => {
+            cy.intercept("PUT", "*/artidoc_sections/*").as("updateSection");
+            cy.intercept("GET", "*/artidoc_sections/*").as("RefreshSection");
+
+            getSectionTitle().type("{end}");
+
+            cy.document()
+                .its("body")
+                .within(() => {
+                    cy.get("[data-test=change-section-level]").click();
+                    cy.get(`[data-test=change-section-level-${level}]`).click();
+                });
+
+            cy.contains("button", "Save").click();
+
+            cy.wait(["@updateSection", "@RefreshSection"]);
+            waitSectionToBeSaved();
+        });
+}
+
+function createStructuredSections(): void {
+    cy.log("Creates Requirement freetext section");
+    cy.get("[data-test=artidoc-add-new-section-trigger]").eq(0).click();
+    cy.get("[data-test=add-freetext-section]").eq(0).click({ force: true });
+    cy.get("[data-test=artidoc-section]")
+        .eq(0)
+        .within(() => {
+            createSectionWithTitleAndDescription(structures[0]);
+        });
+
+    cy.log("Creates Introduction freetext section");
+    cy.get("[data-test=artidoc-add-new-section-trigger]").eq(1).click();
+    cy.get("[data-test=add-freetext-section]").eq(1).click({ force: true });
+    cy.get("[data-test=artidoc-section]")
+        .eq(1)
+        .within(() => {
+            createSectionWithTitleAndDescription(structures[1]);
+        });
+
+    cy.log("Creates requirement sections");
+    for (let i = 0; i < requirements.length; ++i) {
+        cy.get("[data-test=artidoc-add-new-section-trigger]")
+            .eq(2 + i)
+            .click();
+        cy.get("[data-test=add-new-section]")
+            .eq(2 + i)
+            .click({ force: true });
+        cy.get("[data-test=artidoc-section]")
+            .eq(2 + i)
+            .within(() => {
+                createSectionWithTitleAndDescription(requirements[i]);
+            });
+    }
 }

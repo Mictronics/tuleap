@@ -157,6 +157,7 @@ class LdapPlugin extends Plugin implements PluginWithConfigKeys
                     new Cocur\Slugify\Slugify()
                 ),
                 new PasswordVerifier(new StandardPasswordHandler()),
+                $this->getLogger()
             );
         }
         return $this->_ldapUmInstance;
@@ -1007,7 +1008,6 @@ class LdapPlugin extends Plugin implements PluginWithConfigKeys
         )->associateWithLDAPAccount($account_created);
     }
 
-
     #[\Tuleap\Plugin\ListeningToEventClass]
     public function gerritCanMigrateEvent(GerritCanMigrateEvent $event): void
     {
@@ -1131,10 +1131,7 @@ class LdapPlugin extends Plugin implements PluginWithConfigKeys
         return $this->buildLdapProjectGroupManager($this->getSilentNotificationsManager());
     }
 
-    /**
-     * @return LDAP_ProjectGroupManager
-     */
-    private function buildLdapProjectGroupManager(\Tuleap\LDAP\GroupSyncNotificationsManager $notifications_manager)
+    private function buildLdapProjectGroupManager(\Tuleap\LDAP\GroupSyncNotificationsManager $notifications_manager): LDAP_ProjectGroupManager
     {
         $user_manager    = UserManager::instance();
         $project_manager = ProjectManager::instance();
@@ -1147,6 +1144,7 @@ class LdapPlugin extends Plugin implements PluginWithConfigKeys
             $notifications_manager,
             new ProjectGroupManagerRestrictedUserFilter($user_manager),
             new \Tuleap\LDAP\Project\ProjectMemberAdder($this->getLdapProjectGroupDao()),
+            $this->getLogger()
         );
         return $manager;
     }
@@ -1168,6 +1166,7 @@ class LdapPlugin extends Plugin implements PluginWithConfigKeys
                 $user_manager,
                 ProjectMemberAdderWithStatusCheckAndNotifications::buildWithoutPermissionsChecks(),
             ),
+            $this->getLogger()
         );
     }
 

@@ -34,6 +34,7 @@ use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\TrackerColor;
 use Tuleap\User\History\HistoryEntryCollection;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class VisitRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private const USER_ID = 101;
@@ -145,14 +146,14 @@ final class VisitRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
         }
 
         [$first_entry, $second_entry] = $collection->getEntries();
-        $this->assertSame(self::FIRST_ARTIFACT_VISIT_TIMESTAMP, $first_entry->getVisitTime());
+        self::assertSame(self::FIRST_ARTIFACT_VISIT_TIMESTAMP, $first_entry->getVisitTime());
         self::assertSame(self::FIRST_ARTIFACT_ID, $first_entry->getPerTypeId());
         self::assertSame(self::FIRST_ARTIFACT_TITLE, $first_entry->getTitle());
         self::assertSame(self::FIRST_TRACKER_COLOR, $first_entry->getColor());
         self::assertSame(sprintf('/plugins/tracker/?aid=%d', self::FIRST_ARTIFACT_ID), $first_entry->getLink());
         self::assertSame(sprintf('%s #%d', self::FIRST_TRACKER_SHORTNAME, self::FIRST_ARTIFACT_ID), $first_entry->getXref());
 
-        $this->assertSame(self::SECOND_ARTIFACT_VISIT_TIMESTAMP, $second_entry->getVisitTime());
+        self::assertSame(self::SECOND_ARTIFACT_VISIT_TIMESTAMP, $second_entry->getVisitTime());
         self::assertSame(self::SECOND_ARTIFACT_ID, $second_entry->getPerTypeId());
         self::assertSame(self::SECOND_ARTIFACT_TITLE, $second_entry->getTitle());
         self::assertSame(self::SECOND_TRACKER_COLOR, $second_entry->getColor());

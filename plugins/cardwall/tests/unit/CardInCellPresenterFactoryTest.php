@@ -37,6 +37,7 @@ use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class CardInCellPresenterFactoryTest extends TestCase
 {
     private int $field_id;
@@ -55,6 +56,11 @@ final class CardInCellPresenterFactoryTest extends TestCase
 
         $this->field_provider = $this->createMock(Cardwall_FieldProviders_IProvideFieldGivenAnArtifact::class);
         $this->field_provider->method('getField')->with($tracker)->willReturn($field);
+    }
+
+    protected function tearDown(): void
+    {
+        unset($GLOBALS['_SESSION']);
     }
 
     public function testItHasACardInCellPresenterWithASemanticStatusFieldId(): void

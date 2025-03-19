@@ -24,9 +24,14 @@ declare(strict_types=1);
 namespace Tuleap\Tracker\Creation\JiraImporter\Import\Artifact\Snapshot;
 
 use DateTimeImmutable;
-use Mockery;
 use PFUser;
+use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
 use Psr\Log\NullLogger;
+use Tracker_FormElement_Field_List_Bind_Static;
+use Tracker_FormElement_Field_List_Bind_Users;
+use Tracker_FormElementFactory;
+use Tuleap\Test\Builders\UserTestBuilder;
+use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Creation\JiraImporter\Import\Artifact\Attachment\Attachment;
 use Tuleap\Tracker\Creation\JiraImporter\Import\Artifact\Attachment\AttachmentCollection;
 use Tuleap\Tracker\Creation\JiraImporter\Import\Artifact\Changelog\ChangelogEntryValueRepresentation;
@@ -37,50 +42,46 @@ use Tuleap\Tracker\Creation\JiraImporter\Import\Structure\ListFieldMapping;
 use Tuleap\Tracker\Creation\JiraImporter\Import\Structure\ScalarFieldMapping;
 use Tuleap\Tracker\Creation\JiraImporter\Import\User\JiraUserRetriever;
 
-final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
+#[DisableReturnValueGenerationForTestDoubles]
+final class ChangelogSnapshotBuilderTest extends TestCase
 {
-    use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
-
     public function testItBuildsASnapshotFromChangelogEntry(): void
     {
-        $logger              = new NullLogger();
-        $jira_user_retriever = Mockery::mock(JiraUserRetriever::class);
+        $jira_user_retriever = $this->createMock(JiraUserRetriever::class);
         $builder             = new ChangelogSnapshotBuilder(
             new CreationStateListValueFormatter(),
-            $logger,
+            new NullLogger(),
             $jira_user_retriever
         );
 
-        $user                          = Mockery::mock(PFUser::class);
-        $john_doe                      = Mockery::mock(PFUser::class);
-        $mysterio                      = Mockery::mock(PFUser::class);
+        $user                          = UserTestBuilder::buildWithDefaults();
+        $john_doe                      = UserTestBuilder::buildWithId(105);
+        $mysterio                      = UserTestBuilder::buildWithId(106);
         $changelog_entry               = $this->buildChangelogEntry();
         $jira_field_mapping_collection = $this->buildFieldMappingCollection();
         $current_snapshot              = $this->buildCurrentSnapshot($user);
-        $attachment_collection         = new AttachmentCollection(
-            [
-                new Attachment(
-                    10007,
-                    'file01.png',
-                    'image/png',
-                    'URL',
-                    30
-                ),
-                new Attachment(
-                    10008,
-                    'file02.gif',
-                    'image/gif',
-                    'URL2',
-                    3056
-                ),
-            ]
-        );
+        $attachment_collection         = new AttachmentCollection([
+            new Attachment(
+                10007,
+                'file01.png',
+                'image/png',
+                'URL',
+                30
+            ),
+            new Attachment(
+                10008,
+                'file02.gif',
+                'image/gif',
+                'URL2',
+                3056
+            ),
+        ]);
 
-        $john_doe->shouldReceive('getId')->andReturn(105);
-        $mysterio->shouldReceive('getId')->andReturn(106);
-        $jira_user_retriever->shouldReceive('retrieveJiraAuthor')->andReturn($user);
-        $jira_user_retriever->shouldReceive('getAssignedTuleapUser')->with('e8a7dbae5')->andReturn($john_doe);
-        $jira_user_retriever->shouldReceive('getAssignedTuleapUser')->with('a7e8b9c5')->andReturn($mysterio);
+        $jira_user_retriever->method('retrieveJiraAuthor')->willReturn($user);
+        $jira_user_retriever->method('getAssignedTuleapUser')->willReturnCallback(static fn(string $id) => match ($id) {
+            'e8a7dbae5' => $john_doe,
+            'a7e8b9c5'  => $mysterio,
+        });
 
         $snapshot = $builder->buildSnapshotFromChangelogEntry(
             $current_snapshot,
@@ -89,13 +90,13 @@ final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
             $jira_field_mapping_collection
         );
 
-        $this->assertSame($user, $snapshot->getUser());
-        $this->assertSame(1585141810, $snapshot->getDate()->getTimestamp());
-        $this->assertCount(12, $snapshot->getAllFieldsSnapshot());
+        self::assertSame($user, $snapshot->getUser());
+        self::assertSame(1585141810, $snapshot->getDate()->getTimestamp());
+        self::assertCount(12, $snapshot->getAllFieldsSnapshot());
 
-        $this->assertNull($snapshot->getFieldInSnapshot('environment'));
-        $this->assertSame('9', $snapshot->getFieldInSnapshot('customfield_10036')->getValue());
-        $this->assertSame(
+        self::assertNull($snapshot->getFieldInSnapshot('environment'));
+        self::assertSame('9', $snapshot->getFieldInSnapshot('customfield_10036')->getValue());
+        self::assertSame(
             [
                 ['id' => '10009'],
                 ['id' => '10010'],
@@ -103,49 +104,49 @@ final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
             $snapshot->getFieldInSnapshot('customfield_10040')->getValue()
         );
 
-        $this->assertSame(
+        self::assertSame(
             '*aaaaaaaaa*',
             $snapshot->getFieldInSnapshot('description')->getValue()
         );
 
-        $this->assertSame(
+        self::assertSame(
             '<p>aaaaaaaaa</p>',
             $snapshot->getFieldInSnapshot('description')->getRenderedValue()
         );
 
-        $this->assertSame(
+        self::assertSame(
             '*def*',
             $snapshot->getFieldInSnapshot('textfield')->getValue()
         );
 
-        $this->assertSame(
+        self::assertSame(
             'lorem ipsum',
             $snapshot->getFieldInSnapshot('customfield_10081')->getValue()
         );
 
-        $this->assertSame(
+        self::assertSame(
             ['id' => 'Neque porro'],
             $snapshot->getFieldInSnapshot('customfield_10059')->getValue()
         );
 
-        $this->assertNull($snapshot->getFieldInSnapshot('textfield')->getRenderedValue());
+        self::assertNull($snapshot->getFieldInSnapshot('textfield')->getRenderedValue());
 
-        $this->assertSame(
+        self::assertSame(
             [10008],
             $snapshot->getFieldInSnapshot('attachment')->getValue()
         );
 
-        $this->assertSame(
+        self::assertSame(
             '2020-03-25',
             $snapshot->getFieldInSnapshot('datepicker')->getValue()
         );
 
-        $this->assertSame(
+        self::assertSame(
             ['id' => '105'],
             $snapshot->getFieldInSnapshot('assignee')->getValue()
         );
 
-        $this->assertSame(
+        self::assertSame(
             [
                 ['id' => '105'],
                 ['id' => '106'],
@@ -154,23 +155,23 @@ final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
         );
 
         $expected_snapshot_value_when_no_user_value = '100';
-        $this->assertSame(
+        self::assertSame(
             ['id' => $expected_snapshot_value_when_no_user_value],
             $snapshot->getFieldInSnapshot('customfield_10057')->getValue(),
         );
 
         $expected_snapshot_value_when_no_static_value = '';
-        $this->assertSame(
+        self::assertSame(
             ['id' => $expected_snapshot_value_when_no_static_value],
             $snapshot->getFieldInSnapshot('customfield_10058')->getValue(),
         );
 
-        $this->assertNull($snapshot->getFieldInSnapshot('versions'));
-        $this->assertNull($snapshot->getFieldInSnapshot('fixVersions'));
-        $this->assertNull($snapshot->getFieldInSnapshot('components'));
-        $this->assertNull($snapshot->getFieldInSnapshot('customfield_10100'));
-        $this->assertNull($snapshot->getFieldInSnapshot('customfield_10101'));
-        $this->assertNull($snapshot->getFieldInSnapshot('customfield_10102'));
+        self::assertNull($snapshot->getFieldInSnapshot('versions'));
+        self::assertNull($snapshot->getFieldInSnapshot('fixVersions'));
+        self::assertNull($snapshot->getFieldInSnapshot('components'));
+        self::assertNull($snapshot->getFieldInSnapshot('customfield_10100'));
+        self::assertNull($snapshot->getFieldInSnapshot('customfield_10101'));
+        self::assertNull($snapshot->getFieldInSnapshot('customfield_10102'));
     }
 
     private function buildCurrentSnapshot(PFUser $user): Snapshot
@@ -227,7 +228,7 @@ final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
                         'Fassignee',
                         'assignee',
                         'sb',
-                        \Tracker_FormElement_Field_List_Bind_Users::TYPE,
+                        Tracker_FormElement_Field_List_Bind_Users::TYPE,
                         [],
                     ),
                     ['id' => '105'],
@@ -241,7 +242,7 @@ final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
                         'Fhomies',
                         'homies',
                         'msb',
-                        \Tracker_FormElement_Field_List_Bind_Users::TYPE,
+                        Tracker_FormElement_Field_List_Bind_Users::TYPE,
                         [],
                     ),
                     [
@@ -253,47 +254,47 @@ final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
                 new FieldSnapshot(
                     $this->getVersionMapping(),
                     [
-                        [ 'id' => '10003' ],
-                        [ 'id' => '10004' ],
+                        ['id' => '10003'],
+                        ['id' => '10004'],
                     ],
                     null,
                 ),
                 new FieldSnapshot(
                     $this->getFixVersionsMapping(),
                     [
-                        [ 'id' => '10005' ],
-                        [ 'id' => '10006' ],
+                        ['id' => '10005'],
+                        ['id' => '10006'],
                     ],
                     null,
                 ),
                 new FieldSnapshot(
                     $this->getComponentsMapping(),
                     [
-                        [ 'id' => '10005' ],
+                        ['id' => '10005'],
                     ],
                     null,
                 ),
                 new FieldSnapshot(
                     $this->getCustomMultiversionMapping(),
                     [
-                        [ 'id' => '10010' ],
-                        [ 'id' => '10011' ],
+                        ['id' => '10010'],
+                        ['id' => '10011'],
                     ],
                     null,
                 ),
                 new FieldSnapshot(
                     $this->getCustomVersionMapping(),
                     [
-                        [ 'id' => '10012' ],
+                        ['id' => '10012'],
                     ],
                     null,
                 ),
                 new FieldSnapshot(
                     $this->getCustomMulticheckboxesMapping(),
                     [
-                        [ 'id' => '10030' ],
-                        [ 'id' => '10031' ],
-                        [ 'id' => '10032' ],
+                        ['id' => '10030'],
+                        ['id' => '10031'],
+                        ['id' => '10032'],
                     ],
                     null,
                 ),
@@ -306,9 +307,9 @@ final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
     {
         return JiraCloudChangelogEntryValueRepresentation::buildFromAPIResponse(
             [
-                'id' => '100',
+                'id'      => '100',
                 'created' => '2020-03-25T14:10:10.823+0100',
-                'items' => [
+                'items'   => [
                     [
                         'fieldId'    => 'customfield_10036',
                         'from'       => null,
@@ -452,9 +453,9 @@ final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
                         'toString'   => '',
                     ],
                 ],
-                'author' => [
-                    'accountId' => 'e8a7dbae5',
-                    'displayName' => 'John Doe',
+                'author'  => [
+                    'accountId'    => 'e8a7dbae5',
+                    'displayName'  => 'John Doe',
                     'emailAddress' => 'john.doe@example.com',
                 ],
             ]
@@ -482,7 +483,7 @@ final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
                 'Fstatus',
                 'status',
                 'sb',
-                \Tracker_FormElement_Field_List_Bind_Static::TYPE,
+                Tracker_FormElement_Field_List_Bind_Static::TYPE,
                 [],
             )
         );
@@ -494,7 +495,7 @@ final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
                 'Fcustomfield_10040',
                 'Field 02',
                 'msb',
-                \Tracker_FormElement_Field_List_Bind_Static::TYPE,
+                Tracker_FormElement_Field_List_Bind_Static::TYPE,
                 []
             ),
         );
@@ -536,7 +537,7 @@ final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
                 'Fassignee',
                 'assignee',
                 'sb',
-                \Tracker_FormElement_Field_List_Bind_Users::TYPE,
+                Tracker_FormElement_Field_List_Bind_Users::TYPE,
                 [],
             )
         );
@@ -548,7 +549,7 @@ final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
                 'Fhomies',
                 'homies',
                 'msb',
-                \Tracker_FormElement_Field_List_Bind_Users::TYPE,
+                Tracker_FormElement_Field_List_Bind_Users::TYPE,
                 [],
             )
         );
@@ -579,8 +580,8 @@ final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
                 null,
                 'Fcustomfield_10057',
                 'customfield_10057',
-                \Tracker_FormElementFactory::FIELD_SELECT_BOX_TYPE,
-                \Tracker_FormElement_Field_List_Bind_Users::TYPE,
+                Tracker_FormElementFactory::FIELD_SELECT_BOX_TYPE,
+                Tracker_FormElement_Field_List_Bind_Users::TYPE,
                 [],
             )
         );
@@ -592,8 +593,8 @@ final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
                 null,
                 'Fcustomfield_10058',
                 'customfield_10058',
-                \Tracker_FormElementFactory::FIELD_SELECT_BOX_TYPE,
-                \Tracker_FormElement_Field_List_Bind_Static::TYPE,
+                Tracker_FormElementFactory::FIELD_SELECT_BOX_TYPE,
+                Tracker_FormElement_Field_List_Bind_Static::TYPE,
                 [],
             )
         );
@@ -605,8 +606,8 @@ final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
                 null,
                 'Fcustomfield_10059',
                 'customfield_10059',
-                \Tracker_FormElementFactory::FIELD_CHECKBOX_TYPE,
-                \Tracker_FormElement_Field_List_Bind_Static::TYPE,
+                Tracker_FormElementFactory::FIELD_CHECKBOX_TYPE,
+                Tracker_FormElement_Field_List_Bind_Static::TYPE,
                 [],
             )
         );
@@ -628,8 +629,8 @@ final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
             null,
             'Fversions',
             'versions',
-            \Tracker_FormElementFactory::FIELD_MULTI_SELECT_BOX_TYPE,
-            \Tracker_FormElement_Field_List_Bind_Static::TYPE,
+            Tracker_FormElementFactory::FIELD_MULTI_SELECT_BOX_TYPE,
+            Tracker_FormElement_Field_List_Bind_Static::TYPE,
             [],
         );
     }
@@ -642,8 +643,8 @@ final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
             null,
             'Ffixversions',
             'fixversions',
-            \Tracker_FormElementFactory::FIELD_MULTI_SELECT_BOX_TYPE,
-            \Tracker_FormElement_Field_List_Bind_Static::TYPE,
+            Tracker_FormElementFactory::FIELD_MULTI_SELECT_BOX_TYPE,
+            Tracker_FormElement_Field_List_Bind_Static::TYPE,
             [],
         );
     }
@@ -656,8 +657,8 @@ final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
             null,
             'Fcomponents',
             'components',
-            \Tracker_FormElementFactory::FIELD_MULTI_SELECT_BOX_TYPE,
-            \Tracker_FormElement_Field_List_Bind_Static::TYPE,
+            Tracker_FormElementFactory::FIELD_MULTI_SELECT_BOX_TYPE,
+            Tracker_FormElement_Field_List_Bind_Static::TYPE,
             [],
         );
     }
@@ -670,8 +671,8 @@ final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
             'com.atlassian.jira.plugin.system.customfieldtypes:multiversion',
             'Fcustomfield_10100',
             'customfield_10100',
-            \Tracker_FormElementFactory::FIELD_MULTI_SELECT_BOX_TYPE,
-            \Tracker_FormElement_Field_List_Bind_Static::TYPE,
+            Tracker_FormElementFactory::FIELD_MULTI_SELECT_BOX_TYPE,
+            Tracker_FormElement_Field_List_Bind_Static::TYPE,
             [],
         );
     }
@@ -684,8 +685,8 @@ final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
             'com.atlassian.jira.plugin.system.customfieldtypes:version',
             'Fcustomfield_10101',
             'customfield_10101',
-            \Tracker_FormElementFactory::FIELD_SELECT_BOX_TYPE,
-            \Tracker_FormElement_Field_List_Bind_Static::TYPE,
+            Tracker_FormElementFactory::FIELD_SELECT_BOX_TYPE,
+            Tracker_FormElement_Field_List_Bind_Static::TYPE,
             [],
         );
     }
@@ -698,8 +699,8 @@ final class ChangelogSnapshotBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
             'com.atlassian.jira.plugin.system.customfieldtypes:multicheckboxes',
             'Fcustomfield_10102',
             'customfield_10102',
-            \Tracker_FormElementFactory::FIELD_CHECKBOX_TYPE,
-            \Tracker_FormElement_Field_List_Bind_Static::TYPE,
+            Tracker_FormElementFactory::FIELD_CHECKBOX_TYPE,
+            Tracker_FormElement_Field_List_Bind_Static::TYPE,
             [],
         );
     }

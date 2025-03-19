@@ -20,7 +20,7 @@
  */
 
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
-class Tracker_FormElement_Field_List_OpenValue extends Tracker_FormElement_Field_List_Value
+final class Tracker_FormElement_Field_List_OpenValue extends Tracker_FormElement_Field_List_Value
 {
     public const OPEN_PREFIX = 'o';
 
@@ -50,11 +50,6 @@ class Tracker_FormElement_Field_List_OpenValue extends Tracker_FormElement_Field
     public function getUsername()
     {
         return $this->getLabel();
-    }
-
-    public function getXMLExportLabel()
-    {
-        return $this->label;
     }
 
     public function getFullRESTValue(Tracker_FormElement_Field $field)

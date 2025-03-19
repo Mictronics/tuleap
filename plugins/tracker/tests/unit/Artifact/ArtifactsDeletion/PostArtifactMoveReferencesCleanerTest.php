@@ -37,6 +37,7 @@ use Tuleap\Tracker\Test\Stub\RetrieveArtifactStub;
 use Tuleap\Tracker\Test\Stub\RetrieveReverseLinksStub;
 use Tuleap\Tracker\Test\Stub\ReverseLinkStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class PostArtifactMoveReferencesCleanerTest extends TestCase
 {
     private const FIRST_PARENT_ARTIFACT_ID  = 102;
@@ -45,7 +46,7 @@ final class PostArtifactMoveReferencesCleanerTest extends TestCase
     private const SOURCE_PROJECT_ID         = 250;
     private const DESTINATION_PROJECT_ID    = 254;
 
-    private ArtifactLinker & MockObject $artifact_linker;
+    private ArtifactLinker&MockObject $artifact_linker;
     private Artifact $first_parent;
     private Artifact $second_parent;
     private RetrieveArtifactStub $retrieve_artifact;
@@ -89,29 +90,31 @@ final class PostArtifactMoveReferencesCleanerTest extends TestCase
     {
         $this->cross_references_dao->expects(self::once())->method('deleteReferencesWhenArtifactIsSource');
         $this->cross_references_dao->expects(self::once())->method('updateReferencesWhenArtifactIsInTarget');
+        $matcher = self::exactly(2);
 
-        $this->artifact_linker->expects(self::exactly(2))->method('linkArtifact')->withConsecutive(
-            [
-                $this->first_parent,
-                CollectionOfForwardLinks::fromReverseLink(
+        $this->artifact_linker->expects($matcher)->method('linkArtifact')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame($this->first_parent, $parameters[0]);
+                $this->assertEquals(CollectionOfForwardLinks::fromReverseLink(
                     $this->moved_artifact,
                     ReverseLinkWithNoType::fromReverseLink(
                         $this->first_parent_reverse_link
                     ),
-                ),
-                $this->user,
-            ],
-            [
-                $this->second_parent,
-                CollectionOfForwardLinks::fromReverseLink(
+                ), $parameters[1]);
+                self::assertSame($this->user, $parameters[2]);
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame($this->second_parent, $parameters[0]);
+                $this->assertEquals(CollectionOfForwardLinks::fromReverseLink(
                     $this->moved_artifact,
                     ReverseLinkWithNoType::fromReverseLink(
                         $this->second_parent_reverse_link
                     )
-                ),
-                $this->user,
-            ]
-        );
+                ), $parameters[1]);
+                self::assertSame($this->user, $parameters[2]);
+            }
+            return true;
+        });
 
         $cleaner = new PostArtifactMoveReferencesCleaner(
             $this->retrieve_reverse_links,

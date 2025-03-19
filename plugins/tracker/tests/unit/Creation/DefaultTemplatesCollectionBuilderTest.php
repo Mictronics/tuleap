@@ -22,20 +22,19 @@ declare(strict_types=1);
 
 namespace Tuleap\Tracker\Creation;
 
-use Mockery;
-use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+use EventManager;
 use org\bovigo\vfs\vfsStream;
+use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
+use Tuleap\Test\PHPUnit\TestCase;
 
-class DefaultTemplatesCollectionBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
+#[DisableReturnValueGenerationForTestDoubles]
+final class DefaultTemplatesCollectionBuilderTest extends TestCase
 {
-    use MockeryPHPUnitIntegration;
-
-    public function testBuild()
+    public function testBuild(): void
     {
-        $event_manager = Mockery::mock(\EventManager::class);
-        $event_manager
-            ->shouldReceive('processEvent')
-            ->with(Mockery::on(static function (DefaultTemplatesXMLFileCollection $collection) {
+        $event_manager = $this->createMock(EventManager::class);
+        $event_manager->method('processEvent')
+            ->willReturnCallback(static function (DefaultTemplatesXMLFileCollection $collection) {
                 $plugin_path = vfsStream::setup()->url() . '/file.xml';
                 file_put_contents($plugin_path, <<<EOS
                     <tracker>
@@ -47,22 +46,20 @@ class DefaultTemplatesCollectionBuilderTest extends \Tuleap\Test\PHPUnit\TestCas
                     EOS
                 );
                 $collection->add($plugin_path);
-                return true;
-            }));
+            });
 
         $collection = (new DefaultTemplatesCollectionBuilder($event_manager))->build();
 
-        $this->assertCount(2, $collection->getSortedDefaultTemplatesRepresentations());
-        $this->assertTrue($collection->has('default-bug'));
-        $this->assertTrue($collection->has('default-release'));
+        self::assertCount(2, $collection->getSortedDefaultTemplatesRepresentations());
+        self::assertTrue($collection->has('default-bug'));
+        self::assertTrue($collection->has('default-release'));
     }
 
     public function testItIgnoresXMLFilesThatDoNotContainATrackerName(): void
     {
-        $event_manager = Mockery::mock(\EventManager::class);
-        $event_manager
-            ->shouldReceive('processEvent')
-            ->with(Mockery::on(static function (DefaultTemplatesXMLFileCollection $collection) {
+        $event_manager = $this->createMock(EventManager::class);
+        $event_manager->method('processEvent')
+            ->willReturnCallback(static function (DefaultTemplatesXMLFileCollection $collection) {
                 $plugin_path = vfsStream::setup()->url() . '/file.xml';
                 file_put_contents($plugin_path, <<<EOS
                     <tracker>
@@ -73,21 +70,19 @@ class DefaultTemplatesCollectionBuilderTest extends \Tuleap\Test\PHPUnit\TestCas
                     EOS
                 );
                 $collection->add($plugin_path);
-                return true;
-            }));
+            });
 
         $collection = (new DefaultTemplatesCollectionBuilder($event_manager))->build();
 
-        $this->assertCount(1, $collection->getSortedDefaultTemplatesRepresentations());
-        $this->assertTrue($collection->has('default-bug'));
+        self::assertCount(1, $collection->getSortedDefaultTemplatesRepresentations());
+        self::assertTrue($collection->has('default-bug'));
     }
 
     public function testItIgnoresXMLFilesThatDoNotContainATrackerItemName(): void
     {
-        $event_manager = Mockery::mock(\EventManager::class);
-        $event_manager
-            ->shouldReceive('processEvent')
-            ->with(Mockery::on(static function (DefaultTemplatesXMLFileCollection $collection) {
+        $event_manager = $this->createMock(EventManager::class);
+        $event_manager->method('processEvent')
+            ->willReturnCallback(static function (DefaultTemplatesXMLFileCollection $collection) {
                 $plugin_path = vfsStream::setup()->url() . '/file.xml';
                 file_put_contents($plugin_path, <<<EOS
                     <tracker>
@@ -98,21 +93,19 @@ class DefaultTemplatesCollectionBuilderTest extends \Tuleap\Test\PHPUnit\TestCas
                     EOS
                 );
                 $collection->add($plugin_path);
-                return true;
-            }));
+            });
 
         $collection = (new DefaultTemplatesCollectionBuilder($event_manager))->build();
 
-        $this->assertCount(1, $collection->getSortedDefaultTemplatesRepresentations());
-        $this->assertTrue($collection->has('default-bug'));
+        self::assertCount(1, $collection->getSortedDefaultTemplatesRepresentations());
+        self::assertTrue($collection->has('default-bug'));
     }
 
     public function testItIgnoresXMLFilesThatDoNotContainATrackerColor(): void
     {
-        $event_manager = Mockery::mock(\EventManager::class);
-        $event_manager
-            ->shouldReceive('processEvent')
-            ->with(Mockery::on(static function (DefaultTemplatesXMLFileCollection $collection) {
+        $event_manager = $this->createMock(EventManager::class);
+        $event_manager->method('processEvent')
+            ->willReturnCallback(static function (DefaultTemplatesXMLFileCollection $collection) {
                 $plugin_path = vfsStream::setup()->url() . '/file.xml';
                 file_put_contents($plugin_path, <<<EOS
                     <tracker>
@@ -123,12 +116,11 @@ class DefaultTemplatesCollectionBuilderTest extends \Tuleap\Test\PHPUnit\TestCas
                     EOS
                 );
                 $collection->add($plugin_path);
-                return true;
-            }));
+            });
 
         $collection = (new DefaultTemplatesCollectionBuilder($event_manager))->build();
 
-        $this->assertCount(1, $collection->getSortedDefaultTemplatesRepresentations());
-        $this->assertTrue($collection->has('default-bug'));
+        self::assertCount(1, $collection->getSortedDefaultTemplatesRepresentations());
+        self::assertTrue($collection->has('default-bug'));
     }
 }

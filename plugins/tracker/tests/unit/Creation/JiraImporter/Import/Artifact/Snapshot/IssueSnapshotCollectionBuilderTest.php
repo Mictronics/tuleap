@@ -40,6 +40,7 @@ use Tuleap\Tracker\Creation\JiraImporter\Import\Structure\ScalarFieldMapping;
 use Tuleap\Tracker\Creation\JiraImporter\Import\User\ActiveJiraCloudUser;
 use Tuleap\Tracker\Creation\JiraImporter\Import\User\JiraUserRetriever;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class IssueSnapshotCollectionBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
@@ -190,7 +191,7 @@ class IssueSnapshotCollectionBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
         );
 
         $this->assertCount(4, $collection);
-        $this->assertSame(
+        self::assertSame(
             [
                 1585141750,
                 1585141810,
@@ -243,7 +244,7 @@ class IssueSnapshotCollectionBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
         );
 
         $this->assertCount(2, $collection);
-        $this->assertSame(
+        self::assertSame(
             [
                 1585141750,
                 1585141810,
@@ -300,7 +301,7 @@ class IssueSnapshotCollectionBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
         );
 
         $this->assertCount(3, $collection);
-        $this->assertSame(
+        self::assertSame(
             [
                 1585141750,
                 1585141810,

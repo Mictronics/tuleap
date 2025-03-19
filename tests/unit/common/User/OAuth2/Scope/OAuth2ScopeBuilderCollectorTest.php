@@ -26,6 +26,7 @@ use Tuleap\Authentication\Scope\AuthenticationScope;
 use Tuleap\Authentication\Scope\AuthenticationScopeBuilder;
 use Tuleap\Authentication\Scope\AuthenticationScopeIdentifier;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class OAuth2ScopeBuilderCollectorTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testNoBuildersAreCollectedByDefault(): void
@@ -43,7 +44,7 @@ final class OAuth2ScopeBuilderCollectorTest extends \Tuleap\Test\PHPUnit\TestCas
         $collector->addOAuth2ScopeBuilder($builder_1);
         $collector->addOAuth2ScopeBuilder($builder_2);
 
-        $this->assertSame([$builder_1, $builder_2], $collector->getAuthenticationKeyScopeBuilders());
+        self::assertSame([$builder_1, $builder_2], $collector->getAuthenticationKeyScopeBuilders());
     }
 
     private function buildOAuth2ScopeBuilder(): AuthenticationScopeBuilder

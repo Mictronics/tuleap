@@ -85,6 +85,7 @@ use UGroupManager;
 use UserManager;
 use XMLImportHelper;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class GitXmlImporterTest extends TestIntegrationTestCase
 {
     use TemporaryTestDirectory;
@@ -106,6 +107,7 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
     private RegexpFineGrainedRetriever&MockObject $regexp_fine_grained_retriever;
     private FineGrainedPermissionFactory&MockObject $fine_grained_factory;
     private FineGrainedPermissionSaver&MockObject $fine_grained_saver;
+    private Project $project;
 
     protected function setUp(): void
     {
@@ -421,11 +423,12 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
         XML;
         $result = [];
         $this->ugroup_dao->method('searchByGroupIdAndName')->willReturn($result);
-        $this->permission_dao->method('addPermission')->withConsecutive(
-            [Git::PERM_READ, self::anything(), 3],
-            [Git::PERM_WRITE, self::anything(), 3],
-            [Git::PERM_WPLUS, self::anything(), 4],
-        );
+        $this->permission_dao->method('addPermission')
+            ->willReturnMap([
+                [Git::PERM_READ, self::anything(), 3, true],
+                [Git::PERM_WRITE, self::anything(), 3, true],
+                [Git::PERM_WPLUS, self::anything(), 4, true],
+            ]);
         self::assertTrue($this->import(new SimpleXMLElement($xml)));
     }
 
@@ -453,11 +456,12 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
         XML;
         $result = [];
         $this->ugroup_dao->method('searchByGroupIdAndName')->willReturn($result);
-        $this->permission_dao->method('addPermission')->withConsecutive(
-            [Git::PERM_READ, self::anything(), 3],
-            [Git::PERM_WRITE, self::anything(), 3],
-            [Git::PERM_WPLUS, self::anything(), 4],
-        );
+        $this->permission_dao->method('addPermission')
+            ->willReturnMap([
+                [Git::PERM_READ, self::anything(), 3, true],
+                [Git::PERM_WRITE, self::anything(), 3, true],
+                [Git::PERM_WPLUS, self::anything(), 4, true],
+            ]);
         self::assertTrue($this->import(new SimpleXMLElement($xml)));
     }
 
@@ -528,10 +532,8 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
         $result = [];
         $this->ugroup_dao->method('searchByGroupIdAndName')->willReturn($result);
 
-        $this->permission_dao->method('addPermission')->withConsecutive(
-            [Git::PERM_ADMIN, $this->project->getId(), 3],
-            [Git::PERM_ADMIN, $this->project->getId(), 4],
-        );
+        $this->permission_dao->method('addPermission')->with(Git::PERM_ADMIN, $this->project->getId(), 3);
+
         self::assertTrue($this->import(new SimpleXMLElement($xml)));
     }
 

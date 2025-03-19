@@ -27,6 +27,7 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\Stubs\EventDispatcherStub;
 use Tuleap\Test\Stubs\User\History\GetVisitHistoryStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class HistoryRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -68,10 +69,10 @@ final class HistoryRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
         );
 
         $this->assertCount(4, $history);
-        $this->assertSame(300, $history[0]->getVisitTime());
-        $this->assertSame(200, $history[1]->getVisitTime());
-        $this->assertSame(150, $history[2]->getVisitTime());
-        $this->assertSame(100, $history[3]->getVisitTime());
+        self::assertSame(300, $history[0]->getVisitTime());
+        self::assertSame(200, $history[1]->getVisitTime());
+        self::assertSame(150, $history[2]->getVisitTime());
+        self::assertSame(100, $history[3]->getVisitTime());
     }
 
     public function testItTruncatesHistoryToTheMaxLength(): void

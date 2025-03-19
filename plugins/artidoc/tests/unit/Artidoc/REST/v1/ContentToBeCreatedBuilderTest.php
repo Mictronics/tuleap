@@ -24,75 +24,126 @@ declare(strict_types=1);
 namespace Tuleap\Artidoc\REST\v1;
 
 use Luracast\Restler\RestException;
-use Tuleap\Artidoc\Domain\Document\Section\Freetext\SectionContentToBeCreatedFreetext;
+use Tuleap\Artidoc\Domain\Document\Section\Artifact\ArtifactContent;
+use Tuleap\Artidoc\Domain\Document\Section\Artifact\ImportContent;
+use Tuleap\Artidoc\Domain\Document\Section\Freetext\FreetextContent;
+use Tuleap\Artidoc\Domain\Document\Section\Level;
 use Tuleap\NeverThrow\Result;
 use Tuleap\Test\PHPUnit\TestCase;
-use function PHPUnit\Framework\assertSame;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ContentToBeCreatedBuilderTest extends TestCase
 {
-    public function testItThrowsWhenArtifactAndContentAreBothProvided(): void
+    public function testItThrowsWhenImportAndContentAreBothProvided(): void
     {
-        $section = new ArtidocSectionPOSTRepresentation(
-            new ArtidocPOSTSectionArtifactRepresentation(101),
+        $section = new POSTSectionRepresentation(
+            new POSTSectionImportRepresentation(
+                new POSTSectionArtifactRepresentation(101),
+                Level::One->value,
+            ),
             null,
-            new POSTContentSectionRepresentation('title', 'description', 'freetext')
+            new POSTContentSectionRepresentation('title', 'description', 'freetext', [], Level::One->value),
         );
         $this->expectException(RestException::class);
-        $this->expectExceptionMessage("The properties 'artifact' and 'content' can not be used at the same time");
+        $this->expectExceptionMessage("The properties 'import' and 'content' can not be used at the same time");
 
         ContentToBeCreatedBuilder::buildFromRepresentation($section);
     }
 
-    public function testItThrowsWhenArtifactAndContentAreBothAbsent(): void
+    public function testItThrowsWhenImportAndContentAreBothAbsent(): void
     {
-        $section = new ArtidocSectionPOSTRepresentation(null, null, null);
+        $section = new POSTSectionRepresentation(null, null, null);
         $this->expectException(RestException::class);
-        $this->expectExceptionMessage('No artifact id or section content provided');
+        $this->expectExceptionMessage('No artifact to import or section content provided');
 
         ContentToBeCreatedBuilder::buildFromRepresentation($section);
     }
 
-    public function testHappyPatchForArtifact(): void
+    public function testHappyPatchForImportedArtifact(): void
     {
         $id      = 101;
-        $section = new ArtidocSectionPOSTRepresentation(
-            new ArtidocPOSTSectionArtifactRepresentation($id),
+        $section = new POSTSectionRepresentation(
+            new POSTSectionImportRepresentation(
+                new POSTSectionArtifactRepresentation($id),
+                Level::One->value,
+            ),
             null,
-            null
+            null,
         );
 
         $content_to_insert = ContentToBeCreatedBuilder::buildFromRepresentation($section);
         $content_to_insert->apply(
-            function (int $artifact_id) use ($id) {
-                assertSame($id, $artifact_id);
-                return Result::ok($artifact_id);
+            function (ImportContent $import) use ($id) {
+                self::assertSame($id, $import->artifact_id);
+
+                return Result::ok($import);
             },
-            function (SectionContentToBeCreatedFreetext $freetext) {
-                assertSame(null, $freetext);
+            function (FreetextContent $freetext) {
+                self::assertNull($freetext);
+
                 return Result::ok($freetext);
-            }
+            },
+            function (ArtifactContent $artifact) {
+                self::assertNull($artifact);
+
+                return Result::ok($artifact);
+            },
         );
     }
 
     public function testHappyPatchForFreetext(): void
     {
-        $section = new ArtidocSectionPOSTRepresentation(
+        $section = new POSTSectionRepresentation(
             null,
             null,
-            new POSTContentSectionRepresentation('title', 'description', 'freetext')
+            new POSTContentSectionRepresentation('title', 'description', 'freetext', [], Level::One->value),
         );
 
         $content_to_insert = ContentToBeCreatedBuilder::buildFromRepresentation($section);
         $content_to_insert->apply(
-            function (int $artifact_id) {
-                assertSame(null, $artifact_id);
-                return Result::ok($artifact_id);
+            function (ImportContent $import) {
+                self::assertNull($import);
+
+                return Result::ok($import);
             },
-            function (SectionContentToBeCreatedFreetext $freetext) {
-                assertSame('title', $freetext->content->title);
+            function (FreetextContent $freetext) {
+                self::assertSame('title', $freetext->title);
+
                 return Result::ok($freetext);
-            }
+            },
+            function (ArtifactContent $artifact) {
+                self::assertNull($artifact);
+
+                return Result::ok($artifact);
+            },
+        );
+    }
+
+    public function testHappyPatchForArtifact(): void
+    {
+        $section = new POSTSectionRepresentation(
+            null,
+            null,
+            new POSTContentSectionRepresentation('title', 'description', 'artifact', [], Level::One->value),
+        );
+
+        $content_to_insert = ContentToBeCreatedBuilder::buildFromRepresentation($section);
+        $content_to_insert->apply(
+            function (ImportContent $import) {
+                self::assertNull($import);
+
+                return Result::ok($import);
+            },
+            function (FreetextContent $freetext) {
+                self::assertNull($freetext);
+
+                return Result::ok($freetext);
+            },
+            function (ArtifactContent $artifact) {
+                self::assertSame('title', $artifact->title);
+
+                return Result::ok($artifact);
+            },
         );
     }
 }

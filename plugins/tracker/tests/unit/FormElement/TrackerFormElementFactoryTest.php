@@ -33,6 +33,7 @@ use Tuleap\GlobalResponseMock;
 use Tuleap\Tracker\XML\TrackerXmlImportFeedbackCollector;
 use User\XML\Import\IFindUserFromXMLReference;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class TrackerFormElementFactoryTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
@@ -120,8 +121,8 @@ class TrackerFormElementFactoryTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->form_element->shouldReceive('setTracker')->withArgs([$this->tracker])->once();
 
         $element_from_instance = $this->form_element_factory->getInstanceFromXML($this->tracker, $this->xml_element, $mapping, $this->user_finder, $this->feedback_collector);
-        $this->assertSame($element_from_instance, $this->form_element);
-        $this->assertSame($mapping['F0'], $this->form_element);
+        self::assertSame($element_from_instance, $this->form_element);
+        self::assertSame($mapping['F0'], $this->form_element);
     }
 
     public function testImportFormElementReturnWarningFeedbackWhenNoFormelementCorresponding(): void

@@ -27,6 +27,7 @@ use Tuleap\Tracker\Semantic\Timeframe\TimeframeWithDuration;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframe;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class ChartConfigurationFieldRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -203,7 +204,7 @@ class ChartConfigurationFieldRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $this->field_duration->shouldReceive('userCanRead')->andReturn(true);
 
-        $this->assertSame(
+        self::assertSame(
             $this->configuration_retriever->getDurationField($this->tracker, $this->user),
             $this->field_duration
         );
@@ -297,7 +298,7 @@ class ChartConfigurationFieldRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $this->field_start_date->shouldReceive('userCanRead')->andReturn(true);
 
-        $this->assertSame(
+        self::assertSame(
             $this->field_start_date,
             $this->configuration_retriever->getStartDateField($this->tracker, $this->user)
         );
@@ -338,7 +339,7 @@ class ChartConfigurationFieldRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             'capacity'
         )->andReturn($this->field_capacity);
 
-        $this->assertSame(
+        self::assertSame(
             $this->configuration_retriever->getCapacityField($this->tracker),
             $this->field_capacity
         );
@@ -403,7 +404,7 @@ class ChartConfigurationFieldRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $this->field_remaining_effort->shouldReceive('userCanRead')->andReturn(true);
 
-        $this->assertSame(
+        self::assertSame(
             $this->field_remaining_effort,
             $this->configuration_retriever->getBurndownRemainingEffortField($this->artifact, $this->user)
         );

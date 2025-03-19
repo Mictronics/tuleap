@@ -24,6 +24,7 @@ namespace Tuleap\Templating\Mustache;
 use org\bovigo\vfs\vfsStream;
 use Tuleap\Language\Gettext\POTFileDumper;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class DomainExtractorTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -98,7 +99,7 @@ final class DomainExtractorTest extends \Tuleap\Test\PHPUnit\TestCase
         $extractor->extract('mydomain', [$sources], $destination_template);
 
         $content = file_get_contents($destination_template);
-        $this->assertSame('', $content);
+        self::assertSame('', $content);
     }
 
     public function testItFindsNothingForUnknownDomain(): void
@@ -117,7 +118,7 @@ final class DomainExtractorTest extends \Tuleap\Test\PHPUnit\TestCase
         $extractor->extract('unknown', [$sources], $destination_template);
 
         $content = file_get_contents($destination_template);
-        $this->assertSame('', $content);
+        self::assertSame('', $content);
     }
 
     public function testItCollectStringsInTwoDirectories(): void

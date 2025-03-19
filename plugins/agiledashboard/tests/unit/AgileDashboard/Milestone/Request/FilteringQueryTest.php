@@ -24,6 +24,7 @@ namespace Tuleap\AgileDashboard\Milestone\Request;
 
 use Tuleap\AgileDashboard\Milestone\Criterion\Status\StatusAll;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FilteringQueryTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testCanBeBuiltFromStatusQuery(): void
@@ -31,7 +32,7 @@ final class FilteringQueryTest extends \Tuleap\Test\PHPUnit\TestCase
         $status = new StatusAll();
         $query  = FilteringQuery::fromStatusQuery($status);
 
-        $this->assertSame($status, $query->getStatusFilter());
+        self::assertSame($status, $query->getStatusFilter());
         $this->assertFalse($query->isCurrentPeriod());
         $this->assertFalse($query->isFuturePeriod());
     }

@@ -24,8 +24,9 @@ namespace Tuleap\NeverThrow;
 
 use Psr\Log\LogLevel;
 use ColinODell\PsrTestLogger\TestLogger;
-use Tuleap\NeverThrow\Tests\FaultForTest;
+use Tuleap\NeverThrow\Tests\FaultForTestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FaultTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private const ERROR_MESSAGE     = 'User is not allowed to do that';
@@ -72,7 +73,7 @@ final class FaultTest extends \Tuleap\Test\PHPUnit\TestCase
     public function testItCanBeExtended(): void
     {
         $error_code        = 123;
-        $specialized_fault = new FaultForTest(self::ERROR_MESSAGE, $error_code);
+        $specialized_fault = new FaultForTestCase(self::ERROR_MESSAGE, $error_code);
         self::assertSame($error_code, $specialized_fault->getCode());
         self::assertSame(self::ERROR_MESSAGE, (string) $specialized_fault, 'It can be cast to string');
         self::assertStringContainsString(

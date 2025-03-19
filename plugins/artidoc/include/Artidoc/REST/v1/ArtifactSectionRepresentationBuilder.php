@@ -23,9 +23,11 @@ declare(strict_types=1);
 namespace Tuleap\Artidoc\REST\v1;
 
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifier;
+use Tuleap\Artidoc\Domain\Document\Section\Level;
 use Tuleap\Tracker\Artifact\GetFileUploadData;
 use Tuleap\Tracker\REST\Artifact\ArtifactFieldValueFileFullRepresentation;
 use Tuleap\Tracker\REST\Artifact\ArtifactReference;
+use Tuleap\Tracker\REST\Artifact\FileInfoRepresentation;
 
 final class ArtifactSectionRepresentationBuilder implements BuildArtifactSectionRepresentation
 {
@@ -33,8 +35,12 @@ final class ArtifactSectionRepresentationBuilder implements BuildArtifactSection
     {
     }
 
-    public function build(RequiredArtifactInformation $artifact_information, SectionIdentifier $section_identifier, \PFUser $user): ArtifactSectionRepresentation
-    {
+    public function build(
+        RequiredArtifactInformation $artifact_information,
+        SectionIdentifier $section_identifier,
+        Level $level,
+        \PFUser $user,
+    ): ArtifactSectionRepresentation {
         $can_user_edit_section = $artifact_information->title_field->userCanUpdate($user)
             && $artifact_information->description_field->userCanUpdate($user);
 
@@ -44,12 +50,23 @@ final class ArtifactSectionRepresentationBuilder implements BuildArtifactSection
 
         $attachments = null;
         if ($file_upload_data) {
-            $attachments = $file_upload_data->getField()->getRESTValue($user, $artifact_information->last_changeset)
+            $rest = $file_upload_data->getField()->getRESTValue($user, $artifact_information->last_changeset)
                 ?? ArtifactFieldValueFileFullRepresentation::fromEmptyValues($file_upload_data->getField());
+
+            $attachments = new ArtifactSectionAttachmentsRepresentation(
+                $file_upload_data->getUploadUrl(),
+                array_values(
+                    array_map(
+                        static fn (FileInfoRepresentation $file_info_representation): int => $file_info_representation->id,
+                        $rest->file_descriptions,
+                    ),
+                ),
+            );
         }
 
         return new ArtifactSectionRepresentation(
             $section_identifier->toString(),
+            $level->value,
             ArtifactReference::build($artifact),
             $artifact_information->title,
             $artifact_information->description,

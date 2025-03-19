@@ -32,6 +32,7 @@ use Tuleap\Test\Builders\LayoutInspector;
 use Tuleap\Test\Builders\LayoutInspectorRedirection;
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FilesDownloadLimitsAdminSaveControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private CSRFSynchronizerToken&MockObject $token;
@@ -70,13 +71,19 @@ final class FilesDownloadLimitsAdminSaveControllerTest extends \Tuleap\Test\PHPU
             ->build();
 
         $this->token->expects(self::once())->method('check');
+        $matcher = $this->exactly(2);
 
-        $this->config_dao
-            ->method('saveInt')
-            ->withConsecutive(
-                ['plugin_document_warning_threshold', 25],
-                ['plugin_document_max_archive_size', 2000],
-            );
+        $this->config_dao->expects($matcher)
+            ->method('saveInt')->willReturnCallback(function (...$parameters) use ($matcher) {
+                if ($matcher->numberOfInvocations() === 1) {
+                    self::assertSame('plugin_document_warning_threshold', $parameters[0]);
+                    self::assertSame(25, $parameters[1]);
+                }
+                if ($matcher->numberOfInvocations() === 2) {
+                    self::assertSame('plugin_document_max_archive_size', $parameters[0]);
+                    self::assertSame(2000, $parameters[1]);
+                }
+            });
 
         $inspector = new LayoutInspector();
 

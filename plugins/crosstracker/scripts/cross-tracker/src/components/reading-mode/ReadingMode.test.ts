@@ -17,7 +17,6 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { Mock } from "vitest";
 import { beforeEach, describe, expect, it, vi } from "vitest";
 import type { VueWrapper } from "@vue/test-utils";
 import { shallowMount } from "@vue/test-utils";
@@ -25,27 +24,62 @@ import { errAsync, okAsync } from "neverthrow";
 import { ref } from "vue";
 import { Fault } from "@tuleap/fault";
 import ReadingMode from "./ReadingMode.vue";
-import { BackendCrossTrackerReport } from "../../domain/BackendCrossTrackerReport";
-import { ReadingCrossTrackerReport } from "../../domain/ReadingCrossTrackerReport";
 import * as rest_querier from "../../api/rest-querier";
-import type { Report, TrackerAndProject } from "../../type";
+import type { Query } from "../../type";
 import { getGlobalTestOptions } from "../../helpers/global-options-for-tests";
-import { IS_USER_ADMIN, NOTIFY_FAULT, REPORT_ID, REPORT_STATE } from "../../injection-symbols";
-import TrackerListReadingMode from "./TrackerListReadingMode.vue";
+import {
+    EMITTER,
+    IS_MULTIPLE_QUERY_SUPPORTED,
+    IS_USER_ADMIN,
+    REPORT_STATE,
+    WIDGET_ID,
+} from "../../injection-symbols";
+import type {
+    EmitterProvider,
+    Events,
+    NotifyFaultEvent,
+    RefreshArtifactsEvent,
+} from "../../helpers/emitter-provider";
+import { NOTIFY_FAULT_EVENT, REFRESH_ARTIFACTS_EVENT } from "../../helpers/emitter-provider";
+import mitt from "mitt";
 
 describe("ReadingMode", () => {
-    let backend_cross_tracker_report: BackendCrossTrackerReport,
-        reading_cross_tracker_report: ReadingCrossTrackerReport,
+    let backend_query: Query,
+        reading_query: Query,
         is_user_admin: boolean,
         has_error: boolean,
-        errorSpy: Mock;
+        emitter: EmitterProvider,
+        is_multiple_query_supported: boolean;
+    let dispatched_fault_events: NotifyFaultEvent[];
+    let dispatched_refresh_events: RefreshArtifactsEvent[];
 
     beforeEach(() => {
-        backend_cross_tracker_report = new BackendCrossTrackerReport();
-        reading_cross_tracker_report = new ReadingCrossTrackerReport();
+        backend_query = {
+            id: "00000000-03e8-70c0-9e41-6ea7a4e2b78d",
+            tql_query: "",
+            title: "",
+            description: "a great backend query",
+            is_default: false,
+        };
+        reading_query = {
+            id: "00000000-03e8-70c0-9e41-6ea7a4e2b78d",
+            tql_query: "",
+            title: "",
+            description: "a great reading query",
+            is_default: false,
+        };
         is_user_admin = true;
         has_error = false;
-        errorSpy = vi.fn();
+        is_multiple_query_supported = false;
+        emitter = mitt<Events>();
+        dispatched_fault_events = [];
+        dispatched_refresh_events = [];
+        emitter.on(NOTIFY_FAULT_EVENT, (event) => {
+            dispatched_fault_events.push(event);
+        });
+        emitter.on(REFRESH_ARTIFACTS_EVENT, (event) => {
+            dispatched_refresh_events.push(event);
+        });
     });
 
     function instantiateComponent(): VueWrapper<InstanceType<typeof ReadingMode>> {
@@ -54,15 +88,16 @@ describe("ReadingMode", () => {
                 ...getGlobalTestOptions(),
                 provide: {
                     [REPORT_STATE.valueOf()]: ref("result-preview"),
-                    [NOTIFY_FAULT.valueOf()]: errorSpy,
-                    [REPORT_ID.valueOf()]: 875,
+                    [WIDGET_ID.valueOf()]: 875,
                     [IS_USER_ADMIN.valueOf()]: is_user_admin,
+                    [EMITTER.valueOf()]: emitter,
+                    [IS_MULTIPLE_QUERY_SUPPORTED.valueOf()]: is_multiple_query_supported,
                 },
             },
             props: {
                 has_error,
-                backend_cross_tracker_report,
-                reading_cross_tracker_report,
+                backend_query,
+                reading_query,
             },
         });
     }
@@ -75,7 +110,6 @@ describe("ReadingMode", () => {
 
             const emitted = wrapper.emitted("switch-to-writing-mode");
             expect(emitted).toBeDefined();
-            expect(wrapper.find("[data-test=tracker-list-reading-mode]").exists()).toBe(true);
         });
 
         it(`Given I am browsing as project member,
@@ -87,39 +121,36 @@ describe("ReadingMode", () => {
 
             const emitted = wrapper.emitted("switch-to-writing-mode");
             expect(emitted).toBeUndefined();
-            expect(wrapper.find("[data-test=tracker-list-reading-mode]").exists()).toBe(true);
         });
     });
 
     describe("saveReport()", () => {
         it(`will update the backend report and emit a "saved" event`, async () => {
-            const initBackend = vi.spyOn(backend_cross_tracker_report, "init");
-            initBackend.mockImplementation(() => Promise.resolve());
-            const duplicateBackend = vi.spyOn(backend_cross_tracker_report, "duplicateFromReport");
-            const trackers: ReadonlyArray<TrackerAndProject> = [
-                { tracker: { id: 36 }, project: { id: 180 } } as TrackerAndProject,
-                { tracker: { id: 17 }, project: { id: 138 } } as TrackerAndProject,
-            ];
-            const expert_query = '@description != ""';
-            const report = { trackers, expert_query, expert_mode: false } as Report;
+            const expert_query =
+                'SELECT @description FROM @project.name="TOTOYA" WHERE @ddescription != ""';
+            const query: Query = {
+                id: reading_query.id,
+                tql_query: expert_query,
+                title: reading_query.title,
+                description: reading_query.description,
+                is_default: false,
+            };
 
-            const updateReport = vi
-                .spyOn(rest_querier, "updateReport")
-                .mockReturnValue(okAsync(report));
+            const updateQuery = vi
+                .spyOn(rest_querier, "updateQuery")
+                .mockReturnValue(okAsync(query));
             const wrapper = instantiateComponent();
 
             await wrapper.get("[data-test=cross-tracker-save-report]").trigger("click");
 
-            expect(duplicateBackend).toHaveBeenCalledWith(reading_cross_tracker_report);
-            expect(updateReport).toHaveBeenCalled();
-            expect(initBackend).toHaveBeenCalledWith(trackers, expert_query, false);
+            expect(updateQuery).toHaveBeenCalled();
             const emitted = wrapper.emitted("saved");
             expect(emitted).toBeDefined();
         });
 
         it("Given the report is in error, then nothing will happen", async () => {
             has_error = true;
-            const updateReport = vi.spyOn(rest_querier, "updateReport");
+            const updateReport = vi.spyOn(rest_querier, "updateQuery");
 
             const wrapper = instantiateComponent();
             await wrapper.get("[data-test=cross-tracker-save-report]").trigger("click");
@@ -128,7 +159,7 @@ describe("ReadingMode", () => {
         });
 
         it("When there is a REST error, then it will be shown", async () => {
-            vi.spyOn(rest_querier, "updateReport").mockReturnValue(
+            vi.spyOn(rest_querier, "updateQuery").mockReturnValue(
                 errAsync(Fault.fromMessage("Report not found")),
             );
 
@@ -136,8 +167,8 @@ describe("ReadingMode", () => {
 
             await wrapper.get("[data-test=cross-tracker-save-report]").trigger("click");
 
-            expect(errorSpy).toHaveBeenCalled();
-            expect(errorSpy.mock.calls[0][0].isSaveReport()).toBe(true);
+            expect(dispatched_fault_events).toHaveLength(1);
+            expect(dispatched_fault_events[0].fault.isSaveReport()).toBe(true);
         });
     });
 
@@ -148,21 +179,29 @@ describe("ReadingMode", () => {
             await wrapper.get("[data-test=cross-tracker-cancel-report]").trigger("click");
 
             expect(wrapper.emitted("discard-unsaved-report")).toBeDefined();
+            expect(dispatched_refresh_events).toHaveLength(1);
+            expect(dispatched_refresh_events[0]).toStrictEqual({
+                query: backend_query,
+            });
         });
     });
-    describe("Tracker selection display", () => {
-        it.each([
-            ["displays", false, true],
-            ["does display", true, false],
-        ])(
-            `%s display the tracker list according to the expert mode`,
-            (format_title, is_expert_mode, is_tracker_list_component_exist) => {
-                reading_cross_tracker_report.expert_mode = is_expert_mode;
-                const wrapper = instantiateComponent();
-                expect(wrapper.findComponent(TrackerListReadingMode).exists()).toBe(
-                    is_tracker_list_component_exist,
-                );
-            },
-        );
+
+    describe("renders query description", () => {
+        it("does not show query’s description if multiple query mode is not enabled", () => {
+            is_multiple_query_supported = false;
+
+            const wrapper = instantiateComponent();
+            expect(wrapper.find("[data-test=query-description]").exists()).toBe(false);
+        });
+
+        it("shows query’s description if multiple query mode is enabled", () => {
+            is_multiple_query_supported = true;
+
+            const wrapper = instantiateComponent();
+            const element = wrapper.find("[data-test=query-description]");
+
+            expect(element.exists()).toBe(true);
+            expect(element.text()).toBe("a great reading query");
+        });
     });
 });

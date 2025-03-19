@@ -23,29 +23,26 @@ declare(strict_types=1);
 namespace Tuleap\CrossTracker\Report;
 
 use Psr\Log\LoggerInterface;
-use Tuleap\CrossTracker\CrossTrackerReportFactory;
-use Tuleap\CrossTracker\CrossTrackerReportNotFoundException;
+use Tuleap\CrossTracker\Widget\SearchCrossTrackerWidget;
 
 final readonly class ReportInheritanceHandler
 {
     public function __construct(
-        private CrossTrackerReportFactory $report_factory,
-        private CloneReport $report_cloner,
+        private SearchCrossTrackerWidget $widget_dao,
+        private CloneWidget $report_cloner,
         private LoggerInterface $logger,
     ) {
     }
 
     public function handle(int $template_report_id): int
     {
-        try {
-            $this->report_factory->getById($template_report_id);
-        } catch (CrossTrackerReportNotFoundException) {
+        if (! $this->widget_dao->searchWidgetExistence($template_report_id)) {
             $this->logger->error(
                 sprintf('Could not find report #%d while duplicating Cross-Tracker Search widget', $template_report_id)
             );
             return 0;
         }
 
-        return $this->report_cloner->cloneReport($template_report_id);
+        return $this->report_cloner->cloneWidget($template_report_id);
     }
 }

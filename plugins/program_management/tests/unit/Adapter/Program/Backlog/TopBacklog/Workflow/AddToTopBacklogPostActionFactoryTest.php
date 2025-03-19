@@ -32,14 +32,16 @@ use Tuleap\ProgramManagement\Tests\Stub\RetrieveFullProjectStub;
 use Tuleap\ProgramManagement\Tests\Stub\SearchByTransitionIdStub;
 use Tuleap\ProgramManagement\Tests\Stub\SearchByWorkflowStub;
 use Tuleap\Test\Builders\ProjectTestBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticValueBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AddToTopBacklogPostActionFactoryTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private const TRANSITION_ID = 923;
     private const PROJECT_ID    = 101;
     private Transition $transition;
-    private \Workflow & MockObject $workflow;
+    private \Workflow&MockObject $workflow;
     private SearchByTransitionIdStub $search_transition;
     private SearchByWorkflowStub $search_by_workflow;
     private \Project $project;
@@ -67,7 +69,7 @@ final class AddToTopBacklogPostActionFactoryTest extends \Tuleap\Test\PHPUnit\Te
             (string) self::TRANSITION_ID,
             (string) $workflow_id,
             null,
-            new \Tracker_FormElement_Field_List_Bind_StaticValue(1, 'field', '', 1, false)
+            ListStaticValueBuilder::aStaticValue('field')->build()
         );
         $this->transition->setWorkflow($this->workflow);
         $this->search_transition  = SearchByTransitionIdStub::withTransitions(['id' => 88]);

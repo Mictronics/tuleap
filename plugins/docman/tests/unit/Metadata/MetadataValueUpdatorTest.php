@@ -29,12 +29,13 @@ use Docman_MetadataValueList;
 use PHPUnit\Framework\MockObject\MockObject;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class MetadataValueUpdatorTest extends TestCase
 {
     private Docman_MetadataValueDao&MockObject $metadata_value_dao;
     private MetadataValueStore&MockObject $store;
     private MetadataValueCreator|MetadataValueUpdator $updator;
-    private MetadataValueObjectFactory &MockObject $metadata_value_object_factory;
+    private MetadataValueObjectFactory&MockObject $metadata_value_object_factory;
     private DocmanMetadataInputValidator&MockObject $validator;
 
     protected function setUp(): void

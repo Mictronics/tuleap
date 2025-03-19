@@ -38,13 +38,14 @@ final readonly class ArtidocPresenter
      */
     public function __construct(
         public int $item_id,
+        public int $project_id,
         public bool $can_user_edit_document,
         public string $title,
         ?DocumentTrackerRepresentation $selected_tracker,
         array $allowed_trackers,
         public int $upload_max_size,
         ?array $pdf_templates,
-        public bool $is_freetext_allowed,
+        public bool $are_fields_enabled,
     ) {
         $this->selected_tracker = encode($selected_tracker);
         $this->allowed_trackers = encode($allowed_trackers);

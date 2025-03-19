@@ -25,6 +25,7 @@ namespace Tuleap\Config;
 use Tuleap\Test\Builders\Config\ConfigKeyMetadataBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ConfigSetTest extends TestCase
 {
     public function testExceptionIfKeyDoesNotExist(): void
@@ -91,7 +92,7 @@ final class ConfigSetTest extends TestCase
      */
     private function getConfigKeys(
         array $metadata,
-    ): KeyMetadataProvider & KeysThatCanBeModifiedProvider {
+    ): KeyMetadataProvider&KeysThatCanBeModifiedProvider {
         $keys_that_can_be_modified_provider = new class ($metadata) implements KeyMetadataProvider, KeysThatCanBeModifiedProvider {
             public function __construct(private readonly array $metadata)
             {

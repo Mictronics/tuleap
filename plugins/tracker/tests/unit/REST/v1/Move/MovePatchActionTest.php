@@ -39,6 +39,7 @@ use Tuleap\Tracker\Test\Stub\MoveDryRunStub;
 use Tuleap\Tracker\Test\Stub\MoveRestArtifactStub;
 use Tuleap\Tracker\Test\Stub\RetrieveTrackerStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class MovePatchActionTest extends TestCase
 {
     private Project $project;
@@ -173,8 +174,8 @@ final class MovePatchActionTest extends TestCase
         );
         $move_patch_action->patchMove($this->patch_representation, $this->user, $this->artifact, new NullLogger());
 
-        $this->assertSame(1, $this->dry_run_move->getCallCount());
-        $this->assertSame(0, $move_rest_artifact->getCallCount());
+        self::assertSame(1, $this->dry_run_move->getCallCount());
+        self::assertSame(0, $move_rest_artifact->getCallCount());
     }
 
     public function testItReturnsARepresentationWithoutDryRunWhenMoveIsComplete(): void
@@ -192,7 +193,7 @@ final class MovePatchActionTest extends TestCase
         );
         $move_patch_action->patchMove($this->patch_representation, $this->user, $this->artifact, new NullLogger());
 
-        $this->assertSame(0, $this->dry_run_move->getCallCount());
-        $this->assertSame(1, $move_rest_artifact->getCallCount());
+        self::assertSame(0, $this->dry_run_move->getCallCount());
+        self::assertSame(1, $move_rest_artifact->getCallCount());
     }
 }

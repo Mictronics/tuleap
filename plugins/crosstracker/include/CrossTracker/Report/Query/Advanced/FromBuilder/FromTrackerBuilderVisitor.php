@@ -25,7 +25,7 @@ namespace Tuleap\CrossTracker\Report\Query\Advanced\FromBuilder;
 use LogicException;
 use ParagonIE\EasyDB\EasyStatement;
 use Tuleap\CrossTracker\Report\Query\Advanced\AllowedFrom;
-use Tuleap\CrossTracker\SearchCrossTrackerWidget;
+use Tuleap\CrossTracker\Widget\SearchCrossTrackerWidget;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\FromTrackerConditionVisitor;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\FromTrackerEqual;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\FromTrackerIn;
@@ -72,7 +72,7 @@ final readonly class FromTrackerBuilderVisitor implements FromTrackerConditionVi
         $where_parameters = $names;
 
         if ($parameters->is_tracker_condition_alone) {
-            $row = $this->widget_retriever->searchCrossTrackerWidgetByCrossTrackerReportId($parameters->report_id);
+            $row = $this->widget_retriever->searchCrossTrackerWidgetDashboardById($parameters->report_id);
             if ($row === null || $row['dashboard_type'] !== 'project') {
                 throw new LogicException('Project id not found');
             }

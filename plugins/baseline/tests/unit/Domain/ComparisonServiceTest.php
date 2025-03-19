@@ -35,6 +35,7 @@ use Tuleap\Baseline\Factory\TransientComparisonFactory;
 use Tuleap\Baseline\Support\CurrentUserContext;
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ComparisonServiceTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use CurrentUserContext;
@@ -49,7 +50,7 @@ final class ComparisonServiceTest extends \Tuleap\Test\PHPUnit\TestCase
     private $authorizations;
     private UserProxy $a_user;
 
-    /** @before */
+        #[\PHPUnit\Framework\Attributes\Before]
     protected function createInstance(): void
     {
         $this->comparison_repository = $this->createMock(ComparisonRepository::class);
@@ -63,7 +64,7 @@ final class ComparisonServiceTest extends \Tuleap\Test\PHPUnit\TestCase
 
     private ProjectIdentifier $a_project;
 
-    /** @before */
+        #[\PHPUnit\Framework\Attributes\Before]
     public function createEntities(): void
     {
         $this->a_user    = UserProxy::fromUser(UserTestBuilder::aUser()->build());

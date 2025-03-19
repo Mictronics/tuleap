@@ -18,20 +18,25 @@
 -
 -->
 <template>
-    <div v-if="is_section_in_edit_mode" class="document-section-cancel-save-buttons">
+    <div
+        v-if="is_section_in_edit_mode || has_title_level_been_changed"
+        class="document-section-cancel-save-buttons"
+    >
         <button
-            v-on:click="onCancel"
+            v-on:click="close_section_editor.closeAndCancelEditor"
             type="button"
             class="tlp-button-primary tlp-button-outline tlp-button-large"
+            data-test="cancel-button"
         >
             <i class="fa-solid fa-xmark tlp-button-icon" aria-hidden="true"></i>
             <span>{{ $gettext("Cancel") }}</span>
         </button>
         <button
-            v-on:click="saveEditor"
+            v-on:click="save_section.save"
             v-bind:disabled="!is_save_allowed"
             type="button"
             class="tlp-button-primary tlp-button-large"
+            data-test="save-button"
         >
             <i class="fa-solid fa-floppy-disk tlp-button-icon" aria-hidden="true"></i>
             <span>{{ $gettext("Save") }}</span>
@@ -40,22 +45,20 @@
 </template>
 
 <script setup lang="ts">
-import type { SectionEditor } from "@/composables/useSectionEditor";
 import { useGettext } from "vue3-gettext";
-import type { SectionState } from "@/sections/SectionStateBuilder";
+import type { SectionState } from "@/sections/states/SectionStateBuilder";
+import type { CloseSectionEditor } from "@/sections/editors/SectionEditorCloser";
+import type { SaveSection } from "@/sections/save/SectionSaver";
 
 const props = defineProps<{
-    editor: SectionEditor;
     section_state: SectionState;
+    close_section_editor: CloseSectionEditor;
+    save_section: SaveSection;
 }>();
 
 const { $gettext } = useGettext();
-const { cancelEditor, saveEditor } = props.editor.editor_actions;
-const { is_section_in_edit_mode, is_save_allowed } = props.section_state;
-
-function onCancel(): void {
-    cancelEditor();
-}
+const { is_section_in_edit_mode, has_title_level_been_changed, is_save_allowed } =
+    props.section_state;
 </script>
 
 <style lang="scss" scoped>

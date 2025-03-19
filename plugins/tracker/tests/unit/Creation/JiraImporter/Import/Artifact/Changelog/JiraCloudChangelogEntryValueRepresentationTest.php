@@ -28,6 +28,7 @@ use function PHPUnit\Framework\assertCount;
 use function PHPUnit\Framework\assertEquals;
 use function PHPUnit\Framework\assertInstanceOf;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class JiraCloudChangelogEntryValueRepresentationTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testItBuildsARepresentationFromAPIResponse(): void
@@ -53,8 +54,8 @@ class JiraCloudChangelogEntryValueRepresentationTest extends \Tuleap\Test\PHPUni
 
         $representation = JiraCloudChangelogEntryValueRepresentation::buildFromAPIResponse($response);
 
-        $this->assertSame(10057, $representation->getId());
-        $this->assertSame(1585141810, $representation->getCreated()->getTimestamp());
+        self::assertSame(10057, $representation->getId());
+        self::assertSame(1585141810, $representation->getCreated()->getTimestamp());
         $this->assertCount(1, $representation->getItemRepresentations());
         $this->assertEquals($representation->getChangelogOwner()->getDisplayName(), 'John Doe');
     }

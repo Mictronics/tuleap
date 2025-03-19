@@ -21,6 +21,7 @@
 namespace Tuleap\ProjectOwnership\REST;
 
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class ProjectUserGroupTest extends \RestBase
 {
     public function testProjectOwnerCannotBeRemovedFromTheProjectAdministrators(): void
@@ -54,7 +55,7 @@ class ProjectUserGroupTest extends \RestBase
                 'template_id' => $this->project_private_id,
             ])))
         );
-        $this->assertSame(201, $creation_response->getStatusCode());
+        self::assertSame(201, $creation_response->getStatusCode());
         return json_decode($creation_response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR)['id'];
     }
 

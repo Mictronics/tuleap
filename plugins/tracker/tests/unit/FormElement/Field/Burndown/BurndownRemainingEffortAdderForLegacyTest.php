@@ -32,6 +32,7 @@ use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\FormElement\ChartConfigurationFieldRetriever;
 use Tuleap\Tracker\UserWithReadAllPermissionBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class BurndownRemainingEffortAdderForLegacyTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -123,7 +124,7 @@ class BurndownRemainingEffortAdderForLegacyTest extends \Tuleap\Test\PHPUnit\Tes
             1561068000 => 0,
         ];
 
-        $this->assertSame($expected_efforts, $burndown_data->getRemainingEffortsAtDate());
+        self::assertSame($expected_efforts, $burndown_data->getRemainingEffortsAtDate());
     }
 
     public function testItDoesNotAddRemainingEffortDataForLegacyWhenMilesetoneIsInTheFuture()

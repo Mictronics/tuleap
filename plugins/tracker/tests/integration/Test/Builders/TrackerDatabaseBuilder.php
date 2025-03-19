@@ -57,6 +57,17 @@ final class TrackerDatabaseBuilder
         return $tracker;
     }
 
+    public function buildHierarchy(int $parent_id, int $child_id): void
+    {
+        $this->db->insert(
+            'tracker_hierarchy',
+            [
+                'parent_id' => $parent_id,
+                'child_id'  => $child_id,
+            ],
+        );
+    }
+
     public function setViewPermissionOnTracker(int $tracker_id, string $permission, int $user_group_id): void
     {
         $this->db->insert(
@@ -159,6 +170,23 @@ final class TrackerDatabaseBuilder
             'tracker_field_text',
             [
                 'field_id' => $tracker_field_id,
+            ]
+        );
+
+        return $tracker_field_id;
+    }
+
+    public function buildStaticRichTextField(int $tracker_id, string $name): int
+    {
+        $tracker_field_id = (int) $this->db->insertReturnId(
+            'tracker_field',
+            [
+                'tracker_id'       => $tracker_id,
+                'formElement_type' => 'staticrichtext',
+                'name'             => $name,
+                'label'            => $name,
+                'use_it'           => true,
+                'scope'            => 'P',
             ]
         );
 

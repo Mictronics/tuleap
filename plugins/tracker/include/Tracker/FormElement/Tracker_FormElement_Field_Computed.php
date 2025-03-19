@@ -27,6 +27,8 @@ use Tuleap\Tracker\FormElement\Field\Computed\ComputedFieldDao;
 use Tuleap\Tracker\FormElement\Field\Computed\ComputedFieldDaoCache;
 use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
 use Tuleap\Tracker\FormElement\FieldCalculator;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\ComputedFieldSpecificPropertiesDAO;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\SaveSpecificFieldProperties;
 use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
 use Tuleap\Tracker\REST\Artifact\ArtifactFieldComputedValueFullRepresentation;
 
@@ -408,7 +410,7 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
         $purifier = Codendi_HTMLPurifier::instance();
         $html     = '<input type="text" class="field-computed"
             data-test-field-input
-            data-test="' . $this->getName() . '"
+            data-test="field-default-value"
             name="artifact[' . $purifier->purify($this->getId()) . '][' . self::FIELD_VALUE_MANUAL . ']"
             value="' . $purifier->purify($displayed_value) . '" />';
         $html    .= '<input type="hidden"
@@ -613,6 +615,26 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
         return new ComputedFieldDao();
     }
 
+    protected function getDuplicateSpecificPropertiesDao(): ComputedFieldSpecificPropertiesDAO
+    {
+        return new ComputedFieldSpecificPropertiesDAO();
+    }
+
+    protected function getDeleteSpecificPropertiesDao(): ComputedFieldSpecificPropertiesDAO
+    {
+        return new ComputedFieldSpecificPropertiesDAO();
+    }
+
+    protected function getSearchSpecificPropertiesDao(): ComputedFieldSpecificPropertiesDAO
+    {
+        return new ComputedFieldSpecificPropertiesDAO();
+    }
+
+    protected function getSaveSpecificPropertiesDao(): SaveSpecificFieldProperties
+    {
+        return new ComputedFieldSpecificPropertiesDAO();
+    }
+
     public function getCriteriaFromWhere(Tracker_Report_Criteria $criteria): Option
     {
         return Option::nothing(ParametrizedFromWhere::class);
@@ -684,12 +706,12 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
         $required = $this->required ? ' <span class="highlight">*</span>' : '';
 
         $html  = '<div>';
-        $html .= '<div class="tracker_artifact_field tracker_artifact_field-computed editable ' . $extra_class . '">';
+        $html .= '<div class="tracker_artifact_field tracker_artifact_field-computed editable ' . $extra_class . '" data-test="artifact-form-element">';
 
         $title = $purifier->purify(sprintf(dgettext('tuleap-tracker', 'Edit the field "%1$s"'), $this->getLabel()));
         $html .= '<button type="button" title="' . $title . '" class="tracker_formelement_edit ' . $submit_class . '">' . $purifier->purify($this->getLabel())  . $required . '</button>';
         $html .= '<label for="tracker_artifact_' . $this->id . '" title="' . $purifier->purify($this->description) .
-            '" class="tracker_formelement_label">' . $purifier->purify($this->getLabel())  . $required . '</label>';
+            '" class="tracker_formelement_label" data-test="field-label">' . $purifier->purify($this->getLabel())  . $required . '</label>';
 
         $html .= '<div class="input-append" data-field-id="' . $this->getId() . '">';
 
@@ -880,6 +902,7 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
         $data_field_type            = '';
         $data_field_is_autocomputed = '';
         $data_field_old_value       = '';
+        $data_csrf_token_update     = '';
         $is_autocomputed            = $this->isArtifactValueAutocomputed($artifact);
         $purifier                   = Codendi_HTMLPurifier::instance();
 
@@ -889,6 +912,7 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
             $data_field_type            = 'data-field-type="' . $purifier->purify($this->getFormElementFactory()->getType($this)) . '"';
             $data_field_is_autocomputed = 'data-field-is-autocomputed="' . $is_autocomputed . '"';
             $data_field_old_value       = 'data-field-old-value="' . $value . '"';
+            $data_csrf_token_update     = 'data-csrf-token-challenge-update="' . $purifier->purify($this->getId()) . '"';
         }
 
         $html = '<tr>
@@ -905,6 +929,7 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
                         $data_field_type .
                         $data_field_is_autocomputed .
                         $data_field_old_value .
+                        $data_csrf_token_update .
                     '>' .
                         $value .
                     '</td>

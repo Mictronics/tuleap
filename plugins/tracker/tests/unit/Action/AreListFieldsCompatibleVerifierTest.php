@@ -27,6 +27,7 @@ use Tuleap\Tracker\Test\Builders\Fields\List\ListUserBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListUserGroupBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AreListFieldsCompatibleVerifierTest extends TestCase
 {
     private AreListFieldsCompatibleVerifier $verifier;
@@ -36,9 +37,7 @@ final class AreListFieldsCompatibleVerifierTest extends TestCase
         $this->verifier = new AreListFieldsCompatibleVerifier();
     }
 
-    /**
-     * @dataProvider getSourceAndDestinationFieldsForSameBindTypeTest
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getSourceAndDestinationFieldsForSameBindTypeTest')]
     public function testReturnsFalseWhenTheFieldsDoNotHaveTheSameTypeOfBind(
         Tracker_FormElement_Field_List $source_field,
         Tracker_FormElement_Field_List $destination_field,

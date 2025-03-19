@@ -33,6 +33,7 @@ use Tuleap\Tracker\Semantic\Progress\SemanticProgressDao;
 use Tuleap\Tracker\Test\Builders\Fields\IntFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class SemanticProgressAdminPresenterBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private Tracker_FormElementFactory&MockObject $form_element_factory;
@@ -61,7 +62,7 @@ final class SemanticProgressAdminPresenterBuilderTest extends \Tuleap\Test\PHPUn
             new MethodNotConfigured()
         );
 
-        $this->assertSame(
+        self::assertSame(
             [
                 ['id' => 1, 'label' => 'Velocity', 'is_selected' => false],
                 ['id' => 2, 'label' => 'Remaining effort', 'is_selected' => false],
@@ -70,7 +71,7 @@ final class SemanticProgressAdminPresenterBuilderTest extends \Tuleap\Test\PHPUn
             $presenter->total_effort_options
         );
 
-        $this->assertSame(
+        self::assertSame(
             [
                 ['id' => 1, 'label' => 'Velocity', 'is_selected' => false],
                 ['id' => 2, 'label' => 'Remaining effort', 'is_selected' => false],
@@ -79,7 +80,7 @@ final class SemanticProgressAdminPresenterBuilderTest extends \Tuleap\Test\PHPUn
             $presenter->remaining_effort_options
         );
 
-        $this->assertSame(
+        self::assertSame(
             [
                 ['name' => MethodBasedOnEffort::getMethodName(), 'label' => MethodBasedOnEffort::getMethodLabel(), 'is_selected' => false],
                 ['name' => MethodBasedOnLinksCount::getMethodName(), 'label' => MethodBasedOnLinksCount::getMethodLabel(), 'is_selected' => false],
@@ -103,7 +104,7 @@ final class SemanticProgressAdminPresenterBuilderTest extends \Tuleap\Test\PHPUn
             new InvalidMethod('This is broken')
         );
 
-        $this->assertSame(
+        self::assertSame(
             [
                 ['id' => 1, 'label' => 'Velocity', 'is_selected' => false],
                 ['id' => 2, 'label' => 'Remaining effort', 'is_selected' => false],
@@ -112,7 +113,7 @@ final class SemanticProgressAdminPresenterBuilderTest extends \Tuleap\Test\PHPUn
             $presenter->total_effort_options
         );
 
-        $this->assertSame(
+        self::assertSame(
             [
                 ['id' => 1, 'label' => 'Velocity', 'is_selected' => false],
                 ['id' => 2, 'label' => 'Remaining effort', 'is_selected' => false],
@@ -121,7 +122,7 @@ final class SemanticProgressAdminPresenterBuilderTest extends \Tuleap\Test\PHPUn
             $presenter->remaining_effort_options
         );
 
-        $this->assertSame(
+        self::assertSame(
             [
                 ['name' => MethodBasedOnEffort::getMethodName(), 'label' => MethodBasedOnEffort::getMethodLabel(), 'is_selected' => false],
                 ['name' => MethodBasedOnLinksCount::getMethodName(), 'label' => MethodBasedOnLinksCount::getMethodLabel(), 'is_selected' => false],
@@ -149,7 +150,7 @@ final class SemanticProgressAdminPresenterBuilderTest extends \Tuleap\Test\PHPUn
             )
         );
 
-        $this->assertSame(
+        self::assertSame(
             [
                 ['id' => 1, 'label' => 'Velocity', 'is_selected' => false],
                 ['id' => 2, 'label' => 'Remaining effort', 'is_selected' => false],
@@ -158,7 +159,7 @@ final class SemanticProgressAdminPresenterBuilderTest extends \Tuleap\Test\PHPUn
             $presenter->total_effort_options
         );
 
-        $this->assertSame(
+        self::assertSame(
             [
                 ['id' => 1, 'label' => 'Velocity', 'is_selected' => false],
                 ['id' => 2, 'label' => 'Remaining effort', 'is_selected' => true],
@@ -167,7 +168,7 @@ final class SemanticProgressAdminPresenterBuilderTest extends \Tuleap\Test\PHPUn
             $presenter->remaining_effort_options
         );
 
-        $this->assertSame(
+        self::assertSame(
             [
                 ['name' => MethodBasedOnEffort::getMethodName(), 'label' => MethodBasedOnEffort::getMethodLabel(), 'is_selected' => true],
                 ['name' => MethodBasedOnLinksCount::getMethodName(), 'label' => MethodBasedOnLinksCount::getMethodLabel(), 'is_selected' => false],
@@ -194,7 +195,7 @@ final class SemanticProgressAdminPresenterBuilderTest extends \Tuleap\Test\PHPUn
             )
         );
 
-        $this->assertSame(
+        self::assertSame(
             [
                 ['name' => MethodBasedOnEffort::getMethodName(), 'label' => MethodBasedOnEffort::getMethodLabel(), 'is_selected' => false],
                 ['name' => MethodBasedOnLinksCount::getMethodName(), 'label' => MethodBasedOnLinksCount::getMethodLabel(), 'is_selected' => true],

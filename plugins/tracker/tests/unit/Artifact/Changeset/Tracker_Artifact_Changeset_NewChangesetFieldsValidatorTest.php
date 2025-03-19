@@ -30,6 +30,7 @@ use Tuleap\Tracker\FormElement\Field\ArtifactLink\Validation\ManualActionContext
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Workflow\WorkflowUpdateChecker;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class Tracker_Artifact_Changeset_NewChangesetFieldsValidatorTest extends TestCase //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
     private Tracker_Artifact_Changeset_NewChangesetFieldsValidator $new_changeset_fields_validator;
@@ -146,9 +147,22 @@ final class Tracker_Artifact_Changeset_NewChangesetFieldsValidatorTest extends T
 
         $this->factory->method('getUsedFields')
                 ->willReturn([$this->field1, $this->field2, $this->field3]);
+        $matcher = $this->exactly(3);
 
-        $this->changeset->method('getValue')->withConsecutive([$this->field1], [$this->field2], [$this->field3])
-                ->willReturnOnConsecutiveCalls($this->changeset_value1, $this->changeset_value2, $this->changeset_value3);
+        $this->changeset->expects($matcher)->method('getValue')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame($this->field1, $parameters[0]);
+                return $this->changeset_value1;
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame($this->field2, $parameters[0]);
+                return $this->changeset_value2;
+            }
+            if ($matcher->numberOfInvocations() === 3) {
+                self::assertSame($this->field3, $parameters[0]);
+                return $this->changeset_value3;
+            }
+        });
 
         $user = UserTestBuilder::buildWithDefaults();
         // field 102 is missing
@@ -175,9 +189,22 @@ final class Tracker_Artifact_Changeset_NewChangesetFieldsValidatorTest extends T
 
         $this->factory->method('getUsedFields')
                 ->willReturn([$this->field1, $this->field2, $this->field3]);
+        $matcher = $this->exactly(3);
 
-        $this->changeset->method('getValue')->withConsecutive([$this->field1], [$this->field2], [$this->field3])
-                ->willReturnOnConsecutiveCalls($this->changeset_value1, null, $this->changeset_value3);
+        $this->changeset->expects($matcher)->method('getValue')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame($this->field1, $parameters[0]);
+                return $this->changeset_value1;
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame($this->field2, $parameters[0]);
+                return null;
+            }
+            if ($matcher->numberOfInvocations() === 3) {
+                self::assertSame($this->field3, $parameters[0]);
+                return $this->changeset_value3;
+            }
+        });
 
         $user = UserTestBuilder::buildWithDefaults();
         // field 102 is missing

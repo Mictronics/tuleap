@@ -36,7 +36,7 @@ class RemainingEffortValueRetriever
     public function getRemainingEffortValue(
         PFUser $current_user,
         Artifact $artifact,
-    ) {
+    ): ?float {
         $remaining_effort_field = $this->form_element_factory->getNumericFieldByNameForUser(
             $artifact->getTracker(),
             $current_user,
@@ -51,11 +51,9 @@ class RemainingEffortValueRetriever
             return null;
         }
 
-        $remaining_effort_value = $last_changeset->getValue($remaining_effort_field);
-        if (! $remaining_effort_value) {
-            return null;
-        }
+        $changeset_value = $last_changeset->getValue($remaining_effort_field);
 
-        return $remaining_effort_value->getValue();
+        $value = $changeset_value?->getValue();
+        return ($value === null) ? null : (float) $value;
     }
 }

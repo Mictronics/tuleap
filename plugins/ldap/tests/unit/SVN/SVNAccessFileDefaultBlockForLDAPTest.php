@@ -23,6 +23,7 @@ declare(strict_types=1);
 
 namespace Tuleap\LDAP\SVN;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tuleap\ForgeConfigSandbox;
 use Tuleap\LDAP\Project\UsesLDAPAuthProvider;
 use Tuleap\LDAP\User\LdapLoginFromTuleapUserIdProvider;
@@ -34,13 +35,12 @@ use Tuleap\Test\Builders\ProjectUGroupTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class SVNAccessFileDefaultBlockForLDAPTest extends TestCase
 {
     use ForgeConfigSandbox;
 
-    /**
-     * @dataProvider membersDataProvider
-     */
+    #[DataProvider('membersDataProvider')]
     public function testUserGroups(SVNAccessFileDefaultBlockOverride $default_block, bool $project_uses_ldap, array $ldap_uids, array $expected): void
     {
         $ldap_logins_provider = new class ($ldap_uids) implements LdapLoginFromTuleapUserIdProvider {
@@ -74,7 +74,7 @@ final class SVNAccessFileDefaultBlockForLDAPTest extends TestCase
         );
     }
 
-    public function membersDataProvider(): iterable
+    public static function membersDataProvider(): iterable
     {
         $jmalko    = UserTestBuilder::anActiveUser()->withId(120)->withUserName('jmalko')->build();
         $csteven   = UserTestBuilder::anActiveUser()->withId(121)->withUserName('csteven')->build();
@@ -144,9 +144,7 @@ final class SVNAccessFileDefaultBlockForLDAPTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider permissionsDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('permissionsDataProvider')]
     public function testPermissions(\Project $project, string $platform_access, bool $project_uses_ldap, bool $is_world_access_forbidden): void
     {
         \ForgeConfig::set(\ForgeAccess::CONFIG, $platform_access);
@@ -176,7 +174,7 @@ final class SVNAccessFileDefaultBlockForLDAPTest extends TestCase
         self::assertSame($is_world_access_forbidden, $default_block->isWorldAccessForbidden());
     }
 
-    public function permissionsDataProvider(): iterable
+    public static function permissionsDataProvider(): iterable
     {
         $public_project = ProjectTestBuilder::aProject()->withAccessPublic()->build();
         return [

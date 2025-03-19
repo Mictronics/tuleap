@@ -9,9 +9,9 @@ let
 
     src = ./tuleap-mercure;
 
-    vendorHash = "sha256-JcTaoBx/TV6JRDgPHzgOHqS/xedrjgox+xJe30XIIdg=";
+    vendorHash = "sha256-fowwo29oj42MV3UzmPamKJ/wc9UiOofUROcmGAh3fI4=";
 
-    CGO_ENABLED=0;
+    env.CGO_ENABLED=0;
 
     ldflags = [ "-s" "-w" ];
   };

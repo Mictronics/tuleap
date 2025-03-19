@@ -23,19 +23,20 @@ declare(strict_types=1);
 
 namespace Tuleap\MediawikiStandalone\Instance;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tuleap\MediawikiStandalone\Service\MediawikiStandaloneService;
 use Tuleap\Queue\QueueTask;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\EnqueueTaskStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ProjectStatusHandlerTest extends TestCase
 {
     /**
-     * @dataProvider getTestData
-     *
      * @param \Project::STATUS_ACTIVE|\Project::STATUS_SUSPENDED|\Project::STATUS_DELETED $status
      */
+    #[DataProvider('getTestData')]
     public function testWhenProjectIsSuspendedTheSuspensionEventIsEmitted(?QueueTask $expected_task, \Project $project, string $status): void
     {
         $queue = new EnqueueTaskStub();

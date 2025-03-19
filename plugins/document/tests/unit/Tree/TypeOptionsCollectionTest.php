@@ -25,6 +25,7 @@ namespace Tuleap\Document\Tree;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class TypeOptionsCollectionTest extends TestCase
 {
     public function testAddPaneAfterEmptyArray(): void
@@ -35,7 +36,7 @@ final class TypeOptionsCollectionTest extends TestCase
 
         $collection->addOptionAfter('stuff', $option);
 
-        $this->assertSame(
+        self::assertSame(
             [
                 $option,
             ],
@@ -54,7 +55,7 @@ final class TypeOptionsCollectionTest extends TestCase
 
         $collection->addOptionAfter('folder', $file);
 
-        $this->assertSame(
+        self::assertSame(
             [
                 $folder,
                 $file,
@@ -76,7 +77,7 @@ final class TypeOptionsCollectionTest extends TestCase
 
         $collection->addOptionAfter('file', $wiki);
 
-        $this->assertSame(
+        self::assertSame(
             [
                 $folder,
                 $file,
@@ -99,7 +100,7 @@ final class TypeOptionsCollectionTest extends TestCase
 
         $collection->addOptionAfter('folder', $wiki);
 
-        $this->assertSame(
+        self::assertSame(
             [
                 $folder,
                 $wiki,

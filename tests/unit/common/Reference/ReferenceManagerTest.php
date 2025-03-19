@@ -37,6 +37,7 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use UserManager;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ReferenceManagerTest extends TestCase
 {
     use GlobalLanguageMock;
@@ -88,11 +89,12 @@ final class ReferenceManagerTest extends TestCase
     {
         $GLOBALS['Language']->method('getOverridableText')->willReturn('some text');
 
-        $dao = $this->createMock(ReferenceDao::class);
-        $dao->method('searchActiveByGroupID')
-            ->withConsecutive(['100'], ['1'])
-            ->willReturnOnConsecutiveCalls(
-                TestHelper::arrayToDar([
+        $dao     = $this->createMock(ReferenceDao::class);
+        $matcher = $this->exactly(2);
+        $dao->expects($matcher)->method('searchActiveByGroupID')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame('100', $parameters[0]);
+                return TestHelper::arrayToDar([
                     'id'                 => 1,
                     'keyword'            => 'art',
                     'description'        => 'reference_art_desc_key',
@@ -103,8 +105,11 @@ final class ReferenceManagerTest extends TestCase
                     'reference_id'       => 1,
                     'group_id'           => 100,
                     'is_active'          => 1,
-                ]),
-                TestHelper::arrayToDar(
+                ]);
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame('1', $parameters[0]);
+                return TestHelper::arrayToDar(
                     [
                         'id'                 => 1,
                         'keyword'            => 'art',
@@ -117,8 +122,9 @@ final class ReferenceManagerTest extends TestCase
                         'group_id'           => 1,
                         'is_active'          => 1,
                     ]
-                )
-            );
+                );
+            }
+        });
         $dao->method('getSystemReferenceNatureByKeyword');
 
         //The Reference manager

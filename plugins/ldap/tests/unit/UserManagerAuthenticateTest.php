@@ -40,6 +40,7 @@ use Tuleap\User\PasswordVerifier;
 use Tuleap\User\UserNameNormalizer;
 use UserManager;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class UserManagerAuthenticateTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use ForgeConfigSandbox;
@@ -94,7 +95,8 @@ final class UserManagerAuthenticateTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->user_manager = $this->createMock(UserManager::class);
         $password_verifier  = new PasswordVerifier(
             new class implements \PasswordHandler {
-                public function verifyHashPassword(ConcealedString $plain_password, string $hash_password): bool
+                public function verifyHashPassword(ConcealedString $plain_password, #[\SensitiveParameter]
+                string $hash_password,): bool
                 {
                     return true;
                 }
@@ -104,21 +106,17 @@ final class UserManagerAuthenticateTest extends \Tuleap\Test\PHPUnit\TestCase
                     return 'hash';
                 }
 
-                public function isPasswordNeedRehash(string $hash_password): bool
+                public function isPasswordNeedRehash(#[\SensitiveParameter]
+                string $hash_password,): bool
                 {
                     return false;
-                }
-
-                public function computeUnixPassword(ConcealedString $plain_password): string
-                {
-                    return 'hash';
                 }
             }
         );
 
         $this->ldap_user_manager = $this->getMockBuilder(\LDAP_UserManager::class)
             ->onlyMethods(['synchronizeUser', 'getUserManager', 'createAccountFromLdap'])
-            ->setConstructorArgs([$this->ldap, $this->user_sync, $this->username_normalizer, $password_verifier])
+            ->setConstructorArgs([$this->ldap, $this->user_sync, $this->username_normalizer, $password_verifier, new NullLogger()])
             ->getMock();
 
         $this->ldap_user_manager->method('getUserManager')->willReturn($this->user_manager);

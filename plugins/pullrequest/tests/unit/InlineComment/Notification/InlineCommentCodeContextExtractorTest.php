@@ -32,10 +32,11 @@ use Tuleap\PullRequest\Tests\Builders\InlineCommentTestBuilder;
 use Tuleap\PullRequest\Tests\Builders\PullRequestTestBuilder;
 use Tuleap\PullRequest\UniDiffLine;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class InlineCommentCodeContextExtractorTest extends \Tuleap\Test\PHPUnit\TestCase
 {
-    private MockObject & FileUniDiffBuilder $file_unidiff_builder;
-    private MockObject & GitRepositoryFactory $git_repository_factory;
+    private MockObject&FileUniDiffBuilder $file_unidiff_builder;
+    private MockObject&GitRepositoryFactory $git_repository_factory;
     private InlineComment $inline_comment;
     private PullRequest $pull_request;
 

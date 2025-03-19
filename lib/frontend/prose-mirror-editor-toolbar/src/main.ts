@@ -32,4 +32,14 @@ export type {
     ScriptElements,
     StyleElements,
     TextElements,
+    AdditionalElementPosition,
+    ItemGroupName,
+} from "./elements/toolbar-element";
+
+export {
+    BASIC_TEXT_ITEMS_GROUP,
+    TEXT_STYLES_ITEMS_GROUP,
+    LIST_ITEMS_GROUP,
+    LINK_ITEMS_GROUP,
+    SCRIPTS_ITEMS_GROUP,
 } from "./elements/toolbar-element";

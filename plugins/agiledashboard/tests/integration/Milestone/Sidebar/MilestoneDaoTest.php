@@ -28,10 +28,10 @@ use Tuleap\Test\Builders\CoreDatabaseBuilder;
 use Tuleap\Test\PHPUnit\TestIntegrationTestCase;
 use Tuleap\Tracker\Test\Builders\TrackerDatabaseBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class MilestoneDaoTest extends TestIntegrationTestCase
 {
     private MilestoneDao $dao;
-    private DatabaseBuilder $builder;
 
     private int $milestone_id;
     private int $release_tracker_id;
@@ -64,7 +64,7 @@ final class MilestoneDaoTest extends TestIntegrationTestCase
         $this->dao = new MilestoneDao();
 
         $db                    = DBFactory::getMainTuleapDBConnection()->getDB();
-        $this->builder         = new DatabaseBuilder();
+        $builder               = new DatabaseBuilder();
         $core_builder          = new CoreDatabaseBuilder($db);
         $this->tracker_builder = new TrackerDatabaseBuilder($db);
 
@@ -86,8 +86,8 @@ final class MilestoneDaoTest extends TestIntegrationTestCase
             ['Open'],
             ['Closed']
         );
-        $this->builder->buildPlanning($this->project_id, $this->release_tracker_id);
-        $this->builder->buildPlanning($this->project_id, $this->sprint_tracker_id);
+        $builder->buildPlanning($this->project_id, $this->release_tracker_id);
+        $builder->buildPlanning($this->project_id, $this->sprint_tracker_id);
     }
 
     public function testItRetrievesNoMilestone(): void
@@ -317,7 +317,7 @@ final class MilestoneDaoTest extends TestIntegrationTestCase
     private function createMilestoneWithOpenSubMilestone(): void
     {
         $this->createMilestoneWithOpenSubMilestoneWithoutHierarchy();
-        $this->builder->buildHierarchy($this->release_tracker_id, $this->sprint_tracker_id);
+        $this->tracker_builder->buildHierarchy($this->release_tracker_id, $this->sprint_tracker_id);
     }
 
     private function createMilestoneWithOpenSubMilestoneWithoutHierarchy(): void
@@ -363,7 +363,7 @@ final class MilestoneDaoTest extends TestIntegrationTestCase
 
     private function createSubMilestoneWithUntypedArtifactLink(): void
     {
-        $this->builder->buildHierarchy($this->release_tracker_id, $this->sprint_tracker_id);
+        $this->tracker_builder->buildHierarchy($this->release_tracker_id, $this->sprint_tracker_id);
         $this->sprint_id                = $this->tracker_builder->buildArtifact($this->sprint_tracker_id);
         $this->sprint_last_changeset_id = $this->tracker_builder->buildLastChangeset($this->sprint_id);
         $this->tracker_builder->buildListValue(
@@ -383,7 +383,7 @@ final class MilestoneDaoTest extends TestIntegrationTestCase
     private function createSubMilestoneOutOfPlanning(): void
     {
         $other_tracker_id = $this->tracker_builder->buildTracker($this->project_id, 'Other')->getId();
-        $this->builder->buildHierarchy($this->release_tracker_id, $other_tracker_id);
+        $this->tracker_builder->buildHierarchy($this->release_tracker_id, $other_tracker_id);
         $other_list_field_id = $this->tracker_builder->buildStaticListField($this->release_tracker_id, 'list_field', 'sb');
         $other_status_values = $this->tracker_builder->buildOpenAndClosedValuesForField(
             $other_list_field_id,

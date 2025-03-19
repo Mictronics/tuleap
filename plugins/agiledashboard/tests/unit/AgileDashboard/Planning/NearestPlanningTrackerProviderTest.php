@@ -34,6 +34,7 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class NearestPlanningTrackerProviderTest extends TestCase
 {
     private Tracker $task_tracker;
@@ -60,12 +61,12 @@ final class NearestPlanningTrackerProviderTest extends TestCase
 
         $planning_factory = $this->createMock(PlanningFactory::class);
         $planning_factory->method('getPlanningsByBacklogTracker')
-            ->will(self::returnCallback(fn(\PFUser $user, Tracker $tracker) => match ($tracker) {
+            ->willReturnCallback(fn(\PFUser $user, Tracker $tracker) => match ($tracker) {
                 $this->task_tracker,
                 $this->epic_tracker => [],
                 $story_tracker      => [$sprint_planning],
                 default             => throw new LogicException("Should not be called with tracker #{$tracker->getId()}"),
-            }));
+            });
 
         $this->provider = new AgileDashboard_Planning_NearestPlanningTrackerProvider($planning_factory);
     }

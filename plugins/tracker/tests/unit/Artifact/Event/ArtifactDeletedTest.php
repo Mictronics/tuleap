@@ -22,16 +22,15 @@ declare(strict_types=1);
 
 namespace Tuleap\Tracker\Artifact\Event;
 
-use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
-use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Test\PHPUnit\TestCase;
+use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 
-final class ArtifactDeletedTest extends \Tuleap\Test\PHPUnit\TestCase
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
+final class ArtifactDeletedTest extends TestCase
 {
-    use MockeryPHPUnitIntegration;
-
     public function testHoldsArtifactInstance(): void
     {
-        $expected_artifact = \Mockery::mock(Artifact::class);
+        $expected_artifact = ArtifactTestBuilder::anArtifact(458)->build();
 
         $artifact_deleted_event = new ArtifactDeleted($expected_artifact);
 

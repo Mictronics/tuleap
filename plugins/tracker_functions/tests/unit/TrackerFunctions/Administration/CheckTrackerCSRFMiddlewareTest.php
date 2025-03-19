@@ -30,6 +30,7 @@ use Tuleap\Test\Stubs\CSRFSynchronizerTokenStub;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\TrackerFunctions\Stubs\Administration\TrackerCSRFTokenProviderStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class CheckTrackerCSRFMiddlewareTest extends TestCase
 {
     public function testProcess(): void
@@ -45,7 +46,7 @@ final class CheckTrackerCSRFMiddlewareTest extends TestCase
         $request = (new NullServerRequest())
             ->withAttribute(\Tracker::class, TrackerTestBuilder::aTracker()->build());
 
-        $this->assertSame(
+        self::assertSame(
             $response,
             $middleware->process($request, $handler)
         );

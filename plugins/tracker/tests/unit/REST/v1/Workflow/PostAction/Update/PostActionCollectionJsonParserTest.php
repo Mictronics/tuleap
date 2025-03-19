@@ -29,6 +29,7 @@ use Tuleap\Tracker\Workflow\PostAction\Update\CIBuildValue;
 use Tuleap\Tracker\Workflow\PostAction\Update\PostActionCollection;
 use Workflow;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class PostActionCollectionJsonParserTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -43,9 +44,7 @@ class PostActionCollectionJsonParserTest extends \Tuleap\Test\PHPUnit\TestCase
      */
     private $action_parser;
 
-    /**
-     * @before
-     */
+    #[\PHPUnit\Framework\Attributes\Before]
     public function createParser()
     {
         $this->action_parser     = Mockery::mock(PostActionUpdateJsonParser::class);

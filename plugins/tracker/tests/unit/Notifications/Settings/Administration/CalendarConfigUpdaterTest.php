@@ -28,13 +28,14 @@ use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Test\Builders\Fields\DateFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\TextFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
-use Tuleap\Tracker\Test\Stub\Tracker\Notifications\Settings\CheckEventShouldBeSentInNotificationStub;
-use Tuleap\Tracker\Test\Stub\Tracker\Notifications\Settings\UpdateCalendarConfigStub;
-use Tuleap\Tracker\Test\Stub\Tracker\Semantic\Timeframe\BuildSemanticTimeframeStub;
+use Tuleap\Tracker\Test\Stub\Notifications\Settings\CheckEventShouldBeSentInNotificationStub;
+use Tuleap\Tracker\Test\Stub\Notifications\Settings\UpdateCalendarConfigStub;
+use Tuleap\Tracker\Test\Stub\Semantic\Timeframe\BuildSemanticTimeframeStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class CalendarConfigUpdaterTest extends TestCase
 {
-    private readonly \Tracker_Semantic_Title & \PHPUnit\Framework\MockObject\MockObject $semantic_title;
+    private readonly \Tracker_Semantic_Title&\PHPUnit\Framework\MockObject\MockObject $semantic_title;
     private readonly \Tracker $tracker;
 
     protected function setUp(): void

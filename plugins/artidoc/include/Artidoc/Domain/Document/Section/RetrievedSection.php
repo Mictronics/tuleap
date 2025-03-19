@@ -29,6 +29,7 @@ final readonly class RetrievedSection
 {
     private function __construct(
         public SectionIdentifier $id,
+        public Level $level,
         public int $item_id,
         public RetrievedSectionContent $content,
         public int $rank,
@@ -36,12 +37,13 @@ final readonly class RetrievedSection
     }
 
     /**
-     * @param array{ id: SectionIdentifier, item_id: int, artifact_id: int, rank: int, ... } $row
+     * @param array{ id: SectionIdentifier, level: int, item_id: int, artifact_id: int, rank: int, ... } $row
      */
     public static function fromArtifact(array $row): self
     {
         return new self(
             $row['id'],
+            Level::from($row['level']),
             $row['item_id'],
             RetrievedSectionContent::fromArtifact($row['artifact_id']),
             $row['rank'],
@@ -49,14 +51,17 @@ final readonly class RetrievedSection
     }
 
     /**
-     * @param array{ id: SectionIdentifier, item_id: int, freetext_id: FreetextIdentifier, freetext_title: string, freetext_description: string, rank: int, ... } $row
+     * @param array{ id: SectionIdentifier, level: int, item_id: int, freetext_id: FreetextIdentifier, freetext_title: string, freetext_description: string, rank: int, ... } $row
      */
     public static function fromFreetext(array $row): self
     {
+        $level = Level::from($row['level']);
+
         return new self(
             $row['id'],
+            $level,
             $row['item_id'],
-            RetrievedSectionContent::fromFreetext($row['freetext_id'], $row['freetext_title'], $row['freetext_description']),
+            RetrievedSectionContent::fromFreetext($row['freetext_id'], $row['freetext_title'], $row['freetext_description'], $level),
             $row['rank'],
         );
     }

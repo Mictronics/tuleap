@@ -28,6 +28,7 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class RemainingEffortRepresentationBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private MockObject&\Tracker_FormElementFactory $factory;
@@ -120,7 +121,7 @@ final class RemainingEffortRepresentationBuilderTest extends \Tuleap\Test\PHPUni
             ->expects(self::once())
             ->method('getRemainingEffortValue')
             ->with($this->user, $this->artifact)
-            ->willReturn('3.14');
+            ->willReturn(3.14);
 
         $representation = $this->builder->getRemainingEffort($this->user, $this->artifact);
         self::assertNotNull($representation);
@@ -145,7 +146,7 @@ final class RemainingEffortRepresentationBuilderTest extends \Tuleap\Test\PHPUni
             ->expects(self::once())
             ->method('getRemainingEffortValue')
             ->with($this->user, $this->artifact)
-            ->willReturn('whatedver');
+            ->willReturn(null);
 
         $representation = $this->builder->getRemainingEffort($this->user, $this->artifact);
         self::assertNotNull($representation);

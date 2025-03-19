@@ -28,16 +28,16 @@ export type ArtifactsTableWithTotal = {
 
 export type RetrieveArtifactsTable = {
     getSelectableQueryResult(
-        tracker_ids: ReadonlyArray<number>,
         expert_query: string,
         limit: number,
         offset: number,
     ): ResultAsync<ArtifactsTableWithTotal, Fault>;
 
     getSelectableReportContent(
+        query_id: string,
         limit: number,
         offset: number,
     ): ResultAsync<ArtifactsTableWithTotal, Fault>;
 
-    getSelectableFullReport(): ResultAsync<ReadonlyArray<ArtifactsTable>, Fault>;
+    getSelectableFullReport(query_id: string): ResultAsync<ReadonlyArray<ArtifactsTable>, Fault>;
 };

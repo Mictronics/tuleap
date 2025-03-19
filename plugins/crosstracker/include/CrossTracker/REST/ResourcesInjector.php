@@ -23,7 +23,8 @@ declare(strict_types=1);
 namespace Tuleap\CrossTracker\REST;
 
 use Luracast\Restler\Restler;
-use Tuleap\CrossTracker\REST\v1\CrossTrackerReportsResource;
+use Tuleap\CrossTracker\REST\v1\CrossTrackerQueryResource;
+use Tuleap\CrossTracker\REST\v1\CrossTrackerWidgetResource;
 
 /**
  * Inject resource into restler
@@ -32,6 +33,7 @@ final class ResourcesInjector
 {
     public function populate(Restler $restler): void
     {
-        $restler->addAPIClass(CrossTrackerReportsResource::class, CrossTrackerReportsResource::ROUTE);
+        $restler->addAPIClass(CrossTrackerWidgetResource::class, CrossTrackerWidgetResource::ROUTE);
+        $restler->addAPIClass(CrossTrackerQueryResource::class, CrossTrackerQueryResource::ROUTE);
     }
 }

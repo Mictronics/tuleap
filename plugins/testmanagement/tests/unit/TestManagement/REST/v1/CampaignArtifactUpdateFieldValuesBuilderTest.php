@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace Tuleap\TestManagement\REST\v1;
 
 use PHPUnit\Framework\MockObject\MockObject;
-use Tracker_FormElement_Field_List_Bind_StaticValue;
 use Tracker_FormElementFactory;
 use Tracker_Semantic_Status;
 use Tuleap\Test\Builders\UserTestBuilder;
@@ -31,12 +30,14 @@ use Tuleap\TestManagement\Campaign\Campaign;
 use Tuleap\TestManagement\LabelFieldNotFoundException;
 use Tuleap\Tracker\Semantic\Status\StatusValueRetriever;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticValueBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\StringFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use function PHPUnit\Framework\assertCount;
 use function PHPUnit\Framework\assertSame;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class CampaignArtifactUpdateFieldValuesBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private CampaignArtifactUpdateFieldValuesBuilder $builder;
@@ -104,13 +105,7 @@ final class CampaignArtifactUpdateFieldValuesBuilderTest extends \Tuleap\Test\PH
             ->expects(self::once())
             ->method('getFirstClosedValueUserCanRead')
             ->willReturn(
-                new Tracker_FormElement_Field_List_Bind_StaticValue(
-                    5,
-                    'done',
-                    '',
-                    4,
-                    false
-                )
+                ListStaticValueBuilder::aStaticValue('done')->withId(5)->build()
             );
 
         $this->formelement_factory
@@ -145,13 +140,7 @@ final class CampaignArtifactUpdateFieldValuesBuilderTest extends \Tuleap\Test\PH
             ->expects(self::once())
             ->method('getFirstOpenValueUserCanRead')
             ->willReturn(
-                new Tracker_FormElement_Field_List_Bind_StaticValue(
-                    2,
-                    'on going',
-                    '',
-                    1,
-                    false
-                )
+                ListStaticValueBuilder::aStaticValue('on going')->withId(2)->build()
             );
 
         $this->formelement_factory

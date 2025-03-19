@@ -54,13 +54,12 @@
     "laminas/laminas-cache-storage-adapter-filesystem": "^2.3",
     "laminas/laminas-feed": "^2.10",
     "laminas/laminas-httphandlerrunner": "^2.0",
-    "laminas/laminas-mail": "^2.10",
     "lasserafn/php-initial-avatar-generator": "^4.1",
     "lcobucci/jwt": "^5.2",
     "league/commonmark": "^2.0",
-    "luracast/restler": "dev-master-tuleap#20221209",
+    "luracast/restler": "dev-master-tuleap#20250314",
     "monolog/monolog": "^3.3",
-    "mustache/mustache": "dev-main-tuleap#main-tuleap-20221202",
+    "mustache/mustache": "dev-main-tuleap#main-tuleap-20250312",
     "nikic/fast-route": "^1.2",
     "paragonie/easydb": "^2",
     "php-http/client-common": "^2.0",
@@ -74,10 +73,11 @@
     "psr/http-server-middleware": "^1.0",
     "psr/log": "^3.0",
     "ramsey/uuid": "^4.7",
-    "symfony/console": "^6.0",
-    "symfony/lock": "^6.0",
-    "symfony/process": "^6.0",
-    "symfony/var-exporter": "^6.0",
+    "symfony/console": "^7.2",
+    "symfony/lock": "^7.2",
+    "symfony/mailer": "^7.2",
+    "symfony/process": "^7.2",
+    "symfony/var-exporter": "^7.2",
     "tuleap/prometheus-client": "^1.0",
     "web-auth/webauthn-lib": "^4.6",
     "willdurand/negotiation": "^3.0"
@@ -102,7 +102,8 @@
     "sort-packages": true,
     "allow-plugins": {
       "composer/package-versions-deprecated": true,
-      "dealerdirect/phpcodesniffer-composer-installer": true
+      "dealerdirect/phpcodesniffer-composer-installer": true,
+      "php-http/discovery": false
     }
   },
   "require-dev": {
@@ -111,13 +112,13 @@
     "mockery/mockery": "^1.6.2",
     "php-http/mock-client": "^1.2",
     "php-standard-library/psalm-plugin": "^2.2",
-    "phpunit/phpunit": "^9.1",
-    "psalm/plugin-phpunit": "^0.18.3",
-    "qossmic/deptrac": "^2.0",
-    "rector/rector": "^0.15.21",
+    "phpunit/phpunit": "^11.5",
+    "psalm/plugin-phpunit": "^0.19.0",
+    "deptrac/deptrac": "^2.0",
+    "rector/rector": "^2.0.10",
     "slevomat/coding-standard": "^8.3.0",
     "squizlabs/php_codesniffer": "^3.4",
-    "vimeo/psalm": "^5.0"
+    "vimeo/psalm": "^6.0"
   },
   "tuleap": {
     "preload": {

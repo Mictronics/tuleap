@@ -25,11 +25,10 @@ namespace Tuleap\Http\Client;
 use Tuleap\Config\InvalidConfigKeyValueException;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class CIDRRangesValidatorTest extends TestCase
 {
-    /**
-     * @dataProvider dataProviderValidRanges
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderValidRanges')]
     public function testValidCIDRRanges(string $range): void
     {
         $validator = CIDRRangesValidator::buildSelf();
@@ -50,9 +49,7 @@ final class CIDRRangesValidatorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderInvalidRanges
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderInvalidRanges')]
     public function testInvalidCIDRRanges(string $invalid_range): void
     {
         $validator = CIDRRangesValidator::buildSelf();

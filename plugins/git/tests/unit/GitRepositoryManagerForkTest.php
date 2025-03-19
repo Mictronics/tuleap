@@ -45,6 +45,7 @@ use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class GitRepositoryManagerForkTest extends TestCase
 {
     use GlobalResponseMock;
@@ -346,8 +347,13 @@ final class GitRepositoryManagerForkTest extends TestCase
     public function testForkShouldIgnoreAlreadyExistingRepository(): void
     {
         $this->manager->method('isRepositoryNameAlreadyUsed')->willReturn(false);
+        $this->fine_grained_permission_replicator->method('replicateDefaultPermissionsFromProject');
+        $this->event_manager->method('processEvent');
+        $this->history_value_formatter->method('formatValueForRepository')->willReturn('');
+        $this->project_history_dao->method('groupAddHistory');
+        $this->git_system_event_manager->method('queueRepositoryFork');
 
-        $GLOBALS['Response']->expects(self::exactly(2))->method('addFeedback')->willReturnCallback(
+        $GLOBALS['Response']->expects(self::atLeastOnce())->method('addFeedback')->willReturnCallback(
             function (string $level, string $message): void {
                 match (true) {
                     $level === 'warning' &&

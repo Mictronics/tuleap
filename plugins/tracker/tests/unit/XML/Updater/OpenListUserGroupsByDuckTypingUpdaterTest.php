@@ -33,6 +33,7 @@ use Tuleap\Tracker\Test\Stub\SearchUserGroupsValuesByIdStub;
 use Tuleap\Tracker\Tracker\XML\Updater\OpenListUserGroupsByDuckTypingUpdater;
 use XML_SimpleXMLCDATAFactory;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class OpenListUserGroupsByDuckTypingUpdaterTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private \Tracker_FormElement_Field_List_Bind_Ugroups $source_bind;
@@ -88,7 +89,7 @@ final class OpenListUserGroupsByDuckTypingUpdaterTest extends \Tuleap\Test\PHPUn
         );
 
         $updater->updateUserGroupsForDuckTypingMove($changeset_xml, $this->source_field, $this->target_field, 0);
-        $this->assertSame('', (string) $changeset_xml->field_change[0]->value);
+        self::assertSame('', (string) $changeset_xml->field_change[0]->value);
     }
 
     public function testItDoesNotSetWhenUserGroupMappedToValueIsNotFoundInSource(): void
@@ -116,7 +117,7 @@ final class OpenListUserGroupsByDuckTypingUpdaterTest extends \Tuleap\Test\PHPUn
         );
 
         $updater->updateUserGroupsForDuckTypingMove($changeset_xml, $this->source_field, $this->target_field, 0);
-        $this->assertSame('', (string) $changeset_xml->field_change[0]->value);
+        self::assertSame('', (string) $changeset_xml->field_change[0]->value);
     }
 
     public function testItDoesNotSetWhenUserGroupIsNotFoundInDestination(): void
@@ -144,7 +145,7 @@ final class OpenListUserGroupsByDuckTypingUpdaterTest extends \Tuleap\Test\PHPUn
         );
 
         $updater->updateUserGroupsForDuckTypingMove($changeset_xml, $this->source_field, $this->target_field, 0);
-        $this->assertSame('', (string) $changeset_xml->field_change[0]->value);
+        self::assertSame('', (string) $changeset_xml->field_change[0]->value);
     }
 
     public function testItDoesNotSetWhenValueMappedToUserGroupIsNotFoundInDestination(): void
@@ -172,7 +173,7 @@ final class OpenListUserGroupsByDuckTypingUpdaterTest extends \Tuleap\Test\PHPUn
         );
 
         $updater->updateUserGroupsForDuckTypingMove($changeset_xml, $this->source_field, $this->target_field, 0);
-        $this->assertSame('', (string) $changeset_xml->field_change[0]->value);
+        self::assertSame('', (string) $changeset_xml->field_change[0]->value);
     }
 
     public function testItReplaceSourceValueByDestinationValue(): void
@@ -200,6 +201,6 @@ final class OpenListUserGroupsByDuckTypingUpdaterTest extends \Tuleap\Test\PHPUn
         );
 
         $updater->updateUserGroupsForDuckTypingMove($changeset_xml, $this->source_field, $this->target_field, 0);
-        $this->assertSame('b22', (string) $changeset_xml->field_change[0]->value);
+        self::assertSame('b22', (string) $changeset_xml->field_change[0]->value);
     }
 }

@@ -26,6 +26,7 @@ use Tuleap\PullRequest\Reviewer\Change\ReviewerChange;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\Stubs\User\Avatar\ProvideUserAvatarUrlStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ReviewerChangeTimelineEventRepresentationTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testCanBuildRepresentationFromAReviewerChange(): void
@@ -40,7 +41,7 @@ final class ReviewerChangeTimelineEventRepresentationTest extends \Tuleap\Test\P
         $representation = ReviewerChangeTimelineEventRepresentation::fromReviewerChange($reviewer_change, ProvideUserAvatarUrlStub::build());
 
         $this->assertEquals('reviewer-change', $representation->type);
-        $this->assertSame('1970-01-01T00:00:10+00:00', $representation->post_date);
+        self::assertSame('1970-01-01T00:00:10+00:00', $representation->post_date);
         $this->assertEquals(102, $representation->user->id);
         $this->assertCount(1, $representation->added_reviewers);
         $this->assertEquals(103, $representation->added_reviewers[0]->id);

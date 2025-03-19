@@ -38,25 +38,75 @@
             ordered_list: true,
             bullet_list: true,
         }"
-        v-bind:style_elements="{ headings: true, text: true, preformatted: true }"
+        v-bind:style_elements="{ subtitles: true, text: true, preformatted: true }"
+        v-bind:additional_elements="[
+            {
+                position: 'at_the_end',
+                target_name: TEXT_STYLES_ITEMS_GROUP,
+                item_element: headings_button,
+            },
+        ]"
     />
 </template>
 
 <script setup lang="ts">
+import { onMounted, onBeforeUnmount, ref, watch } from "vue";
+import {
+    buildToolbarController,
+    TEXT_STYLES_ITEMS_GROUP,
+} from "@tuleap/prose-mirror-editor-toolbar";
 import { TOOLBAR_BUS } from "@/toolbar-bus-injection-key";
 import { strictInject } from "@tuleap/vue-strict-inject";
-import { buildToolbarController } from "@tuleap/prose-mirror-editor-toolbar";
-import { onMounted, ref } from "vue";
-import { onClickActivateOrDeactivateToolbar } from "@/helpers/toolbar-activator";
+import { getOnClickOutsideToolbarDeactivator } from "@/helpers/OnClickOutsideToolbarDeactivator";
+import type { SectionsCollection } from "@/sections/SectionsCollection";
+import type { SectionsStatesCollection } from "@/sections/states/SectionsStatesCollection";
+import { createHeadingButton } from "@/toolbar/create-heading-button";
+import { HEADINGS_BUTTON_STATE } from "@/headings-button-state-injection-key";
+import { getSectionsNumberer } from "@/sections/levels/SectionsNumberer";
+import { getUpdateSectionLevelEventHandler } from "@/sections/levels/UpdateSectionLevelEventHandler";
+
 const toolbar_bus = strictInject(TOOLBAR_BUS);
+const headings_button_state = strictInject(HEADINGS_BUTTON_STATE);
 const controller = buildToolbarController(toolbar_bus);
 
 const toolbar = ref<HTMLElement | undefined>();
 
+const props = defineProps<{
+    sections: SectionsCollection;
+    states_collection: SectionsStatesCollection;
+}>();
+
+const headings_button = createHeadingButton(headings_button_state.active_section.value);
+
+const level_update_handler = getUpdateSectionLevelEventHandler(
+    headings_button,
+    headings_button_state,
+    props.states_collection,
+    getSectionsNumberer(props.sections),
+);
+
+headings_button.addEventListener("update-section-level", level_update_handler.handle);
+
+watch(
+    () => headings_button_state.active_section.value,
+    (active_section) => {
+        headings_button.section = active_section !== undefined ? active_section.value : undefined;
+    },
+);
+
+const toolbar_deactivator = getOnClickOutsideToolbarDeactivator(
+    document,
+    toolbar,
+    toolbar_bus,
+    headings_button_state,
+);
+
 onMounted(() => {
-    if (toolbar.value) {
-        onClickActivateOrDeactivateToolbar(document, toolbar.value, toolbar_bus);
-    }
+    toolbar_deactivator.startListening();
+});
+
+onBeforeUnmount(() => {
+    toolbar_deactivator.stopListening();
 });
 </script>
 
@@ -79,5 +129,27 @@ onMounted(() => {
 .artidoc-container-scrolled .artidoc-toolbar {
     border-bottom: 0;
     box-shadow: var(--tlp-sticky-header-shadow);
+}
+
+.artidoc-selected-level {
+    color: var(--tlp-dimmed-color-lighter-50);
+    cursor: default;
+
+    &:hover {
+        background: var(--tlp-white-color);
+        color: var(--tlp-dimmed-color-lighter-50);
+    }
+}
+
+.artidoc-menuitem-level {
+    display: flex;
+    flex-direction: row;
+    gap: var(--tlp-small-spacing);
+    align-items: baseline;
+}
+
+.artidoc-heading-icon {
+    font-size: 0.625rem;
+    font-weight: 700;
 }
 </style>

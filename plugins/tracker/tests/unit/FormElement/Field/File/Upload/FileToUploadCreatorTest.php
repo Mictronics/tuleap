@@ -25,6 +25,7 @@ use PHPUnit\Framework\MockObject\Stub;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\DB\DBTransactionExecutorPassthrough;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FileToUploadCreatorTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private const UPLOADING_USER_ID = 102;
@@ -85,7 +86,7 @@ final class FileToUploadCreatorTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $document_to_upload = $this->create();
 
-        $this->assertSame('/uploads/tracker/file/12', $document_to_upload->getUploadHref());
+        self::assertSame('/uploads/tracker/file/12', $document_to_upload->getUploadHref());
     }
 
     public function testANewItemIsNotCreatedIfAnUploadIsOngoingWithTheSameFile(): void
@@ -96,7 +97,7 @@ final class FileToUploadCreatorTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $document_to_upload = $this->create();
 
-        $this->assertSame('/uploads/tracker/file/12', $document_to_upload->getUploadHref());
+        self::assertSame('/uploads/tracker/file/12', $document_to_upload->getUploadHref());
     }
 
     public function testCreationIsRejectedIfTheFileIsBiggerThanTheConfigurationLimit(): void

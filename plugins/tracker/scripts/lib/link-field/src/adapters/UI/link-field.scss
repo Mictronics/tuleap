@@ -1,0 +1,160 @@
+/**
+ * Copyright (c) Enalean, 2022 - present. All Rights Reserved.
+ *
+ * This file is a part of Tuleap.
+ *
+ * Tuleap is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * Tuleap is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+@use "pkg:@tuleap/lazybox";
+@use "pkg:@tuleap/list-picker";
+@use "pkg:@tuleap/cross-ref-badges";
+@use "./variables";
+@use "./dropdown/linkable_item";
+@use "./creation/artifact-creator";
+
+$link-rows-border-color: var(--tlp-background-color-darker-05);
+$link-type-width: 150px;
+
+.link-field-rows-wrapper {
+    display: flex;
+    flex-direction: column;
+    border: 1px solid $link-rows-border-color;
+    border-bottom-width: 0;
+    border-radius: 5px 5px 0 0;
+    font-size: 0.875rem;
+}
+
+.link-field-row {
+    display: flex;
+    align-items: center;
+    padding: variables.$link-row-padding;
+    border: 0 solid $link-rows-border-color;
+    border-bottom-width: 1px;
+    gap: variables.$link-row-padding;
+
+    &:hover {
+        background: var(--tlp-main-color-lighter-90);
+    }
+}
+
+.link-field-parent-row + .link-field-row:not(.link-field-parent-row) {
+    border-top-width: 3px;
+}
+
+.link-field-add-link-section {
+    display: flex;
+    margin: 0 0 var(--tlp-medium-spacing);
+    border: 1px solid $link-rows-border-color;
+    border-top-width: 0;
+    border-radius: 0 0 5px 5px;
+}
+
+.link-field-add-link-row {
+    display: flex;
+    flex: 1;
+    padding: variables.$link-row-padding;
+    gap: variables.$link-row-padding;
+}
+
+.link-field-add-link-input {
+    flex: auto;
+
+    > tuleap-lazybox {
+        --lazybox-selection-height: var(--tlp-form-element-small-height);
+    }
+}
+
+.link-field-skeleton-row:hover {
+    background: unset;
+}
+
+.link-field-no-links-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 75px;
+    border: 0 solid $link-rows-border-color;
+    border-bottom-width: 1px;
+    background: var(--tlp-fade-background-color);
+    color: var(--tlp-dimmed-color);
+    font-style: italic;
+}
+
+.link-field-link-to-remove {
+    text-decoration: line-through;
+}
+
+.link-field-new-row {
+    background: var(--tlp-success-color-lighter-90);
+
+    &:hover {
+        background: var(--tlp-success-color-lighter-80);
+    }
+}
+
+.link-field-row-muted {
+    background: var(--tlp-dimmed-color-lighter-95);
+
+    > .link-field-row-xref > .link-field-artifact-link {
+        color: var(--tlp-dimmed-color);
+    }
+}
+
+.link-field-row-type {
+    flex-shrink: 0;
+    width: $link-type-width;
+    text-align: right;
+}
+
+.link-field-artifact-readonly-type {
+    color: var(--tlp-dimmed-color);
+    font-size: 0.8125rem;
+    font-weight: 500;
+    line-height: var(--tlp-form-element-small-height);
+}
+
+.link-field-row-xref {
+    flex: auto;
+}
+
+.link-field-artifact-link {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    color: var(--tlp-dark-color);
+}
+
+.link-field-artifact-title {
+    flex: 1;
+    width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.link-field-artifact-project-label {
+    margin: 2px 0 0;
+    color: var(--tlp-dimmed-color);
+    font-size: 0.65rem;
+}
+
+.link-field-artifact-can-have-only-one-parent-note {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin-bottom: var(--tlp-small-spacing);
+    font-size: 0.875rem;
+    line-height: normal;
+}

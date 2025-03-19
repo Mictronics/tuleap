@@ -20,7 +20,7 @@
 <template>
     <button
         type="button"
-        class="tlp-button-primary tlp-button-small tlp-button-outline tlp-table-actions-element"
+        class="tlp-button-primary tlp-button-mini tlp-button-outline"
         v-bind:disabled="is_loading"
         v-on:click="exportXSLX()"
         data-test="export-xlsx-button"
@@ -38,28 +38,28 @@
 import { ref } from "vue";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import { useGettext } from "vue3-gettext";
-import {
-    CLEAR_FEEDBACKS,
-    GET_COLUMN_NAME,
-    NOTIFY_FAULT,
-    REPORT_ID,
-    RETRIEVE_ARTIFACTS_TABLE,
-} from "../injection-symbols";
+import { EMITTER, GET_COLUMN_NAME, RETRIEVE_ARTIFACTS_TABLE } from "../injection-symbols";
 import { XLSXExportFault } from "../domain/XLSXExportFault";
+import type { Query } from "../type";
+import { CLEAR_FEEDBACK_EVENT, NOTIFY_FAULT_EVENT } from "../helpers/emitter-provider";
 
-const report_id = strictInject(REPORT_ID);
 const artifact_table_retriever = strictInject(RETRIEVE_ARTIFACTS_TABLE);
 const column_name_getter = strictInject(GET_COLUMN_NAME);
+const emitter = strictInject(EMITTER);
 
-const clearFeedbacks = strictInject(CLEAR_FEEDBACKS);
-const notifyFault = strictInject(NOTIFY_FAULT);
+const props = defineProps<{
+    current_query: Query;
+}>();
 
 const is_loading = ref(false);
 const { $gettext } = useGettext();
 
 async function exportXSLX(): Promise<void> {
+    if (props.current_query.tql_query === "") {
+        return;
+    }
     is_loading.value = true;
-    clearFeedbacks();
+    emitter.emit(CLEAR_FEEDBACK_EVENT);
     const export_document_module = import("../helpers/exporter/export-document");
     const download_xlsx_module = import("../helpers/exporter/xlsx/download-xlsx");
 
@@ -67,11 +67,11 @@ async function exportXSLX(): Promise<void> {
     const { downloadXLSX } = await download_xlsx_module;
     await downloadXLSXDocument(
         artifact_table_retriever,
-        report_id,
+        props.current_query,
         column_name_getter,
         downloadXLSX,
     ).mapErr((fault) => {
-        notifyFault(XLSXExportFault(fault));
+        emitter.emit(NOTIFY_FAULT_EVENT, { fault: XLSXExportFault(fault) });
     });
     is_loading.value = false;
 }

@@ -9,7 +9,7 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "sass": "./dist/style.css",
+      "sass": "./dist/prose-mirror-editor.css",
       "import": "./dist/prose-mirror-editor.js",
       "require": "./dist/prose-mirror-editor.umd.cjs"
     }
@@ -37,7 +37,6 @@
     "prosemirror-state": "^1.4.3",
     "prosemirror-transform": "^1.9.0",
     "prosemirror-view": "^1.33.8",
-    "tus-js-client": "^4.1.0",
     "uuid": "^8.3.2"
   },
   "devDependencies": {

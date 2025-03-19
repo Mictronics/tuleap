@@ -24,8 +24,10 @@ namespace Tuleap\Tracker\Artifact;
 
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
+use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticValueBuilder;
 
-class StatusBadgeBuilderTest extends TestCase
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
+final class StatusBadgeBuilderTest extends TestCase
 {
     public function testEmptyArrayWhenSemanticStatusIsNotDefined(): void
     {
@@ -150,8 +152,8 @@ class StatusBadgeBuilderTest extends TestCase
             ->ofArtifact($artifact)
             ->build();
         $list_values    = [
-            new \Tracker_FormElement_Field_List_Bind_StaticValue(2001, 'On going', 'desc', 0, false),
-            new \Tracker_FormElement_Field_List_Bind_StaticValue(2002, 'Other', 'desc', 1, false),
+            ListStaticValueBuilder::aStaticValue('On going')->build(),
+            ListStaticValueBuilder::aStaticValue('Other')->build(),
         ];
         $last_changeset->setFieldValue($field, new \Tracker_Artifact_ChangesetValue_List(
             1010,
@@ -199,8 +201,8 @@ class StatusBadgeBuilderTest extends TestCase
             ->ofArtifact($artifact)
             ->build();
         $list_values    = [
-            new \Tracker_FormElement_Field_List_Bind_StaticValue(2001, 'Value with legacy color', 'desc', 0, false),
-            new \Tracker_FormElement_Field_List_Bind_StaticValue(2002, 'Value with TLP color', 'desc', 1, false),
+            ListStaticValueBuilder::aStaticValue('Value with legacy color')->withId(2001)->build(),
+            ListStaticValueBuilder::aStaticValue('Value with TLP color')->withId(2002)->build(),
         ];
         $last_changeset->setFieldValue($field, new \Tracker_Artifact_ChangesetValue_List(
             1010,

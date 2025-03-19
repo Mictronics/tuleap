@@ -24,30 +24,30 @@ declare(strict_types=1);
 namespace Tuleap\Tracker\Creation\JiraImporter\Import\Artifact\Comment;
 
 use DateTimeImmutable;
-use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
+use Tuleap\Test\Builders\UserTestBuilder;
+use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Creation\JiraImporter\Import\User\ActiveJiraCloudUser;
 use Tuleap\Tracker\XML\Importer\TrackerImporterUser;
 
-class CommentXMLValueEnhancerTest extends \Tuleap\Test\PHPUnit\TestCase
+#[DisableReturnValueGenerationForTestDoubles]
+final class CommentXMLValueEnhancerTest extends TestCase
 {
-    use MockeryPHPUnitIntegration;
-
     public function testItAddsTheNameOfTheJiraUserWhoAddTheCommentInTheContent(): void
     {
         $enhancer  = new CommentXMLValueEnhancer();
-        $commenter = \Mockery::mock(\PFUser::class);
-        $commenter->shouldReceive('getId')->andReturn(TrackerImporterUser::ID);
+        $commenter = UserTestBuilder::buildWithId(TrackerImporterUser::ID);
 
         $comment = new JiraCloudComment(
             new ActiveJiraCloudUser([
                 'displayName' => 'userO1',
-                'accountId' => 'e12ds5123sw',
+                'accountId'   => 'e12ds5123sw',
             ]),
             new DateTimeImmutable(),
             '<p>Comment 01</p>'
         );
 
-        $this->assertSame(
+        self::assertSame(
             'userO1 said: <br/><br/><p>Comment 01</p>',
             $enhancer->getEnhancedValueWithCommentWriterInformation($comment, $commenter)
         );
@@ -56,8 +56,7 @@ class CommentXMLValueEnhancerTest extends \Tuleap\Test\PHPUnit\TestCase
     public function testItReturnsOnlyTheCommentValueWhenAuthorHasBeenIdentifiedOnTuleapSide(): void
     {
         $enhancer  = new CommentXMLValueEnhancer();
-        $commenter = \Mockery::mock(\PFUser::class);
-        $commenter->shouldReceive('getId')->andReturn(105);
+        $commenter = UserTestBuilder::buildWithId(105);
 
         $update_author = new ActiveJiraCloudUser(
             [
@@ -73,7 +72,7 @@ class CommentXMLValueEnhancerTest extends \Tuleap\Test\PHPUnit\TestCase
             '<p>Comment 01</p>'
         );
 
-        $this->assertSame(
+        self::assertSame(
             '<p>Comment 01</p>',
             $enhancer->getEnhancedValueWithCommentWriterInformation($comment, $commenter)
         );

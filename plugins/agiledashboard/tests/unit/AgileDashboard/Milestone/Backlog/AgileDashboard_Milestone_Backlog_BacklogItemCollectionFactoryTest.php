@@ -35,8 +35,8 @@ use PlanningFactory;
 use Tracker_Artifact_PriorityDao;
 use Tracker_ArtifactFactory;
 use Tracker_FormElement_Field_Integer;
-use Tuleap\AgileDashboard\BacklogItemPresenter;
 use Tuleap\AgileDashboard\BacklogItemDao;
+use Tuleap\AgileDashboard\BacklogItemPresenter;
 use Tuleap\AgileDashboard\ExplicitBacklog\ArtifactsInExplicitBacklogDao;
 use Tuleap\AgileDashboard\RemainingEffortValueRetriever;
 use Tuleap\AgileDashboard\Test\Builders\PlanningBuilder;
@@ -46,8 +46,9 @@ use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
-use Tuleap\Tracker\Test\Stub\Tracker\Permission\TrackersPermissionsPassthroughRetriever;
+use Tuleap\Tracker\Test\Stub\Permission\TrackersPermissionsPassthroughRetriever;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest extends TestCase //phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
 {
     private Tracker_Artifact_PriorityDao&MockObject $artifact_priority_dao;
@@ -188,15 +189,13 @@ final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest ex
 
         $sorted_collection = new AgileDashboard_Milestone_Backlog_BacklogItemCollection();
 
-        $this->backlog_item_builder->method('getCollection')->will(
-            self::onConsecutiveCalls(
-                new AgileDashboard_Milestone_Backlog_BacklogItemCollection(),
-                $open_closed_and_inconsistent_collection,
-                new AgileDashboard_Milestone_Backlog_BacklogItemCollection(),
-                new AgileDashboard_Milestone_Backlog_BacklogItemCollection(),
-                $inconsistent_collection,
-                $sorted_collection
-            )
+        $this->backlog_item_builder->method('getCollection')->willReturnOnConsecutiveCalls(
+            new AgileDashboard_Milestone_Backlog_BacklogItemCollection(),
+            $open_closed_and_inconsistent_collection,
+            new AgileDashboard_Milestone_Backlog_BacklogItemCollection(),
+            new AgileDashboard_Milestone_Backlog_BacklogItemCollection(),
+            $inconsistent_collection,
+            $sorted_collection
         );
 
         $this->artifact_factory->expects(self::once())->method('getParents')->willReturn([]);
@@ -375,11 +374,7 @@ final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest ex
 
         $item_presenter = $this->getItemPresenter($artifact);
 
-        $this->backlog_item_builder->method('getItem')->will(
-            self::onConsecutiveCalls(
-                $item_presenter
-            )
-        );
+        $this->backlog_item_builder->method('getItem')->willReturn($item_presenter);
 
         $this->planning_factory->expects(self::once())->method('getPlannings')->willReturn([]);
 
@@ -408,9 +403,17 @@ final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest ex
 
         $artifact_9  = ArtifactTestBuilder::anArtifact(9)->inTracker(TrackerTestBuilder::aTracker()->build())->build();
         $artifact_10 = ArtifactTestBuilder::anArtifact(10)->inTracker(TrackerTestBuilder::aTracker()->build())->build();
-        $this->artifact_factory->method('getArtifactById')
-            ->withConsecutive([9], [10])
-            ->willReturnOnConsecutiveCalls($artifact_9, $artifact_10);
+        $matcher     = $this->exactly(2);
+        $this->artifact_factory->expects($matcher)->method('getArtifactById')->willReturnCallback(function (...$parameters) use ($matcher, $artifact_9, $artifact_10) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame(9, $parameters[0]);
+                return $artifact_9;
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame(10, $parameters[0]);
+                return $artifact_10;
+            }
+        });
 
         $this->artifact_factory->expects(self::once())->method('getParents')->willReturn([]);
         $this->artifact_factory->expects(self::once())->method('getChildrenCount')->willReturn([]);

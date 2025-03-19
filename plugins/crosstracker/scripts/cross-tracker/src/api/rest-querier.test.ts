@@ -20,296 +20,121 @@
 import { describe, expect, it, vi } from "vitest";
 import { okAsync } from "neverthrow";
 import * as fetch_result from "@tuleap/fetch-result";
-import type { TrackerReference } from "./cross-tracker-rest-api-types";
-import {
-    getCSVReport,
-    getQueryResult,
-    getReport,
-    getReportContent,
-    getSortedProjectsIAmMemberOf,
-    getTrackersOfProject,
-    updateReport,
-} from "./rest-querier";
-import { ProjectIdentifier } from "../domain/ProjectIdentifier";
-import type { ProjectInfo } from "../type";
+import { createQuery, deleteQuery, getQueries, updateQuery } from "./rest-querier";
 
 describe("rest-querier", () => {
-    describe("getReport()", () => {
-        it(`will query the REST API and return the report`, async () => {
-            const first_tracker: TrackerReference = {
-                id: 63,
-                label: "Copeognatha",
-                project: { id: 111, label: "runagate", uri: "/projects/111", icon: "🌷" },
+    describe("getQueries()", () => {
+        it(`will query the REST API and return the queries`, async () => {
+            const widget = {
+                queries: [
+                    {
+                        id: "0194d59b-f37b-73e1-a553-cf143a3c1203",
+                        tql_query: '@title = "bla"',
+                        title: "TQL title",
+                        description: '@title = "bla"',
+                    },
+                ],
             };
-            const second_tracker: TrackerReference = {
-                id: 54,
-                label: "isocymene",
-                project: { id: 182, label: "antilens", uri: "/projects/182", icon: "" },
-            };
-            const report = {
-                trackers: [first_tracker, second_tracker],
-                expert_query: '@title = "bla"',
-                invalid_trackers: [second_tracker],
-            };
-            const getJSON = vi.spyOn(fetch_result, "getJSON").mockReturnValue(okAsync(report));
-            const report_id = 16;
+            const getJSON = vi.spyOn(fetch_result, "getJSON").mockReturnValue(okAsync(widget));
+            const widget_id = 16;
 
-            const result = await getReport(report_id);
+            const result = await getQueries(widget_id);
 
             expect(getJSON).toHaveBeenCalledWith(
-                fetch_result.uri`/api/v1/cross_tracker_reports/${report_id}`,
+                fetch_result.uri`/api/v1/crosstracker_widget/${widget_id}`,
             );
             if (!result.isOk()) {
                 throw Error("Expected an ok");
             }
-            expect(result.value.trackers).toStrictEqual([
-                {
-                    tracker: { id: first_tracker.id, label: first_tracker.label },
-                    project: first_tracker.project,
-                },
-                {
-                    tracker: { id: second_tracker.id, label: second_tracker.label },
-                    project: second_tracker.project,
-                },
-            ]);
-            expect(result.value.expert_query).toBe(report.expert_query);
-            expect(result.value.invalid_trackers).toStrictEqual([second_tracker]);
+            expect(result.value[0].tql_query).toBe(widget.queries[0].tql_query);
+            expect(result.value[0].title).toBe(widget.queries[0].title);
+            expect(result.value[0].description).toBe(widget.queries[0].description);
         });
     });
 
-    describe("getReportContent()", () => {
-        it(`will return the artifacts and the total number of artifacts`, async () => {
-            const total = 91;
-            const collection = { artifacts: [{ id: 100 }, { id: 33 }] };
-            const getResponse = vi.spyOn(fetch_result, "getResponse").mockReturnValue(
-                okAsync({
-                    headers: new Headers({
-                        "X-PAGINATION-SIZE": String(total),
-                    }),
-                    json: () => Promise.resolve(collection),
-                } as Response),
-            );
-            const limit = 30;
-            const offset = 30;
-            const report_id = 57;
+    describe("updateQuery()", () => {
+        it(`will send the given expert query to be saved by the REST API
+                and will return the query from the response`, async () => {
+            const tql_query =
+                "Select  @id, @project.name from @project = MY_PROJECTS() where @id > 2";
+            const query = {
+                id: "0194d59b-f37b-73e1-a553-cf143a3c1203",
+                tql_query,
+                title: " My TQL query",
+                description: "My description",
+                is_default: false,
+            };
+            const putJSON = vi.spyOn(fetch_result, "putJSON").mockReturnValue(okAsync(query));
 
-            const result = await getReportContent(report_id, limit, offset);
+            const result = await updateQuery(query, 15);
 
-            expect(getResponse).toHaveBeenCalledWith(
-                fetch_result.uri`/api/v1/cross_tracker_reports/${report_id}/content`,
-                { params: { limit, offset } },
+            expect(putJSON).toHaveBeenCalledWith(
+                fetch_result.uri`/api/v1/crosstracker_query/${query.id}`,
+                expect.any(Object),
             );
             if (!result.isOk()) {
                 throw Error("Expected an Ok");
             }
-            expect(result.value).toStrictEqual({ artifacts: collection.artifacts, total });
+            expect(result.value.tql_query).toBe(query.tql_query);
         });
     });
 
-    describe("getQueryResult()", () => {
-        it(`will send the given tracker ids and expert query to the REST API,
-            and will return the artifacts and the total number of artifacts`, async () => {
-            const total = 69;
-            const collection = { artifacts: [{ id: 26 }, { id: 89 }] };
-            const getResponse = vi.spyOn(fetch_result, "getResponse").mockReturnValue(
+    describe("createQuery()", () => {
+        it(`will send the given query to be saved by the REST API
+            and will return the created one from the response`, async () => {
+            const tql_query =
+                "Select  @id, @project.name from @project = MY_PROJECTS() where @id > 2";
+            const query = {
+                id: "",
+                tql_query,
+                title: " My TQL query",
+                description: "My description",
+                is_default: false,
+            };
+            const query_id = "0194d59b-f37b-73e1-a553-cf143a3c1203";
+            const postJSON = vi.spyOn(fetch_result, "postJSON").mockReturnValue(
                 okAsync({
-                    headers: new Headers({
-                        "X-PAGINATION-SIZE": String(total),
-                    }),
-                    json: () => Promise.resolve(collection),
-                } as Response),
-            );
-            const limit = 30;
-            const offset = 30;
-            const report_id = 72;
-            const trackers_id = [16, 80, 6];
-            const expert_query = '@title = "stalky"';
-
-            const result = await getQueryResult(
-                report_id,
-                trackers_id,
-                expert_query,
-                limit,
-                offset,
+                    id: query_id,
+                    tql_query,
+                    title: query.title,
+                    description: query.description,
+                }),
             );
 
-            expect(getResponse).toHaveBeenCalledWith(
-                fetch_result.uri`/api/v1/cross_tracker_reports/${report_id}/content`,
-                {
-                    params: {
-                        limit,
-                        offset,
-                        query: JSON.stringify({ trackers_id, expert_query }),
-                    },
-                },
+            const result = await createQuery(query, 15);
+
+            expect(postJSON).toHaveBeenCalledWith(
+                fetch_result.uri`/api/v1/crosstracker_query`,
+                expect.any(Object),
             );
             if (!result.isOk()) {
                 throw Error("Expected an Ok");
             }
-            expect(result.value).toStrictEqual({ artifacts: collection.artifacts, total });
+            expect(result.value.id).toBe(query_id);
+            expect(result.value.tql_query).toBe(query.tql_query);
         });
+    });
 
-        describe("updateReport()", () => {
-            it(`will send the given tracker ids and expert query to be saved by the REST API
-                and will return the report from the response`, async () => {
-                const expert_query = '@title = "dolous"';
-                const first_tracker: TrackerReference = {
-                    id: 461,
-                    label: "deputize",
-                    project: { id: 550, label: "uranographist", uri: "/projects/550", icon: "🌷" },
-                };
-                const second_tracker: TrackerReference = {
-                    id: 184,
-                    label: "Wiros",
-                    project: { id: 616, label: "misperform", uri: "/projects/616", icon: "" },
-                };
-                const report = {
-                    trackers: [first_tracker, second_tracker],
-                    expert_query,
-                    invalid_trackers: [second_tracker],
-                };
-                const putJSON = vi.spyOn(fetch_result, "putJSON").mockReturnValue(okAsync(report));
-                const report_id = 59;
+    describe("deleteQuery()", () => {
+        it(`will query the REST API and will return nothing`, async () => {
+            const query = {
+                id: "0194d59b-f37b-73e1-a553-cf143a3c1203",
+                tql_query: "SELECT @id FROM @project = 'self' WHERE @id >= 1",
+                title: "My query",
+                description: "My description",
+                is_default: false,
+            };
+            const del = vi.spyOn(fetch_result, "del").mockReturnValue(okAsync({} as Response));
 
-                const result = await updateReport(
-                    report_id,
-                    [first_tracker.id, second_tracker.id],
-                    expert_query,
-                );
+            const result = await deleteQuery(query);
 
-                expect(putJSON).toHaveBeenCalledWith(
-                    fetch_result.uri`/api/v1/cross_tracker_reports/${report_id}`,
-                    expect.any(Object),
-                );
-                if (!result.isOk()) {
-                    throw Error("Expected an Ok");
-                }
-                expect(result.value.trackers).toStrictEqual([
-                    {
-                        tracker: { id: first_tracker.id, label: first_tracker.label },
-                        project: first_tracker.project,
-                    },
-                    {
-                        tracker: { id: second_tracker.id, label: second_tracker.label },
-                        project: second_tracker.project,
-                    },
-                ]);
-                expect(result.value.expert_query).toBe(report.expert_query);
-                expect(result.value.invalid_trackers).toStrictEqual([second_tracker]);
-            });
-        });
-
-        describe("getSortedProjectsIAmMemberOf()", () => {
-            it(`will return the list of projects that current user is member of
-                and will sort the list by project label`, async () => {
-                const projects = [
-                    { id: 765, label: "physicianless" },
-                    { id: 239, label: "spur" },
-                    { id: 487, label: "castellano" },
-                ];
-                const getAllJSON = vi
-                    .spyOn(fetch_result, "getAllJSON")
-                    .mockReturnValue(okAsync(projects));
-
-                const result = await getSortedProjectsIAmMemberOf();
-
-                if (!result.isOk()) {
-                    throw Error("Expected an Ok");
-                }
-                expect(getAllJSON).toHaveBeenCalledWith(fetch_result.uri`/api/v1/projects`, {
-                    params: {
-                        limit: 50,
-                        query: JSON.stringify({ is_member_of: true }),
-                    },
-                });
-                expect(result.value).toStrictEqual([
-                    { id: 487, label: "castellano" },
-                    { id: 765, label: "physicianless" },
-                    { id: 239, label: "spur" },
-                ]);
-            });
-        });
-
-        describe("getTrackersOfProject()", () => {
-            it(`will return the list of trackers of a given project`, async () => {
-                const trackers = [{ id: 28 }, { id: 50 }];
-                const getAllJSON = vi
-                    .spyOn(fetch_result, "getAllJSON")
-                    .mockReturnValue(okAsync(trackers));
-                const project_id = 444;
-
-                const result = await getTrackersOfProject(
-                    ProjectIdentifier.fromProjectInfo({ id: project_id } as ProjectInfo),
-                );
-
-                if (!result.isOk()) {
-                    throw Error("Expected an Ok");
-                }
-                expect(getAllJSON).toHaveBeenCalledWith(
-                    fetch_result.uri`/api/v1/projects/${project_id}/trackers`,
-                    {
-                        params: {
-                            limit: 50,
-                            representation: "minimal",
-                        },
-                    },
-                );
-                expect(result.value).toStrictEqual(trackers);
-            });
-        });
-
-        describe("getCSVReport()", () => {
-            it("When there is only one page then it will return the first request", async () => {
-                const csv = `"id"\r\n65\r\n88\r\n`;
-                const getTextResponse = vi.spyOn(fetch_result, "getTextResponse").mockReturnValue(
-                    okAsync({
-                        headers: new Headers({ "X-PAGINATION-SIZE": "2" }),
-                        text: () => Promise.resolve(csv),
-                    } as Response),
-                );
-                const report_id = 72;
-
-                const result = await getCSVReport(report_id);
-
-                if (!result.isOk()) {
-                    throw Error("Expected an Ok");
-                }
-                expect(getTextResponse).toHaveBeenCalledWith(
-                    fetch_result.uri`/plugins/crosstracker/csv_export/${report_id}`,
-                    { params: { limit: 50, offset: 0 } },
-                );
-                expect(getTextResponse).toHaveBeenCalledTimes(1);
-                expect(result.value).toBe(csv);
-            });
-
-            it(`When there are two pages, then it will drop the header line of the second request
-                concat the two requests and return them`, async () => {
-                const csv = `"id"\r\n61\r\n26\r\n`;
-                const getTextResponse = vi.spyOn(fetch_result, "getTextResponse").mockReturnValue(
-                    okAsync({
-                        headers: new Headers({ "X-PAGINATION-SIZE": "70" }),
-                        text: () => Promise.resolve(csv),
-                    } as Response),
-                );
-                const report_id = 81;
-
-                const result = await getCSVReport(report_id);
-
-                if (!result.isOk()) {
-                    throw Error("Expected an Ok");
-                }
-                expect(getTextResponse).toHaveBeenCalledWith(
-                    fetch_result.uri`/plugins/crosstracker/csv_export/${report_id}`,
-                    { params: { limit: 50, offset: 0 } },
-                );
-                expect(getTextResponse).toHaveBeenCalledWith(
-                    fetch_result.uri`/plugins/crosstracker/csv_export/${report_id}`,
-                    { params: { limit: 50, offset: 50 } },
-                );
-                expect(getTextResponse).toHaveBeenCalledTimes(2);
-
-                expect(result.value).toBe(`"id"\r\n61\r\n26\r\n61\r\n26\r\n`);
-            });
+            expect(del).toHaveBeenCalledWith(
+                fetch_result.uri`/api/v1/crosstracker_query/${query.id}`,
+            );
+            if (!result.isOk()) {
+                throw Error("Expected an Ok");
+            }
+            expect(result.value).toBe(null);
         });
     });
 });

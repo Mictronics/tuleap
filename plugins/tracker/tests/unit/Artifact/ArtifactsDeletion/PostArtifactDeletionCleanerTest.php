@@ -29,16 +29,17 @@ use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Test\Builders\Fields\FileFieldBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class PostArtifactDeletionCleanerTest extends TestCase
 {
-    private CrossReferenceManager|\PHPUnit\Framework\MockObject\Stub $reference_manager;
-    private \Tracker_ArtifactDao|\PHPUnit\Framework\MockObject\Stub $artifact_dao;
+    private CrossReferenceManager|\PHPUnit\Framework\MockObject\MockObject $reference_manager;
+    private \Tracker_ArtifactDao|\PHPUnit\Framework\MockObject\MockObject $artifact_dao;
     private PostArtifactDeletionCleaner $cleaner;
 
     protected function setUp(): void
     {
-        $this->reference_manager = $this->createStub(CrossReferenceManager::class);
-        $this->artifact_dao      = $this->createStub(\Tracker_ArtifactDao::class);
+        $this->reference_manager = $this->createMock(CrossReferenceManager::class);
+        $this->artifact_dao      = $this->createMock(\Tracker_ArtifactDao::class);
 
         $this->cleaner = new PostArtifactDeletionCleaner($this->reference_manager, $this->artifact_dao);
     }
@@ -59,7 +60,7 @@ final class PostArtifactDeletionCleanerTest extends TestCase
         $artifact->method('getTracker')->willReturn($tracker);
 
         $file_changeset_value = $this->createStub(Tracker_Artifact_ChangesetValue_File::class);
-        $file                 = $this->createStub(Tracker_FileInfo::class);
+        $file                 = $this->createMock(Tracker_FileInfo::class);
         $file_changeset_value->method('getFiles')->willReturn([$file]);
         $file->expects(self::once())->method('deleteFiles');
 

@@ -18,11 +18,22 @@
  */
 
 import { ref } from "vue";
-import { getSectionsStatesCollection } from "@/sections/SectionsStatesCollection";
-import type { SectionsStatesCollection } from "@/sections/SectionsStatesCollection";
-import { getSectionStateBuilder } from "@/sections/SectionStateBuilder";
+import { getSectionsStatesCollection } from "@/sections/states/SectionsStatesCollection";
+import type { SectionsStatesCollection } from "@/sections/states/SectionsStatesCollection";
+import { getSectionStateBuilder } from "@/sections/states/SectionStateBuilder";
+import type { ReactiveStoredArtidocSection } from "@/sections/SectionsCollection";
 
 export const SectionsStatesCollectionStub = {
     build: (): SectionsStatesCollection =>
         getSectionsStatesCollection(getSectionStateBuilder(true, ref([]))),
+    fromReactiveStoredArtifactSections: (
+        sections: ReactiveStoredArtidocSection[],
+    ): SectionsStatesCollection => {
+        const states_collection = getSectionsStatesCollection(
+            getSectionStateBuilder(true, ref([])),
+        );
+        states_collection.createAllSectionsStates(sections);
+
+        return states_collection;
+    },
 };

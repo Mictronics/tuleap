@@ -26,12 +26,14 @@ namespace Tuleap\Baseline\REST;
 require_once __DIR__ . '/IntegrationTestCaseWithStubs.php';
 
 use DateTimeImmutable;
+use PHPUnit\Framework\Attributes\Before;
 use Tuleap\Baseline\Factory\BaselineArtifactFactory;
 use Tuleap\Baseline\Factory\BaselineFactory;
 use Tuleap\Baseline\Factory\TransientComparisonFactory;
 use Tuleap\GlobalLanguageMock;
 use Tuleap\REST\I18NRestException;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class BaselineControllerIntTest extends IntegrationTestCaseWithStubs
 {
     use GlobalLanguageMock;
@@ -39,7 +41,7 @@ class BaselineControllerIntTest extends IntegrationTestCaseWithStubs
     /** @var BaselineController */
     private $controller;
 
-    /** @before */
+    #[Before]
     public function getTestedComponent(): void
     {
         $this->controller = $this->getContainer()->get(BaselineController::class);

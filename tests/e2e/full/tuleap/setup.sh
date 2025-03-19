@@ -49,9 +49,9 @@ enable_plugins() {
         pullrequest \
         webauthn
 
-    sed -i -e 's#/var/lib/codendi#/var/lib/tuleap#g' /etc/tuleap/plugins/docman/etc/docman.inc
     sudo -u codendiadm /usr/bin/tuleap -c
-    sudo -u codendiadm /usr/bin/tuleap config-set feature_flag_enable_artidoc_freetext 1
+    sudo -u codendiadm /usr/bin/tuleap config-set feature_flag_enable_artidoc_fields 1
+    sudo -u codendiadm /usr/bin/tuleap config-set feature_flag_cross_tracker_widget_multiple_query 1
 
     instantiate_licence_manager
 }

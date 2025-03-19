@@ -23,13 +23,12 @@ namespace Tuleap\Layout;
 use ThemeVariant;
 use Tuleap\ForgeConfigSandbox;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ThemeVariantTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use ForgeConfigSandbox;
 
-    /**
-     * @dataProvider provideVariant
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideVariant')]
     public function testDefaultVariant(string $config, ThemeVariantColor $expected): void
     {
         \ForgeConfig::set('sys_default_theme_variant', $config);
@@ -73,9 +72,7 @@ final class ThemeVariantTest extends \Tuleap\Test\PHPUnit\TestCase
         self::assertEquals(ThemeVariantColor::Orange, $variant->getDefault());
     }
 
-    /**
-     * @dataProvider provideConfiguredAllowedVariants
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideConfiguredAllowedVariants')]
     public function testAllowedVariants(string $allowed, string $default, array $expected): void
     {
         \ForgeConfig::set('sys_default_theme_variant', $default);
@@ -112,9 +109,7 @@ final class ThemeVariantTest extends \Tuleap\Test\PHPUnit\TestCase
         ];
     }
 
-    /**
-     * @dataProvider provideVariantsForUser
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideVariantsForUser')]
     public function testForUser(string $preference, string $default, string $allowed, ThemeVariantColor $expected): void
     {
         \ForgeConfig::set('sys_default_theme_variant', $default);

@@ -50,13 +50,13 @@ use Tuleap\Tracker\Artifact\FileUploadDataProvider;
 final readonly class ArtidocController implements DispatchableWithRequest, DispatchableWithBurningParrot
 {
     #[FeatureFlagConfigKey(<<<'EOF'
-    Feature flag to allow freetext in artidoc documents.
+    Feature flag to allow display of fields in artidoc documents.
     0 to deactivate (default)
     1 to activate
     EOF
     )]
     #[ConfigKeyString('0')]
-    public const FREETEXT_FEATURE_FLAG = 'enable_artidoc_freetext';
+    public const FIELDS_FEATURE_FLAG = 'enable_artidoc_fields';
 
     public function __construct(
         private RetrieveArtidocWithContext $retrieve_artidoc,
@@ -106,7 +106,8 @@ final readonly class ArtidocController implements DispatchableWithRequest, Dispa
             throw new \LogicException('Service is missing');
         }
 
-        $permissions_manager = \Docman_PermissionsManager::instance((int) $service->getProject()->getId());
+        $project_id          = (int) $service->getProject()->getId();
+        $permissions_manager = \Docman_PermissionsManager::instance($project_id);
         $user_can_write      = $permissions_manager->userCanWrite($user, $document_information->document->getId());
 
         $allowed_max_size = \ForgeConfig::getInt('sys_max_size_upload');
@@ -126,6 +127,7 @@ final readonly class ArtidocController implements DispatchableWithRequest, Dispa
                 'artidoc',
                 new ArtidocPresenter(
                     $document_information->document->getId(),
+                    $project_id,
                     $user_can_write,
                     $title,
                     $this->getTrackerRepresentation($this->configured_tracker_retriever->getTracker($document_information->document), $user),
@@ -135,7 +137,7 @@ final readonly class ArtidocController implements DispatchableWithRequest, Dispa
                     ),
                     $allowed_max_size,
                     $this->event_dispatcher->dispatch(new GetPdfTemplatesEvent($user))->getTemplates(),
-                    \ForgeConfig::getFeatureFlag(self::FREETEXT_FEATURE_FLAG) === '1',
+                    \ForgeConfig::getFeatureFlag(self::FIELDS_FEATURE_FLAG) === '1',
                 )
             );
         $service->displayFooter();

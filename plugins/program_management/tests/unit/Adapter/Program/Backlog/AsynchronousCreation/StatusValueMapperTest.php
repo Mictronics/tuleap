@@ -29,7 +29,11 @@ use Tuleap\ProgramManagement\Domain\Program\Backlog\ProgramIncrement\Source\Chan
 use Tuleap\ProgramManagement\Domain\Program\Backlog\ProgramIncrement\Source\Fields\NoDuckTypedMatchingValueException;
 use Tuleap\ProgramManagement\Tests\Stub\RetrieveStatusValuesStub;
 use Tuleap\ProgramManagement\Tests\Stub\StatusFieldReferenceStub;
+use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticValueBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\List\ListUserValueBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\List\ListUserGroupValueBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class StatusValueMapperTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private const FIRST_BIND_VALUE_ID  = 1287;
@@ -56,44 +60,44 @@ final class StatusValueMapperTest extends \Tuleap\Test\PHPUnit\TestCase
             'It matches value by label'                                           => [
                 '2',
                 self::SECOND_BIND_VALUE_ID,
-                new \Tracker_FormElement_Field_List_Bind_StaticValue(self::FIRST_BIND_VALUE_ID, '1', 'Irrelevant', 0, false),
-                new \Tracker_FormElement_Field_List_Bind_StaticValue(self::SECOND_BIND_VALUE_ID, '2', 'Irrelevant', 1, false),
+                ListStaticValueBuilder::aStaticValue('1')->withId(self::FIRST_BIND_VALUE_ID)->isHidden(false)->build(),
+                ListStaticValueBuilder::aStaticValue('2')->withId(self::SECOND_BIND_VALUE_ID)->isHidden(false)->build(),
             ],
             'It matches value label with different cases'                         => [
                 'a',
                 self::FIRST_BIND_VALUE_ID,
-                new \Tracker_FormElement_Field_List_Bind_StaticValue(self::FIRST_BIND_VALUE_ID, 'A', 'Irrelevant', 0, false),
-                new \Tracker_FormElement_Field_List_Bind_StaticValue(self::SECOND_BIND_VALUE_ID, 'b', 'Irrelevant', 1, false),
+                ListStaticValueBuilder::aStaticValue('A')->withId(self::FIRST_BIND_VALUE_ID)->isHidden(false)->build(),
+                ListStaticValueBuilder::aStaticValue('b')->withId(self::SECOND_BIND_VALUE_ID)->isHidden(false)->build(),
             ],
             'It matches value even if it is hidden'                               => [
                 '2',
                 self::SECOND_BIND_VALUE_ID,
-                new \Tracker_FormElement_Field_List_Bind_StaticValue(self::FIRST_BIND_VALUE_ID, '1', 'Irrelevant', 0, false),
-                new \Tracker_FormElement_Field_List_Bind_StaticValue(self::SECOND_BIND_VALUE_ID, '2', 'Irrelevant', 1, true),
+                ListStaticValueBuilder::aStaticValue('1')->withId(self::FIRST_BIND_VALUE_ID)->isHidden(false)->build(),
+                ListStaticValueBuilder::aStaticValue('2')->withId(self::SECOND_BIND_VALUE_ID)->isHidden(true)->build(),
             ],
             'It matches first value if multiple values have the same label'       => [
                 '1',
                 self::FIRST_BIND_VALUE_ID,
-                new \Tracker_FormElement_Field_List_Bind_StaticValue(self::FIRST_BIND_VALUE_ID, '1', 'Irrelevant', 0, false),
-                new \Tracker_FormElement_Field_List_Bind_StaticValue(self::SECOND_BIND_VALUE_ID, '1', 'Irrelevant', 1, false),
+                ListStaticValueBuilder::aStaticValue('1')->withId(self::FIRST_BIND_VALUE_ID)->isHidden(false)->build(),
+                ListStaticValueBuilder::aStaticValue('1')->withId(self::FIRST_BIND_VALUE_ID)->isHidden(false)->build(),
             ],
             'It matches user bind values by display name'                         => [
                 'Celia Apollo',
                 self::SECOND_BIND_VALUE_ID,
-                new \Tracker_FormElement_Field_List_Bind_UsersValue(self::FIRST_BIND_VALUE_ID, 'Irrelevant', 'Mildred Favorito'),
-                new \Tracker_FormElement_Field_List_Bind_UsersValue(self::SECOND_BIND_VALUE_ID, 'Irrelevant', 'Celia Apollo'),
+                ListUserValueBuilder::aUserWithId(self::FIRST_BIND_VALUE_ID)->withDisplayedName('Mildred Favorito')->build(),
+                ListUserValueBuilder::aUserWithId(self::SECOND_BIND_VALUE_ID)->withDisplayedName('Celia Apollo')->build(),
             ],
             'It matches username with different case'                             => [
                 'CELIA APOLLO',
                 self::FIRST_BIND_VALUE_ID,
-                new \Tracker_FormElement_Field_List_Bind_UsersValue(self::FIRST_BIND_VALUE_ID, 'Irrelevant', 'Celia Apollo'),
-                new \Tracker_FormElement_Field_List_Bind_UsersValue(self::SECOND_BIND_VALUE_ID, 'Irrelevant', 'Mildred Favorito'),
+                ListUserValueBuilder::aUserWithId(self::SECOND_BIND_VALUE_ID)->withDisplayedName('Mildred Favorito')->build(),
+                ListUserValueBuilder::aUserWithId(self::FIRST_BIND_VALUE_ID)->withDisplayedName('Celia Apollo')->build(),
             ],
             'It matches first value if multiple users have the same display name' => [
                 'Celia Apollo',
                 self::FIRST_BIND_VALUE_ID,
-                new \Tracker_FormElement_Field_List_Bind_UsersValue(self::FIRST_BIND_VALUE_ID, 'Irrelevant', 'Celia Apollo'),
-                new \Tracker_FormElement_Field_List_Bind_UsersValue(self::SECOND_BIND_VALUE_ID, 'Irrelevant', 'Celia Apollo'),
+                ListUserValueBuilder::aUserWithId(self::FIRST_BIND_VALUE_ID)->withDisplayedName('Celia Apollo')->build(),
+                ListUserValueBuilder::aUserWithId(self::SECOND_BIND_VALUE_ID)->withDisplayedName('Celia Apollo')->build(),
             ],
             'It matches dynamic user group name'                                  => [
                 'project_members',
@@ -127,9 +131,7 @@ final class StatusValueMapperTest extends \Tuleap\Test\PHPUnit\TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderMatchingValue
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderMatchingValue')]
     public function testItMapsValuesByDuckTyping(
         string $source_label,
         int $expected_bind_value_id,
@@ -186,27 +188,9 @@ final class StatusValueMapperTest extends \Tuleap\Test\PHPUnit\TestCase
         string $second_label,
         string $third_label,
     ): \Tracker_FormElement_Field_List {
-        $first_value  = new \Tracker_FormElement_Field_List_Bind_StaticValue(
-            self::FIRST_BIND_VALUE_ID,
-            $first_label,
-            'Irrelevant',
-            0,
-            false
-        );
-        $second_value = new \Tracker_FormElement_Field_List_Bind_StaticValue(
-            self::SECOND_BIND_VALUE_ID,
-            $second_label,
-            'Irrelevant',
-            0,
-            false
-        );
-        $third_value  = new \Tracker_FormElement_Field_List_Bind_StaticValue(
-            self::THIRD_BIND_VALUE_ID,
-            $third_label,
-            'Irrelevant',
-            0,
-            false
-        );
+        $first_value  = ListStaticValueBuilder::aStaticValue($first_label)->withId(self::FIRST_BIND_VALUE_ID)->build();
+        $second_value = ListStaticValueBuilder::aStaticValue($second_label)->withId(self::SECOND_BIND_VALUE_ID)->build();
+        $third_value  = ListStaticValueBuilder::aStaticValue($third_label)->withId(self::THIRD_BIND_VALUE_ID)->build();
 
         $static_bind = $this->createStub(\Tracker_FormElement_Field_List_Bind_Static::class);
         $static_bind->method('getAllValues')->willReturn([$first_value, $second_value, $third_value]);
@@ -242,10 +226,7 @@ final class StatusValueMapperTest extends \Tuleap\Test\PHPUnit\TestCase
         string $user_group_name,
         bool $is_hidden,
     ): \Tracker_FormElement_Field_List_Bind_UgroupsValue {
-        return new \Tracker_FormElement_Field_List_Bind_UgroupsValue(
-            $bind_value_id,
-            new \ProjectUGroup(['ugroup_id' => $user_group_id, 'name' => $user_group_name]),
-            $is_hidden
-        );
+        $project_ugroup = new \ProjectUGroup(['ugroup_id' => $user_group_id, 'name' => $user_group_name]);
+        return ListUserGroupValueBuilder::aUserGroupValue($project_ugroup)->withId($bind_value_id)->isHidden($is_hidden)->build();
     }
 }

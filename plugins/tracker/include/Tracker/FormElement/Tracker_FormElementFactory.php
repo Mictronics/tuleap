@@ -134,15 +134,6 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
     public const GET_CLASSNAMES = 'tracker_formelement_get_classnames';
 
     /**
-     * Get the visitor responsible of the display of create interface for the element
-     *
-     * Params:
-     *  - all_used_elements => Tracker_FormElement[]
-     *  - visitor           => (output) Tracker_FormElement_View_Admin_CreateVisitor
-     */
-    public const VIEW_ADMIN_CREATE_VISITOR = 'tracker_formelement_factory_view_admin_create_visitor';
-
-    /**
      * A protected constructor; prevents direct creation of object
      */
     protected function __construct()
@@ -945,14 +936,14 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
             if ($id = $this->getDao()->duplicate($from_row['id'], $to_tracker_id)) {
                 $created_form_element = $this->getFormElementById($id);
                 if ($created_form_element) {
-                    $created_values = $created_form_element->duplicate($from_row['id'], $id);
+                    $element_duplicator = $created_form_element->duplicate((int) $from_row['id']);
                     if ($has_workflow) {
                         $workflow = $this->getFormElementById($from_row['id'])->getWorkflow();
                     }
                     $mapping[] = [
                         'from'    => (int) $from_row['id'],
                         'to'      => $id,
-                        'values'  => $created_values,
+                        'values'  => $element_duplicator->getMapping(),
                         'workflow' => $has_workflow,
                     ];
                     $type      = $this->getType($created_form_element);
@@ -1466,7 +1457,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
         $html  = '';
         $html .= '<div class="tracker-admin-palette-content">';
         foreach ($event->getKlasses() as $type => $klass) {
-            $html .= $this->getFactoryButton($klass, 'create-formElement[' .  urlencode($type) . ']', $tracker);
+            $html .= '<form data-test="create-form-element-block">' . $this->getFactoryButton($klass, 'create-formElement[' .  urlencode($type) . ']', $tracker) . '</form>';
         }
         $html .= '</div>';
 
@@ -1495,7 +1486,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
             $description = $label;
         }
 
-        $button .= '<a class="' . $button_class . '" name="' . $name . '" title="' . $hp->purify($description, CODENDI_PURIFIER_CONVERT_HTML) . '"><span>';
+        $button .= '<a class="' . $button_class . '" name="' . $name . '" title="' . $hp->purify($description, CODENDI_PURIFIER_CONVERT_HTML) . '" data-test="create-form-element"><span>';
         $button .= '<img width="16" height="16" alt="" src="' . $icon . '" />';
         $button .=  $hp->purify($label, CODENDI_PURIFIER_CONVERT_HTML);
         $button .= '</span></a>';
@@ -1552,13 +1543,6 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
                 $visitor = new Tracker_FormElement_View_Admin_CreateSharedVisitor($allUsedElements);
             } else {
                 $visitor = new Tracker_FormElement_View_Admin_CreateVisitor($allUsedElements);
-                $this->getEventManager()->processEvent(
-                    self::VIEW_ADMIN_CREATE_VISITOR,
-                    [
-                        'all_used_elements' => $allUsedElements,
-                        'visitor'           => &$visitor,
-                    ]
-                );
             }
 
             $visitor->setType($type);

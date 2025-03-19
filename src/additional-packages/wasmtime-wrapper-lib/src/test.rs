@@ -11,28 +11,19 @@ mod tests {
     #[test]
     fn expected_output_normal() {
         let config_json = r#"{
-            "wasm_module_path": "./test-wasm-modules/target/wasm32-wasi/release/happy-path.wasm",
+            "wasm_module_path": "./test-wasm-modules/target/wasm32-wasip1/release/happy-path.wasm",
             "mount_points": [],
             "limits": {
                 "max_exec_time_in_ms": 80,
                 "max_memory_size_in_bytes": 4194304
             }
         }"#;
-        let config_json_c_str = CString::new(config_json).unwrap();
-        let config_json_c_world: *const c_char = config_json_c_str.as_ptr() as *const c_char;
 
-        let module_input_json = "Hello world !";
-        let module_input_json_c_str = CString::new(module_input_json).unwrap();
-        let module_input_json_c_world: *const c_char =
-            module_input_json_c_str.as_ptr() as *const c_char;
+        let str_out = run_wasm_module(config_json, "Hello world!");
 
-        let c_out = unsafe { callWasmModule(config_json_c_world, module_input_json_c_world) };
-        let cstr_out: &CStr = unsafe { CStr::from_ptr(c_out) };
-        let str_out: &str = cstr_out.to_str().unwrap();
+        let json_out: SuccessResponseJson = serde_json::from_str(&str_out).unwrap();
 
-        let json_out: SuccessResponseJson = serde_json::from_str(str_out).unwrap();
-
-        assert_eq!("Hello world !", json_out.data);
+        assert_eq!("Hello world!", json_out.data);
         assert!(json_out.stats.exec_time_as_seconds > 0.0);
         assert!(json_out.stats.memory_in_bytes == 1114112);
     }
@@ -40,7 +31,7 @@ mod tests {
     #[test]
     fn can_read_from_preopened_dirs() {
         let config_json = r#"{
-            "wasm_module_path": "./test-wasm-modules/target/wasm32-wasi/release/read-from-preopened-dir.wasm",
+            "wasm_module_path": "./test-wasm-modules/target/wasm32-wasip1/release/read-from-preopened-dir.wasm",
             "mount_points": [
                 {
                     "host_path": "./test-wasm-modules/TryToReadHere0",
@@ -56,18 +47,10 @@ mod tests {
                 "max_memory_size_in_bytes": 4194304
             }
         }"#;
-        let config_json_c_str = CString::new(config_json).unwrap();
-        let config_json_c_world: *const c_char = config_json_c_str.as_ptr() as *const c_char;
 
-        let module_input_json = "";
-        let module_input_json_c_str = CString::new(module_input_json).unwrap();
-        let module_input_json_c_world: *const c_char =
-            module_input_json_c_str.as_ptr() as *const c_char;
+        let str_out = run_wasm_module(config_json, "");
 
-        let c_out = unsafe { callWasmModule(config_json_c_world, module_input_json_c_world) };
-        let cstr_out: &CStr = unsafe { CStr::from_ptr(c_out) };
-        let str_out: &str = cstr_out.to_str().unwrap();
-        let json_out: SuccessResponseJson = serde_json::from_str(str_out).unwrap();
+        let json_out: SuccessResponseJson = serde_json::from_str(&str_out).unwrap();
 
         let file0 = fs::read_to_string("./test-wasm-modules/TryToReadHere0/ReadTest.txt").unwrap();
         let file1 = fs::read_to_string("./test-wasm-modules/TryToReadHere1/ReadTest.txt").unwrap();
@@ -80,7 +63,7 @@ mod tests {
     #[test]
     fn write_to_preopened_dir_fails() {
         let config_json = r#"{
-            "wasm_module_path": "./test-wasm-modules/target/wasm32-wasi/release/write-to-preopened-dir.wasm",
+            "wasm_module_path": "./test-wasm-modules/target/wasm32-wasip1/release/write-to-preopened-dir.wasm",
             "mount_points": [{
                 "host_path": "./test-wasm-modules/TryToReadHere0",
                 "guest_path": "/git-dir-7331/"
@@ -90,19 +73,10 @@ mod tests {
                 "max_memory_size_in_bytes": 4194304
             }
         }"#;
-        let config_json_c_str = CString::new(config_json).unwrap();
-        let config_json_c_world: *const c_char = config_json_c_str.as_ptr() as *const c_char;
 
-        let module_input_json = "";
-        let module_input_json_c_str = CString::new(module_input_json).unwrap();
-        let module_input_json_c_world: *const c_char =
-            module_input_json_c_str.as_ptr() as *const c_char;
+        let str_out = run_wasm_module(config_json, "");
 
-        let c_out = unsafe { callWasmModule(config_json_c_world, module_input_json_c_world) };
-        let cstr_out: &CStr = unsafe { CStr::from_ptr(c_out) };
-        let str_out: &str = cstr_out.to_str().unwrap();
-        println!("{}", str_out);
-        let json_out: SuccessResponseJson = serde_json::from_str(str_out).unwrap();
+        let json_out: SuccessResponseJson = serde_json::from_str(&str_out).unwrap();
 
         assert_eq!(
             "Write permissions are denied: Operation not permitted (os error 63)",
@@ -134,7 +108,7 @@ mod tests {
     #[test]
     fn module_input_json_ptr_is_null_error() {
         let config_json = r#"{
-            "wasm_module_path": "./test-wasm-modules/target/wasm32-wasi/release/happy-path.wasm",
+            "wasm_module_path": "./test-wasm-modules/target/wasm32-wasip1/release/happy-path.wasm",
             "mount_points": [],
             "limits": {
                 "max_exec_time_in_ms": 80,
@@ -159,27 +133,18 @@ mod tests {
     #[test]
     fn module_not_found() {
         let config_json = r#"{
-            "wasm_module_path": "./test-wasm-modules/target/wasm32-wasi/release/i-do-not-exist.wasm",
+            "wasm_module_path": "./test-wasm-modules/target/wasm32-wasip1/release/i-do-not-exist.wasm",
             "mount_points": [],
             "limits": {
                 "max_exec_time_in_ms": 80,
                 "max_memory_size_in_bytes": 4194304
             }
         }"#;
-        let config_json_c_str = CString::new(config_json).unwrap();
-        let config_json_c_world: *const c_char = config_json_c_str.as_ptr() as *const c_char;
 
-        let module_input_json = "";
-        let module_input_json_c_str = CString::new(module_input_json).unwrap();
-        let module_input_json_c_world: *const c_char =
-            module_input_json_c_str.as_ptr() as *const c_char;
-
-        let c_out = unsafe { callWasmModule(config_json_c_world, module_input_json_c_world) };
-        let cstr_out: &CStr = unsafe { CStr::from_ptr(c_out) };
-        let str_out: &str = cstr_out.to_str().unwrap();
+        let str_out = run_wasm_module(config_json, "");
 
         assert_eq!(
-            r#"{"internal_error":"Failed to load the wasm module: failed to read input file: ./test-wasm-modules/target/wasm32-wasi/release/i-do-not-exist.wasm"}"#,
+            r#"{"internal_error":"Failed to load the wasm module: failed to read input file: ./test-wasm-modules/target/wasm32-wasip1/release/i-do-not-exist.wasm"}"#,
             str_out
         );
     }
@@ -187,26 +152,17 @@ mod tests {
     #[test]
     fn module_exceeding_max_running_time_gets_killed() {
         let config_json = r#"{
-            "wasm_module_path": "./test-wasm-modules/target/wasm32-wasi/release/running-time.wasm",
+            "wasm_module_path": "./test-wasm-modules/target/wasm32-wasip1/release/running-time.wasm",
             "mount_points": [],
             "limits": {
                 "max_exec_time_in_ms": 80,
                 "max_memory_size_in_bytes": 4194304
             }
         }"#;
-        let config_json_c_str = CString::new(config_json).unwrap();
-        let config_json_c_world: *const c_char = config_json_c_str.as_ptr() as *const c_char;
 
-        let module_input_json = "";
-        let module_input_json_c_str = CString::new(module_input_json).unwrap();
-        let module_input_json_c_world: *const c_char =
-            module_input_json_c_str.as_ptr() as *const c_char;
+        let str_out = run_wasm_module(config_json, "");
 
-        let c_out = unsafe { callWasmModule(config_json_c_world, module_input_json_c_world) };
-        let cstr_out: &CStr = unsafe { CStr::from_ptr(c_out) };
-        let str_out: &str = cstr_out.to_str().unwrap();
-
-        let json_out: UserErrorJson = serde_json::from_str(str_out).unwrap();
+        let json_out: UserErrorJson = serde_json::from_str(&str_out).unwrap();
 
         assert_eq!(
             "The module has exceeded the 80 ms of allowed computation time",
@@ -219,26 +175,17 @@ mod tests {
     #[test]
     fn wasm_module_allocate_too_much_memory() {
         let config_json = r#"{
-            "wasm_module_path": "./test-wasm-modules/target/wasm32-wasi/release/memory-alloc-fail.wasm",
+            "wasm_module_path": "./test-wasm-modules/target/wasm32-wasip1/release/memory-alloc-fail.wasm",
             "mount_points": [],
             "limits": {
                 "max_exec_time_in_ms": 80,
                 "max_memory_size_in_bytes": 4194304
             }
         }"#;
-        let config_json_c_str = CString::new(config_json).unwrap();
-        let config_json_c_world: *const c_char = config_json_c_str.as_ptr() as *const c_char;
 
-        let module_input_json = "";
-        let module_input_json_c_str = CString::new(module_input_json).unwrap();
-        let module_input_json_c_world: *const c_char =
-            module_input_json_c_str.as_ptr() as *const c_char;
+        let str_out = run_wasm_module(config_json, "");
 
-        let c_out = unsafe { callWasmModule(config_json_c_world, module_input_json_c_world) };
-        let cstr_out: &CStr = unsafe { CStr::from_ptr(c_out) };
-        let str_out: &str = cstr_out.to_str().unwrap();
-
-        let json_out: UserErrorJson = serde_json::from_str(str_out).unwrap();
+        let json_out: UserErrorJson = serde_json::from_str(&str_out).unwrap();
 
         assert_eq!(
             "wasm `unreachable` instruction executed, your module *most probably* tried to allocate more than the 4194304 bytes of memory that it is allowed to use",
@@ -250,31 +197,97 @@ mod tests {
     }
 
     #[test]
-    fn wasm_module_allocate_okay_amount_of_memory() {
+    fn wasm_module_allocate_too_much_initial_memory() {
         let config_json = r#"{
-            "wasm_module_path": "./test-wasm-modules/target/wasm32-wasi/release/memory-alloc-success.wasm",
+            "wasm_module_path": "./test-wasm-modules/large_initial_memory.wasm",
             "mount_points": [],
             "limits": {
                 "max_exec_time_in_ms": 80,
                 "max_memory_size_in_bytes": 4194304
             }
         }"#;
-        let config_json_c_str = CString::new(config_json).unwrap();
-        let config_json_c_world: *const c_char = config_json_c_str.as_ptr() as *const c_char;
 
-        let module_input_json = "";
-        let module_input_json_c_str = CString::new(module_input_json).unwrap();
-        let module_input_json_c_world: *const c_char =
-            module_input_json_c_str.as_ptr() as *const c_char;
+        let str_out = run_wasm_module(config_json, "");
 
-        let c_out = unsafe { callWasmModule(config_json_c_world, module_input_json_c_world) };
-        let cstr_out: &CStr = unsafe { CStr::from_ptr(c_out) };
-        let str_out: &str = cstr_out.to_str().unwrap();
+        println!("{}", str_out);
 
-        let json_out: SuccessResponseJson = serde_json::from_str(str_out).unwrap();
+        let json_out: UserErrorJson = serde_json::from_str(&str_out).unwrap();
+
+        assert_eq!(
+            "memory minimum size of 65536 pages exceeds memory limits",
+            json_out.user_error
+        );
+
+        assert!(json_out.stats.exec_time_as_seconds == 0.0);
+        assert!(json_out.stats.memory_in_bytes == 0);
+    }
+
+    #[test]
+    fn wasm_module_allocate_okay_amount_of_memory() {
+        let config_json = r#"{
+            "wasm_module_path": "./test-wasm-modules/target/wasm32-wasip1/release/memory-alloc-success.wasm",
+            "mount_points": [],
+            "limits": {
+                "max_exec_time_in_ms": 80,
+                "max_memory_size_in_bytes": 4194304
+            }
+        }"#;
+
+        let str_out = run_wasm_module(config_json, "");
+
+        let json_out: SuccessResponseJson = serde_json::from_str(&str_out).unwrap();
 
         assert_eq!("Memory Ok", json_out.data);
         assert!(json_out.stats.exec_time_as_seconds > 0.0);
         assert!(json_out.stats.memory_in_bytes == 3211264);
+    }
+
+    #[test]
+    fn explicit_exit_0() {
+        let config_json = r#"{
+            "wasm_module_path": "./test-wasm-modules/target/wasm32-wasip1/release/explicit-exit.wasm",
+            "mount_points": [],
+            "limits": {
+                "max_exec_time_in_ms": 80,
+                "max_memory_size_in_bytes": 4194304
+            }
+        }"#;
+
+        let str_out = run_wasm_module(config_json, "success");
+
+        let json_out: SuccessResponseJson = serde_json::from_str(&str_out).unwrap();
+
+        assert_eq!("", json_out.data);
+    }
+
+    #[test]
+    fn explicit_exit_1() {
+        let config_json = r#"{
+            "wasm_module_path": "./test-wasm-modules/target/wasm32-wasip1/release/explicit-exit.wasm",
+            "mount_points": [],
+            "limits": {
+                "max_exec_time_in_ms": 80,
+                "max_memory_size_in_bytes": 4194304
+            }
+        }"#;
+
+        let str_out = run_wasm_module(config_json, "fail");
+
+        let json_out: UserErrorJson = serde_json::from_str(&str_out).unwrap();
+
+        assert!(json_out.user_error.contains("exit status 1"));
+    }
+
+    fn run_wasm_module(config: &str, input: &str) -> String {
+        let config_c_str = CString::new(config).unwrap();
+        let config_c_char: *const c_char = config_c_str.as_ptr() as *const c_char;
+
+        let module_input_c_str = CString::new(input).unwrap();
+        let module_input_c_char: *const c_char = module_input_c_str.as_ptr() as *const c_char;
+
+        let c_out = unsafe { callWasmModule(config_c_char, module_input_c_char) };
+        let cstr_out: &CStr = unsafe { CStr::from_ptr(c_out) };
+
+        return cstr_out.to_str().unwrap().to_string();
     }
 }

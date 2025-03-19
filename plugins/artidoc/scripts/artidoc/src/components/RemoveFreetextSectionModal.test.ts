@@ -21,10 +21,13 @@ import { shallowMount } from "@vue/test-utils";
 import type { VueWrapper } from "@vue/test-utils";
 import { describe, it, expect, beforeEach } from "vitest";
 import { createGettext } from "vue3-gettext";
-import type { SectionsCollection, StoredArtidocSection } from "@/sections/SectionsCollection";
+import type {
+    ReactiveStoredArtidocSection,
+    SectionsCollection,
+} from "@/sections/SectionsCollection";
 import { CONFIGURATION_STORE } from "@/stores/configuration-store";
 import { ConfigurationStoreStub } from "@/helpers/stubs/ConfigurationStoreStub";
-import { SECTIONS_COLLECTION } from "@/sections/sections-collection-injection-key";
+import { SECTIONS_COLLECTION } from "@/sections/states/sections-collection-injection-key";
 import FreetextSectionFactory from "@/helpers/freetext-section.factory";
 import { SectionsCollectionStub } from "@/sections/stubs/SectionsCollectionStub";
 import {
@@ -35,18 +38,22 @@ import type { UseRemoveFreetextSectionModal } from "@/composables/useRemoveFreet
 import RemoveFreetextSectionModal from "@/components/RemoveFreetextSectionModal.vue";
 import { SET_GLOBAL_ERROR_MESSAGE } from "@/global-error-message-injection-key";
 import { noop } from "@/helpers/noop";
-import type { RemoveSections } from "@/sections/SectionsRemover";
+import type { RemoveSections } from "@/sections/remove/SectionsRemover";
 import { SectionsRemoverStub } from "@/sections/stubs/SectionsRemoverStub";
-import { CreateStoredSections } from "@/sections/CreateStoredSections";
+import { ReactiveStoredArtidocSectionStub } from "@/sections/stubs/ReactiveStoredArtidocSectionStub";
 
 describe("RemoveFreetextSectionModal", () => {
-    let freetext_section: StoredArtidocSection,
+    let freetext_section: ReactiveStoredArtidocSection,
         sections_collection: SectionsCollection,
         bus: UseRemoveFreetextSectionModal;
 
     beforeEach(() => {
-        freetext_section = CreateStoredSections.fromArtidocSection(FreetextSectionFactory.create());
-        sections_collection = SectionsCollectionStub.withSections([freetext_section]);
+        freetext_section = ReactiveStoredArtidocSectionStub.fromSection(
+            FreetextSectionFactory.create(),
+        );
+        sections_collection = SectionsCollectionStub.fromReactiveStoredArtifactSections([
+            freetext_section,
+        ]);
 
         bus = useRemoveFreetextSectionModal();
     });

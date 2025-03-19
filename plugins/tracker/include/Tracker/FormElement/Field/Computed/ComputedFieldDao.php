@@ -21,44 +21,15 @@
 
 namespace Tuleap\Tracker\FormElement\Field\Computed;
 
+use DataAccessObject;
 use DateTime;
-use Tuleap\Tracker\FormElement\SpecificPropertiesDao;
 
-class ComputedFieldDao extends SpecificPropertiesDao
+class ComputedFieldDao extends DataAccessObject
 {
     public function __construct()
     {
         parent::__construct();
         $this->table_name = 'tracker_field_computed';
-    }
-
-    public function save($field_id, $row)
-    {
-        $field_id = $this->da->escapeInt($field_id);
-
-        $target_field_name = '';
-        if (isset($row['target_field_name'])) {
-            $target_field_name = $row['target_field_name'];
-        }
-        $target_field_name = $this->da->quoteSmart($target_field_name);
-
-        $default_value = $this->da->escapeFloat($row['default_value'] ?? '');
-
-        $sql = "REPLACE INTO tracker_field_computed (field_id, default_value, target_field_name)
-                VALUES ($field_id, $default_value, $target_field_name)";
-
-        return $this->retrieve($sql);
-    }
-
-    public function duplicate(int $from_field_id, int $to_field_id): bool
-    {
-        $from_field_id = $this->da->escapeInt($from_field_id);
-        $to_field_id   = $this->da->escapeInt($to_field_id);
-
-        $sql = "REPLACE INTO $this->table_name (field_id, target_field_name)
-                SELECT $to_field_id, target_field_name FROM $this->table_name WHERE field_id = $from_field_id";
-
-        return $this->update($sql);
     }
 
     /**

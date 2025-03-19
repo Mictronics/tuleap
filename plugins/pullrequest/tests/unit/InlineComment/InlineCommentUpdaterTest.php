@@ -27,6 +27,7 @@ use Tuleap\PullRequest\FileUniDiff;
 use Tuleap\PullRequest\Tests\Builders\InlineCommentTestBuilder;
 use Tuleap\PullRequest\UniDiffLine;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class InlineCommentUpdaterTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private FileUniDiff $original_diff;
@@ -113,7 +114,7 @@ final class InlineCommentUpdaterTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $this->assertCount(1, $updated_comments);
         $this->assertFalse($updated_comments[0]->isOutdated());
-        $this->assertSame(3, $updated_comments[0]->getUnidiffOffset());
+        self::assertSame(3, $updated_comments[0]->getUnidiffOffset());
     }
 
     public function testItShouldBeMovedIfLineWasKeptAndLineIsMoved(): void
@@ -132,7 +133,7 @@ final class InlineCommentUpdaterTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $this->assertCount(1, $updated_comments);
         $this->assertFalse($updated_comments[0]->isOutdated());
-        $this->assertSame(3, $updated_comments[0]->getUnidiffOffset());
+        self::assertSame(3, $updated_comments[0]->getUnidiffOffset());
     }
 
     public function testItShouldBeObsoleteIfLineWasDeletedAndLineIsNoMoreDeleted(): void
@@ -162,6 +163,6 @@ final class InlineCommentUpdaterTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $this->assertCount(1, $updated_comments);
         $this->assertFalse($updated_comments[0]->isOutdated());
-        $this->assertSame(2, $updated_comments[0]->getUnidiffOffset());
+        self::assertSame(2, $updated_comments[0]->getUnidiffOffset());
     }
 }

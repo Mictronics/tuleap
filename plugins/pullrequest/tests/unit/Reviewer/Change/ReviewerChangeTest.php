@@ -24,6 +24,7 @@ namespace Tuleap\PullRequest\Reviewer\Change;
 
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ReviewerChangeTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testReviewerChangeCanBeConstructed(): void
@@ -37,8 +38,8 @@ final class ReviewerChangeTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $this->assertEquals($change_date, $change->changedAt());
         $this->assertEquals($change_date, $change->getPostDate());
-        $this->assertSame($change_user, $change->changedBy());
-        $this->assertSame($added_reviewer, $change->getAddedReviewers());
-        $this->assertSame($removed_reviewer, $change->getRemovedReviewers());
+        self::assertSame($change_user, $change->changedBy());
+        self::assertSame($added_reviewer, $change->getAddedReviewers());
+        self::assertSame($removed_reviewer, $change->getRemovedReviewers());
     }
 }

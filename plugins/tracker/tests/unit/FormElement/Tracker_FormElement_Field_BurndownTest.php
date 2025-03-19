@@ -40,6 +40,7 @@ use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Semantic\Timeframe\IComputeTimeframes;
 
 // phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class Tracker_FormElement_Field_BurndownTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -238,7 +239,7 @@ class Tracker_FormElement_Field_BurndownTest extends \Tuleap\Test\PHPUnit\TestCa
 
         $result = $this->burndown_field->fetchArtifactValueReadOnly($this->artifact, $this->changesetValue);
 
-        $this->assertSame('<div id="burndown-chart"></div>', $result);
+        self::assertSame('<div id="burndown-chart"></div>', $result);
     }
 
     public function testButtonForceCacheGenerationIsNotRenderedWhenDurationIsNotSet()
@@ -256,7 +257,7 @@ class Tracker_FormElement_Field_BurndownTest extends \Tuleap\Test\PHPUnit\TestCa
 
         $result = $this->burndown_field->fetchArtifactValueReadOnly($this->artifact, $this->changesetValue);
 
-        $this->assertSame('<div id="burndown-chart"></div>', $result);
+        self::assertSame('<div id="burndown-chart"></div>', $result);
     }
 
     public function testItDisplaysTheOldJPGraph()

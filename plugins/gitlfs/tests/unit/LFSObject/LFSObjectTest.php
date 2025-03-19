@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Tuleap\GitLFS\LFSObject;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class LFSObjectTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testCanConstructValidObject(): void
@@ -31,8 +32,8 @@ final class LFSObjectTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $lfs_object = new LFSObject($oid, $size);
 
-        $this->assertSame($oid, $lfs_object->getOID());
-        $this->assertSame($size, $lfs_object->getSize());
+        self::assertSame($oid, $lfs_object->getOID());
+        self::assertSame($size, $lfs_object->getSize());
     }
 
     public function testInvalidSizeIsRejected(): void

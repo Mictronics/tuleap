@@ -24,6 +24,7 @@ namespace Tuleap\AgileDashboard\REST;
 
 require_once dirname(__FILE__) . '/../bootstrap.php';
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class ExplicitBacklogTest extends TestBase
 {
     public function testTopBacklogInExplicitBacklogContextIsEmptyWhileNoArtifactExplicitlyAdded(): void
@@ -163,7 +164,7 @@ class ExplicitBacklogTest extends TestBase
         $this->assertEquals(200, $response->getStatusCode());
 
         $this->assertCount(1, $top_backlog_items);
-        $this->assertSame($top_backlog_items[0]['id'], $this->getFirstStoryArtifactId());
+        self::assertSame($top_backlog_items[0]['id'], $this->getFirstStoryArtifactId());
     }
 
     private function assertTopBacklogIsEmpty(): void
@@ -186,7 +187,7 @@ class ExplicitBacklogTest extends TestBase
         $this->assertEquals(200, $response->getStatusCode());
 
         $this->assertCount(1, $release_items);
-        $this->assertSame($release_items[0]['id'], $this->getFirstStoryArtifactId());
+        self::assertSame($release_items[0]['id'], $this->getFirstStoryArtifactId());
     }
 
     private function assertReleaseIsEmpty(): void

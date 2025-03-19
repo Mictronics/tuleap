@@ -31,6 +31,7 @@ use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\Helpers\LayoutHelperPassthrough;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ListAppsControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /** @var ListAppsController */
@@ -81,6 +82,6 @@ final class ListAppsControllerTest extends \Tuleap\Test\PHPUnit\TestCase
     public function testGetUrl(): void
     {
         $project = ProjectTestBuilder::aProject()->withId(102)->build();
-        $this->assertSame('/plugins/oauth2_server/project/102/admin', ListAppsController::getUrl($project));
+        self::assertSame('/plugins/oauth2_server/project/102/admin', ListAppsController::getUrl($project));
     }
 }

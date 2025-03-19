@@ -25,6 +25,7 @@ namespace Tuleap\Git\Repository;
 use Tuleap\Git\Tests\Builders\GitRepositoryTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class LargestObjectSizeGitRepositoryTest extends TestCase
 {
     public function testExpectedValuesAreRetrieved(): void
@@ -38,9 +39,7 @@ final class LargestObjectSizeGitRepositoryTest extends TestCase
         self::assertSame($size, $repository_with_largest_object_size->getLargestObjectSize());
     }
 
-    /**
-     * @dataProvider providerObjectSize
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('providerObjectSize')]
     public function testVerifyIfARepositoryIsOverTheLimit(int $size, bool $is_over_the_limit): void
     {
         $repository_with_largest_object_size = new LargestObjectSizeGitRepository(

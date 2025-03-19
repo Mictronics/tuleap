@@ -22,11 +22,10 @@ import type { Fault } from "@tuleap/fault";
 import type { CurrentTrackerIdentifier } from "@tuleap/plugin-tracker-artifact-common";
 import type { ArtifactCreated } from "../ArtifactCreated";
 import type { ChangesetValues } from "./ChangesetValues";
-import type { TrackerIdentifier } from "../TrackerIdentifier";
 
 export type CreateArtifact = {
     createArtifact(
-        tracker_identifier: CurrentTrackerIdentifier | TrackerIdentifier,
+        current_tracker_identifier: CurrentTrackerIdentifier,
         changeset_values: ChangesetValues,
     ): ResultAsync<ArtifactCreated, Fault>;
 };

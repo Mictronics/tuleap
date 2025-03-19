@@ -34,6 +34,7 @@ use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Test\Stub\RetrieveTrackerStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class PUTConfigurationHandlerTest extends TestCase
 {
     private const PROJECT_ID = 101;
@@ -68,7 +69,7 @@ final class PUTConfigurationHandlerTest extends TestCase
 
         $result = $handler->handle(
             1,
-            new ArtidocPUTConfigurationRepresentation([self::TRACKER_ID]),
+            new PUTConfigurationRepresentation([self::TRACKER_ID]),
             $this->user,
         );
 
@@ -95,7 +96,7 @@ final class PUTConfigurationHandlerTest extends TestCase
 
         $result = $handler->handle(
             1,
-            new ArtidocPUTConfigurationRepresentation([self::TRACKER_ID]),
+            new PUTConfigurationRepresentation([self::TRACKER_ID]),
             $this->user,
         );
 
@@ -125,7 +126,7 @@ final class PUTConfigurationHandlerTest extends TestCase
 
         $result = $handler->handle(
             1,
-            new ArtidocPUTConfigurationRepresentation([self::TRACKER_ID]),
+            new PUTConfigurationRepresentation([self::TRACKER_ID]),
             $this->user,
         );
 
@@ -151,7 +152,7 @@ final class PUTConfigurationHandlerTest extends TestCase
 
         $result = $handler->handle(
             1,
-            new ArtidocPUTConfigurationRepresentation([self::TRACKER_ID]),
+            new PUTConfigurationRepresentation([self::TRACKER_ID]),
             $this->user,
         );
 
@@ -181,7 +182,7 @@ final class PUTConfigurationHandlerTest extends TestCase
 
         $result = $handler->handle(
             1,
-            new ArtidocPUTConfigurationRepresentation([self::TRACKER_ID]),
+            new PUTConfigurationRepresentation([self::TRACKER_ID]),
             $this->user,
         );
 

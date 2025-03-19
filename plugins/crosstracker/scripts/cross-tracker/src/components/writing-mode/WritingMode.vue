@@ -19,22 +19,8 @@
 
 <template>
     <div class="writing-mode">
-        <switch-mode-input
-            v-bind:is_in_expert_mode="is_in_expert_mode"
-            v-on:switch-to-query-mode="handleSwitchModeEvent"
-        />
-        <div v-if="!is_in_expert_mode">
-            <tracker-selection
-                v-bind:selected_trackers="selected_trackers"
-                v-on:tracker-added="addTrackerToSelection"
-            />
-            <tracker-list-writing-mode
-                v-bind:trackers="selected_trackers"
-                v-on:tracker-removed="removeTrackerFromSelection"
-            />
-        </div>
         <query-editor
-            v-bind:writing_cross_tracker_report="writing_cross_tracker_report"
+            v-bind:writing_query="writing_query"
             v-on:trigger-search="search"
             ref="editor"
         />
@@ -60,82 +46,46 @@
     </div>
 </template>
 <script setup lang="ts">
-import { onMounted, ref } from "vue";
+import { ref } from "vue";
 import { useGettext } from "vue3-gettext";
-import { strictInject } from "@tuleap/vue-strict-inject";
 import QueryEditor from "./QueryEditor.vue";
-import type { AddTrackerToSelectionCommand } from "./TrackerSelection.vue";
-import TrackerSelection from "./TrackerSelection.vue";
-import TrackerListWritingMode from "./TrackerListWritingMode.vue";
-import type { WritingCrossTrackerReport } from "../../domain/WritingCrossTrackerReport";
-import type { TrackerToUpdate } from "../../type";
-import { CLEAR_FEEDBACKS, NOTIFY_FAULT } from "../../injection-symbols";
-import type { SwitchModeEvent } from "../SwitchModeInput.vue";
-import SwitchModeInput from "../SwitchModeInput.vue";
+import type { Query } from "../../type";
+import { strictInject } from "@tuleap/vue-strict-inject";
+import { EMITTER } from "../../injection-symbols";
+import { REFRESH_ARTIFACTS_EVENT } from "../../helpers/emitter-provider";
 
 const { $gettext } = useGettext();
 
-const notifyFault = strictInject(NOTIFY_FAULT);
-const clearFeedbacks = strictInject(CLEAR_FEEDBACKS);
-
-const props = defineProps<{ writing_cross_tracker_report: WritingCrossTrackerReport }>();
+const props = defineProps<{
+    writing_query: Query;
+    backend_query: Query;
+}>();
 const emit = defineEmits<{
-    (e: "preview-result"): void;
+    (e: "preview-result", query: Query): void;
     (e: "cancel-query-edition"): void;
 }>();
-
-const selected_trackers = ref<ReadonlyArray<TrackerToUpdate>>([]);
-
-const is_in_expert_mode = ref<boolean>(false);
+const emitter = strictInject(EMITTER);
 
 const editor = ref<InstanceType<typeof QueryEditor>>();
 
 function cancel(): void {
     emit("cancel-query-edition");
+    emitter.emit(REFRESH_ARTIFACTS_EVENT, { query: props.backend_query });
 }
 
 function search(): void {
-    emit("preview-result");
-}
-
-function updateSelectedTrackers(): void {
-    const trackers = props.writing_cross_tracker_report.getTrackers();
-
-    selected_trackers.value = trackers.map(({ tracker, project }): TrackerToUpdate => {
-        return {
-            tracker_id: tracker.id,
-            tracker_label: tracker.label,
-            project_label: project.label,
+    if (editor.value !== undefined) {
+        const query = {
+            id: props.writing_query.id,
+            tql_query: editor.value.tql_query,
+            title: props.writing_query.title,
+            description: props.writing_query.description,
+            is_default: props.writing_query.is_default,
         };
-    });
+        emit("preview-result", query);
+        emitter.emit(REFRESH_ARTIFACTS_EVENT, { query });
+    }
 }
-
-onMounted(() => {
-    updateSelectedTrackers();
-    is_in_expert_mode.value = props.writing_cross_tracker_report.expert_mode;
-});
-
-function addTrackerToSelection(payload: AddTrackerToSelectionCommand): void {
-    props.writing_cross_tracker_report
-        .addTracker(payload.selected_project, payload.selected_tracker)
-        .match(updateSelectedTrackers, notifyFault);
-}
-
-function removeTrackerFromSelection(tracker: TrackerToUpdate): void {
-    props.writing_cross_tracker_report.removeTracker(tracker.tracker_id);
-    updateSelectedTrackers();
-    clearFeedbacks();
-}
-
-function handleSwitchModeEvent(event: SwitchModeEvent): void {
-    props.writing_cross_tracker_report.toggleExpertMode();
-    is_in_expert_mode.value = event.is_expert_mode;
-    editor.value?.clearEditor();
-}
-
-defineExpose({
-    selected_trackers,
-});
 </script>
 
 <style scoped lang="scss">

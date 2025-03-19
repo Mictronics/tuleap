@@ -27,6 +27,7 @@ use Tuleap\Authentication\Scope\AuthenticationTestScopeIdentifier;
 use Tuleap\OAuth2ServerCore\App\OAuth2App;
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AuthorizationComparatorTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /** @var AuthorizationComparator */
@@ -42,9 +43,7 @@ final class AuthorizationComparatorTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->comparator = new AuthorizationComparator($this->factory);
     }
 
-    /**
-     * @dataProvider dataProviderCoveringScopes
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderCoveringScopes')]
     public function testAreRequestedScopesAlreadyGranted(
         bool $expected_result,
         array $saved_scopes,
@@ -55,7 +54,7 @@ final class AuthorizationComparatorTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->factory->expects(self::once())->method('getAuthorizedScopes')
             ->with($user, $app)
             ->willReturn($saved_scopes);
-        $this->assertSame(
+        self::assertSame(
             $expected_result,
             $this->comparator->areRequestedScopesAlreadyGranted($user, $app, $requested_scopes)
         );

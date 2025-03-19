@@ -18,22 +18,36 @@
  */
 
 import type { TrackerResponseWithProject } from "@tuleap/plugin-tracker-rest-api-types";
-import type { Artifact } from "../type";
 import type { ColorName } from "@tuleap/core-constants";
 
 export type TrackerReference = Pick<TrackerResponseWithProject, "id" | "label" | "project">;
 
-export const EXPERT_MODE = "expert";
-export const DEFAULT_MODE = "default";
-
-export type ReportRepresentation = {
-    readonly trackers: ReadonlyArray<TrackerReference>;
-    readonly expert_query: string;
-    readonly invalid_trackers: ReadonlyArray<TrackerReference>;
+export type WidgetRepresentation = {
+    readonly queries: ReadonlyArray<QueryRepresentation>;
 };
 
-export type ReportContentRepresentation = {
-    readonly artifacts: ReadonlyArray<Artifact>;
+export type QueryRepresentation = {
+    readonly id: string;
+    readonly tql_query: string;
+    readonly title: string;
+    readonly description: string;
+    readonly is_default: boolean;
+};
+
+export type PostQueryRepresentation = {
+    widget_id: number;
+    tql_query: string;
+    title: string;
+    description: string;
+    is_default: boolean;
+};
+
+export type PutQueryRepresentation = {
+    widget_id: number;
+    tql_query: string;
+    title: string;
+    description: string;
+    is_default: boolean;
 };
 
 export const DATE_SELECTABLE_TYPE = "date";
@@ -188,7 +202,7 @@ export type Selectable =
     | ArtifactSelectable
     | UnsupportedSelectable;
 
-export type SelectableReportContentRepresentation = {
+export type SelectableQueryContentRepresentation = {
     readonly artifacts: ReadonlyArray<ArtifactRepresentation>;
     readonly selected: ReadonlyArray<Selectable>;
 };

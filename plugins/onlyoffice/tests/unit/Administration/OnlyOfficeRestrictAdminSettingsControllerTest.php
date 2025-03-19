@@ -40,6 +40,7 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\DB\UUIDTestContext;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class OnlyOfficeRestrictAdminSettingsControllerTest extends TestCase
 {
     use ForgeConfigSandbox;
@@ -187,9 +188,7 @@ final class OnlyOfficeRestrictAdminSettingsControllerTest extends TestCase
         self::assertFalse($restrictor->hasBeenUnrestricted());
     }
 
-    /**
-     * @dataProvider dataProviderInvalidSettings
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderInvalidSettings')]
     public function testRejectsInvalidSettings(array $body): void
     {
         $server_id = new UUIDTestContext();
@@ -211,22 +210,20 @@ final class OnlyOfficeRestrictAdminSettingsControllerTest extends TestCase
     public static function dataProviderInvalidSettings(): array
     {
         return [
-            [
-                'No parameters' => [],
-            ],
-            [
-                'is_restricted is not in the body' => [
+            'No parameters' => [[]],
+            'is_restricted is not in the body' => [
+                [
                     'project-to-add' => '1',
                 ],
             ],
-            [
-                'Project to add is not a numeric' => [
+            'Project to add is not a numeric' => [
+                [
                     'is_restricted'  => '1',
                     'project-to-add' => 'not a numeric',
                 ],
             ],
-            [
-                'Projects to remove is not an array' => [
+            'Projects to remove is not an array' => [
+                [
                     'is_restricted'      => '1',
                     'projects-to-remove' => 'not an array',
                 ],

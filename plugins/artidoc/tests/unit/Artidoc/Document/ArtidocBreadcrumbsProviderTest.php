@@ -32,14 +32,15 @@ use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ArtidocBreadcrumbsProviderTest extends TestCase
 {
     private const PROJECT_ID = 101;
 
     private \PFUser $user;
     private \Project $project;
-    private \Docman_PermissionsManager & MockObject $permissions_manager;
-    private \Docman_ItemFactory & MockObject $item_factory;
+    private \Docman_PermissionsManager&MockObject $permissions_manager;
+    private \Docman_ItemFactory&MockObject $item_factory;
 
     protected function setUp(): void
     {

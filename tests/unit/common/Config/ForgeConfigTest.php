@@ -28,15 +28,16 @@ use ConfigValueProvider;
 use ForgeAccess;
 use ForgeConfig;
 use org\bovigo\vfs\vfsStream;
+use PHPUnit\Framework\Attributes\CoversClass;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tuleap\DB\DBConfig;
 use Tuleap\ForgeConfigSandbox;
 use Tuleap\GlobalLanguageMock;
 use Tuleap\Mail\Transport\MailTransportBuilder;
 use Tuleap\ServerHostname;
 
-/**
- * @covers \Tuleap\Config\ConfigValueEnvironmentProvider
- */
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
+#[CoversClass(ConfigValueEnvironmentProvider::class)]
 class ForgeConfigTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use ForgeConfigSandbox;
@@ -51,9 +52,7 @@ class ForgeConfigTest extends \Tuleap\Test\PHPUnit\TestCase
         parent::tearDown();
     }
 
-    /**
-     * @dataProvider getDefaultSequenceProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getDefaultSequenceProvider')]
     public function testLoadInSequence(array $local_inc, array $database, array $environment, callable $tests): void
     {
         // Prepare local.inc
@@ -209,21 +208,21 @@ class ForgeConfigTest extends \Tuleap\Test\PHPUnit\TestCase
     public function testMultipleFiles(): void
     {
         // Unitialized
-        $this->assertSame(ForgeConfig::get('toto'), false);
-        $this->assertSame(ForgeConfig::get('tutu'), false);
-        $this->assertSame(ForgeConfig::get('tata'), false);
+        self::assertSame(ForgeConfig::get('toto'), false);
+        self::assertSame(ForgeConfig::get('tutu'), false);
+        self::assertSame(ForgeConfig::get('tata'), false);
 
         // Load the first file
         ForgeConfig::loadFromFile(__DIR__ . '/_fixtures/config/local.inc');
-        $this->assertSame(ForgeConfig::get('toto'), 66);
-        $this->assertSame(ForgeConfig::get('tutu'), 123);
-        $this->assertSame(ForgeConfig::get('tata'), false);
+        self::assertSame(ForgeConfig::get('toto'), 66);
+        self::assertSame(ForgeConfig::get('tutu'), 123);
+        self::assertSame(ForgeConfig::get('tata'), false);
 
         // Load the second one. Merge of the conf
         ForgeConfig::loadFromFile(__DIR__ . '/_fixtures/config/other_file.inc.dist');
-        $this->assertSame(ForgeConfig::get('toto'), 66);
-        $this->assertSame(ForgeConfig::get('tutu'), 421);
-        $this->assertSame(ForgeConfig::get('tata'), 456);
+        self::assertSame(ForgeConfig::get('toto'), 66);
+        self::assertSame(ForgeConfig::get('tutu'), 421);
+        self::assertSame(ForgeConfig::get('tata'), 456);
     }
 
     public function testDump(): void
@@ -339,9 +338,7 @@ class ForgeConfigTest extends \Tuleap\Test\PHPUnit\TestCase
         self::assertEquals('a very good secret', ForgeConfig::getSecretAsClearText(MailTransportBuilder::RELAYHOST_SMTP_PASSWORD));
     }
 
-    /**
-     * @dataProvider getSetupSequenceProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getSetupSequenceProvider')]
     public function testGetSetupSequence(string $expected, string $variable, string $fqdn, array $env): void
     {
         foreach ($env as $key => $value) {
@@ -413,8 +410,8 @@ class ForgeConfigTest extends \Tuleap\Test\PHPUnit\TestCase
 
     /**
      * @param int[] $expected
-     * @dataProvider dataProviderArrayOfInt
      */
+    #[DataProvider('dataProviderArrayOfInt')]
     public function testArrayOfInt(string $value, array $expected): void
     {
         ForgeConfig::setFeatureFlag('comma-separated', $value);

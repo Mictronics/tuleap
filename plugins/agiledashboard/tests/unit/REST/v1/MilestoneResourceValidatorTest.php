@@ -45,6 +45,7 @@ use Tuleap\Tracker\REST\Helpers\IdsFromBodyAreNotUniqueException;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class MilestoneResourceValidatorTest extends TestCase
 {
     private Artifact $artifact1;
@@ -122,10 +123,18 @@ final class MilestoneResourceValidatorTest extends TestCase
         $this->planning_factory->method('getBacklogTrackersIds')
             ->with($this->milestone->getPlanning()->getId())
             ->willReturn([555, 666]);
+        $matcher = $this->exactly(2);
 
-        $this->tracker_artifact_factory->method('getArtifactById')
-            ->withConsecutive([102], [174])
-            ->willReturnOnConsecutiveCalls($this->artifact1, $this->artifact2);
+        $this->tracker_artifact_factory->expects($matcher)->method('getArtifactById')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame(102, $parameters[0]);
+                return $this->artifact1;
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame(174, $parameters[0]);
+                return $this->artifact2;
+            }
+        });
 
         $validation = $this->milestone_resource_validator->validateArtifactsFromBodyContent(
             $this->ids,
@@ -168,9 +177,7 @@ final class MilestoneResourceValidatorTest extends TestCase
         $this->planning_factory->method('getBacklogTrackersIds')
             ->with($this->milestone->getPlanning()->getId())
             ->willReturn([1, 2, 3]);
-        $this->tracker_artifact_factory->method('getArtifactById')
-            ->withConsecutive([102], [174])
-            ->willReturnOnConsecutiveCalls($this->artifact1, $this->artifact2);
+        $this->tracker_artifact_factory->expects(self::atLeastOnce())->method('getArtifactById')->with(102)->willReturn($this->artifact1);
 
         $this->milestone_resource_validator->validateArtifactsFromBodyContent(
             $this->ids,
@@ -188,9 +195,17 @@ final class MilestoneResourceValidatorTest extends TestCase
         $this->planning_factory->method('getBacklogTrackersIds')
             ->with($this->milestone->getPlanning()->getId())
             ->willReturn([555, 666]);
-        $this->tracker_artifact_factory->method('getArtifactById')
-            ->withConsecutive([102], [174])
-            ->willReturnOnConsecutiveCalls($this->artifact1, $this->artifact2);
+        $matcher = $this->exactly(2);
+        $this->tracker_artifact_factory->expects($matcher)->method('getArtifactById')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame(102, $parameters[0]);
+                return $this->artifact1;
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame(174, $parameters[0]);
+                return $this->artifact2;
+            }
+        });
 
         $this->milestone_resource_validator->validateArtifactsFromBodyContent(
             $this->ids,

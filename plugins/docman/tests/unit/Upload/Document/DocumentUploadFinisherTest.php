@@ -46,6 +46,7 @@ use Tuleap\Upload\FileBeingUploadedInformation;
 use Tuleap\Upload\UploadPathAllocator;
 use UserManager;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class DocumentUploadFinisherTest extends TestCase
 {
     private DocmanItemsEventAdder&MockObject $event_adder;
@@ -102,7 +103,7 @@ final class DocumentUploadFinisherTest extends TestCase
         $item->method('getGroupId')->willReturn(102);
         $item->method('getParentId')->willReturn(3);
         $item->method('accept')->willReturn(true);
-        $this->item_factory->method('getItemFromDB')->willReturn(null, $item);
+        $this->item_factory->method('getItemFromDB')->willReturn(null, $item, $item);
         $this->on_going_upload_dao->method('searchDocumentOngoingUploadByItemID')->willReturn([
             'item_id'           => $item_id_being_created,
             'parent_id'         => 3,

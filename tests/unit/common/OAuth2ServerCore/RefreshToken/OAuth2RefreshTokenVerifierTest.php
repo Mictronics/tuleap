@@ -33,6 +33,7 @@ use Tuleap\OAuth2ServerCore\OAuth2TestScope;
 use Tuleap\OAuth2ServerCore\Scope\OAuth2ScopeRetriever;
 use Tuleap\Test\DB\DBTransactionExecutorPassthrough;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class OAuth2RefreshTokenVerifierTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -93,7 +94,7 @@ final class OAuth2RefreshTokenVerifierTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $verified_refresh_token = $this->verifier->getRefreshToken($app, $refresh_token);
 
-        $this->assertSame(12, $verified_refresh_token->getAssociatedAuthorizationCodeID());
+        self::assertSame(12, $verified_refresh_token->getAssociatedAuthorizationCodeID());
         $this->assertEquals([OAuth2TestScope::fromItself()], $verified_refresh_token->getScopes());
     }
 

@@ -24,6 +24,7 @@ use DateTimeImmutable;
 use REST_TestDataBuilder;
 use RestBase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class AccessKeyTest extends RestBase
 {
     private const DESCRIPTION_ACCESS_KEY = 'test_key';
@@ -186,7 +187,7 @@ class AccessKeyTest extends RestBase
             $this->request_factory->createRequest('GET', 'users/' . $this->user_ids[REST_TestDataBuilder::TEST_USER_1_NAME] . '/access_keys'),
             REST_TestDataBuilder::TEST_USER_1_NAME
         );
-        $this->assertSame(200, $response->getStatusCode());
+        self::assertSame(200, $response->getStatusCode());
         return json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
     }
 

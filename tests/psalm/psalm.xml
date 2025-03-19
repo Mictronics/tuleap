@@ -7,8 +7,8 @@
     resolveFromConfigFile="false"
     errorBaseline="./tests/psalm/tuleap-baseline.xml"
     allowNamedArgumentCalls="false"
+    ensureOverrideAttribute="false"
     findUnusedBaselineEntry="false"
-    findUnusedCode="false"
 >
     <projectFiles>
         <directory name="src/common/" />
@@ -955,7 +955,6 @@
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_List_BindTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_List_BindValueTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_List_Bind_StaticTest.php"/>
-            <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_List_Bind_StaticValueTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_List_Bind_UgroupsTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_List_Bind_UgroupsValueTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_List_Bind_UsersTest.php"/>
@@ -979,13 +978,10 @@
             <file name="plugins/tracker/tests/unit/FormElement/XML/XMLFormElementImplTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElementListValueAdminViewPresenterBuilderTest.php"/>
             <file name="plugins/tracker/tests/unit/GetTrackersQueryCheckerTest.php"/>
-            <file name="plugins/tracker/tests/unit/Hierarchy/ControllerTest.php"/>
             <file name="plugins/tracker/tests/unit/Hierarchy/HierarchicalTrackerFactoryTest.php"/>
             <file name="plugins/tracker/tests/unit/Hierarchy/HierarchicalTrackerTest.php"/>
-            <file name="plugins/tracker/tests/unit/Hierarchy/HierarchyControllerTest.php"/>
             <file name="plugins/tracker/tests/unit/Hierarchy/HierarchyFactoryTest.php"/>
             <file name="plugins/tracker/tests/unit/Hierarchy/HierarchyTest.php"/>
-            <file name="plugins/tracker/tests/unit/Hierarchy/PresenterTest.php"/>
             <file name="plugins/tracker/tests/unit/Hierarchy/TrackerHierarchyFactoryGetAllAncestorsTest.php"/>
             <file name="plugins/tracker/tests/unit/Hierarchy/TrackerHierarchyFactoryGetParentArtifactTest.php"/>
             <file name="plugins/tracker/tests/unit/Hierarchy/TrackerHierarchyFactoryGetParentTest.php"/>
@@ -1171,10 +1167,10 @@
             <file name="plugins/tracker/tests/unit/Service/CheckPromotedTrackerConfigurationTest.php"/>
             <file name="plugins/tracker/tests/unit/Service/ServiceActivatorTest.php"/>
             <file name="plugins/tracker/tests/unit/Service/SidebarPromotedTrackerRetrieverTest.php"/>
-            <file name="plugins/tracker/tests/unit/Test/Tracker/Action/BuildArtifactLinksMappingForDuckTypedMoveStub.php"/>
-            <file name="plugins/tracker/tests/unit/Test/Tracker/Creation/JiraImporter/Import/JiraClientMonoTrackerStub.php"/>
-            <file name="plugins/tracker/tests/unit/Test/Tracker/Creation/JiraImporter/Stub/JiraCloudClientStub.php"/>
-            <file name="plugins/tracker/tests/unit/Test/Tracker/Creation/JiraImporter/Stub/JiraServerClientStub.php"/>
+            <file name="plugins/tracker/tests/unit/Test/Stub/Action/BuildArtifactLinksMappingForDuckTypedMoveStub.php"/>
+            <file name="plugins/tracker/tests/unit/Test/Stub/Creation/JiraImporter/Import/JiraClientMonoTrackerStub.php"/>
+            <file name="plugins/tracker/tests/unit/Test/Stub/Creation/JiraImporter/JiraCloudClientStub.php"/>
+            <file name="plugins/tracker/tests/unit/Test/Stub/Creation/JiraImporter/JiraServerClientStub.php"/>
             <file name="plugins/tracker/tests/unit/TrackerBlockingErrorTest.php"/>
             <file name="plugins/tracker/tests/unit/TrackerColorTest.php"/>
             <file name="plugins/tracker/tests/unit/TrackerFactoryDuplicationTest.php"/>
@@ -1383,6 +1379,8 @@
 
         <UnresolvableInclude errorLevel="info" />
 
+        <ClassMustBeFinal errorLevel="suppress" />
+
         <!-- Unused code detection -->
         <UnusedMethodCall errorLevel="suppress" />
         <UnusedFunctionCall errorLevel="suppress" />
@@ -1395,12 +1393,6 @@
         <UnusedMethod errorLevel="suppress" />
         <PossiblyUnusedProperty errorLevel="suppress" />
         <UnusedConstructor errorLevel="suppress" />
-        <UnusedProperty>
-            <errorLevel type="suppress">
-                <file name="plugins/git/include/GitActions.php"/>
-                <file name="plugins/tracker/include/Tracker/FormElement/SystemEvent/SystemEvent_BURNDOWN_DAILY.php"/>
-            </errorLevel>
-        </UnusedProperty>
         <UnusedReturnValue errorLevel="suppress" />
         <PossiblyUnusedReturnValue errorLevel="suppress" />
     </issueHandlers>

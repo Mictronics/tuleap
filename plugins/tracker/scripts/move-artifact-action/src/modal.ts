@@ -21,7 +21,7 @@ import { createApp } from "vue";
 import { createGettext } from "vue3-gettext";
 import { createPinia } from "pinia";
 import { getPOFileFromLocaleWithoutExtension, initVueGettext } from "@tuleap/vue3-gettext-init";
-import { getDatasetItemOrThrow } from "@tuleap/dom";
+import { getAttributeOrThrow } from "@tuleap/dom";
 import MoveModal from "./components/MoveModal.vue";
 import {
     ARTIFACT_ID,
@@ -35,17 +35,17 @@ export async function init(vue_mount_point: HTMLElement): Promise<void> {
     createApp(MoveModal)
         .provide(
             TRACKER_ID,
-            Number.parseInt(getDatasetItemOrThrow(vue_mount_point, "trackerId"), 10),
+            Number.parseInt(getAttributeOrThrow(vue_mount_point, "data-tracker-id"), 10),
         )
-        .provide(TRACKER_NAME, getDatasetItemOrThrow(vue_mount_point, "trackerName"))
-        .provide(TRACKER_COLOR, getDatasetItemOrThrow(vue_mount_point, "trackerColor"))
+        .provide(TRACKER_NAME, getAttributeOrThrow(vue_mount_point, "data-tracker-name"))
+        .provide(TRACKER_COLOR, getAttributeOrThrow(vue_mount_point, "data-tracker-color"))
         .provide(
             ARTIFACT_ID,
-            Number.parseInt(getDatasetItemOrThrow(vue_mount_point, "artifactId"), 10),
+            Number.parseInt(getAttributeOrThrow(vue_mount_point, "data-artifact-id"), 10),
         )
         .provide(
             PROJECT_ID,
-            Number.parseInt(getDatasetItemOrThrow(vue_mount_point, "projectId"), 10),
+            Number.parseInt(getAttributeOrThrow(vue_mount_point, "data-project-id"), 10),
         )
         .use(
             await initVueGettext(createGettext, (locale: string) => {

@@ -34,6 +34,7 @@ use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\ProjectByIDFactoryStub;
 use Tuleap\Test\Stubs\RetrieveUserByIdStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ProjectMemberAccordingToInvitationAdderTest extends TestCase
 {
     private const PROJECT_ID   = 111;
@@ -79,9 +80,7 @@ final class ProjectMemberAccordingToInvitationAdderTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider notActiveNorRestrictedStatus
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('notActiveNorRestrictedStatus')]
     public function testDoesNothingIfUserIsNotActiveNorRestricted(string $status): void
     {
         $user_manager               = RetrieveUserByIdStub::withNoUser();
@@ -186,9 +185,7 @@ final class ProjectMemberAccordingToInvitationAdderTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider notActiveNorRestrictedStatus
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('notActiveNorRestrictedStatus')]
     public function testDoesNothingIfUserWhoInvitedIsNotActiveNorRestricted(string $status): void
     {
         $from_user = UserTestBuilder::aUser()

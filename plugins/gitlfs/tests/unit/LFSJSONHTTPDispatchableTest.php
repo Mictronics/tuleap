@@ -23,15 +23,16 @@ declare(strict_types=1);
 namespace Tuleap\GitLFS;
 
 use HTTPRequest;
+use PHPUnit\Framework\Attributes\DataProvider;
+use PHPUnit\Framework\Attributes\RunInSeparateProcess;
 use Tuleap\Layout\BaseLayout;
 use Tuleap\Request\DispatchableWithRequestNoAuthz;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class LFSJSONHTTPDispatchableTest extends \Tuleap\Test\PHPUnit\TestCase
 {
-    /**
-     * @runInSeparateProcess
-     * @dataProvider providerAcceptHeader
-     */
+    #[RunInSeparateProcess]
+    #[DataProvider('providerAcceptHeader')]
     public function testRequestAcceptingGitLFSResponseAreProcessed(string $accept_header): void
     {
         $dispatchable = $this->createMock(DispatchableWithRequestNoAuthz::class);
@@ -76,9 +77,7 @@ final class LFSJSONHTTPDispatchableTest extends \Tuleap\Test\PHPUnit\TestCase
         );
     }
 
-    /**
-     * @runInSeparateProcess
-     */
+    #[RunInSeparateProcess]
     public function testGitLFSErrorsAreGivenAccordingToTheGitLFSSpecification(): void
     {
         $dispatchable = $this->createStub(DispatchableWithRequestNoAuthz::class);
@@ -106,6 +105,6 @@ final class LFSJSONHTTPDispatchableTest extends \Tuleap\Test\PHPUnit\TestCase
         );
 
         $this->expectOutputString(json_encode(['message' => $error_message]));
-        $this->assertSame($error_code, http_response_code());
+        self::assertSame($error_code, http_response_code());
     }
 }

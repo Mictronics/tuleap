@@ -27,6 +27,7 @@ use org\bovigo\vfs\vfsStreamDirectory;
 use org\bovigo\vfs\vfsStreamFile;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class IncludeViteAssetsTest extends TestCase
 {
     private vfsStreamDirectory $assets_dir;
@@ -42,7 +43,7 @@ final class IncludeViteAssetsTest extends TestCase
         $this->assets_dir->addChild((new vfsStreamFile('.vite/manifest.json'))->setContent('{"file.js": {"file": "file-hashed.js"}}'));
         $include_assets = new IncludeViteAssets($this->assets_dir->url(), '/path/to');
 
-        $this->assertSame('/path/to/file-hashed.js', $include_assets->getFileURL('file.js'));
+        self::assertSame('/path/to/file-hashed.js', $include_assets->getFileURL('file.js'));
     }
 
     public function testItRaisesManifestExceptionIfThereIsNoManifestFile(): void
@@ -69,6 +70,6 @@ final class IncludeViteAssetsTest extends TestCase
         $this->assets_dir->addChild((new vfsStreamFile('.vite/manifest.json'))->setContent('{"file.js": {"file": "file-hashed.js"}}'));
         $include_assets = new IncludeViteAssets($this->assets_dir->url(), '/path/to/');
 
-        $this->assertSame('/path/to/file-hashed.js', $include_assets->getFileURL('file.js'));
+        self::assertSame('/path/to/file-hashed.js', $include_assets->getFileURL('file.js'));
     }
 }

@@ -28,13 +28,10 @@ import {
     postJSON,
 } from "@tuleap/fetch-result";
 import type { Fault } from "@tuleap/fault";
-import TurndownService from "turndown";
-import type { ArtidocSection, ArtifactSection } from "@/helpers/artidoc-section.type";
-import { isFreetextSection, isCommonmark, isTitleAString } from "@/helpers/artidoc-section.type";
-import type { Tracker } from "@/stores/configuration-store";
-import type { PositionForSection } from "@/sections/SectionsPositionsForSaveRetriever";
-import type { AttachmentFile } from "@/composables/useAttachmentFile";
-import FreetextSectionFactory from "@/helpers/freetext-section.factory";
+import type { FileIdentifier } from "@tuleap/file-upload";
+import type { ArtidocSection } from "@/helpers/artidoc-section.type";
+import type { PositionForSection } from "@/sections/save/SectionsPositionsForSaveRetriever";
+import type { Level } from "@/sections/levels/SectionsNumberer";
 
 export function putConfiguration(
     document_id: number,
@@ -47,81 +44,6 @@ export function putConfiguration(
             selected_tracker_ids: [selected_tracker_id],
         },
     );
-}
-
-export function putArtifact(
-    artifact_id: number,
-    new_title: string,
-    title: ArtifactSection["title"],
-    new_description: string,
-    description_field_id: number,
-    file_field: ReturnType<AttachmentFile["mergeArtifactAttachments"]>,
-): ResultAsync<Response, Fault> {
-    const values: { field_id: number; value: unknown }[] = [
-        {
-            field_id: description_field_id,
-            value: {
-                content: new_description,
-                format: "html",
-            },
-        },
-        {
-            field_id: title.field_id,
-            ...(isTitleAString(title)
-                ? { value: new_title }
-                : { value: { content: new_title, format: "text" } }),
-        },
-    ];
-    if (file_field && file_field.field_id > 0) {
-        values.push({
-            field_id: file_field.field_id,
-            value: file_field.value,
-        });
-    }
-    return putResponse(
-        uri`/api/artifacts/${artifact_id}`,
-        {},
-        {
-            values,
-        },
-    );
-}
-
-export function postArtifact(
-    tracker: Tracker,
-    new_title: string,
-    title: ArtifactSection["title"],
-    new_description: string,
-    description_field_id: number,
-    file_field: ReturnType<AttachmentFile["mergeArtifactAttachments"]>,
-): ResultAsync<{ id: number }, Fault> {
-    const values: { field_id: number; value: unknown }[] = [
-        {
-            field_id: description_field_id,
-            value: {
-                content: new_description,
-                format: "html",
-            },
-        },
-        {
-            field_id: title.field_id,
-            ...(isTitleAString(title)
-                ? { value: new_title }
-                : { value: { content: new_title, format: "text" } }),
-        },
-    ];
-
-    if (file_field && file_field.field_id > 0) {
-        values.push({
-            field_id: file_field.field_id,
-            value: file_field.value,
-        });
-    }
-
-    return postJSON<{ id: number }>(uri`/api/artifacts`, {
-        tracker: { id: tracker.id },
-        values,
-    });
 }
 
 export function reorderSections(
@@ -143,34 +65,40 @@ export function reorderSections(
     );
 }
 
-export function createArtifactSection(
+export function createSectionFromExistingArtifact(
     artidoc_id: number,
     artifact_id: number,
     position: PositionForSection,
+    level: number,
 ): ResultAsync<ArtidocSection, Fault> {
     return postJSON<ArtidocSection>(uri`/api/artidoc_sections`, {
         artidoc_id,
         section: {
-            artifact: { id: artifact_id },
+            import: {
+                artifact: { id: artifact_id },
+                level,
+            },
             position,
-            content: null,
         },
-    }).map(injectDisplayTitle);
+    });
 }
 
-export function createFreetextSection(
+export function createSection(
     artidoc_id: number,
     title: string,
     description: string,
     position: PositionForSection,
+    level: Level,
+    type: "freetext" | "artifact",
+    attachments: FileIdentifier[],
 ): ResultAsync<ArtidocSection, Fault> {
     return postJSON<ArtidocSection>(uri`/api/v1/artidoc_sections`, {
         artidoc_id,
         section: {
-            content: { title, description, type: "freetext" },
+            content: { title, description, type, attachments, level },
             position,
         },
-    }).map(injectDisplayTitle);
+    });
 }
 
 export function getAllSections(document_id: number): ResultAsync<readonly ArtidocSection[], Fault> {
@@ -178,19 +106,19 @@ export function getAllSections(document_id: number): ResultAsync<readonly Artido
         params: {
             limit: 50,
         },
-    }).map((sections: readonly ArtidocSection[]) => sections.map(injectDisplayTitle));
+    });
 }
 
 export function getSection(section_id: string): ResultAsync<ArtidocSection, Fault> {
-    return getJSON<ArtidocSection>(uri`/api/artidoc_sections/${section_id}`).map(
-        injectDisplayTitle,
-    );
+    return getJSON<ArtidocSection>(uri`/api/artidoc_sections/${section_id}`);
 }
 
 export function putSection(
     section_id: string,
     title: string,
     description: string,
+    attachments: FileIdentifier[],
+    level: Level,
 ): ResultAsync<Response, Fault> {
     return putResponse(
         uri`/api/artidoc_sections/${section_id}`,
@@ -198,35 +126,12 @@ export function putSection(
         {
             title,
             description,
+            attachments,
+            level,
         },
     );
 }
 
 export function deleteSection(section_id: string): ResultAsync<Response, Fault> {
     return del(uri`/api/artidoc_sections/${section_id}`);
-}
-
-const turndown_service = new TurndownService({ emDelimiter: "*" });
-
-function injectDisplayTitle(section: ArtidocSection): ArtidocSection {
-    if (isFreetextSection(section)) {
-        return FreetextSectionFactory.override({
-            ...section,
-            display_title: section.title,
-        });
-    }
-
-    const title = section.title;
-    const display_title = isTitleAString(title)
-        ? title.value
-        : isCommonmark(title)
-          ? title.commonmark
-          : title.format === "text"
-            ? title.value
-            : turndown_service.turndown(title.value);
-
-    return {
-        ...section,
-        display_title: display_title.replace(/([\r\n]+)/g, " "),
-    };
 }

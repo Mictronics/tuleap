@@ -22,6 +22,7 @@ namespace Tuleap\PullRequest\GitReference;
 
 use Tuleap\PullRequest\GitExec;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class GitPullRequestReferenceRemoverTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testAllReferencesInPullRequestNamespaceAreRemoved(): void
@@ -34,11 +35,16 @@ final class GitPullRequestReferenceRemoverTest extends \Tuleap\Test\PHPUnit\Test
             $reference_01,
             $reference_02,
         ]);
+        $matcher = $this->exactly(2);
 
-        $executor->method('removeReference')->withConsecutive(
-            [$reference_01],
-            [$reference_02],
-        );
+        $executor->expects($matcher)->method('removeReference')->willReturnCallback(function (...$parameters) use ($matcher, $reference_01, $reference_02) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame($reference_01, $parameters[0]);
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame($reference_02, $parameters[0]);
+            }
+        });
 
         $reference_remover = new GitPullRequestReferenceRemover();
         $reference_remover->removeAll($executor);

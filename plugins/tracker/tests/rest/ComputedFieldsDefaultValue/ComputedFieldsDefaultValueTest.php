@@ -25,6 +25,7 @@ use Tuleap\Tracker\Tests\REST\TrackerBase;
 
 require_once __DIR__ . '/../TrackerBase.php';
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class ComputedFieldsDefaultValueTest extends TrackerBase
 {
     public function testComputedFieldHasDefaultValueKey()
@@ -38,8 +39,8 @@ class ComputedFieldsDefaultValueTest extends TrackerBase
                 $computed_field_found = true;
                 $this->assertArrayHasKey('default_value', $field);
 
-                $this->assertSame('manual_value', $field['default_value']['type']);
-                $this->assertSame(5.2, $field['default_value']['value']);
+                self::assertSame('manual_value', $field['default_value']['type']);
+                self::assertSame(5.2, $field['default_value']['value']);
             }
         }
 
@@ -89,7 +90,7 @@ class ComputedFieldsDefaultValueTest extends TrackerBase
                 $computed_field_found = true;
 
                 $this->assertFalse($field_value['is_autocomputed']);
-                $this->assertSame(5.2, $field_value['manual_value']);
+                self::assertSame(5.2, $field_value['manual_value']);
                 $this->assertNull($field_value['value']);
             }
         }

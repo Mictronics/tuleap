@@ -24,6 +24,7 @@ namespace Tuleap\Tracker\REST\Artifact;
 
 use Luracast\Restler\RestException;
 use PFUser;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tracker;
 use Tuleap\GlobalResponseMock;
 use Tuleap\Test\Builders\ProjectTestBuilder;
@@ -57,6 +58,7 @@ use Tuleap\Tracker\Test\Stub\RetrieveTrackerStub;
 use Tuleap\Tracker\Test\Stub\RetrieveUsedFieldsStub;
 use Tuleap\Tracker\Test\Stub\VerifySubmissionPermissionStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ArtifactCreatorTest extends TestCase
 {
     use GlobalResponseMock;
@@ -71,9 +73,9 @@ final class ArtifactCreatorTest extends TestCase
     private const STRING_FIELD_NAME = 'stringfield';
 
     /**
-     * @dataProvider provideCreateCallback
      * @param \Closure(VerifySubmissionPermissions $submission_permission_verifier, RetrieveUsedFields $all_fields_retriever, TrackerArtifactCreator $artifact_creator, RetrieveTracker $tracker_factory, array $values): ArtifactReference $create
      */
+    #[DataProvider('provideCreateCallback')]
     public function test404WhenTrackerDoesNotExist(\Closure $create): void
     {
         $this->expectException(RestException::class);
@@ -89,9 +91,9 @@ final class ArtifactCreatorTest extends TestCase
     }
 
     /**
-     * @dataProvider provideCreateCallback
      * @param \Closure(VerifySubmissionPermissions $submission_permission_verifier, RetrieveUsedFields $all_fields_retriever, TrackerArtifactCreator $artifact_creator, RetrieveTracker $tracker_factory, array $values): ArtifactReference $create
      */
+    #[DataProvider('provideCreateCallback')]
     public function test403WhenUserCannotSubmit(\Closure $create): void
     {
         $this->expectException(RestException::class);
@@ -107,9 +109,9 @@ final class ArtifactCreatorTest extends TestCase
     }
 
     /**
-     * @dataProvider provideCreateCallback
      * @param \Closure(VerifySubmissionPermissions $submission_permission_verifier, RetrieveUsedFields $all_fields_retriever, TrackerArtifactCreator $artifact_creator, RetrieveTracker $tracker_factory, array $values): ArtifactReference $create
      */
+    #[DataProvider('provideCreateCallback')]
     public function test400WhenCreatorRaisesArtifactDoesNotExistException(\Closure $create): void
     {
         $this->expectException(RestException::class);
@@ -128,9 +130,9 @@ final class ArtifactCreatorTest extends TestCase
     }
 
     /**
-     * @dataProvider provideCreateCallback
      * @param \Closure(VerifySubmissionPermissions $submission_permission_verifier, RetrieveUsedFields $all_fields_retriever, TrackerArtifactCreator $artifact_creator, RetrieveTracker $tracker_factory, array $values): ArtifactReference $create
      */
+    #[DataProvider('provideCreateCallback')]
     public function test400WhenCreatorRaisesArtifactLinkFieldDoesNotExistException(\Closure $create): void
     {
         $this->expectException(RestException::class);
@@ -149,9 +151,9 @@ final class ArtifactCreatorTest extends TestCase
     }
 
     /**
-     * @dataProvider provideCreateCallback
      * @param \Closure(VerifySubmissionPermissions $submission_permission_verifier, RetrieveUsedFields $all_fields_retriever, TrackerArtifactCreator $artifact_creator, RetrieveTracker $tracker_factory, array $values): ArtifactReference $create
      */
+    #[DataProvider('provideCreateCallback')]
     public function test400WhenCreatorRaisesSemanticNotSupportedException(\Closure $create): void
     {
         $this->expectException(RestException::class);
@@ -170,9 +172,9 @@ final class ArtifactCreatorTest extends TestCase
     }
 
     /**
-     * @dataProvider provideCreateCallback
      * @param \Closure(VerifySubmissionPermissions $submission_permission_verifier, RetrieveUsedFields $all_fields_retriever, TrackerArtifactCreator $artifact_creator, RetrieveTracker $tracker_factory, array $values): ArtifactReference $create
      */
+    #[DataProvider('provideCreateCallback')]
     public function test400WhenCreatorCannotCreateArtifactAndEmitsFeedback(\Closure $create): void
     {
         $this->expectException(RestException::class);
@@ -195,9 +197,9 @@ final class ArtifactCreatorTest extends TestCase
     }
 
     /**
-     * @dataProvider provideCreateCallback
      * @param \Closure(VerifySubmissionPermissions $submission_permission_verifier, RetrieveUsedFields $all_fields_retriever, TrackerArtifactCreator $artifact_creator, RetrieveTracker $tracker_factory, array $values): ArtifactReference $create
      */
+    #[DataProvider('provideCreateCallback')]
     public function test500WhenCreatorCannotCreateButDoesNotEmitFeedback(\Closure $create): void
     {
         $this->expectException(RestException::class);
@@ -218,9 +220,9 @@ final class ArtifactCreatorTest extends TestCase
     }
 
     /**
-     * @dataProvider provideCreateCallback
      * @param \Closure(VerifySubmissionPermissions $submission_permission_verifier, RetrieveUsedFields $all_fields_retriever, TrackerArtifactCreator $artifact_creator, RetrieveTracker $tracker_factory, array $values): ArtifactReference $create
      */
+    #[DataProvider('provideCreateCallback')]
     public function testItReturnsArtifactReference(\Closure $create, string $format): void
     {
         $tracker  = TrackerTestBuilder::aTracker()->withProject(ProjectTestBuilder::aProject()->build())->build();
@@ -246,9 +248,9 @@ final class ArtifactCreatorTest extends TestCase
     }
 
     /**
-     * @dataProvider provideCreateCallback
      * @param \Closure(VerifySubmissionPermissions $submission_permission_verifier, RetrieveUsedFields $all_fields_retriever, TrackerArtifactCreator $artifact_creator, RetrieveTracker $tracker_factory, array $values): ArtifactReference $create
      */
+    #[DataProvider('provideCreateCallback')]
     public function testItAsksToAddReverseLinksIfThereIsNoLinksPropertyInValues(\Closure $create, string $format): void
     {
         $tracker  = TrackerTestBuilder::aTracker()->withProject(ProjectTestBuilder::aProject()->build())->build();
@@ -305,9 +307,9 @@ final class ArtifactCreatorTest extends TestCase
     }
 
     /**
-     * @dataProvider provideCreateCallback
      * @param \Closure(VerifySubmissionPermissions $submission_permission_verifier, RetrieveUsedFields $all_fields_retriever, TrackerArtifactCreator $artifact_creator, RetrieveTracker $tracker_factory, array $values): ArtifactReference $create
      */
+    #[DataProvider('provideCreateCallback')]
     public function testItDoesNotAsksToAddReverseLinksIfThereIsLinksPropertyInValues(\Closure $create, string $format): void
     {
         $tracker  = TrackerTestBuilder::aTracker()->withProject(ProjectTestBuilder::aProject()->build())->build();
@@ -364,9 +366,9 @@ final class ArtifactCreatorTest extends TestCase
     }
 
     /**
-     * @dataProvider provideCreateCallback
      * @param \Closure(VerifySubmissionPermissions $submission_permission_verifier, RetrieveUsedFields $all_fields_retriever, TrackerArtifactCreator $artifact_creator, RetrieveTracker $tracker_factory, array $values): ArtifactReference $create
      */
+    #[DataProvider('provideCreateCallback')]
     public function testItEncapsulateValuesInAnInitialChangesetValuesContainer(\Closure $create, string $format): void
     {
         $tracker  = TrackerTestBuilder::aTracker()->withProject(ProjectTestBuilder::aProject()->build())->build();
@@ -435,7 +437,7 @@ final class ArtifactCreatorTest extends TestCase
     /**
      * @return list<array{0: \Closure(VerifySubmissionPermissions $submission_permission_verifier, RetrieveUsedFields $all_fields_retriever, TrackerArtifactCreator $artifact_creator, RetrieveTracker $tracker_factory, array $values): ArtifactReference, 1: string}>
      */
-    public function provideCreateCallback(): array
+    public static function provideCreateCallback(): array
     {
         $tracker = TrackerTestBuilder::aTracker()
             ->withProject(ProjectTestBuilder::aProject()->build())
@@ -451,7 +453,7 @@ final class ArtifactCreatorTest extends TestCase
                     TrackerArtifactCreator $artifact_creator,
                     RetrieveTracker $tracker_factory,
                     array $values,
-                ) => $this->getCreator(
+                ) => self::getCreator(
                     $submission_permission_verifier,
                     $all_fields_retriever,
                     $artifact_creator,
@@ -466,7 +468,7 @@ final class ArtifactCreatorTest extends TestCase
                     TrackerArtifactCreator $artifact_creator,
                     RetrieveTracker $tracker_factory,
                     array $values,
-                ) => $this->getCreator(
+                ) => self::getCreator(
                     $submission_permission_verifier,
                     $all_fields_retriever,
                     $artifact_creator,
@@ -477,15 +479,18 @@ final class ArtifactCreatorTest extends TestCase
         ];
     }
 
-    private function getCreator(
+    private static function getCreator(
         VerifySubmissionPermissions $submission_permission_verifier,
         RetrieveUsedFields $all_fields_retriever,
         TrackerArtifactCreator $artifact_creator,
         RetrieveTracker $tracker_factory,
     ): ArtifactCreator {
-        $default_values_adder = $this->createMock(AddDefaultValuesToFieldsData::class);
-        $default_values_adder->method('getUsedFieldsWithDefaultValue')
-            ->willReturnCallback(static fn (Tracker $tracker, array $fields_data, PFUser $user): array => $fields_data);
+        $default_values_adder = new class implements AddDefaultValuesToFieldsData {
+            public function getUsedFieldsWithDefaultValue(\Tracker $tracker, array $fields_data, \PFUser $user): array
+            {
+                return $fields_data;
+            }
+        };
 
         $artifact_link_initial_builder = new NewArtifactLinkInitialChangesetValueBuilder();
 

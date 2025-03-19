@@ -34,6 +34,7 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\DB\DBTransactionExecutorPassthrough;
 use Tuleap\User\OAuth2\Scope\OAuth2ScopeIdentifier;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class OAuth2RefreshTokenCreatorTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private const EXPECTED_EXPIRATION_DELAY_SECONDS = 30;
@@ -81,7 +82,7 @@ final class OAuth2RefreshTokenCreatorTest extends \Tuleap\Test\PHPUnit\TestCase
         $auth_code    = $this->getAuthorizationCode([OAuth2OfflineAccessScope::fromItself()]);
 
         $this->refresh_token_dao->expects(self::once())->method('create')
-            ->with($auth_code->getID(), self::isType('string'), $current_time->getTimestamp() + self::EXPECTED_EXPIRATION_DELAY_SECONDS)
+            ->with($auth_code->getID(), self::isString(), $current_time->getTimestamp() + self::EXPECTED_EXPIRATION_DELAY_SECONDS)
             ->willReturn(2);
         $this->scope_saver->expects(self::once())->method('saveScopes');
 
@@ -99,7 +100,7 @@ final class OAuth2RefreshTokenCreatorTest extends \Tuleap\Test\PHPUnit\TestCase
         $refresh_token = OAuth2RefreshToken::createWithASetOfScopes(12, [OAuth2OfflineAccessScope::fromItself()]);
 
         $this->refresh_token_dao->expects(self::once())->method('create')
-            ->with($refresh_token->getAssociatedAuthorizationCodeID(), self::isType('string'), $current_time->getTimestamp() + self::EXPECTED_EXPIRATION_DELAY_SECONDS)
+            ->with($refresh_token->getAssociatedAuthorizationCodeID(), self::isString(), $current_time->getTimestamp() + self::EXPECTED_EXPIRATION_DELAY_SECONDS)
             ->willReturn(3);
         $this->scope_saver->expects(self::once())->method('saveScopes');
 

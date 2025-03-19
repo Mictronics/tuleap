@@ -26,6 +26,7 @@ use SimpleXMLElement;
 use Tracker_FormElementFactory;
 use Tuleap\Tracker\Creation\JiraImporter\Import\Structure\ListFieldMapping;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class XmlReportDefaultCriteriaExporterTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testItExportsCriteriaWithNoSelectedValues(): void
@@ -67,10 +68,10 @@ final class XmlReportDefaultCriteriaExporterTest extends \Tuleap\Test\PHPUnit\Te
 
         $this->assertEquals(3, $node_criterias->count());
 
-        $this->assertSame('Fstatus', (string) $node_criterias->criteria[1]->field['REF']);
-        $this->assertSame('1', (string) $node_criterias->criteria[1]['rank']);
+        self::assertSame('Fstatus', (string) $node_criterias->criteria[1]->field['REF']);
+        self::assertSame('1', (string) $node_criterias->criteria[1]['rank']);
 
-        $this->assertSame('Fpriority', (string) $node_criterias->criteria[2]->field['REF']);
-        $this->assertSame('2', (string) $node_criterias->criteria[2]['rank']);
+        self::assertSame('Fpriority', (string) $node_criterias->criteria[2]->field['REF']);
+        self::assertSame('2', (string) $node_criterias->criteria[2]['rank']);
     }
 }

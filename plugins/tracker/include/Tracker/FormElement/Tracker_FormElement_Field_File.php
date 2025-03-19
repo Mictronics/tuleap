@@ -35,6 +35,8 @@ use Tuleap\Tracker\FormElement\Field\File\FileInfoForTusUploadedFileReadyToBeAtt
 use Tuleap\Tracker\FormElement\Field\File\Upload\FileOngoingUploadDao;
 use Tuleap\Tracker\FormElement\Field\File\Upload\Tus\FileBeingUploadedInformationProvider;
 use Tuleap\Tracker\FormElement\Field\File\Upload\UploadPathAllocator;
+use Tuleap\Tracker\Report\Criteria\CriteriaFileValueDAO;
+use Tuleap\Tracker\Report\Criteria\DeleteReportCriteriaValue;
 use Tuleap\Tracker\Report\Query\ParametrizedFrom;
 use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
 
@@ -98,6 +100,11 @@ class Tracker_FormElement_Field_File extends Tracker_FormElement_Field
     protected function getCriteriaDao()
     {
         return new Tracker_Report_Criteria_File_ValueDao();
+    }
+
+    public function getDeleteCriteriaValueDAO(): DeleteReportCriteriaValue
+    {
+        return new CriteriaFileValueDAO();
     }
 
     public function fetchChangesetValue(
@@ -254,10 +261,10 @@ class Tracker_FormElement_Field_File extends Tracker_FormElement_Field
         $html .= '<p>' . dgettext('tuleap-tracker', 'Add a new file:') . '</p>';
         $html .= '<div class="tracker_artifact_add_attachment">';
         $html .= '<p>';
-        $html .= '<input type="file" id="tracker_field_' . $this->id . '" name="artifact[' . $this->id . '][][file]" data-upload-is-enabled/>';
+        $html .= '<input type="file" data-test="file-field-file-input" id="tracker_field_' . $this->id . '" name="artifact[' . $this->id . '][][file]" data-upload-is-enabled/>';
         $html .= '<label>' . dgettext('tuleap-tracker', 'Description:');
         $html .= '</label>';
-        $html .= ' <input type="text" id="tracker_field_' . $this->id . '" name="artifact[' . $this->id . '][][description]" />';
+        $html .= ' <input type="text" data-test="file-field-description-input" id="tracker_field_' . $this->id . '" name="artifact[' . $this->id . '][][description]" />';
         $html .= '</p>';
         $html .= '</div>';
         $html .= '</div>';

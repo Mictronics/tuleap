@@ -25,6 +25,7 @@ use Mockery\MockInterface;
 use Tracker_FormElement;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldDetector;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class PermissionsExporterTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -141,6 +142,6 @@ class PermissionsExporterTest extends \Tuleap\Test\PHPUnit\TestCase
         );
 
         $expected_json = '["read","submit"]';
-        $this->assertSame($expected_json, json_encode($computed_permissions));
+        self::assertSame($expected_json, json_encode($computed_permissions));
     }
 }

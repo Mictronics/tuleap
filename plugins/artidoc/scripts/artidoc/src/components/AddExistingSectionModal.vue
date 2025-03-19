@@ -82,12 +82,12 @@ import type { HTMLTemplateResult, HTMLTemplateStringProcessor, LazyboxItem } fro
 import { createLazyAutocompleter } from "@tuleap/lazybox";
 import { CONFIGURATION_STORE } from "@/stores/configuration-store";
 import type { LazyAutocompleter } from "@tuleap/lazybox/src/LazyAutocompleterElement";
-import { SECTIONS_COLLECTION } from "@/sections/sections-collection-injection-key";
+import { SECTIONS_COLLECTION } from "@/sections/states/sections-collection-injection-key";
 import type { ArtidocSection } from "@/helpers/artidoc-section.type";
-import { createArtifactSection } from "@/helpers/rest-querier";
+import { createSectionFromExistingArtifact } from "@/helpers/rest-querier";
 import { DOCUMENT_ID } from "@/document-id-injection-key";
-import type { PositionForSection } from "@/sections/SectionsPositionsForSaveRetriever";
-import { AT_THE_END } from "@/sections/SectionsInserter";
+import type { PositionForSection } from "@/sections/save/SectionsPositionsForSaveRetriever";
+import { AT_THE_END } from "@/sections/insert/SectionsInserter";
 import type { Artifact } from "@/helpers/search-existing-artifacts-for-autocompleter";
 import {
     isArtifact,
@@ -95,6 +95,7 @@ import {
 } from "@/helpers/search-existing-artifacts-for-autocompleter";
 import { errAsync } from "neverthrow";
 import { getInsertionPositionExcludingPendingSections } from "@/helpers/get-insertion-position-excluding-pending-sections";
+import { getSectionsNumberer } from "@/sections/levels/SectionsNumberer";
 
 const gettext_provider = useGettext();
 const { $gettext, interpolate } = gettext_provider;
@@ -104,6 +105,7 @@ const close_title = $gettext("Close");
 const documentId = strictInject(DOCUMENT_ID);
 const configuration = strictInject(CONFIGURATION_STORE);
 const sections_collection = strictInject(SECTIONS_COLLECTION);
+const sections_numberer = getSectionsNumberer(sections_collection);
 
 const modal_element = ref<HTMLElement | undefined>(undefined);
 
@@ -240,10 +242,15 @@ function onSubmit(event: Event): void {
         return;
     }
 
-    createArtifactSection(
+    const insertion_position_excluding_pending_sections =
+        getInsertionPositionExcludingPendingSections(add_position, sections_collection);
+    createSectionFromExistingArtifact(
         documentId,
         selected.value.id,
-        getInsertionPositionExcludingPendingSections(add_position, sections_collection),
+        insertion_position_excluding_pending_sections,
+        sections_numberer.getLevelFromPositionOfImportedExistingSection(
+            insertion_position_excluding_pending_sections,
+        ),
     ).match(
         (section: ArtidocSection) => {
             on_successful_addition_callback(section);

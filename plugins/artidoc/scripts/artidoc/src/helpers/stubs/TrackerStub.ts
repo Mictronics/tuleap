@@ -54,10 +54,17 @@ export const TrackerStub = {
         },
     }),
 
+    withProjectId: (project_id: number): Tracker => ({
+        ...base,
+        project: {
+            ...base.project,
+            id: project_id,
+        },
+    }),
+
     withDescription: (): Tracker => ({
         ...base,
         description: {
-            field_id: 1002,
             label: "Details",
             type: "text",
             default_value: { format: "html", content: "" },
@@ -73,7 +80,6 @@ export const TrackerStub = {
             default_value: "",
         },
         description: {
-            field_id: 1002,
             label: "Details",
             type: "text",
             default_value: { format: "html", content: "" },

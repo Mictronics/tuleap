@@ -41,6 +41,7 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\Config\ConfigUpdaterStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class MeilisearchSaveAdminSettingsControllerTest extends TestCase
 {
     use ForgeConfigSandbox;
@@ -84,9 +85,7 @@ final class MeilisearchSaveAdminSettingsControllerTest extends TestCase
         self::assertEmpty($config_updater->getAllUpdatedConfig());
     }
 
-    /**
-     * @dataProvider dataProviderInvalidSettings
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderInvalidSettings')]
     public function testRejectsInvalidSettings(array $body): void
     {
         $config_updater = ConfigUpdaterStub::build();
@@ -103,11 +102,11 @@ final class MeilisearchSaveAdminSettingsControllerTest extends TestCase
     public static function dataProviderInvalidSettings(): array
     {
         return [
-            ['No parameters' => []],
-            ['No server URL' => ['server_url' => '', 'api_key' => 'something', 'index_name' => 'fts_tuleap']],
-            ['No api key' => ['server_url' => 'https://example.com', 'api_key' => '', 'index_name' => 'fts_tuleap']],
-            ['No index name' => ['server_url' => 'https://example.com', 'api_key' => 'something', 'index_name' => '']],
-            ['Server URL without HTTPS' => ['server_url' => 'http://example.com', 'api_key' => 'something', 'index_name' => 'fts_tuleap']],
+            'No parameters' => [[]],
+            'No server URL' => [['server_url' => '', 'api_key' => 'something', 'index_name' => 'fts_tuleap']],
+            'No api key' => [['server_url' => 'https://example.com', 'api_key' => '', 'index_name' => 'fts_tuleap']],
+            'No index name' => [['server_url' => 'https://example.com', 'api_key' => 'something', 'index_name' => '']],
+            'Server URL without HTTPS' => [['server_url' => 'http://example.com', 'api_key' => 'something', 'index_name' => 'fts_tuleap']],
         ];
     }
 

@@ -33,6 +33,7 @@ use TemplateRendererFactory;
 use Tuleap\ForgeConfigSandbox;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class LicenseAgreementDisplayTest extends TestCase
 {
     use ForgeConfigSandbox;
@@ -193,6 +194,6 @@ class LicenseAgreementDisplayTest extends TestCase
             $custom_agreement,
         ]);
         $this->factory->method('getDefaultLicenseAgreementForProject')->willReturn($custom_agreement);
-        $this->assertSame('foobar', $this->display->getPackageEditSelector($package, $this->project));
+        self::assertSame('foobar', $this->display->getPackageEditSelector($package, $this->project));
     }
 }

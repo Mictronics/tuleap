@@ -30,6 +30,7 @@ use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\CSRFSynchronizerTokenStub;
 use Tuleap\Test\Stubs\Project\Routing\ProjectCSRFSynchronizerTokenProviderStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class CheckProjectCSRFMiddlewareTest extends TestCase
 {
     public function testProcess(): void
@@ -45,7 +46,7 @@ final class CheckProjectCSRFMiddlewareTest extends TestCase
         $request = (new NullServerRequest())
             ->withAttribute(\Project::class, ProjectTestBuilder::aProject()->build());
 
-        $this->assertSame(
+        self::assertSame(
             $response,
             $middleware->process($request, $handler)
         );

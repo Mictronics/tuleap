@@ -22,27 +22,36 @@ import { createApp } from "vue";
 import { getPOFileFromLocaleWithoutExtension, initVueGettext } from "@tuleap/vue3-gettext-init";
 import { createGettext } from "vue3-gettext";
 import { getLocaleOrThrow, getTimezoneOrThrow, IntlFormatter } from "@tuleap/date-helper";
-import { ReadingCrossTrackerReport } from "./domain/ReadingCrossTrackerReport";
-import { WritingCrossTrackerReport } from "./domain/WritingCrossTrackerReport";
-import { BackendCrossTrackerReport } from "./domain/BackendCrossTrackerReport";
 import CrossTrackerWidget from "./CrossTrackerWidget.vue";
-import type { RetrieveProjects } from "./domain/RetrieveProjects";
-import { getSortedProjectsIAmMemberOf } from "./api/rest-querier";
-import { ProjectsCache } from "./api/ProjectsCache";
 import {
     DATE_FORMATTER,
     DATE_TIME_FORMATTER,
     DOCUMENTATION_BASE_URL,
+    EMITTER,
     GET_COLUMN_NAME,
+    GET_SUGGESTED_QUERIES,
+    IS_MULTIPLE_QUERY_SUPPORTED,
     IS_USER_ADMIN,
-    REPORT_ID,
+    WIDGET_ID,
     RETRIEVE_ARTIFACTS_TABLE,
-    RETRIEVE_PROJECTS,
+    DASHBOARD_TYPE,
+    NEW_QUERY_CREATOR,
+    UPDATE_WIDGET_TITLE,
+    DEFAULT_WIDGET_TITLE,
+    QUERY_UPDATER,
 } from "./injection-symbols";
 import { ArtifactsTableRetriever } from "./api/ArtifactsTableRetriever";
 import { ArtifactsTableBuilder } from "./api/ArtifactsTableBuilder";
 import VueDOMPurifyHTML from "vue-dompurify-html";
 import { ColumnNameGetter } from "./domain/ColumnNameGetter";
+import type { Events } from "./helpers/emitter-provider";
+import mitt from "mitt";
+import { getAttributeOrThrow, selectOrThrow } from "@tuleap/dom";
+import { SuggestedQueries } from "./domain/SuggestedQueriesGetter";
+import { NewQueryCreator } from "./api/NewQueryCreator";
+import type { WidgetData } from "./type";
+import { WidgetTitleUpdater } from "./WidgetTitleUpdater";
+import { QueryUpdater } from "./api/QueryUpdater";
 
 document.addEventListener("DOMContentLoaded", async () => {
     const locale = getLocaleOrThrow(document);
@@ -59,8 +68,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         "dashboard-widget-content-cross-tracker",
     );
 
-    const projects_retriever: RetrieveProjects = { getSortedProjectsIAmMemberOf };
-    const projects_cache = ProjectsCache(projects_retriever);
     const column_name_getter = ColumnNameGetter({ $gettext: gettext_plugin.$gettext });
 
     for (const widget_element of widget_cross_tracker_elements) {
@@ -68,43 +75,39 @@ document.addEventListener("DOMContentLoaded", async () => {
             return;
         }
 
-        const report_id_string = widget_element.dataset.reportId;
-        if (!report_id_string) {
-            throw new Error("Can not find report id");
-        }
+        const widget_json_data = getAttributeOrThrow(widget_element, "data-widget-json-data");
+        const widget_data: WidgetData = JSON.parse(widget_json_data);
+        const emitter = mitt<Events>();
 
-        const documentation_url = widget_element.dataset.documentationBaseUrl;
+        const title_element = selectOrThrow(
+            document,
+            `[data-widget-title="${widget_data.title_attribute}"]`,
+        );
+        const widget_title_updater = WidgetTitleUpdater(emitter, title_element);
 
-        const report_id = Number.parseInt(report_id_string, 10);
-        const is_widget_admin = widget_element.dataset.isWidgetAdmin === "true";
+        const vue_mount_point = selectOrThrow(widget_element, ".vue-mount-point");
 
-        const backend_report = new BackendCrossTrackerReport();
-        const reading_report = new ReadingCrossTrackerReport();
-        const writing_report = new WritingCrossTrackerReport();
-
-        const vue_mount_point = widget_element.querySelector(".vue-mount-point");
-        if (!vue_mount_point || !(vue_mount_point instanceof HTMLElement)) {
-            throw new Error("vue-mount-point DOM element is not found");
-        }
-
-        createApp(CrossTrackerWidget, {
-            backend_cross_tracker_report: backend_report,
-            reading_cross_tracker_report: reading_report,
-            writing_cross_tracker_report: writing_report,
-        })
+        createApp(CrossTrackerWidget)
             .use(gettext_plugin)
             .use(VueDOMPurifyHTML)
-            .provide(RETRIEVE_PROJECTS, projects_cache)
             .provide(DATE_FORMATTER, date_formatter)
             .provide(DATE_TIME_FORMATTER, date_time_formatter)
             .provide(
                 RETRIEVE_ARTIFACTS_TABLE,
-                ArtifactsTableRetriever(ArtifactsTableBuilder(), report_id),
+                ArtifactsTableRetriever(widget_data.widget_id, ArtifactsTableBuilder()),
             )
-            .provide(REPORT_ID, report_id)
-            .provide(IS_USER_ADMIN, is_widget_admin)
-            .provide(DOCUMENTATION_BASE_URL, documentation_url)
+            .provide(WIDGET_ID, widget_data.widget_id)
+            .provide(IS_USER_ADMIN, widget_data.is_widget_admin)
+            .provide(DOCUMENTATION_BASE_URL, widget_data.documentation_base_url)
             .provide(GET_COLUMN_NAME, column_name_getter)
+            .provide(EMITTER, emitter)
+            .provide(IS_MULTIPLE_QUERY_SUPPORTED, widget_data.is_multiple_query_supported)
+            .provide(GET_SUGGESTED_QUERIES, SuggestedQueries({ $gettext: gettext_plugin.$gettext }))
+            .provide(DASHBOARD_TYPE, widget_data.dashboard_type)
+            .provide(NEW_QUERY_CREATOR, NewQueryCreator())
+            .provide(QUERY_UPDATER, QueryUpdater())
+            .provide(UPDATE_WIDGET_TITLE, widget_title_updater)
+            .provide(DEFAULT_WIDGET_TITLE, widget_data.default_title)
             .mount(vue_mount_point);
     }
 });

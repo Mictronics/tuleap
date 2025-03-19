@@ -33,9 +33,11 @@ use Tuleap\Artidoc\Domain\Document\Section\ContentToInsert;
 use Tuleap\Artidoc\Domain\Document\Section\Freetext\Identifier\FreetextIdentifierFactory;
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifier;
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifierFactory;
+use Tuleap\Artidoc\Domain\Document\Section\Level;
 use Tuleap\NeverThrow\Result;
 use Tuleap\Test\PHPUnit\TestIntegrationTestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ReorderSectionsDaoTest extends TestIntegrationTestCase
 {
     private ArtidocWithContext $artidoc_101;
@@ -54,35 +56,35 @@ final class ReorderSectionsDaoTest extends TestIntegrationTestCase
         $uuid_1 = $save_dao
             ->saveSectionAtTheEnd(
                 $this->artidoc_101,
-                ContentToInsert::fromArtifactId(1001),
+                ContentToInsert::fromArtifactId(1001, Level::One),
             )->map(fn (SectionIdentifier $identifier) => $identifier->toString())
             ->unwrapOr('');
         self::assertNotSame('', $uuid_1);
         $uuid_2 = $save_dao
             ->saveSectionAtTheEnd(
                 $this->artidoc_101,
-                ContentToInsert::fromArtifactId(1002),
+                ContentToInsert::fromArtifactId(1002, Level::One),
             )->map(fn (SectionIdentifier $identifier) => $identifier->toString())
             ->unwrapOr('');
         self::assertNotSame('', $uuid_2);
         $uuid_3 = $save_dao
             ->saveSectionAtTheEnd(
                 $this->artidoc_101,
-                ContentToInsert::fromArtifactId(1003),
+                ContentToInsert::fromArtifactId(1003, Level::One),
             )->map(fn (SectionIdentifier $identifier) => $identifier->toString())
             ->unwrapOr('');
         self::assertNotSame('', $uuid_3);
         $save_dao->saveSectionAtTheEnd(
             $this->artidoc_102,
-            ContentToInsert::fromArtifactId(1001),
+            ContentToInsert::fromArtifactId(1001, Level::One),
         );
         $save_dao->saveSectionAtTheEnd(
             $this->artidoc_102,
-            ContentToInsert::fromArtifactId(1002),
+            ContentToInsert::fromArtifactId(1002, Level::One),
         );
         $save_dao->saveSectionAtTheEnd(
             $this->artidoc_102,
-            ContentToInsert::fromArtifactId(1003),
+            ContentToInsert::fromArtifactId(1003, Level::One),
         );
 
         $reorder_dao = new ReorderSectionsDao();
@@ -141,14 +143,14 @@ final class ReorderSectionsDaoTest extends TestIntegrationTestCase
         $uuid_1 = $save_dao
             ->saveSectionAtTheEnd(
                 $this->artidoc_101,
-                ContentToInsert::fromArtifactId(1001),
+                ContentToInsert::fromArtifactId(1001, Level::One),
             )->map(fn (SectionIdentifier $identifier) => $identifier->toString())
             ->unwrapOr('');
         self::assertNotSame('', $uuid_1);
         $uuid_2 = $save_dao
             ->saveSectionAtTheEnd(
                 $this->artidoc_102,
-                ContentToInsert::fromArtifactId(1002),
+                ContentToInsert::fromArtifactId(1002, Level::One),
             )->map(fn (SectionIdentifier $identifier) => $identifier->toString())
             ->unwrapOr('');
         self::assertNotSame('', $uuid_2);

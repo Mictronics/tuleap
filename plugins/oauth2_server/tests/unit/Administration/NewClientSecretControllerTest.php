@@ -21,6 +21,7 @@
 namespace Tuleap\OAuth2Server\Administration;
 
 use Laminas\HttpHandlerRunner\Emitter\EmitterInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\Http\Message\ServerRequestInterface;
 use Tuleap\Http\HTTPFactoryBuilder;
 use Tuleap\Http\Response\RedirectWithFeedbackFactory;
@@ -30,6 +31,7 @@ use Tuleap\OAuth2Server\App\ClientSecretUpdater;
 use Tuleap\Request\ForbiddenException;
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class NewClientSecretControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -69,16 +71,16 @@ final class NewClientSecretControllerTest extends \Tuleap\Test\PHPUnit\TestCase
     public function testGetProjectAdminUrl(): void
     {
         $project = new \Project(['group_id' => 102]);
-        $this->assertSame(
+        self::assertSame(
             '/plugins/oauth2_server/project/102/admin/new-client-secret',
             NewClientSecretController::getProjectAdminURL($project)
         );
     }
 
     /**
-     * @dataProvider dataProviderInvalidBody
      * @param array|null $parsed_body
      */
+    #[DataProvider('dataProviderInvalidBody')]
     public function testHandleRedirectsWithErrorWhenDataIsInvalid($parsed_body): void
     {
         $request  = $this->buildProjectAdminRequest()->withParsedBody($parsed_body);
@@ -88,7 +90,7 @@ final class NewClientSecretControllerTest extends \Tuleap\Test\PHPUnit\TestCase
             ->willReturn($response);
         $this->client_secret_updater->expects(self::never())->method('updateClientSecret');
 
-        $this->assertSame($response, $this->controller->handle($request));
+        self::assertSame($response, $this->controller->handle($request));
     }
 
     public static function dataProviderInvalidBody(): array

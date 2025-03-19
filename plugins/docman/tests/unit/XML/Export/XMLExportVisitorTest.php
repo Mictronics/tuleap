@@ -43,6 +43,7 @@ use UserManager;
 use UserXMLExportedCollection;
 use UserXMLExporter;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class XMLExportVisitorTest extends TestCase
 {
     private TestLogger $logger;
@@ -160,11 +161,17 @@ final class XMLExportVisitorTest extends TestCase
                 ]
             ),
         ]);
-        $this->archive->expects(self::exactly(2))->method('addFile')
-            ->withConsecutive(
-                ['documents/content-142.bin', '/toto'],
-                ['documents/content-241.bin', '/titi'],
-            );
+        $matcher = self::exactly(2);
+        $this->archive->expects($matcher)->method('addFile')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame('documents/content-142.bin', $parameters[0]);
+                self::assertSame('/toto', $parameters[1]);
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame('documents/content-241.bin', $parameters[0]);
+                self::assertSame('/titi', $parameters[1]);
+            }
+        });
 
         $this->visitor->export($xml, $file);
 
@@ -259,11 +266,17 @@ final class XMLExportVisitorTest extends TestCase
                 ]
             ),
         ]);
-        $this->archive->expects(self::exactly(2))->method('addFile')
-            ->withConsecutive(
-                ['documents/content-142.bin', '/toto'],
-                ['documents/content-241.bin', '/titi'],
-            );
+        $matcher = self::exactly(2);
+        $this->archive->expects($matcher)->method('addFile')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame('documents/content-142.bin', $parameters[0]);
+                self::assertSame('/toto', $parameters[1]);
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame('documents/content-241.bin', $parameters[0]);
+                self::assertSame('/titi', $parameters[1]);
+            }
+        });
 
         $this->visitor->export($xml, $embedded_file);
 

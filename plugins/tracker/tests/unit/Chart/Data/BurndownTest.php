@@ -20,6 +20,7 @@
 
 use Tuleap\Date\DatePeriodWithOpenDays;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class Tracker_Chart_Data_BurndownTest extends \Tuleap\Test\PHPUnit\TestCase //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
     private $start_date;
@@ -153,7 +154,7 @@ final class Tracker_Chart_Data_BurndownTest extends \Tuleap\Test\PHPUnit\TestCas
     {
         $date_period   = DatePeriodWithOpenDays::buildFromDuration($this->start_date, 2);
         $burndown_data = new Tracker_Chart_Data_Burndown($date_period);
-        $this->assertSame([null, null, null], $burndown_data->getRemainingEffort());
+        self::assertSame([null, null, null], $burndown_data->getRemainingEffort());
     }
 
     public function testItReturnsValidRemainingEffortWhenOnlyAddingNull(): void
@@ -163,13 +164,13 @@ final class Tracker_Chart_Data_BurndownTest extends \Tuleap\Test\PHPUnit\TestCas
         $burndown_data->addEffortAt(0, null);
         $burndown_data->addEffortAt(1, null);
         $burndown_data->addEffortAt(2, null);
-        $this->assertSame([null, null, null], $burndown_data->getRemainingEffort());
+        self::assertSame([null, null, null], $burndown_data->getRemainingEffort());
     }
 
     public function testItHasNoIdealBurndown(): void
     {
         $date_period   = DatePeriodWithOpenDays::buildFromDuration($this->start_date, 2);
         $burndown_data = new Tracker_Chart_Data_Burndown($date_period);
-        $this->assertSame([0, 0, 0], $burndown_data->getIdealEffort());
+        self::assertSame([0, 0, 0], $burndown_data->getIdealEffort());
     }
 }

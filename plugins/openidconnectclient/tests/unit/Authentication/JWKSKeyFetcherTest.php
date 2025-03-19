@@ -26,6 +26,7 @@ use Http\Mock\Client;
 use Tuleap\Http\HTTPFactoryBuilder;
 use Tuleap\OpenIDConnectClient\Provider\Provider;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class JWKSKeyFetcherTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -80,9 +81,7 @@ final class JWKSKeyFetcherTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->key_fetcher->fetchKey($provider);
     }
 
-    /**
-     * @dataProvider dataProviderInvalidJWKSDocument
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderInvalidJWKSDocument')]
     public function testCannotFetchKeyFromAnInvalidJWKSDocument(string $document): void
     {
         $provider = $this->createMock(Provider::class);

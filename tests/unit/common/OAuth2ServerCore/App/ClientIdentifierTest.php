@@ -24,6 +24,7 @@ namespace Tuleap\OAuth2ServerCore\App;
 
 use Tuleap\Cryptography\ConcealedString;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ClientIdentifierTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testIdentifierKeyIsHeldAsIs(): void
@@ -31,7 +32,7 @@ final class ClientIdentifierTest extends \Tuleap\Test\PHPUnit\TestCase
         $identifier_key = 'tlp-client-id-123';
         $identifier     = ClientIdentifier::fromClientId($identifier_key);
 
-        $this->assertSame($identifier_key, $identifier->toString());
+        self::assertSame($identifier_key, $identifier->toString());
     }
 
     public function testIdentifierKeyNotCorrectlyFormattedIsRejected(): void
@@ -45,14 +46,14 @@ final class ClientIdentifierTest extends \Tuleap\Test\PHPUnit\TestCase
         $numeric_id = 28;
         $identifier = ClientIdentifier::fromClientId('tlp-client-id-' . $numeric_id);
 
-        $this->assertSame($numeric_id, $identifier->getInternalId());
+        self::assertSame($numeric_id, $identifier->getInternalId());
     }
 
     public function testGetInternalIdCastsToInteger(): void
     {
         $identifier = ClientIdentifier::fromClientId('tlp-client-id-007');
 
-        $this->assertSame(7, $identifier->getInternalId());
+        self::assertSame(7, $identifier->getInternalId());
     }
 
     public function testClientIdentifierCanBeBuiltFromTheApp(): void

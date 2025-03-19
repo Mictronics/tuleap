@@ -29,6 +29,7 @@ use Tuleap\GitLFS\Batch\Response\Action\BatchResponseActionContent;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class SSHAuthenticateTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private SSHAuthenticate $auth;
@@ -218,9 +219,7 @@ final class SSHAuthenticateTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->auth->main('mary', ['/usr/share/gitolite3/commands/git-lfs-authenticate', 'foo/faa.git', 'download']);
     }
 
-    /**
-     * @dataProvider dataProviderRepositoryPath
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderRepositoryPath')]
     public function testItReturnsBatchResponseActionContentWhenEverythingIsOk(string $repository_path): void
     {
         $user_operation = $this->createMock(UserOperation::class);

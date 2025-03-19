@@ -28,6 +28,7 @@ use Tuleap\Request\CaptureRequestHandler;
 use Tuleap\Request\ProjectRetriever;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ProjectByNameRetrieverMiddlewareTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testProcessAttachesProjectToRequest(): void
@@ -49,11 +50,11 @@ final class ProjectByNameRetrieverMiddlewareTest extends \Tuleap\Test\PHPUnit\Te
 
         $request = (new NullServerRequest())->withAttribute('project_name', 'acme');
 
-        $this->assertSame(
+        self::assertSame(
             $response,
             $middleware->process($request, $handler)
         );
-        $this->assertSame(
+        self::assertSame(
             $project,
             $handler->getCapturedRequest()->getAttribute(\Project::class)
         );

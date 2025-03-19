@@ -20,18 +20,16 @@
 import { render, html } from "lit-html";
 import { unsafeHTML } from "lit-html/directives/unsafe-html.js";
 import DOMPurify from "dompurify";
+import type { ReactiveStoredArtidocSection } from "@/sections/SectionsCollection";
 
-export const renderArtidocSectionNode = (
-    section_title: string,
-    section_description: string,
-): HTMLElement => {
+export const renderArtidocSectionNode = (section: ReactiveStoredArtidocSection): HTMLElement => {
     const node = document.createDocumentFragment();
 
     const template = html`
         <artidoc-section>
-            <artidoc-section-title>${section_title}</artidoc-section-title>
+            <artidoc-section-title>${section.value.title}</artidoc-section-title>
             <artidoc-section-description>
-                ${unsafeHTML(DOMPurify.sanitize(section_description))}
+                ${unsafeHTML(DOMPurify.sanitize(section.value.description))}
             </artidoc-section-description>
         </artidoc-section>
     `;

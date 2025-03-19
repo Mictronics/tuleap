@@ -36,6 +36,7 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class PlanningFactoryTestGetPlanningTest extends TestCase
 {
     private Planning $sprint_planning;
@@ -176,12 +177,17 @@ final class PlanningFactoryTestGetPlanningTest extends TestCase
 
     public function testItReturnsAllDefinedPlanningsForAProjectInTheOrderDefinedByTheHierarchy(): void
     {
-        $this->planning_dao->method('searchBacklogTrackersByPlanningId')
-            ->withConsecutive([1], [2])
-            ->willReturnOnConsecutiveCalls(
-                [['tracker_id' => 104]],
-                [['tracker_id' => 101]],
-            );
+        $matcher = $this->exactly(2);
+        $this->planning_dao->expects($matcher)->method('searchBacklogTrackersByPlanningId')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame(1, $parameters[0]);
+                return [['tracker_id' => 104]];
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame(2, $parameters[0]);
+                return [['tracker_id' => 101]];
+            }
+        });
 
 
         $this->release_tracker->method('userCanView')->with($this->user)->willReturn(true);
@@ -196,11 +202,10 @@ final class PlanningFactoryTestGetPlanningTest extends TestCase
     public function testItReturnsOnlyPlanningsWhereTheUserCanViewTrackers(): void
     {
         $this->planning_dao->method('searchBacklogTrackersByPlanningId')
-            ->withConsecutive([1], [2])
-            ->willReturnOnConsecutiveCalls(
-                [['tracker_id' => 104]],
-                [['tracker_id' => 101]],
-            );
+            ->willReturnMap([
+                [1, [['tracker_id' => 104]]],
+                [2, [['tracker_id' => 101]]],
+            ]);
 
 
         $this->release_tracker->method('userCanView')->with($this->user)->willReturn(false);

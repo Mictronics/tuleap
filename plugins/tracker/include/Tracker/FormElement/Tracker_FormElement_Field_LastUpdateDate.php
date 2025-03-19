@@ -21,7 +21,6 @@
 
 use Tuleap\Option\Option;
 use Tuleap\Tracker\Artifact\Artifact;
-use Tuleap\Tracker\FormElement\Field\Date\DateFieldDao;
 use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
 use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
 
@@ -29,23 +28,6 @@ use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
 class Tracker_FormElement_Field_LastUpdateDate extends Tracker_FormElement_Field_Date implements Tracker_FormElement_Field_ReadOnly
 {
     public array $default_properties = [];
-
-    protected function getDao()
-    {
-        return new DateFieldDao();
-    }
-
-    /**
-     * The field is permanently deleted from the db
-     * This hooks is here to delete specific properties,
-     * or specific values of the field.
-     * (The field itself will be deleted later)
-     * @return bool true if success
-     */
-    public function delete()
-    {
-        return true;
-    }
 
     public function getCriteriaFromWhere(Tracker_Report_Criteria $criteria): Option
     {

@@ -34,6 +34,7 @@ use Tuleap\Project\UserRemover as ProjectMemberRemover;
 use Tuleap\Request\ProjectRetriever;
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class MemberRemovalControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use GlobalLanguageMock;
@@ -102,11 +103,17 @@ final class MemberRemovalControllerTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->ugroup_manager->method('getUGroup')->with($project, '202')->willReturn($ugroup);
 
         $user_to_remove = new \PFUser(['user_id' => 303]);
-        $this->http_request->method('get')
-            ->withConsecutive(
-                ['remove_user'],
-                ['remove-from-ugroup']
-            )->willReturnOnConsecutiveCalls('303', 'remove-from-ugroup-only');
+        $matcher        = $this->exactly(2);
+        $this->http_request->expects($matcher)->method('get')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame('remove_user', $parameters[0]);
+                return '303';
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame('remove-from-ugroup', $parameters[0]);
+                return 'remove-from-ugroup-only';
+            }
+        });
         $this->user_manager->method('getUserById')->with('303')->willReturn($user_to_remove);
 
         $this->member_remover->method('removeMember')->with($user_to_remove, $project_admin, $ugroup);
@@ -133,11 +140,17 @@ final class MemberRemovalControllerTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->ugroup_manager->method('getUGroup')->with($project, '202')->willReturn($ugroup);
 
         $user_to_remove = new \PFUser(['user_id' => 303]);
-        $this->http_request->method('get')
-            ->withConsecutive(
-                ['remove_user'],
-                ['remove-from-ugroup']
-            )->willReturnOnConsecutiveCalls('303', 'remove-from-ugroup-only');
+        $matcher        = $this->exactly(2);
+        $this->http_request->expects($matcher)->method('get')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame('remove_user', $parameters[0]);
+                return '303';
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame('remove-from-ugroup', $parameters[0]);
+                return 'remove-from-ugroup-only';
+            }
+        });
         $this->user_manager->method('getUserById')->with('303')->willReturn($user_to_remove);
 
         $this->member_remover->method('removeMember')->with($user_to_remove, $project_admin, $ugroup)
@@ -171,11 +184,17 @@ final class MemberRemovalControllerTest extends \Tuleap\Test\PHPUnit\TestCase
             ->withMemberOf($project)
             ->withoutSiteAdministrator()
             ->build();
-        $this->http_request->method('get')
-            ->withConsecutive(
-                ['remove_user'],
-                ['remove-from-ugroup']
-            )->willReturnOnConsecutiveCalls('303', 'remove-from-ugroup-and-project');
+        $matcher        = $this->exactly(2);
+        $this->http_request->expects($matcher)->method('get')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame('remove_user', $parameters[0]);
+                return '303';
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame('remove-from-ugroup', $parameters[0]);
+                return 'remove-from-ugroup-and-project';
+            }
+        });
         $this->user_manager->method('getUserById')->with('303')->willReturn($user_to_remove);
 
         $this->project_member_remover->expects(self::once())->method('removeUserFromProject')->with(101, 303);
@@ -206,11 +225,17 @@ final class MemberRemovalControllerTest extends \Tuleap\Test\PHPUnit\TestCase
             ->withAdministratorOf($project)
             ->withoutSiteAdministrator()
             ->build();
-        $this->http_request->method('get')
-            ->withConsecutive(
-                ['remove_user'],
-                ['remove-from-ugroup']
-            )->willReturnOnConsecutiveCalls('303', 'remove-from-ugroup-and-project');
+        $matcher        = $this->exactly(2);
+        $this->http_request->expects($matcher)->method('get')->willReturnCallback(function (...$parameters) use ($matcher) {
+            if ($matcher->numberOfInvocations() === 1) {
+                self::assertSame('remove_user', $parameters[0]);
+                return '303';
+            }
+            if ($matcher->numberOfInvocations() === 2) {
+                self::assertSame('remove-from-ugroup', $parameters[0]);
+                return 'remove-from-ugroup-and-project';
+            }
+        });
         $this->user_manager->method('getUserById')->with('303')->willReturn($user_to_remove);
 
         $this->project_member_remover->method('removeUserFromProject');

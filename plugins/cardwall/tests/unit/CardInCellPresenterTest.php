@@ -29,6 +29,7 @@ use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class CardInCellPresenterTest extends TestCase
 {
     private const CARD_FIELD_ID = 9999;
@@ -47,6 +48,11 @@ final class CardInCellPresenterTest extends TestCase
         $this->card_presenter->method('getArtifact')->willReturn($this->artifact);
         $this->card_presenter->method('getId')->willReturn(self::CARD_ID);
         $this->presenter = new Cardwall_CardInCellPresenter($this->card_presenter, self::CARD_FIELD_ID, $swimline_id, $swimline_field_values);
+    }
+
+    protected function tearDown(): void
+    {
+        unset($GLOBALS['_SESSION']);
     }
 
     public function testItHasColumnDropInto(): void

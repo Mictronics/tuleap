@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace Tuleap\OpenIDConnectClient\Provider\AzureADProvider;
 
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AzureADTenantSetupTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testSetupsAreInstantiatedOnlyOnce(): void
@@ -38,26 +39,22 @@ final class AzureADTenantSetupTest extends \Tuleap\Test\PHPUnit\TestCase
         sort($known_setups);
         sort($all_setups);
 
-        $this->assertSame($known_setups, $all_setups);
+        self::assertSame($known_setups, $all_setups);
 
         foreach ($all_setups as $setup) {
             $setup_from_identifier = AzureADTenantSetup::fromIdentifier($setup->getIdentifier());
 
-            $this->assertSame($setup, $setup_from_identifier);
+            self::assertSame($setup, $setup_from_identifier);
         }
     }
 
-    /**
-     * @dataProvider dataProviderAllPossibleSetups
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderAllPossibleSetups')]
     public function testSetupHaveAnIdentifier(AzureADTenantSetup $setup): void
     {
         $this->assertNotEmpty($setup->getIdentifier());
     }
 
-    /**
-     * @dataProvider dataProviderAllPossibleSetups
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderAllPossibleSetups')]
     public function testSetupHaveADescription(AzureADTenantSetup $setup): void
     {
         $this->assertNotEmpty($setup->getDescription());

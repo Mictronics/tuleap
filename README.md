@@ -30,7 +30,6 @@ be added.
 
 ### Integrators
 
-* Sandra Echinard
 * Marie Ange Garnier
 * Thomas Gerbet
 * Thomas Gorka
@@ -40,12 +39,12 @@ be added.
 * Nicolas Terray
 * Manuel Vacelet
 * Kevin Traini
+* Clarisse Deschamps
 
 ### Contributors
 
 * Aurélien Tisné
 * Fábio F. Silva
-* Clarisse Deschamps
 * Chloé Masoni
 * Guilhem Bonnefille
 * Lou-Evan Rouby
@@ -53,6 +52,7 @@ be added.
 
 ### Previous contributors (no longer active committers)
 
+* Sandra Echinard
 * Yannis Rossetto
 * Florian Caillol
 * Thomas Piras

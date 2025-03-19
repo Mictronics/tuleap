@@ -31,6 +31,7 @@ use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Test\Stub\BindValueIdCollectionStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FirstValidValueAccordingToDependenciesRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private const FIRST_VALUE_ID  = 101;
@@ -89,7 +90,7 @@ final class FirstValidValueAccordingToDependenciesRetrieverTest extends \Tuleap\
 
     public function testItReturnFirstValueWithValidTransitionIfTheirIsNoDependencyRuleForTracker(): void
     {
-        $this->assertSame(
+        self::assertSame(
             self::FIRST_VALUE_ID,
             $this->first_valid_value_according_to_dependencies_retriever->getFirstValidValuesAccordingToDependencies(
                 $this->value_collection,
@@ -102,7 +103,7 @@ final class FirstValidValueAccordingToDependenciesRetrieverTest extends \Tuleap\
 
     public function testItReturnFirstValueWithValidTransitionAndDependencyRuleForTracker(): void
     {
-        $this->assertSame(
+        self::assertSame(
             self::THIRD_VALUE_ID,
             $this->first_valid_value_according_to_dependencies_retriever->getFirstValidValuesAccordingToDependencies(
                 $this->value_collection,

@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tuleap\Tracker\Creation\JiraImporter\Import\Artifact\Comment;
 
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class JiraCloudCommentTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testItBuildsACommentFromAPIResponse(): void
@@ -41,8 +42,8 @@ class JiraCloudCommentTest extends \Tuleap\Test\PHPUnit\TestCase
             ]
         );
 
-        $this->assertSame(1587461806, $comment->getDate()->getTimestamp());
-        $this->assertSame('<p>Comment 01</p>', $comment->getRenderedValue());
+        self::assertSame(1587461806, $comment->getDate()->getTimestamp());
+        self::assertSame('<p>Comment 01</p>', $comment->getRenderedValue());
     }
 
     public function testItThrowsAnExceptionIfAPIResponseIsNotWellFormed(): void

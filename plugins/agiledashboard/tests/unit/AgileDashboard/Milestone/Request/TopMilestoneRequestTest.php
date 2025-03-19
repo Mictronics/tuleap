@@ -26,6 +26,7 @@ use Tuleap\AgileDashboard\Milestone\Criterion\Status\StatusAll;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class TopMilestoneRequestTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testItReturnsTrueIfItsFilteringQueryIsFuture(): void
@@ -68,11 +69,11 @@ final class TopMilestoneRequestTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $request = new TopMilestoneRequest($user, $project, $limit, $offset, $order, $filtering_query);
 
-        $this->assertSame($user, $request->getUser());
-        $this->assertSame($project, $request->getProject());
-        $this->assertSame($limit, $request->getLimit());
-        $this->assertSame($offset, $request->getOffset());
-        $this->assertSame($order, $request->getOrder());
-        $this->assertSame($status_query, $request->getStatusFilter());
+        self::assertSame($user, $request->getUser());
+        self::assertSame($project, $request->getProject());
+        self::assertSame($limit, $request->getLimit());
+        self::assertSame($offset, $request->getOffset());
+        self::assertSame($order, $request->getOrder());
+        self::assertSame($status_query, $request->getStatusFilter());
     }
 }

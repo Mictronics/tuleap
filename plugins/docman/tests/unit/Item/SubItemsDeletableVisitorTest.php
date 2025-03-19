@@ -25,6 +25,7 @@ namespace Tuleap\Docman\Item;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class SubItemsDeletableVisitorTest extends TestCase
 {
     /**
@@ -44,9 +45,7 @@ class SubItemsDeletableVisitorTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider getItems
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getItems')]
     public function testItReturnsTrueIfUserIsAllowedToDeleteTheItem(\Docman_Item $item): void
     {
         $user = UserTestBuilder::aUser()->build();
@@ -60,9 +59,7 @@ class SubItemsDeletableVisitorTest extends TestCase
         self::assertTrue($item->accept(new SubItemsDeletableVisitor($permissions_manager, $user)));
     }
 
-    /**
-     * @dataProvider getItems
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getItems')]
     public function testItReturnsFalseIfUserIsNotAllowedToDeleteTheItem(\Docman_Item $item): void
     {
         $user = UserTestBuilder::aUser()->build();

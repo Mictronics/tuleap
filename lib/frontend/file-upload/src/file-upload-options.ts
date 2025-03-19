@@ -19,6 +19,10 @@
 
 import type { UploadError } from "./upload-file.error";
 
+export interface OngoingUpload {
+    readonly cancel: () => void;
+}
+
 export type OnGoingUploadFile = {
     file_name: string;
     progress: number;
@@ -29,11 +33,11 @@ export type UploadPostInformation = {
     readonly getUploadJsonPayload: (file: File) => unknown;
 };
 
+export type FileIdentifier = number | string;
+
 export type FileUploadOptions = {
     readonly post_information: UploadPostInformation;
-    max_size_upload: number;
     onErrorCallback: (error: UploadError, file_name: string) => void;
-    onSuccessCallback: (id: number, download_href: string, file_name: string) => void;
+    onSuccessCallback: (id: FileIdentifier, download_href: string, file_name: string) => void;
     onProgressCallback: (file_name: string, global_progress: number) => void;
-    onStartUploadCallback: (files: FileList) => OnGoingUploadFile[];
 };

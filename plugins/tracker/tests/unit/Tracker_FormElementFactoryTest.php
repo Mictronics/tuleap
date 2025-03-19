@@ -21,10 +21,13 @@
 
 use Tuleap\Tracker\FormElement\Field\FieldDao;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class Tracker_FormElementFactoryTest extends \Tuleap\Test\PHPUnit\TestCase //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
     use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
     use Tuleap\GlobalLanguageMock;
+    use \Tuleap\ForgeConfigSandbox;
+    use \Tuleap\TemporaryTestDirectory;
 
     /**
      * @var int
@@ -73,11 +76,13 @@ final class Tracker_FormElementFactoryTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $this->project_id  = 3;
         $this->template_id = 29;
+
+        \ForgeConfig::set('codendi_cache_dir', $this->getTmpDir());
     }
 
     protected function tearDown(): void
     {
-        unset($GLOBALS['HTML']);
+        unset($GLOBALS['HTML'], $GLOBALS['_SESSION']);
     }
 
     public function testSaveObject(): void

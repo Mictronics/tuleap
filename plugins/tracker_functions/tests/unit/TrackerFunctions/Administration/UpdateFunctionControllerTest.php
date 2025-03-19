@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace Tuleap\TrackerFunctions\Administration;
 
 use org\bovigo\vfs\vfsStream;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\Log\NullLogger;
 use Tuleap\ForgeConfigSandbox;
 use Tuleap\Http\HTTPFactoryBuilder;
@@ -38,6 +39,7 @@ use Tuleap\TrackerFunctions\Stubs\Administration\UpdateFunctionActivationStub;
 use Tuleap\TrackerFunctions\Stubs\Administration\UploadedFileStub;
 use Tuleap\TrackerFunctions\WASM\FindWASMFunctionPath;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class UpdateFunctionControllerTest extends TestCase
 {
     use ForgeConfigSandbox;
@@ -110,9 +112,7 @@ final class UpdateFunctionControllerTest extends TestCase
         self::assertSame(302, $response->getStatusCode());
     }
 
-    /**
-     * @dataProvider getUploadErrors
-     */
+    #[DataProvider('getUploadErrors')]
     public function testErrorWhenErrorDuringUpload(int $error): void
     {
         $tracker = TrackerTestBuilder::aTracker()->withId(101)->build();
@@ -141,7 +141,7 @@ final class UpdateFunctionControllerTest extends TestCase
         self::assertSame(302, $response->getStatusCode());
     }
 
-    private function getUploadErrors(): array
+    public static function getUploadErrors(): array
     {
         return [
             [UPLOAD_ERR_INI_SIZE],

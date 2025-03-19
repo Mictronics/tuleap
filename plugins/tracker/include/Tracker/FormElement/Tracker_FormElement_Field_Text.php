@@ -32,10 +32,16 @@ use Tuleap\Tracker\Artifact\FileUploadDataProvider;
 use Tuleap\Tracker\Artifact\RichTextareaConfiguration;
 use Tuleap\Tracker\Artifact\RichTextareaProvider;
 use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
-use Tuleap\Tracker\FormElement\Field\Text\TextFieldDao;
 use Tuleap\Tracker\FormElement\Field\Text\TextValueDao;
 use Tuleap\Tracker\FormElement\Field\Text\TextValueValidator;
 use Tuleap\Tracker\FormElement\FieldContentIndexer;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\DeleteSpecificProperties;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\DuplicateSpecificProperties;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\SaveSpecificFieldProperties;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\SearchSpecificProperties;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\TextFieldSpecificPropertiesDAO;
+use Tuleap\Tracker\Report\Criteria\CriteriaAlphaNumValueDAO;
+use Tuleap\Tracker\Report\Criteria\DeleteReportCriteriaValue;
 use Tuleap\Tracker\Report\Query\ParametrizedFrom;
 use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
 use Tuleap\Tracker\Report\Query\ParametrizedSQLFragment;
@@ -63,16 +69,9 @@ class Tracker_FormElement_Field_Text extends Tracker_FormElement_Field_Alphanum
 
     private bool $is_artifact_copy = false;
 
-    /**
-     * The field is permanently deleted from the db
-     * This hooks is here to delete specific properties,
-     * or specific values of the field.
-     * (The field itself will be deleted later)
-     * @return bool true if success
-     */
-    public function delete()
+    public function getDeleteCriteriaValueDAO(): DeleteReportCriteriaValue
     {
-        return $this->getDao()->delete($this->id);
+        return new CriteriaAlphaNumValueDAO();
     }
 
     public function getCriteriaFromWhere(Tracker_Report_Criteria $criteria): Option
@@ -221,9 +220,24 @@ class Tracker_FormElement_Field_Text extends Tracker_FormElement_Field_Alphanum
         return new TextValueDao();
     }
 
-    protected function getDao()
+    protected function getDuplicateSpecificPropertiesDao(): DuplicateSpecificProperties
     {
-        return new TextFieldDao();
+        return new TextFieldSpecificPropertiesDAO();
+    }
+
+    protected function getDeleteSpecificPropertiesDao(): DeleteSpecificProperties
+    {
+        return new TextFieldSpecificPropertiesDAO();
+    }
+
+    protected function getSearchSpecificPropertiesDao(): SearchSpecificProperties
+    {
+        return new TextFieldSpecificPropertiesDAO();
+    }
+
+    protected function getSaveSpecificPropertiesDao(): SaveSpecificFieldProperties
+    {
+        return new TextFieldSpecificPropertiesDAO();
     }
 
     /**
@@ -430,7 +444,7 @@ class Tracker_FormElement_Field_Text extends Tracker_FormElement_Field_Alphanum
         if ($this->hasDefaultValue()) {
             $content = $this->getProperty('default_value');
         }
-        $html .= '<textarea rows="' . $this->getProperty('rows') . '" cols="' . $this->getProperty('cols') . '" autocomplete="off">';
+        $html .= '<textarea data-test="text-field-admin-value" rows="' . $this->getProperty('rows') . '" cols="' . $this->getProperty('cols') . '" autocomplete="off">';
         $html .=  $hp->purify($content, CODENDI_PURIFIER_CONVERT_HTML);
         $html .= '</textarea>';
         return $html;

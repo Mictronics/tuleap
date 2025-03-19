@@ -21,7 +21,7 @@ import { createApp, ref } from "vue";
 import { createGettext } from "vue3-gettext";
 import VueDOMPurifyHTML from "vue-dompurify-html";
 import { getLocaleOrThrow, getTimezoneOrThrow } from "@tuleap/date-helper";
-import { getDatasetItemOrThrow } from "@tuleap/dom";
+import { getAttributeOrThrow } from "@tuleap/dom";
 import { getPOFileFromLocaleWithoutExtension, initVueGettext } from "@tuleap/vue3-gettext-init";
 import { buildBaseUrl } from "./urls/base-url-builders";
 import HomePage from "./components/HomePage.vue";
@@ -40,9 +40,12 @@ import {
 } from "./injection-symbols";
 
 export const init = async (mount_point: HTMLElement): Promise<void> => {
-    const repository_id = Number.parseInt(getDatasetItemOrThrow(mount_point, "repositoryId"), 10);
-    const project_id = Number.parseInt(getDatasetItemOrThrow(mount_point, "projectId"), 10);
-    const user_id = Number.parseInt(getDatasetItemOrThrow(document.body, "userId"), 10);
+    const repository_id = Number.parseInt(
+        getAttributeOrThrow(mount_point, "data-repository-id"),
+        10,
+    );
+    const project_id = Number.parseInt(getAttributeOrThrow(mount_point, "data-project-id"), 10);
+    const user_id = Number.parseInt(getAttributeOrThrow(document.body, "data-user-id"), 10);
     const base_url = buildBaseUrl(window.location, repository_id, project_id);
 
     createApp(HomePage)
@@ -54,7 +57,7 @@ export const init = async (mount_point: HTMLElement): Promise<void> => {
         .provide(USER_TIMEZONE_KEY, getTimezoneOrThrow(document))
         .provide(
             USER_RELATIVE_DATE_DISPLAY_PREFERENCE_KEY,
-            getDatasetItemOrThrow(mount_point, "relativeDateDisplay"),
+            getAttributeOrThrow(mount_point, "data-relative-date-display"),
         )
         .provide(SHOW_CLOSED_PULL_REQUESTS, ref(false))
         .provide(SHOW_PULL_REQUESTS_RELATED_TO_ME, ref(false))

@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace Tuleap\OAuth2Server\Administration;
 
 use Laminas\HttpHandlerRunner\Emitter\EmitterInterface;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Psr\Http\Message\ServerRequestInterface;
 use Tuleap\Http\HTTPFactoryBuilder;
 use Tuleap\Http\Response\RedirectWithFeedbackFactory;
@@ -32,6 +33,7 @@ use Tuleap\OAuth2Server\App\OAuth2AppRemover;
 use Tuleap\Request\ForbiddenException;
 use Tuleap\Test\Builders\UserTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class DeleteAppControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -68,9 +70,9 @@ final class DeleteAppControllerTest extends \Tuleap\Test\PHPUnit\TestCase
     }
 
     /**
-     * @dataProvider dataProviderInvalidBody
      * @param array|null $parsed_body
      */
+    #[DataProvider('dataProviderInvalidBody')]
     public function testHandleRedirectsWithErrorWhenDataIsInvalid($parsed_body): void
     {
         $request  = $this->buildProjectAdminRequest()->withParsedBody($parsed_body);
@@ -80,7 +82,7 @@ final class DeleteAppControllerTest extends \Tuleap\Test\PHPUnit\TestCase
             ->willReturn($response);
         $this->app_remover->expects(self::never())->method('deleteAppByID');
 
-        $this->assertSame($response, $this->controller->handle($request));
+        self::assertSame($response, $this->controller->handle($request));
     }
 
     public static function dataProviderInvalidBody(): array
@@ -102,7 +104,7 @@ final class DeleteAppControllerTest extends \Tuleap\Test\PHPUnit\TestCase
             ->with(self::isInstanceOf(\PFUser::class), '/plugins/oauth2_server/project/102/admin', self::isInstanceOf(NewFeedback::class))
             ->willReturn($response);
 
-        $this->assertSame($response, $this->controller->handle($request));
+        self::assertSame($response, $this->controller->handle($request));
     }
 
     public function testHandleDeletesSiteAppAndRedirects(): void
@@ -116,7 +118,7 @@ final class DeleteAppControllerTest extends \Tuleap\Test\PHPUnit\TestCase
             ->with(self::isInstanceOf(\PFUser::class), '/plugins/oauth2_server/admin', self::isInstanceOf(NewFeedback::class))
             ->willReturn($response);
 
-        $this->assertSame($response, $this->controller->handle($request));
+        self::assertSame($response, $this->controller->handle($request));
     }
 
     public function testRejectsDeletingAppOfAnotherProject(): void
@@ -132,7 +134,7 @@ final class DeleteAppControllerTest extends \Tuleap\Test\PHPUnit\TestCase
     public function testGetProjectAdminUrl(): void
     {
         $project = new \Project(['group_id' => 102]);
-        $this->assertSame('/plugins/oauth2_server/project/102/admin/delete-app', DeleteAppController::getProjectAdminURL($project));
+        self::assertSame('/plugins/oauth2_server/project/102/admin/delete-app', DeleteAppController::getProjectAdminURL($project));
     }
 
     private function buildProjectAdminRequest(): ServerRequestInterface

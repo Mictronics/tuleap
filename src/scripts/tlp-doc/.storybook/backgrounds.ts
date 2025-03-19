@@ -18,14 +18,17 @@
  */
 
 export const white_background = {
-    name: "white",
+    key: "white",
+    name: "White",
     value: "var(--tlp-white-color)",
 };
 export const grey_background = {
-    name: "grey",
+    key: "grey",
+    name: "Grey",
     value: "var(--tlp-background-color)",
 };
 export const dark_background = {
-    name: "dark",
+    key: "dark",
+    name: "Dark",
     value: "var(--tlp-dark-color)",
 };

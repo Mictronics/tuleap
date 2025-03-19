@@ -24,15 +24,16 @@ namespace Tuleap\Tracker\Creation\JiraImporter\UserRole;
 
 use Psr\Log\NullLogger;
 use Tuleap\Test\PHPUnit\TestCase;
-use Tuleap\Tracker\Test\Tracker\Creation\JiraImporter\Stub\JiraServerClientStub;
+use Tuleap\Tracker\Test\Stub\Creation\JiraImporter\JiraServerClientStub;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class UserRolesCheckerTest extends TestCase
 {
     public function testItDoesNotThrowAnExceptionIfUserIsInAdminstrators(): void
     {
         $checker = new UserRolesChecker();
 
-        $client = new class extends \Tuleap\Tracker\Test\Tracker\Creation\JiraImporter\Stub\JiraCloudClientStub {
+        $client = new class extends \Tuleap\Tracker\Test\Stub\Creation\JiraImporter\JiraCloudClientStub {
             public function getUrl(string $url): ?array
             {
                 return [
@@ -59,7 +60,7 @@ final class UserRolesCheckerTest extends TestCase
     {
         $checker = new UserRolesChecker();
 
-        $client = new class extends \Tuleap\Tracker\Test\Tracker\Creation\JiraImporter\Stub\JiraCloudClientStub {
+        $client = new class extends \Tuleap\Tracker\Test\Stub\Creation\JiraImporter\JiraCloudClientStub {
             public function getUrl(string $url): ?array
             {
                 return [
@@ -89,7 +90,7 @@ final class UserRolesCheckerTest extends TestCase
         $this->expectException(UserIsNotProjectAdminException::class);
         $this->expectExceptionMessage('User is not project administrator.');
 
-        $client = new class extends \Tuleap\Tracker\Test\Tracker\Creation\JiraImporter\Stub\JiraCloudClientStub {
+        $client = new class extends \Tuleap\Tracker\Test\Stub\Creation\JiraImporter\JiraCloudClientStub {
             public function getUrl(string $url): ?array
             {
                 return [
@@ -114,7 +115,7 @@ final class UserRolesCheckerTest extends TestCase
         $this->expectException(UserRolesResponseNotWellFormedException::class);
         $this->expectExceptionMessage('User roles key `name` not found');
 
-        $client = new class extends \Tuleap\Tracker\Test\Tracker\Creation\JiraImporter\Stub\JiraCloudClientStub {
+        $client = new class extends \Tuleap\Tracker\Test\Stub\Creation\JiraImporter\JiraCloudClientStub {
             public function getUrl(string $url): ?array
             {
                 return [
@@ -139,7 +140,7 @@ final class UserRolesCheckerTest extends TestCase
         $this->expectException(UserRolesResponseNotWellFormedException::class);
         $this->expectExceptionMessage('User roles data is null');
 
-        $client = new class extends \Tuleap\Tracker\Test\Tracker\Creation\JiraImporter\Stub\JiraCloudClientStub {
+        $client = new class extends \Tuleap\Tracker\Test\Stub\Creation\JiraImporter\JiraCloudClientStub {
             public function getUrl(string $url): ?array
             {
                 return null;
@@ -156,23 +157,21 @@ final class UserRolesCheckerTest extends TestCase
     public function testItDetectsProjectAdministratorWithJiraServer(): void
     {
         $checker = new UserRolesChecker();
-        $client  = new class extends JiraServerClientStub {
-            public array $urls = [
-                '/rest/api/2/mypermissions?projectKey=proj01' => [
-                    'permissions' => [
-                        'PROJECT_ADMIN' => [
-                            'id'             => '23',
-                            'key'            => 'PROJECT_ADMIN',
-                            'name'           => 'Manage projects',
-                            'type'           => 'PROJECT',
-                            'description'    => 'Ability to manage Jira projects.',
-                            'havePermission' => true,
-                            'deprecatedKey'  => true,
-                        ],
+        $client  = JiraServerClientStub::aJiraServerClient([
+            '/rest/api/2/mypermissions?projectKey=proj01' => [
+                'permissions' => [
+                    'PROJECT_ADMIN' => [
+                        'id'             => '23',
+                        'key'            => 'PROJECT_ADMIN',
+                        'name'           => 'Manage projects',
+                        'type'           => 'PROJECT',
+                        'description'    => 'Ability to manage Jira projects.',
+                        'havePermission' => true,
+                        'deprecatedKey'  => true,
                     ],
                 ],
-            ];
-        };
+            ],
+        ]);
 
         $this->expectNotToPerformAssertions();
 
@@ -186,22 +185,20 @@ final class UserRolesCheckerTest extends TestCase
     public function testItDetectsAdministratorsOfAllProjectsWithJiraServer(): void
     {
         $checker = new UserRolesChecker();
-        $client  = new class extends JiraServerClientStub {
-            public array $urls = [
-                '/rest/api/2/mypermissions?projectKey=proj01' => [
-                    'permissions' => [
-                        'ADMINISTER_PROJECTS' => [
-                            'id'             => '23',
-                            'key'            => 'ADMINISTER_PROJECTS',
-                            'name'           => 'Manage projects',
-                            'type'           => 'PROJECT',
-                            'description'    => 'Ability to manage Jira projects.',
-                            'havePermission' => true,
-                        ],
+        $client  = JiraServerClientStub::aJiraServerClient([
+            '/rest/api/2/mypermissions?projectKey=proj01' => [
+                'permissions' => [
+                    'ADMINISTER_PROJECTS' => [
+                        'id'             => '23',
+                        'key'            => 'ADMINISTER_PROJECTS',
+                        'name'           => 'Manage projects',
+                        'type'           => 'PROJECT',
+                        'description'    => 'Ability to manage Jira projects.',
+                        'havePermission' => true,
                     ],
                 ],
-            ];
-        };
+            ],
+        ]);
 
         $this->expectNotToPerformAssertions();
 
@@ -215,22 +212,20 @@ final class UserRolesCheckerTest extends TestCase
     public function testItDetectsLackOfAdministrationPermissionWithJiraServer(): void
     {
         $checker = new UserRolesChecker();
-        $client  = new class extends JiraServerClientStub {
-            public array $urls = [
-                '/rest/api/2/mypermissions?projectKey=proj01' => [
-                    'permissions' => [
-                        'SCHEDULE_ISSUES' => [
-                            'id'             => '28',
-                            'key'            => 'SCHEDULE_ISSUES',
-                            'name'           => 'Plan tickets',
-                            'type'           => 'PROJECT',
-                            'description'    => '...',
-                            'havePermission' => true,
-                        ],
+        $client  = JiraServerClientStub::aJiraServerClient([
+            '/rest/api/2/mypermissions?projectKey=proj01' => [
+                'permissions' => [
+                    'SCHEDULE_ISSUES' => [
+                        'id'             => '28',
+                        'key'            => 'SCHEDULE_ISSUES',
+                        'name'           => 'Plan tickets',
+                        'type'           => 'PROJECT',
+                        'description'    => '...',
+                        'havePermission' => true,
                     ],
                 ],
-            ];
-        };
+            ],
+        ]);
 
         $this->expectException(UserIsNotProjectAdminException::class);
 

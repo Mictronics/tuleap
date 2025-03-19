@@ -13,14 +13,23 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.5\n"
 
+msgid "\"%{title}\" query preview"
+msgstr "Aperçu de la requête \"%{title}\""
+
 msgid "%{from} – %{to} of %{total}"
 msgstr "%{from} – %{to} sur %{total}"
 
-msgid "Add"
-msgstr "Ajouter"
+msgid "All artifacts created in the last 10 days"
+msgstr "Tous les artéfacts créés ces 10 derniers jours"
+
+msgid "All open artifacts"
+msgstr "Tous les artéfacts ouverts"
 
 msgid "An error occurred: %{error}"
 msgstr "Une erreur s'est produite : %{error}"
+
+msgid "Are you sure you want to permanently delete it?"
+msgstr "Êtes-vous de vouloir la supprimer définitivement ?"
 
 msgid "Artifact"
 msgstr "Artéfact"
@@ -34,8 +43,20 @@ msgstr "Assigné à"
 msgid "Cancel"
 msgstr "Annuler"
 
-msgid "Click to see the documentation for advanced mode"
-msgstr "Cliquer pour consulter la documentation du mode expert"
+msgid "Choose another query"
+msgstr "Choisir une autre requête"
+
+msgid "Create new query"
+msgstr "Créer une nouvelle requête"
+
+msgid "Default"
+msgstr "Défaut"
+
+msgid "Delete"
+msgstr "Supprimer"
+
+msgid "Delete the query"
+msgstr "Supprimer la requête"
 
 msgid "Description"
 msgstr "Description"
@@ -43,25 +64,15 @@ msgstr "Description"
 msgid "Edit"
 msgstr "Éditer"
 
+msgid "Error while deleting the query: %{error}"
+msgstr "Erreur pendant la suppression de la requête : %{error}"
+
 msgid "Error while exporting the report as .xlsx: %{error}"
 msgstr "Erreur pendant l'export du rapport au format .xlsx: %{error}"
-
-msgid "Error while exporting the report to CSV: %{error}"
-msgstr "Erreur pendant l'export du rapport en CSV : %{error}"
 
 msgid "Error while fetching the artifacts matching the query: %{error}"
 msgstr ""
 "Erreur à la récupération des artéfacts correspondant à la requête : %{error}"
-
-msgid "Error while fetching the list of projects you are member of: %{error}"
-msgstr ""
-"Erreur à la récupération de la liste des projets dont vous êtes membre : "
-"%{error}"
-
-msgid "Error while fetching the list of trackers of this project: %{error}"
-msgstr ""
-"Erreur à la récupération de la liste des outils de suivi de ce projet : "
-"%{error}"
 
 msgid "Error while fetching the report: %{error}"
 msgstr "Erreur à la récupération du rapport : %{error}"
@@ -69,21 +80,12 @@ msgstr "Erreur à la récupération du rapport : %{error}"
 msgid "Error while saving the report: %{error}"
 msgstr "Erreur pendant la sauvegarde du rapport : %{error}"
 
-msgid "Example: @title = 'value'"
-msgstr "Exemple : @title = 'valeur'"
-
 msgid ""
 "Example: SELECT @pretty_title FROM @project.name = 'my-project' WHERE @title "
 "= 'value'"
 msgstr ""
 "Exemple: SELECT @pretty_title FROM @project.name = 'mon-projet' WHERE @title "
 "= 'valeur'"
-
-msgid "Expert mode"
-msgstr "Mode expert"
-
-msgid "Export CSV"
-msgstr "Export CSV"
 
 msgid "Export XSLX"
 msgstr "Export XSLX"
@@ -94,10 +96,16 @@ msgstr "Premier"
 msgid "Id"
 msgstr "Id"
 
-msgid "If you update the query, these trackers will be removed from it."
+msgid ""
+"If you click on one of the suggested query, your content will be replaced."
 msgstr ""
-"Si vous modifiez cette requête, ces outils de suivi seront supprimés de la "
-"recherche."
+"Si vous cliquez sur l'une des requêtes suggérées, votre contenu sera remplacé"
+
+msgid ""
+"If you validate, this query will replace your content. You can't undo it."
+msgstr ""
+"Si vous validez, cette requête remplacera votre contenu. Vous ne pouvez pas "
+"revenir en arrière."
 
 msgid "Last"
 msgstr "Dernier"
@@ -108,8 +116,11 @@ msgstr "Mis à jour par"
 msgid "Last update date"
 msgstr "Mis à jour le"
 
-msgid "Load more"
-msgstr "Voir plus"
+msgid "Make this query displayed by default"
+msgstr "Afficher cette requête par défaut"
+
+msgid "Name your query"
+msgstr "Nommer votre requête"
 
 msgid "Next"
 msgstr "Suivant"
@@ -117,21 +128,14 @@ msgstr "Suivant"
 msgid "No artifact found"
 msgstr "Aucun artéfact trouvé"
 
-msgid "No trackers selected"
-msgstr "Aucun élément sélectionné"
+msgid "Open artifacts assigned to me"
+msgstr "Les artéfacts ouverts qui me sont assignés"
 
-msgid "Please add trackers by clicking on \"No tracker selected\" above."
-msgstr ""
-"Ajoutez des outils de suivi en cliquant sur \"Aucun élément sélectionné\" ci-"
-"dessus."
+msgid "Open artifacts assigned to me in my projects"
+msgstr "Les artéfacts ouverts qui me sont assignés dans mes projets"
 
-msgid "Please choose…"
-msgstr "Veuillez choisir…"
-
-msgid "Please create a new query by clicking on \"No tracker selected\" above."
-msgstr ""
-"Veuillez créer une nouvelle requête en cliquant sur \"Aucun élément "
-"sélectionné\" ci-dessus."
+msgid "Overwrite current query"
+msgstr "Remplacer la requête actuelle"
 
 msgid "Please create a new query."
 msgstr "Veuillez créer une nouvelle requête."
@@ -145,11 +149,32 @@ msgstr "Projet"
 msgid "Query"
 msgstr "Requête"
 
+msgid "Query created with success!"
+msgstr "Requête créée avec succés !"
+
+msgid "Query creation is under implementation"
+msgstr "La création de requête est en cours d'implémentation"
+
+msgid "Query details & tools"
+msgstr "Détails & outils de la requête"
+
 msgid "Query is empty"
 msgstr "La requête est vide"
 
+msgid "Query suggestions"
+msgstr "Requêtes suggérées"
+
+msgid "Query title"
+msgstr "Titre de la requête"
+
+msgid "Query updated with success!"
+msgstr "Requête mise à jour avec succès !"
+
 msgid "Report has been successfully saved"
 msgstr "Rapport enregistré avec succès"
+
+msgid "Save"
+msgstr "Sauvegarder"
 
 msgid "Save report"
 msgstr "Enregistrer le rapport"
@@ -169,13 +194,17 @@ msgstr "Auteur"
 msgid "Submitted on"
 msgstr "Date de soumission"
 
-msgid "The initial query contains trackers from inactive projects:"
-msgstr ""
-"La requête initiale comporte des outils de suivi provenant de projets "
-"inactifs :"
-
 msgid "There is no artifact matching the query."
 msgstr "Aucun artéfact ne correspond à la requête."
+
+msgid ""
+"This action cannot be undone, and you will no longer have a default query."
+msgstr ""
+"Cette action ne peut être annulée, et vous n'aurez plus de requête par "
+"défaut."
+
+msgid "This action cannot be undone."
+msgstr "Cette action ne peut être annulée."
 
 msgid "Title"
 msgstr "Titre"
@@ -183,11 +212,14 @@ msgstr "Titre"
 msgid "Tracker"
 msgstr "Outil de suivi"
 
-msgid "Tracker selection is limited to 25 trackers"
-msgstr "Vous ne pouvez pas sélectionner plus de 25 outils de suivi"
-
 msgid "User avatar"
 msgstr "Avatar de l'utilisateur"
+
+msgid "Warning: This query is set as the default."
+msgstr "Attention : Cette requête est celle par défaut."
+
+msgid "Write your description"
+msgstr "Écrire votre description"
 
 msgid ""
 "You can use: AND, OR, WITH PARENT, WITHOUT PARENT, WITH CHILDREN, WITHOUT "
@@ -196,4 +228,4 @@ msgid ""
 msgstr ""
 "Vous pouvez utiliser : AND, OR, WITH PARENT, WITHOUT PARENT, WITH CHILDREN, "
 "WITHOUT CHILDREN, BETWEEN(), NOW(), MYSELF(), OPEN(), IN(), NOT IN(), "
-"MY_PROJECTS(), parenthèses. Ctrl + Espace active l’auto-complétion."
+"MY_PROJECTS(), parenthèses. Ctrl + Espace active l'auto-complétion."

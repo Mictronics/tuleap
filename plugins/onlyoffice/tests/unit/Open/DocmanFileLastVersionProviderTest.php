@@ -29,6 +29,7 @@ use Tuleap\NeverThrow\Result;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class DocmanFileLastVersionProviderTest extends TestCase
 {
     private const PROJECT_ID = 102;
@@ -70,9 +71,7 @@ final class DocmanFileLastVersionProviderTest extends TestCase
         \Docman_PermissionsManager::clearInstances();
     }
 
-    /**
-     * @dataProvider dataProviderLastVersionFileEdit
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderLastVersionFileEdit')]
     public function testCanRetrieveTheLastVersionOfADocmanFile(
         bool $user_can_write,
         RetrieveFilenamePattern $filename_pattern_retriever,

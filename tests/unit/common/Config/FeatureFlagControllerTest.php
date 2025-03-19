@@ -32,6 +32,7 @@ use Tuleap\Http\Server\NullServerRequest;
 use Tuleap\Test\Helpers\NoopSapiEmitter;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FeatureFlagControllerTest extends TestCase
 {
     use ForgeConfigSandbox;
@@ -57,16 +58,14 @@ final class FeatureFlagControllerTest extends TestCase
         return json_encode(['error' => ['message' => $reason]], JSON_THROW_ON_ERROR);
     }
 
-    public function provideInvalidNames(): iterable
+    public static function provideInvalidNames(): iterable
     {
         yield 'Name param is missing' => [['some_param' => 'feature_flag_not_feature_flag'], 'Bad request: the query parameter "name" is missing'];
         yield 'Name param is empty' => [['name' => ''], 'Bad request: the name given is not a feature flag'];
         yield 'Name does not have feature flag prefix' => [['name' => 'hehehe'], 'Bad request: the name given is not a feature flag'];
     }
 
-    /**
-     * @dataProvider provideInvalidNames
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('provideInvalidNames')]
     public function testItReturnsBadRequestWhenInvalidParameter(array $query_parameters, string $expected_error): void
     {
         $request = (new NullServerRequest())->withQueryParams($query_parameters);

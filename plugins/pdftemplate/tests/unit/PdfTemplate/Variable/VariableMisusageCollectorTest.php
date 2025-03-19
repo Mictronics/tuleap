@@ -24,6 +24,7 @@ namespace Tuleap\PdfTemplate\Variable;
 
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class VariableMisusageCollectorTest extends TestCase
 {
     public function testItReturnsEmptyArrayIfTextDoesNotUseVariables(): void
@@ -35,9 +36,7 @@ final class VariableMisusageCollectorTest extends TestCase
         self::assertEmpty($collector->getMisusages($text));
     }
 
-    /**
-     * @dataProvider getVariables
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getVariables')]
     public function testItReturnsEmptyArrayIfTextUsesCorrectlyTheVariables(string $variable): void
     {
         $text = sprintf('Lorem ipsum ${%s}', $variable);
@@ -47,9 +46,7 @@ final class VariableMisusageCollectorTest extends TestCase
         self::assertEmpty($collector->getMisusages($text));
     }
 
-    /**
-     * @dataProvider getVariables
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getVariables')]
     public function testItReturnsMisusageIfThereIsASpaceAtTheBeginning(string $variable): void
     {
         $bad  = sprintf('${ %s}', $variable);
@@ -66,9 +63,7 @@ final class VariableMisusageCollectorTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider getVariables
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getVariables')]
     public function testItReturnsMisusageIfThereIsASpaceAtTheEnd(string $variable): void
     {
         $bad  = sprintf('${%s }', $variable);
@@ -85,9 +80,7 @@ final class VariableMisusageCollectorTest extends TestCase
         );
     }
 
-    /**
-     * @dataProvider getVariables
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getVariables')]
     public function testItReturnsMisusageIfTheVariableIsInLowerCase(string $variable): void
     {
         $bad  = sprintf('${%s}', strtolower($variable));
@@ -121,7 +114,7 @@ final class VariableMisusageCollectorTest extends TestCase
     /**
      * @return array<string, array{0: string}>
      */
-    private function getVariables(): array
+    public static function getVariables(): array
     {
         $variables = array_map(
             static fn(Variable $variable) => [$variable->value],

@@ -26,11 +26,10 @@ namespace Tuleap\Config;
 use Tuleap\Test\PHPUnit\TestCase;
 use function PHPUnit\Framework\assertEquals;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ConfigKeyLegacyBoolTest extends TestCase
 {
-    /**
-     * @dataProvider getSerializationTests
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getSerializationTests')]
     public function testSerialization(string $expected, mixed $value): void
     {
         assertEquals($expected . PHP_EOL, (new ConfigKeyLegacyBool())->getSerializedRepresentation('key', $value));

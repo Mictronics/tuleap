@@ -22,16 +22,15 @@ declare(strict_types=1);
 
 namespace Tuleap\GitLFS\GitPHPDisplay;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class DetectorTest extends \Tuleap\Test\PHPUnit\TestCase
 {
-    /**
-     * @dataProvider fileProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('fileProvider')]
     public function testItDetectsLFSFile(string $file, bool $expected): void
     {
         $detector = new Detector();
 
-        $this->assertSame($expected, $detector->isFileALFSFile($file));
+        self::assertSame($expected, $detector->isFileALFSFile($file));
     }
 
     public static function fileProvider(): array

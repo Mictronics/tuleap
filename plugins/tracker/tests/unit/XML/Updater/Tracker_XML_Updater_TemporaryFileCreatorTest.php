@@ -21,6 +21,7 @@
 declare(strict_types=1);
 
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class Tracker_XML_Updater_TemporaryFileCreatorTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use \Tuleap\ForgeConfigSandbox;
@@ -59,7 +60,7 @@ final class Tracker_XML_Updater_TemporaryFileCreatorTest extends \Tuleap\Test\PH
     public function testItCreatesFileInPlateformDefinedTmpDir(): void
     {
         $copy = $this->creator->createTemporaryFile($this->initial);
-        $this->assertSame(0, strpos($copy, ForgeConfig::get('tmp_dir')));
+        self::assertSame(0, strpos($copy, ForgeConfig::get('tmp_dir')));
     }
 
     public function testItCreatesFileInATemporaryDirectoryThatIsDifferentFromOtherCreators(): void

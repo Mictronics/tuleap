@@ -25,4 +25,6 @@ import { injectInternalId } from "@/helpers/inject-internal-id";
 export const ReactiveStoredArtidocSectionStub = {
     fromSection: (artidoc_section: ArtidocSection): ReactiveStoredArtidocSection =>
         ref(injectInternalId(artidoc_section)),
+    fromCollection: (collection: ArtidocSection[]): ReactiveStoredArtidocSection[] =>
+        collection.map((artidoc_section) => ref(injectInternalId(artidoc_section))),
 };

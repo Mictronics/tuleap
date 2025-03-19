@@ -48,6 +48,7 @@ use Tuleap\Tracker\Artifact\Changeset\PostCreation\PostCreationContext;
 use Tuleap\Tracker\Artifact\Exception\FieldValidationException;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ChangesetAdderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private const TIMEBOX_ID                    = 49;
@@ -174,9 +175,7 @@ final class ChangesetAdderTest extends \Tuleap\Test\PHPUnit\TestCase
         ];
     }
 
-    /**
-     * @dataProvider dataProviderExceptions
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderExceptions')]
     public function testItWrapsTrackerException(\Throwable $exception): void
     {
         $this->changeset_creator->method('create')->willThrowException($exception);
@@ -226,9 +225,7 @@ final class ChangesetAdderTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->getAdder()->addArtifactLinkChangeset($this->artifact_link_changeset);
     }
 
-    /**
-     * @dataProvider dataProviderExceptions
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderExceptions')]
     public function testItWrapsTrackerExceptionForArtifactLink(\Throwable $exception): void
     {
         $this->changeset_creator->method('create')->willThrowException($exception);

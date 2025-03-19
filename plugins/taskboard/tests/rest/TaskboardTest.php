@@ -25,6 +25,7 @@ namespace Tuleap\Taskboard\REST;
 use REST_TestDataBuilder;
 use RestBase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class TaskboardTest extends RestBase
 {
     /**
@@ -52,9 +53,7 @@ class TaskboardTest extends RestBase
         }
     }
 
-    /**
-     * @dataProvider getUserName
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getUserName')]
     public function testOPTIONSCards(string $user_name): void
     {
         $response = $this->getResponse(
@@ -65,9 +64,7 @@ class TaskboardTest extends RestBase
         $this->assertEquals(['OPTIONS', 'GET'], explode(', ', $response->getHeaderLine('Allow')));
     }
 
-    /**
-     * @dataProvider getUserName
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getUserName')]
     public function testGETCards(string $user_name): void
     {
         $response = $this->getResponse(
@@ -114,9 +111,7 @@ class TaskboardTest extends RestBase
         }
     }
 
-    /**
-     * @dataProvider getUserName
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getUserName')]
     public function testGETNoMilestone(string $user_name): void
     {
         $response = $this->getResponse(
@@ -126,9 +121,7 @@ class TaskboardTest extends RestBase
         $this->assertEquals(404, $response->getStatusCode());
     }
 
-    /**
-     * @dataProvider getUserName
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getUserName')]
     public function testOPTIONSColumns(string $user_name): void
     {
         $response = $this->getResponse(
@@ -139,9 +132,7 @@ class TaskboardTest extends RestBase
         $this->assertEquals(['OPTIONS', 'GET'], explode(', ', $response->getHeaderLine('Allow')));
     }
 
-    /**
-     * @dataProvider getUserName
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getUserName')]
     public function testGETColumns(string $user_name): void
     {
         $response = $this->getResponse(
@@ -156,15 +147,13 @@ class TaskboardTest extends RestBase
             $this->assertNotEmpty($columns[$key]['id']);
             $this->assertEquals($label, $columns[$key]['label']);
         }
-        $this->assertSame('#808080', $columns[0]['header_color']);
-        $this->assertSame('clockwork-orange', $columns[1]['header_color']);
-        $this->assertSame('daphne-blue', $columns[2]['header_color']);
-        $this->assertSame('acid-green', $columns[3]['header_color']);
+        self::assertSame('#808080', $columns[0]['header_color']);
+        self::assertSame('clockwork-orange', $columns[1]['header_color']);
+        self::assertSame('daphne-blue', $columns[2]['header_color']);
+        self::assertSame('acid-green', $columns[3]['header_color']);
     }
 
-    /**
-     * @dataProvider getUserName
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('getUserName')]
     public function testGETColumnsThrows404WhenNoMilestone(string $user_name): void
     {
         $response = $this->getResponse(

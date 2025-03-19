@@ -28,13 +28,14 @@ use REST_TestDataBuilder;
 use Tuleap\Docman\Test\rest\DocmanDataBuilder;
 use Tuleap\Docman\Test\rest\Helper\DocmanHardcodedMetadataExecutionHelper;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class CustomMetadataTest extends DocmanHardcodedMetadataExecutionHelper
 {
     public function testGetMetadataForProject(): array
     {
         $response = $this->getResponse($this->request_factory->createRequest('GET', 'projects/' . $this->project_id . '/docman_metadata'));
 
-        $this->assertSame(200, $response->getStatusCode());
+        self::assertSame(200, $response->getStatusCode());
 
         $json_result = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
 
@@ -50,7 +51,7 @@ class CustomMetadataTest extends DocmanHardcodedMetadataExecutionHelper
             REST_TestDataBuilder::TEST_BOT_USER_NAME
         );
 
-        $this->assertSame(200, $response->getStatusCode());
+        self::assertSame(200, $response->getStatusCode());
 
         $json_result = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
 
@@ -253,7 +254,7 @@ class CustomMetadataTest extends DocmanHardcodedMetadataExecutionHelper
             $this->request_factory->createRequest('POST', 'docman_folders/' . $root_id . '/files')->withBody($this->stream_factory->createStream($query))
         );
         $this->assertEquals(201, $response1->getStatusCode());
-        $this->assertSame(
+        self::assertSame(
             $response1_json['file_properties']['upload_href'],
             json_decode($response2->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR)['file_properties']['upload_href']
         );

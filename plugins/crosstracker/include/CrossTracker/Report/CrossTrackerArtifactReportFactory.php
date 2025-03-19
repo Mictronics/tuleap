@@ -27,8 +27,9 @@ use ForgeConfig;
 use PFUser;
 use Tracker;
 use Tuleap\Config\ConfigKey;
+use Tuleap\Config\ConfigKeyCategory;
 use Tuleap\Config\ConfigKeyInt;
-use Tuleap\CrossTracker\CrossTrackerExpertReport;
+use Tuleap\CrossTracker\CrossTrackerQuery;
 use Tuleap\CrossTracker\CrossTrackerInstrumentation;
 use Tuleap\CrossTracker\Report\Query\Advanced\ExpertQueryIsEmptyException;
 use Tuleap\CrossTracker\Report\Query\Advanced\InvalidOrderByBuilder;
@@ -45,7 +46,7 @@ use Tuleap\CrossTracker\Report\Query\Advanced\ResultBuilder\SelectedValueReprese
 use Tuleap\CrossTracker\Report\Query\Advanced\ResultBuilder\SelectedValuesCollection;
 use Tuleap\CrossTracker\Report\Query\Advanced\ResultBuilderVisitor;
 use Tuleap\CrossTracker\Report\Query\Advanced\SelectBuilderVisitor;
-use Tuleap\CrossTracker\REST\v1\Representation\CrossTrackerReportContentRepresentation;
+use Tuleap\CrossTracker\REST\v1\Representation\CrossTrackerQueryContentRepresentation;
 use Tuleap\CrossTracker\REST\v1\Representation\CrossTrackerSelectedRepresentation;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Artifact\RetrieveArtifact;
@@ -67,6 +68,7 @@ use Tuleap\Tracker\Report\Query\Advanced\SelectablesDoNotExistException;
 use Tuleap\Tracker\Report\Query\Advanced\SelectablesMustBeUniqueException;
 use Tuleap\Tracker\Report\Query\Advanced\SelectLimitExceededException;
 
+#[ConfigKeyCategory('CrossTracker Search')]
 final readonly class CrossTrackerArtifactReportFactory
 {
     #[ConfigKey('Configure the maximum quantity of tracker a cross tracker search expert query can use (default to 0 for no limit)')]
@@ -111,11 +113,11 @@ final readonly class CrossTrackerArtifactReportFactory
      * @throws SyntaxError
      */
     public function getArtifactsMatchingReport(
-        CrossTrackerExpertReport $report,
+        CrossTrackerQuery $report,
         PFUser $current_user,
         int $limit,
         int $offset,
-    ): CrossTrackerReportContentRepresentation {
+    ): CrossTrackerQueryContentRepresentation {
         if ($report->getQuery() === '') {
             throw new ExpertQueryIsEmptyException();
         }
@@ -142,15 +144,12 @@ final readonly class CrossTrackerArtifactReportFactory
      * @throws SyntaxError
      */
     private function getArtifactsMatchingExpertQuery(
-        CrossTrackerExpertReport $report,
+        CrossTrackerQuery $report,
         PFUser $current_user,
         int $limit,
         int $offset,
-    ): CrossTrackerReportContentRepresentation {
+    ): CrossTrackerQueryContentRepresentation {
         $trackers = $this->report_trackers_retriever->getReportTrackers($report, $current_user, ForgeConfig::getInt(self::MAX_TRACKER_FROM));
-        if ($trackers === []) {
-            throw new FromIsInvalidException([dgettext('tuleap-crosstracker', 'No tracker found')]);
-        }
         $this->instrumentation->updateTrackerCount(count($trackers));
 
         $query = $this->getQueryFromReport($report, $current_user, $trackers);
@@ -178,7 +177,7 @@ final readonly class CrossTrackerArtifactReportFactory
         );
 
         if ($artifact_ids === []) {
-            return new CrossTrackerReportContentRepresentation([], [], 0);
+            return new CrossTrackerQueryContentRepresentation([], [], 0);
         }
 
         $total_size = $this->expert_query_dao->countArtifactsMatchingQuery(
@@ -211,7 +210,7 @@ final readonly class CrossTrackerArtifactReportFactory
      * @throws SyntaxError
      */
     private function getQueryFromReport(
-        CrossTrackerExpertReport $report,
+        CrossTrackerQuery $report,
         PFUser $current_user,
         array $trackers,
     ): Query {
@@ -259,7 +258,7 @@ final readonly class CrossTrackerArtifactReportFactory
     /**
      * @param SelectedValuesCollection[] $results
      */
-    private function buildReportContentRepresentation(array $results, int $total_size): CrossTrackerReportContentRepresentation
+    private function buildReportContentRepresentation(array $results, int $total_size): CrossTrackerQueryContentRepresentation
     {
         /** @var CrossTrackerSelectedRepresentation[] $selected */
         $selected = [];
@@ -279,6 +278,6 @@ final readonly class CrossTrackerArtifactReportFactory
             }
         }
 
-        return new CrossTrackerReportContentRepresentation(array_values($artifacts), $selected, $total_size);
+        return new CrossTrackerQueryContentRepresentation(array_values($artifacts), $selected, $total_size);
     }
 }

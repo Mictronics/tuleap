@@ -22,7 +22,9 @@ declare(strict_types=1);
 
 namespace Tuleap\OpenIDConnectClient\Provider\AzureADProvider;
 
+use PHPUnit\Framework\Attributes\DataProvider;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AcceptableTenantForAuthenticationConfigurationTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public function testValueUsedByTheAuthenticationFlowIsTheIdentifierWhenUsersOutsideOfTheSpecificTenantCanAuthenticate(): void
@@ -51,9 +53,7 @@ final class AcceptableTenantForAuthenticationConfigurationTest extends \Tuleap\T
         $this->assertEquals('tenant_id', $configuration->getValueForAuthenticationFlow());
     }
 
-    /**
-     * @dataProvider providerSpecificTenantOrganizationsSetup
-     */
+    #[DataProvider('providerSpecificTenantOrganizationsSetup')]
     public function testAcceptableTenantIssuersIDIsTheTenantIDWhenExpectingUsersFromSpecificTenantOrFromOrganizations(AzureADTenantSetup $tenant_setup): void
     {
         $configuration = AcceptableTenantForAuthenticationConfiguration::fromTenantSetupAndTenantID(

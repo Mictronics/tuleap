@@ -21,15 +21,16 @@
 
 namespace Tuleap\Tracker\REST\v1;
 
-use Tracker_FormElement_Field_List_Bind_StaticValue;
 use Tracker_RulesManager;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\REST\WorkflowRestBuilder;
 use Tuleap\Tracker\REST\WorkflowTransitionRepresentation;
+use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticValueBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Workflow_Transition_Condition_Permissions;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class WorkflowRestBuilderTest extends TestCase
 {
     private WorkflowRestBuilder $builder;
@@ -86,7 +87,7 @@ final class WorkflowRestBuilderTest extends TestCase
                     1,
                     2,
                     null,
-                    new Tracker_FormElement_Field_List_Bind_StaticValue(20, 'label 2', '', 1, false)
+                    ListStaticValueBuilder::aStaticValue('label')->withId(20)->build()
                 ),
             ]
         );
@@ -108,8 +109,8 @@ final class WorkflowRestBuilderTest extends TestCase
                 new \Transition(
                     1,
                     2,
-                    new Tracker_FormElement_Field_List_Bind_StaticValue(10, 'label', '', 1, false),
-                    new Tracker_FormElement_Field_List_Bind_StaticValue(20, 'label 2', '', 1, false)
+                    ListStaticValueBuilder::aStaticValue('label')->withId(10)->build(),
+                    ListStaticValueBuilder::aStaticValue('label')->withId(20)->build()
                 ),
             ]
         );
@@ -129,8 +130,8 @@ final class WorkflowRestBuilderTest extends TestCase
                 new \Transition(
                     1,
                     2,
-                    new Tracker_FormElement_Field_List_Bind_StaticValue(10, 'label', '', 1, false),
-                    new Tracker_FormElement_Field_List_Bind_StaticValue(20, 'label 2', '', 1, false)
+                    ListStaticValueBuilder::aStaticValue('label')->withId(10)->build(),
+                    ListStaticValueBuilder::aStaticValue('label')->withId(20)->build()
                 ),
             ]
         );

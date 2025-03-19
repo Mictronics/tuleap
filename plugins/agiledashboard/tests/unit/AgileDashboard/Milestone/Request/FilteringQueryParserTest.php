@@ -26,6 +26,7 @@ use Tuleap\AgileDashboard\Milestone\Criterion\Status\StatusAll;
 use Tuleap\AgileDashboard\Milestone\Criterion\Status\StatusClosed;
 use Tuleap\AgileDashboard\Milestone\Criterion\Status\StatusOpen;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FilteringQueryParserTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -74,9 +75,7 @@ final class FilteringQueryParserTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->assertInstanceOf(StatusClosed::class, $filter->getStatusFilter());
     }
 
-    /**
-     * @dataProvider invalidQueryDataProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('invalidQueryDataProvider')]
     public function testItThrowsIfQueryIsInvalid(string $query): void
     {
         $this->expectException(MalformedQueryParameterException::class);

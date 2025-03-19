@@ -22,21 +22,17 @@ declare(strict_types=1);
 
 namespace Tuleap\Tracker\Semantic\Progress;
 
-use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
+use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
-class SemanticProgressFromXMLBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
+final class SemanticProgressFromXMLBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
-    use MockeryPHPUnitIntegration;
-
-    /**
-     * @var SemanticProgressFromXMLBuilder
-     */
-    private $builder;
+    private SemanticProgressFromXMLBuilder $builder;
 
     protected function setUp(): void
     {
         $this->builder = new SemanticProgressFromXMLBuilder(
-            \Mockery::mock(SemanticProgressDao::class)
+            $this->createMock(SemanticProgressDao::class)
         );
     }
 
@@ -57,10 +53,10 @@ class SemanticProgressFromXMLBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
             $xml,
             $all_semantics_xml,
             [
-                'F201' => \Mockery::mock(\Tracker_FormElement_Field_Numeric::class),
-                'F202' => \Mockery::mock(\Tracker_FormElement_Field_Numeric::class),
+                'F201' => $this->createMock(\Tracker_FormElement_Field_Numeric::class),
+                'F202' => $this->createMock(\Tracker_FormElement_Field_Numeric::class),
             ],
-            \Mockery::mock(\Tracker::class, ['getId' => 113]),
+            TrackerTestBuilder::aTracker()->build(),
             []
         );
 
@@ -90,10 +86,10 @@ class SemanticProgressFromXMLBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
             $xml,
             $all_semantics_xml,
             [
-                'F201' => \Mockery::mock(\Tracker_FormElement_Field_Numeric::class),
-                'F202' => \Mockery::mock(\Tracker_FormElement_Field_Numeric::class),
+                'F201' => $this->createMock(\Tracker_FormElement_Field_Numeric::class),
+                'F202' => $this->createMock(\Tracker_FormElement_Field_Numeric::class),
             ],
-            \Mockery::mock(\Tracker::class, ['getId' => 113]),
+            TrackerTestBuilder::aTracker()->build(),
             []
         );
 
@@ -117,10 +113,10 @@ class SemanticProgressFromXMLBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
             $xml,
             $all_semantics_xml,
             [
-                'F201' => \Mockery::mock(\Tracker_FormElement_Field_Numeric::class),
-                'F202' => \Mockery::mock(\Tracker_FormElement_Field_Numeric::class),
+                'F201' => $this->createMock(\Tracker_FormElement_Field_Numeric::class),
+                'F202' => $this->createMock(\Tracker_FormElement_Field_Numeric::class),
             ],
-            \Mockery::mock(\Tracker::class, ['getId' => 113]),
+            TrackerTestBuilder::aTracker()->build(),
             []
         );
 
@@ -144,9 +140,9 @@ class SemanticProgressFromXMLBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
             $xml,
             $all_semantics_xml,
             [
-                'F202' => \Mockery::mock(\Tracker_FormElement_Field_Numeric::class),
+                'F202' => $this->createMock(\Tracker_FormElement_Field_Numeric::class),
             ],
-            \Mockery::mock(\Tracker::class, ['getId' => 113]),
+            TrackerTestBuilder::aTracker()->build(),
             []
         );
 
@@ -170,9 +166,9 @@ class SemanticProgressFromXMLBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
             $xml,
             $all_semantics_xml,
             [
-                'F201' => \Mockery::mock(\Tracker_FormElement_Field_Numeric::class),
+                'F201' => $this->createMock(\Tracker_FormElement_Field_Numeric::class),
             ],
-            \Mockery::mock(\Tracker::class, ['getId' => 113]),
+            TrackerTestBuilder::aTracker()->build(),
             []
         );
 
@@ -181,8 +177,7 @@ class SemanticProgressFromXMLBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testBuildsSemanticProgressBasedOnLinksCountFromXML(): void
     {
-        $tracker = \Mockery::mock(\Tracker::class);
-        $xml     = new \SimpleXMLElement(
+        $xml = new \SimpleXMLElement(
             '<?xml version="1.0" encoding="UTF-8"?>
              <semantic type="progress">
               <artifact_link_type shortname="_is_child"/>
@@ -196,7 +191,7 @@ class SemanticProgressFromXMLBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
             $xml,
             $all_semantics_xml,
             [],
-            $tracker,
+            TrackerTestBuilder::aTracker()->build(),
             []
         );
 
@@ -225,7 +220,7 @@ class SemanticProgressFromXMLBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
             $xml,
             $all_semantics_xml,
             [],
-            \Mockery::mock(\Tracker::class, ['getId' => 113]),
+            TrackerTestBuilder::aTracker()->build(),
             []
         );
 

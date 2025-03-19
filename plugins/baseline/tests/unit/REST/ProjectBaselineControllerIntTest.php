@@ -27,6 +27,7 @@ require_once __DIR__ . '/IntegrationTestCaseWithStubs.php';
 
 use DateTimeImmutable;
 use PFUser;
+use PHPUnit\Framework\Attributes\Before;
 use Tuleap\Baseline\Adapter\UserProxy;
 use Tuleap\Baseline\Factory\BaselineArtifactFactory;
 use Tuleap\Baseline\Factory\BaselineFactory;
@@ -34,6 +35,7 @@ use Tuleap\Baseline\Factory\ProjectFactory;
 use Tuleap\Baseline\Support\DateTimeFactory;
 use Tuleap\GlobalLanguageMock;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class ProjectBaselineControllerIntTest extends IntegrationTestCaseWithStubs
 {
     use GlobalLanguageMock;
@@ -41,7 +43,7 @@ class ProjectBaselineControllerIntTest extends IntegrationTestCaseWithStubs
     /** @var ProjectBaselineController */
     private $controller;
 
-    /** @before */
+    #[Before]
     public function getTestedComponent(): void
     {
         $this->controller = $this->getContainer()->get(ProjectBaselineController::class);

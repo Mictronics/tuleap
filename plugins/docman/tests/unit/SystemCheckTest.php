@@ -25,7 +25,6 @@ namespace Tuleap\Docman;
 use BackendSystem;
 use Docman_SystemCheck;
 use Docman_SystemCheckProjectRetriever;
-use DocmanPluginInfo;
 use ForgeConfig;
 use org\bovigo\vfs\vfsStream;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -35,6 +34,7 @@ use Psr\Log\NullLogger;
 use Tuleap\ForgeConfigSandbox;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class SystemCheckTest extends TestCase
 {
     use ForgeConfigSandbox;
@@ -57,9 +57,7 @@ final class SystemCheckTest extends TestCase
 
         $this->root_dir_path = vfsStream::setup()->url();
 
-        $plugin_info = $this->createMock(DocmanPluginInfo::class);
-        $plugin_info->method('getPropertyValueForName')->with('docman_root')->willReturn($this->root_dir_path);
-        $plugin->method('getPluginInfo')->willReturn($plugin_info);
+        ForgeConfig::set(\DocmanPlugin::CONFIG_ROOT_DIRECTORY, $this->root_dir_path);
         $plugin->method('getPluginEtcRoot')->willReturn(ForgeConfig::get('codendi_cache_dir'));
 
         $this->system_check = new Docman_SystemCheck(

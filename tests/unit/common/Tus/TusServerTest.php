@@ -27,11 +27,12 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Tuleap\Http\HTTPFactoryBuilder;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class TusServerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private ResponseFactoryInterface $response_factory;
-    private TusDataStore & \PHPUnit\Framework\MockObject\MockObject $data_store;
-    private TusFileInformationProvider & \PHPUnit\Framework\MockObject\MockObject $file_information_provider;
+    private TusDataStore&\PHPUnit\Framework\MockObject\MockObject $data_store;
+    private TusFileInformationProvider&\PHPUnit\Framework\MockObject\MockObject $file_information_provider;
 
     protected function setUp(): void
     {
@@ -92,9 +93,7 @@ final class TusServerTest extends \Tuleap\Test\PHPUnit\TestCase
         self::assertEquals('no-cache', $response->getHeaderLine('Cache-Control'));
     }
 
-    /**
-     * @dataProvider validUploadRequestProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('validUploadRequestProvider')]
     public function testFileCanBeUploaded(int $upload_offset, string $body_content, string $content_type, bool $has_finisher): void
     {
         $data_writer = $this->createMock(TusWriter::class);
@@ -114,7 +113,7 @@ final class TusServerTest extends \Tuleap\Test\PHPUnit\TestCase
         $upload_request->method('hasHeader')->with('Upload-Offset')->willReturn(true);
 
         $upload_request->method('getHeaderLine')->willReturnMap([
-            ['Upload-Offset', $upload_offset],
+            ['Upload-Offset', (string) $upload_offset],
             ['Tus-Resumable', '1.0.0'],
             ['Content-Type', $content_type],
         ]);
@@ -191,7 +190,7 @@ final class TusServerTest extends \Tuleap\Test\PHPUnit\TestCase
         $incoming_request->method('hasHeader')->with('Upload-Offset')->willReturn(true);
 
         $incoming_request->method('getHeaderLine')->willReturnMap([
-            ['Upload-Offset', 10],
+            ['Upload-Offset', '10'],
             ['Tus-Resumable', '1.0.0'],
             ['Content-Type', 'application/offset+octet-stream'],
         ]);
@@ -261,7 +260,7 @@ final class TusServerTest extends \Tuleap\Test\PHPUnit\TestCase
         $incoming_request->method('hasHeader')->with('Upload-Offset')->willReturn(true);
 
         $incoming_request->method('getHeaderLine')->willReturnMap([
-            ['Upload-Offset', 0],
+            ['Upload-Offset', '0'],
             ['Tus-Resumable', '1.0.0'],
             ['Content-Type', 'application/offset+octet-stream'],
         ]);
@@ -289,7 +288,7 @@ final class TusServerTest extends \Tuleap\Test\PHPUnit\TestCase
         $incoming_request->method('hasHeader')->with('Upload-Offset')->willReturn(true);
 
         $incoming_request->method('getHeaderLine')->willReturnMap([
-            ['Upload-Offset', 0],
+            ['Upload-Offset', '0'],
             ['Tus-Resumable', '1.0.0'],
             ['Content-Type', 'application/offset+octet-stream'],
         ]);
@@ -377,7 +376,7 @@ final class TusServerTest extends \Tuleap\Test\PHPUnit\TestCase
         $incomplete_upload_request->method('hasHeader')->with('Upload-Offset')->willReturn(true);
 
         $incomplete_upload_request->method('getHeaderLine')->willReturnMap([
-            ['Upload-Offset', 0],
+            ['Upload-Offset', '0'],
             ['Tus-Resumable', '1.0.0'],
             ['Content-Type', 'application/offset+octet-stream'],
         ]);
@@ -410,7 +409,7 @@ final class TusServerTest extends \Tuleap\Test\PHPUnit\TestCase
         $incoming_request->method('hasHeader')->with('Upload-Offset')->willReturn(true);
 
         $incoming_request->method('getHeaderLine')->willReturnMap([
-            ['Upload-Offset', 0],
+            ['Upload-Offset', '0'],
             ['Tus-Resumable', '1.0.0'],
             ['Content-Type', 'application/offset+octet-stream'],
         ]);

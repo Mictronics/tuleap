@@ -38,6 +38,7 @@ use Tuleap\Test\Stubs\ContentInterpretorStub;
 use Tuleap\Test\Stubs\User\Avatar\ProvideUserAvatarUrlStub;
 use Tuleap\User\REST\MinimalUserRepresentation;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class PullRequestRepresentationTest extends TestCase
 {
     private const PULL_REQUEST_ID         = 358;
@@ -57,7 +58,7 @@ final class PullRequestRepresentationTest extends TestCase
     private const GIT_REFERENCE_ID        = 11;
     private const NUMBER_OF_CHANGED_FILES = 6;
     private const PULL_REQUEST_STATUS     = 'merge';
-    private GitoliteAccessURLGenerator & Stub $url_generator;
+    private GitoliteAccessURLGenerator&Stub $url_generator;
     private PullRequest $pull_request;
     private MinimalUserRepresentation $pull_request_creator;
 
@@ -222,9 +223,7 @@ final class PullRequestRepresentationTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider generatePullRequestStatus
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('generatePullRequestStatus')]
     public function testItExpandsOneLetterStatusToWordStatus(PullRequest $pull_request, string $expected_status): void
     {
         $this->url_generator->method('getHTTPURL')->willReturn('https://example.com/git');
@@ -256,9 +255,7 @@ final class PullRequestRepresentationTest extends TestCase
         ];
     }
 
-    /**
-     * @dataProvider generateMergeStatus
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('generateMergeStatus')]
     public function testItExpandsIntMergeStatusToWordMergeStatus(
         PullRequest $pull_request,
         string $expected_merge_status,

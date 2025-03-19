@@ -22,7 +22,10 @@ declare(strict_types=1);
 
 namespace Tuleap\Artidoc\Domain\Document\Section;
 
+use Tuleap\Artidoc\Domain\Document\Section\Artifact\ArtifactContent;
+use Tuleap\Artidoc\Domain\Document\Section\Artifact\UpdateArtifactContent;
 use Tuleap\Artidoc\Domain\Document\Section\Freetext\FreetextContent;
+use Tuleap\Artidoc\Domain\Document\Section\Freetext\Identifier\FreetextIdentifier;
 use Tuleap\Artidoc\Domain\Document\Section\Freetext\RetrievedSectionContentFreetext;
 use Tuleap\Artidoc\Domain\Document\Section\Freetext\UpdateFreetextContent;
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifier;
@@ -33,14 +36,18 @@ use Tuleap\NeverThrow\Result;
 
 final readonly class SectionUpdater
 {
-    public function __construct(private RetrieveSection $retriever, private UpdateFreetextContent $update_freetext)
-    {
+    public function __construct(
+        private RetrieveSection $retriever,
+        private UpdateFreetextContent $update_freetext,
+        private UpdateArtifactContent $update_artifact,
+    ) {
     }
 
     /**
+     * @param list<int> $attachments
      * @return Ok<null>|Err<Fault>
      */
-    public function update(SectionIdentifier $section_identifier, string $title, string $description): Ok|Err
+    public function update(SectionIdentifier $section_identifier, string $title, string $description, array $attachments, Level $level): Ok|Err
     {
         $title = trim($title);
         if ($title === '') {
@@ -50,25 +57,39 @@ final readonly class SectionUpdater
         return $this->retriever
             ->retrieveSectionUserCanWrite($section_identifier)
             ->andThen(fn (RetrievedSection $section) => $section->content->apply(
-                $this->updateArtifactSection(...),
-                fn (RetrievedSectionContentFreetext $freetext) => $this->updateFreetextSection($freetext, $title, $description),
+                fn (int $artifact_id) => $this->updateArtifactSection(
+                    $section_identifier,
+                    $artifact_id,
+                    new ArtifactContent($title, $description, $attachments, $level)
+                ),
+                fn (RetrievedSectionContentFreetext $freetext) => $this->updateFreetextSection(
+                    $section_identifier,
+                    $freetext->id,
+                    new FreetextContent($title, $description, $level),
+                ),
             ));
     }
 
     /**
      * @return Ok<null>|Err<Fault>
      */
-    private function updateArtifactSection(): Ok|Err
-    {
-        return Result::err(UnableToUpdateArtifactSectionFault::build());
+    private function updateArtifactSection(
+        SectionIdentifier $section_identifier,
+        int $artifact_id,
+        ArtifactContent $content,
+    ): Ok|Err {
+        return $this->update_artifact->updateArtifactContent($section_identifier, $artifact_id, $content);
     }
 
     /**
      * @return Ok<null>|Err<Fault>
      */
-    private function updateFreetextSection(RetrievedSectionContentFreetext $freetext, string $title, string $description): Ok|Err
-    {
-        $this->update_freetext->updateFreetextContent($freetext->id, new FreetextContent($title, $description));
+    private function updateFreetextSection(
+        SectionIdentifier $section_identifier,
+        FreetextIdentifier $id,
+        FreetextContent $content,
+    ): Ok|Err {
+        $this->update_freetext->updateFreetextContent($section_identifier, $id, $content);
 
         return Result::ok(null);
     }

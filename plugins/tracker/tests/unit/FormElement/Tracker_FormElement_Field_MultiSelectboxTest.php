@@ -35,6 +35,7 @@ use TrackerFactory;
 use UserManager;
 
 // phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class Tracker_FormElement_Field_MultiSelectboxTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -96,6 +97,7 @@ class Tracker_FormElement_Field_MultiSelectboxTest extends \Tuleap\Test\PHPUnit\
 
         $this->user->shouldReceive('isSuperUser')->andReturnFalse();
         $this->user->shouldReceive('getUgroups')->andReturn([]);
+        $this->user->shouldReceive('getId')->andReturn(101);
     }
 
     protected function tearDown(): void
@@ -185,7 +187,7 @@ class Tracker_FormElement_Field_MultiSelectboxTest extends \Tuleap\Test\PHPUnit\
         $this->field->augmentDataFromRequest($fields_data);
 
         $this->assertTrue(array_key_exists(1, $fields_data));
-        $this->assertSame(
+        self::assertSame(
             ['100'],
             $fields_data[1]
         );
@@ -209,7 +211,7 @@ class Tracker_FormElement_Field_MultiSelectboxTest extends \Tuleap\Test\PHPUnit\
 
         $this->field->augmentDataFromRequest($fields_data);
 
-        $this->assertSame(
+        self::assertSame(
             [201],
             $fields_data[1]
         );

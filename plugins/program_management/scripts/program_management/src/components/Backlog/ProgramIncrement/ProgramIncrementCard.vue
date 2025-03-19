@@ -87,50 +87,38 @@
         </section>
     </div>
 </template>
-
-<script lang="ts">
-import Vue from "vue";
-import { Component, Prop } from "vue-property-decorator";
+<script setup lang="ts">
+import { computed, ref } from "vue";
+import { useNamespacedState } from "vuex-composition-helpers";
+import { useGettext } from "vue3-gettext";
 import { formatDateYearMonthDay } from "@tuleap/date-helper";
 import type { ProgramIncrement } from "../../../helpers/ProgramIncrement/program-increment-retriever";
 import ProgramIncrementFeatureList from "./ProgramIncrementFeatureList.vue";
-import { namespace } from "vuex-class";
+import type { ConfigurationState } from "../../../store/configuration";
 
-const configuration = namespace("configuration");
+const { $gettext } = useGettext();
 
-@Component({
-    components: { ProgramIncrementFeatureList },
-})
-export default class ProgramIncrementCard extends Vue {
-    @Prop({ required: true })
-    readonly increment!: ProgramIncrement;
+const { user_locale, short_name, tracker_iteration_label, is_iteration_tracker_defined } =
+    useNamespacedState<ConfigurationState>("configuration", [
+        "user_locale",
+        "short_name",
+        "tracker_iteration_label",
+        "is_iteration_tracker_defined",
+    ]);
 
-    @configuration.State
-    readonly user_locale!: string;
+defineProps<{ increment: ProgramIncrement }>();
 
-    @configuration.State
-    readonly short_name!: string;
+const is_open = ref(false);
 
-    @configuration.State
-    readonly tracker_iteration_label!: string;
-
-    @configuration.State
-    readonly is_iteration_tracker_defined!: boolean;
-
-    is_open = false;
-
-    formatDate(date: string): string {
-        return formatDateYearMonthDay(this.user_locale, date);
-    }
-
-    toggleIsOpen(): void {
-        this.is_open = !this.is_open;
-    }
-
-    get planned_iteration_link(): string {
-        return this.$gettextInterpolate(this.$gettext("Plan %{ iteration_label }"), {
-            iteration_label: this.tracker_iteration_label,
-        });
-    }
+function formatDate(date: string): string {
+    return formatDateYearMonthDay(user_locale.value, date);
 }
+
+function toggleIsOpen(): void {
+    is_open.value = !is_open.value;
+}
+
+const planned_iteration_link = computed((): string =>
+    $gettext("Plan %{ iteration_label }", { iteration_label: tracker_iteration_label.value }),
+);
 </script>

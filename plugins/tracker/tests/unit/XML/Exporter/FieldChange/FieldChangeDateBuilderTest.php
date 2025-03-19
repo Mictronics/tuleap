@@ -28,6 +28,7 @@ use SimpleXMLElement;
 use Tuleap\Tracker\XML\Exporter\FieldChange\FieldChangeDateBuilder;
 use XML_SimpleXMLCDATAFactory;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class FieldChangeDateBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -58,9 +59,9 @@ class FieldChangeDateBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->assertTrue(isset($changeset_node->field_change));
         $field_change_node = $changeset_node->field_change;
 
-        $this->assertSame('date', (string) $field_change_node['type']);
-        $this->assertSame('field_date_01', (string) $field_change_node['field_name']);
-        $this->assertSame('2020-05-04T16:46:53+02:00', (string) $field_change_node->value);
-        $this->assertSame('ISO8601', (string) $field_change_node->value['format']);
+        self::assertSame('date', (string) $field_change_node['type']);
+        self::assertSame('field_date_01', (string) $field_change_node['field_name']);
+        self::assertSame('2020-05-04T16:46:53+02:00', (string) $field_change_node->value);
+        self::assertSame('ISO8601', (string) $field_change_node->value['format']);
     }
 }

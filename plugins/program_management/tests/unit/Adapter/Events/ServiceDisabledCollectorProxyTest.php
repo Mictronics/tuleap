@@ -28,6 +28,7 @@ use Tuleap\Project\Service\ServiceDisabledCollector;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ServiceDisabledCollectorProxyTest extends TestCase
 {
     private ServiceDisabledCollectorProxy $proxy;
@@ -46,8 +47,8 @@ final class ServiceDisabledCollectorProxyTest extends TestCase
 
     public function testItBuildsFromEvent(): void
     {
-        $this->assertSame($this->event->getProject()->getID(), $this->proxy->getProjectIdentifier()->getId());
-        $this->assertSame($this->event->getUser()->getID(), $this->proxy->getUserIdentifier()->getId());
+        self::assertSame($this->event->getProject()->getID(), $this->proxy->getProjectIdentifier()->getId());
+        self::assertSame($this->event->getUser()->getID(), $this->proxy->getUserIdentifier()->getId());
     }
 
     public function testItVerifyEventIsForService(): void
@@ -63,6 +64,6 @@ final class ServiceDisabledCollectorProxyTest extends TestCase
     public function testItPreventsServiceUsage(): void
     {
         $this->proxy->disableWithMessage('A message');
-        $this->assertSame('A message', $this->event->getReason());
+        self::assertSame('A message', $this->event->getReason());
     }
 }

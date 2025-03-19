@@ -21,32 +21,21 @@ import type { PendingArtifactSection } from "@/helpers/artidoc-section.type";
 import { v4 as uuidv4 } from "uuid";
 import type { TrackerWithSubmittableSection } from "@/stores/configuration-store";
 import { TrackerStub } from "@/helpers/stubs/TrackerStub";
+import { parse } from "marked";
 
 const PendingArtifactSectionFactory = {
     create: (): PendingArtifactSection => ({
+        type: "artifact",
         id: uuidv4(),
         tracker: TrackerStub.withoutTitleAndDescription(),
-        display_title: "Technologies section",
-        title: {
-            field_id: 110,
-            type: "string",
-            label: "Summary",
-            value: "Technologies section",
-        },
-        description: {
-            field_id: 111,
-            type: "text",
-            label: "Original Submission",
-            value: "<h2>Title 1</h2><p>description 1</p>",
-            format: "html",
-            post_processed_value: "<h2>Title 1</h2><p>description 1</p>",
-        },
+        title: "Technologies section",
+        description: "<h2>Title 1</h2><p>description 1</p>",
         attachments: {
-            field_id: 171,
-            label: "attachment",
-            type: "file",
-            file_descriptions: [],
+            upload_url: "/api/v1/tracker_fields/171/files",
+            attachment_ids: [],
         },
+        level: 1,
+        display_level: "",
     }),
 
     override: (overrides: Partial<PendingArtifactSection>): PendingArtifactSection => ({
@@ -57,24 +46,16 @@ const PendingArtifactSectionFactory = {
     overrideFromTracker: (tracker: TrackerWithSubmittableSection): PendingArtifactSection =>
         PendingArtifactSectionFactory.override({
             tracker,
-            title: {
-                ...tracker.title,
-                value: tracker.title.default_value,
-                ...(tracker.title.type === "string"
-                    ? { type: "string" }
-                    : { type: "text", post_processed_value: "", format: "html" }),
-            },
-            display_title: tracker.title.default_value,
-            description: {
-                ...tracker.description,
-                value: tracker.description.default_value.content,
-                post_processed_value: "",
-                format: tracker.description.default_value.format,
-                ...(tracker.description.default_value.format === "commonmark"
-                    ? { commonmark: tracker.description.default_value.content }
-                    : {}),
-            },
-            attachments: tracker.file ? { ...tracker.file, file_descriptions: [] } : null,
+            title: tracker.title.default_value,
+            description: ["commonmark", "text"].includes(tracker.description.default_value.format)
+                ? parse(tracker.description.default_value.content)
+                : tracker.description.default_value.content,
+            attachments: tracker.file
+                ? {
+                      upload_url: tracker.file.upload_url,
+                      attachment_ids: [],
+                  }
+                : null,
         }),
 };
 

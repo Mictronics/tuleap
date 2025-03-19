@@ -44,6 +44,7 @@ use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\User\OAuth2\Scope\OAuth2ScopeIdentifier;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AuthorizationEndpointControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private AuthorizationEndpointController $controller;
@@ -118,7 +119,7 @@ final class AuthorizationEndpointControllerTest extends \Tuleap\Test\PHPUnit\Tes
         $response = HTTPFactoryBuilder::responseFactory()->createResponse(302);
         $this->response_factory->expects(self::once())->method('createRedirectToLoginResponse')->willReturn($response);
 
-        $this->assertSame($response, $this->controller->handle($request));
+        self::assertSame($response, $this->controller->handle($request));
     }
 
     public function testRejectsAnonymousUserWithAnErrorWhenNoInteractionAreAllowed(): void
@@ -142,7 +143,7 @@ final class AuthorizationEndpointControllerTest extends \Tuleap\Test\PHPUnit\Tes
             ->with('login_required', 'https://example.com/redirect', null)
             ->willReturn($response);
 
-        $this->assertSame($response, $this->controller->handle($request));
+        self::assertSame($response, $this->controller->handle($request));
     }
 
     public function testHandleRedirectsToLoginWhenPromptParameterRequiresIt(): void
@@ -164,7 +165,7 @@ final class AuthorizationEndpointControllerTest extends \Tuleap\Test\PHPUnit\Tes
         $response = HTTPFactoryBuilder::responseFactory()->createResponse(302);
         $this->response_factory->expects(self::once())->method('createRedirectToLoginResponse')->willReturn($response);
 
-        $this->assertSame($response, $this->controller->handle($request));
+        self::assertSame($response, $this->controller->handle($request));
     }
 
     public function testHandleRedirectsToLoginWhenMaxAgeParameterRequiresIt(): void
@@ -187,12 +188,10 @@ final class AuthorizationEndpointControllerTest extends \Tuleap\Test\PHPUnit\Tes
         $response = HTTPFactoryBuilder::responseFactory()->createResponse(302);
         $this->response_factory->expects(self::once())->method('createRedirectToLoginResponse')->willReturn($response);
 
-        $this->assertSame($response, $this->controller->handle($request));
+        self::assertSame($response, $this->controller->handle($request));
     }
 
-    /**
-     * @dataProvider dataProviderInvalidEssentialQueryParameters
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderInvalidEssentialQueryParameters')]
     public function testHandleThrowsForbiddenWhenEssentialQueryParametersAreInvalid(array $query_parameters): void
     {
         $user = UserTestBuilder::aUser()->withId(102)->build();
@@ -240,9 +239,7 @@ final class AuthorizationEndpointControllerTest extends \Tuleap\Test\PHPUnit\Tes
         $this->controller->handle($request);
     }
 
-    /**
-     * @dataProvider dataProviderInvalidQueryParameters
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderInvalidQueryParameters')]
     public function testHandleRedirectsWithErrorWhenQueryParametersAreInvalid(
         array $query_parameters,
         string $expected_redirection_url,
@@ -259,7 +256,7 @@ final class AuthorizationEndpointControllerTest extends \Tuleap\Test\PHPUnit\Tes
         $response = HTTPFactoryBuilder::responseFactory()->createResponse(302);
         $this->response_factory->method('createErrorResponse')->willReturn($response);
 
-        $this->assertSame($response, $this->controller->handle($request));
+        self::assertSame($response, $this->controller->handle($request));
     }
 
     public static function dataProviderInvalidQueryParameters(): array
@@ -332,12 +329,10 @@ final class AuthorizationEndpointControllerTest extends \Tuleap\Test\PHPUnit\Tes
         $response = HTTPFactoryBuilder::responseFactory()->createResponse(302);
         $this->response_factory->method('createErrorResponse')->willReturn($response);
 
-        $this->assertSame($response, $this->controller->handle($request));
+        self::assertSame($response, $this->controller->handle($request));
     }
 
-    /**
-     * @dataProvider dataProviderSupportedRequestHTTPMethod
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('dataProviderSupportedRequestHTTPMethod')]
     public function testHandleRedirectsWithAuthorizationCodeWhenAPreviousAuthorizationHasBeenGranted(string $request_http_method): void
     {
         $user = UserTestBuilder::aUser()->withId(102)->build();
@@ -371,7 +366,7 @@ final class AuthorizationEndpointControllerTest extends \Tuleap\Test\PHPUnit\Tes
         $response = HTTPFactoryBuilder::responseFactory()->createResponse(302);
         $this->response_factory->method('createSuccessfulResponse')->willReturn($response);
 
-        $this->assertSame($response, $this->controller->handle($request));
+        self::assertSame($response, $this->controller->handle($request));
     }
 
     public function testRendersAuthorizationFormWhenConstentIsRequired(): void
@@ -441,7 +436,7 @@ final class AuthorizationEndpointControllerTest extends \Tuleap\Test\PHPUnit\Tes
             ->with('interaction_required', 'https://example.com/redirect', 'xyz')
             ->willReturn($response);
 
-        $this->assertSame($response, $this->controller->handle($request));
+        self::assertSame($response, $this->controller->handle($request));
     }
 
     public static function dataProviderSupportedRequestHTTPMethod(): array

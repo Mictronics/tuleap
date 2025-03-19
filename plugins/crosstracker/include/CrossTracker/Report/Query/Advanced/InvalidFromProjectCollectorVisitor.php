@@ -24,7 +24,7 @@ namespace Tuleap\CrossTracker\Report\Query\Advanced;
 
 use LogicException;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Tuleap\CrossTracker\SearchCrossTrackerWidget;
+use Tuleap\CrossTracker\Widget\SearchCrossTrackerWidget;
 use Tuleap\Project\ProjectByIDFactory;
 use Tuleap\Project\Sidebar\CollectLinkedProjects;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\FromProjectConditionVisitor;
@@ -150,7 +150,7 @@ final readonly class InvalidFromProjectCollectorVisitor implements FromProjectCo
 
     private function checkProjectAggregated(InvalidFromProjectCollectorParameters $parameters): void
     {
-        $row = $this->widget_retriever->searchCrossTrackerWidgetByCrossTrackerReportId($parameters->report_id);
+        $row = $this->widget_retriever->searchCrossTrackerWidgetDashboardById($parameters->report_id);
         if ($row === null || $row['dashboard_type'] !== 'project') {
             $parameters->collection->addInvalidFrom(dgettext(
                 'tuleap-crosstracker',

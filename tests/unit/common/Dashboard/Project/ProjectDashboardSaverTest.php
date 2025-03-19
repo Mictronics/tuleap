@@ -29,13 +29,14 @@ use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\DB\DBTransactionExecutorPassthrough;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ProjectDashboardSaverTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private const PROJECT_ID   = 145;
     private const DASHBOARD_ID = 1;
     private \PFUser $regular_user;
     private \PFUser $admin_user;
-    private MockObject & ProjectDashboardDao $dao;
+    private MockObject&ProjectDashboardDao $dao;
     private \Project $project;
     private DeleteVisitByDashboardId $delete_visit_by_dashboard_id;
 

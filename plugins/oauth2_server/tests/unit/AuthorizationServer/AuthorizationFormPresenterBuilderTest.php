@@ -29,6 +29,7 @@ use Tuleap\OAuth2ServerCore\App\OAuth2App;
 use Tuleap\OAuth2ServerCore\AuthorizationServer\RedirectURIBuilder;
 use Tuleap\User\OAuth2\Scope\OAuth2ScopeIdentifier;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AuthorizationFormPresenterBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     /**
@@ -113,12 +114,12 @@ final class AuthorizationFormPresenterBuilderTest extends \Tuleap\Test\PHPUnit\T
             new OAuth2ScopeIdentifierPresenter($typevalue_identifier),
             $presenter->scope_identifier_presenters
         );
-        $this->assertSame('Jenkins', $presenter->app_name);
-        $this->assertSame('Test Project', $presenter->project_name);
-        $this->assertSame($redirect_uri, $presenter->redirect_uri);
-        $this->assertSame($state_value, $presenter->state);
-        $this->assertSame(bin2hex($pkce_code_challenge), $presenter->pkce_code_challenge);
-        $this->assertSame(
+        self::assertSame('Jenkins', $presenter->app_name);
+        self::assertSame('Test Project', $presenter->project_name);
+        self::assertSame($redirect_uri, $presenter->redirect_uri);
+        self::assertSame($state_value, $presenter->state);
+        self::assertSame(bin2hex($pkce_code_challenge), $presenter->pkce_code_challenge);
+        self::assertSame(
             'https://example.com?state=xyz&error=access_denied',
             (string) $presenter->deny_authorization_uri
         );

@@ -24,6 +24,7 @@ use Mockery;
 use Mockery\Adapter\Phpunit\MockeryPHPUnitIntegration;
 use Tuleap\Tracker\Semantic\Timeframe\IComputeTimeframes;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class ChartConfigurationValueRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     use MockeryPHPUnitIntegration;
@@ -112,7 +113,7 @@ class ChartConfigurationValueRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $this->capacity_field->shouldReceive('getComputedValue')->andReturn($this->capacity);
 
-        $this->assertSame(
+        self::assertSame(
             $this->configuration_value_retriever->getCapacity($this->artifact_sprint, $this->user),
             $this->capacity
         );

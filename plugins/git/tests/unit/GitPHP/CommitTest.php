@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Tuleap\Git\GitPHP;
 
+#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class CommitTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     public const COMMIT_CONTENT = <<<EOF
@@ -134,9 +135,7 @@ IdFV7BORBPs0tJG5MsN6VKsC4czW822OP2RQ8WOTOPreRxELUnkEAAAAAAAA
 EOF;
 
 
-    /**
-     * @dataProvider commitsProvider
-     */
+    #[\PHPUnit\Framework\Attributes\DataProvider('commitsProvider')]
     public function testContentIsRetrievedWhenAPGPSignatureIsPresent(
         $commit_content,
         $author_name,
@@ -149,11 +148,11 @@ EOF;
         $project->method('GetObject')->with('3f4a9ea9a9bcc19fa6f0806058469c5e4c35df82')->willReturn($commit_content);
         $commit = new Commit(new BlobDataReader(), $project, '3f4a9ea9a9bcc19fa6f0806058469c5e4c35df82');
 
-        $this->assertSame($author_name, $commit->GetAuthorName());
-        $this->assertSame($author_email, $commit->getAuthorEmail());
-        $this->assertSame($author_timestamp, $commit->GetAuthorEpoch());
-        $this->assertSame($commit_message, $commit->GetComment());
-        $this->assertSame($commit_signature, $commit->getSignature());
+        self::assertSame($author_name, $commit->GetAuthorName());
+        self::assertSame($author_email, $commit->getAuthorEmail());
+        self::assertSame($author_timestamp, $commit->GetAuthorEpoch());
+        self::assertSame($commit_message, $commit->GetComment());
+        self::assertSame($commit_signature, $commit->getSignature());
     }
 
     public static function commitsProvider(): array
