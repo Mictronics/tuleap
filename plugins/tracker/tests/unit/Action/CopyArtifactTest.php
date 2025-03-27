@@ -25,6 +25,8 @@ use Tuleap\Test\Builders\HTTPRequestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Artifact\Changeset\Comment\CommentFormatIdentifier;
+use Tuleap\Tracker\Artifact\XML\Exporter\ArtifactXMLExporter;
+use Tuleap\Tracker\Artifact\XML\Exporter\ChildrenXMLExporter;
 use Tuleap\Tracker\Artifact\XMLImport\TrackerImportConfig;
 use Tuleap\Tracker\Artifact\XMLImport\TrackerXmlImportConfig;
 use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
@@ -50,7 +52,7 @@ final class Tracker_Action_CopyArtifactTest extends \Tuleap\Test\PHPUnit\TestCas
 
     private Codendi_Request $request;
 
-    private Tracker_XML_Exporter_ArtifactXMLExporter&MockObject $xml_exporter;
+    private ArtifactXMLExporter&MockObject $xml_exporter;
 
     private int $changeset_id = 101;
 
@@ -76,7 +78,7 @@ final class Tracker_Action_CopyArtifactTest extends \Tuleap\Test\PHPUnit\TestCas
 
     private Tracker_XML_Updater_TemporaryFileXMLUpdater&MockObject $file_updater;
 
-    private Tracker_XML_Exporter_ChildrenXMLExporter&MockObject $children_xml_exporter;
+    private ChildrenXMLExporter&MockObject $children_xml_exporter;
 
     private Tracker_XML_Importer_ArtifactImportedMapping&MockObject $artifacts_imported_mapping;
 
@@ -104,7 +106,7 @@ final class Tracker_Action_CopyArtifactTest extends \Tuleap\Test\PHPUnit\TestCas
         $this->new_artifact->setId($this->new_artifact_id);
         $this->layout        = DisplayTrackerLayoutStub::build();
         $this->user          = UserTestBuilder::buildWithDefaults();
-        $this->xml_exporter  = $this->createMock(Tracker_XML_Exporter_ArtifactXMLExporter::class);
+        $this->xml_exporter  = $this->createMock(ArtifactXMLExporter::class);
         $this->xml_importer  = $this->createMock(Tracker_Artifact_XMLImport::class);
         $this->xml_updater   = $this->createMock(Tracker_XML_Updater_ChangesetXMLUpdater::class);
         $this->file_updater  = $this->createMock(Tracker_XML_Updater_TemporaryFileXMLUpdater::class);
@@ -114,7 +116,7 @@ final class Tracker_Action_CopyArtifactTest extends \Tuleap\Test\PHPUnit\TestCas
         $this->from_changeset = ChangesetTestBuilder::aChangeset($this->changeset_id)->ofArtifact($this->from_artifact)->build();
         $this->from_artifact->setChangesets([$this->changeset_id => $this->from_changeset]);
         $this->from_artifact->method('getChangesetFactory')->willReturn($changeset_factory);
-        $this->children_xml_exporter      = $this->createMock(Tracker_XML_Exporter_ChildrenXMLExporter::class);
+        $this->children_xml_exporter      = $this->createMock(ChildrenXMLExporter::class);
         $this->artifacts_imported_mapping = $this->createMock(Tracker_XML_Importer_ArtifactImportedMapping::class);
 
         $this->children_xml_exporter->method('exportChildren');
@@ -179,7 +181,7 @@ final class Tracker_Action_CopyArtifactTest extends \Tuleap\Test\PHPUnit\TestCas
             Artifact::class
         ));
         $this->xml_exporter
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('exportSnapshotWithoutComments')
             ->willReturnCallback(
                 fn (SimpleXMLElement $artifacts_xml, Tracker_Artifact_Changeset $changeset) => match ($changeset) {
@@ -205,7 +207,7 @@ final class Tracker_Action_CopyArtifactTest extends \Tuleap\Test\PHPUnit\TestCas
             </artifacts>
 XML;
         $xml         = new SimpleXMLElement($xml_content);
-        $this->xml_exporter->expects(self::once())->method('exportSnapshotWithoutComments')->willReturn($xml);
+        $this->xml_exporter->expects($this->once())->method('exportSnapshotWithoutComments')->willReturn($xml);
         $this->tracker->method('userCanSubmitArtifact')->with($this->user)->willReturn(true);
         $workflow = $this->createMock(\Workflow::class);
         $workflow->method('disable');
@@ -216,11 +218,11 @@ XML;
         $this->xml_importer->method('importBareArtifact')->willReturn($this->new_artifact);
         $this->xml_importer->method('importChangesets');
 
-        $this->new_artifact->expects(self::once())->method('createNewChangesetWithoutRequiredValidation');
+        $this->new_artifact->expects($this->once())->method('createNewChangesetWithoutRequiredValidation');
 
-        $this->event_manager->expects(self::once())->method('dispatch');
+        $this->event_manager->expects($this->once())->method('dispatch');
 
-        $GLOBALS['Response']->expects(self::once())->method('redirect')->with(TRACKER_BASE_URL . '/?aid=456');
+        $GLOBALS['Response']->expects($this->once())->method('redirect')->with(TRACKER_BASE_URL . '/?aid=456');
 
         $this->xml_updater->method('update');
         $this->file_updater->method('update');
@@ -234,7 +236,7 @@ XML;
 
         $this->xml_exporter->expects(self::never())->method('exportSnapshotWithoutComments');
 
-        $GLOBALS['Response']->expects(self::once())->method('redirect')->with(TRACKER_BASE_URL . '/?tracker=1');
+        $GLOBALS['Response']->expects($this->once())->method('redirect')->with(TRACKER_BASE_URL . '/?tracker=1');
 
         $this->action->process($this->layout, $this->request, $this->user);
     }
@@ -245,7 +247,7 @@ XML;
 
         $this->xml_exporter->method('exportSnapshotWithoutComments')->willReturn($this->default_xml);
 
-        $GLOBALS['Response']->expects(self::once())->method('redirect')->with(TRACKER_BASE_URL . '/?tracker=1');
+        $GLOBALS['Response']->expects($this->once())->method('redirect')->with(TRACKER_BASE_URL . '/?tracker=1');
 
         $this->xml_updater->method('update');
         $this->file_updater->method('update');
@@ -259,7 +261,7 @@ XML;
 
         $this->xml_exporter->method('exportSnapshotWithoutComments')->willReturn($this->default_xml);
 
-        $this->xml_updater->expects(self::once())->method('update')->with(
+        $this->xml_updater->expects($this->once())->method('update')->with(
             $this->tracker,
             self::anything(),
             $this->submitted_values,
@@ -277,7 +279,7 @@ XML;
 
         $this->xml_exporter->method('exportSnapshotWithoutComments')->willReturn($this->default_xml);
 
-        $this->file_updater->expects(self::once())->method('update');
+        $this->file_updater->expects($this->once())->method('update');
 
         $this->xml_updater->method('update');
 
@@ -294,8 +296,8 @@ XML;
                 'artifact' => $this->submitted_values,
             ])->build();
 
-        $GLOBALS['Response']->expects(self::once())->method('addFeedback')->with('error');
-        $GLOBALS['Response']->expects(self::once())->method('redirect')->with(TRACKER_BASE_URL . '/?tracker=1');
+        $GLOBALS['Response']->expects($this->once())->method('addFeedback')->with('error');
+        $GLOBALS['Response']->expects($this->once())->method('redirect')->with(TRACKER_BASE_URL . '/?tracker=1');
 
         $this->xml_exporter->expects(self::never())->method('exportSnapshotWithoutComments');
         $this->xml_updater->expects(self::never())->method('update');
@@ -313,8 +315,8 @@ XML;
                 'artifact' => $this->submitted_values,
             ])->build();
 
-        $GLOBALS['Response']->expects(self::once())->method('addFeedback')->with('error');
-        $GLOBALS['Response']->expects(self::once())->method('redirect')->with(TRACKER_BASE_URL . '/?tracker=1');
+        $GLOBALS['Response']->expects($this->once())->method('addFeedback')->with('error');
+        $GLOBALS['Response']->expects($this->once())->method('redirect')->with(TRACKER_BASE_URL . '/?tracker=1');
 
         $this->xml_exporter->expects(self::never())->method('exportSnapshotWithoutComments');
         $this->xml_updater->expects(self::never())->method('update');
@@ -333,8 +335,8 @@ XML;
                 'artifact' => $this->changeset_id,
             ])->build();
 
-        $GLOBALS['Response']->expects(self::once())->method('addFeedback')->with('error');
-        $GLOBALS['Response']->expects(self::once())->method('redirect')->with(TRACKER_BASE_URL . '/?tracker=1');
+        $GLOBALS['Response']->expects($this->once())->method('addFeedback')->with('error');
+        $GLOBALS['Response']->expects($this->once())->method('redirect')->with(TRACKER_BASE_URL . '/?tracker=1');
 
         $this->xml_exporter->expects(self::never())->method('exportSnapshotWithoutComments');
         $this->xml_updater->expects(self::never())->method('update');
@@ -354,8 +356,8 @@ XML;
             ])->build();
 
 
-        $GLOBALS['Response']->expects(self::once())->method('addFeedback')->with('error');
-        $GLOBALS['Response']->expects(self::once())->method('redirect')->with(TRACKER_BASE_URL . '/?tracker=1');
+        $GLOBALS['Response']->expects($this->once())->method('addFeedback')->with('error');
+        $GLOBALS['Response']->expects($this->once())->method('redirect')->with(TRACKER_BASE_URL . '/?tracker=1');
 
         $this->xml_exporter->expects(self::never())->method('exportSnapshotWithoutComments');
         $this->xml_updater->expects(self::never())->method('update');
@@ -387,11 +389,11 @@ XML;
         $this->xml_importer->method('importChangesets');
 
         $this->a_mocked_artifact
-            ->expects(self::once())
+            ->expects($this->once())
             ->method('createNewChangesetWithoutRequiredValidation')
             ->with([], self::anything(), $this->user, true, CommentFormatIdentifier::TEXT);
 
-        $this->event_manager->expects(self::once())->method('dispatch');
+        $this->event_manager->expects($this->once())->method('dispatch');
 
         $this->xml_updater->method('update');
         $this->file_updater->method('update');
@@ -453,7 +455,7 @@ XML;
         $artifact789->method('getId')->willReturn(789);
         $artifact789->method('getTracker')->willReturn($tracker2);
 
-        $artifact123->expects(self::once())->method('createNewChangesetWithoutRequiredValidation');
+        $artifact123->expects($this->once())->method('createNewChangesetWithoutRequiredValidation');
 
         $this->xml_importer
             ->expects(self::exactly(3))
@@ -488,7 +490,7 @@ XML;
                 }
             );
 
-        $this->event_manager->expects(self::once())->method('dispatch');
+        $this->event_manager->expects($this->once())->method('dispatch');
 
         $this->xml_updater->method('update');
         $this->file_updater->method('update');

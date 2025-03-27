@@ -26,12 +26,12 @@ use Psr\Log\NullLogger;
 use Tracker;
 use Tracker_Artifact_PriorityManager;
 use Tracker_Artifact_XMLImport;
-use Tracker_XML_Exporter_ArtifactXMLExporter;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\DB\DBTransactionExecutorPassthrough;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Artifact\ArtifactsDeletion\ArtifactsDeletionManager;
+use Tuleap\Tracker\Artifact\XML\Exporter\ArtifactXMLExporter;
 use Tuleap\Tracker\Exception\MoveArtifactNotDoneException;
 use Tuleap\Tracker\Exception\MoveArtifactTargetProjectNotActiveException;
 use Tuleap\Tracker\Test\Builders\ArtifactImportedMappingBuilder;
@@ -44,7 +44,7 @@ use Tuleap\Tracker\Tracker\XML\Updater\UpdateMoveChangesetXMLDuckTyping;
 final class MegaMoverArtifactByDuckTypingTest extends TestCase
 {
     private ArtifactsDeletionManager&\PHPUnit\Framework\MockObject\MockObject $artifacts_deletion_manager;
-    private Tracker_XML_Exporter_ArtifactXMLExporter&\PHPUnit\Framework\MockObject\MockObject $xml_exporter;
+    private ArtifactXMLExporter&\PHPUnit\Framework\MockObject\MockObject $xml_exporter;
     private UpdateMoveChangesetXMLDuckTyping $xml_updater;
     private Tracker_Artifact_PriorityManager&\PHPUnit\Framework\MockObject\MockObject $artifact_priority_manager;
     private Tracker_Artifact_XMLImport&\PHPUnit\Framework\MockObject\MockObject $xml_import;
@@ -59,7 +59,7 @@ final class MegaMoverArtifactByDuckTypingTest extends TestCase
     protected function setUp(): void
     {
         $this->artifacts_deletion_manager = $this->createMock(ArtifactsDeletionManager::class);
-        $this->xml_exporter               = $this->createMock(Tracker_XML_Exporter_ArtifactXMLExporter::class);
+        $this->xml_exporter               = $this->createMock(ArtifactXMLExporter::class);
         $this->xml_updater                = UpdateMoveChangesetXMLDuckTypingStub::build();
         $this->artifact_priority_manager  = $this->createMock(Tracker_Artifact_PriorityManager::class);
         $transaction_executor             = new DBTransactionExecutorPassthrough();
@@ -96,15 +96,15 @@ final class MegaMoverArtifactByDuckTypingTest extends TestCase
     {
         $project  = ProjectTestBuilder::aProject()->withStatusActive()->build();
         $workflow = $this->createMock(\Workflow::class);
-        $workflow->expects(self::once())->method('disable');
+        $workflow->expects($this->once())->method('disable');
         $target_tracker = $this->createStub(Tracker::class);
         $target_tracker->method('getProject')->willReturn($project);
         $target_tracker->method('getWorkflow')->willReturn($workflow);
 
-        $this->xml_exporter->expects(self::once())->method('exportFullHistory');
-        $this->xml_import->expects(self::once())->method('importArtifactWithAllDataFromXMLContentInAMoveContext')->willReturn(null);
-        $this->artifact_priority_manager->expects(self::once())->method('getGlobalRank')->willReturn(86);
-        $this->artifacts_deletion_manager->expects(self::once())->method('deleteArtifactBeforeMoveOperation');
+        $this->xml_exporter->expects($this->once())->method('exportFullHistory');
+        $this->xml_import->expects($this->once())->method('importArtifactWithAllDataFromXMLContentInAMoveContext')->willReturn(null);
+        $this->artifact_priority_manager->expects($this->once())->method('getGlobalRank')->willReturn(86);
+        $this->artifacts_deletion_manager->expects($this->once())->method('deleteArtifactBeforeMoveOperation');
 
         $this->expectException(MoveArtifactNotDoneException::class);
 
@@ -115,18 +115,18 @@ final class MegaMoverArtifactByDuckTypingTest extends TestCase
     public function testItRunTheMoveAndUpdateRankAndReturnTotalArtifactsDeleted(): void
     {
         $workflow = $this->createMock(\Workflow::class);
-        $workflow->expects(self::once())->method('disable');
+        $workflow->expects($this->once())->method('disable');
         $target_tracker = $this->createStub(Tracker::class);
         $target_tracker->method('getProject')->willReturn($this->project);
         $target_tracker->method('getWorkflow')->willReturn($workflow);
 
         $exported_artifact = ArtifactTestBuilder::anArtifact(1)->build();
 
-        $this->xml_exporter->expects(self::once())->method('exportFullHistory');
-        $this->xml_import->expects(self::once())->method('importArtifactWithAllDataFromXMLContentInAMoveContext')->willReturn($exported_artifact);
-        $this->artifact_priority_manager->expects(self::once())->method('putArtifactAtAGivenRank');
-        $this->artifact_priority_manager->expects(self::once())->method('getGlobalRank')->willReturn(86);
-        $this->artifacts_deletion_manager->expects(self::once())->method('deleteArtifactBeforeMoveOperation');
+        $this->xml_exporter->expects($this->once())->method('exportFullHistory');
+        $this->xml_import->expects($this->once())->method('importArtifactWithAllDataFromXMLContentInAMoveContext')->willReturn($exported_artifact);
+        $this->artifact_priority_manager->expects($this->once())->method('putArtifactAtAGivenRank');
+        $this->artifact_priority_manager->expects($this->once())->method('getGlobalRank')->willReturn(86);
+        $this->artifacts_deletion_manager->expects($this->once())->method('deleteArtifactBeforeMoveOperation');
 
         $this->artifact_mover->move($this->artifact, $this->source_tracker, $target_tracker, $this->user, $this->fields, $this->artifacts_mapping, new NullLogger());
         self::assertSame(1, $this->xml_updater->getCallCount());

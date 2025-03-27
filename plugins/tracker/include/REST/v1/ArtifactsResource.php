@@ -43,9 +43,6 @@ use Tracker_FormElement_InvalidFieldValueException;
 use Tracker_FormElement_RESTValueByField_NotImplementedException;
 use Tracker_FormElementFactory;
 use Tracker_URLVerification;
-use Tracker_XML_Exporter_ArtifactXMLExporterBuilder;
-use Tracker_XML_Exporter_LocalAbsoluteFilePathXMLExporter;
-use Tracker_XML_Exporter_NullChildrenCollector;
 use TrackerFactory;
 use TransitionFactory;
 use Tuleap\DB\DBFactory;
@@ -121,6 +118,9 @@ use Tuleap\Tracker\Artifact\ChangesetValue\ChangesetValueSaver;
 use Tuleap\Tracker\Artifact\ChangesetValue\InitialChangesetValueSaver;
 use Tuleap\Tracker\Artifact\Creation\TrackerArtifactCreator;
 use Tuleap\Tracker\Artifact\Link\ArtifactReverseLinksUpdater;
+use Tuleap\Tracker\Artifact\XML\Exporter\ArtifactXMLExporterBuilder;
+use Tuleap\Tracker\Artifact\XML\Exporter\LocalAbsoluteFilePathXMLExporter;
+use Tuleap\Tracker\Artifact\XML\Exporter\NullChildrenCollector;
 use Tuleap\Tracker\Exception\SemanticTitleNotDefinedException;
 use Tuleap\Tracker\FormElement\ArtifactLinkValidator;
 use Tuleap\Tracker\FormElement\Container\Fieldset\HiddenFieldsetChecker;
@@ -132,6 +132,8 @@ use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindUgroupsValueDao;
 use Tuleap\Tracker\FormElement\Field\ListFields\FieldValueMatcher;
 use Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionDuckTypingMatcher;
 use Tuleap\Tracker\FormElement\Field\Text\TextValueValidator;
+use Tuleap\Tracker\Hierarchy\HierarchyDAO;
+use Tuleap\Tracker\Hierarchy\ParentInHierarchyRetriever;
 use Tuleap\Tracker\Permission\ArtifactPermissionType;
 use Tuleap\Tracker\Permission\RetrieveUserPermissionOnArtifacts;
 use Tuleap\Tracker\Permission\SubmissionPermissionVerifier;
@@ -287,45 +289,36 @@ class ArtifactsResource extends AuthenticatedResource
 
         $frozen_fields_detector = new FrozenFieldDetector(
             $transition_retriever,
-            new FrozenFieldsRetriever(
-                new FrozenFieldsDao(),
-                Tracker_FormElementFactory::instance()
-            )
+            new FrozenFieldsRetriever(new FrozenFieldsDao(), $this->formelement_factory)
         );
 
-        $this->tracker_rest_builder = new \Tracker_REST_TrackerRestBuilder(
+        $ugroup_manager                = new \UGroupManager();
+        $permissions_functions_wrapper = new PermissionsFunctionsWrapper();
+        $this->tracker_rest_builder    = new \Tracker_REST_TrackerRestBuilder(
             $this->formelement_factory,
             new FormElementRepresentationsBuilder(
                 $this->formelement_factory,
-                new PermissionsExporter(
-                    $frozen_fields_detector
-                ),
+                new PermissionsExporter($frozen_fields_detector),
                 new HiddenFieldsetChecker(
                     new HiddenFieldsetsDetector(
                         $transition_retriever,
-                        new HiddenFieldsetsRetriever(
-                            new HiddenFieldsetsDao(),
-                            Tracker_FormElementFactory::instance()
-                        ),
-                        Tracker_FormElementFactory::instance()
+                        new HiddenFieldsetsRetriever(new HiddenFieldsetsDao(), $this->formelement_factory),
+                        $this->formelement_factory
                     ),
                     new FieldsExtractor()
                 ),
                 new PermissionsForGroupsBuilder(
-                    new \UGroupManager(),
+                    $ugroup_manager,
                     $frozen_fields_detector,
-                    new PermissionsFunctionsWrapper()
+                    $permissions_functions_wrapper
                 ),
-                new TypePresenterFactory(
-                    new TypeDao(),
-                    new ArtifactLinksUsageDao()
-                )
+                new TypePresenterFactory(new TypeDao(), new ArtifactLinksUsageDao())
             ),
-            new PermissionsRepresentationBuilder(
-                new \UGroupManager(),
-                new PermissionsFunctionsWrapper()
-            ),
-            new WorkflowRestBuilder()
+            new PermissionsRepresentationBuilder($ugroup_manager, $permissions_functions_wrapper),
+            new WorkflowRestBuilder(),
+            static fn(\Tracker $tracker) => new \Tracker_SemanticManager($tracker),
+            new ParentInHierarchyRetriever(new HierarchyDAO(), $this->tracker_factory),
+            TrackersPermissionsRetriever::build()
         );
 
         $this->trackers_permissions_retriever = TrackersPermissionsRetriever::build();
@@ -1370,9 +1363,9 @@ class ArtifactsResource extends AuthenticatedResource
 
     private function getMoveDuckTypingAction(PFUser $user): MegaMoverArtifactByDuckTyping
     {
-        $builder                = new Tracker_XML_Exporter_ArtifactXMLExporterBuilder();
-        $children_collector     = new Tracker_XML_Exporter_NullChildrenCollector();
-        $file_path_xml_exporter = new Tracker_XML_Exporter_LocalAbsoluteFilePathXMLExporter();
+        $builder                = new ArtifactXMLExporterBuilder();
+        $children_collector     = new NullChildrenCollector();
+        $file_path_xml_exporter = new LocalAbsoluteFilePathXMLExporter();
 
         $user_xml_exporter = new UserXMLExporter(
             $this->user_manager,
@@ -1401,7 +1394,8 @@ class ArtifactsResource extends AuthenticatedResource
                 new BindValueForDuckTypingUpdater(
                     new FieldValueMatcher($user_finder),
                     $XML_updater,
-                    $cdata_factory
+                    $cdata_factory,
+                    $this->user_manager
                 ),
                 new BindOpenValueForDuckTypingUpdater(
                     new FieldValueMatcher($user_finder),

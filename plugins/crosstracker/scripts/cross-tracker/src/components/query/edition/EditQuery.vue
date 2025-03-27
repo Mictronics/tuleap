@@ -18,8 +18,13 @@
   -->
 
 <template>
+    <section class="tlp-pane-section">
+        <query-suggested
+            v-on:query-chosen="handleChosenQuery"
+            v-bind:is_modal_should_be_displayed="is_modal_should_be_displayed"
+        />
+    </section>
     <section class="tlp-pane-section edit-query-section">
-        <query-suggested v-on:query-chosen="handleChosenQuery" />
         <div class="edit-query-title-description-container">
             <title-input v-model:title="title" />
             <description-text-area v-model:description="description" />
@@ -107,6 +112,7 @@ import {
     NOTIFY_FAULT_EVENT,
     NOTIFY_SUCCESS_EVENT,
     SEARCH_ARTIFACTS_EVENT,
+    SWITCH_QUERY_EVENT,
 } from "../../../helpers/emitter-provider";
 import QuerySelectableTable from "../QuerySelectableTable.vue";
 import type { PutQueryRepresentation } from "../../../api/cross-tracker-rest-api-types";
@@ -135,6 +141,10 @@ const title = ref(props.query.title);
 const description = ref(props.query.description);
 const tql_query = ref(props.query.tql_query);
 const is_default_query = ref(props.query.is_default);
+
+const is_modal_should_be_displayed = computed((): boolean => {
+    return description.value !== "" || title.value !== "" || tql_query.value !== "";
+});
 
 const searched_tql_query = ref("");
 
@@ -177,10 +187,11 @@ function handleSaveButton(): void {
     query_updater
         .updateQuery(props.query, updated_query)
         .match(
-            () => {
+            (edited_query) => {
                 emitter.emit(NOTIFY_SUCCESS_EVENT, {
                     message: $gettext("Query updated with success!"),
                 });
+                emitter.emit(SWITCH_QUERY_EVENT, { query: edited_query });
                 emit("return-to-active-query-pane");
             },
             (fault) => {

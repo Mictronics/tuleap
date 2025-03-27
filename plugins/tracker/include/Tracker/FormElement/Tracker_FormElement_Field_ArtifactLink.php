@@ -48,6 +48,9 @@ use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeTablePresenter;
 use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
 use Tuleap\Tracker\FormElement\FieldSpecificProperties\ArtifactLinkFieldSpecificPropertiesDAO;
+use Tuleap\Tracker\Hierarchy\HierarchyDAO;
+use Tuleap\Tracker\Hierarchy\ParentInHierarchyRetriever;
+use Tuleap\Tracker\Permission\TrackersPermissionsRetriever;
 use Tuleap\Tracker\Report\Criteria\CriteriaAlphaNumValueDAO;
 use Tuleap\Tracker\Report\Criteria\DeleteReportCriteriaValue;
 use Tuleap\Tracker\Report\Query\ParametrizedFrom;
@@ -408,7 +411,12 @@ class Tracker_FormElement_Field_ArtifactLink extends Tracker_FormElement_Field /
         PFUser $user,
         bool $can_create,
     ): \Tuleap\Tracker\Artifact\PossibleParentSelector {
-        $retriever = new PossibleParentsRetriever($this->getArtifactFactory(), EventManager::instance());
+        $retriever = new PossibleParentsRetriever(
+            $this->getArtifactFactory(),
+            EventManager::instance(),
+            new ParentInHierarchyRetriever(new HierarchyDAO(), TrackerFactory::instance()),
+            TrackersPermissionsRetriever::build(),
+        );
 
         return $retriever->getPossibleArtifactParents(
             $this->getTracker(),
@@ -893,8 +901,18 @@ class Tracker_FormElement_Field_ArtifactLink extends Tracker_FormElement_Field /
         $can_edit_reverse_links = $properties['can_edit_reverse_links'] ?? false;
 
         if ($can_edit_reverse_links) {
-            $template_renderer = TemplateRendererFactory::build()->getRenderer(__DIR__ . '/../../FormElement/Field/ArtifactLink');
-            $presenter         = (new EditorWithReverseLinksBuilder())->build($artifact);
+            $user              = $this->getCurrentUser();
+            $template_renderer = TemplateRendererFactory::build()->getRenderer(
+                __DIR__ . '/../../FormElement/Field/ArtifactLink'
+            );
+            $builder           = new EditorWithReverseLinksBuilder(
+                new ParentInHierarchyRetriever(
+                    new HierarchyDAO(),
+                    $this->getTrackerFactory()
+                ),
+                TrackersPermissionsRetriever::build()
+            );
+            $presenter         = $builder->build($this, $artifact, $user);
             return $template_renderer->renderToString('editor-with-reverse-links', $presenter);
         }
 

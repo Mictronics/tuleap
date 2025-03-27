@@ -12,6 +12,9 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 "X-Generator: Poedit 3.0.1\n"
 
+msgid "Actions in Artidoc document"
+msgstr "Actions dans le document Artidoc"
+
 msgid "Add freetext"
 msgstr "Ajouter du texte libre"
 
@@ -112,6 +115,9 @@ msgstr ""
 msgid "Each section is an artifact."
 msgstr "Chaque section est un artéfact."
 
+msgid "Empty"
+msgstr "Vide"
+
 msgid "Error"
 msgstr "Erreur"
 
@@ -129,6 +135,9 @@ msgstr "Sélection des champs"
 
 msgid "Force save"
 msgstr "Forcer la sauvegarde"
+
+msgid "Fullscreen"
+msgstr "Plein écran"
 
 msgid "Go to artifact"
 msgstr "Aller à l'artéfact"
@@ -197,6 +206,9 @@ msgstr "Ouvrir la barre latérale"
 
 msgid "Please log in in order to be able to export as PDF"
 msgstr "Veuillez vous connecter afin de pouvoir exporter en PDF"
+
+msgid "Please select a tracker first"
+msgstr "Veuillez sélectionner un tracker au préalable"
 
 msgid "Reload page"
 msgstr "Recharger la page"
@@ -273,6 +285,16 @@ msgstr "Cette section a été mise à jour par quelqu'un d'autre."
 
 msgid "Title..."
 msgstr "Titre..."
+
+msgid "Toggle fullscreen"
+msgstr "Basculer en plein écran"
+
+msgid ""
+"Toggle fullscreen to remove header and sidebar in order to maximize the "
+"writing space."
+msgstr ""
+"Basculer en plein écran pour supprimer l'entête et la barre latérale afin de "
+"maximiser l'espace disponible pour l'écriture."
 
 msgid "Tracker"
 msgstr "Tracker"

@@ -31,6 +31,9 @@ final readonly class ArtifactSectionRepresentation implements SectionRepresentat
 {
     public string $type;
 
+    /**
+     * @param list<SectionStringFieldRepresentation> $fields
+     */
     public function __construct(
         public string $id,
         public int $level,
@@ -39,6 +42,7 @@ final readonly class ArtifactSectionRepresentation implements SectionRepresentat
         public string $description,
         public bool $can_user_edit_section,
         public ?ArtifactSectionAttachmentsRepresentation $attachments,
+        public array $fields,
     ) {
         $this->type = 'artifact';
     }

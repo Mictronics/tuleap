@@ -21,11 +21,14 @@
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Artifact\Changeset\Comment\CommentFormatIdentifier;
+use Tuleap\Tracker\Artifact\XML\Exporter\ArtifactXMLExporter;
+use Tuleap\Tracker\Artifact\XML\Exporter\ChildrenXMLExporter;
+use Tuleap\Tracker\Artifact\XML\Exporter\TooManyChildrenException;
 use Tuleap\Tracker\Artifact\XMLImport\MoveImportConfig;
 use Tuleap\Tracker\Artifact\XMLImport\TrackerNoXMLImportLoggedConfig;
 use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
 
-class Tracker_Action_CopyArtifact
+class Tracker_Action_CopyArtifact // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
 {
     /**
      * @var Tracker_XML_Importer_ArtifactImportedMapping
@@ -53,7 +56,7 @@ class Tracker_Action_CopyArtifact
     private $xml_importer;
 
     /**
-     * @var Tracker_XML_Exporter_ArtifactXMLExporter
+     * @var ArtifactXMLExporter
      */
     private $xml_exporter;
 
@@ -69,11 +72,11 @@ class Tracker_Action_CopyArtifact
     public function __construct(
         Tracker $tracker,
         Tracker_ArtifactFactory $artifact_factory,
-        Tracker_XML_Exporter_ArtifactXMLExporter $xml_exporter,
+        ArtifactXMLExporter $xml_exporter,
         Tracker_Artifact_XMLImport $xml_importer,
         Tracker_XML_Updater_ChangesetXMLUpdater $xml_updater,
         Tracker_XML_Updater_TemporaryFileXMLUpdater $file_updater,
-        private Tracker_XML_Exporter_ChildrenXMLExporter $children_xml_exporter,
+        private ChildrenXMLExporter $children_xml_exporter,
         Tracker_XML_Importer_ArtifactImportedMapping $artifacts_imported_mapping,
         Tracker_XML_Importer_CopyArtifactInformationsAggregator $logger,
         private TrackerFactory $tracker_factory,
@@ -126,7 +129,7 @@ class Tracker_Action_CopyArtifact
 
         try {
             $this->processCopy($from_changeset, $current_user, $submitted_values);
-        } catch (Tracker_XML_Exporter_TooManyChildrenException $exception) {
+        } catch (TooManyChildrenException $exception) {
             $GLOBALS['Response']->addFeedback('error', sprintf(dgettext('tuleap-tracker', 'The artifact has too many children (limit is set to %1$s).'), Tracker_XML_ChildrenCollector::MAX));
             $this->redirectToArtifact($from_artifact);
         }

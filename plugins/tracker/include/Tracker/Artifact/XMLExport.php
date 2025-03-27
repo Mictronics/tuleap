@@ -20,6 +20,10 @@
 
 use Tuleap\Project\XML\Import\ExternalFieldsExtractor;
 use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\Artifact\XML\Exporter\ArtifactXMLExporter;
+use Tuleap\Tracker\Artifact\XML\Exporter\ArtifactXMLExporterBuilder;
+use Tuleap\Tracker\Artifact\XML\Exporter\InArchiveFilePathXMLExporter;
+use Tuleap\Tracker\Artifact\XML\Exporter\NullChildrenCollector;
 
 class Tracker_Artifact_XMLExport
 {
@@ -67,7 +71,7 @@ class Tracker_Artifact_XMLExport
         SimpleXMLElement $xml_content,
         PFUser $user,
         Tuleap\Project\XML\Export\ArchiveInterface $archive,
-    ) {
+    ): void {
         $all_artifacts = $this->artifact_factory->getArtifactsByTrackerId($tracker->getId());
         $this->checkThreshold(count($all_artifacts));
 
@@ -96,7 +100,7 @@ class Tracker_Artifact_XMLExport
         SimpleXMLElement $xml_content,
         PFUser $user,
         Tuleap\Project\XML\Export\ArchiveInterface $archive,
-        $is_in_archive_context,
+        bool $is_in_archive_context,
     ) {
         $artifacts_node = $xml_content->addChild('artifacts');
 
@@ -125,7 +129,7 @@ class Tracker_Artifact_XMLExport
         SimpleXMLElement $xml_content,
         PFUser $user,
         Tuleap\Project\XML\Export\ArchiveInterface $archive,
-    ) {
+    ): void {
         $is_in_archive_context = true;
 
         $this->exportBunchOfArtifacts(
@@ -137,14 +141,11 @@ class Tracker_Artifact_XMLExport
         );
     }
 
-    /**
-     * @return Tracker_XML_Exporter_ArtifactXMLExporter
-     */
-    private function getArtifactXMLExporter(PFUser $current_user, $is_in_archive_context)
+    private function getArtifactXMLExporter(PFUser $current_user, bool $is_in_archive_context): ArtifactXMLExporter
     {
-        $builder                = new Tracker_XML_Exporter_ArtifactXMLExporterBuilder();
-        $children_collector     = new Tracker_XML_Exporter_NullChildrenCollector();
-        $file_path_xml_exporter = new Tracker_XML_Exporter_InArchiveFilePathXMLExporter();
+        $builder                = new ArtifactXMLExporterBuilder();
+        $children_collector     = new NullChildrenCollector();
+        $file_path_xml_exporter = new InArchiveFilePathXMLExporter();
 
         return $builder->build(
             $children_collector,
