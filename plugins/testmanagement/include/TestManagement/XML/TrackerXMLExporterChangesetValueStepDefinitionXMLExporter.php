@@ -25,11 +25,11 @@ namespace Tuleap\TestManagement\XML;
 
 use SimpleXMLElement;
 use Tracker_Artifact_ChangesetValue;
-use Tracker_XML_Exporter_ChangesetValue_ChangesetValueXMLExporter;
 use Tuleap\TestManagement\Step\Definition\Field\StepDefinition;
 use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\Artifact\XML\Exporter\ChangesetValue\ChangesetValueXMLExporter;
 
-class TrackerXMLExporterChangesetValueStepDefinitionXMLExporter extends Tracker_XML_Exporter_ChangesetValue_ChangesetValueXMLExporter
+class TrackerXMLExporterChangesetValueStepDefinitionXMLExporter extends ChangesetValueXMLExporter
 {
     public function __construct(private StepXMLExporter $step_xml_exporter)
     {

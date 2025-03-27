@@ -27,13 +27,7 @@ import ReadingMode from "./ReadingMode.vue";
 import * as rest_querier from "../../api/rest-querier";
 import type { Query } from "../../type";
 import { getGlobalTestOptions } from "../../helpers/global-options-for-tests";
-import {
-    EMITTER,
-    IS_MULTIPLE_QUERY_SUPPORTED,
-    IS_USER_ADMIN,
-    REPORT_STATE,
-    WIDGET_ID,
-} from "../../injection-symbols";
+import { EMITTER, IS_USER_ADMIN, QUERY_STATE, WIDGET_ID } from "../../injection-symbols";
 import type {
     EmitterProvider,
     Events,
@@ -48,8 +42,7 @@ describe("ReadingMode", () => {
         reading_query: Query,
         is_user_admin: boolean,
         has_error: boolean,
-        emitter: EmitterProvider,
-        is_multiple_query_supported: boolean;
+        emitter: EmitterProvider;
     let dispatched_fault_events: NotifyFaultEvent[];
     let dispatched_refresh_events: RefreshArtifactsEvent[];
 
@@ -70,7 +63,6 @@ describe("ReadingMode", () => {
         };
         is_user_admin = true;
         has_error = false;
-        is_multiple_query_supported = false;
         emitter = mitt<Events>();
         dispatched_fault_events = [];
         dispatched_refresh_events = [];
@@ -87,11 +79,10 @@ describe("ReadingMode", () => {
             global: {
                 ...getGlobalTestOptions(),
                 provide: {
-                    [REPORT_STATE.valueOf()]: ref("result-preview"),
+                    [QUERY_STATE.valueOf()]: ref("result-preview"),
                     [WIDGET_ID.valueOf()]: 875,
                     [IS_USER_ADMIN.valueOf()]: is_user_admin,
                     [EMITTER.valueOf()]: emitter,
-                    [IS_MULTIPLE_QUERY_SUPPORTED.valueOf()]: is_multiple_query_supported,
                 },
             },
             props: {
@@ -124,8 +115,8 @@ describe("ReadingMode", () => {
         });
     });
 
-    describe("saveReport()", () => {
-        it(`will update the backend report and emit a "saved" event`, async () => {
+    describe("saveQuery()", () => {
+        it(`will update the backend query and emit a "saved" event`, async () => {
             const expert_query =
                 'SELECT @description FROM @project.name="TOTOYA" WHERE @ddescription != ""';
             const query: Query = {
@@ -141,67 +132,48 @@ describe("ReadingMode", () => {
                 .mockReturnValue(okAsync(query));
             const wrapper = instantiateComponent();
 
-            await wrapper.get("[data-test=cross-tracker-save-report]").trigger("click");
+            await wrapper.get("[data-test=cross-tracker-save-query]").trigger("click");
 
             expect(updateQuery).toHaveBeenCalled();
             const emitted = wrapper.emitted("saved");
             expect(emitted).toBeDefined();
         });
 
-        it("Given the report is in error, then nothing will happen", async () => {
+        it("Given the query is in error, then nothing will happen", async () => {
             has_error = true;
-            const updateReport = vi.spyOn(rest_querier, "updateQuery");
+            const updateQuery = vi.spyOn(rest_querier, "updateQuery");
 
             const wrapper = instantiateComponent();
-            await wrapper.get("[data-test=cross-tracker-save-report]").trigger("click");
+            await wrapper.get("[data-test=cross-tracker-save-query]").trigger("click");
 
-            expect(updateReport).not.toHaveBeenCalled();
+            expect(updateQuery).not.toHaveBeenCalled();
         });
 
         it("When there is a REST error, then it will be shown", async () => {
             vi.spyOn(rest_querier, "updateQuery").mockReturnValue(
-                errAsync(Fault.fromMessage("Report not found")),
+                errAsync(Fault.fromMessage("Query not found")),
             );
 
             const wrapper = instantiateComponent();
 
-            await wrapper.get("[data-test=cross-tracker-save-report]").trigger("click");
+            await wrapper.get("[data-test=cross-tracker-save-query]").trigger("click");
 
             expect(dispatched_fault_events).toHaveLength(1);
-            expect(dispatched_fault_events[0].fault.isSaveReport()).toBe(true);
+            expect(dispatched_fault_events[0].fault.isSaveQuery()).toBe(true);
         });
     });
 
-    describe("cancelReport()", () => {
-        it(`when the report is unsaved and I click on "Cancel", then an event will be emitted`, async () => {
+    describe("cancelQuery()", () => {
+        it(`when the query is unsaved and I click on "Cancel", then an event will be emitted`, async () => {
             const wrapper = instantiateComponent();
 
-            await wrapper.get("[data-test=cross-tracker-cancel-report]").trigger("click");
+            await wrapper.get("[data-test=cross-tracker-cancel-query]").trigger("click");
 
-            expect(wrapper.emitted("discard-unsaved-report")).toBeDefined();
+            expect(wrapper.emitted("discard-unsaved-query")).toBeDefined();
             expect(dispatched_refresh_events).toHaveLength(1);
             expect(dispatched_refresh_events[0]).toStrictEqual({
                 query: backend_query,
             });
-        });
-    });
-
-    describe("renders query description", () => {
-        it("does not show query’s description if multiple query mode is not enabled", () => {
-            is_multiple_query_supported = false;
-
-            const wrapper = instantiateComponent();
-            expect(wrapper.find("[data-test=query-description]").exists()).toBe(false);
-        });
-
-        it("shows query’s description if multiple query mode is enabled", () => {
-            is_multiple_query_supported = true;
-
-            const wrapper = instantiateComponent();
-            const element = wrapper.find("[data-test=query-description]");
-
-            expect(element.exists()).toBe(true);
-            expect(element.text()).toBe("a great reading query");
         });
     });
 });

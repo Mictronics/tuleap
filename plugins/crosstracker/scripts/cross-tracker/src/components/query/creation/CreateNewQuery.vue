@@ -18,8 +18,13 @@
   -->
 
 <template>
+    <section class="tlp-pane-section">
+        <query-suggested
+            v-on:query-chosen="handleChosenQuery"
+            v-bind:is_modal_should_be_displayed="is_modal_should_be_displayed"
+        />
+    </section>
     <section class="tlp-pane-section create-new-query-section">
-        <query-suggested v-on:query-chosen="handleChosenQuery" />
         <div class="create-new-query-title-description-container">
             <title-input v-model:title="title" />
             <description-text-area v-model:description="description" />
@@ -107,6 +112,7 @@ import {
     NOTIFY_FAULT_EVENT,
     NOTIFY_SUCCESS_EVENT,
     SEARCH_ARTIFACTS_EVENT,
+    SWITCH_QUERY_EVENT,
 } from "../../../helpers/emitter-provider";
 import QuerySelectableTable from "../QuerySelectableTable.vue";
 import type { PostQueryRepresentation } from "../../../api/cross-tracker-rest-api-types";
@@ -149,6 +155,10 @@ const is_save_button_disabled = computed((): boolean => {
     return tql_query.value !== searched_tql_query.value || is_save_loading.value;
 });
 
+const is_modal_should_be_displayed = computed((): boolean => {
+    return description.value !== "" || title.value !== "" || tql_query.value !== "";
+});
+
 function handleCancelButton(): void {
     emitter.emit(CLEAR_FEEDBACK_EVENT);
     emit("return-to-active-query-pane");
@@ -172,10 +182,11 @@ function handleSaveButton(): void {
     new_query_creator
         .postNewQuery(new_query)
         .match(
-            () => {
+            (created_query) => {
                 emitter.emit(NOTIFY_SUCCESS_EVENT, {
                     message: $gettext("Query created with success!"),
                 });
+                emitter.emit(SWITCH_QUERY_EVENT, { query: created_query });
                 emit("return-to-active-query-pane");
             },
             (fault) => {

@@ -23,6 +23,7 @@
             type="button"
             class="tlp-button-primary tlp-button-outline tlp-button-mini"
             ref="dropdown_trigger"
+            data-test="choose-query-button"
         >
             {{ $gettext("Choose another query") }}
             <i class="fa-solid fa-caret-down tlp-button-icon-right" aria-hidden="true"></i>
@@ -80,7 +81,6 @@ import {
     CREATE_NEW_QUERY_EVENT,
     REFRESH_ARTIFACTS_EVENT,
     SWITCH_QUERY_EVENT,
-    UPDATE_WIDGET_TITLE_EVENT,
 } from "../../helpers/emitter-provider";
 
 const dropdown_trigger = ref<HTMLElement>();
@@ -126,7 +126,6 @@ function updateFilter(event: Event): void {
 function updateSelectedQuery(query: Query): void {
     emitter.emit(REFRESH_ARTIFACTS_EVENT, { query });
     emitter.emit(SWITCH_QUERY_EVENT, { query });
-    emitter.emit(UPDATE_WIDGET_TITLE_EVENT, { new_title: query.title });
     resetFilter();
     dropdown?.hide();
 }

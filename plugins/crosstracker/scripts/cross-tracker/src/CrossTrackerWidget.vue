@@ -22,9 +22,10 @@
     <read-query
         v-if="widget_pane === 'query-active'"
         v-on:switch-to-create-query-pane="handleCreateNewQuery"
+        v-bind:selected_query="selected_query"
     />
     <create-new-query
-        v-else-if="widget_pane === 'query-creation' && is_multiple_query_supported && is_user_admin"
+        v-else-if="widget_pane === 'query-creation' && is_user_admin"
         v-on:return-to-active-query-pane="displayActiveQuery"
     />
     <edit-query
@@ -39,12 +40,12 @@ import { strictInject } from "@tuleap/vue-strict-inject";
 import {
     DEFAULT_WIDGET_TITLE,
     EMITTER,
-    IS_MULTIPLE_QUERY_SUPPORTED,
     IS_USER_ADMIN,
     UPDATE_WIDGET_TITLE,
 } from "./injection-symbols";
-import type { EditQueryEvent } from "./helpers/emitter-provider";
+import type { EditQueryEvent, SwitchQueryEvent } from "./helpers/emitter-provider";
 import {
+    SWITCH_QUERY_EVENT,
     CLEAR_FEEDBACK_EVENT,
     CREATE_NEW_QUERY_EVENT,
     EDIT_QUERY_EVENT,
@@ -63,12 +64,11 @@ import type { Query } from "./type";
 
 const is_user_admin = strictInject(IS_USER_ADMIN);
 const emitter = strictInject(EMITTER);
-const is_multiple_query_supported = strictInject(IS_MULTIPLE_QUERY_SUPPORTED);
 const widget_title_updater = strictInject(UPDATE_WIDGET_TITLE);
 const default_widget_title = strictInject(DEFAULT_WIDGET_TITLE);
 
 const widget_pane = ref(QUERY_ACTIVE_PANE);
-
+const selected_query = ref<Query>();
 const query_to_edit = ref<Query>({
     description: "",
     id: "",
@@ -84,18 +84,20 @@ function displayActiveQuery(): void {
 onMounted(() => {
     emitter.on(CREATE_NEW_QUERY_EVENT, handleCreateNewQuery);
     emitter.on(EDIT_QUERY_EVENT, handleEditQuery);
-    if (is_multiple_query_supported) {
-        widget_title_updater.listenToUpdateTitle();
-    }
+    emitter.on(SWITCH_QUERY_EVENT, handleSwitchQuery);
+    widget_title_updater.listenToUpdateTitle();
 });
 
 onBeforeUnmount(() => {
     emitter.off(CREATE_NEW_QUERY_EVENT);
     emitter.off(EDIT_QUERY_EVENT);
-    if (is_multiple_query_supported) {
-        widget_title_updater.removeListener();
-    }
+    emitter.off(SWITCH_QUERY_EVENT, handleSwitchQuery);
+    widget_title_updater.removeListener();
 });
+
+function handleSwitchQuery(event: SwitchQueryEvent): void {
+    selected_query.value = event.query;
+}
 
 function handleCreateNewQuery(): void {
     emitter.emit(CLEAR_FEEDBACK_EVENT);

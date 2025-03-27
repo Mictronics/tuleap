@@ -57,6 +57,9 @@ use Tuleap\Tracker\FormElement\Container\Fieldset\HiddenFieldsetChecker;
 use Tuleap\Tracker\FormElement\Container\FieldsExtractor;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
+use Tuleap\Tracker\Hierarchy\HierarchyDAO;
+use Tuleap\Tracker\Hierarchy\ParentInHierarchyRetriever;
+use Tuleap\Tracker\Permission\TrackersPermissionsRetriever;
 use Tuleap\Tracker\PermissionsFunctionsWrapper;
 use Tuleap\Tracker\Report\Query\Advanced\Errors\QueryErrorsTranslator;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\SyntaxError;
@@ -493,9 +496,14 @@ class TrackersResource extends AuthenticatedResource
             $tracker->getProject()
         );
 
-        $possible_parents_getr = new PossibleParentsRetriever($this->tracker_artifact_factory, \EventManager::instance());
-        $possible_parents      = $possible_parents_getr->getPossibleArtifactParents($tracker, $user, $limit, $offset, false);
-        $pagination            = $possible_parents->getPossibleParents();
+        $possible_parents_retriever = new PossibleParentsRetriever(
+            $this->tracker_artifact_factory,
+            \EventManager::instance(),
+            new ParentInHierarchyRetriever(new HierarchyDAO(), $this->tracker_factory),
+            TrackersPermissionsRetriever::build(),
+        );
+        $possible_parents           = $possible_parents_retriever->getPossibleArtifactParents($tracker, $user, $limit, $offset, false);
+        $pagination                 = $possible_parents->getPossibleParents();
         if (! $pagination || ! $possible_parents->isSelectorDisplayed()) {
             Header::sendPaginationHeaders($limit, $offset, 0, self::MAX_LIMIT);
             return [];
@@ -830,64 +838,37 @@ class TrackersResource extends AuthenticatedResource
 
         $frozen_fields_detector = new FrozenFieldDetector(
             $transition_retriever,
-            new FrozenFieldsRetriever(
-                new FrozenFieldsDao(),
-                Tracker_FormElementFactory::instance()
-            )
+            new FrozenFieldsRetriever(new FrozenFieldsDao(), $this->formelement_factory)
         );
 
+        $ugroup_manager                = new \UGroupManager();
+        $permissions_functions_wrapper = new PermissionsFunctionsWrapper();
         return new Tracker_REST_TrackerRestBuilder(
             $this->formelement_factory,
             new FormElementRepresentationsBuilder(
                 $this->formelement_factory,
-                new PermissionsExporter(
-                    $frozen_fields_detector
-                ),
+                new PermissionsExporter($frozen_fields_detector),
                 new HiddenFieldsetChecker(
                     new HiddenFieldsetsDetector(
                         $transition_retriever,
-                        new HiddenFieldsetsRetriever(
-                            new HiddenFieldsetsDao(),
-                            $this->formelement_factory
-                        ),
-                        Tracker_FormElementFactory::instance()
+                        new HiddenFieldsetsRetriever(new HiddenFieldsetsDao(), $this->formelement_factory),
+                        $this->formelement_factory
                     ),
                     new FieldsExtractor()
                 ),
                 new PermissionsForGroupsBuilder(
-                    new \UGroupManager(),
+                    $ugroup_manager,
                     $frozen_fields_detector,
-                    new PermissionsFunctionsWrapper()
+                    $permissions_functions_wrapper
                 ),
-                new TypePresenterFactory(
-                    new TypeDao(),
-                    new ArtifactLinksUsageDao()
-                )
+                new TypePresenterFactory(new TypeDao(), new ArtifactLinksUsageDao())
             ),
-            new PermissionsRepresentationBuilder(
-                new \UGroupManager(),
-                new PermissionsFunctionsWrapper()
-            ),
-            new WorkflowRestBuilder()
+            new PermissionsRepresentationBuilder($ugroup_manager, $permissions_functions_wrapper),
+            new WorkflowRestBuilder(),
+            static fn(\Tracker $tracker) => new \Tracker_SemanticManager($tracker),
+            new ParentInHierarchyRetriever(new HierarchyDAO(), $this->tracker_factory),
+            TrackersPermissionsRetriever::build()
         );
-    }
-
-    private function getParentTracker(\PFUser $user, Tracker $tracker)
-    {
-        $parent = $tracker->getParent();
-
-        if (! $parent) {
-            throw new RestException(404, 'This tracker has no parent tracker');
-        }
-
-        if ($parent->isDeleted()) {
-            throw new RestException(404, "This tracker's parent is deleted");
-        }
-
-        if (! $parent->userCanView($user)) {
-            throw new RestException(403);
-        }
-        return $parent;
     }
 
     private function sendAllowHeaderForTracker()

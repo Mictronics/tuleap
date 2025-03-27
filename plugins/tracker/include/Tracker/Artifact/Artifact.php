@@ -83,8 +83,6 @@ use Tracker_Semantic_Contributor;
 use Tracker_Semantic_Description;
 use Tracker_Semantic_Status;
 use Tracker_Semantic_Title;
-use Tracker_XML_Exporter_ArtifactAttachmentExporter;
-use Tracker_XML_Exporter_ArtifactXMLExporter;
 use TrackerFactory;
 use trackerPlugin;
 use TransitionFactory;
@@ -137,6 +135,8 @@ use Tuleap\Tracker\Artifact\Link\ForwardLinkProxy;
 use Tuleap\Tracker\Artifact\RecentlyVisited\RecentlyVisitedDao;
 use Tuleap\Tracker\Artifact\RecentlyVisited\VisitRecorder;
 use Tuleap\Tracker\Artifact\Renderer\FieldsDataFromRequestRetriever;
+use Tuleap\Tracker\Artifact\XML\Exporter\ArtifactAttachmentExporter;
+use Tuleap\Tracker\Artifact\XML\Exporter\ArtifactXMLExporter;
 use Tuleap\Tracker\FormElement\BurndownCacheDateRetriever;
 use Tuleap\Tracker\FormElement\ChartCachedDaysComparator;
 use Tuleap\Tracker\FormElement\ChartConfigurationFieldRetriever;
@@ -2163,7 +2163,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
     public function exportToXML(
         SimpleXMLElement $artifacts_node,
         Tuleap\Project\XML\Export\ArchiveInterface $archive,
-        Tracker_XML_Exporter_ArtifactXMLExporter $artifact_xml_exporter,
+        ArtifactXMLExporter $artifact_xml_exporter,
     ) {
         if (count($this->getChangesets()) > 0) {
             $artifact_xml_exporter->exportFullHistory($artifacts_node, $this);
@@ -2174,11 +2174,11 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
     }
 
     /**
-     * @return Tracker_XML_Exporter_ArtifactAttachmentExporter
+     * @return ArtifactAttachmentExporter
      */
     private function getArtifactAttachmentExporter()
     {
-        return new Tracker_XML_Exporter_ArtifactAttachmentExporter($this->getFormElementFactory());
+        return new ArtifactAttachmentExporter($this->getFormElementFactory());
     }
 
     /** @return string */

@@ -143,6 +143,10 @@ artidoc-section-title {
     margin: 0 0 var(--tlp-medium-spacing);
 }
 
+artidoc-section-description {
+    display: block;
+}
+
 /* stylelint-disable selector-class-pattern */
 .document-section-has-empty-description:not(:has(.document-section-cancel-save-buttons))
     > .editor
@@ -179,10 +183,10 @@ artidoc-section-title {
     font-size: 20px;
     font-weight: 600;
     line-height: 24px;
-    text-transform: uppercase;
 }
 
-artidoc-section-description {
-    display: block;
+.artidoc-section-container:has(.document-section-is-just-refreshed) .editor,
+.artidoc-section-container:has(.document-section-is-just-saved) .editor {
+    background: transparent;
 }
 </style>

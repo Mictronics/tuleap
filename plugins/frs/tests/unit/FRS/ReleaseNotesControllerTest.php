@@ -25,11 +25,13 @@ namespace TuleapCodingStandard\Tuleap\FRS;
 use FRSRelease;
 use FRSReleaseFactory;
 use HTTPRequest;
+use PHPUnit\Framework\MockObject\Stub;
 use TemplateRenderer;
 use Tuleap\FRS\FRSPermissionManager;
 use Tuleap\FRS\LicenseAgreement\LicenseAgreementFactory;
 use Tuleap\FRS\LicenseAgreement\LicenseAgreementInterface;
 use Tuleap\FRS\Link\Retriever;
+use Tuleap\FRS\PackagePermissionManager;
 use Tuleap\FRS\ReleaseNotesController;
 use Tuleap\FRS\ReleasePresenter;
 use Tuleap\FRS\REST\v1\ReleasePermissionsForGroupsBuilder;
@@ -82,6 +84,7 @@ final class ReleaseNotesControllerTest extends \Tuleap\Test\PHPUnit\TestCase
      * @var IncludeAssets&\PHPUnit\Framework\MockObject\MockObject
      */
     private $script_assets;
+    private PackagePermissionManager&Stub $package_permission_manager;
 
     protected function setUp(): void
     {
@@ -91,6 +94,7 @@ final class ReleaseNotesControllerTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->link_retriever                 = $this->createMock(Retriever::class);
         $this->uploaded_links_retriever       = $this->createMock(UploadedLinksRetriever::class);
         $this->permission_manager             = $this->createMock(FRSPermissionManager::class);
+        $this->package_permission_manager     = $this->createStub(PackagePermissionManager::class);
         $this->renderer                       = $this->createMock(TemplateRenderer::class);
         $this->script_assets                  = $this->createMock(IncludeAssets::class);
         $content_interpreter                  = new class implements ContentInterpretor {
@@ -116,6 +120,7 @@ final class ReleaseNotesControllerTest extends \Tuleap\Test\PHPUnit\TestCase
             $this->permissions_for_groups_builder,
             $this->link_retriever,
             $this->uploaded_links_retriever,
+            $this->package_permission_manager,
             $this->permission_manager,
             $content_interpreter,
             $this->renderer,
@@ -130,10 +135,31 @@ final class ReleaseNotesControllerTest extends \Tuleap\Test\PHPUnit\TestCase
         $variables = ['release_id' => 124];
         $layout    = $this->createMock(BaseLayout::class);
         $request   = $this->createMock(HTTPRequest::class);
-        $this->release_factory->expects(self::once())
+        $request->method('getCurrentUser')->willReturn(UserTestBuilder::aUser()->build());
+        $this->release_factory->expects($this->once())
             ->method('getFRSReleaseFromDb')
             ->with(124)
             ->willReturn(null);
+
+        $this->expectException(NotFoundException::class);
+        $this->release_notes_controller->process($request, $layout, $variables);
+    }
+
+    public function testProcessThrowsNotFoundWhenReleaseCantBeRead(): void
+    {
+        $variables = ['release_id' => 124];
+        $layout    = $this->createMock(BaseLayout::class);
+        $request   = $this->createMock(HTTPRequest::class);
+        $request->method('getCurrentUser')->willReturn(UserTestBuilder::aUser()->build());
+        $release = $this->createStub(FRSRelease::class);
+        $release->method('getPackage')->willReturn($this->createStub(\FRSPackage::class));
+        $release->method('getProject')->willReturn(ProjectTestBuilder::aProject()->build());
+        $this->release_factory->expects($this->once())
+            ->method('getFRSReleaseFromDb')
+            ->with(124)
+            ->willReturn($release);
+
+        $this->package_permission_manager->method('canUserSeePackage')->willReturn(false);
 
         $this->expectException(NotFoundException::class);
         $this->release_notes_controller->process($request, $layout, $variables);
@@ -155,21 +181,23 @@ final class ReleaseNotesControllerTest extends \Tuleap\Test\PHPUnit\TestCase
         $release->method('getReleaseID')->willReturn(652);
         $release->method('getProject')->willReturn($project);
         $release->method('getNotes')->willReturn('Release notes');
-        $release->expects(self::once())->method('getChanges')->willReturn('Change log');
+        $release->expects($this->once())->method('getChanges')->willReturn('Change log');
         $release->method('getPackage')->willReturn($package);
-        $release->expects(self::once())
+        $release->expects($this->once())
             ->method('getStatusID')
             ->willReturn(FRSRelease::STATUS_ACTIVE);
         $release->method('getFiles')->willReturn([]);
         $release->method('getName')->willReturn('release01');
 
-        $this->release_factory->expects(self::once())
+        $this->package_permission_manager->method('canUserSeePackage')->willReturn(true);
+
+        $this->release_factory->expects($this->once())
             ->method('getFRSReleaseFromDb')
             ->with(124)
             ->willReturn($release);
         $license_agreement = $this->createMock(LicenseAgreementInterface::class);
         $license_agreement->method('getAsJson');
-        $this->license_agreement_factory->expects(self::once())
+        $this->license_agreement_factory->expects($this->once())
             ->method('getLicenseAgreementForPackage')
             ->with($package)
             ->willReturn($license_agreement);
@@ -179,29 +207,29 @@ final class ReleaseNotesControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 
         // assets
         $script_url = 'https://example.com/tuleap-frs.js';
-        $this->script_assets->expects(self::once())
+        $this->script_assets->expects($this->once())
             ->method('getFileURL')
             ->with('tuleap-frs.js')
             ->willReturn($script_url);
-        $layout->expects(self::once())
+        $layout->expects($this->once())
             ->method('includeFooterJavascriptFile')
             ->with($script_url);
-        $layout->expects(self::once())
+        $layout->expects($this->once())
             ->method('addCssAsset')
             ->with(self::isInstanceOf(CssAsset::class));
         // toolbar
-        $this->permission_manager->expects(self::once())
+        $this->permission_manager->expects($this->once())
             ->method('isAdmin')
             ->with($project, $current_user)
             ->willReturn(true);
         $layout->expects(self::exactly(2))
             ->method('addToolbarItem');
         // layout
-        $layout->expects(self::once())->method('header');
-        $this->renderer->expects(self::once())
+        $layout->expects($this->once())->method('header');
+        $this->renderer->expects($this->once())
             ->method('renderToPage')
             ->with('release', self::isInstanceOf(ReleasePresenter::class));
-        $layout->expects(self::once())
+        $layout->expects($this->once())
             ->method('footer')
             ->with([]);
 

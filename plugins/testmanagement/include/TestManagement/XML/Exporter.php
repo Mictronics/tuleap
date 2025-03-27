@@ -22,9 +22,9 @@ namespace Tuleap\TestManagement\XML;
 
 use Project;
 use SimpleXMLElement;
-use Tracker_XML_Exporter_ChangesetXMLExporter;
 use Tuleap\TestManagement\Campaign\Execution\ExecutionDao;
 use Tuleap\TestManagement\Config;
+use Tuleap\Tracker\Artifact\XML\Exporter\ChangesetXMLExporter;
 use XML_RNGValidator;
 
 class Exporter
@@ -118,7 +118,7 @@ class Exporter
         foreach ($executions as $row) {
             $child = $executions_xml->addChild('execution');
             $child->addAttribute('execution_artifact_id', $row['execution_artifact_id']);
-            $child->addAttribute('definition_changeset_id', Tracker_XML_Exporter_ChangesetXMLExporter::PREFIX . $row['definition_changeset_id']);
+            $child->addAttribute('definition_changeset_id', ChangesetXMLExporter::PREFIX . $row['definition_changeset_id']);
         }
     }
 }

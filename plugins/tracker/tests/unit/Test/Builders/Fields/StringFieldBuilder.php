@@ -32,9 +32,11 @@ final class StringFieldBuilder
     private string $label     = 'Title';
     private string $name      = 'title';
     private bool $is_required = false;
+    private bool $use_it      = true;
     private \Tracker $tracker;
     /** @var array<string, mixed> */
-    private array $specific_properties = [];
+    private array $specific_properties                        = [];
+    private ?Tracker_FormElement_Field_String $original_field = null;
 
     private function __construct(private readonly int $id)
     {
@@ -76,6 +78,19 @@ final class StringFieldBuilder
         return $this;
     }
 
+    public function unused(): self
+    {
+        $this->use_it = false;
+
+        return $this;
+    }
+
+    public function withOriginalField(Tracker_FormElement_Field_String $field): self
+    {
+        $this->original_field = $field;
+        return $this;
+    }
+
     public function build(): Tracker_FormElement_Field_String
     {
         $field = new Tracker_FormElement_Field_String(
@@ -85,12 +100,12 @@ final class StringFieldBuilder
             $this->name,
             $this->label,
             '',
-            true,
+            $this->use_it,
             'P',
             $this->is_required,
             '',
             10,
-            null
+            $this->original_field,
         );
         $field->setTracker($this->tracker);
         $this->setPermissions($field);

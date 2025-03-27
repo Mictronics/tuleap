@@ -19,12 +19,12 @@
  */
 
 use Tuleap\Config\GetConfigKeys;
-use Tuleap\CrossTracker\Report\CrossTrackerArtifactReportFactory;
-use Tuleap\CrossTracker\Report\ReportInheritanceHandler;
+use Tuleap\CrossTracker\Query\CrossTrackerArtifactQueryFactory;
 use Tuleap\CrossTracker\REST\ResourcesInjector;
-use Tuleap\CrossTracker\Widget\WidgetPermissionChecker;
-use Tuleap\CrossTracker\Widget\CrossTrackerWidgetDao;
 use Tuleap\CrossTracker\Widget\CrossTrackerSearchWidget;
+use Tuleap\CrossTracker\Widget\CrossTrackerWidgetDao;
+use Tuleap\CrossTracker\Widget\WidgetInheritanceHandler;
+use Tuleap\CrossTracker\Widget\WidgetPermissionChecker;
 use Tuleap\Plugin\ListeningToEventClass;
 use Tuleap\Plugin\ListeningToEventName;
 use Tuleap\Widget\Event\GetProjectWidgetList;
@@ -50,10 +50,15 @@ class crosstrackerPlugin extends Plugin
         return ['tracker'];
     }
 
-    public function getPluginInfo(): \Tuleap\CrossTracker\Plugin\PluginInfo
+    public function getPluginInfo(): PluginInfo
     {
         if (! $this->pluginInfo) {
-            $this->pluginInfo = new Tuleap\CrossTracker\Plugin\PluginInfo($this);
+            $plugin_info = new PluginInfo($this);
+            $plugin_info->setPluginDescriptor(new PluginDescriptor(
+                dgettext('tuleap-crosstracker', 'Cross trackers search'),
+                dgettext('tuleap-crosstracker', 'Search artifacts that are in different trackers'),
+            ));
+            $this->pluginInfo = $plugin_info;
         }
 
         return $this->pluginInfo;
@@ -79,7 +84,7 @@ class crosstrackerPlugin extends Plugin
             $get_widget_event->setWidget(
                 new CrossTrackerSearchWidget(
                     $widget_dao,
-                    new ReportInheritanceHandler(
+                    new WidgetInheritanceHandler(
                         $widget_dao,
                         $widget_dao,
                         $this->getBackendLogger()
@@ -106,7 +111,7 @@ class crosstrackerPlugin extends Plugin
     #[ListeningToEventClass]
     public function getConfigKeys(GetConfigKeys $config_keys): void
     {
-        $config_keys->addConfigClass(CrossTrackerArtifactReportFactory::class);
+        $config_keys->addConfigClass(CrossTrackerArtifactQueryFactory::class);
         $config_keys->addConfigClass(CrossTrackerSearchWidget::class);
     }
 }
