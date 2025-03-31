@@ -1,6 +1,7 @@
+#!/usr/share/tuleap/src/utils/php-launcher.sh
 <?php
 /**
- * Copyright (c) Enalean, 2021 - Present. All Rights Reserved.
+ * Copyright (c) Enalean, 2025-Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -20,17 +21,19 @@
 
 declare(strict_types=1);
 
-namespace Tuleap\Tracker\Artifact\Renderer;
+require_once __DIR__ . '/../../../src/vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
-final class ListFieldsIncluder
-{
-    public static function includeListFieldsAssets(): void
-    {
-        $include_assets = new \Tuleap\Layout\IncludeAssets(
-            __DIR__ . '/../../../../scripts/artifact/frontend-assets',
-            '/assets/trackers/artifact'
-        );
+$argv = $_SERVER['argv'] ?? [];
 
-        $GLOBALS['HTML']->includeFooterJavascriptFile($include_assets->getFileURL('list-fields.js'));
-    }
+if (count($argv) !== 2) {
+    fwrite(STDERR, "missing parameters\n");
+    exit(1);
 }
+
+[, $repo_path] = $argv;
+
+if ($repo_path === '' || ! is_writable($repo_path)) {
+    throw new GitDriverErrorException('Empty path or permission denied ' . $repo_path);
+}
+\Psl\Filesystem\delete_directory($repo_path, true);
