@@ -23,8 +23,9 @@ declare(strict_types=1);
 namespace Tuleap\Tracker\FormElement\Field\ArtifactLink;
 
 use Tracker;
-use Tracker_FormElement_Field_ArtifactLink;
 use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenter;
+use function Psl\Json\encode;
 
 /**
  * @psalm-immutable
@@ -33,7 +34,7 @@ final readonly class EditorWithReverseLinksPresenter
 {
     public int $link_field_id;
     public string $link_field_label;
-    public int $current_artifact_id;
+    public ?int $current_artifact_id;
     public int $current_tracker_id;
     public string $current_tracker_color;
     public string $current_tracker_short_name;
@@ -42,20 +43,24 @@ final readonly class EditorWithReverseLinksPresenter
     public int $user_id;
     public string $allowed_link_types;
 
+    /**
+     * @param list<TypePresenter> $allowed_link_types
+     */
     public function __construct(
-        Tracker_FormElement_Field_ArtifactLink $link_field,
-        Artifact $current_artifact,
+        ArtifactLinkField $link_field,
+        ?Artifact $current_artifact,
         Tracker $current_tracker,
         ?Tracker $parent_tracker,
+        array $allowed_link_types,
     ) {
         $this->link_field_id              = $link_field->getId();
         $this->link_field_label           = $link_field->getLabel();
-        $this->current_artifact_id        = $current_artifact->getId();
+        $this->current_artifact_id        = $current_artifact?->getId();
         $this->current_tracker_id         = $current_tracker->getId();
         $this->current_tracker_color      = $current_tracker->getColor()->getName();
         $this->current_tracker_short_name = $current_tracker->getItemName();
         $this->current_project_id         = (int) $current_tracker->getGroupId();
         $this->parent_tracker_id          = $parent_tracker?->getId();
-        $this->allowed_link_types         = '[]';
+        $this->allowed_link_types         = encode($allowed_link_types);
     }
 }

@@ -31,7 +31,7 @@ final class ArtifactLinkFieldSpecificPropertiesDAO extends DataAccessObject impl
      */
     public function searchByFieldId(int $field_id): ?array
     {
-        $sql = 'SELECT field_id, can_edit_reverse_links FROM tracker_field_artifact_link WHERE field_id = ?';
+        $sql = 'SELECT field_id, can_edit_reverse_links FROM plugin_tracker_field_artifact_link WHERE field_id = ?';
 
         return $this->getDB()->row($sql, $field_id);
     }

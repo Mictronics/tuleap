@@ -24,9 +24,9 @@ namespace Tuleap\Tracker\FormElement\Field\ArtifactLink;
 
 use PFUser;
 use Tracker;
-use Tracker_FormElement_Field_ArtifactLink;
 use Tuleap\Option\Option;
 use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\IRetrieveAllUsableTypesInProject;
 use Tuleap\Tracker\Hierarchy\ParentInHierarchyRetriever;
 use Tuleap\Tracker\Permission\RetrieveUserPermissionOnTrackers;
 use Tuleap\Tracker\Permission\TrackerPermissionType;
@@ -36,16 +36,32 @@ final readonly class EditorWithReverseLinksBuilder
     public function __construct(
         private ParentInHierarchyRetriever $parent_tracker_retriever,
         private RetrieveUserPermissionOnTrackers $tracker_permissions_retriever,
+        private IRetrieveAllUsableTypesInProject $allowed_link_types_retriever,
     ) {
     }
 
-    public function build(
-        Tracker_FormElement_Field_ArtifactLink $link_field,
+    public function buildWithArtifact(
+        ArtifactLinkField $link_field,
         Artifact $current_artifact,
         PFUser $user,
     ): EditorWithReverseLinksPresenter {
-        $current_tracker = $current_artifact->getTracker();
-        $parent_tracker  = $this->parent_tracker_retriever->getParentTracker($current_tracker)
+        return $this->build($link_field, $current_artifact, $current_artifact->getTracker(), $user);
+    }
+
+    public function buildWithoutArtifact(
+        ArtifactLinkField $link_field,
+        PFUser $user,
+    ): EditorWithReverseLinksPresenter {
+        return $this->build($link_field, null, $link_field->getTracker(), $user);
+    }
+
+    private function build(
+        ArtifactLinkField $link_field,
+        ?Artifact $current_artifact,
+        Tracker $current_tracker,
+        PFUser $user,
+    ): EditorWithReverseLinksPresenter {
+        $parent_tracker = $this->parent_tracker_retriever->getParentTracker($current_tracker)
             ->andThen(function (\Tracker $parent) use ($user) {
                 $permissions               = $this->tracker_permissions_retriever->retrieveUserPermissionOnTrackers(
                     $user,
@@ -64,6 +80,7 @@ final readonly class EditorWithReverseLinksBuilder
             $current_artifact,
             $current_tracker,
             $parent_tracker,
+            $this->allowed_link_types_retriever->getAllUsableTypesInProject($current_tracker->getProject()),
         );
     }
 }

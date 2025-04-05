@@ -18,7 +18,7 @@
   -->
 
 <template>
-    <empty-state v-if="is_table_empty" v-bind:tql_query="writing_query.tql_query" />
+    <empty-state v-if="is_table_empty" v-bind:tql_query="query.tql_query" />
     <div class="cross-tracker-loader" v-if="is_loading" data-test="loading"></div>
     <div class="overflow-wrapper" v-if="total > 0">
         <div class="selectable-table" v-if="!is_loading">
@@ -56,33 +56,24 @@
 <script setup lang="ts">
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { strictInject } from "@tuleap/vue-strict-inject";
-import {
-    EMITTER,
-    GET_COLUMN_NAME,
-    QUERY_STATE,
-    RETRIEVE_ARTIFACTS_TABLE,
-} from "../../injection-symbols";
+import { EMITTER, GET_COLUMN_NAME, RETRIEVE_ARTIFACTS_TABLE } from "../../injection-symbols";
 import type { ArtifactsTable } from "../../domain/ArtifactsTable";
-import type { ResultAsync } from "neverthrow";
-import type { Fault } from "@tuleap/fault";
-import type { ArtifactsTableWithTotal } from "../../domain/RetrieveArtifactsTable";
 import SelectablePagination from "./SelectablePagination.vue";
 import EmptyState from "../EmptyState.vue";
 import { ArtifactsRetrievalFault } from "../../domain/ArtifactsRetrievalFault";
 import SelectableCell from "./SelectableCell.vue";
 import type { ColumnName } from "../../domain/ColumnName";
 import EditCell from "./EditCell.vue";
-import type { RefreshArtifactsEvent } from "../../helpers/emitter-provider";
-import { NOTIFY_FAULT_EVENT, REFRESH_ARTIFACTS_EVENT } from "../../helpers/emitter-provider";
+import type { RefreshArtifactsEvent } from "../../helpers/widget-events";
+import { NOTIFY_FAULT_EVENT, REFRESH_ARTIFACTS_EVENT } from "../../helpers/widget-events";
 import type { Query } from "../../type";
 
 const column_name_getter = strictInject(GET_COLUMN_NAME);
 
 const artifacts_retriever = strictInject(RETRIEVE_ARTIFACTS_TABLE);
-const query_state = strictInject(QUERY_STATE);
 
 const props = defineProps<{
-    writing_query: Query;
+    query: Query;
 }>();
 
 const is_loading = ref(false);
@@ -103,7 +94,7 @@ function handleNewPage(new_offset: number): void {
 
 function refreshArtifactList(): void {
     resetArtifactList();
-    loadArtifacts();
+    getSelectableQueryContent(props.query);
 }
 
 function resetArtifactList(): void {
@@ -118,37 +109,22 @@ onMounted(() => {
 });
 
 onBeforeUnmount(() => {
-    emitter.off(REFRESH_ARTIFACTS_EVENT);
+    emitter.off(REFRESH_ARTIFACTS_EVENT, handleRefreshArtifactsEvent);
 });
-
-function loadArtifacts(): void {
-    if (props.writing_query.tql_query === "") {
-        is_loading.value = false;
-        return;
-    }
-    getArtifactsFromQueryOrUnsavedQuery()
-        .match(
-            (content_with_total) => {
-                columns.value = content_with_total.table.columns;
-                rows.value = content_with_total.table.rows;
-                total.value = content_with_total.total;
-            },
-            (fault) => {
-                emitter.emit(NOTIFY_FAULT_EVENT, {
-                    fault: ArtifactsRetrievalFault(fault),
-                    tql_query: props.writing_query.tql_query,
-                });
-            },
-        )
-        .then(() => {
-            is_loading.value = false;
-        });
-}
 
 function handleRefreshArtifactsEvent(event: RefreshArtifactsEvent): void {
     resetArtifactList();
+    getSelectableQueryContent(event.query);
+}
+
+function getSelectableQueryContent(query: Query): void {
+    if (query.tql_query === "") {
+        is_loading.value = false;
+        return;
+    }
+
     artifacts_retriever
-        .getSelectableQueryResult(event.query.tql_query, limit, offset)
+        .getSelectableQueryContent(query.id, limit, offset)
         .match(
             (content_with_total) => {
                 columns.value = content_with_total.table.columns;
@@ -158,25 +134,13 @@ function handleRefreshArtifactsEvent(event: RefreshArtifactsEvent): void {
             (fault) => {
                 emitter.emit(NOTIFY_FAULT_EVENT, {
                     fault: ArtifactsRetrievalFault(fault),
-                    tql_query: event.query.tql_query,
+                    tql_query: query.tql_query,
                 });
             },
         )
         .then(() => {
             is_loading.value = false;
         });
-}
-
-function getArtifactsFromQueryOrUnsavedQuery(): ResultAsync<ArtifactsTableWithTotal, Fault> {
-    if (query_state.value === "query-saved") {
-        return artifacts_retriever.getSelectableQueryContent(props.writing_query.id, limit, offset);
-    }
-
-    return artifacts_retriever.getSelectableQueryResult(
-        props.writing_query.tql_query,
-        limit,
-        offset,
-    );
 }
 
 const getColumnName = (name: ColumnName): string => {
