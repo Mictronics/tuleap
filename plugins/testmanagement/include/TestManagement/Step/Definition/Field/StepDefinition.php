@@ -642,4 +642,9 @@ class StepDefinition extends Tracker_FormElement_Field implements TrackerFormEle
             $this->getName(),
         );
     }
+
+    public function isAlwaysInEditMode(): bool
+    {
+        return false;
+    }
 }

@@ -20,21 +20,18 @@
 
 namespace Tuleap\Artidoc\Document\Field;
 
-use Tuleap\Artidoc\Domain\Document\Section\Field\DisplayType;
+use Tuleap\Artidoc\Domain\Document\Section\Field\StoredConfiguredField;
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifier;
 
-/**
- * @psalm-type ConfiguredFieldRow = array{field_id: int, display_type: DisplayType}
- */
 interface RetrieveConfiguredField
 {
     /**
-     * @return list<ConfiguredFieldRow>
+     * @return list<StoredConfiguredField>
      */
     public function retrieveConfiguredFieldsFromItemId(int $item_id): array;
 
     /**
-     * @return list<ConfiguredFieldRow>
+     * @return list<StoredConfiguredField>
      */
     public function retrieveConfiguredFieldsFromSectionId(SectionIdentifier $section_identifier): array;
 }

@@ -25,6 +25,7 @@ use Tuleap\Search\ItemToIndexQueue;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
 use Tuleap\Tracker\FormElement\Field\XMLCriteriaValueCache;
+use Tuleap\Tracker\FormElement\FieldIsAlwaysInEditMode;
 use Tuleap\Tracker\Report\Criteria\DeleteReportCriteriaValue;
 use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
 use Tuleap\Tracker\Rule\TrackerRulesDateValidator;
@@ -44,7 +45,7 @@ use Tuleap\Tracker\Workflow\SimpleMode\State\TransitionRetriever;
  */
 
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
-abstract class Tracker_FormElement_Field extends Tracker_FormElement implements Tracker_Report_Field, Tracker_FormElement_IAcceptFieldVisitor
+abstract class Tracker_FormElement_Field extends Tracker_FormElement implements Tracker_Report_Field, Tracker_FormElement_IAcceptFieldVisitor, FieldIsAlwaysInEditMode
 {
     private const PREFIX_NAME_SQL_COLUMN = 'user_defined_';
 
@@ -485,7 +486,7 @@ abstract class Tracker_FormElement_Field extends Tracker_FormElement implements 
                 data-test="tracker-artifact-value-' . $this->getName() . '"
                 data-is-required="' . ($this->required ? 'true' : 'false') . '">';
 
-            if (! $is_field_read_only && $this->userCanUpdate()) {
+            if (! $is_field_read_only && $this->userCanUpdate() && ! $this->isAlwaysInEditMode()) {
                 $title = $purifier->purify(sprintf(dgettext('tuleap-tracker', 'Edit the field "%1$s"'), $this->getLabel()));
                 $html .= '<button type="button" title="' . $title . '"
                                 class="tracker_formelement_edit"
@@ -555,7 +556,10 @@ abstract class Tracker_FormElement_Field extends Tracker_FormElement implements 
                 data-test="artifact-form-element"
                 data-field-id="' . $this->id . '"
                 data-is-required="' . ($this->required ? 'true' : 'false') . '">';
-            $html    .= '<label data-test="field-label" for="tracker_artifact_' . $this->id . '" title="' . $hp->purify($this->description, CODENDI_PURIFIER_CONVERT_HTML) . '"  class="tracker_formelement_label">' . $hp->purify($this->getLabel(), CODENDI_PURIFIER_CONVERT_HTML) . $required . '</label>';
+
+            if (! $this->isAlwaysInEditMode()) {
+                $html .= '<label data-test="field-label" for="tracker_artifact_' . $this->id . '" title="' . $hp->purify($this->description, CODENDI_PURIFIER_CONVERT_HTML) . '"  class="tracker_formelement_label">' . $hp->purify($this->getLabel(), CODENDI_PURIFIER_CONVERT_HTML) . $required . '</label>';
+            }
 
             $html .= $this->fetchSubmitValue($submitted_values);
             $html .= $this->fetchSubmitAdditionnalInfo($submitted_values);
@@ -832,7 +836,7 @@ abstract class Tracker_FormElement_Field extends Tracker_FormElement implements 
 
         $usage_in_semantics = $this->getUsagesInSemantics();
 
-        $html         .= '<div class="tracker-admin-field" id="tracker-admin-formElements_' . $this->id . '">';
+        $html         .= '<div class="tracker-admin-field" id="tracker-admin-formElements_' . $this->id . '" data-test="tracker-admin-field" >';
         $html         .= '<div class="tracker-admin-field-controls">';
                 $html .= '<a class="edit-field" href="' . $this->getAdminEditUrl() . '">' . $GLOBALS['HTML']->getImage('ic/edit.png', ['alt' => 'edit']) . '</a> ';
         if ($usage_in_semantics->areThereSemanticsUsingField() === false && $this->canBeRemovedFromUsage()) {

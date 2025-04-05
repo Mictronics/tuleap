@@ -1,5 +1,6 @@
-/*
- * Copyright (c) Enalean, 2024-Present. All Rights Reserved.
+<?php
+/**
+ * Copyright (c) Enalean, 2025-Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -17,4 +18,18 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-export type QueryState = "query-saved" | "edit-query" | "result-preview";
+declare(strict_types=1);
+
+namespace Tuleap\Artidoc\Domain\Document\Section\Field;
+
+/**
+ * @psalm-immutable
+ */
+final readonly class StoredConfiguredField
+{
+    public function __construct(
+        public int $field_id,
+        public DisplayType $display_type,
+    ) {
+    }
+}
