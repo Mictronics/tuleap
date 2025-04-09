@@ -30,6 +30,7 @@ use Tracker_FormElement_Field;
 use Tracker_FormElement_Field_List_Bind_Static;
 use Tuleap\Tracker\Artifact\XML\Exporter\FieldChange\FieldChangeListBuilder;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
+use Tuleap\DB\DatabaseUUIDV7Factory;
 use XML_SimpleXMLCDATAFactory;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
@@ -58,6 +59,7 @@ final class ChangesetValueListXMLExporterTest extends \Tuleap\Test\PHPUnit\TestC
         $this->changeset_xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><changeset />');
 
         $bind_static = new Tracker_FormElement_Field_List_Bind_Static(
+            new DatabaseUUIDV7Factory(),
             null,
             null,
             null,
@@ -86,7 +88,8 @@ final class ChangesetValueListXMLExporterTest extends \Tuleap\Test\PHPUnit\TestC
             $this->artifact_xml,
             $this->changeset_xml,
             ArtifactTestBuilder::anArtifact(101)->build(),
-            $this->changeset_value
+            $this->changeset_value,
+            []
         );
 
         $field_change = $this->changeset_xml->field_change;
@@ -107,7 +110,8 @@ final class ChangesetValueListXMLExporterTest extends \Tuleap\Test\PHPUnit\TestC
             $this->artifact_xml,
             $this->changeset_xml,
             ArtifactTestBuilder::anArtifact(101)->build(),
-            $this->changeset_value
+            $this->changeset_value,
+            []
         );
 
         $field_change = $this->changeset_xml->field_change;

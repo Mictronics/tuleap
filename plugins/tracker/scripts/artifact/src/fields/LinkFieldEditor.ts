@@ -20,7 +20,11 @@
 import { getAttributeOrThrow } from "@tuleap/dom";
 import { Option } from "@tuleap/option";
 import type { LocaleString } from "@tuleap/gettext";
-import type { ParentArtifactIdentifier } from "@tuleap/plugin-tracker-artifact-common";
+import type {
+    ParentArtifactIdentifier,
+    CommonEvents,
+    WillNotifyFault,
+} from "@tuleap/plugin-tracker-artifact-common";
 import {
     CurrentArtifactIdentifier,
     CurrentProjectIdentifier,
@@ -29,16 +33,18 @@ import {
 } from "@tuleap/plugin-tracker-artifact-common";
 import {
     ArtifactCrossReference,
+    createLinkField,
     LinkFieldCreator,
     LinksMarkedForRemovalStore,
     LinksStore,
     NewLinksStore,
     ParentTrackerIdentifier,
-    createLinkField,
     TrackerShortname,
     UserIdentifier,
 } from "@tuleap/plugin-tracker-link-field";
 import type { ColorName } from "@tuleap/plugin-tracker-constants";
+import type { EditionSwitcher } from "../edition/TrackerArtifactEditionSwitcher";
+import type { Fault } from "@tuleap/fault";
 
 export interface LinkFieldEditor {
     init(mount_point: HTMLElement): void;
@@ -52,14 +58,37 @@ function assertColorName(_color: string): _color is ColorName {
     return true;
 }
 
-export function initLinkField(user_locale: LocaleString): void {
+export function initLinkField(
+    user_locale: LocaleString,
+    edition_switcher: EditionSwitcher | null,
+): void {
     const mount_point = document.querySelector("[data-link-field-id]");
     if (mount_point instanceof HTMLElement) {
-        LinkFieldEditor(document, user_locale).init(mount_point);
+        LinkFieldEditor(document, user_locale, edition_switcher).init(mount_point);
     }
 }
 
-export const LinkFieldEditor = (doc: Document, user_locale: LocaleString): LinkFieldEditor => ({
+function initLinkFault(
+    event_dispatcher: EventDispatcher<CommonEvents>,
+    doc: Document,
+    mount_point: HTMLElement,
+): void {
+    const fault_div = doc.createElement("div");
+    fault_div.classList.add("tlp-alert-danger", "hidden-alert");
+    mount_point.insertAdjacentElement("beforebegin", fault_div);
+
+    event_dispatcher.addObserver("WillNotifyFault", (event: WillNotifyFault) => {
+        const fault: Fault = event.fault;
+        fault_div.textContent = fault.toString();
+        fault_div.classList.remove("hidden-alert");
+    });
+}
+
+export const LinkFieldEditor = (
+    doc: Document,
+    user_locale: LocaleString,
+    edition_switcher: EditionSwitcher | null,
+): LinkFieldEditor => ({
     init(mount_point): void {
         const user_id = UserIdentifier.fromId(
             parseInt(getAttributeOrThrow(doc.body, "data-user-id")),
@@ -98,8 +127,9 @@ export const LinkFieldEditor = (doc: Document, user_locale: LocaleString): LinkF
             .map(parseInt)
             .map(ParentTrackerIdentifier.fromId);
 
+        const event_dispatcher = EventDispatcher();
         const link_field_creator = LinkFieldCreator(
-            EventDispatcher(),
+            event_dispatcher,
             LinksStore(),
             NewLinksStore(),
             LinksMarkedForRemovalStore(),
@@ -117,6 +147,8 @@ export const LinkFieldEditor = (doc: Document, user_locale: LocaleString): LinkF
             user_locale,
         );
 
+        initLinkFault(event_dispatcher, doc, mount_point);
+
         const field = { field_id: link_field_id, label: link_field_label };
 
         const element = createLinkField(doc);
@@ -126,6 +158,14 @@ export const LinkFieldEditor = (doc: Document, user_locale: LocaleString): LinkF
         );
         element.autocompleter = link_field_creator.createLinkSelectorAutoCompleter();
         element.creatorController = link_field_creator.createArtifactCreatorController();
+
+        const parent = mount_point.parentElement;
+        if (edition_switcher !== null && parent !== null) {
+            element.addEventListener("change", () => {
+                parent.classList.add("in-edition");
+                edition_switcher.toggleSubmissionBar();
+            });
+        }
 
         mount_point.replaceWith(element);
     },

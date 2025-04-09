@@ -666,7 +666,6 @@
             <file name="plugins/tracker/tests/unit/Action/OpenListFieldsCompatibilityVerifierTest.php"/>
             <file name="plugins/tracker/tests/unit/Action/StaticListFieldVerifierTest.php"/>
             <file name="plugins/tracker/tests/unit/Action/Tracker_Action_CreateArtifactTest.php"/>
-            <file name="plugins/tracker/tests/unit/Action/Tracker_Action_UpdateArtifactTest.php"/>
             <file name="plugins/tracker/tests/unit/Action/UserGroupOpenListFieldVerifierTest.php"/>
             <file name="plugins/tracker/tests/unit/Action/UserListFieldVerifierTest.php"/>
             <file name="plugins/tracker/tests/unit/Admin/ArtifactDeletion/ArtifactsConfirmDeletionInTrackerAdminUrlBuilderTest.php"/>
@@ -1003,7 +1002,6 @@
             <file name="plugins/tracker/tests/unit/Notifications/RemoveRecipient/RemoveRecipientWhenTheyAreInStatusUpdateOnlyModeTest.php"/>
             <file name="plugins/tracker/tests/unit/Notifications/Settings/Administration/CalendarConfigUpdaterTest.php"/>
             <file name="plugins/tracker/tests/unit/Notifications/Settings/UserNotificationSettingsTest.php"/>
-            <file name="plugins/tracker/tests/unit/Permission/Fields/ByGroup/PermissionsOnFieldsTests.php"/>
             <file name="plugins/tracker/tests/unit/Permission/PermissionCheckerTest.php"/>
             <file name="plugins/tracker/tests/unit/Permission/PermissionManagerTest.php"/>
             <file name="plugins/tracker/tests/unit/Permission/PermissionRequestTest.php"/>
