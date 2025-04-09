@@ -31921,6 +31921,28 @@
       <code><![CDATA[$dao->retrieve($sql)]]></code>
     </PossiblyFalseIterator>
   </file>
+  <file src="plugins/tracker/include/Action/UpdateArtifactAction.php">
+    <InvalidArgument>
+      <code><![CDATA[$remaining_effort_field]]></code>
+    </InvalidArgument>
+    <MissingParamType>
+      <code><![CDATA[$from_aid]]></code>
+      <code><![CDATA[$remaining_effort]]></code>
+      <code><![CDATA[$stay]]></code>
+    </MissingParamType>
+    <MissingPropertyType>
+      <code><![CDATA[$this->artifact->tracker_id]]></code>
+    </MissingPropertyType>
+    <MissingReturnType>
+      <code><![CDATA[addAutocomputeLabelIfFieldIsAutcocomputed]]></code>
+    </MissingReturnType>
+    <PossiblyUndefinedArrayOffset>
+      <code><![CDATA[$_SERVER['REQUEST_TIME']]]></code>
+    </PossiblyUndefinedArrayOffset>
+    <UndefinedInterfaceMethod>
+      <code><![CDATA[fetchCardValue]]></code>
+    </UndefinedInterfaceMethod>
+  </file>
   <file src="plugins/tracker/include/Artifact/Renderer/ViewCollection.php">
     <FalsableReturnStatement>
       <code><![CDATA[current($this->views)]]></code>
@@ -32197,7 +32219,6 @@
       <code><![CDATA[fetchSubmitForOverlay]]></code>
       <code><![CDATA[getArtifactLinkIdsOfLastChangeset]]></code>
       <code><![CDATA[getArtifactLinksToRenderFromChangesetValue]]></code>
-      <code><![CDATA[getFieldDataBuilder]]></code>
       <code><![CDATA[getNormalizedSubmittedValue]]></code>
       <code><![CDATA[getReverseArtifactLinksToRender]]></code>
       <code><![CDATA[getTemplateRenderer]]></code>
@@ -32232,10 +32253,6 @@
       <code><![CDATA[new CSVOutputStrategy(Codendi_HTMLPurifier::instance())]]></code>
       <code><![CDATA[searchById]]></code>
     </TooManyArguments>
-    <TypeDoesNotContainType>
-      <code><![CDATA[! $this->artifact_factory]]></code>
-      <code><![CDATA[$this->artifact_factory]]></code>
-    </TypeDoesNotContainType>
     <UndefinedMethod>
       <code><![CDATA[getArtifactIds]]></code>
     </UndefinedMethod>
@@ -33193,41 +33210,6 @@
       <code><![CDATA[process]]></code>
       <code><![CDATA[sendJSONErrors]]></code>
     </MissingReturnType>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Action/UpdateArtifact.php">
-    <DeprecatedMethod>
-      <code><![CDATA[createNewChangeset]]></code>
-    </DeprecatedMethod>
-    <InvalidArgument>
-      <code><![CDATA[$remaining_effort_field]]></code>
-    </InvalidArgument>
-    <MissingParamType>
-      <code><![CDATA[$from_aid]]></code>
-      <code><![CDATA[$remaining_effort]]></code>
-      <code><![CDATA[$stay]]></code>
-    </MissingParamType>
-    <MissingPropertyType>
-      <code><![CDATA[$this->artifact->tracker_id]]></code>
-    </MissingPropertyType>
-    <MissingReturnType>
-      <code><![CDATA[addAutocomputeLabelIfFieldIsAutcocomputed]]></code>
-      <code><![CDATA[calculateRedirectParams]]></code>
-      <code><![CDATA[getCardUpdateInfo]]></code>
-      <code><![CDATA[getRedirectUrlAfterArtifactUpdate]]></code>
-      <code><![CDATA[process]]></code>
-      <code><![CDATA[sendAjaxCardsUpdateInfo]]></code>
-    </MissingReturnType>
-    <TooManyArguments>
-      <code><![CDATA[sendAjaxCardsUpdateInfo]]></code>
-      <code><![CDATA[sendAjaxCardsUpdateInfo]]></code>
-      <code><![CDATA[sendAjaxCardsUpdateInfo]]></code>
-    </TooManyArguments>
-    <UndefinedInterfaceMethod>
-      <code><![CDATA[fetchCardValue]]></code>
-    </UndefinedInterfaceMethod>
-    <UndefinedMethod>
-      <code><![CDATA[isArtifactValueAutocomputed]]></code>
-    </UndefinedMethod>
   </file>
   <file src="plugins/tracker/include/Tracker/Admin/ArtifactLinksUsageUpdater.php">
     <MissingReturnType>
@@ -37362,16 +37344,6 @@
       <code><![CDATA[DataAccessObject]]></code>
       <code><![CDATA[[$this->da, 'quoteSmart']]]></code>
       <code><![CDATA[[$this->da, 'quoteSmart']]]></code>
-      <code><![CDATA[[$this->da, 'quoteSmart']]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
       <code><![CDATA[escapeInt]]></code>
       <code><![CDATA[escapeInt]]></code>
       <code><![CDATA[escapeInt]]></code>
@@ -37430,14 +37402,6 @@
       <code><![CDATA[quoteSmart]]></code>
       <code><![CDATA[quoteSmart]]></code>
       <code><![CDATA[quoteSmart]]></code>
-      <code><![CDATA[quoteSmart]]></code>
-      <code><![CDATA[retrieve]]></code>
-      <code><![CDATA[retrieve]]></code>
-      <code><![CDATA[retrieve]]></code>
-      <code><![CDATA[retrieve]]></code>
-      <code><![CDATA[retrieve]]></code>
-      <code><![CDATA[retrieve]]></code>
-      <code><![CDATA[retrieve]]></code>
       <code><![CDATA[retrieve]]></code>
       <code><![CDATA[retrieve]]></code>
       <code><![CDATA[retrieve]]></code>
@@ -37467,27 +37431,20 @@
     </DeprecatedMethod>
     <FalsableReturnStatement>
       <code><![CDATA[$this->retrieve($sql)]]></code>
-      <code><![CDATA[$this->retrieve($sql)]]></code>
-      <code><![CDATA[$this->retrieve($sql)]]></code>
     </FalsableReturnStatement>
     <InvalidFalsableReturnType>
       <code><![CDATA[\Tuleap\DB\Compat\Legacy2018\LegacyDataAccessResultInterface]]></code>
-      <code><![CDATA[\Tuleap\DB\Compat\Legacy2018\LegacyDataAccessResultInterface]]></code>
-      <code><![CDATA[\Tuleap\DB\Compat\Legacy2018\LegacyDataAccessResultInterface]]></code>
     </InvalidFalsableReturnType>
     <MissingParamType>
-      <code><![CDATA[$TrackerId]]></code>
       <code><![CDATA[$description]]></code>
       <code><![CDATA[$field]]></code>
       <code><![CDATA[$field]]></code>
       <code><![CDATA[$field]]></code>
       <code><![CDATA[$field_id]]></code>
       <code><![CDATA[$field_id]]></code>
-      <code><![CDATA[$field_id]]></code>
       <code><![CDATA[$force_absolute_ranking]]></code>
       <code><![CDATA[$from_field_id]]></code>
       <code><![CDATA[$group_id]]></code>
-      <code><![CDATA[$id]]></code>
       <code><![CDATA[$id]]></code>
       <code><![CDATA[$id]]></code>
       <code><![CDATA[$id]]></code>
@@ -37505,11 +37462,9 @@
       <code><![CDATA[$parent_id]]></code>
       <code><![CDATA[$prefix_name]]></code>
       <code><![CDATA[$project_id]]></code>
-      <code><![CDATA[$project_id]]></code>
       <code><![CDATA[$rank]]></code>
       <code><![CDATA[$required]]></code>
       <code><![CDATA[$scope]]></code>
-      <code><![CDATA[$shared_field_id]]></code>
       <code><![CDATA[$to_tracker_id]]></code>
       <code><![CDATA[$tracker_id]]></code>
       <code><![CDATA[$tracker_id]]></code>
@@ -37524,12 +37479,6 @@
       <code><![CDATA[$tracker_id]]></code>
       <code><![CDATA[$tracker_id]]></code>
       <code><![CDATA[$tracker_id]]></code>
-      <code><![CDATA[$tracker_id]]></code>
-      <code><![CDATA[$tracker_id]]></code>
-      <code><![CDATA[$tracker_id]]></code>
-      <code><![CDATA[$tracker_id]]></code>
-      <code><![CDATA[$tracker_id]]></code>
-      <code><![CDATA[$type]]></code>
       <code><![CDATA[$type]]></code>
       <code><![CDATA[$type]]></code>
       <code><![CDATA[$type]]></code>
@@ -37542,18 +37491,14 @@
       <code><![CDATA[delete]]></code>
       <code><![CDATA[duplicate]]></code>
       <code><![CDATA[getUsedUserClosedListFieldById]]></code>
-      <code><![CDATA[getUsedUserListFieldById]]></code>
       <code><![CDATA[mapNewParentsAfterDuplication]]></code>
       <code><![CDATA[save]]></code>
       <code><![CDATA[searchById]]></code>
       <code><![CDATA[searchByParentId]]></code>
       <code><![CDATA[searchByTrackerId]]></code>
       <code><![CDATA[searchByTrackerIdAndName]]></code>
-      <code><![CDATA[searchByTrackerIdAndType]]></code>
-      <code><![CDATA[searchFieldFromTrackerIdAndSharedFieldId]]></code>
       <code><![CDATA[searchFieldIdsByGroupId]]></code>
       <code><![CDATA[searchNextUsedSibling]]></code>
-      <code><![CDATA[searchPreviousUsedSibling]]></code>
       <code><![CDATA[searchProjectSharedFieldsTargets]]></code>
       <code><![CDATA[searchSharedTargets]]></code>
       <code><![CDATA[searchUnusedByTrackerId]]></code>
@@ -37564,7 +37509,6 @@
       <code><![CDATA[searchUsedByTrackerIdAndType]]></code>
       <code><![CDATA[searchUsedStaticSbFieldByTrackerId]]></code>
       <code><![CDATA[searchUsedUserClosedListFieldsByTrackerId]]></code>
-      <code><![CDATA[searchUsedUserListFieldByTrackerId]]></code>
       <code><![CDATA[setType]]></code>
       <code><![CDATA[updateOriginalFieldId]]></code>
     </MissingReturnType>
@@ -38516,11 +38460,9 @@
       <code><![CDATA[$this->getCachedInstanceFromRow($row)]]></code>
     </LessSpecificReturnStatement>
     <MissingParamType>
-      <code><![CDATA[$dar]]></code>
       <code><![CDATA[$description]]></code>
       <code><![CDATA[$elmtId]]></code>
       <code><![CDATA[$field]]></code>
-      <code><![CDATA[$field_id]]></code>
       <code><![CDATA[$field_id]]></code>
       <code><![CDATA[$field_id]]></code>
       <code><![CDATA[$field_id]]></code>
@@ -38554,7 +38496,6 @@
       <code><![CDATA[$name]]></code>
       <code><![CDATA[$name]]></code>
       <code><![CDATA[$name]]></code>
-      <code><![CDATA[$name]]></code>
       <code><![CDATA[$old_field_id]]></code>
       <code><![CDATA[$old_original_field_id]]></code>
       <code><![CDATA[$old_original_field_id]]></code>
@@ -38565,8 +38506,6 @@
       <code><![CDATA[$tracker]]></code>
       <code><![CDATA[$tracker]]></code>
       <code><![CDATA[$tracker]]></code>
-      <code><![CDATA[$tracker]]></code>
-      <code><![CDATA[$tracker_id]]></code>
       <code><![CDATA[$tracker_id]]></code>
       <code><![CDATA[$tracker_is_empty]]></code>
       <code><![CDATA[$tracker_is_empty]]></code>
@@ -38603,14 +38542,11 @@
       <code><![CDATA[fixSharedFieldOriginalValueIds]]></code>
       <code><![CDATA[getAllUsedFormElementOfAnyTypesForTracker]]></code>
       <code><![CDATA[getDao]]></code>
-      <code><![CDATA[getDateFieldByNameForUser]]></code>
       <code><![CDATA[getFactoryButton]]></code>
       <code><![CDATA[getFieldByNameAndType]]></code>
       <code><![CDATA[getFieldsSQLTypes]]></code>
       <code><![CDATA[getFieldsetById]]></code>
       <code><![CDATA[getFormElementClass]]></code>
-      <code><![CDATA[getGroupsByTrackerId]]></code>
-      <code><![CDATA[getInstanceFromDar]]></code>
       <code><![CDATA[getNewOriginalFieldIdFromMapping]]></code>
       <code><![CDATA[getNumericFieldByName]]></code>
       <code><![CDATA[getNumericFieldByNameForUser]]></code>
@@ -38621,7 +38557,6 @@
       <code><![CDATA[getUsedSbFields]]></code>
       <code><![CDATA[getUsedTextFieldById]]></code>
       <code><![CDATA[getUsedUserClosedListFieldById]]></code>
-      <code><![CDATA[getUsedUserListFieldById]]></code>
       <code><![CDATA[getValueMappingFromFieldMapping]]></code>
       <code><![CDATA[isFieldASimpleListField]]></code>
       <code><![CDATA[isFieldUniqueAndAlreadyUsed]]></code>
@@ -49274,6 +49209,20 @@
       <code><![CDATA[testItRaisesAnExceptionIfWeWantToMove1Before1]]></code>
       <code><![CDATA[testItStartsWithEmptyTable]]></code>
     </MissingReturnType>
+  </file>
+  <file src="plugins/tracker/tests/integration/Semantic/Description/Tracker_Semantic_DescriptionDaoTest.php">
+    <DeprecatedMethod>
+      <code><![CDATA[getRow]]></code>
+      <code><![CDATA[getRow]]></code>
+      <code><![CDATA[rowCount]]></code>
+    </DeprecatedMethod>
+  </file>
+  <file src="plugins/tracker/tests/integration/Semantic/Title/Tracker_Semantic_TitleDaoTest.php">
+    <DeprecatedMethod>
+      <code><![CDATA[getRow]]></code>
+      <code><![CDATA[getRow]]></code>
+      <code><![CDATA[rowCount]]></code>
+    </DeprecatedMethod>
   </file>
   <file src="plugins/tracker/tests/unit/Artifact/ArtifactsDeletion/PostArtifactMoveReferencesCleanerTest.php">
     <InternalMethod>

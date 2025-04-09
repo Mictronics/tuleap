@@ -445,7 +445,7 @@ class Tracker_FormElement_Field_PermissionsOnArtifact extends Tracker_FormElemen
         return $this->criteria_value[$criteria->report->id];
     }
 
-    public function exportCriteriaValueToXML(Tracker_Report_Criteria $criteria, SimpleXMLElement $xml_criteria)
+    public function exportCriteriaValueToXML(Tracker_Report_Criteria $criteria, SimpleXMLElement $xml_criteria, array $xml_mapping): void
     {
         return;
     }
@@ -470,7 +470,7 @@ class Tracker_FormElement_Field_PermissionsOnArtifact extends Tracker_FormElemen
             $size     = ' size="' . min(7, count($user_groups) + 2) . '" ';
         }
 
-        $html .= '<select id="tracker_report_criteria_' . ((bool) $criteria->is_advanced === true ? 'adv_' : '') . $this->id . '"
+        $html .= '<select data-test="permissions-report-criteria" id="tracker_report_criteria_' . ((bool) $criteria->is_advanced === true ? 'adv_' : '') . $this->id . '"
                           name="' . $name . '" ' .
                           $size .
                           $multiple . '>';

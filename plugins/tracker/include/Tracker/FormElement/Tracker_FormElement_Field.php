@@ -157,7 +157,7 @@ abstract class Tracker_FormElement_Field extends Tracker_FormElement implements 
         return $value;
     }
 
-    public function exportCriteriaValueToXML(Tracker_Report_Criteria $criteria, SimpleXMLElement $xml_criteria)
+    public function exportCriteriaValueToXML(Tracker_Report_Criteria $criteria, SimpleXMLElement $xml_criteria, array $xml_mapping): void
     {
         $criteria_value = $this->getCriteriaValue($criteria);
         if ((string) $criteria_value !== '') {
@@ -270,7 +270,10 @@ abstract class Tracker_FormElement_Field extends Tracker_FormElement implements 
             $html .= '<table cellpadding="0" cellspacing="0"><tbody><tr><td>';
             $html .= $GLOBALS['HTML']->getImage(
                 'ic/toggle_' . ($criteria->is_advanced ? 'minus' : 'plus' ) . '.png',
-                ['class' => 'tracker_report_criteria_advanced_toggle']
+                [
+                    'class' => 'tracker_report_criteria_advanced_toggle',
+                    'data-test' => 'tracker-report-criteria-advanced-toggle',
+                ]
             );
             $html .= '</td><td>';
         }
@@ -496,7 +499,9 @@ abstract class Tracker_FormElement_Field extends Tracker_FormElement implements 
                     '</button>';
             }
 
-            $html .= '<label data-test="field-label" id="tracker_artifact_' . $this->id . '" for="tracker_artifact_' . $this->id . '" title="' . $purifier->purify($this->description) . '" class="tracker_formelement_label">' . $purifier->purify($this->getLabel()) . $required . '</label>';
+            if (! $this->isAlwaysInEditMode()) {
+                $html .= '<label data-test="field-label" id="tracker_artifact_' . $this->id . '" for="tracker_artifact_' . $this->id . '" title="' . $purifier->purify($this->description) . '" class="tracker_formelement_label">' . $purifier->purify($this->getLabel()) . $required . '</label>';
+            }
 
             $html .= $html_value;
             $html .= '</div>';
@@ -584,7 +589,10 @@ abstract class Tracker_FormElement_Field extends Tracker_FormElement implements 
             new TrackerRulesListValidator($tracker_formelement_factory, $logger),
             new TrackerRulesDateValidator($tracker_formelement_factory, $logger),
             TrackerFactory::instance(),
-            $logger
+            $logger,
+            new Tracker_Rule_List_Factory(new Tracker_Rule_List_Dao(), new Tracker_FormElement_Field_List_BindFactory(new \Tuleap\DB\DatabaseUUIDV7Factory())),
+            new Tracker_Rule_Date_Factory(new Tracker_Rule_Date_Dao(), $tracker_formelement_factory),
+            new Tracker_RuleFactory(new Tracker_RuleDao()),
         );
         return $tracker_rules_manager->getFieldTargets($this);
     }
@@ -992,7 +1000,10 @@ abstract class Tracker_FormElement_Field extends Tracker_FormElement implements 
             new TrackerRulesListValidator($tracker_formelement_factory, $logger),
             new TrackerRulesDateValidator($tracker_formelement_factory, $logger),
             TrackerFactory::instance(),
-            $logger
+            $logger,
+            new Tracker_Rule_List_Factory(new Tracker_Rule_List_Dao(), new Tracker_FormElement_Field_List_BindFactory(new \Tuleap\DB\DatabaseUUIDV7Factory())),
+            new Tracker_Rule_Date_Factory(new Tracker_Rule_Date_Dao(), $tracker_formelement_factory),
+            new Tracker_RuleFactory(new Tracker_RuleDao()),
         );
         return $tracker_rules_manager->isUsedInFieldDependency($this);
     }

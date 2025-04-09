@@ -36,6 +36,7 @@ use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
 use Tuleap\Tracker\FormElement\Field\ListFields\OpenListValueDao;
+use Tuleap\Tracker\Masschange\MasschangeDataValueExtractor;
 use Tuleap\Tracker\Masschange\MasschangeUpdater;
 use Tuleap\Tracker\Report\AdditionalCriteria\CommentCriterionPresenter;
 use Tuleap\Tracker\Report\AdditionalCriteria\CommentCriterionValueRetriever;
@@ -571,7 +572,7 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
         $criteria_fetched = [];
         foreach ($criteria as $criterion) {
             if ($criterion->field->isUsed()) {
-                $li = '<li id="tracker_report_crit_' . $criterion->field->getId() . '">';
+                $li = '<li data-test="report-criteria-item" id="tracker_report_crit_' . $criterion->field->getId() . '">';
                 if ($current_user->isAnonymous()) {
                     $li .= $criterion->fetchWithoutExpandFunctionnality();
                 } else {
@@ -1369,7 +1370,7 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
                 $masschange_updater = new MasschangeUpdater(
                     $tracker,
                     $this,
-                    new Tracker_MasschangeDataValueExtractor($form_element_factory),
+                    new MasschangeDataValueExtractor($form_element_factory),
                     new Tracker_RuleFactory(new Tracker_RuleDao()),
                     $form_element_factory,
                     $artifact_factory,

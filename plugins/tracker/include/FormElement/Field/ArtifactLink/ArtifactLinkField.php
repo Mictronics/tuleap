@@ -68,6 +68,9 @@ use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeTablePresenter;
 use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
 use Tuleap\Tracker\FormElement\FieldSpecificProperties\ArtifactLinkFieldSpecificPropertiesDAO;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\DuplicateSpecificProperties;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\SaveSpecificFieldProperties;
+use Tuleap\Tracker\FormElement\FieldSpecificProperties\SearchSpecificProperties;
 use Tuleap\Tracker\Hierarchy\HierarchyDAO;
 use Tuleap\Tracker\Hierarchy\ParentInHierarchyRetriever;
 use Tuleap\Tracker\Permission\TrackersPermissionsRetriever;
@@ -88,6 +91,13 @@ class ArtifactLinkField extends Tracker_FormElement_Field
     public const FAKE_TYPE_IS_PARENT     = '_is_parent';
     public const NO_TYPE                 = '';
     public const FIELDS_DATA_PARENT_KEY  = 'parent';
+
+    public array $default_properties = [
+        'can_edit_reverse_links' => [
+            'value' => 0,
+            'type'  => 'checkbox',
+        ],
+    ];
 
     /**
      * @var Tracker_ArtifactFactory
@@ -907,9 +917,7 @@ class ArtifactLinkField extends Tracker_FormElement_Field
 
     public function isAlwaysInEditMode(): bool
     {
-        $specific_property_dao = new ArtifactLinkFieldSpecificPropertiesDAO();
-        $properties            = $specific_property_dao->searchByFieldId($this->getId());
-        return (bool) ($properties['can_edit_reverse_links'] ?? false);
+        return $this->canEditReverseLinks();
     }
 
     /**
@@ -922,25 +930,8 @@ class ArtifactLinkField extends Tracker_FormElement_Field
         ?Tracker_Artifact_ChangesetValue $value,
         array $submitted_values,
     ): string {
-        $specific_property_dao  = new ArtifactLinkFieldSpecificPropertiesDAO();
-        $properties             = $specific_property_dao->searchByFieldId($this->getId());
-        $can_edit_reverse_links = $properties['can_edit_reverse_links'] ?? false;
-
-        if ($can_edit_reverse_links) {
-            $user              = $this->getCurrentUser();
-            $template_renderer = TemplateRendererFactory::build()->getRenderer(
-                __DIR__ . '/templates'
-            );
-            $builder           = new EditorWithReverseLinksBuilder(
-                new ParentInHierarchyRetriever(
-                    new HierarchyDAO(),
-                    $this->getTrackerFactory()
-                ),
-                TrackersPermissionsRetriever::build(),
-                new TypePresenterFactory(new TypeDao(), new ArtifactLinksUsageDao()),
-            );
-            $presenter         = $builder->buildWithArtifact($this, $artifact, $user);
-            return $template_renderer->renderToString('editor-with-reverse-links', $presenter);
+        if ($this->canEditReverseLinks()) {
+            return $this->getFieldRenderer()->render($this, $artifact, $this->getCurrentUser());
         }
 
         $links_tab         = $this->fetchLinks($artifact, $this->getArtifactLinksToRenderFromChangesetValue($value), $submitted_values);
@@ -1054,15 +1045,17 @@ class ArtifactLinkField extends Tracker_FormElement_Field
      * Fetch the html code to display the field value in artifact in read only mode
      *
      * @param Artifact $artifact The artifact
-     * @param Tracker_Artifact_ChangesetValue $value The actual value of the field
-     *
-     * @return string
+     * @param ?Tracker_Artifact_ChangesetValue $value The actual value of the field
      */
     public function fetchArtifactValueReadOnly(
         Artifact $artifact,
         ?Tracker_Artifact_ChangesetValue $value = null,
         ?ArtifactLinksToRender $artifact_links_to_render = null,
-    ) {
+    ): string {
+        if ($this->canEditReverseLinks()) {
+            return $this->getFieldRenderer()->render($this, $artifact, $this->getCurrentUser());
+        }
+
         if ($artifact_links_to_render === null) {
             $artifact_links_to_render = $this->getArtifactLinksToRenderFromChangesetValue($value);
         }
@@ -1070,6 +1063,18 @@ class ArtifactLinkField extends Tracker_FormElement_Field
         $reverse_links_tab   = $this->fetchReverseLinks($artifact);
 
         return $links_tab_read_only . $reverse_links_tab;
+    }
+
+    private function getFieldRenderer(): ArtifactLinkFieldRenderer
+    {
+        return new ArtifactLinkFieldRenderer(
+            TemplateRendererFactory::build()->getRenderer(__DIR__ . '/templates'),
+            new EditorWithReverseLinksPresenterBuilder(
+                new ParentInHierarchyRetriever(new HierarchyDAO(), $this->getTrackerFactory()),
+                TrackersPermissionsRetriever::build(),
+                new TypePresenterFactory(new TypeDao(), new ArtifactLinksUsageDao()),
+            ),
+        );
     }
 
     public function fetchArtifactCopyMode(Artifact $artifact, array $submitted_values)
@@ -1114,25 +1119,8 @@ class ArtifactLinkField extends Tracker_FormElement_Field
 
     protected function fetchSubmitValue(array $submitted_values): string
     {
-        $specific_property_dao  = new ArtifactLinkFieldSpecificPropertiesDAO();
-        $properties             = $specific_property_dao->searchByFieldId($this->getId());
-        $can_edit_reverse_links = $properties['can_edit_reverse_links'] ?? false;
-
-        if ($can_edit_reverse_links) {
-            $user              = $this->getCurrentUser();
-            $template_renderer = TemplateRendererFactory::build()->getRenderer(
-                __DIR__ . '/templates'
-            );
-            $builder           = new EditorWithReverseLinksBuilder(
-                new ParentInHierarchyRetriever(
-                    new HierarchyDAO(),
-                    $this->getTrackerFactory()
-                ),
-                TrackersPermissionsRetriever::build(),
-                new TypePresenterFactory(new TypeDao(), new ArtifactLinksUsageDao()),
-            );
-            $presenter         = $builder->buildWithoutArtifact($this, $user);
-            return $template_renderer->renderToString('editor-with-reverse-links', $presenter);
+        if ($this->canEditReverseLinks()) {
+            return $this->getFieldRenderer()->render($this, null, $this->getCurrentUser());
         }
 
         $prefill_new_values = '';
@@ -1817,7 +1805,7 @@ class ArtifactLinkField extends Tracker_FormElement_Field
         }
     }
 
-    private function getFieldDataBuilder()
+    private function getFieldDataBuilder(): FieldDataBuilder
     {
         return new FieldDataBuilder();
     }
@@ -1825,5 +1813,30 @@ class ArtifactLinkField extends Tracker_FormElement_Field
     public function getDeleteCriteriaValueDAO(): DeleteReportCriteriaValue
     {
         return new CriteriaAlphaNumValueDAO();
+    }
+
+    public function canEditReverseLinks(): bool
+    {
+        return $this->getProperty('can_edit_reverse_links') === 1;
+    }
+
+    protected function getSearchSpecificPropertiesDao(): ?SearchSpecificProperties
+    {
+        return new ArtifactLinkFieldSpecificPropertiesDAO();
+    }
+
+    protected function getSaveSpecificPropertiesDao(): ?SaveSpecificFieldProperties
+    {
+        return new ArtifactLinkFieldSpecificPropertiesDAO();
+    }
+
+    protected function getDuplicateSpecificPropertiesDao(): ?DuplicateSpecificProperties
+    {
+        return new ArtifactLinkFieldSpecificPropertiesDAO();
+    }
+
+    public function fetchAddCardFields(array $used_fields, string $prefix = ''): string
+    {
+        return '';
     }
 }

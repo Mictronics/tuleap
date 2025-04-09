@@ -20,16 +20,27 @@
 
 declare(strict_types=1);
 
-namespace Tuleap\Artidoc\Domain\Document\Section\Field;
+namespace Tuleap\Tracker\FormElement\Field\ArtifactLink;
 
-/**
- * @psalm-immutable
- */
-final readonly class StoredConfiguredField
+use PFUser;
+use TemplateRenderer;
+use Tuleap\Tracker\Artifact\Artifact;
+
+final readonly class ArtifactLinkFieldRenderer
 {
     public function __construct(
-        public int $field_id,
-        public DisplayType $display_type,
+        private TemplateRenderer $template_renderer,
+        private EditorWithReverseLinksPresenterBuilder $presenter_builder,
     ) {
+    }
+
+    public function render(ArtifactLinkField $field, ?Artifact $artifact, PFUser $user): string
+    {
+        if ($artifact !== null) {
+            $presenter = $this->presenter_builder->buildWithArtifact($field, $artifact, $user);
+        } else {
+            $presenter = $this->presenter_builder->buildWithoutArtifact($field, $user);
+        }
+        return $this->template_renderer->renderToString('editor-with-reverse-links', $presenter);
     }
 }
