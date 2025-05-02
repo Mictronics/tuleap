@@ -117,8 +117,14 @@ final class FromProjectAggregatedTest extends CrossTrackerFieldTestCase
             $this->top_project,
             $this->user,
         );
+        $new_event->projectCanAggregateProjects();
         $new_event->addChildrenProjects($collection);
-        $this->event_manager->method('dispatch')->willReturn($new_event);
+        $this->event_manager->method('dispatch')->willReturnCallback(
+            static fn (object $event) => match (true) {
+                $event instanceof CollectLinkedProjects => $new_event,
+                default => $event,
+            }
+        );
         $result = $this->getQueryResults(
             CrossTrackerQueryTestBuilder::aQuery()
                  ->withUUID($this->uuid)->withTqlQuery('SELECT @tracker.name FROM @project = "aggregated" WHERE @id >= 1')->build(),
@@ -136,8 +142,14 @@ final class FromProjectAggregatedTest extends CrossTrackerFieldTestCase
             $this->top_project,
             $this->user,
         );
+        $new_event->projectCanAggregateProjects();
         $new_event->addChildrenProjects($collection);
-        $this->event_manager->method('dispatch')->willReturn($new_event);
+        $this->event_manager->method('dispatch')->willReturnCallback(
+            static fn (object $event) => match (true) {
+                $event instanceof CollectLinkedProjects => $new_event,
+                default => $event,
+            }
+        );
         $result = $this->getQueryResults(
             CrossTrackerQueryTestBuilder::aQuery()
                  ->withUUID($this->uuid)->withTqlQuery('SELECT @tracker.name FROM @project IN("aggregated", "self") WHERE @id >= 1')->build(),

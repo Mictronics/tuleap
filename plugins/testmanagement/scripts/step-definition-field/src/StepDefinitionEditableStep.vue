@@ -103,6 +103,7 @@ export default {
             default: () => ({}),
         },
     },
+    emits: ["update-description", "update-expected-results", "toggle-rte"],
     data() {
         return {
             interpreted_description: "",
@@ -140,7 +141,7 @@ export default {
             return this.expected_results_id + "-help";
         },
         is_current_step_in_html_format() {
-            return this.description_format === TEXT_FORMAT_HTML;
+            return this.step.description_format === TEXT_FORMAT_HTML;
         },
         format_select_id() {
             return "format_" + this.step.uuid + "_" + this.field_id;
@@ -237,7 +238,7 @@ export default {
 
             const options = {
                 format_selectbox_id: this.format_select_id,
-                format_selectbox_value: this.description_format,
+                format_selectbox_value: this.step.description_format,
                 getAdditionalOptions: (textarea) => getUploadImageOptions(textarea),
                 onFormatChange: (new_format) => {
                     if (help_block) {
@@ -255,9 +256,11 @@ export default {
         },
         updateDescription(event) {
             this.raw_description = event.target.value;
+            this.$emit("update-description", event);
         },
         updateExpectedResults(event) {
             this.raw_expected_results = event.target.value;
+            this.$emit("update-expected-results", event);
         },
         togglePreview() {
             this.is_preview_in_error = false;
@@ -270,8 +273,8 @@ export default {
 
             this.is_preview_loading = true;
             return Promise.all([
-                postInterpretCommonMark(this.raw_description),
-                postInterpretCommonMark(this.raw_expected_results),
+                postInterpretCommonMark(this.step.raw_description),
+                postInterpretCommonMark(this.step.raw_expected_results),
             ])
                 .then((interpreted_fields) => {
                     this.interpreted_description = interpreted_fields[0];

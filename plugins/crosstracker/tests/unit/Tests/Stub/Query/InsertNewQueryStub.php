@@ -24,9 +24,10 @@ namespace Tuleap\CrossTracker\Tests\Stub\Query;
 use Tuleap\CrossTracker\Query\InsertNewQuery;
 use Tuleap\DB\UUID;
 
-final readonly class InsertNewQueryStub implements InsertNewQuery
+final class InsertNewQueryStub implements InsertNewQuery
 {
-    private function __construct(private UUID $uuid)
+    private int $call_count = 0;
+    private function __construct(private readonly UUID $uuid)
     {
     }
 
@@ -37,11 +38,17 @@ final readonly class InsertNewQueryStub implements InsertNewQuery
         int $widget_id,
         bool $is_default,
     ): UUID {
+        $this->call_count++;
         return $this->uuid;
     }
 
     public static function withUUID(UUID $uuid): self
     {
         return new self($uuid);
+    }
+
+    public function getCallCount(): int
+    {
+        return $this->call_count;
     }
 }

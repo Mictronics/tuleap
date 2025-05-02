@@ -56,6 +56,14 @@
                 <dragndrop-grip-illustration />
             </span>
 
+            <i
+                class="fa-solid fa-exclamation-circle section-under-artifact-icon"
+                role="img"
+                v-bind:title="section_under_artifact_title"
+                data-test="warning-icon"
+                v-if="hasArtifactParent(section)"
+            ></i>
+
             <span class="toc-display-level" data-test="display-level">
                 {{ section.value.display_level }}
             </span>
@@ -108,11 +116,15 @@ import { isArtifactSection, isSectionBasedOnArtifact } from "@/helpers/artidoc-s
 import { strictInject } from "@tuleap/vue-strict-inject";
 import type { Fault } from "@tuleap/fault";
 import { SECTIONS_COLLECTION } from "@/sections/states/sections-collection-injection-key";
-import DragndropGripIllustration from "@/components/sidebar/toc/DragndropGripIllustration.vue";
+import DragndropGripIllustration from "@/components/dnd/DragndropGripIllustration.vue";
 import { CAN_USER_EDIT_DOCUMENT } from "@/can-user-edit-document-injection-key";
 import ReorderArrows from "@/components/sidebar/toc/ReorderArrows.vue";
 import { init } from "@tuleap/drag-and-drop";
-import type { Drekkenov, SuccessfulDropCallbackParameter } from "@tuleap/drag-and-drop";
+import type {
+    Drekkenov,
+    SuccessfulDropCallbackParameter,
+    DragCallbackParameter,
+} from "@tuleap/drag-and-drop";
 import type {
     InternalArtidocSectionId,
     ReactiveStoredArtidocSection,
@@ -125,7 +137,7 @@ import { SECTIONS_STATES_COLLECTION } from "@/sections/states/sections-states-co
 import { isCannotReorderSectionsFault } from "@/sections/reorder/CannotReorderSectionsFault";
 import { buildSectionsReorderer } from "@/sections/reorder/SectionsReorderer";
 import { getSectionsStructurer } from "@/sections/reorder/SectionsStructurer";
-import type { DragCallbackParameter } from "@tuleap/drag-and-drop/src";
+import { SECTIONS_BELOW_ARTIFACTS } from "@/sections-below-artifacts-injection-key";
 
 const { $gettext } = useGettext();
 
@@ -135,6 +147,7 @@ const states_collection = strictInject(SECTIONS_STATES_COLLECTION);
 const can_user_edit_document = strictInject(CAN_USER_EDIT_DOCUMENT);
 const document_id = strictInject(DOCUMENT_ID);
 const setGlobalErrorMessage = strictInject(SET_GLOBAL_ERROR_MESSAGE);
+const bad_sections = strictInject(SECTIONS_BELOW_ARTIFACTS);
 
 const sections_reorderer = buildSectionsReorderer(sections_collection);
 const sections_structurer = getSectionsStructurer(sections_collection);
@@ -149,6 +162,10 @@ const just_saved_sections: Ref<InternalArtidocSectionId[]> = ref([]);
 const sections_being_saved: Ref<InternalArtidocSectionId[]> = ref([]);
 const section_being_hovered: Ref<null | InternalArtidocSectionId> = ref(null);
 const sections_being_dragged: Ref<InternalArtidocSectionId[]> = ref([]);
+
+function hasArtifactParent(section: ReactiveStoredArtidocSection): boolean {
+    return bad_sections.value.includes(section.value.internal_id);
+}
 
 const setSectionBeingHovered = (section: ReactiveStoredArtidocSection): void => {
     if (sections_being_dragged.value.length > 0) {
@@ -227,6 +244,10 @@ const handleReorderingFault = (fault: Fault): void => {
 const getReactiveEditedTitle = (section: ReactiveStoredArtidocSection): string =>
     states_collection.getSectionState(section.value).edited_title.value;
 
+const section_under_artifact_title = $gettext(
+    "This section cannot be on a level below an Artifact section, please either change its heading level to the same level or a higher level.",
+);
+
 onMounted(() => {
     if (!list.value || !is_reorder_allowed) {
         return;
@@ -234,7 +255,7 @@ onMounted(() => {
 
     drek = init({
         mirror_container: list.value,
-        isDropZone: (element: HTMLElement) => Boolean(element.dataset.isContainer),
+        isDropZone: (element: HTMLElement) => element === list.value,
         isDraggable: (element: HTMLElement) => element.draggable,
         isInvalidDragHandle: (handle: HTMLElement) =>
             Boolean(handle.closest("[data-not-drag-handle]")),
@@ -306,6 +327,7 @@ onUnmounted(() => {
 <style scoped lang="scss">
 @use "pkg:@tuleap/drag-and-drop";
 @use "@/themes/includes/viewport-breakpoint";
+@use "@/themes/includes/size";
 
 @keyframes blink-toc-item {
     0% {
@@ -432,7 +454,7 @@ li[draggable="false"] {
     left: 0;
     align-items: center;
     justify-content: center;
-    width: var(--tlp-medium-spacing);
+    width: size.$drag-and-drop-handle-width;
     height: 100%;
     transition:
         opacity ease-in-out 250ms,
@@ -494,5 +516,10 @@ $arrows-overflow: calc(var(--tlp-small-spacing) / 2);
     font-size: 0.875rem;
     font-weight: 600;
     word-break: break-all;
+}
+
+.section-under-artifact-icon {
+    margin: 0 5px 0 0;
+    color: var(--tlp-danger-color);
 }
 </style>

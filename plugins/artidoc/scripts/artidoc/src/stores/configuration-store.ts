@@ -22,7 +22,8 @@ import { ref } from "vue";
 import { putConfiguration } from "@/helpers/rest-querier";
 import type { StrictInjectionKey } from "@tuleap/vue-strict-inject";
 import type { Project } from "@/helpers/project.type";
-import type { ReadonlyField } from "@/sections/readonly-fields/ReadonlyFieldsCollection";
+import type { ConfigurationField } from "@/sections/readonly-fields/AvailableReadonlyFields";
+import { getAvailableFields } from "@/sections/readonly-fields/AvailableReadonlyFields";
 
 export interface TitleFieldDefinition {
     readonly field_id: number;
@@ -71,7 +72,8 @@ export function isTrackerWithSubmittableSection(
 export interface ConfigurationStore {
     selected_tracker: Ref<Tracker | null>;
     allowed_trackers: readonly Tracker[];
-    selected_fields: ReadonlyField[];
+    selected_fields: Ref<ConfigurationField[]>;
+    available_fields: Ref<ConfigurationField[]>;
     is_saving: Ref<boolean>;
     is_error: Ref<boolean>;
     is_success: Ref<boolean>;
@@ -88,9 +90,10 @@ export function initConfigurationStore(
     document_id: number,
     selected_tracker: Tracker | null,
     allowed_trackers: readonly Tracker[],
-    selected_fields: ReadonlyField[],
+    selected_fields: ConfigurationField[],
 ): ConfigurationStore {
     const currently_selected_tracker = ref(selected_tracker);
+    const currently_selected_fields = ref(selected_fields);
     const is_saving = ref(false);
     const is_error = ref(false);
     const is_success = ref(false);
@@ -99,24 +102,41 @@ export function initConfigurationStore(
         selected_tracker ? selected_tracker.project : null,
     );
 
+    const available_fields: Ref<ConfigurationField[]> = ref([]);
+
+    if (selected_tracker) {
+        getAvailableFields(selected_tracker.id, selected_fields).match(
+            (fields) => {
+                available_fields.value = fields;
+            },
+            (fault) => {
+                error_message.value = String(fault);
+            },
+        );
+    }
+
     function saveConfiguration(new_selected_tracker: Tracker): void {
         is_saving.value = true;
         is_error.value = false;
         is_success.value = false;
         current_project.value = new_selected_tracker.project;
 
-        putConfiguration(document_id, new_selected_tracker.id).match(
-            () => {
-                currently_selected_tracker.value = new_selected_tracker;
-                is_saving.value = false;
-                is_success.value = true;
-            },
-            (fault) => {
-                is_saving.value = false;
-                is_error.value = true;
-                error_message.value = String(fault);
-            },
-        );
+        putConfiguration(document_id, new_selected_tracker.id)
+            .andThen(() => getAvailableFields(new_selected_tracker.id, selected_fields))
+            .match(
+                (new_available_fields) => {
+                    currently_selected_tracker.value = new_selected_tracker;
+                    available_fields.value = new_available_fields;
+                    currently_selected_fields.value = [];
+                    is_saving.value = false;
+                    is_success.value = true;
+                },
+                (fault) => {
+                    is_saving.value = false;
+                    is_error.value = true;
+                    error_message.value = String(fault);
+                },
+            );
     }
 
     function resetSuccessFlagFromPreviousCalls(): void {
@@ -126,7 +146,8 @@ export function initConfigurationStore(
     return {
         allowed_trackers,
         selected_tracker: currently_selected_tracker,
-        selected_fields: selected_fields,
+        selected_fields: currently_selected_fields,
+        available_fields,
         is_saving,
         is_error,
         is_success,

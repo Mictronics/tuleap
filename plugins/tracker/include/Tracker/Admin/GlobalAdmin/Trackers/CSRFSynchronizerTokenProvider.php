@@ -24,10 +24,11 @@ namespace Tuleap\Tracker\Admin\GlobalAdmin\Trackers;
 
 use CSRFSynchronizerToken;
 use Project;
+use Tuleap\Request\CSRFSynchronizerTokenInterface;
 
 class CSRFSynchronizerTokenProvider
 {
-    public function getCSRF(Project $project): CSRFSynchronizerToken
+    public function getCSRF(Project $project): CSRFSynchronizerTokenInterface
     {
         return new CSRFSynchronizerToken(TrackersDisplayController::getURL($project));
     }

@@ -18,11 +18,14 @@
  */
 
 import codendi from "codendi";
+// eslint-disable-next-line import/no-extraneous-dependencies -- jquery is included in FlamingParrot
 import $ from "jquery";
 import LyteBox from "lytebox";
 import CKEDITOR from "ckeditor4";
 import tuleap from "tuleap";
-import { noFieldIsSwitchedToEdit } from "./artifact-edition-switcher";
+import { submissionBarIsAlreadyActive } from "./artifact-edition-buttons-switcher/submission-bar-status-checker.js";
+import { toggleSubmitArtifactBar } from "./artifact-edition-buttons-switcher/submission-bar-toggler.js";
+import { bindSubmissionBarToFollowups } from "./artifact-edition-buttons-switcher/bind-submission-bar-to-followups.js";
 
 tuleap.tracker = tuleap.tracker || {};
 tuleap.tracker.artifact = tuleap.tracker.artifact || {};
@@ -38,7 +41,12 @@ tuleap.tracker.artifact.editionSwitcher = function () {
         initDoubleArtifactFormSubmitionGuard();
 
         if ($("#artifact_informations").size() > 0) {
-            bindSubmissionBarToFollowups();
+            bindSubmissionBarToFollowups(
+                document,
+                CKEDITOR.instances.tracker_followup_comment_new,
+                document.getElementById("rte_format_selectboxnew"),
+                document.getElementById("tracker_followup_comment_new"),
+            );
             disableWarnBeforeUnloadOnSubmitForm();
             toggleFieldsIfAlreadySubmittedArtifact();
             toggleEmptyMandatoryFields();
@@ -302,7 +310,12 @@ tuleap.tracker.artifact.editionSwitcher = function () {
         $(element).find(".back-to-autocompute").hide();
         $(element).off("click");
         toggleDependencyIfAny(element);
-        toggleSubmissionBar();
+        toggleSubmitArtifactBar(
+            CKEDITOR.instances.tracker_followup_comment_new,
+            document.getElementById("rte_format_selectboxnew"),
+            document.getElementById("tracker_followup_comment_new"),
+            document,
+        );
         toggleHiddenImageViewing();
     };
 
@@ -373,32 +386,6 @@ tuleap.tracker.artifact.editionSwitcher = function () {
         return $(".add-field", element).size() > 0;
     };
 
-    var bindSubmissionBarToFollowups = function () {
-        toggleSubmissionBarForCommentInCkeditor();
-
-        $("#tracker_followup_comment_new").on("input propertychange", toggleSubmissionBar);
-
-        $("#rte_format_selectboxnew").on("change", function () {
-            toggleSubmissionBarForCommentInCkeditor();
-        });
-
-        $("#tracker_artifact_canned_response_sb").on("change", toggleSubmissionBar);
-    };
-
-    var toggleSubmissionBarForCommentInCkeditor = function () {
-        if (CKEDITOR.instances.tracker_followup_comment_new) {
-            CKEDITOR.instances.tracker_followup_comment_new.on("change", toggleSubmissionBar);
-        }
-    };
-
-    var toggleSubmissionBar = function () {
-        if (submissionBarIsAlreadyActive()) {
-            removeSubmissionBarIfNeeded();
-        }
-
-        displaySubmissionBarIfNeeded();
-    };
-
     var toggleHiddenImageViewing = function () {
         $("a[data-rel^=lytebox]").each(function () {
             $(this).attr("rel", $(this).attr("data-rel"));
@@ -407,43 +394,10 @@ tuleap.tracker.artifact.editionSwitcher = function () {
         new LyteBox();
     };
 
-    var displaySubmissionBarIfNeeded = function () {
-        if (somethingIsEdited()) {
-            $(".hidden-artifact-submit-button").slideDown(50);
-        }
-    };
-
-    var removeSubmissionBarIfNeeded = function () {
-        if (somethingIsEdited()) {
-            return;
-        }
-        $(".hidden-artifact-submit-button").slideUp(50);
-    };
-
-    var somethingIsEdited = function () {
-        return !nothingIsEdited();
-    };
-
-    var nothingIsEdited = function () {
-        return followUpIsEmpty() && noFieldIsSwitchedToEdit(document);
-    };
-
-    var followUpIsEmpty = function () {
-        if (CKEDITOR.instances.tracker_followup_comment_new) {
-            return !$.trim(CKEDITOR.instances.tracker_followup_comment_new.getData());
-        }
-
-        return !$.trim($("#tracker_followup_comment_new").val());
-    };
-
-    var submissionBarIsAlreadyActive = function () {
-        return $(".hidden-artifact-submit-button:visible").size() > 0;
-    };
-
     return {
         init: init,
         submissionBarIsAlreadyActive: submissionBarIsAlreadyActive,
-        toggleSubmissionBar: toggleSubmissionBar,
+        toggleSubmitArtifactBar: toggleSubmitArtifactBar,
     };
 };
 

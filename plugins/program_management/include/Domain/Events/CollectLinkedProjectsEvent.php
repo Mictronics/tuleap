@@ -35,4 +35,6 @@ interface CollectLinkedProjectsEvent
     public function addTeams(): void;
 
     public function addPrograms(): void;
+
+    public function projectCanAggregateProjects(): void;
 }

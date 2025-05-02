@@ -28,7 +28,7 @@ use Tuleap\Tracker\Artifact\Renderer\BuildArtifactFormActionEvent;
 /**
  * I'm responsible of rendering artifact to user (creation, update, view...)
  */
-abstract class Tracker_Artifact_ArtifactRenderer
+abstract class Tracker_Artifact_ArtifactRenderer // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
 {
     /**
      * @var Tracker
@@ -105,7 +105,7 @@ abstract class Tracker_Artifact_ArtifactRenderer
      */
     public function fetchSubmitButton(PFUser $current_user)
     {
-        return '<div class="hidden-artifact-submit-button">
+        return '<div class="tracker-artifact-submit-buttons-bar-container">
                     <input type="hidden" id="submit-type" />
                     <div class="tracker-artifact-submit-buttons-bar">
                         <button type="submit" data-test="artifact-submit" class="btn btn-large btn-primary">' . $GLOBALS['Language']->getText('global', 'btn_submit') . '</button>

@@ -31,6 +31,7 @@ use Tuleap\Config\ConfigClassProvider;
 use Tuleap\Config\PluginWithConfigKeys;
 use Tuleap\Cryptography\KeyFactory;
 use Tuleap\Dashboard\User\AtUserCreationDefaultWidgetsCreator;
+use Tuleap\Dashboard\Widget\DashboardWidgetDao;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\DBTransactionExecutorWithConnection;
 use Tuleap\Event\Events\ExportXmlProject;
@@ -109,6 +110,7 @@ use Tuleap\Tracker\Admin\ArtifactLinksUsageUpdater;
 use Tuleap\Tracker\Admin\ArtifactsDeletion\ArtifactsDeletionInTrackerAdminController;
 use Tuleap\Tracker\Admin\ArtifactsDeletion\UserDeletionRetriever;
 use Tuleap\Tracker\Admin\GlobalAdmin\ArtifactLinks\ArtifactLinksController;
+use Tuleap\Tracker\Admin\GlobalAdmin\GlobalAdminPermissionsChecker;
 use Tuleap\Tracker\Admin\GlobalAdmin\Trackers\CSRFSynchronizerTokenProvider;
 use Tuleap\Tracker\Admin\GlobalAdmin\Trackers\MarkTrackerAsDeletedController;
 use Tuleap\Tracker\Admin\GlobalAdmin\Trackers\PromoteTrackersController;
@@ -154,6 +156,7 @@ use Tuleap\Tracker\Artifact\MailGateway\MailGatewayConfigDao;
 use Tuleap\Tracker\Artifact\RecentlyVisited\RecentlyVisitedDao;
 use Tuleap\Tracker\Artifact\Renderer\ArtifactViewCollectionBuilder;
 use Tuleap\Tracker\Artifact\StatusBadgeBuilder;
+use Tuleap\Tracker\Artifact\Workflow\GlobalRules\GlobalRulesHistoryEntry;
 use Tuleap\Tracker\Colorpicker\ColorpickerMountPointPresenterBuilder;
 use Tuleap\Tracker\Config\ConfigController;
 use Tuleap\Tracker\Creation\DefaultTemplatesCollectionBuilder;
@@ -282,6 +285,7 @@ use Tuleap\Tracker\Webhook\Actions\WebhookURLValidator;
 use Tuleap\Tracker\Webhook\WebhookDao;
 use Tuleap\Tracker\Webhook\WebhookFactory;
 use Tuleap\Tracker\Widget\ProjectRendererWidgetXMLImporter;
+use Tuleap\Tracker\Widget\WidgetRendererDao;
 use Tuleap\Tracker\Workflow\FirstPossibleValueInListRetriever;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldDetector;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldsRetriever;
@@ -305,6 +309,7 @@ use Tuleap\User\Preferences\UserPreferencesGetDefaultValue;
 use Tuleap\User\User_ForgeUserGroupPermissionsFactory;
 use Tuleap\Widget\Event\ConfigureAtXMLImport;
 use Tuleap\Widget\Event\GetPublicAreas;
+use Tuleap\Widget\WidgetFactory;
 
 require_once __DIR__ . '/constants.php';
 require_once __DIR__ . '/../vendor/autoload.php';
@@ -683,8 +688,8 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
     }
 
     /**
-     * @see Event::SERVICE_IS_USED
      * @param array{shortname: string, is_used: bool, group_id: int|string} $params
+     * @see Event::SERVICE_IS_USED
      */
     public function serviceIsUsed(array $params): void
     {
@@ -860,10 +865,10 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
                             $ret .= ' (' . $tracker->getName() . ')';
                         }
                     }
-                    $params['object_name'] =  $ret;
+                    $params['object_name'] = $ret;
                 } elseif ($type == 'artifact') {
                     $ret = (string) $object_id;
-                    if ($a  = Tracker_ArtifactFactory::instance()->getArtifactById($object_id)) {
+                    if ($a = Tracker_ArtifactFactory::instance()->getArtifactById($object_id)) {
                         $ret       = 'art #' . $a->getId();
                         $semantics = $a->getTracker()
                             ->getTrackerSemanticManager()
@@ -877,7 +882,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
                             }
                         }
                     }
-                    $params['object_name'] =  $ret;
+                    $params['object_name'] = $ret;
                 }
             }
         }
@@ -885,6 +890,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
 
     //phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
     public $_cached_permission_user_allowed_to_change;
+
     public function permission_user_allowed_to_change($params)//phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
         if (! $params['allowed']) {
@@ -917,7 +923,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
                             }
                             break;
                         case 'artifact':
-                            if ($a  = Tracker_ArtifactFactory::instance()->getArtifactById($object_id)) {
+                            if ($a = Tracker_ArtifactFactory::instance()->getArtifactById($object_id)) {
                                 //TODO: manage permissions related to field "permission on artifact"
                                 $this->_cached_permission_user_allowed_to_change[$type][$object_id] = $a->getTracker()->userIsAdmin();
                             }
@@ -1190,7 +1196,10 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             Tracker_FormElement::PROJECT_HISTORY_UPDATE,
             ArtifactDeletor::PROJECT_HISTORY_ARTIFACT_DELETED,
             MarkTrackerAsDeletedController::PROJECT_HISTORY_TRACKER_DELETION_KEY,
-            HierarchyHistoryEntry::HierarchyUpdate->value
+            HierarchyHistoryEntry::HierarchyUpdate->value,
+            GlobalRulesHistoryEntry::AddGlobalRules->value,
+            GlobalRulesHistoryEntry::UpdateGlobalRules->value,
+            GlobalRulesHistoryEntry::DeleteGlobalRules->value,
         );
     }
 
@@ -1222,6 +1231,14 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
                 $history_entry->getLabel($event->parameters)
             );
         }
+
+        $global_rule_history_entry = GlobalRulesHistoryEntry::tryFrom($event->getKey());
+
+        if ($global_rule_history_entry !== null) {
+            $event->setLabel(
+                $global_rule_history_entry->getLabel($event->parameters)
+            );
+        }
     }
 
     #[\Tuleap\Plugin\ListeningToEventClass]
@@ -1231,6 +1248,12 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         if ($history_entry) {
             $event->setValue(
                 $history_entry->getValue($event->getParameters())
+            );
+        }
+        $global_rule_history_entry = GlobalRulesHistoryEntry::tryFrom($event->getKey());
+        if ($global_rule_history_entry !== null) {
+            $event->setValue(
+                $global_rule_history_entry->getValue($event->getParameters())
             );
         }
     }
@@ -2258,19 +2281,23 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
 
     public function routeMarkTrackerAsDeleted(): MarkTrackerAsDeletedController
     {
+        $event_manager       = EventManager::instance();
+        $permissions_manager = new User_ForgeUserGroupPermissionsManager(new User_ForgeUserGroupPermissionsDao());
         return new MarkTrackerAsDeletedController(
             TrackerFactory::instance(),
-            new \Tuleap\Tracker\Admin\GlobalAdmin\GlobalAdminPermissionsChecker(
-                new User_ForgeUserGroupPermissionsManager(
-                    new User_ForgeUserGroupPermissionsDao()
-                )
-            ),
+            new GlobalAdminPermissionsChecker($permissions_manager),
             new CSRFSynchronizerTokenProvider(),
-            EventManager::instance(),
+            $event_manager,
             ReferenceManager::instance(),
             new FieldDao(),
             new TriggersDao(),
             new ProjectHistoryDao(),
+            new WidgetRendererDao(),
+            new DashboardWidgetDao(new WidgetFactory(
+                UserManager::instance(),
+                $permissions_manager,
+                $event_manager,
+            )),
         );
     }
 
@@ -2278,7 +2305,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
     {
         return new PromoteTrackersController(
             ProjectManager::instance(),
-            new \Tuleap\Tracker\Admin\GlobalAdmin\GlobalAdminPermissionsChecker(
+            new GlobalAdminPermissionsChecker(
                 new User_ForgeUserGroupPermissionsManager(
                     new User_ForgeUserGroupPermissionsDao()
                 )
@@ -2296,7 +2323,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         return new TrackersDisplayController(
             ProjectManager::instance(),
             new TrackerManager(),
-            new \Tuleap\Tracker\Admin\GlobalAdmin\GlobalAdminPermissionsChecker(
+            new GlobalAdminPermissionsChecker(
                 new User_ForgeUserGroupPermissionsManager(
                     new User_ForgeUserGroupPermissionsDao()
                 )
@@ -2321,7 +2348,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         return new ArtifactLinksController(
             ProjectManager::instance(),
             new TrackerManager(),
-            new \Tuleap\Tracker\Admin\GlobalAdmin\GlobalAdminPermissionsChecker(
+            new GlobalAdminPermissionsChecker(
                 new User_ForgeUserGroupPermissionsManager(
                     new User_ForgeUserGroupPermissionsDao()
                 )
@@ -2490,7 +2517,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
     {
         $user = $event->getUser();
         $dao  = new \Tuleap\Tracker\dao\ProjectDao(
-            new \Tuleap\Tracker\Admin\GlobalAdmin\GlobalAdminPermissionsChecker(
+            new GlobalAdminPermissionsChecker(
                 new User_ForgeUserGroupPermissionsManager(new User_ForgeUserGroupPermissionsDao())
             )
         );
@@ -2578,7 +2605,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
     private function getTrackerCreationPermissionChecker(): TrackerCreationPermissionChecker
     {
         return new TrackerCreationPermissionChecker(
-            new \Tuleap\Tracker\Admin\GlobalAdmin\GlobalAdminPermissionsChecker(
+            new GlobalAdminPermissionsChecker(
                 new User_ForgeUserGroupPermissionsManager(
                     new User_ForgeUserGroupPermissionsDao()
                 )
