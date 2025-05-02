@@ -21,9 +21,13 @@
 
 declare(strict_types=1);
 
+use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\Artifact\Changeset\ArtifactLink\ArtifactLinkChangesetValue;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
+use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkFieldValueDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\SubmittedValueEmptyChecker;
+use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ArtifactLinkFieldBuilder;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
@@ -76,7 +80,7 @@ class Tracker_FormElement_Field_ArtifactLinkTest extends \Tuleap\Test\PHPUnit\Te
         $field = Mockery::mock(\Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField::class)->makePartial()->shouldAllowMockingProtectedMethods();
         $field->shouldReceive('getValueDao')->andReturns($value_dao);
 
-        $this->assertInstanceOf(Tracker_Artifact_ChangesetValue_ArtifactLink::class, $field->getChangesetValue($this->changeset, 123, false));
+        $this->assertInstanceOf(ArtifactLinkChangesetValue::class, $field->getChangesetValue($this->changeset, 123, false));
     }
 
     public function testGetChangesetValueDoesntExist(): void
@@ -97,7 +101,7 @@ class Tracker_FormElement_Field_ArtifactLinkTest extends \Tuleap\Test\PHPUnit\Te
     {
         $f       = Mockery::mock(\Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField::class)->makePartial()->shouldAllowMockingProtectedMethods();
         $art_ids = ['123, 132, 999'];
-        $value   = Mockery::mock(Tracker_Artifact_ChangesetValue_ArtifactLink::class);
+        $value   = Mockery::mock(ArtifactLinkChangesetValue::class);
         $value->shouldReceive('getArtifactIds')->andReturns($art_ids);
         $this->assertEquals('123, 132, 999', $f->fetchRawValue($value));
     }
@@ -108,7 +112,7 @@ class Tracker_FormElement_Field_ArtifactLinkTest extends \Tuleap\Test\PHPUnit\Te
         $field->shouldReceive('isRequired')->andReturns(true);
 
         $ids = [123];
-        $cv  = Mockery::mock(Tracker_Artifact_ChangesetValue_ArtifactLink::class);
+        $cv  = Mockery::mock(ArtifactLinkChangesetValue::class);
         $cv->shouldReceive('getArtifactIds')->andReturns($ids);
         $c = Mockery::mock(\Tracker_Artifact_Changeset::class);
         $c->shouldReceive('getValue')->andReturns($cv);
@@ -132,7 +136,7 @@ class Tracker_FormElement_Field_ArtifactLinkTest extends \Tuleap\Test\PHPUnit\Te
         $field->shouldReceive('isRequired')->andReturns(true);
 
         $ids = [];
-        $cv  = Mockery::mock(Tracker_Artifact_ChangesetValue_ArtifactLink::class);
+        $cv  = Mockery::mock(ArtifactLinkChangesetValue::class);
         $cv->shouldReceive('getArtifactIds')->andReturns($ids);
         $c = Mockery::mock(\Tracker_Artifact_Changeset::class);
         $c->shouldReceive('getValue')->andReturns($cv);
@@ -446,13 +450,24 @@ class Tracker_FormElement_Field_ArtifactLinkTest extends \Tuleap\Test\PHPUnit\Te
                     return true;
                 }
             },
-            \Tuleap\Test\Builders\UserTestBuilder::anAnonymousUser()->build()
+            UserTestBuilder::anAnonymousUser()->build()
         );
+    }
+
+    public function testItReturnsARESTValueEventIfThereIsNone(): void
+    {
+        $field     = $this->createPartialMock(ArtifactLinkField::class, ['getValueDao']);
+        $value_dao = $this->createMock(ArtifactLinkFieldValueDao::class);
+        $field->expects($this->once())->method('getValueDao')->willReturn($value_dao);
+        $value_dao->method('searchReverseLinksById')->willReturn(TestHelper::emptyDar());
+        $changeset = ChangesetTestBuilder::aChangeset(98451)->build();
+        $changeset->setFieldValue($field);
+        self::assertNotNull($field->getFullRESTValue(UserTestBuilder::buildWithDefaults(), $changeset));
     }
 
     private function givenAChangesetValueWithArtifactIds(ArtifactLinkField $field, array $ids): Tracker_Artifact_Changeset
     {
-        $changeset_value = Mockery::spy(Tracker_Artifact_ChangesetValue_ArtifactLink::class);
+        $changeset_value = Mockery::spy(ArtifactLinkChangesetValue::class);
         $changeset_value->shouldReceive('getArtifactIds')->andReturns($ids);
         $changeset = Mockery::spy(\Tracker_Artifact_Changeset::class);
         $changeset->shouldReceive('getValue')->with($field)->andReturns($changeset_value);

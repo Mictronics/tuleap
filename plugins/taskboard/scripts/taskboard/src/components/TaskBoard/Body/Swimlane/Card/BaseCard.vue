@@ -22,7 +22,12 @@
     <div ref="root" class="taskboard-card" v-bind:class="additional_classnames">
         <div class="taskboard-card-content">
             <card-xref-label v-bind:card="card" v-bind:label="label" />
-            <card-info v-bind:card="card" v-bind:tracker="tracker" v-model="assignees">
+            <card-info
+                v-bind:card="card"
+                v-bind:tracker="tracker"
+                v-bind:value="assignees"
+                v-on:input="assignees = $event"
+            >
                 <template #initial_effort>
                     <slot name="initial_effort" />
                 </template>
@@ -39,7 +44,13 @@
         >
             <i class="fas fa-pencil-alt" aria-hidden="true"></i>
         </button>
-        <label-editor v-model="label" v-if="card.is_in_edit_mode" v-on:save="save" />
+        <label-editor
+            v-bind:value="label"
+            v-on:input="label = $event"
+            v-if="card.is_in_edit_mode"
+            v-on:save="save"
+            v-bind:readonly="false"
+        />
         <div class="taskboard-card-accessibility" v-if="show_accessibility_pattern"></div>
         <slot name="remaining_effort" />
     </div>

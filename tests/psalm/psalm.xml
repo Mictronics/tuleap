@@ -867,7 +867,6 @@
             <file name="plugins/tracker/tests/unit/FormElement/Field/ArtifactLink/PostSaveNewChangesetTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Field/ArtifactLink/ProcessChildrenTriggersCommandTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Field/ArtifactLink/RequestDataAugmentorTest.php"/>
-            <file name="plugins/tracker/tests/unit/FormElement/Field/ArtifactLink/SubmittedValueConvertorTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Field/ArtifactLink/SubmittedValueEmptyCheckerTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Field/ArtifactLink/Type/NatureValidatorTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Field/ArtifactLink/Type/TypePresenterFactoryTest.php"/>
@@ -934,7 +933,6 @@
             <file name="plugins/tracker/tests/unit/FormElement/TrackerFormElementJsonTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/TrackerFormElementTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/TrackerFormElementUserPermissionsTest.php"/>
-            <file name="plugins/tracker/tests/unit/FormElement/Tracker_Artifact_getArtifactLinks_Test.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Container_ColumnTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Container_Column_GroupTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Container_FieldsetTest.php"/>
@@ -1094,7 +1092,6 @@
             <file name="plugins/tracker/tests/unit/Rules/FirstValidValueAccordingToDependenciesRetrieverTest.php"/>
             <file name="plugins/tracker/tests/unit/Rules/List/ListTest.php"/>
             <file name="plugins/tracker/tests/unit/Rules/List/Tracker_Rule_List_FactoryTest.php"/>
-            <file name="plugins/tracker/tests/unit/Rules/TrackerRulesDateValidatorTest.php"/>
             <file name="plugins/tracker/tests/unit/Rules/TrackerRulesListValidatorTest.php"/>
             <file name="plugins/tracker/tests/unit/Rules/TrackerRulesManager/TrackerRulesManagerForbiddenTest.php"/>
             <file name="plugins/tracker/tests/unit/Rules/TrackerRulesManager/TrackerRulesManagerImportXMLTest.php"/>
@@ -1187,7 +1184,6 @@
             <file name="plugins/tracker/tests/unit/Tracker_ArtifactFactory_GetChildrenTest.php"/>
             <file name="plugins/tracker/tests/unit/Tracker_Artifact_ChangesetJsonFormatterTest.php"/>
             <file name="plugins/tracker/tests/unit/Tracker_Artifact_ChangesetTest.php"/>
-            <file name="plugins/tracker/tests/unit/Tracker_Artifact_ChangesetValue_ArtifactLinkTest.php"/>
             <file name="plugins/tracker/tests/unit/Tracker_Artifact_ChangesetValue_DateTest.php"/>
             <file name="plugins/tracker/tests/unit/Tracker_Artifact_ChangesetValue_IntegerTest.php"/>
             <file name="plugins/tracker/tests/unit/Tracker_Artifact_ChangesetValue_ListTest.php"/>
@@ -1245,7 +1241,6 @@
             <file name="plugins/tracker/tests/unit/Workflow/PostAction/Update/Internal/SetIntValueUpdaterTest.php"/>
             <file name="plugins/tracker/tests/unit/Workflow/PostAction/Update/Internal/SetIntValueValidatorTest.php"/>
             <file name="plugins/tracker/tests/unit/Workflow/PostAction/Update/PostActionCollectionUpdaterTest.php"/>
-            <file name="plugins/tracker/tests/unit/Workflow/PostAction/Update/TransitionFactory.php"/>
             <file name="plugins/tracker/tests/unit/Workflow/SimpleMode/SimpleWorkflowXMLExporterTest.php"/>
             <file name="plugins/tracker/tests/unit/Workflow/SimpleMode/State/TransitionCreatorTest.php"/>
             <file name="plugins/tracker/tests/unit/Workflow/SimpleMode/State/TransitionExtractorTest.php"/>

@@ -35,8 +35,12 @@ use SimpleXMLElement;
 use Tuleap\DB\ReconnectAfterALongRunningProcess;
 use Tuleap\Project\Admin\Categories\ProjectCategoriesUpdater;
 use Tuleap\Project\Admin\Service\ProjectServiceActivator;
+use Tuleap\Project\Banner\BannerCreator;
+use Tuleap\Project\Banner\BannerRetriever;
 use Tuleap\Project\Email\EmailCopier;
 use Tuleap\Project\Registration\ProjectRegistrationChecker;
+use Tuleap\Project\Service\ServiceDao;
+use Tuleap\Project\Service\ServiceLinkDataBuilder;
 use Tuleap\Project\UGroups\Membership\DynamicUGroups\ProjectMemberAdder;
 use Tuleap\Project\UGroups\SynchronizedProjectMembershipDao;
 use Tuleap\Project\XML\Import;
@@ -100,6 +104,8 @@ final class ProjectXMLImporterTest extends \Tuleap\Test\PHPUnit\TestCase
             $this->createMock(ProjectCategoriesUpdater::class),
             $this->createStub(EmailCopier::class),
             StoreProjectInformationStub::build(),
+            $this->createMock(BannerRetriever::class),
+            $this->createMock(BannerCreator::class),
             false
         );
 
@@ -124,6 +130,9 @@ final class ProjectXMLImporterTest extends \Tuleap\Test\PHPUnit\TestCase
             new XMLFileContentRetriever(),
             $this->createMock(DescriptionFieldsFactory::class),
             $this->createMock(ReconnectAfterALongRunningProcess::class),
+            $this->createMock(ServiceDao::class),
+            $this->createMock(ServiceLinkDataBuilder::class),
+            $this->createMock(BannerCreator::class),
         );
 
         $this->configuration = new Import\ImportConfig();
@@ -236,11 +245,11 @@ final class ProjectXMLImporterTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->ugroup_manager->method('getDynamicUGoupIdByName');
         $this->ugroup_manager->method('getDynamicUGoupByName');
 
-        $ug01->expects(self::exactly(3))->method('addUser');
+        $ug01->expects($this->exactly(3))->method('addUser');
         $ug01->method('getId')->willReturn(555);
         $ug02->expects($this->once())->method('addUser');
         $ug02->method('getId')->willReturn(556);
-        $ug03->expects(self::never())->method('addUser');
+        $ug03->expects($this->never())->method('addUser');
         $ug03->method('getId')->willReturn(557);
 
         $this->event_manager->method('processEvent');
@@ -301,11 +310,11 @@ final class ProjectXMLImporterTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->ugroup_manager->method('getDynamicUGoupIdByName');
         $this->ugroup_manager->method('getDynamicUGoupByName');
 
-        $ug01->expects(self::exactly(3))->method('addUser');
+        $ug01->expects($this->exactly(3))->method('addUser');
         $ug01->method('getId')->willReturn(555);
-        $ug02->expects(self::never())->method('addUser');
+        $ug02->expects($this->never())->method('addUser');
         $ug02->method('getId')->willReturn(556);
-        $ug03->expects(self::never())->method('addUser');
+        $ug03->expects($this->never())->method('addUser');
         $ug03->method('getId')->willReturn(557);
 
         $this->event_manager->method('processEvent');

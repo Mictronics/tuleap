@@ -37,19 +37,21 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref } from "vue";
 import { strictInject } from "@tuleap/vue-strict-inject";
+import { EMITTER, IS_USER_ADMIN, WIDGET_TITLE_UPDATER } from "./injection-symbols";
+import type {
+    CreatedQueryEvent,
+    EditedQueryEvent,
+    EditQueryEvent,
+    InitializedWithQueryEvent,
+    SwitchQueryEvent,
+} from "./helpers/widget-events";
 import {
-    DEFAULT_WIDGET_TITLE,
-    EMITTER,
-    IS_USER_ADMIN,
-    UPDATE_WIDGET_TITLE,
-} from "./injection-symbols";
-import type { EditQueryEvent, SwitchQueryEvent } from "./helpers/widget-events";
-import {
+    NEW_QUERY_CREATED_EVENT,
+    QUERY_EDITED_EVENT,
+    INITIALIZED_WITH_QUERY_EVENT,
     SWITCH_QUERY_EVENT,
-    CLEAR_FEEDBACK_EVENT,
     CREATE_NEW_QUERY_EVENT,
     EDIT_QUERY_EVENT,
-    UPDATE_WIDGET_TITLE_EVENT,
 } from "./helpers/widget-events";
 import CreateNewQuery from "./components/query/creation/CreateNewQuery.vue";
 import {
@@ -64,8 +66,7 @@ import type { Query } from "./type";
 
 const is_user_admin = strictInject(IS_USER_ADMIN);
 const emitter = strictInject(EMITTER);
-const widget_title_updater = strictInject(UPDATE_WIDGET_TITLE);
-const default_widget_title = strictInject(DEFAULT_WIDGET_TITLE);
+const widget_title_updater = strictInject(WIDGET_TITLE_UPDATER);
 
 const widget_pane = ref(QUERY_ACTIVE_PANE);
 const selected_query = ref<Query>();
@@ -84,32 +85,36 @@ function displayActiveQuery(): void {
 onMounted(() => {
     emitter.on(CREATE_NEW_QUERY_EVENT, handleCreateNewQuery);
     emitter.on(EDIT_QUERY_EVENT, handleEditQuery);
-    emitter.on(SWITCH_QUERY_EVENT, handleSwitchQuery);
+    emitter.on(SWITCH_QUERY_EVENT, setCurrentlySelectedQuery);
+    emitter.on(INITIALIZED_WITH_QUERY_EVENT, setCurrentlySelectedQuery);
+    emitter.on(NEW_QUERY_CREATED_EVENT, setCurrentlySelectedQuery);
+    emitter.on(QUERY_EDITED_EVENT, setCurrentlySelectedQuery);
     widget_title_updater.listenToUpdateTitle();
 });
 
 onBeforeUnmount(() => {
     emitter.off(CREATE_NEW_QUERY_EVENT, handleCreateNewQuery);
     emitter.off(EDIT_QUERY_EVENT, handleEditQuery);
-    emitter.off(SWITCH_QUERY_EVENT, handleSwitchQuery);
+    emitter.off(SWITCH_QUERY_EVENT, setCurrentlySelectedQuery);
+    emitter.off(INITIALIZED_WITH_QUERY_EVENT, setCurrentlySelectedQuery);
+    emitter.off(NEW_QUERY_CREATED_EVENT, setCurrentlySelectedQuery);
+    emitter.off(QUERY_EDITED_EVENT, setCurrentlySelectedQuery);
     emitter.all.clear();
     widget_title_updater.removeListener();
 });
 
-function handleSwitchQuery(event: SwitchQueryEvent): void {
+function setCurrentlySelectedQuery(
+    event: SwitchQueryEvent | InitializedWithQueryEvent | CreatedQueryEvent | EditedQueryEvent,
+): void {
     selected_query.value = event.query;
 }
 
 function handleCreateNewQuery(): void {
-    emitter.emit(CLEAR_FEEDBACK_EVENT);
-    emitter.emit(UPDATE_WIDGET_TITLE_EVENT, { new_title: default_widget_title });
     widget_pane.value = QUERY_CREATION_PANE;
 }
 
 function handleEditQuery(query_to_edit_event: EditQueryEvent): void {
-    query_to_edit.value = query_to_edit_event.query_to_edit;
+    query_to_edit.value = query_to_edit_event.query;
     widget_pane.value = QUERY_EDITION_PANE;
-    emitter.emit(CLEAR_FEEDBACK_EVENT);
-    emitter.emit(UPDATE_WIDGET_TITLE_EVENT, { new_title: query_to_edit_event.query_to_edit.title });
 }
 </script>
