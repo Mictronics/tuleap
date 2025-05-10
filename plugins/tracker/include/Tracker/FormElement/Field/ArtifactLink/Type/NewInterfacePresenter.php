@@ -1,5 +1,6 @@
-/*
- * Copyright (c) Enalean, 2025-Present. All Rights Reserved.
+<?php
+/**
+ * Copyright (c) Enalean, 2025 - Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -17,15 +18,14 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-export interface EditionSwitcher {
-    init(): void;
-    submissionBarIsAlreadyActive(doc: Document): boolean;
-    toggleSubmitArtifactBar(
-        follow_up_comment_editor_instance: CKEDITOR.editor | null,
-        editor_format_selectbox: HTMLSelectElement | null,
-        follow_up_new_comment: HTMLElement | null,
-        doc: Document,
-    ): void;
-}
+namespace Tuleap\Tracker\FormElement\Field\ArtifactLink\Type;
 
-export function initEditionSwitcher(): EditionSwitcher;
+final readonly class NewInterfacePresenter
+{
+    public bool $has_trackers_without_new_interface;
+
+    public function __construct(public int $nb_trackers)
+    {
+        $this->has_trackers_without_new_interface = $this->nb_trackers > 0;
+    }
+}

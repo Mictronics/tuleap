@@ -26,9 +26,6 @@ class SectionsPresenter
     public string $artifact_deletion_active = '';
     public string $email_gateway_active     = '';
     public string $report_active            = '';
-    public string $emailgateway;
-    public string $types;
-    public string $report_config_panel;
     public string $emailgateway_url;
     public string $types_url;
     public string $report_config_url;
@@ -36,15 +33,11 @@ class SectionsPresenter
 
     public function __construct()
     {
-        $this->emailgateway        = dgettext('tuleap-tracker', 'Email Gateway');
-        $this->types               = dgettext('tuleap-tracker', 'Artifact Links Types');
-        $this->report_config_panel = dgettext('tuleap-tracker', 'Report');
-
         $this->emailgateway_url  = TRACKER_BASE_URL . '/config.php?' . http_build_query([
             'action'   => 'emailgateway',
         ]);
         $this->types_url         = TRACKER_BASE_URL . '/config.php?' . http_build_query([
-            'action'   => 'types',
+            'action'   => 'artifact-links',
         ]);
         $this->report_config_url = TRACKER_BASE_URL . '/config.php?' . http_build_query([
             'action' => 'report-config',

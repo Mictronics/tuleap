@@ -1,5 +1,6 @@
-/*
- * Copyright (c) Enalean, 2025-Present. All Rights Reserved.
+<?php
+/**
+ * Copyright (c) Enalean, 2025 - Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -17,15 +18,22 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-export interface EditionSwitcher {
-    init(): void;
-    submissionBarIsAlreadyActive(doc: Document): boolean;
-    toggleSubmitArtifactBar(
-        follow_up_comment_editor_instance: CKEDITOR.editor | null,
-        editor_format_selectbox: HTMLSelectElement | null,
-        follow_up_new_comment: HTMLElement | null,
-        doc: Document,
-    ): void;
-}
+declare(strict_types=1);
 
-export function initEditionSwitcher(): EditionSwitcher;
+namespace Tuleap\Tracker\FormElement\Field\ArtifactLink\Type;
+
+use Tuleap\CSRFSynchronizerTokenPresenter;
+use Tuleap\Tracker\Config\ArtifactLinkTypePresenter;
+
+final readonly class ArtifactLinkPresenter
+{
+    public ArtifactLinkTypePresenter $sections;
+
+    public function __construct(
+        public TypeConfigPresenter $types,
+        public NewInterfacePresenter $new_interface,
+        public CSRFSynchronizerTokenPresenter $csrf_token,
+    ) {
+        $this->sections = new ArtifactLinkTypePresenter();
+    }
+}

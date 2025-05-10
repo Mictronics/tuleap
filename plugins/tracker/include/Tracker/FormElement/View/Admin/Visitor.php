@@ -78,7 +78,11 @@ class Tracker_FormElement_View_Admin_Visitor implements Tracker_FormElement_Visi
     public function visitArtifactLink(ArtifactLinkField $field)
     {
         $this->element      = $field;
-        $this->adminElement = new ArtifactLinkFieldAdmin($field, $this->allUsedElements);
+        $this->adminElement = new ArtifactLinkFieldAdmin(
+            TemplateRendererFactory::build()->getRenderer(__DIR__ . '/../../../../FormElement/Field/ArtifactLink/templates'),
+            $field,
+            $this->allUsedElements,
+        );
     }
 
     public function visitDate(Tracker_FormElement_Field_Date $field)

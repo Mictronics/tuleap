@@ -22,14 +22,26 @@ declare(strict_types=1);
 
 namespace Tuleap\Tracker\FormElement\Field\ArtifactLink;
 
+use TemplateRenderer;
+use Tracker_FormElement;
 use Tracker_FormElement_View_Admin_Field;
 
 final class ArtifactLinkFieldAdmin extends Tracker_FormElement_View_Admin_Field
 {
+    public function __construct(
+        private readonly TemplateRenderer $renderer,
+        Tracker_FormElement $formElement,
+        array $allUsedElements,
+    ) {
+        parent::__construct($formElement, $allUsedElements);
+    }
+
     protected function fetchAdminSpecificProperty(string $key, array $property): string
     {
         if ($key === 'can_edit_reverse_links') {
-            return '';
+            return $this->renderer->renderToString('can_edit_reverse_links_admin_property', [
+                'is_checked' => $this->formElement->getProperty('can_edit_reverse_links') === 1,
+            ]);
         }
 
         return parent::fetchAdminSpecificProperty($key, $property);

@@ -1,4 +1,5 @@
-/*
+<?php
+/**
  * Copyright (c) Enalean, 2025-Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
@@ -17,15 +18,15 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-export interface EditionSwitcher {
-    init(): void;
-    submissionBarIsAlreadyActive(doc: Document): boolean;
-    toggleSubmitArtifactBar(
-        follow_up_comment_editor_instance: CKEDITOR.editor | null,
-        editor_format_selectbox: HTMLSelectElement | null,
-        follow_up_new_comment: HTMLElement | null,
-        doc: Document,
-    ): void;
-}
+declare(strict_types=1);
 
-export function initEditionSwitcher(): EditionSwitcher;
+namespace Tuleap\Tracker\Artifact\ChangesetValue;
+
+use PFUser;
+use Tracker;
+use Tuleap\Tracker\Artifact\Artifact;
+
+interface BuildChangesetValuesContainer
+{
+    public function buildChangesetValuesContainer(array $fields_data, Tracker $tracker, Artifact $artifact, PFUser $user): ChangesetValuesContainer;
+}

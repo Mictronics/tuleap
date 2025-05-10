@@ -36,7 +36,7 @@ In addition, you can add on this dashboard the **Portfolio Canvas**. It defines 
               <value name="is-default">1</value>
               <value name="title"><![CDATA[All open artifacts]]></value>
               <value name="description"><![CDATA[]]></value>
-              <value name="tql"><![CDATA[SELECT @pretty_title, @tracker.name, @status, @last_update_date, @submitted_by
+              <value name="tql"><![CDATA[SELECT @pretty_title, @status, @last_update_date, @submitted_by
   FROM @project = 'self'
   WHERE @status = OPEN()
   ORDER BY @last_update_date DESC]]></value>
@@ -45,7 +45,7 @@ In addition, you can add on this dashboard the **Portfolio Canvas**. It defines 
               <value name="is-default">0</value>
               <value name="title"><![CDATA[Open artifacts assigned to me]]></value>
               <value name="description"><![CDATA[]]></value>
-              <value name="tql"><![CDATA[SELECT @pretty_title, @tracker.name, @status, @last_update_date, @submitted_by
+              <value name="tql"><![CDATA[SELECT @pretty_title, @status, @last_update_date, @submitted_by
 FROM @project = 'self'
 WHERE @status = OPEN() AND @assigned_to = MYSELF()
 ORDER BY @last_update_date DESC]]></value>
@@ -171,6 +171,7 @@ ORDER BY @last_update_date DESC]]></value>
             <formElement type="art_link" ID="F23917" rank="2" id="23917" tracker_id="1089" parent_id="23910">
               <name><![CDATA[linked-features]]></name>
               <label><![CDATA[Linked Features]]></label>
+              <properties can_edit_reverse_links="1"/>
             </formElement>
           </formElements>
         </formElement>
