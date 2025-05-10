@@ -22,7 +22,9 @@ namespace Tuleap\Tracker\Action;
 
 use Codendi_HTMLPurifier;
 use Codendi_Request;
+use DateTimeImmutable;
 use EventManager;
+use Feedback;
 use PFUser;
 use Tracker;
 use Tracker_Artifact_ReadOnlyRenderer;
@@ -33,14 +35,17 @@ use Tracker_FormElement_Field_Computed;
 use Tracker_FormElementFactory;
 use Tracker_IDisplayTrackerLayout;
 use Tracker_NoChangeException;
+use Tuleap\Layout\BaseLayout;
+use Tuleap\NeverThrow\Fault;
 use Tuleap\Tracker\Artifact\Artifact;
-use Tuleap\Tracker\Artifact\Changeset\CreateNewChangeset;
-use Tuleap\Tracker\Artifact\Changeset\NewChangeset;
-use Tuleap\Tracker\Artifact\Changeset\PostCreation\PostCreationContext;
+use Tuleap\Tracker\Artifact\Changeset\Comment\NewComment;
+use Tuleap\Tracker\Artifact\ChangesetValue\BuildChangesetValuesContainer;
+use Tuleap\Tracker\Artifact\Link\ArtifactReverseLinksUpdater;
 use Tuleap\Tracker\Artifact\RecentlyVisited\VisitRecorder;
 use Tuleap\Tracker\Artifact\Renderer\ArtifactViewCollectionBuilder;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeIsChildLinkRetriever;
-use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
+use Tuleap\Tracker\Permission\ArtifactPermissionType;
+use Tuleap\Tracker\Permission\RetrieveUserPermissionOnArtifacts;
 use Tuleap\Tracker\Workflow\PostAction\HiddenFieldsets\HiddenFieldsetsDetector;
 
 final readonly class UpdateArtifactAction
@@ -52,14 +57,25 @@ final readonly class UpdateArtifactAction
         private TypeIsChildLinkRetriever $artifact_retriever,
         private VisitRecorder $visit_recorder,
         private HiddenFieldsetsDetector $hidden_fieldsets_detector,
-        private CreateNewChangeset $new_changeset_creator,
+        private ArtifactReverseLinksUpdater $artifact_updater,
+        private RetrieveUserPermissionOnArtifacts $user_permission_on_artifacts,
+        private BuildChangesetValuesContainer $changeset_values_container_builder,
     ) {
     }
 
     public function process(Tracker_IDisplayTrackerLayout $layout, Codendi_Request $request, PFUser $current_user): void
     {
-        // TODO: check permissions on this action?
-        $comment_format = $this->artifact->validateCommentFormat($request, 'comment_formatnew');
+        $base_layout = $GLOBALS['Response'];
+        assert($base_layout instanceof BaseLayout);
+
+        if (
+            $this->user_permission_on_artifacts
+                ->retrieveUserPermissionOnArtifacts($current_user, [$this->artifact], ArtifactPermissionType::PERMISSION_UPDATE)
+                ->allowed === []
+        ) {
+            $base_layout->addFeedback(Feedback::ERROR, dgettext('tuleap-tracker', 'You are not allowed to update this artifact'));
+            $base_layout->redirect($this->artifact->getUri());
+        }
 
         $fields_data = $request->get('artifact');
         if ($fields_data === false) {
@@ -75,38 +91,55 @@ final readonly class UpdateArtifactAction
                 $email         = ($request_email !== false) ? $request_email : null;
                 $current_user->setEmail($email);
             }
-            $this->new_changeset_creator->create(NewChangeset::fromFieldsDataArray(
+
+            $comment_body    = $request->get('artifact_followup_comment') !== false
+                ? (string) $request->get('artifact_followup_comment')
+                : '';
+            $comment_format  = $this->artifact->validateCommentFormat($request, 'comment_formatnew');
+            $submission_date = new DateTimeImmutable();
+            $redirect        = $this->getRedirectUrlAfterArtifactUpdate($request);
+            $this->artifact_updater->updateArtifactAndItsLinks(
                 $this->artifact,
-                $fields_data,
-                (string) $request->get('artifact_followup_comment'),
-                $comment_format,
-                [],
+                $this->changeset_values_container_builder->buildChangesetValuesContainer(
+                    $fields_data,
+                    $this->artifact->getTracker(),
+                    $this->artifact,
+                    $current_user,
+                ),
                 $current_user,
-                (int) $_SERVER['REQUEST_TIME'],
-                new CreatedFileURLMapping(),
-            ), PostCreationContext::withNoConfig(true));
+                $submission_date,
+                NewComment::fromParts(
+                    $comment_body,
+                    $comment_format,
+                    $current_user,
+                    $submission_date->getTimestamp(),
+                    [],
+                ),
+            )->mapErr(function (Fault $fault) use ($base_layout, $redirect): void {
+                $base_layout->addFeedback(Feedback::ERROR, (string) $fault);
+                $base_layout->redirect($redirect->toUrl());
+            });
 
             $art_link = $this->artifact->fetchDirectLinkToArtifact();
-            $GLOBALS['Response']->addFeedback('info', sprintf(dgettext('tuleap-tracker', 'Successfully Updated (%1$s)'), $art_link), CODENDI_PURIFIER_LIGHT);
+            $base_layout->addFeedback(Feedback::INFO, sprintf(dgettext('tuleap-tracker', 'Successfully Updated (%1$s)'), $art_link), CODENDI_PURIFIER_LIGHT);
 
-            $redirect = $this->getRedirectUrlAfterArtifactUpdate($request);
             $this->artifact->summonArtifactRedirectors($request, $redirect);
 
             if ($request->isAjax()) {
                 $this->sendAjaxCardsUpdateInfo($current_user);
             } elseif ($request->existAndNonEmpty('from_overlay')) {
                 $purifier  = Codendi_HTMLPurifier::instance();
-                $csp_nonce = $GLOBALS['Response']->getCSPNonce();
+                $csp_nonce = $base_layout->getCSPNonce();
                 echo sprintf('<script type="text/javascript" nonce="%s">window.parent.tuleap.cardwall.cardsEditInPlace.validateEdition(%d);</script>', $purifier->purify($csp_nonce), $this->artifact->getId());
                 return;
             } else {
-                $GLOBALS['Response']->redirect($redirect->toUrl());
+                $base_layout->redirect($redirect->toUrl());
             }
         } catch (Tracker_NoChangeException $e) {
             if ($request->isAjax()) {
                 $this->sendAjaxCardsUpdateInfo($current_user);
             } else {
-                $GLOBALS['Response']->addFeedback('info', $e->getMessage(), CODENDI_PURIFIER_LIGHT);
+                $base_layout->addFeedback(Feedback::INFO, $e->getMessage(), CODENDI_PURIFIER_LIGHT);
                 $render = new Tracker_Artifact_ReadOnlyRenderer(
                     $this->event_manager,
                     $this->artifact,
@@ -122,7 +155,7 @@ final readonly class UpdateArtifactAction
             if ($request->isAjax()) {
                 $this->sendAjaxCardsUpdateInfo($current_user);
             } else {
-                $GLOBALS['Response']->addFeedback('error', $e->getMessage());
+                $base_layout->addFeedback(Feedback::ERROR, $e->getMessage());
                 $render = new Tracker_Artifact_ReadOnlyRenderer(
                     $this->event_manager,
                     $this->artifact,

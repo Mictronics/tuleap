@@ -120,7 +120,6 @@ $loader_scheduler = new LoaderScheduler($cookie_manager, $plugin_loader, new \Tu
 $loader_scheduler->loadPluginsThenStartSession(IS_SCRIPT, $_SERVER);
 
 if (! IS_SCRIPT) {
-    header('X-UA-Compatible: IE=Edge');
     header('Referrer-Policy: no-referrer-when-downgrade, strict-origin, same-origin');
 
     // Protection against clickjacking
@@ -129,7 +128,6 @@ if (! IS_SCRIPT) {
 
     // XSS prevention
     header('X-Content-Type-Options: nosniff');
-    header('X-XSS-Protection: 1; mode=block');
     $whitelist_scripts = [];
     $event_manager->processEvent(
         Event::CONTENT_SECURITY_POLICY_SCRIPT_WHITELIST,

@@ -279,6 +279,17 @@ msgstr ""
 msgid "Activate artifact links types for all the trackers of this project?"
 msgstr ""
 
+msgid "Activate new interface for %s tracker"
+msgid_plural "Activate new interface for %s trackers"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid "Activate new interface for all trackers"
+msgstr ""
+
+msgid "Activate unified and simplified artifact links edition"
+msgstr ""
+
 msgid "Add a follow-up comment"
 msgstr ""
 
@@ -522,6 +533,11 @@ msgid "Artifact links"
 msgstr ""
 
 msgid "Artifact links count based"
+msgstr ""
+
+msgid ""
+"Artifact links edition in artifact view has been revamped and is activated "
+"by default for new trackers."
 msgstr ""
 
 msgid "Artifact links types"
@@ -981,6 +997,17 @@ msgstr ""
 
 msgid "Current artifact children satisfy the following condition:"
 msgid_plural "Current artifact children satisfy the following conditions:"
+msgstr[0] ""
+msgstr[1] ""
+
+msgid ""
+"Currently the new interface is activated for every tracker on the platform."
+msgstr ""
+
+msgid ""
+"Currently there is %s tracker that doesn't have the new interface activated."
+msgid_plural ""
+"Currently there are %s trackers that don't have the new interface activated."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -1652,6 +1679,9 @@ msgstr ""
 msgid "Is promoted"
 msgstr ""
 
+msgid "It can be disabled per tracker."
+msgstr ""
+
 msgid "It encountered the following error:"
 msgstr ""
 
@@ -1917,6 +1947,9 @@ msgstr ""
 
 #, php-format
 msgid "New %s"
+msgstr ""
+
+msgid "New artifact links interface"
 msgstr ""
 
 msgid "New tracker"
@@ -3233,6 +3266,9 @@ msgid ""
 "operator."
 msgstr ""
 
+msgid "The new interface allows edition of the forward and reverse links"
+msgstr ""
+
 msgid "The notification could not be deleted."
 msgstr ""
 
@@ -4167,6 +4203,9 @@ msgstr ""
 
 #, php-format
 msgid "You are not allowed to update the field %1$s."
+msgstr ""
+
+msgid "You are not allowed to update this artifact"
 msgstr ""
 
 msgid "You are not logged in."
