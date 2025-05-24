@@ -364,10 +364,6 @@ kanban-column {
     height: 100%;
     overflow: hidden;
     scrollbar-gutter: initial;
-
-    > .kanban-items {
-        height: 100%;
-    }
 }
 
 @keyframes blink-column {
@@ -389,8 +385,9 @@ kanban-column {
 }
 
 .kanban-items {
+    flex-grow: 1; // To allow drag-and-drop in empty columns
     margin: 0;
-    padding: 0;
+    padding: 0 0 calc(add-in-place.$button-size + add-in-place.$from-bottom + 2px);
 }
 
 .kanban-column-label {
