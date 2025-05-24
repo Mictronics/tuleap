@@ -34,7 +34,7 @@ class StepDefinitionChangesetValueDao extends DataAccessObject
     public function searchById(int $changeset_value_id): array
     {
         $sql = <<<SQL
-            SELECT id, description, description_format, expected_results, expected_results_format, `rank`
+            SELECT id, description, description_format, expected_results, expected_results_format, `rank`, step_type
             FROM plugin_testmanagement_changeset_value_stepdef
             WHERE changeset_value_id = ?
             ORDER BY `rank` ASC
