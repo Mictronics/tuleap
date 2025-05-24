@@ -216,14 +216,6 @@ class StepDefinition extends Tracker_FormElement_Field implements TrackerFormEle
         return $this->renderStepEditionToString(null, $steps);
     }
 
-    public function getValueFromSubmitOrDefault(array $submitted_values): mixed
-    {
-        if (isset($submitted_values[$this->getId()])) {
-            return $submitted_values[$this->getId()];
-        }
-        return ['description' => [], 'expected_results' => []];
-    }
-
     protected function fetchSubmitValueMasschange(): string
     {
         return '';
@@ -246,10 +238,7 @@ class StepDefinition extends Tracker_FormElement_Field implements TrackerFormEle
         return false;
     }
 
-    /**
-     * @return StepDefinitionChangesetValueDao
-     */
-    protected function getValueDao()
+    protected function getValueDao(): StepDefinitionChangesetValueDao
     {
         return new StepDefinitionChangesetValueDao();
     }
@@ -485,22 +474,9 @@ class StepDefinition extends Tracker_FormElement_Field implements TrackerFormEle
         );
     }
 
-    public function getChangesetValue($changeset, $value_id, $has_changed)
+    public function getChangesetValue($changeset, $value_id, $has_changed): StepDefinitionChangesetValue
     {
-        $steps = [];
-        $rank  = self::START_RANK;
-        foreach ($this->getValueDao()->searchById($value_id) as $row) {
-            $steps[] = new Step(
-                $row['id'],
-                $row['description'],
-                $row['description_format'],
-                $row['expected_results'],
-                $row['expected_results_format'],
-                $rank,
-                $row['step_type'],
-            );
-            $rank++;
-        }
+        $steps = $this->getValueDao()->searchById($value_id);
 
         return new StepDefinitionChangesetValue($value_id, $changeset, $this, $has_changed, $steps);
     }

@@ -26,7 +26,7 @@ try {
 	document.execCommand("BackgroundImageCache", false, true);
 } catch(e) {}
 
-var lightwindow = Class.create();	
+var lightwindow = Class.create();
 lightwindow.prototype = {
 	//
 	//	Setup Variables
@@ -99,7 +99,7 @@ lightwindow.prototype = {
 				external : {height : 250, width : 250},
 				titleHeight : 25
 			},
-			classNames : {	
+			classNames : {
 				standard : 'lightwindow',
 				action : 'lightwindow_action'
 			},
@@ -145,8 +145,8 @@ lightwindow.prototype = {
 				viv : 'video/vivo',
 				vivo : 'video/vivo',
 				wav : 'audio/wav',
-				wmv : 'application/x-mplayer2'			
-			},	
+				wmv : 'application/x-mplayer2'
+			},
 			classids : {
 				mov : 'clsid:02BF25D5-8C17-4B23-BC80-D3488ABDDC6B',
 				swf : 'clsid:D27CDB6E-AE6D-11cf-96B8-444553540000',
@@ -156,7 +156,7 @@ lightwindow.prototype = {
 				mov : 'http://www.apple.com/qtactivex/qtplugin.cab#version=6,0,2,0',
 				swf : 'http://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=7,0,0,0',
 				wmv : 'http://activex.microsoft.com/activex/controls/mplayer/en/nsmp2inf.cab#Version=6,4,5,715'
-			},	
+			},
 			viewportPadding : 10,
 			EOLASFix : 'swf,wmv,fla,flv',
 			overlay : {
@@ -183,7 +183,7 @@ lightwindow.prototype = {
 										'<span id="lightwindow_next_title"></span>'+
 									'</a>'+
 									'<iframe name="lightwindow_navigation_shim" id="lightwindow_navigation_shim" src="javascript:false;" frameBorder="0" scrolling="no"></iframe>'+
-								'</div>'+								
+								'</div>'+
 								'<div id="lightwindow_galleries">'+
 									'<div id="lightwindow_galleries_tab_container" >'+
 										'<a href="#" id="lightwindow_galleries_tab" >'+
@@ -210,7 +210,7 @@ lightwindow.prototype = {
 									'</div>'+
 								'</div>'+
 							'</div>'+
-						'</div>',	
+						'</div>',
 				loading : 	'<div id="lightwindow_loading" >'+
 								'<img src="/themes/common/images/lightwindow/ajax-loading.gif" alt="loading" />'+
 								'<span>Loading or <a href="javascript: myLightWindow.deactivate();">Cancel</a></span>'+
@@ -252,22 +252,22 @@ lightwindow.prototype = {
 		this._getPageDimensions();
 		this._browserDimensions();
 		this._addLightWindowMarkup(false);
-		this._setupDimensions(); 
+		this._setupDimensions();
 		this.buildGalleryList();
 	},
 	//
 	//	Activate the lightwindow.
 	//
-	activate : function(e, link){		
+	activate : function(e, link){
 		// Clear out the window Contents
 		this._clearWindowContents(true);
-			
+
 		// Add back in out loading panel
 		this._addLoadingWindowMarkup();
 
 		// Setup the element properties
 		this._setupWindowElements(link);
-		
+
 		// Setup everything
 		this._getScroll();
 		this._browserDimensions();
@@ -285,28 +285,28 @@ lightwindow.prototype = {
 	deactivate : function(){
 		// The window is not active
 		this.windowActive = false;
-		
+
 		// There is no longer a gallery active
 		this.activeGallery = false;
 		if (!this.options.hideGalleryTab) {
 			this._handleGalleryAnimation(false);
 		}
-		
+
 		// Kill the animation
 		this.animating = false;
-		
+
 		// Clear our element
 		this.element = null;
-		
+
 		// hide the window.
 		this._displayLightWindow('none', 'visible');
-		
+
 		// Clear out the window Contents
 		this._clearWindowContents(false);
-		
+
 		// Stop all animation
 		var queue = Effect.Queues.get('lightwindowAnimation').each(function(e){e.cancel();});
-		
+
 		// Undo the setup
 		this._prepareIE(false);
 		this._setupDimensions();
@@ -339,17 +339,17 @@ lightwindow.prototype = {
 			iframeEmbed : null,
 			form : null
 		}, options || {});
-		
+
 		// Set the window type
 		this.contentToFetch = this.element.href;
 		this.windowType = this.element.type ? this.element.type : this._fileType(this.element.href);	
-		
+
 		// Clear out the window Contents
 		this._clearWindowContents(true);
-			
+
 		// Add back in out loading panel
 		this._addLoadingWindowMarkup();
-		
+
 		// Setup everything
 		this._getScroll();
 		this._browserDimensions();
@@ -379,13 +379,13 @@ lightwindow.prototype = {
 
 		// The window is active
 		this.windowActive = true;
-		
+
 		// Clear out the window Contents
 		this._clearWindowContents(true);
-		
+
 		// Add back in out loading panel
 		this._addLoadingWindowMarkup();
-		
+
 		// Setup the element properties
 		this._setupWindowElements(element);
 
@@ -409,10 +409,10 @@ lightwindow.prototype = {
 	buildGalleryList : function() {
 		var output = '';
 		var galleryLink;
-		for (i in this.galleries) {
+		for (let i in this.galleries) {
 			if (typeof this.galleries[i] == 'object') {
 				output += (this.options.skin.gallery.top).replace('{gallery_title_replace}', unescape(i));
-				for (j in this.galleries[i]) {
+				for (let j in this.galleries[i]) {
 					if (typeof this.galleries[i][j] == 'object') {						
 						galleryLink = '<a href="#" id="lightwindow_gallery_'+i+'_'+j+'" >'+unescape(j)+'</a>';
 						output += (this.options.skin.gallery.middle).replace('{gallery_link_replace}', galleryLink);
@@ -422,11 +422,11 @@ lightwindow.prototype = {
 			}
 		}
 		new Insertion.Top('lightwindow_galleries_list', output);
-		
+
 		// Attach Events
-		for (i in this.galleries) {
+		for (let i in this.galleries) {
 			if (typeof this.galleries[i] == 'object') {
-				for (j in this.galleries[i]) {
+				for (let j in this.galleries[i]) {
 					if (typeof this.galleries[i][j] == 'object') {
 						Event.observe($('lightwindow_gallery_'+i+'_'+j), 'click', this.openWindow.bind(this, this.galleries[i][j][0]), false);
 						$('lightwindow_gallery_'+i+'_'+j).onclick = function() {return false;};	
@@ -435,14 +435,14 @@ lightwindow.prototype = {
 			}
 		}
 	},
-	// 
+	//
 	//  Set Links Up
 	//
 	_setupLinks : function() {
 		var links = $$('.'+this.options.classNames.standard);
 		links.each(function(link) {
 			this._processLink(link);
-		}.bind(this));	
+		}.bind(this));
 	},
 	//
 	//  Process a Link
@@ -459,20 +459,20 @@ lightwindow.prototype = {
 				this.galleries[gallery[0]][gallery[1]].push(link);
 			}
 		}
-		
+
 		// Take care of our inline content
 		var url = link.getAttribute('href');
 		if (url.indexOf('?') > -1) {
 			url = url.substring(0, url.indexOf('?'));
 		}
-		
+
 		var container = url.substring(url.indexOf('#')+1);
 		if($(container)) {
 			$(container).setStyle({
 				display : 'none'
 			});
 		}
-		
+
 		Event.observe(link, 'click', this.activate.bindAsEventListener(this, link), false);
 		link.onclick = function() {return false;};		
 	},
@@ -498,7 +498,7 @@ lightwindow.prototype = {
 				backgroundImage: 'url('+this.options.overlay.presetImage+')',
 				backgroundRepeat: 'repeat',
 				height: this.pageDimensions.height+'px'
-			});			
+			});
 		} else {
 			overlay.setStyle({
 				opacity: this.options.overlay.opacity,
@@ -507,20 +507,20 @@ lightwindow.prototype = {
 				height: this.pageDimensions.height+'px'
 			});
 		}
-		
+
 		var lw = document.createElement('div');
 		lw.setAttribute('id', 'lightwindow');
 		lw.innerHTML = this.options.skin.main;
-		
+
 		var body = document.getElementsByTagName('body')[0];
 		body.appendChild(overlay);
 		body.appendChild(lw);	
-				
+
 		if ($('lightwindow_title_bar_close_link')) {
 			Event.observe('lightwindow_title_bar_close_link', 'click', this.deactivate.bindAsEventListener(this));
 			$('lightwindow_title_bar_close_link').onclick = function() {return false;};
 		}
-			
+
 		Event.observe($('lightwindow_previous'), 'click', this.navigateWindow.bind(this, 'previous'), false);
 		$('lightwindow_previous').onclick = function() {return false;};		
 		Event.observe($('lightwindow_next'), 'click', this.navigateWindow.bind(this, 'next'), false);
@@ -530,14 +530,14 @@ lightwindow.prototype = {
 			Event.observe($('lightwindow_galleries_tab'), 'click', this._handleGalleryAnimation.bind(this, true), false);
 			$('lightwindow_galleries_tab').onclick = function() {return false;};
 		}
-		
+
 		// Because we use position absolute, kill the scroll Wheel on animations
 		if (Prototype.Browser.IE) {
 			Event.observe(document, 'mousewheel', this._stopScrolling.bindAsEventListener(this), false);
 		} else {
 			Event.observe(window, 'DOMMouseScroll', this._stopScrolling.bindAsEventListener(this), false);
 		}
-				
+
 		Event.observe(overlay, 'click', this.deactivate.bindAsEventListener(this), false);
 		overlay.onclick = function() {return false;};
 	},
@@ -579,26 +579,26 @@ lightwindow.prototype = {
 			document.getElementById('lightwindow_media_primary')?.remove();
 		}
 
-		// Stop playing an object if its still around		
+		// Stop playing an object if its still around
 		if ($('lightwindow_media_secondary')) {
 			try {
 				$('lightwindow_media_secondary').Stop();
 			} catch(e) {}
 			document.getElementById('lightwindow_media_secondary')?.remove();
 		}
-		
+
 		this.activeGallery = false;
 		this._handleNavigation(this.activeGallery);
-		
+
 		if (contents) {
 			// Empty the contents
 			$('lightwindow_contents').innerHTML = '';
-			
+
 			// Reset the scroll bars
 			$('lightwindow_contents').setStyle({
 				overflow: 'hidden'
-			});		
-			
+			});
+
 			if (!this.windowActive) {
 				$('lightwindow_data_slide_inner').setStyle({
 					display: 'none'
@@ -612,7 +612,7 @@ lightwindow.prototype = {
 				height: 'auto'
 			});
 		}
-		
+
 		this.resizeTo.height = null;
 		this.resizeTo.width = null;
 	},
@@ -639,11 +639,11 @@ lightwindow.prototype = {
 					position: 'absolute',
 					top: parseFloat($('lightwindow').getStyle('top'))+this.pagePosition.y+'px',
 					left: parseFloat($('lightwindow').getStyle('left'))+this.pagePosition.x+'px'
-				});		
+				});
 			} else {
 				$('lightwindow').setStyle({
 					position: 'absolute'
-				});						
+				});
 			}
 		} else {
 			if (this.windowActive) {
@@ -652,7 +652,7 @@ lightwindow.prototype = {
 					position: 'fixed',
 					top: parseFloat($('lightwindow').getStyle('top'))-this.pagePosition.y+'px',
 					left: parseFloat($('lightwindow').getStyle('left'))-this.pagePosition.x+'px'
-				});		
+				});
 			} else {
 				if ($('lightwindow_iframe')) {
 					// Ideally here we would set a 50% value for top and left, but Safari rears it ugly head again and we need to do it by pixels
@@ -687,7 +687,7 @@ lightwindow.prototype = {
 			if (e.preventDefault) {
 				e.preventDefault();
 			}
-			e.returnValue = false;		
+			e.returnValue = false;
 		}
 	},
 	//
@@ -709,8 +709,8 @@ lightwindow.prototype = {
 	//	Reset the scroll.
 	//
 	_setScroll : function(x, y) {
-		document.documentElement.scrollLeft = x; 
-		document.documentElement.scrollTop = y; 
+		document.documentElement.scrollLeft = x;
+		document.documentElement.scrollTop = y;
 	},
 	//
 	//	Hide Selects from the page because of IE.
@@ -723,11 +723,11 @@ lightwindow.prototype = {
 		} else {
 			var selects = document.getElementsByTagName('select');
 		}
-		
+
 		for(var i = 0; i < selects.length; i++) {
 			selects[i].style.visibility = visibility;
 		}
-		
+
 		if (!content) {
 			if (this.options.hideFlash){
 				var objects = document.getElementsByTagName('object');
@@ -750,36 +750,36 @@ lightwindow.prototype = {
 	//
 	_getPageDimensions : function() {
 		var xScroll, yScroll;
-		if (window.innerHeight && window.scrollMaxY) {	
+		if (window.innerHeight && window.scrollMaxY) {
 			xScroll = document.body.scrollWidth;
 			yScroll = window.innerHeight + window.scrollMaxY;
-		} else if (document.body.scrollHeight > document.body.offsetHeight){ 
+		} else if (document.body.scrollHeight > document.body.offsetHeight){
 			xScroll = document.body.scrollWidth;
 			yScroll = document.body.scrollHeight;
-		} else { 
+		} else {
 			xScroll = document.body.offsetWidth;
 			yScroll = document.body.offsetHeight;
 		}
 
 		var windowWidth, windowHeight;
-		if (self.innerHeight) {	
+		if (self.innerHeight) {
 			windowWidth = self.innerWidth;
 			windowHeight = self.innerHeight;
-		} else if (document.documentElement && document.documentElement.clientHeight) { 
+		} else if (document.documentElement && document.documentElement.clientHeight) {
 			windowWidth = document.documentElement.clientWidth;
 			windowHeight = document.documentElement.clientHeight;
-		} else if (document.body) { 
+		} else if (document.body) {
 			windowWidth = document.body.clientWidth;
 			windowHeight = document.body.clientHeight;
-		}	
+		}
 
 		if(yScroll < windowHeight){
 			this.pageDimensions.height = windowHeight;
-		} else { 
+		} else {
 			this.pageDimensions.height = yScroll;
 		}
 
-		if(xScroll < windowWidth){	
+		if(xScroll < windowWidth){
 			this.pageDimensions.width = windowWidth;
 		} else {
 			this.pageDimensions.width = xScroll;
@@ -789,7 +789,7 @@ lightwindow.prototype = {
 	//	Display the lightWindow.
 	//
 	_displayLightWindow : function(display, visibility) {
-		$('lightwindow_overlay').style.display = $('lightwindow').style.display = $('lightwindow_container').style.display = display;	
+		$('lightwindow_overlay').style.display = $('lightwindow').style.display = $('lightwindow_container').style.display = display;
 		$('lightwindow_overlay').style.visibility = $('lightwindow').style.visibility = $('lightwindow_container').style.visibility = visibility;
 	},
 	//
@@ -809,38 +809,38 @@ lightwindow.prototype = {
 				originalHeight = this.options.dimensions.image.height;
 				originalWidth = this.options.dimensions.image.width;
 				break;
-				
+
 			case 'media' :
 				originalHeight = this.options.dimensions.media.height;
 				originalWidth = this.options.dimensions.media.width;
 				break;
-			
-			case 'external' : 
+
+			case 'external' :
 				originalHeight = this.options.dimensions.external.height;
 				originalWidth = this.options.dimensions.external.width;
 				break;
-				
+
 			case 'inline' :
 				originalHeight = this.options.dimensions.inline.height;
 				originalWidth = this.options.dimensions.inline.width;
 				break;
-				
+
 			default :
 				originalHeight = this.options.dimensions.page.height;
 				originalWidth = this.options.dimensions.page.width;
 				break;
-				
+
 		}
 
 		var offsetHeight = this._getParameter('lightwindow_top') ? parseFloat(this._getParameter('lightwindow_top'))+this.pagePosition.y : this.dimensions.viewport.height/2+this.pagePosition.y;
 		var offsetWidth = this._getParameter('lightwindow_left') ? parseFloat(this._getParameter('lightwindow_left'))+this.pagePosition.x : this.dimensions.viewport.width/2+this.pagePosition.x;
-		
+
 		// So if a theme has say shadowed edges, they should be consistant and take care of in the contentOffset
 		$('lightwindow').setStyle({
 			top: offsetHeight+'px',
 			left: offsetWidth+'px'
 		});
-		
+
 		$('lightwindow_container').setStyle({
 			height: originalHeight+'px',
 			width: originalWidth+'px',
@@ -859,7 +859,7 @@ lightwindow.prototype = {
 	_fileType : function(url) {
 		var image = new RegExp("[^\.]\.("+this.options.fileTypes.image.join('|')+")\s*$", "i");
 		if (image.test(url)) return 'image';
-		if (url.indexOf('#') > -1 && (document.domain == this._getDomain(url))) return 'inline';		
+		if (url.indexOf('#') > -1 && (document.domain == this._getDomain(url))) return 'inline';
 		if (url.indexOf('?') > -1) url = url.substring(0, url.indexOf('?'));
 		var type = 'unknown';
 		var page = new RegExp("[^\.]\.("+this.options.fileTypes.page.join('|')+")\s*$", "i");
@@ -889,7 +889,7 @@ lightwindow.prototype = {
 	//	Monitor the keyboard while this lightwindow is up
 	//
 	_monitorKeyboard : function(status) {
-		if (status) document.onkeydown = this._eventKeypress.bind(this); 
+		if (status) document.onkeydown = this._eventKeypress.bind(this);
 		else document.onkeydown = '';
 	},
 	//
@@ -901,15 +901,15 @@ lightwindow.prototype = {
 		} else {
 			var keycode = e.which;
 		}
-		
+
 		switch (keycode) { 
 			case 27: 
 				this.deactivate(); 
 				break;
-			
+
 			case 13:
 				return;
-				
+
 			default:
 				break;
 		}
@@ -1178,22 +1178,22 @@ lightwindow.prototype = {
 					} else {
 						this.navigationObservers.next = false;
 					}
-					
+
 					this.activeGallery = true;
 				} else {
 					this.navigationObservers.previous = false;
-					this.navigationObservers.next = false;					
+					this.navigationObservers.next = false;
 
 					this.activeGallery = false;
 				}
-				
+
 				for (var i = current; i < (current+this.imageCount); i++) {
-		
+
 					if (gallery && this.galleries[gallery[0]][gallery[1]][i]) {
 						this.contentToFetch = this.galleries[gallery[0]][gallery[1]][i].href;
-						
+
 						this.galleryLocation = {current: (i+1)/this.imageCount, total: (this.galleries[gallery[0]][gallery[1]].length)/this.imageCount};
-											
+
 						if (!this.galleries[gallery[0]][gallery[1]][i+this.imageCount]) {
 							$('lightwindow_next').setStyle({
 								display: 'none'
@@ -1204,7 +1204,7 @@ lightwindow.prototype = {
 							});
 							$('lightwindow_next_title').innerHTML = this.galleries[gallery[0]][gallery[1]][i+this.imageCount].title;
 						}
-						
+
 						if (!this.galleries[gallery[0]][gallery[1]][i-this.imageCount]) {
 							$('lightwindow_previous').setStyle({
 								display: 'none'
@@ -1226,44 +1226,44 @@ lightwindow.prototype = {
 					// We have to do this instead of .onload 
 					this.checkImage[i] = new PeriodicalExecuter(function(i) {
 						if (!(typeof $('lightwindow_image_'+i).naturalWidth != "undefined" && $('lightwindow_image_'+i).naturalWidth == 0)) {
-	
+
 							this.checkImage[i].stop();
-	
+
 							var imageHeight = $('lightwindow_image_'+i).getHeight();
 							if (imageHeight > this.resizeTo.height) {
 								this.resizeTo.height = imageHeight;
 							}
 							this.resizeTo.width += $('lightwindow_image_'+i).getWidth();
 							this.imageCount--;
-	
+
 							$('lightwindow_image_'+i).setStyle({
 								height: '100%'
 							});
-	
+
 						 	if (this.imageCount == 0) {
 								this._processWindow();
 						 	}
 						}
-					
-					}.bind(this, i), 1);			
+
+					}.bind(this, i), 1);
 				}
 
 
 			break;
-		
-		case 'media' :			
-		
+
+		case 'media' :
+
 			var current = 0;
 			this.resizeTo.height = this.resizeTo.width = 0;
 
 			// If there is a gallery get it
-			if (gallery = this._getGalleryInfo(this.element.rel)) {	
+			if (gallery = this._getGalleryInfo(this.element.rel)) {
 				for (current = 0; current < this.galleries[gallery[0]][gallery[1]].length; current++) {
 					if (this.contentToFetch.indexOf(this.galleries[gallery[0]][gallery[1]][current].href) > -1) {
 						break;
 					}
 				}
-				
+
 				if (this.galleries[gallery[0]][gallery[1]][current-1]) {
 					this.navigationObservers.previous = this.galleries[gallery[0]][gallery[1]][current-1];
 				} else {
@@ -1274,21 +1274,20 @@ lightwindow.prototype = {
 				} else {
 					this.navigationObservers.next = false;
 				}
-		
+
 				this.activeGallery = true;
 			} else {
 				this.navigationObservers.previous = false;
 				this.navigationObservers.next = false;
-				
+
 				this.activeGallery = false;
 			}
-		
 
 			if (gallery && this.galleries[gallery[0]][gallery[1]][current]) {
 				this.contentToFetch = this.galleries[gallery[0]][gallery[1]][current].href;
 
 				this.galleryLocation = {current: current+1, total: this.galleries[gallery[0]][gallery[1]].length};
-				
+
 				if (!this.galleries[gallery[0]][gallery[1]][current+1]) {
 					$('lightwindow_next').setStyle({
 						display: 'none'
@@ -1299,7 +1298,7 @@ lightwindow.prototype = {
 					});
 					$('lightwindow_next_title').innerHTML = this.galleries[gallery[0]][gallery[1]][current+1].title;
 				}
-				
+
 				if (!this.galleries[gallery[0]][gallery[1]][current-1]) {
 					$('lightwindow_previous').setStyle({
 						display: 'none'
@@ -1311,32 +1310,32 @@ lightwindow.prototype = {
 					$('lightwindow_previous_title').innerHTML = this.galleries[gallery[0]][gallery[1]][current-1].title;
 				}
 			}
-			
+
 			if (this._getParameter('lightwindow_iframe_embed')) {
 				this.resizeTo.height = this.dimensions.viewport.height;
 				this.resizeTo.width = this.dimensions.viewport.width;	
 			} else {
 				this.resizeTo.height = this._getParameter('lightwindow_height');
-				this.resizeTo.width = this._getParameter('lightwindow_width');				
+				this.resizeTo.width = this._getParameter('lightwindow_width');
 			}
-			
+
 			this._processWindow();
-			
+
 			break;
 
-		case 'external' :		
+		case 'external' :
 
 			this._appendIframe('auto');
 
 			this.resizeTo.height = this.dimensions.viewport.height;
 			this.resizeTo.width = this.dimensions.viewport.width;
-						
+
 			this._processWindow();
 
 			break;
-				
-		case 'page' :	
-			
+
+		case 'page' :
+
 			var newAJAX = new Ajax.Request(
 				this.contentToFetch, {
 					method: 'get', 
@@ -1349,28 +1348,28 @@ lightwindow.prototype = {
 					}.bind(this)
 				}
 			);
-			
+
 			break;
-			
-		case 'inline' : 
-		
+
+		case 'inline' :
+
 			var content = this.contentToFetch;
 			if (content.indexOf('?') > -1) {
 				content = content.substring(0, content.indexOf('?'));
 			}
 			content = content.substring(content.indexOf('#')+1);
-			
+
 			new Insertion.Top($('lightwindow_contents'), $(content).innerHTML);
-			
+
 			this.resizeTo.height = $('lightwindow_contents').scrollHeight+(this.options.contentOffset.height);
 			this.resizeTo.width = $('lightwindow_contents').scrollWidth+(this.options.contentOffset.width);
-			
+
 			//this._toggleTroubleElements('hidden', true);
 			this._processWindow();
-			
+
 			break;
-			
-		default : 
+
+		default :
 			throw("Page Type could not be determined, please amend this lightwindow URL "+this.contentToFetch);
 			break;
 		}
@@ -1382,14 +1381,14 @@ lightwindow.prototype = {
 		if (this.resizeTo.height+this.dimensions.cruft.height > this.dimensions.viewport.height) {
 			var heightRatio = this.resizeTo.height/this.resizeTo.width;
 			this.resizeTo.height = this.dimensions.viewport.height-this.dimensions.cruft.height-(2*this.options.viewportPadding);
-			// We only care about ratio's with this window type			
+			// We only care about ratio's with this window type
 			if (this.windowType == 'image' || (this.windowType == 'media' && !this._getParameter('lightwindow_iframe_embed'))) {
 				this.resizeTo.width = this.resizeTo.height/heightRatio;
 				$('lightwindow_data_slide_inner').setStyle({
 					width: this.resizeTo.width+'px'
-				});			
+				});
 			}
-		} 
+		}
 		if (this.resizeTo.width+this.dimensions.cruft.width > this.dimensions.viewport.width) {
 			var widthRatio = this.resizeTo.width/this.resizeTo.height;
 			this.resizeTo.width = this.dimensions.viewport.width-2*this.dimensions.cruft.width-(2*this.options.viewportPadding);
@@ -1401,7 +1400,7 @@ lightwindow.prototype = {
 				});
 			}
 		}
-			
+
 	},
 	//
 	//  Set the Window to a preset size
@@ -1431,7 +1430,7 @@ lightwindow.prototype = {
 			} else {
 				$('lightwindow_data_caption').setStyle({
 					display: 'none'
-				});				
+				});
 			}
 			if (this.element.author) {
 				$('lightwindow_data_author').innerHTML = this.element.author;
@@ -1441,7 +1440,7 @@ lightwindow.prototype = {
 			} else {
 				$('lightwindow_data_author_container').setStyle({
 					display: 'none'
-				});				
+				});
 			}
 			if (this.activeGallery && this.options.showGalleryCount) {
 				$('lightwindow_data_gallery_current').innerHTML = this.galleryLocation.current;
@@ -1452,7 +1451,7 @@ lightwindow.prototype = {
 			} else {
 				$('lightwindow_data_gallery_container').setStyle({
 					display: 'none'
-				});				
+				});
 			}
 
 			$('lightwindow_data_slide_inner').setStyle({
@@ -1479,13 +1478,13 @@ lightwindow.prototype = {
 				height: '0px'
 			});
 		}
-				
-		if (this.element.title != 'null') {		
+
+		if (this.element.title != 'null') {
 			$('lightwindow_title_bar_title').innerHTML = this.element.title;
 		} else {
 			$('lightwindow_title_bar_title').innerHTML = '';
 		}
-		
+
 		var originalContainerDimensions = {height: $('lightwindow_container').getHeight(), width: $('lightwindow_container').getWidth()};
 		// Position the window
     	$('lightwindow_container').setStyle({
@@ -1494,14 +1493,14 @@ lightwindow.prototype = {
 			width: $('lightwindow_container').getWidth()+this.options.contentOffset.width-(this.windowActive ? this.options.contentOffset.width : 0)+'px'
 		});
 		var newContainerDimensions = {height: $('lightwindow_container').getHeight(), width: $('lightwindow_container').getWidth()};
- 		
+
 		// We need to record the container dimension changes
 		this.containerChange = {height: originalContainerDimensions.height-newContainerDimensions.height, width: originalContainerDimensions.width-newContainerDimensions.width};
 
 		// Get out general dimensions
 		this.dimensions.container = {height: $('lightwindow_container').getHeight(), width: $('lightwindow_container').getWidth()};
 		this.dimensions.cruft = {height: this.dimensions.container.height-$('lightwindow_contents').getHeight()+this.options.contentOffset.height, width: this.dimensions.container.width-$('lightwindow_contents').getWidth()+this.options.contentOffset.width};
-		
+
 		// Set Sizes if we need too
 		this._presetWindowSize();
 		this._resizeWindowToFit(); // Even if the window is preset we still don't want it to go outside of the viewport
@@ -1517,7 +1516,7 @@ lightwindow.prototype = {
 			height: this.dimensions.container.height+'px',
 			width: this.dimensions.container.width+'px'
 		});
-		
+
 		// We are ready, lets show this puppy off!
 		this._displayLightWindow('block', 'visible');
 		this._animateLightWindow();
@@ -1560,17 +1559,17 @@ lightwindow.prototype = {
 			this.options.finalAnimationHandler().bind(this, delay);
 		} else {
 			this._defaultfinalWindowAnimationHandler(delay);
-		}		
+		}
 	},
 	//
 	//  Handle the gallery Animation
-	// 
+	//
 	_handleGalleryAnimation : function(list) {
 		if (this.options.galleryAnimationHandler) {
 			this.options.galleryAnimationHandler().bind(this, list);
 		} else {
 			this._defaultGalleryAnimationHandler(list);
-		}		
+		}
 	},
 	//
 	//  Display the navigation 
@@ -1582,13 +1581,13 @@ lightwindow.prototype = {
 				height: $('lightwindow_contents').getHeight()+'px',
 				width: '100%',
 				marginTop: this.options.dimensions.titleHeight+'px'
-			});			
+			});
 		} else {
 			$('lightwindow_navigation').setStyle({
 				display: 'none',
 				height: 'auto',
 				width: 'auto'
-			});			
+			});
 		}
 	},
 	//
@@ -1612,13 +1611,13 @@ lightwindow.prototype = {
 			height: '0px',
 			marginTop: this.options.dimensions.titleHeight+'px'
 		});
-		
+
 		// We always want the title bar as well
 		this.dimensions.dataEffects.push(
 			new Effect.Morph('lightwindow_title_bar_inner', {sync: true, style: {height: this.options.dimensions.titleHeight+'px', marginTop: '0px'}}),
 		 	new Effect.Appear('lightwindow_title_bar_inner', {sync: true, from: 0.0, to: 1.0})
-		);		
-		
+		);
+
 		if (!this.options.hideGalleryTab) {
 			this._handleGalleryAnimation(false);
 			if ($('lightwindow_galleries_tab_container').getHeight() == 0) {
@@ -1630,7 +1629,7 @@ lightwindow.prototype = {
 				});
 			}
 		}
-		
+
 		var resized = false;
 		var ratio = this.dimensions.container.width-$('lightwindow_contents').getWidth()+this.resizeTo.width+this.options.contentOffset.width;
 		if (ratio != $('lightwindow_container').getWidth()) {
@@ -1642,9 +1641,9 @@ lightwindow.prototype = {
 					delay: this.options.delay,
 					queue: {position: 'end', scope: 'lightwindowAnimation'}
 				}
-			);		
+			);
 		}
-		
+
 		ratio = this.dimensions.container.height-$('lightwindow_contents').getHeight()+this.resizeTo.height+this.options.contentOffset.height;
 		if (ratio != $('lightwindow_container').getHeight()) {
 			new Effect.Parallel([
@@ -1652,7 +1651,7 @@ lightwindow.prototype = {
 					new Effect.Scale('lightwindow_container', 100*(ratio/(this.dimensions.container.height)), {sync: true, scaleX: false, scaleFromCenter: true, scaleContent: false})
 				], {
 					duration: this.duration, 
-					afterFinish: function() {				
+					afterFinish: function() {
 						if (this.dimensions.dataEffects.length > 0) {
 							if (!this.options.hideGalleryTab) {
 								$('lightwindow_galleries').setStyle({
@@ -1664,19 +1663,19 @@ lightwindow.prototype = {
 									afterFinish: function() {
 										this._finishWindow();
 									}.bind(this),
-									queue: {position: 'end', scope: 'lightwindowAnimation'} 
+									queue: {position: 'end', scope: 'lightwindowAnimation'}
 								}
 							);
 						}
-					}.bind(this), 
-					queue: {position: 'end', scope: 'lightwindowAnimation'} 
+					}.bind(this),
+					queue: {position: 'end', scope: 'lightwindowAnimation'}
 				}
 			);
 			resized = true;
 		}
-		
+
 		// We need to do our data effect since there was no resizing
-		if (!resized && this.dimensions.dataEffects.length > 0) {	
+		if (!resized && this.dimensions.dataEffects.length > 0) {
 			new Effect.Parallel(this.dimensions.dataEffects, {
 					duration: this.duration,
 					beforeStart: function() {
@@ -1688,21 +1687,20 @@ lightwindow.prototype = {
 						if (this.containerChange.height != 0 || this.containerChange.width != 0) {
 							new Effect.MoveBy('lightwindow_container', this.containerChange.height, this.containerChange.width, {transition: Effect.Transitions.sinoidal});
 						}
-					}.bind(this),			
+					}.bind(this),
 					afterFinish: function() {
 						this._finishWindow();
 					}.bind(this),
 					queue: {position: 'end', scope: 'lightwindowAnimation'} 
 				}
 			);
-		}			
-		
+		}
 	},
 	//
 	//  Finish up Window Animation
 	//
 	_defaultfinalWindowAnimationHandler : function(delay) {
-		if (this.windowType == 'media' || this._getParameter('lightwindow_loading_animation')) {	
+		if (this.windowType == 'media' || this._getParameter('lightwindow_loading_animation')) {
 			// Because of major flickering with the overlay we just hide it in this case
 			Element.hide('lightwindow_loading');
 			this._handleNavigation(this.activeGallery);
@@ -1751,7 +1749,7 @@ lightwindow.prototype = {
 			});
 			return false;
 		}
-		
+
 		if (list) {
 			if ($('lightwindow_galleries_list').getHeight() == 0) {
 				var height = $('lightwindow_contents').getHeight()*0.80;
@@ -1768,7 +1766,7 @@ lightwindow.prototype = {
 				beforeStart: function() {
 					$('lightwindow_galleries_list').setStyle({
 						overflow: 'hidden'
-					});					
+					});
 				},
 				afterFinish: function() {
 					$('lightwindow_galleries_list').setStyle({
@@ -1776,10 +1774,9 @@ lightwindow.prototype = {
 					});
 				},
 				queue: {position: 'end', scope: 'lightwindowAnimation'}
-			});	
+			});
 		}
-		
-		
+
 	},
 	//
 	//  Default Transition Handler
@@ -1795,25 +1792,25 @@ lightwindow.prototype = {
 				new Effect.Fade('lightwindow_data_slide', {sync: true, from: 1.0, to: 0.0})
 			);
 		}
-		
+
 		if (!this.options.hideGalleryTab) {
 			if ($('lightwindow_galleries').getHeight() != 0 && !this.options.hideGalleryTab) {
 				this.dimensions.dataEffects.push(
 					new Effect.Morph('lightwindow_galleries_tab_container', {sync: true, style: {height: '0px', marginTop: '20px'}})
 				);
 			}
-			
+
 			if ($('lightwindow_galleries_list').getHeight() != 0) {
 				$('lightwindow_galleries_tab_span').className = 'up';
 				this.dimensions.dataEffects.push(
 					new Effect.Morph('lightwindow_galleries_list', {
-						sync: true, 
+						sync: true,
 						style: {height: '0px'},
 						transition: Effect.Transitions.sinoidal,
 						beforeStart: function() {
 							$('lightwindow_galleries_list').setStyle({
 								overflow: 'hidden'
-							});					
+							});
 						},
 						afterFinish: function() {
 							$('lightwindow_galleries_list').setStyle({
@@ -1824,7 +1821,7 @@ lightwindow.prototype = {
 				);
 			}
 		}
-		
+
 		// We always want the title bar as well
 		this.dimensions.dataEffects.push(
 			new Effect.Morph('lightwindow_title_bar_inner', {sync: true, style: {height: '0px', marginTop: this.options.dimensions.titleHeight+'px'}}),
@@ -1838,7 +1835,7 @@ lightwindow.prototype = {
 				}.bind(this),
 				queue: {position: 'end', scope: 'lightwindowAnimation'} 
 			}
-		);	
+		);
 	},
 	//
 	//	Default Form handler for LightWindow
@@ -1847,27 +1844,27 @@ lightwindow.prototype = {
 		var element = Event.element(e).parentNode;
 		var parameterString = Form.serialize(this._getParameter('lightwindow_form', element.getAttribute('params')));
 		if (this.options.formMethod == 'post') {
-			var newAJAX = new Ajax.Request(element.href, { 
+			var newAJAX = new Ajax.Request(element.href, {
 				method: 'post', 
-				postBody: parameterString, 
+				postBody: parameterString,
 				onComplete: this.openWindow.bind(this, element)
 			});
 		} else if (this.options.formMethod == 'get') {
-			var newAJAX = new Ajax.Request(element.href, { 
+			var newAJAX = new Ajax.Request(element.href, {
 				method: 'get', 
-				parameters: parameterString, 
+				parameters: parameterString,
 				onComplete: this.openWindow.bind(this, element)
 			});
 		}
 	},
-	// 
+	//
 	//  Wrap everything up
 	//
 	_finishWindow : function() {
 		if (this.windowType == 'external') {
 			// We set the externals source here because it allows for a much smoother animation
 			$('lightwindow_iframe').setAttribute('src', this.element.href);
-			this._handleFinalWindowAnimation(1);	
+			this._handleFinalWindowAnimation(1);
 		} else if (this.windowType == 'media') {
 
 			var outerObject = document.createElement('object');
@@ -1896,10 +1893,10 @@ lightwindow.prototype = {
 				innerObject = this._addParamToObject('wmode', 'transparent', innerObject);
 				innerObject = this._addParamToObject('cache', 'false', innerObject);
 				innerObject = this._addParamToObject('quality', 'high', innerObject);
-			
+
 				outerObject.appendChild(innerObject);
-			}	
-			
+			}
+
 			if (this._getParameter('lightwindow_iframe_embed')) {
 				this._appendIframe('no');
 				this._writeToIframe(this._convertToMarkup(outerObject, 'object'));
@@ -1914,7 +1911,7 @@ lightwindow.prototype = {
 
 		// Initialize any actions
 		this._setupActions();
-		
+
 		this.options.afterFinishWindow();
 	}
 }

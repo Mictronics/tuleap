@@ -21,6 +21,7 @@ import { ref } from "vue";
 import type { ConfigurationStore, Tracker } from "@/stores/configuration-store";
 import { TrackerStub } from "@/helpers/stubs/TrackerStub";
 import { noop } from "@/helpers/noop";
+import type { ConfigurationField } from "@/sections/readonly-fields/AvailableReadonlyFields";
 
 const tasks: Tracker = {
     ...TrackerStub.withoutTitleAndDescription(),
@@ -46,7 +47,8 @@ export const ConfigurationStoreStub = {
         is_error: ref(false),
         is_success: ref(false),
         error_message: ref(""),
-        saveConfiguration: noop,
+        saveTrackerConfiguration: noop,
+        saveFieldsConfiguration: noop,
         resetSuccessFlagFromPreviousCalls: noop,
         current_project: ref(null),
     }),
@@ -73,10 +75,15 @@ export const ConfigurationStoreStub = {
         error_message: ref("Oh no!"),
     }),
 
-    withMockedSavedConfiguration: (
-        saveConfiguration: ConfigurationStore["saveConfiguration"],
+    withMockedSavedTrackerConfiguration: (
+        saveTrackerConfiguration: ConfigurationStore["saveTrackerConfiguration"],
     ): ConfigurationStore => ({
         ...ConfigurationStoreStub.withSelectedTracker(ConfigurationStoreStub.bugs),
-        saveConfiguration,
+        saveTrackerConfiguration,
+    }),
+
+    withSelectedFields: (selected_fields: ConfigurationField[]): ConfigurationStore => ({
+        ...ConfigurationStoreStub.withSelectedTracker(ConfigurationStoreStub.bugs),
+        selected_fields: ref(selected_fields),
     }),
 };

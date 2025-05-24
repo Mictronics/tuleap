@@ -1,0 +1,15 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`QuickLookFile > renders quick look for file document with a CTA to download the file 1`] = `
+<div
+  class="document-quick-look-document-action"
+>
+  <download-button-stub
+    class="tlp-button-primary tlp-button-small"
+    item="[object Object]"
+  />
+  <drop-down-quick-look-stub
+    item="[object Object]"
+  />
+</div>
+`;

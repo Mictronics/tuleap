@@ -65,16 +65,19 @@ use Tuleap\Artidoc\Domain\Document\Section\CannotUpdatePartiallyReadableDocument
 use Tuleap\Artidoc\Domain\Document\Section\CollectRequiredSectionInformation;
 use Tuleap\Artidoc\Domain\Document\Section\EmptyTitleFault;
 use Tuleap\Artidoc\Domain\Document\Section\Freetext\Identifier\FreetextIdentifierFactory;
+use Tuleap\Artidoc\Domain\Document\Section\Identifier\InvalidSectionIdentifierStringException;
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifier;
+use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifierFactory;
 use Tuleap\Artidoc\Domain\Document\Section\Level;
 use Tuleap\Artidoc\Domain\Document\Section\RetrievedSection;
 use Tuleap\Artidoc\Domain\Document\Section\SectionCreator;
-use Tuleap\Artidoc\Domain\Document\Section\SectionRetriever;
-use Tuleap\Artidoc\Domain\Document\Section\Identifier\InvalidSectionIdentifierStringException;
-use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifierFactory;
 use Tuleap\Artidoc\Domain\Document\Section\SectionDeletor;
+use Tuleap\Artidoc\Domain\Document\Section\SectionRetriever;
 use Tuleap\Artidoc\Domain\Document\Section\SectionUpdater;
 use Tuleap\Artidoc\Domain\Document\UserCannotWriteDocumentFault;
+use Tuleap\Artidoc\REST\v1\ArtifactSection\ArtifactSectionRepresentationBuilder;
+use Tuleap\Artidoc\REST\v1\ArtifactSection\Field\SectionFieldsBuilder;
+use Tuleap\Artidoc\REST\v1\ArtifactSection\RequiredArtifactInformationBuilder;
 use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\DBTransactionExecutorWithConnection;
@@ -117,7 +120,6 @@ use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
 use Tuleap\Tracker\FormElement\Field\Text\TextValueValidator;
 use Tuleap\Tracker\Permission\SubmissionPermissionVerifier;
-use Tuleap\Tracker\Permission\TrackersPermissionsRetriever;
 use Tuleap\Tracker\REST\Artifact\ArtifactCreator;
 use Tuleap\Tracker\REST\Artifact\ArtifactRestUpdateConditionsChecker;
 use Tuleap\Tracker\REST\Artifact\ChangesetValue\ArtifactLink\NewArtifactLinkChangesetValueBuilder;
@@ -593,8 +595,7 @@ final class ArtidocSectionsResource extends AuthenticatedResource
                     $artifact_factory
                 ),
             ),
-            new NewArtifactLinkInitialChangesetValueBuilder(),
-            TrackersPermissionsRetriever::build(),
+            new NewArtifactLinkInitialChangesetValueBuilder()
         );
         $update_conditions_checker = new ArtifactRestUpdateConditionsChecker();
 
@@ -639,8 +640,7 @@ final class ArtidocSectionsResource extends AuthenticatedResource
                         $artifact_factory
                     )
                 ),
-                $artifact_link_initial_builder,
-                TrackersPermissionsRetriever::build(),
+                $artifact_link_initial_builder
             ),
             TrackerArtifactCreator::build(
                 new InitialChangesetCreator(

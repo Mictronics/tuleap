@@ -23,42 +23,43 @@ declare(strict_types=1);
 namespace Tuleap\Tracker\Test\Builders;
 
 use Tracker_Artifact_Changeset;
-use Tracker_FormElement_Field;
+use Tracker_Artifact_ChangesetValue_Text;
+use Tracker_FormElement_Field_Text;
 
 final class ChangesetValueTextTestBuilder
 {
-    private string $value  = '';
-    private string $format = 'text';
+    private string $value  = 'Accipitres';
+    private string $format = Tracker_Artifact_ChangesetValue_Text::TEXT_CONTENT;
 
     private function __construct(
         private readonly int $id,
         private readonly Tracker_Artifact_Changeset $changeset,
-        private readonly Tracker_FormElement_Field $field,
+        private readonly Tracker_FormElement_Field_Text $field,
     ) {
     }
 
-    public static function aValue(int $id, Tracker_Artifact_Changeset $changeset, Tracker_FormElement_Field $field): self
-    {
+    public static function aValue(
+        int $id,
+        Tracker_Artifact_Changeset $changeset,
+        Tracker_FormElement_Field_Text $field,
+    ): self {
         return new self($id, $changeset, $field);
     }
 
-    public function withValue(string $value): self
+    /**
+     * @psalm-param Tracker_Artifact_ChangesetValue_Text::TEXT_CONTENT|Tracker_Artifact_ChangesetValue_Text::HTML_CONTENT|Tracker_Artifact_ChangesetValue_Text::COMMONMARK_CONTENT $format
+     */
+    public function withValue(string $value, string $format): self
     {
-        $this->value = $value;
-
-        return $this;
-    }
-
-    public function withFormat(string $format): self
-    {
+        $this->value  = $value;
         $this->format = $format;
 
         return $this;
     }
 
-    public function build(): \Tracker_Artifact_ChangesetValue_Text
+    public function build(): Tracker_Artifact_ChangesetValue_Text
     {
-        return new \Tracker_Artifact_ChangesetValue_Text(
+        return new Tracker_Artifact_ChangesetValue_Text(
             $this->id,
             $this->changeset,
             $this->field,
