@@ -78,7 +78,7 @@ msgid "Read"
 msgstr "Lecture"
 
 msgid "Read all tracker times"
-msgstr "Lire tous les temps de l'outil de suivi"
+msgstr "Lire tous les temps du tracker"
 
 msgid "Save modifications"
 msgstr "Sauvegarder les modifications"
@@ -89,9 +89,8 @@ msgid ""
 "tracker administrators."
 msgstr ""
 "Selectionner les groupes d'utilisateurs qui seront capables d'ajouter et de "
-"lire tous les temps dans cet outil de suivi, en plus des administrateurs du "
-"site, des administrateurs du projet et des administrateurs de l'outil de "
-"suivi."
+"lire tous les temps dans ce tracker, en plus des administrateurs du site, "
+"des administrateurs du projet et des administrateurs du tracker."
 
 msgid "Step"
 msgstr "Étape"
@@ -112,7 +111,7 @@ msgid "The time is missing"
 msgstr "Le temps est manquant"
 
 msgid "This artifact does not exist"
-msgstr "Cet artéfact n'existe pas"
+msgstr "Cet artifact n'existe pas"
 
 msgid "This time does not belong to you."
 msgstr "Ce temps ne vous appartient pas."
@@ -139,7 +138,7 @@ msgid "Time tracking"
 msgstr "Suivi de temps"
 
 msgid "Time tracking for Tuleap artifacts"
-msgstr "Suivi de temps pour les artéfacts de Tuleap"
+msgstr "Suivi de temps pour les artifacts de Tuleap"
 
 msgid "Time tracking is disabled for tracker."
 msgstr "Le suivi de temps est désactivé pour ce tracker."

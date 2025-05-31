@@ -164,7 +164,7 @@ msgid "No matching for this column"
 msgstr "Aucune correspondance"
 
 msgid "Now a cardwall exists on top of the tracker"
-msgstr "Un cardwall existe maintenant au dessus de l'outil de suivi"
+msgstr "Un cardwall existe maintenant au dessus de tracker"
 
 msgid "On Going"
 msgstr "En Cours"
@@ -186,7 +186,7 @@ msgstr ""
 "couleur peuvent être choisis comme couleur de fond des cartes"
 
 msgid "Please select a field to group artifacts in columns."
-msgstr "Sélectionnez un champ pour grouper les artéfacts en colonnes."
+msgstr "Sélectionnez un champ pour grouper les artifacts en colonnes."
 
 msgid "Preview of the card"
 msgstr "Aperçu des cartes"
