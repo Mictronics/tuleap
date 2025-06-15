@@ -112,9 +112,9 @@ final class IterationCreationProcessorBuilder implements BuildIterationCreationP
 
         $synchronized_fields_gatherer = new SynchronizedFieldsGatherer(
             $tracker_retriever,
-            new \Tracker_Semantic_TitleFactory(),
-            new \Tracker_Semantic_DescriptionFactory(),
-            new \Tracker_Semantic_StatusFactory(),
+            new \Tuleap\Tracker\Semantic\Title\TrackerSemanticTitleFactory(),
+            new \Tuleap\Tracker\Semantic\Description\TrackerSemanticDescriptionFactory(),
+            new \Tuleap\Tracker\Semantic\Status\TrackerSemanticStatusFactory(),
             new SemanticTimeframeBuilder(
                 new SemanticTimeframeDao(),
                 $form_element_factory,

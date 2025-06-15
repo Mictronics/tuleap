@@ -131,7 +131,7 @@ final class ProgramIncrementResource extends AuthenticatedResource
             $visibility_verifier,
             new ContentDao(),
             $visibility_verifier,
-            new TitleValueRetriever($artifact_retriever, $user_retriever, \Tracker_Semantic_TitleFactory::instance()),
+            new TitleValueRetriever($artifact_retriever, $user_retriever, \Tuleap\Tracker\Semantic\Title\TrackerSemanticTitleFactory::instance()),
             new URIRetriever($artifact_retriever),
             new CrossReferenceRetriever($artifact_retriever),
             new TrackerOfArtifactRetriever($artifact_retriever),
@@ -216,7 +216,7 @@ final class ProgramIncrementResource extends AuthenticatedResource
         $visibility_verifier     = new ArtifactVisibleVerifier($artifact_factory, $user_retriever);
 
         $artifact_link_updater = new ArtifactLinkUpdater(
-            \Tracker_Artifact_PriorityManager::build(),
+            \Tuleap\Tracker\Artifact\PriorityManager::build(),
             new ArtifactLinkUpdaterDataFormater()
         );
 
@@ -254,7 +254,7 @@ final class ProgramIncrementResource extends AuthenticatedResource
                 new ArtifactsExplicitTopBacklogDAO(),
                 new FeatureAdditionProcessor($artifact_retriever, $artifact_link_updater, $user_retriever)
             ),
-            new FeaturesRankOrderer(\Tracker_Artifact_PriorityManager::build()),
+            new FeaturesRankOrderer(\Tuleap\Tracker\Artifact\PriorityManager::build()),
             new FeatureDAO(),
             new UserCanPlanInProgramIncrementVerifier(
                 new UserCanUpdateTimeboxVerifier($artifact_retriever, $user_retriever),
@@ -341,7 +341,7 @@ final class ProgramIncrementResource extends AuthenticatedResource
             new ArtifactVisibleVerifier($artifact_factory, $user_retriever),
             new IterationsLinkedToProgramIncrementDAO(),
             new StatusValueRetriever($artifact_retriever, $user_retriever),
-            new TitleValueRetriever($artifact_retriever, $user_retriever, \Tracker_Semantic_TitleFactory::instance()),
+            new TitleValueRetriever($artifact_retriever, $user_retriever, \Tuleap\Tracker\Semantic\Title\TrackerSemanticTitleFactory::instance()),
             new TimeframeValueRetriever(
                 $artifact_retriever,
                 $user_retriever,
@@ -409,7 +409,7 @@ final class ProgramIncrementResource extends AuthenticatedResource
         $visibility_verifier = new ArtifactVisibleVerifier($artifact_factory, $user_retriever);
 
         $artifacts_linked_to_parent_dao = new ArtifactsLinkedToParentDao();
-        $title_retriever                = new TitleValueRetriever($artifact_retriever, $user_retriever, \Tracker_Semantic_TitleFactory::instance());
+        $title_retriever                = new TitleValueRetriever($artifact_retriever, $user_retriever, \Tuleap\Tracker\Semantic\Title\TrackerSemanticTitleFactory::instance());
         $uri_retriever                  = new URIRetriever($artifact_retriever);
         $background_color_retriever     = new BackgroundColorRetriever(
             new BackgroundColorBuilder(new BindDecoratorRetriever()),

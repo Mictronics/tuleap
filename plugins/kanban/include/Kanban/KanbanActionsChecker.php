@@ -24,11 +24,11 @@ namespace Tuleap\Kanban;
 
 use PFUser;
 use Tracker;
-use Tracker_Semantic_Status;
-use Tracker_Semantic_Title;
 use Tuleap\Tracker\FormElement\Field\RetrieveUsedFields;
 use Tuleap\Tracker\Permission\VerifySubmissionPermissions;
 use Tuleap\Tracker\RetrieveTracker;
+use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
+use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle;
 
 class KanbanActionsChecker
 {
@@ -167,9 +167,9 @@ class KanbanActionsChecker
         return $tracker;
     }
 
-    public function getSemanticStatus(Tracker $tracker): Tracker_Semantic_Status
+    public function getSemanticStatus(Tracker $tracker): TrackerSemanticStatus
     {
-        $semantic = Tracker_Semantic_Status::load($tracker);
+        $semantic = TrackerSemanticStatus::load($tracker);
 
         if (! $semantic->getFieldId()) {
             throw new KanbanSemanticStatusNotDefinedException();
@@ -178,9 +178,9 @@ class KanbanActionsChecker
         return $semantic;
     }
 
-    private function getSemanticTitle(Tracker $tracker): Tracker_Semantic_Title
+    private function getSemanticTitle(Tracker $tracker): TrackerSemanticTitle
     {
-        $semantic = Tracker_Semantic_Title::load($tracker);
+        $semantic = TrackerSemanticTitle::load($tracker);
 
         if (! $semantic->getFieldId()) {
             throw new KanbanSemanticTitleNotDefinedException();
@@ -189,7 +189,7 @@ class KanbanActionsChecker
         return $semantic;
     }
 
-    private function trackerHasOnlyTitleRequired(Tracker $tracker, Tracker_Semantic_Title $semantic_title): bool
+    private function trackerHasOnlyTitleRequired(Tracker $tracker, TrackerSemanticTitle $semantic_title): bool
     {
         $used_fields = $this->form_element_factory->getUsedFields($tracker);
 

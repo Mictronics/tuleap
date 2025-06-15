@@ -81,8 +81,12 @@
             v-if="props.cell.type === PRETTY_TITLE_CELL"
             v-bind:cell="cell"
             v-bind:artifact_uri="artifact_uri"
+            v-bind:number_of_forward_link="number_of_forward_link"
+            v-bind:number_of_reverse_link="number_of_reverse_link"
+            v-on:toggle-links="emit('toggle-links')"
             class="cell"
             v-bind:class="getCommonClasses()"
+            v-bind:level="level"
             data-test="cell"
         />
 
@@ -121,6 +125,7 @@ import { DATE_FORMATTER, DATE_TIME_FORMATTER } from "../../injection-symbols";
 import UserValue from "./UserValue.vue";
 import TextCell from "./TextCell.vue";
 import PrettyTitleCellComponent from "./PrettyTitleCellComponent.vue";
+import type { ToggleLinks } from "../../helpers/ToggleLinksEmit";
 
 const date_formatter = strictInject(DATE_FORMATTER);
 const date_time_formatter = strictInject(DATE_TIME_FORMATTER);
@@ -128,9 +133,14 @@ const date_time_formatter = strictInject(DATE_TIME_FORMATTER);
 const props = defineProps<{
     cell: Cell | undefined;
     artifact_uri: string;
+    number_of_forward_link: number;
+    number_of_reverse_link: number;
     even: boolean;
     last_of_row: boolean;
+    level: number;
 }>();
+
+const emit = defineEmits<ToggleLinks>();
 
 function renderCell(cell: Cell): string {
     if (cell.type === DATE_CELL) {

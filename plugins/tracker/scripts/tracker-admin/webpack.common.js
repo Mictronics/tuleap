@@ -24,6 +24,7 @@ module.exports = [
     {
         entry: {
             "done-semantic": "./src/semantics/status/done-picker.ts",
+            "canned-responses": "./src/canned-responses.ts",
             "field-permissions": "./src/field-permissions.ts",
             "progress-semantic": "./src/semantics/progress/admin-selectors.ts",
             "semantics-homepage": "./src/semantics/homepage.ts",
@@ -36,7 +37,7 @@ module.exports = [
         context: __dirname,
         output: webpack_configurator.configureOutput(
             path.resolve(__dirname, "./frontend-assets/"),
-            "/assets/trackers/tracker-admin",
+            "/assets/trackers/tracker-admin/",
         ),
         externals: {
             codendi: "codendi",

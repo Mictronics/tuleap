@@ -80,7 +80,7 @@
     }
 
     /* stylelint-disable-next-line selector-max-compound-selectors */
-    > thead > tr > th > table > tbody > tr > td > a {
+    > thead > tr > th > table > tbody > tr > td > form > .btn-link {
         color: var(--tlp-main-color);
     }
 
@@ -244,4 +244,8 @@ body.tracker-administration {
 .move-artifact-selectors {
     color: var(--tlp-typo-default-text-color);
     text-shadow: none;
+}
+
+.tracker-add-to-dashboard-form-button {
+    margin: revert;
 }

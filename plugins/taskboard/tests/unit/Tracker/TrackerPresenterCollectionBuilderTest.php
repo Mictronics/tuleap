@@ -64,8 +64,8 @@ final class TrackerPresenterCollectionBuilderTest extends \Tuleap\Test\PHPUnit\T
 
     protected function tearDown(): void
     {
-        \Tracker_Semantic_Title::clearInstances();
-        \Tracker_Semantic_Contributor::clearInstances();
+        \Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle::clearInstances();
+        \Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributor::clearInstances();
     }
 
     /** @return TrackerPresenter[] */
@@ -278,8 +278,8 @@ final class TrackerPresenterCollectionBuilderTest extends \Tuleap\Test\PHPUnit\T
         bool $can_user_update,
         string $classname = \Tracker_FormElement_Field_Text::class,
     ): void {
-        $semantic_title = $this->createMock(\Tracker_Semantic_Title::class);
-        \Tracker_Semantic_Title::setInstance($semantic_title, $taskboard_tracker->getTracker());
+        $semantic_title = $this->createMock(\Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle::class);
+        \Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle::setInstance($semantic_title, $taskboard_tracker->getTracker());
 
         $title_field = null;
 
@@ -301,8 +301,8 @@ final class TrackerPresenterCollectionBuilderTest extends \Tuleap\Test\PHPUnit\T
         bool $can_user_update,
         string $classname = \Tracker_FormElement_Field_Selectbox::class,
     ): void {
-        $semantic_contributor = $this->createMock(\Tracker_Semantic_Contributor::class);
-        \Tracker_Semantic_Contributor::setInstance($semantic_contributor, $taskboard_tracker->getTracker());
+        $semantic_contributor = $this->createMock(\Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributor::class);
+        \Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributor::setInstance($semantic_contributor, $taskboard_tracker->getTracker());
 
         $contributor_field = null;
 

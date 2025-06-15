@@ -58,7 +58,7 @@ final class DefinitionRepresentationBuilderTest extends \Tuleap\Test\PHPUnit\Tes
         $this->purifier                        = $this->createMock(\Codendi_HTMLPurifier::class);
         $this->interpreter                     = $this->createMock(ContentInterpretor::class);
         $this->artifact_representation_builder = $this->createMock(ArtifactRepresentationBuilder::class);
-        $priority_manager                      = $this->createStub(\Tracker_Artifact_PriorityManager::class);
+        $priority_manager                      = $this->createStub(\Tuleap\Tracker\Artifact\PriorityManager::class);
         $priority_manager->method('getGlobalRank')->willReturn(1);
 
         $this->definition_representation_builder = new DefinitionRepresentationBuilder(
@@ -75,7 +75,7 @@ final class DefinitionRepresentationBuilderTest extends \Tuleap\Test\PHPUnit\Tes
 
     protected function tearDown(): void
     {
-        \Tracker_Semantic_Status::clearInstances();
+        \Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus::clearInstances();
 
         parent::tearDown();
     }
@@ -298,9 +298,9 @@ final class DefinitionRepresentationBuilderTest extends \Tuleap\Test\PHPUnit\Tes
 
     private function mockArtifactRepresentationBuilder(Artifact $definition_artifact): void
     {
-        $semantic_status = $this->createMock(\Tracker_Semantic_Status::class);
+        $semantic_status = $this->createMock(\Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus::class);
         $semantic_status->method('getColor');
-        \Tracker_Semantic_Status::setInstance(
+        \Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus::setInstance(
             $semantic_status,
             $definition_artifact->getTracker(),
         );

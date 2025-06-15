@@ -28,6 +28,7 @@
                 v-bind:key="column_name"
                 v-bind:class="{
                     'is-last-cell-of-row': isLastCellOfRow(column_index, columns.size),
+                    'is-pretty-title-column': column_name === PRETTY_TITLE_COLUMN_NAME,
                 }"
                 data-test="column-header"
                 >{{ getColumnName(column_name) }}</span
@@ -39,8 +40,20 @@
                     v-bind:key="column_name + index"
                     v-bind:cell="row.cells.get(column_name)"
                     v-bind:artifact_uri="row.uri"
+                    v-bind:number_of_forward_link="row.number_of_forward_link"
+                    v-bind:number_of_reverse_link="row.number_of_reverse_link"
                     v-bind:even="isEven(index)"
                     v-bind:last_of_row="isLastCellOfRow(column_index, columns.size)"
+                    v-on:toggle-links="toggleLinks(row)"
+                    v-bind:level="0"
+                />
+                <artifact-link-rows
+                    v-if="row.is_expanded"
+                    v-bind:row="row"
+                    v-bind:columns="columns"
+                    v-bind:artifact_id="row.id"
+                    v-bind:query_id="query.id"
+                    v-bind:level="1"
                 />
             </template>
         </div>
@@ -58,16 +71,18 @@
 import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import { EMITTER, GET_COLUMN_NAME, RETRIEVE_ARTIFACTS_TABLE } from "../../injection-symbols";
-import type { ArtifactsTable } from "../../domain/ArtifactsTable";
+import type { ArtifactRow, ArtifactsTable } from "../../domain/ArtifactsTable";
 import SelectablePagination from "./SelectablePagination.vue";
 import EmptyState from "../EmptyState.vue";
 import { ArtifactsRetrievalFault } from "../../domain/ArtifactsRetrievalFault";
 import SelectableCell from "./SelectableCell.vue";
 import type { ColumnName } from "../../domain/ColumnName";
+import { PRETTY_TITLE_COLUMN_NAME } from "../../domain/ColumnName";
 import EditCell from "./EditCell.vue";
 import type { RefreshArtifactsEvent } from "../../helpers/widget-events";
 import { NOTIFY_FAULT_EVENT, REFRESH_ARTIFACTS_EVENT } from "../../helpers/widget-events";
 import type { Query } from "../../type";
+import ArtifactLinkRows from "./ArtifactLinkRows.vue";
 
 const column_name_getter = strictInject(GET_COLUMN_NAME);
 
@@ -153,10 +168,15 @@ const isEven = (index: number): boolean => index % 2 === 0;
 function isLastCellOfRow(index: number, size: number): boolean {
     return index + 1 === size;
 }
+
+function toggleLinks(row: ArtifactRow): void {
+    row.is_expanded = !row.is_expanded;
+}
 </script>
 
 <style scoped lang="scss">
 @use "../../../themes/cell";
+@use "../../../themes/pretty-title";
 
 .overflow-wrapper {
     margin: 0 calc(-1 * var(--tlp-medium-spacing));
@@ -181,5 +201,9 @@ function isLastCellOfRow(index: number, size: number): boolean {
     border-bottom: 2px solid var(--tlp-main-color);
     color: var(--tlp-main-color);
     white-space: nowrap;
+}
+
+.is-pretty-title-column {
+    @include pretty-title.is-pretty-title-column;
 }
 </style>

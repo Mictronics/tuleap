@@ -26,8 +26,6 @@ use Luracast\Restler\RestException;
 use PFUser;
 use Tracker_FormElement_Field_String;
 use Tracker_FormElement_Field_Text;
-use Tracker_Semantic_Description;
-use Tracker_Semantic_Title;
 use Tuleap\Artidoc\Adapter\Document\Section\Identifier\UUIDSectionIdentifierFactory;
 use Tuleap\Artidoc\Domain\Document\Section\Artifact\ArtifactContent;
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifier;
@@ -37,6 +35,8 @@ use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\NeverThrow\Result;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
+use Tuleap\Tracker\Semantic\Description\TrackerSemanticDescription;
+use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\FileFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\StringFieldBuilder;
@@ -75,8 +75,8 @@ final class ArtifactContentUpdaterTest extends TestCase
 
     protected function tearDown(): void
     {
-        Tracker_Semantic_Title::clearInstances();
-        Tracker_Semantic_Description::clearInstances();
+        TrackerSemanticTitle::clearInstances();
+        TrackerSemanticDescription::clearInstances();
     }
 
     public function testFaultWhenArtifactCannotBeFound(): void
@@ -119,8 +119,8 @@ final class ArtifactContentUpdaterTest extends TestCase
             ->build();
 
         $tracker = $artifact->getTracker();
-        Tracker_Semantic_Title::setInstance(
-            new Tracker_Semantic_Title($tracker, null),
+        TrackerSemanticTitle::setInstance(
+            new TrackerSemanticTitle($tracker, null),
             $tracker,
         );
 
@@ -159,8 +159,8 @@ final class ArtifactContentUpdaterTest extends TestCase
             ->build();
 
         $tracker = $artifact->getTracker();
-        Tracker_Semantic_Title::setInstance(
-            new Tracker_Semantic_Title($tracker, $this->readonly_title_field),
+        TrackerSemanticTitle::setInstance(
+            new TrackerSemanticTitle($tracker, $this->readonly_title_field),
             $tracker,
         );
 
@@ -199,12 +199,12 @@ final class ArtifactContentUpdaterTest extends TestCase
             ->build();
 
         $tracker = $artifact->getTracker();
-        Tracker_Semantic_Title::setInstance(
-            new Tracker_Semantic_Title($tracker, $this->updatable_title_field),
+        TrackerSemanticTitle::setInstance(
+            new TrackerSemanticTitle($tracker, $this->updatable_title_field),
             $tracker,
         );
-        Tracker_Semantic_Description::setInstance(
-            new Tracker_Semantic_Description($tracker, null),
+        TrackerSemanticDescription::setInstance(
+            new TrackerSemanticDescription($tracker, null),
             $tracker,
         );
 
@@ -243,12 +243,12 @@ final class ArtifactContentUpdaterTest extends TestCase
             ->build();
 
         $tracker = $artifact->getTracker();
-        Tracker_Semantic_Title::setInstance(
-            new Tracker_Semantic_Title($tracker, $this->updatable_title_field),
+        TrackerSemanticTitle::setInstance(
+            new TrackerSemanticTitle($tracker, $this->updatable_title_field),
             $tracker,
         );
-        Tracker_Semantic_Description::setInstance(
-            new Tracker_Semantic_Description($tracker, $this->readonly_description_field),
+        TrackerSemanticDescription::setInstance(
+            new TrackerSemanticDescription($tracker, $this->readonly_description_field),
             $tracker,
         );
 
@@ -287,12 +287,12 @@ final class ArtifactContentUpdaterTest extends TestCase
             ->build();
 
         $tracker = $artifact->getTracker();
-        Tracker_Semantic_Title::setInstance(
-            new Tracker_Semantic_Title($tracker, $this->updatable_title_field),
+        TrackerSemanticTitle::setInstance(
+            new TrackerSemanticTitle($tracker, $this->updatable_title_field),
             $tracker,
         );
-        Tracker_Semantic_Description::setInstance(
-            new Tracker_Semantic_Description($tracker, $this->updatable_description_field),
+        TrackerSemanticDescription::setInstance(
+            new TrackerSemanticDescription($tracker, $this->updatable_description_field),
             $tracker,
         );
 
@@ -331,12 +331,12 @@ final class ArtifactContentUpdaterTest extends TestCase
             ->build();
 
         $tracker = $artifact->getTracker();
-        Tracker_Semantic_Title::setInstance(
-            new Tracker_Semantic_Title($tracker, $this->updatable_title_field),
+        TrackerSemanticTitle::setInstance(
+            new TrackerSemanticTitle($tracker, $this->updatable_title_field),
             $tracker,
         );
-        Tracker_Semantic_Description::setInstance(
-            new Tracker_Semantic_Description($tracker, $this->updatable_description_field),
+        TrackerSemanticDescription::setInstance(
+            new TrackerSemanticDescription($tracker, $this->updatable_description_field),
             $tracker,
         );
 
@@ -387,12 +387,12 @@ final class ArtifactContentUpdaterTest extends TestCase
             ->build();
 
         $tracker = $artifact->getTracker();
-        Tracker_Semantic_Title::setInstance(
-            new Tracker_Semantic_Title($tracker, $this->getTextField(self::TITLE_ID, true)),
+        TrackerSemanticTitle::setInstance(
+            new TrackerSemanticTitle($tracker, $this->getTextField(self::TITLE_ID, true)),
             $tracker,
         );
-        Tracker_Semantic_Description::setInstance(
-            new Tracker_Semantic_Description($tracker, $this->updatable_description_field),
+        TrackerSemanticDescription::setInstance(
+            new TrackerSemanticDescription($tracker, $this->updatable_description_field),
             $tracker,
         );
 
@@ -449,12 +449,12 @@ final class ArtifactContentUpdaterTest extends TestCase
             ->build();
 
         $tracker = $artifact->getTracker();
-        Tracker_Semantic_Title::setInstance(
-            new Tracker_Semantic_Title($tracker, $this->updatable_title_field),
+        TrackerSemanticTitle::setInstance(
+            new TrackerSemanticTitle($tracker, $this->updatable_title_field),
             $tracker,
         );
-        Tracker_Semantic_Description::setInstance(
-            new Tracker_Semantic_Description($tracker, $this->updatable_description_field),
+        TrackerSemanticDescription::setInstance(
+            new TrackerSemanticDescription($tracker, $this->updatable_description_field),
             $tracker,
         );
 

@@ -36,5 +36,5 @@ interface RetrieveQueryTrackers
      * @throws MissingFromException
      * @throws FromIsInvalidException
      */
-    public function getQueryTrackers(CrossTrackerQuery $query, PFUser $current_user, int $limit): array;
+    public function getQueryTrackers(ParsedCrossTrackerQuery $query, PFUser $current_user, int $limit): array;
 }

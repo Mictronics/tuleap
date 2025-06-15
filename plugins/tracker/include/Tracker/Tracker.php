@@ -130,6 +130,11 @@ use Tuleap\Tracker\Permission\VerifySubmissionPermissions;
 use Tuleap\Tracker\PromotedTrackerDao;
 use Tuleap\Tracker\REST\Artifact\ChangesetValue\ArtifactLink\NewArtifactLinkChangesetValueBuilder;
 use Tuleap\Tracker\REST\Artifact\ChangesetValue\ArtifactLink\NewArtifactLinkInitialChangesetValueBuilder;
+use Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributor;
+use Tuleap\Tracker\Semantic\Description\TrackerSemanticDescription;
+use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
+use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatusFactory;
+use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle;
 use Tuleap\Tracker\Semantic\Tooltip\SemanticTooltip;
 use Tuleap\Tracker\Tooltip\TrackerStats;
 use Tuleap\Tracker\TrackerColor;
@@ -247,15 +252,13 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
     // (before Database import) during XML import
     // they are not used after the import
     public $tooltip;
-    public $cannedResponses = [];
-    public $formElements    = [];
-    public $reports         = [];
+    public array $cannedResponses = [];
+    public array $formElements    = [];
+    public array $reports         = [];
     public $workflow;
-    public $webhooks = [];
-    /**
-     * @var array
-     */
-    public $semantics = [];
+    public array $webhooks  = [];
+    public array $semantics = [];
+    public array $rules     = [];
 
     private $is_project_allowed_to_use_type;
 
@@ -1192,7 +1195,7 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
                 new RecentlyVisitedDao(),
                 $this->getTrackerArtifactFactory(),
                 new \Tuleap\Glyph\GlyphFinder($event_manager),
-                new \Tuleap\Tracker\Artifact\StatusBadgeBuilder(Tracker_Semantic_StatusFactory::instance()),
+                new \Tuleap\Tracker\Artifact\StatusBadgeBuilder(TrackerSemanticStatusFactory::instance()),
                 $event_manager
             );
             $recently_visited_artifacts = $visit_retriever->getMostRecentlySeenArtifacts(
@@ -1659,6 +1662,7 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
                 $this->displayRulesAsJavascript(),
                 $event->getExternalActions(),
                 ! $this->isNotificationStopped(),
+                new CSRFSynchronizerToken($this->getUri()),
             )
         );
 
@@ -3037,7 +3041,7 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
      */
     public function hasSemanticsTitle()
     {
-        return Tracker_Semantic_Title::load($this)->getFieldId() ? true : false;
+        return TrackerSemanticTitle::load($this)->getFieldId() ? true : false;
     }
 
     /**
@@ -3047,7 +3051,7 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
      */
     public function getTitleField()
     {
-        $title_field = Tracker_Semantic_Title::load($this)->getField();
+        $title_field = TrackerSemanticTitle::load($this)->getField();
         if ($title_field) {
             return $title_field;
         } else {
@@ -3062,7 +3066,7 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
      */
     public function hasSemanticsDescription()
     {
-        return Tracker_Semantic_Description::load($this)->getFieldId() ? true : false;
+        return TrackerSemanticDescription::load($this)->getFieldId() ? true : false;
     }
 
     /**
@@ -3072,7 +3076,7 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
      */
     public function getDescriptionField()
     {
-        $title_field = Tracker_Semantic_Description::load($this)->getField();
+        $title_field = TrackerSemanticDescription::load($this)->getField();
         if ($title_field) {
             return $title_field;
         } else {
@@ -3087,7 +3091,7 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
      */
     public function hasSemanticsStatus()
     {
-        return Tracker_Semantic_Status::load($this)->getFieldId() ? true : false;
+        return TrackerSemanticStatus::load($this)->getFieldId() ? true : false;
     }
 
     /**
@@ -3097,7 +3101,7 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
      */
     public function getStatusField()
     {
-        $status_field = Tracker_Semantic_Status::load($this)->getField();
+        $status_field = TrackerSemanticStatus::load($this)->getField();
         if ($status_field) {
             return $status_field;
         } else {
@@ -3112,7 +3116,7 @@ class Tracker implements Tracker_Dispatchable_Interface //phpcs:ignore PSR1.Clas
      */
     public function getContributorField()
     {
-        $contributor_field = Tracker_Semantic_Contributor::load($this)->getField();
+        $contributor_field = TrackerSemanticContributor::load($this)->getField();
         if ($contributor_field) {
             return $contributor_field;
         } else {

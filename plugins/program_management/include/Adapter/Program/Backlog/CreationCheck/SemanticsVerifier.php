@@ -55,7 +55,7 @@ final readonly class SemanticsVerifier implements VerifySemanticsAreConfigured
                 $configuration_errors,
                 $this->getProgramTrackersWithoutTitleDefined($source_tracker_collection),
                 dgettext('tuleap-program_management', 'Title'),
-                \Tracker_Semantic_Title::NAME
+                \Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle::NAME
             );
             $has_error = true;
             if (! $configuration_errors->shouldCollectAllIssues()) {
@@ -67,7 +67,7 @@ final readonly class SemanticsVerifier implements VerifySemanticsAreConfigured
                 $configuration_errors,
                 $this->getProgramTrackersWithoutDescriptionDefined($source_tracker_collection),
                 dgettext('tuleap-program_management', 'Description'),
-                \Tracker_Semantic_Description::NAME
+                \Tuleap\Tracker\Semantic\Description\TrackerSemanticDescription::NAME
             );
             $has_error = true;
             if (! $configuration_errors->shouldCollectAllIssues()) {

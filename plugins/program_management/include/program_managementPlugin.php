@@ -272,6 +272,8 @@ use Tuleap\Tracker\REST\v1\Event\GetExternalPostActionJsonParserEvent;
 use Tuleap\Tracker\REST\v1\Event\PostActionVisitExternalActionsEvent;
 use Tuleap\Tracker\REST\v1\Workflow\PostAction\CheckPostActionsForTracker;
 use Tuleap\Tracker\Semantic\Description\DescriptionSemanticDAO;
+use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatusDao;
+use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatusFactory;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeBuilder;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeDao;
 use Tuleap\Tracker\Semantic\Title\TitleSemanticDAO;
@@ -491,7 +493,7 @@ final class program_managementPlugin extends Plugin implements PluginWithService
         $user_manager_adapter          = new UserManagerAdapter($user_manager);
         $form_element_factory          = \Tracker_FormElementFactory::instance();
         $timeframe_dao                 = new SemanticTimeframeDao();
-        $semantic_status_factory       = new Tracker_Semantic_StatusFactory();
+        $semantic_status_factory       = new TrackerSemanticStatusFactory();
         $logger                        = $this->getLogger();
         $planning_adapter              = new PlanningAdapter(\PlanningFactory::build(), $user_manager_adapter);
         $program_increments_dao        = new ProgramIncrementsDAO();
@@ -503,8 +505,8 @@ final class program_managementPlugin extends Plugin implements PluginWithService
 
         $gatherer = new SynchronizedFieldsGatherer(
             $tracker_retriever,
-            new \Tracker_Semantic_TitleFactory(),
-            new \Tracker_Semantic_DescriptionFactory(),
+            new \Tuleap\Tracker\Semantic\Title\TrackerSemanticTitleFactory(),
+            new \Tuleap\Tracker\Semantic\Description\TrackerSemanticDescriptionFactory(),
             $semantic_status_factory,
             new SemanticTimeframeBuilder(
                 $timeframe_dao,
@@ -533,7 +535,7 @@ final class program_managementPlugin extends Plugin implements PluginWithService
                 new TitleSemanticDAO(),
                 new DescriptionSemanticDAO(),
                 new StatusIsAlignedVerifier(
-                    new Tracker_Semantic_StatusDao(),
+                    new TrackerSemanticStatusDao(),
                     $semantic_status_factory,
                     $tracker_factory
                 ),
@@ -623,7 +625,7 @@ final class program_managementPlugin extends Plugin implements PluginWithService
                 $artifact_visible_verifier,
                 new ProgramIncrementRetriever(
                     new StatusValueRetriever($artifact_retriever, $user_retriever),
-                    new TitleValueRetriever($artifact_retriever, $user_retriever, \Tracker_Semantic_TitleFactory::instance()),
+                    new TitleValueRetriever($artifact_retriever, $user_retriever, \Tuleap\Tracker\Semantic\Title\TrackerSemanticTitleFactory::instance()),
                     new TimeframeValueRetriever(
                         $artifact_retriever,
                         $user_retriever,
@@ -668,7 +670,7 @@ final class program_managementPlugin extends Plugin implements PluginWithService
         $update_verifier          = new UserCanUpdateTimeboxVerifier($artifact_retriever, $user_retriever);
         $project_manager_adapter  = new ProjectManagerAdapter(ProjectManager::instance(), $user_retriever);
         $program_dao              = new ProgramDaoProject();
-        $title_retriever          = new TitleValueRetriever($artifact_retriever, $user_retriever, \Tracker_Semantic_TitleFactory::instance());
+        $title_retriever          = new TitleValueRetriever($artifact_retriever, $user_retriever, \Tuleap\Tracker\Semantic\Title\TrackerSemanticTitleFactory::instance());
         $program_adapter          = CachedProgramBuilder::instance();
 
         $project_access_checker = new ProjectAccessChecker(
@@ -858,7 +860,7 @@ final class program_managementPlugin extends Plugin implements PluginWithService
                         $artifact_visible_verifier,
                         new ProgramIncrementRetriever(
                             new StatusValueRetriever($artifact_retriever, $user_retriever),
-                            new TitleValueRetriever($artifact_retriever, $user_retriever, \Tracker_Semantic_TitleFactory::instance()),
+                            new TitleValueRetriever($artifact_retriever, $user_retriever, \Tuleap\Tracker\Semantic\Title\TrackerSemanticTitleFactory::instance()),
                             new TimeframeValueRetriever(
                                 $artifact_retriever,
                                 $user_retriever,
@@ -1283,7 +1285,7 @@ final class program_managementPlugin extends Plugin implements PluginWithService
     private function getTopBacklogChangeProcessor(): TopBacklogChangeProcessor
     {
         $artifact_factory               = Tracker_ArtifactFactory::instance();
-        $priority_manager               = \Tracker_Artifact_PriorityManager::build();
+        $priority_manager               = \Tuleap\Tracker\Artifact\PriorityManager::build();
         $user_manager_adapter           = new UserManagerAdapter(UserManager::instance());
         $artifacts_linked_to_parent_dao = new ArtifactsLinkedToParentDao();
         $project_manager_adapter        = new ProjectManagerAdapter(ProjectManager::instance(), $user_manager_adapter);
@@ -1487,7 +1489,7 @@ final class program_managementPlugin extends Plugin implements PluginWithService
         $retrieve_user                 = new UserManagerAdapter($user_manager);
         $form_element_factory          = \Tracker_FormElementFactory::instance();
         $timeframe_dao                 = new SemanticTimeframeDao();
-        $semantic_status_factory       = new Tracker_Semantic_StatusFactory();
+        $semantic_status_factory       = new TrackerSemanticStatusFactory();
         $logger                        = $this->getLogger();
         $planning_adapter              = new PlanningAdapter(\PlanningFactory::build(), $retrieve_user);
         $program_increments_dao        = new ProgramIncrementsDAO();
@@ -1500,8 +1502,8 @@ final class program_managementPlugin extends Plugin implements PluginWithService
 
         $gatherer = new SynchronizedFieldsGatherer(
             $tracker_retriever,
-            new \Tracker_Semantic_TitleFactory(),
-            new \Tracker_Semantic_DescriptionFactory(),
+            new \Tuleap\Tracker\Semantic\Title\TrackerSemanticTitleFactory(),
+            new \Tuleap\Tracker\Semantic\Description\TrackerSemanticDescriptionFactory(),
             $semantic_status_factory,
             new SemanticTimeframeBuilder(
                 $timeframe_dao,
@@ -1530,7 +1532,7 @@ final class program_managementPlugin extends Plugin implements PluginWithService
                 new TitleSemanticDAO(),
                 new DescriptionSemanticDAO(),
                 new StatusIsAlignedVerifier(
-                    new Tracker_Semantic_StatusDao(),
+                    new TrackerSemanticStatusDao(),
                     $semantic_status_factory,
                     $tracker_factory
                 ),

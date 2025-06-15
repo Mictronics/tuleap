@@ -26,6 +26,12 @@ import ErrorFeedback from "@/components/configuration/ErrorFeedback.vue";
 import ConfigurationPanel from "@/components/configuration/ConfigurationPanel.vue";
 import { CONFIGURATION_STORE } from "@/stores/configuration-store";
 import { TITLE } from "@/title-injection-key";
+import {
+    ALLOWED_TRACKERS,
+    buildAllowedTrackersCollection,
+} from "@/configuration/AllowedTrackersCollection";
+import { SELECTED_TRACKER } from "@/configuration/SelectedTracker";
+import { SelectedTrackerStub } from "@/helpers/stubs/SelectedTrackerStub";
 
 describe("ConfigurationPanel", () => {
     it("should display error feedback", () => {
@@ -35,6 +41,8 @@ describe("ConfigurationPanel", () => {
                 provide: {
                     [TITLE.valueOf()]: "My Document",
                     [CONFIGURATION_STORE.valueOf()]: ConfigurationStoreStub.withError(),
+                    [SELECTED_TRACKER.valueOf()]: SelectedTrackerStub.withNoTracker(),
+                    [ALLOWED_TRACKERS.valueOf()]: buildAllowedTrackersCollection([]),
                 },
             },
         });

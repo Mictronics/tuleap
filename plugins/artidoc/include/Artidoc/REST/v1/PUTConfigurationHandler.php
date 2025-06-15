@@ -129,7 +129,7 @@ final readonly class PUTConfigurationHandler
         }
 
         return $this->retrieve_suitable_field->retrieveField($input_field->field_id, $user)
-            ->andThen(function (\Tracker_FormElement_Field_String $field) use ($display_type, $tracker) {
+            ->andThen(function (\Tracker_FormElement_Field_String|\Tracker_FormElement_Field_List $field) use ($display_type, $tracker) {
                 if ($field->getTrackerId() !== $tracker->getId()) {
                     return Result::err(
                         FieldDoesNotBelongToTrackerFault::build($field->getId(), $tracker->getId())

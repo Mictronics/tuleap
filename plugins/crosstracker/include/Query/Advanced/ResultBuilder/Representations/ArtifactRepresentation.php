@@ -30,7 +30,10 @@ use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\SelectedValueRepresentation
 final readonly class ArtifactRepresentation implements SelectedValueRepresentation
 {
     public function __construct(
+        public int $id,
         public string $uri,
+        public int $number_of_forward_link,
+        public int $number_of_reverse_link,
     ) {
     }
 }

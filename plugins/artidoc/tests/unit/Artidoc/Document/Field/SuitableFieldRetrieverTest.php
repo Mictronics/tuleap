@@ -24,8 +24,6 @@ namespace Tuleap\Artidoc\Document\Field;
 
 use PFUser;
 use Tracker;
-use Tracker_Semantic_Description;
-use Tracker_Semantic_Title;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldIsDescriptionSemanticFault;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldIsTitleSemanticFault;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldNotFoundFault;
@@ -36,7 +34,13 @@ use Tuleap\NeverThrow\Ok;
 use Tuleap\NeverThrow\Result;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
+use Tuleap\Tracker\Semantic\Description\TrackerSemanticDescription;
+use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle;
 use Tuleap\Tracker\Test\Builders\Fields\ExternalFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticBindBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\List\ListUserBindBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\List\ListUserGroupBindBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\StringFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Test\Stub\RetrieveUsedFieldsStub;
@@ -55,24 +59,24 @@ final class SuitableFieldRetrieverTest extends TestCase
         $this->user            = UserTestBuilder::buildWithDefaults();
         $this->field_retriever = RetrieveUsedFieldsStub::withNoFields();
 
-        Tracker_Semantic_Title::setInstance(
-            new Tracker_Semantic_Title($this->tracker, null),
+        TrackerSemanticTitle::setInstance(
+            new TrackerSemanticTitle($this->tracker, null),
             $this->tracker,
         );
-        Tracker_Semantic_Description::setInstance(
-            new Tracker_Semantic_Description($this->tracker, null),
+        TrackerSemanticDescription::setInstance(
+            new TrackerSemanticDescription($this->tracker, null),
             $this->tracker,
         );
     }
 
     protected function tearDown(): void
     {
-        Tracker_Semantic_Title::clearInstances();
-        Tracker_Semantic_Description::clearInstances();
+        TrackerSemanticTitle::clearInstances();
+        TrackerSemanticDescription::clearInstances();
     }
 
     /**
-     * @return Ok<\Tracker_FormElement_Field_String> | Err<Fault>
+     * @return Ok<\Tracker_FormElement_Field_String> | Ok<\Tracker_FormElement_Field_List> | Err<Fault>
      */
     private function retrieve(): Ok|Err
     {
@@ -112,8 +116,8 @@ final class SuitableFieldRetrieverTest extends TestCase
             ->build();
         $this->field_retriever = RetrieveUsedFieldsStub::withFields($field);
 
-        Tracker_Semantic_Title::setInstance(
-            new Tracker_Semantic_Title($this->tracker, $field),
+        TrackerSemanticTitle::setInstance(
+            new TrackerSemanticTitle($this->tracker, $field),
             $this->tracker,
         );
 
@@ -130,8 +134,8 @@ final class SuitableFieldRetrieverTest extends TestCase
             ->build();
         $this->field_retriever = RetrieveUsedFieldsStub::withFields($field);
 
-        Tracker_Semantic_Description::setInstance(
-            new Tracker_Semantic_Description($this->tracker, $field),
+        TrackerSemanticDescription::setInstance(
+            new TrackerSemanticDescription($this->tracker, $field),
             $this->tracker,
         );
 
@@ -151,5 +155,52 @@ final class SuitableFieldRetrieverTest extends TestCase
         $result = $this->retrieve();
         self::assertTrue(Result::isOk($result));
         self::assertSame($string_field, $result->value);
+    }
+
+    public function testItAllowsListFieldBoundToUserGroups(): void
+    {
+        $list_field            = ListUserGroupBindBuilder::aUserGroupBind(
+            ListFieldBuilder::aListField(self::FIELD_ID)
+                ->withMultipleValues()
+                ->inTracker($this->tracker)
+                ->withReadPermission($this->user, true)
+                ->build(),
+        )->build()->getField();
+        $this->field_retriever = RetrieveUsedFieldsStub::withFields($list_field);
+
+        $result = $this->retrieve();
+        self::assertTrue(Result::isOk($result));
+        self::assertSame($list_field, $result->value);
+    }
+
+    public function testItRejectsListFieldBoundToStaticValues(): void
+    {
+        $list_field            = ListStaticBindBuilder::aStaticBind(
+            ListFieldBuilder::aListField(self::FIELD_ID)
+                ->withMultipleValues()
+                ->inTracker($this->tracker)
+                ->withReadPermission($this->user, true)
+                ->build(),
+        )->build()->getField();
+        $this->field_retriever = RetrieveUsedFieldsStub::withFields($list_field);
+
+        $result = $this->retrieve();
+        self::assertTrue(Result::isErr($result));
+        self::assertInstanceOf(FieldNotSupportedFault::class, $result->error);
+    }
+
+    public function testItRejectsListFieldBoundToUsers(): void
+    {
+        $list_field            = ListUserBindBuilder::aUserBind(
+            ListFieldBuilder::aListField(self::FIELD_ID)
+                ->inTracker($this->tracker)
+                ->withReadPermission($this->user, true)
+                ->build(),
+        )->build()->getField();
+        $this->field_retriever = RetrieveUsedFieldsStub::withFields($list_field);
+
+        $result = $this->retrieve();
+        self::assertTrue(Result::isErr($result));
+        self::assertInstanceOf(FieldNotSupportedFault::class, $result->error);
     }
 }

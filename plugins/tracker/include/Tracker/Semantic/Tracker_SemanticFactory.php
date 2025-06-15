@@ -21,18 +21,23 @@
  */
 
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkFieldValueDao;
+use Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributorFactory;
+use Tuleap\Tracker\Semantic\Description\TrackerSemanticDescriptionFactory;
 use Tuleap\Tracker\Semantic\IBuildSemanticFromXML;
+use Tuleap\Tracker\Semantic\Progress\SemanticProgress;
 use Tuleap\Tracker\Semantic\Progress\SemanticProgressDao;
 use Tuleap\Tracker\Semantic\Progress\SemanticProgressDuplicator;
-use Tuleap\Tracker\Semantic\Progress\SemanticProgress;
 use Tuleap\Tracker\Semantic\Progress\SemanticProgressFromXMLBuilder;
 use Tuleap\Tracker\Semantic\Status\Done\SemanticDone;
 use Tuleap\Tracker\Semantic\Status\Done\SemanticDoneDao;
 use Tuleap\Tracker\Semantic\Status\Done\SemanticDoneDuplicator;
 use Tuleap\Tracker\Semantic\Status\Done\SemanticDoneFactory;
 use Tuleap\Tracker\Semantic\Status\Done\SemanticDoneValueChecker;
+use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatusDao;
+use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatusFactory;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeBuilder;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeFromXMLBuilder;
+use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitleFactory;
 use Tuleap\Tracker\Semantic\Tooltip\SemanticTooltip;
 use Tuleap\Tracker\Semantic\Tooltip\SemanticTooltipFactory;
 
@@ -170,31 +175,31 @@ class Tracker_SemanticFactory
     /**
      * Returns an instance of Tracker_Semantic_TitleFactory
      *
-     * @return Tracker_Semantic_TitleFactory an instance of the factory
+     * @return TrackerSemanticTitleFactory an instance of the factory
      */
     public function getSemanticTitleFactory()
     {
-        return Tracker_Semantic_TitleFactory::instance();
+        return TrackerSemanticTitleFactory::instance();
     }
 
     /**
      * Returns an instance of Tracker_Semantic_TitleFactory
      *
-     * @return Tracker_Semantic_DescriptionFactory an instance of the factory
+     * @return TrackerSemanticDescriptionFactory an instance of the factory
      */
     public function getSemanticDescriptionFactory()
     {
-        return Tracker_Semantic_DescriptionFactory::instance();
+        return TrackerSemanticDescriptionFactory::instance();
     }
 
     /**
      * Returns an instance of Tracker_Semantic_StatusFactory
      *
-     * @return Tracker_Semantic_StatusFactory an instance of the factory
+     * @return TrackerSemanticStatusFactory an instance of the factory
      */
     public function getSemanticStatusFactory()
     {
-        return Tracker_Semantic_StatusFactory::instance();
+        return TrackerSemanticStatusFactory::instance();
     }
 
     /**
@@ -210,11 +215,11 @@ class Tracker_SemanticFactory
     /**
      * Returns an instance of Tracker_ContributorFactory
      *
-     * @return Tracker_Semantic_ContributorFactory an instance of the factory
+     * @return TrackerSemanticContributorFactory an instance of the factory
      */
     public function getSemanticContributorFactory()
     {
-        return Tracker_Semantic_ContributorFactory::instance();
+        return TrackerSemanticContributorFactory::instance();
     }
 
     private function getSemanticDoneFactory(): SemanticDoneFactory
@@ -261,7 +266,7 @@ class Tracker_SemanticFactory
             new SemanticProgressDuplicator(new SemanticProgressDao()),
             new SemanticDoneDuplicator(
                 new SemanticDoneDao(),
-                new Tracker_Semantic_StatusDao()
+                new TrackerSemanticStatusDao()
             ),
         ];
 

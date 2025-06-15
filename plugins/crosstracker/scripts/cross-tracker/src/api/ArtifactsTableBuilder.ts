@@ -148,6 +148,36 @@ function findArtifactURI(selectable: ArtifactSelectable, artifact: ArtifactRepre
     return artifact_value.uri;
 }
 
+function findArtifactId(selectable: ArtifactSelectable, artifact: ArtifactRepresentation): number {
+    const artifact_value = artifact[selectable.name];
+    if (!isArtifactSelectableRepresentation(artifact_value)) {
+        throw Error(getErrorMessageToWarnTuleapDevs(selectable));
+    }
+    return artifact_value.id;
+}
+
+function findNumberOfForwardLink(
+    selectable: ArtifactSelectable,
+    artifact: ArtifactRepresentation,
+): number {
+    const artifact_value = artifact[selectable.name];
+    if (!isArtifactSelectableRepresentation(artifact_value)) {
+        throw Error(getErrorMessageToWarnTuleapDevs(selectable));
+    }
+    return artifact_value.number_of_forward_link;
+}
+
+function findNumberOfReverseLink(
+    selectable: ArtifactSelectable,
+    artifact: ArtifactRepresentation,
+): number {
+    const artifact_value = artifact[selectable.name];
+    if (!isArtifactSelectableRepresentation(artifact_value)) {
+        throw Error(getErrorMessageToWarnTuleapDevs(selectable));
+    }
+    return artifact_value.number_of_reverse_link;
+}
+
 const mapUserRepresentationToUser = (user: UserSelectableRepresentation): UserCellValue => ({
     display_name: user.display_name,
     avatar_uri: user.avatar_url,
@@ -257,7 +287,24 @@ export const ArtifactsTableBuilder = (): ArtifactsTableBuilder => {
                 initial_table.columns.add(artifact_selectable.name);
                 return query_content.artifacts.reduce((accumulator, artifact) => {
                     const artifact_uri = findArtifactURI(artifact_selectable, artifact);
-                    const row: ArtifactRow = { uri: artifact_uri, cells: new Map<string, Cell>() };
+                    const artifact_id = findArtifactId(artifact_selectable, artifact);
+                    const number_of_forward_link = findNumberOfForwardLink(
+                        artifact_selectable,
+                        artifact,
+                    );
+                    const number_of_reverse_link = findNumberOfReverseLink(
+                        artifact_selectable,
+                        artifact,
+                    );
+
+                    const row: ArtifactRow = {
+                        id: artifact_id,
+                        number_of_forward_link,
+                        number_of_reverse_link,
+                        is_expanded: false,
+                        uri: artifact_uri,
+                        cells: new Map<string, Cell>(),
+                    };
                     for (const selectable of query_content.selected) {
                         // Filter out unsupported selectable
                         buildCell(selectable, artifact).map((cell) => {

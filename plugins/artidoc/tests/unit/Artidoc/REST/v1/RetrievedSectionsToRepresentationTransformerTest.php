@@ -30,10 +30,10 @@ use Tracker_Artifact_Changeset;
 use Tracker_FormElement_Field_File;
 use Tracker_FormElement_Field_String;
 use Tracker_FormElement_Field_Text;
-use Tracker_Semantic_Description;
-use Tracker_Semantic_Title;
 use Tuleap\Artidoc\Adapter\Document\ArtidocDocument;
 use Tuleap\Artidoc\Adapter\Document\Section\RequiredSectionInformationCollector;
+use Tuleap\Artidoc\Document\Field\ConfiguredFieldCollection;
+use Tuleap\Artidoc\Document\Field\FieldsWithValuesBuilder;
 use Tuleap\Artidoc\Domain\Document\ArtidocWithContext;
 use Tuleap\Artidoc\Domain\Document\Section\PaginatedRetrievedSections;
 use Tuleap\Artidoc\Domain\Document\Section\RetrievedSection;
@@ -43,7 +43,6 @@ use Tuleap\Artidoc\REST\v1\ArtifactSection\ArtifactSectionRepresentationBuilder;
 use Tuleap\Artidoc\REST\v1\ArtifactSection\RequiredArtifactInformationBuilder;
 use Tuleap\Artidoc\Stubs\Document\FreetextIdentifierStub;
 use Tuleap\Artidoc\Stubs\Document\SectionIdentifierStub;
-use Tuleap\Artidoc\Stubs\REST\v1\BuildSectionFieldsStub;
 use Tuleap\NeverThrow\Err;
 use Tuleap\NeverThrow\Fault;
 use Tuleap\NeverThrow\Ok;
@@ -55,6 +54,8 @@ use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Artifact\UploadDataAttributesForRichTextEditorBuilder;
 use Tuleap\Tracker\REST\Artifact\ArtifactFieldValueFileFullRepresentation;
 use Tuleap\Tracker\REST\Artifact\FileInfoRepresentation;
+use Tuleap\Tracker\Semantic\Description\TrackerSemanticDescription;
+use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetValueTextTestBuilder;
@@ -69,8 +70,8 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
 {
     private PFUser $user;
     private Tracker $tracker;
-    private Tracker_Semantic_Title&MockObject $semantic_title;
-    private Tracker_Semantic_Description&MockObject $semantic_description;
+    private TrackerSemanticTitle&MockObject $semantic_title;
+    private TrackerSemanticDescription&MockObject $semantic_description;
     private RetrieveArtifactStub $artifact_retriever;
     private GetFileUploadDataStub $file_upload_provider;
 
@@ -81,19 +82,19 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
             ->withProject(ProjectTestBuilder::aProject()->build())
             ->build();
 
-        $this->semantic_title       = $this->createMock(Tracker_Semantic_Title::class);
-        $this->semantic_description = $this->createMock(Tracker_Semantic_Description::class);
+        $this->semantic_title       = $this->createMock(TrackerSemanticTitle::class);
+        $this->semantic_description = $this->createMock(TrackerSemanticDescription::class);
 
-        Tracker_Semantic_Title::setInstance($this->semantic_title, $this->tracker);
-        Tracker_Semantic_Description::setInstance($this->semantic_description, $this->tracker);
+        TrackerSemanticTitle::setInstance($this->semantic_title, $this->tracker);
+        TrackerSemanticDescription::setInstance($this->semantic_description, $this->tracker);
         $this->artifact_retriever   = RetrieveArtifactStub::withNoArtifact();
         $this->file_upload_provider = GetFileUploadDataStub::withoutField();
     }
 
     protected function tearDown(): void
     {
-        Tracker_Semantic_Title::clearInstances();
-        Tracker_Semantic_Description::clearInstances();
+        TrackerSemanticTitle::clearInstances();
+        TrackerSemanticDescription::clearInstances();
     }
 
     /**
@@ -106,7 +107,9 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
             new SectionRepresentationBuilder(
                 new ArtifactSectionRepresentationBuilder(
                     $this->file_upload_provider,
-                    BuildSectionFieldsStub::withoutFields()
+                    new FieldsWithValuesBuilder(
+                        new ConfiguredFieldCollection([])
+                    )
                 ),
             ),
             new RequiredSectionInformationCollector(

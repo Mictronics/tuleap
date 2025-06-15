@@ -24,16 +24,20 @@ use Tuleap\Tracker\Admin\ArtifactLinksUsageDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
 use Tuleap\Tracker\Semantic\CollectionOfSemanticsUsingAParticularTrackerField;
+use Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributor;
+use Tuleap\Tracker\Semantic\Description\TrackerSemanticDescription;
 use Tuleap\Tracker\Semantic\Progress\MethodBuilder;
 use Tuleap\Tracker\Semantic\Progress\SemanticProgress;
 use Tuleap\Tracker\Semantic\Progress\SemanticProgressBuilder;
 use Tuleap\Tracker\Semantic\Progress\SemanticProgressDao;
 use Tuleap\Tracker\Semantic\Status\Done\SemanticDone;
+use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframe;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeBuilder;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeDao;
+use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle;
 
-class Tracker_SemanticManager
+class Tracker_SemanticManager //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
 {
     /**
      * Fetch the semantics used by other plugins
@@ -192,14 +196,14 @@ class Tracker_SemanticManager
     {
         $semantics = new Tracker_SemanticCollection();
 
-        $semantics->add(Tracker_Semantic_Title::load($this->tracker));
-        $semantics->add(Tracker_Semantic_Description::load($this->tracker));
-        $semantics->add(Tracker_Semantic_Status::load($this->tracker));
+        $semantics->add(TrackerSemanticTitle::load($this->tracker));
+        $semantics->add(TrackerSemanticDescription::load($this->tracker));
+        $semantics->add(TrackerSemanticStatus::load($this->tracker));
         $semantics->insertAfter(
-            Tracker_Semantic_Status::NAME,
+            TrackerSemanticStatus::NAME,
             SemanticDone::load($this->tracker)
         );
-        $semantics->add(Tracker_Semantic_Contributor::load($this->tracker));
+        $semantics->add(TrackerSemanticContributor::load($this->tracker));
 
         $semantic_timeframe    = SemanticTimeframeBuilder::build()->getSemantic($this->tracker);
         $semantic_progress_dao = new SemanticProgressDao();

@@ -189,7 +189,7 @@ final class ProjectResource extends AuthenticatedResource
             new ArtifactVisibleVerifier($artifact_factory, $this->user_manager_adapter),
             new ProgramIncrementRetriever(
                 new StatusValueRetriever($artifact_retriever, $this->user_manager_adapter),
-                new TitleValueRetriever($artifact_retriever, $this->user_manager_adapter, \Tracker_Semantic_TitleFactory::instance()),
+                new TitleValueRetriever($artifact_retriever, $this->user_manager_adapter, \Tuleap\Tracker\Semantic\Title\TrackerSemanticTitleFactory::instance()),
                 new TimeframeValueRetriever(
                     $artifact_retriever,
                     $this->user_manager_adapter,
@@ -384,7 +384,7 @@ final class ProjectResource extends AuthenticatedResource
             CachedProgramBuilder::instance(),
             new FeaturesDao(),
             $visibility_verifier,
-            new TitleValueRetriever($artifact_retriever, $this->user_manager_adapter, \Tracker_Semantic_TitleFactory::instance()),
+            new TitleValueRetriever($artifact_retriever, $this->user_manager_adapter, \Tuleap\Tracker\Semantic\Title\TrackerSemanticTitleFactory::instance()),
             new URIRetriever($artifact_retriever),
             new CrossReferenceRetriever($artifact_retriever),
             new TrackerOfArtifactRetriever($artifact_retriever),
@@ -481,11 +481,11 @@ final class ProjectResource extends AuthenticatedResource
 
         $program_builder     = CachedProgramBuilder::instance();
         $artifact_factory    = \Tracker_ArtifactFactory::instance();
-        $priority_manager    = \Tracker_Artifact_PriorityManager::build();
+        $priority_manager    = \Tuleap\Tracker\Artifact\PriorityManager::build();
         $top_backlog_updater = new ProcessTopBacklogChange(
             $this->features_permission_verifier,
             new ArtifactsExplicitTopBacklogDAO(),
-            new FeaturesRankOrderer(\Tracker_Artifact_PriorityManager::build()),
+            new FeaturesRankOrderer(\Tuleap\Tracker\Artifact\PriorityManager::build()),
             $this->user_story_linked_verifier,
             new ArtifactVisibleVerifier($artifact_factory, $this->user_manager_adapter),
             new FeatureRemovalProcessor(
