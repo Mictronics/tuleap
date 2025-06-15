@@ -25,11 +25,11 @@ use PFUser;
 use Tracker;
 use Tracker_FormElement;
 use Tracker_FormElementFactory;
-use Tracker_Semantic_ContributorDao;
-use Tracker_Semantic_StatusDao;
 use Tuleap\CrossTracker\Query\Advanced\AllowedMetadata;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\Metadata;
+use Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributorDao;
 use Tuleap\Tracker\Semantic\Description\SearchTrackersWithoutDescriptionSemantic;
+use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatusDao;
 use Tuleap\Tracker\Semantic\Title\SearchTrackersWithoutTitleSemantic;
 
 final class MetadataUsageChecker implements CheckMetadataUsage
@@ -43,8 +43,8 @@ final class MetadataUsageChecker implements CheckMetadataUsage
         private readonly Tracker_FormElementFactory $form_element_factory,
         private readonly SearchTrackersWithoutTitleSemantic $title_verifier,
         private readonly SearchTrackersWithoutDescriptionSemantic $description_verifier,
-        private readonly Tracker_Semantic_StatusDao $status_dao,
-        private readonly Tracker_Semantic_ContributorDao $assigned_to_dao,
+        private readonly TrackerSemanticStatusDao $status_dao,
+        private readonly TrackerSemanticContributorDao $assigned_to_dao,
     ) {
         $this->cache_already_checked = [];
     }

@@ -27,7 +27,7 @@ use Tuleap\Artidoc\Domain\Document\Section\Field\DisplayType;
 final readonly class ConfiguredField
 {
     public function __construct(
-        public \Tracker_FormElement_Field_String $field,
+        public \Tracker_FormElement_Field_String|\Tracker_FormElement_Field_List $field,
         public DisplayType $display_type,
     ) {
     }

@@ -18,7 +18,8 @@
  */
 
 import { ref } from "vue";
-import type { ConfigurationStore, Tracker } from "@/stores/configuration-store";
+import type { Tracker } from "@/configuration/AllowedTrackersCollection";
+import type { ConfigurationStore } from "@/stores/configuration-store";
 import { TrackerStub } from "@/helpers/stubs/TrackerStub";
 import { noop } from "@/helpers/noop";
 import type { ConfigurationField } from "@/sections/readonly-fields/AvailableReadonlyFields";
@@ -38,9 +39,7 @@ const bugs: Tracker = {
 export const ConfigurationStoreStub = {
     tasks,
     bugs,
-    withoutAllowedTrackers: (): ConfigurationStore => ({
-        selected_tracker: ref(null),
-        allowed_trackers: [],
+    buildEmpty: (): ConfigurationStore => ({
         selected_fields: ref([]),
         available_fields: ref([]),
         is_saving: ref(false),
@@ -53,37 +52,19 @@ export const ConfigurationStoreStub = {
         current_project: ref(null),
     }),
 
-    withSelectedTracker: (selected_tracker: Tracker | null): ConfigurationStore => ({
-        ...ConfigurationStoreStub.withoutAllowedTrackers(),
-        selected_tracker: ref(selected_tracker),
-        allowed_trackers: [tasks, bugs],
-    }),
-
-    withSavingInProgress: (): ConfigurationStore => ({
-        ...ConfigurationStoreStub.withSelectedTracker(ConfigurationStoreStub.bugs),
-        is_saving: ref(true),
-    }),
-
     withSuccessfulSave: (): ConfigurationStore => ({
-        ...ConfigurationStoreStub.withSelectedTracker(ConfigurationStoreStub.bugs),
+        ...ConfigurationStoreStub.buildEmpty(),
         is_success: ref(true),
     }),
 
     withError: (): ConfigurationStore => ({
-        ...ConfigurationStoreStub.withSelectedTracker(ConfigurationStoreStub.bugs),
+        ...ConfigurationStoreStub.buildEmpty(),
         is_error: ref(true),
         error_message: ref("Oh no!"),
     }),
 
-    withMockedSavedTrackerConfiguration: (
-        saveTrackerConfiguration: ConfigurationStore["saveTrackerConfiguration"],
-    ): ConfigurationStore => ({
-        ...ConfigurationStoreStub.withSelectedTracker(ConfigurationStoreStub.bugs),
-        saveTrackerConfiguration,
-    }),
-
     withSelectedFields: (selected_fields: ConfigurationField[]): ConfigurationStore => ({
-        ...ConfigurationStoreStub.withSelectedTracker(ConfigurationStoreStub.bugs),
+        ...ConfigurationStoreStub.buildEmpty(),
         selected_fields: ref(selected_fields),
     }),
 };

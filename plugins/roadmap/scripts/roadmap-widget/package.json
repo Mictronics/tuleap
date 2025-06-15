@@ -6,14 +6,15 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@tuleap/svg-arrow-path": "workspace:^",
     "@tuleap/tlp-fetch": "workspace:*",
     "@tuleap/tlp-popovers": "workspace:*",
+    "@tuleap/tlp-swatch-colors": "workspace:*",
     "@tuleap/tooltip": "workspace:*",
     "@tuleap/vue2-dompurify-html": "workspace:*",
     "@tuleap/vue2-gettext-composition-helper": "workspace:^",
     "@tuleap/vue2-gettext-init": "workspace:*",
     "@vueuse/core": "^8.7.3",
-    "lit-html": "^2.8.0",
     "luxon": "^3.4.4",
     "vue": "2.7.8",
     "vuex": "^3.6.2",
@@ -22,21 +23,16 @@
   "devDependencies": {
     "@tuleap/build-system-configurator": "workspace:*",
     "@tuleap/po-gettext-plugin": "workspace:^",
-    "@tuleap/tlp-swatch-colors": "workspace:*",
     "@tuleap/vuex-store-wrapper-jest": "workspace:*",
     "@types/luxon": "^3.4.2",
     "@vitejs/plugin-vue2": "^2.3.3",
     "@vue/test-utils": "^1.3",
-    "jest-environment-jsdom": "^29.7.0",
-    "vue-class-component": "^7.2.6",
-    "vue-property-decorator": "^9.1.2",
-    "vuex-class": "^0.3.2"
+    "jest-environment-jsdom": "^29.7.0"
   },
   "scripts": {
     "build": "vite build",
     "watch": "vite build --watch --mode development --minify false",
     "test": "jest",
-    "dev:serve-arrows": "cd scripts/roadmap-widget/src/dev-arrows/ && vite serve",
     "typecheck": "vue-tsc --noEmit"
   }
 }

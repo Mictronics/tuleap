@@ -20,13 +20,23 @@
 
 <template>
     <span v-if="props.cell && props.cell.type === PRETTY_TITLE_CELL" data-test="cell">
-        <i
+        <caret-indentation v-bind:level="level" />
+        <button
+            type="button"
             v-if="can_display_artifact_link"
-            class="pretty-title-caret"
-            v-bind:class="caret_class"
-            aria-hidden="true"
-            data-test="pretty-title-cell-artifact-link"
-        ></i>
+            v-on:click="toggleArtifactLinksDisplay()"
+            class="caret-button"
+            v-bind:aria-hidden="!has_artifact_links"
+            v-bind:disabled="!has_artifact_links"
+            data-test="pretty-title-links-button"
+        >
+            <i
+                v-bind:class="caret_class"
+                role="img"
+                v-bind:aria-label="caret_aria_label"
+                data-test="pretty-title-caret"
+            ></i>
+        </button>
         <a v-bind:href="props.artifact_uri" class="link"
             ><span v-bind:class="getCrossRefBadgeClass(props.cell)"
                 >{{ props.cell.tracker_name }} #{{ props.cell.artifact_id }}</span
@@ -36,29 +46,57 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { computed, ref } from "vue";
+import { useGettext } from "vue3-gettext";
+import { strictInject } from "@tuleap/vue-strict-inject";
 import { type Cell, PRETTY_TITLE_CELL, type PrettyTitleCell } from "../../domain/ArtifactsTable";
 import { CAN_DISPLAY_ARTIFACT_LINK } from "../../injection-symbols";
-import { strictInject } from "@tuleap/vue-strict-inject";
+import type { ToggleLinks } from "../../helpers/ToggleLinksEmit";
+import CaretIndentation from "./CaretIndentation.vue";
+
+const { $gettext } = useGettext();
 
 const can_display_artifact_link = strictInject(CAN_DISPLAY_ARTIFACT_LINK);
 
 const props = defineProps<{
     cell: Cell | undefined;
     artifact_uri: string;
+    number_of_forward_link: number;
+    number_of_reverse_link: number;
+    level: number;
 }>();
 
+const emit = defineEmits<ToggleLinks>();
+
+const has_artifact_links = props.number_of_forward_link > 0 || props.number_of_reverse_link > 0;
+const are_artifact_links_expanded = ref(false);
+
 const caret_class = computed((): string => {
-    return "fa-fw fa-solid fa-caret-right";
+    return (
+        "fa-fw pretty-title-caret " +
+        (are_artifact_links_expanded.value ? "fa-solid fa-caret-down" : "fa-solid fa-caret-right")
+    );
+});
+
+const caret_aria_label = computed((): string => {
+    return are_artifact_links_expanded.value
+        ? $gettext("Hide artifact links")
+        : $gettext("Show artifact links");
 });
 
 const getCrossRefBadgeClass = (cell: PrettyTitleCell): string =>
     `cross-ref-badge tlp-swatch-${cell.color}`;
+
+function toggleArtifactLinksDisplay(): void {
+    are_artifact_links_expanded.value = !are_artifact_links_expanded.value;
+    emit("toggle-links");
+}
 </script>
 
 <style scoped lang="scss">
 @use "../../../themes/links";
 @use "../../../themes/badges";
+@use "../../../themes/pretty-title";
 
 .link {
     @include links.link;
@@ -70,7 +108,23 @@ const getCrossRefBadgeClass = (cell: PrettyTitleCell): string =>
 
 .pretty-title-caret {
     flex-shrink: 0;
-    margin: 0 5px 0 0;
+    margin: 0 pretty-title.$caret-margin-right 0 0;
+}
+
+.caret-button {
+    padding: 0;
+    transition: color 75ms;
+    border: unset;
+    background: none;
     color: var(--tlp-dimmed-color);
+    cursor: pointer;
+
+    &:hover {
+        color: var(--tlp-main-color);
+    }
+
+    &[aria-hidden="true"] {
+        visibility: hidden;
+    }
 }
 </style>

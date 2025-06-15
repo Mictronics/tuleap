@@ -25,17 +25,17 @@ namespace Tuleap\Tracker\Creation\JiraImporter\Import\Semantic;
 
 use Psr\EventDispatcher\EventDispatcherInterface;
 use SimpleXMLElement;
-use Tracker_Semantic_Contributor;
-use Tracker_Semantic_Description;
-use Tracker_Semantic_Status;
-use Tracker_Semantic_Title;
 use Tuleap\Tracker\Creation\JiraImporter\Import\AlwaysThereFieldsExporter;
 use Tuleap\Tracker\Creation\JiraImporter\Import\Structure\FieldMappingCollection;
 use Tuleap\Tracker\Creation\JiraImporter\Import\Values\StatusValuesCollection;
 use Tuleap\Tracker\FormElement\Field\ListFields\Bind\XML\XMLBindValueReferenceById;
 use Tuleap\Tracker\FormElement\XML\XMLFormElementFlattenedCollection;
+use Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributor;
+use Tuleap\Tracker\Semantic\Description\TrackerSemanticDescription;
 use Tuleap\Tracker\Semantic\Status\Done\XML\XMLDoneSemantic;
+use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframe;
+use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle;
 
 class SemanticsXMLExporter
 {
@@ -66,9 +66,9 @@ class SemanticsXMLExporter
         }
 
         $semantic_node = $semantics_node->addChild('semantic');
-        $semantic_node->addAttribute('type', Tracker_Semantic_Title::NAME);
+        $semantic_node->addAttribute('type', TrackerSemanticTitle::NAME);
 
-        $semantic_node->addChild('shortname', Tracker_Semantic_Title::NAME);
+        $semantic_node->addChild('shortname', TrackerSemanticTitle::NAME);
         $semantic_node->addChild('label', dgettext('tuleap-tracker', 'Title'));
         $semantic_node->addChild('description', dgettext('tuleap-tracker', 'Define the title of an artifact'));
         $field_node = $semantic_node->addChild('field');
@@ -83,9 +83,9 @@ class SemanticsXMLExporter
         }
 
         $semantic_node = $semantics_node->addChild('semantic');
-        $semantic_node->addAttribute('type', Tracker_Semantic_Description::NAME);
+        $semantic_node->addAttribute('type', TrackerSemanticDescription::NAME);
 
-        $semantic_node->addChild('shortname', Tracker_Semantic_Description::NAME);
+        $semantic_node->addChild('shortname', TrackerSemanticDescription::NAME);
         $semantic_node->addChild('label', dgettext('tuleap-tracker', 'Description'));
         $semantic_node->addChild('description', dgettext('tuleap-tracker', 'Define the description of an artifact'));
         $field_node = $semantic_node->addChild('field');
@@ -103,9 +103,9 @@ class SemanticsXMLExporter
         }
 
         $semantic_node = $semantics_node->addChild('semantic');
-        $semantic_node->addAttribute('type', Tracker_Semantic_Status::NAME);
+        $semantic_node->addAttribute('type', TrackerSemanticStatus::NAME);
 
-        $semantic_node->addChild('shortname', Tracker_Semantic_Status::NAME);
+        $semantic_node->addChild('shortname', TrackerSemanticStatus::NAME);
         $semantic_node->addChild('label', dgettext('tuleap-tracker', 'Status'));
         $semantic_node->addChild('description', dgettext('tuleap-tracker', 'Define the status of an artifact'));
         $field_node = $semantic_node->addChild('field');
@@ -145,9 +145,9 @@ class SemanticsXMLExporter
         }
 
         $semantic_node = $semantics_node->addChild('semantic');
-        $semantic_node->addAttribute('type', Tracker_Semantic_Contributor::CONTRIBUTOR_SEMANTIC_SHORTNAME);
+        $semantic_node->addAttribute('type', TrackerSemanticContributor::CONTRIBUTOR_SEMANTIC_SHORTNAME);
 
-        $semantic_node->addChild('shortname', Tracker_Semantic_Contributor::CONTRIBUTOR_SEMANTIC_SHORTNAME);
+        $semantic_node->addChild('shortname', TrackerSemanticContributor::CONTRIBUTOR_SEMANTIC_SHORTNAME);
         $semantic_node->addChild('label', dgettext('tuleap-tracker', 'Contributor/assignee'));
         $semantic_node->addChild('description', dgettext('tuleap-tracker', 'Define the contributor/assignee of an artifact'));
         $field_node = $semantic_node->addChild('field');

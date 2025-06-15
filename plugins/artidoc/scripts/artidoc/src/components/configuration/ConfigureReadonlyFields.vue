@@ -19,7 +19,7 @@
 
 <template>
     <div class="tlp-modal-body">
-        <fields-selection-introductory-text v-bind:tracker="selected_tracker" />
+        <fields-selection-introductory-text />
         <fields-selection
             v-bind:selected_fields="selected_fields"
             v-bind:available_fields="available_fields"
@@ -28,7 +28,6 @@
 
     <configuration-modal-footer
         v-bind:current_tab="READONLY_FIELDS_SELECTION_TAB"
-        v-bind:configuration_helper="configuration_helper"
         v-bind:on_save_callback="onFieldsSubmit"
         v-bind:is_submit_button_disabled="is_submit_button_disabled"
     />
@@ -36,18 +35,15 @@
 
 <script setup lang="ts">
 import { ref, toRaw, watch } from "vue";
-import type { ConfigurationStore, Tracker } from "@/stores/configuration-store";
+import type { ConfigurationStore } from "@/stores/configuration-store";
 import FieldsSelectionIntroductoryText from "@/components/configuration/FieldsSelectionIntroductoryText.vue";
 import FieldsSelection from "@/components/configuration/FieldsSelection.vue";
 import ConfigurationModalFooter from "@/components/configuration/ConfigurationModalFooter.vue";
 import { READONLY_FIELDS_SELECTION_TAB } from "@/components/configuration/configuration-modal";
-import type { ConfigurationScreenHelper } from "@/composables/useConfigurationScreenHelper";
 import type { ConfigurationField } from "@/sections/readonly-fields/AvailableReadonlyFields";
 
 const props = defineProps<{
     configuration_store: ConfigurationStore;
-    configuration_helper: ConfigurationScreenHelper;
-    selected_tracker: Tracker;
 }>();
 
 const selected_fields = ref<ConfigurationField[]>(

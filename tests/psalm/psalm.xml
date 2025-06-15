@@ -766,7 +766,6 @@
             <file name="plugins/tracker/tests/unit/Artifact/StatusBadgeBuilderTest.php"/>
             <file name="plugins/tracker/tests/unit/Artifact/Tracker_ArtifactNodeTest.php"/>
             <file name="plugins/tracker/tests/unit/Artifact/Tracker_ArtifactTest.php"/>
-            <file name="plugins/tracker/tests/unit/Artifact/Tracker_Artifact_PriorityManagerTest.php"/>
             <file name="plugins/tracker/tests/unit/Artifact/Tracker_Artifact_XMLExportTest.php"/>
             <file name="plugins/tracker/tests/unit/Artifact/Tracker_Artifact_XMLImportTest.php"/>
             <file name="plugins/tracker/tests/unit/Artifact/XMLImport/TrackerArtifactXMLImportArtifactFieldsDataBuilderTest.php"/>
@@ -1104,9 +1103,10 @@
             <file name="plugins/tracker/tests/unit/Semantic/CollectionOfCreationSemanticToCheckTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/CollectionOfSemanticsUsingAParticularTrackerFieldTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Contributor/AdminPresenterBuilderTest.php"/>
+            <file name="plugins/tracker/tests/unit/Semantic/Contributor/TrackerSemanticContributorFactoryTest.php"/>
+            <file name="plugins/tracker/tests/unit/Semantic/Contributor/TrackerSemanticContributorTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/CreationSemanticToCheckTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Description/AdminPresenterBuilderTest.php"/>
-            <file name="plugins/tracker/tests/unit/Semantic/Description/Tracker_Semantic_DescriptionTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Progress/Administration/SemanticProgressAdminPresenterBuilderTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Progress/Events/GetSemanticProgressUsageTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Progress/InvalidMethodTest.php"/>
@@ -1129,8 +1129,8 @@
             <file name="plugins/tracker/tests/unit/Semantic/Status/StatusValueProviderTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Status/StatusValueRetrieverTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Status/StatusValuesCollectionTest.php"/>
-            <file name="plugins/tracker/tests/unit/Semantic/Status/Tracker_Semantic_StatusFactoryTest.php"/>
-            <file name="plugins/tracker/tests/unit/Semantic/Status/Tracker_Semantic_StatusTest.php"/>
+            <file name="plugins/tracker/tests/unit/Semantic/Status/TrackerSemanticStatusFactoryTest.php"/>
+            <file name="plugins/tracker/tests/unit/Semantic/Status/TrackerSemanticStatusTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Timeframe/Administration/SemanticTimeframeCurrentConfigurationPresenterBuilderTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Timeframe/ArtifactTimeframeHelperTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Timeframe/SemanticTimeframeBuilderTest.php"/>
@@ -1145,17 +1145,15 @@
             <file name="plugins/tracker/tests/unit/Semantic/Timeframe/TimeframeWithDurationTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Timeframe/TimeframeWithEndDateTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Title/AdminPresenterBuilderTest.php"/>
-            <file name="plugins/tracker/tests/unit/Semantic/Title/Tracker_Semantic_TitleFactoryTest.php"/>
-            <file name="plugins/tracker/tests/unit/Semantic/Title/Tracker_Semantic_TitleTest.php"/>
+            <file name="plugins/tracker/tests/unit/Semantic/Title/TrackerSemanticTitleFactoryTest.php"/>
+            <file name="plugins/tracker/tests/unit/Semantic/Title/TrackerSemanticTitleTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Tooltip/OtherSemantic/ProgressTooltipEntryTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Tooltip/OtherSemantic/TimeframeTooltipEntryTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Tooltip/SelectOptionsBuilderTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Tooltip/TooltipFetcherTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Tooltip/Tracker_TooltipFactoryTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/TrackerSemanticCollectionTest.php"/>
-            <file name="plugins/tracker/tests/unit/Semantic/TrackerSemanticContributorTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Tracker_SemanticFactoryTest.php"/>
-            <file name="plugins/tracker/tests/unit/Semantic/Tracker_Semantic_ContributorFactoryTest.php"/>
             <file name="plugins/tracker/tests/unit/Service/CheckPromotedTrackerConfigurationTest.php"/>
             <file name="plugins/tracker/tests/unit/Service/ServiceActivatorTest.php"/>
             <file name="plugins/tracker/tests/unit/Service/SidebarPromotedTrackerRetrieverTest.php"/>
@@ -1319,7 +1317,6 @@
             <file name="plugins/tracker/tests/unit/XML/Updater/Tracker_XML_Updater_ChangesetXMLUpdaterTest.php"/>
             <file name="plugins/tracker/tests/unit/XML/Updater/Tracker_XML_Updater_TemporaryFileCreatorTest.php"/>
             <file name="plugins/tracker/tests/unit/XML/Updater/Tracker_XML_Updater_TemporaryFileXMLUpdaterTest.php"/>
-            <file name="plugins/tracker/tests/unit/XML/XMLTrackerTest.php"/>
         </ignoreFiles>
     </projectFiles>
 

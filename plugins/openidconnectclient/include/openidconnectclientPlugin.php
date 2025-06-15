@@ -87,6 +87,7 @@ use Tuleap\OpenIDConnectClient\UserMapping\UserMappingUsage;
 use Tuleap\Plugin\ListeningToEventClass;
 use Tuleap\Request\CollectRoutesEvent;
 use Tuleap\Request\DispatchableWithRequest;
+use Tuleap\Request\RequestTime;
 use Tuleap\SVNCore\AccessControl\BeforeSVNLogin;
 use Tuleap\User\Account\AccountTabPresenterCollection;
 use Tuleap\User\Account\PasswordPreUpdateEvent;
@@ -291,9 +292,9 @@ class openidconnectclientPlugin extends Plugin implements PluginWithConfigKeys
 
     public function beforeUserRegistrationEvent(BeforeUserRegistrationEvent $event): void
     {
-        $link_id = $event->getRequest()->get('openidconnect_link_id');
+        $link_id = ($this->getSessionStorage())[self::SESSION_LINK_ID_KEY] ?? '';
 
-        if ($link_id) {
+        if ($link_id !== '') {
             $provider_manager         = $this->getProviderManager();
             $unlinked_account_manager = new UnlinkedAccountManager(new UnlinkedAccountDao(), new RandomNumberGenerator());
             try {
@@ -335,7 +336,7 @@ class openidconnectclientPlugin extends Plugin implements PluginWithConfigKeys
                 $storage,
             );
 
-            $account_linker_controler->linkRegisteringAccount($event->getUser(), $link_id, $event->getRequest()->getTime());
+            $account_linker_controler->linkRegisteringAccount($event->getUser(), $link_id, RequestTime::getTimestamp());
         }
     }
 

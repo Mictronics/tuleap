@@ -28,9 +28,9 @@ use Tracker;
 use Tracker_FormElement_Field;
 use Tracker_FormElement_Field_List;
 use Tracker_FormElement_Field_Text;
-use Tracker_Semantic_Description;
-use Tracker_Semantic_Status;
-use Tracker_Semantic_Title;
+use Tuleap\Tracker\Semantic\Description\TrackerSemanticDescription;
+use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
+use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle;
 
 /**
  * Wrap tracker semantic static functions to enable dependency injections which makes classes testable (even if this one is not).
@@ -39,12 +39,12 @@ class SemanticFieldRepository
 {
     public function findTitleByTracker(Tracker $tracker): ?Tracker_FormElement_Field_Text
     {
-        return Tracker_Semantic_Title::load($tracker)->getField();
+        return TrackerSemanticTitle::load($tracker)->getField();
     }
 
     public function findDescriptionByTracker(Tracker $tracker): ?Tracker_FormElement_Field_Text
     {
-        return Tracker_Semantic_Description::load($tracker)->getField();
+        return TrackerSemanticDescription::load($tracker)->getField();
     }
 
     public function findInitialEffortByTracker(Tracker $tracker): ?Tracker_FormElement_Field
@@ -54,6 +54,6 @@ class SemanticFieldRepository
 
     public function findStatusByTracker(Tracker $tracker): ?Tracker_FormElement_Field_List
     {
-        return Tracker_Semantic_Status::load($tracker)->getField();
+        return TrackerSemanticStatus::load($tracker)->getField();
     }
 }

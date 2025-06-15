@@ -202,8 +202,7 @@ EOL
             ),
             [
                 ['id' => 31, '@status' => 'Open', '@status_color' => 'neon-green'],
-                ['id' => 32, '@status' => 'Closed', '@status_color' => 'fiesta-red'],
-                ['id' => 32, '@status' => 'Also open', '@status_color' => null],
+                ['id' => 32, '@status' => ['Closed', 'Also open'], '@status_color' => ['fiesta-red']],
                 ['id' => 33, '@status' => null, '@status_color' => null],
             ],
         );
@@ -471,8 +470,12 @@ EOL
         $result = $this->getSelectedResult(
             new Metadata('artifact'),
             RetrieveArtifactStub::withArtifacts(
-                ArtifactTestBuilder::anArtifact(131)->inTracker($this->first_tracker)->build(),
-                ArtifactTestBuilder::anArtifact(132)->inTracker($this->second_tracker)->build(),
+                ArtifactTestBuilder::anArtifact(131)->withoutLinkedArtifact()->inTracker($this->first_tracker)->build(),
+                ArtifactTestBuilder::anArtifact(132)
+                    ->withLinkedArtifact(ArtifactTestBuilder::anArtifact(156)->build())
+                    ->withLinkedAndReverseArtifact(ArtifactTestBuilder::anArtifact(156)->build())
+                    ->inTracker($this->second_tracker)
+                    ->build(),
             ),
             [
                 ['id' => 131],
@@ -486,8 +489,8 @@ EOL
         );
         self::assertCount(2, $result->values);
         self::assertEqualsCanonicalizing([
-            131 => new SelectedValue('@artifact', new ArtifactRepresentation('/plugins/tracker/?aid=131')),
-            132 => new SelectedValue('@artifact', new ArtifactRepresentation('/plugins/tracker/?aid=132')),
+            131 => new SelectedValue('@artifact', new ArtifactRepresentation(131, '/plugins/tracker/?aid=131', 0, 0)),
+            132 => new SelectedValue('@artifact', new ArtifactRepresentation(132, '/plugins/tracker/?aid=132', 1, 0)),
         ], $result->values);
     }
 }

@@ -24,13 +24,13 @@ namespace Tuleap\CrossTracker\Query\Advanced;
 
 use LogicException;
 use Tracker_FormElement_Field_List;
-use Tracker_Semantic_ContributorFactory;
-use Tracker_Semantic_Status;
-use Tracker_Semantic_StatusFactory;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\Metadata;
 use Tuleap\Tracker\Semantic\Contributor\ContributorFieldRetriever;
+use Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributorFactory;
 use Tuleap\Tracker\Semantic\Status\StatusFieldRetriever;
+use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
+use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatusFactory;
 use Tuleap\Tracker\Test\Builders\Fields\CheckboxFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\OpenListFieldBuilder;
@@ -42,14 +42,14 @@ final class InvalidOrderByListCheckerTest extends TestCase
 {
     protected function tearDown(): void
     {
-        Tracker_Semantic_Status::clearInstances();
+        TrackerSemanticStatus::clearInstances();
     }
 
     public function testItThrowIfUsedWithNotHandledMetadata(): void
     {
         $checker = new InvalidOrderByListChecker(
-            new StatusFieldRetriever(Tracker_Semantic_StatusFactory::instance()),
-            new ContributorFieldRetriever(Tracker_Semantic_ContributorFactory::instance()),
+            new StatusFieldRetriever(TrackerSemanticStatusFactory::instance()),
+            new ContributorFieldRetriever(TrackerSemanticContributorFactory::instance()),
         );
         self::expectException(LogicException::class);
         $checker->metadataListIsSortable(new Metadata('title'), [TrackerTestBuilder::aTracker()->build()]);
@@ -68,12 +68,12 @@ final class InvalidOrderByListCheckerTest extends TestCase
     public function testItAllowsSingleValueListFields(Tracker_FormElement_Field_List $list, bool $is_allowed): void
     {
         $checker = new InvalidOrderByListChecker(
-            new StatusFieldRetriever(Tracker_Semantic_StatusFactory::instance()),
-            new ContributorFieldRetriever(Tracker_Semantic_ContributorFactory::instance()),
+            new StatusFieldRetriever(TrackerSemanticStatusFactory::instance()),
+            new ContributorFieldRetriever(TrackerSemanticContributorFactory::instance()),
         );
         $tracker = TrackerTestBuilder::aTracker()->withId(45)->build();
-        Tracker_Semantic_Status::setInstance(
-            new Tracker_Semantic_Status($tracker, $list),
+        TrackerSemanticStatus::setInstance(
+            new TrackerSemanticStatus($tracker, $list),
             $tracker,
         );
         self::assertSame($is_allowed, $checker->metadataListIsSortable(new Metadata('status'), [$tracker]));

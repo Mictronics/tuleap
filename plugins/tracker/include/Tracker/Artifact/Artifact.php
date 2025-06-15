@@ -56,9 +56,6 @@ use Tracker_Artifact_CopyRenderer;
 use Tracker_Artifact_EditOverlayRenderer;
 use Tracker_Artifact_Followup_Item;
 use Tracker_Artifact_PaginatedArtifacts;
-use Tracker_Artifact_PriorityDao;
-use Tracker_Artifact_PriorityHistoryDao;
-use Tracker_Artifact_PriorityManager;
 use Tracker_Artifact_ReadOnlyRenderer;
 use Tracker_Artifact_Redirect;
 use Tracker_Artifact_Renderer_EditInPlaceRenderer;
@@ -77,10 +74,6 @@ use Tracker_HierarchyFactory;
 use Tracker_IDisplayTrackerLayout;
 use Tracker_NoChangeException;
 use Tracker_Permission_PermissionChecker;
-use Tracker_Semantic_Contributor;
-use Tracker_Semantic_Description;
-use Tracker_Semantic_Status;
-use Tracker_Semantic_Title;
 use TrackerFactory;
 use trackerPlugin;
 use TransitionFactory;
@@ -164,12 +157,16 @@ use Tuleap\Tracker\Permission\TrackersPermissionsRetriever;
 use Tuleap\Tracker\REST\Artifact\ChangesetValue\ArtifactLink\NewArtifactLinkChangesetValueBuilder;
 use Tuleap\Tracker\REST\Artifact\ChangesetValue\ArtifactLink\NewArtifactLinkInitialChangesetValueBuilder;
 use Tuleap\Tracker\Rule\FirstValidValueAccordingToDependenciesRetriever;
+use Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributor;
+use Tuleap\Tracker\Semantic\Description\TrackerSemanticDescription;
 use Tuleap\Tracker\Semantic\Progress\MethodBuilder;
 use Tuleap\Tracker\Semantic\Progress\SemanticProgressBuilder;
 use Tuleap\Tracker\Semantic\Progress\SemanticProgressDao;
 use Tuleap\Tracker\Semantic\Status\StatusValueForChangesetProvider;
 use Tuleap\Tracker\Semantic\Status\StatusValueProvider;
+use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeBuilder;
+use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle;
 use Tuleap\Tracker\Workflow\FirstPossibleValueInListRetriever;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldDetector;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldsRetriever;
@@ -664,7 +661,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
     {
         if (! isset($this->title)) {
             $this->title = null;
-            if ($title_field = Tracker_Semantic_Title::load($this->getTracker())->getField()) {
+            if ($title_field = TrackerSemanticTitle::load($this->getTracker())->getField()) {
                 if ($title_field->userCanRead()) {
                     if ($last_changeset = $this->getLastChangeset()) {
                         if ($title_field_value = $last_changeset->getValue($title_field)) {
@@ -686,14 +683,14 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
         if ($this->description !== '') {
             return $this->description;
         }
-        $provider = new ArtifactDescriptionProvider(Tracker_Semantic_Description::load($this->getTracker()));
+        $provider = new ArtifactDescriptionProvider(TrackerSemanticDescription::load($this->getTracker()));
 
         return $provider->getDescription($this);
     }
 
     public function getPostProcessedDescription(): string
     {
-        $provider = new ArtifactDescriptionProvider(Tracker_Semantic_Description::load($this->getTracker()));
+        $provider = new ArtifactDescriptionProvider(TrackerSemanticDescription::load($this->getTracker()));
 
         return $provider->getPostProcessedDescription($this);
     }
@@ -708,7 +705,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
      */
     public function getAssignedTo(PFUser $user)
     {
-        $assigned_to_field = Tracker_Semantic_Contributor::load($this->getTracker())->getField();
+        $assigned_to_field = TrackerSemanticContributor::load($this->getTracker())->getField();
         if ($assigned_to_field && $assigned_to_field->userCanRead($user) && $this->getLastChangeset()) {
             $field_value = $this->getLastChangeset()->getValue($assigned_to_field);
             if ($field_value) {
@@ -793,7 +790,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
     public function isOpen(): bool
     {
         if ($this->is_open === null) {
-            $this->is_open = Tracker_Semantic_Status::load($this->getTracker())->isOpen($this);
+            $this->is_open = TrackerSemanticStatus::load($this->getTracker())->isOpen($this);
         }
         return $this->is_open;
     }
@@ -805,7 +802,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
 
     public function isOpenAtGivenChangeset(Tracker_Artifact_Changeset $changeset)
     {
-        return Tracker_Semantic_Status::load($this->getTracker())->isOpenAtGivenChangeset($changeset);
+        return TrackerSemanticStatus::load($this->getTracker())->isOpenAtGivenChangeset($changeset);
     }
 
     /**
@@ -818,7 +815,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
     public function fetchMailTitle($recipient, $format = 'text', $ignore_perms = false)
     {
         $output = '';
-        if ($title_field = Tracker_Semantic_Title::load($this->getTracker())->getField()) {
+        if ($title_field = TrackerSemanticTitle::load($this->getTracker())->getField()) {
             if ($ignore_perms || $title_field->userCanRead($recipient)) {
                 if ($value = $this->getLastChangeset()->getValue($title_field)) {
                     if ($title = $value->getText()) {
@@ -1079,15 +1076,9 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
         return $this->getTracker()->getGroupId();
     }
 
-    /** @return Tracker_Artifact_PriorityManager */
-    protected function getPriorityManager()
+    protected function getPriorityManager(): PriorityManager
     {
-        return new Tracker_Artifact_PriorityManager(
-            new Tracker_Artifact_PriorityDao(),
-            new Tracker_Artifact_PriorityHistoryDao(),
-            UserManager::instance(),
-            Tracker_ArtifactFactory::instance()
-        );
+        return PriorityManager::build();
     }
 
     /** @return Artifact[] */
@@ -1122,7 +1113,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
         $presenters = [];
         foreach ($this->getChildrenForUser($current_user) as $child) {
             $tracker   = $child->getTracker();
-            $semantics = Tracker_Semantic_Status::load($tracker);
+            $semantics = TrackerSemanticStatus::load($tracker);
 
             $presenters[] = new Tracker_ArtifactChildPresenter(
                 $child,

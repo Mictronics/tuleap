@@ -34,6 +34,12 @@ import { ARE_FIELDS_ENABLED } from "@/are-fields-enabled";
 import { TITLE } from "@/title-injection-key";
 import { SECTIONS_STATES_COLLECTION } from "@/sections/states/sections-states-collection-injection-key";
 import { SectionsStatesCollectionStub } from "@/sections/stubs/SectionsStatesCollectionStub";
+import {
+    ALLOWED_TRACKERS,
+    buildAllowedTrackersCollection,
+} from "@/configuration/AllowedTrackersCollection";
+import { SELECTED_TRACKER } from "@/configuration/SelectedTracker";
+import { SelectedTrackerStub } from "@/helpers/stubs/SelectedTrackerStub";
 
 describe("ConfigurationModal", () => {
     function getWrapper(
@@ -45,6 +51,8 @@ describe("ConfigurationModal", () => {
                 plugins: [createGettext({ silent: true })],
                 provide: {
                     [CONFIGURATION_STORE.valueOf()]: store,
+                    [ALLOWED_TRACKERS.valueOf()]: buildAllowedTrackersCollection([]),
+                    [SELECTED_TRACKER.valueOf()]: SelectedTrackerStub.build(),
                     [OPEN_CONFIGURATION_MODAL_BUS.valueOf()]: bus,
                     [ARE_FIELDS_ENABLED.valueOf()]: true,
                     [TITLE.valueOf()]: "My artidoc",
@@ -54,12 +62,13 @@ describe("ConfigurationModal", () => {
         });
     }
 
-    it("When the modal is closed after a successful save, then it should execute onSuccessfulSaveCallback", () => {
+    it("When the modal is closed after a successful save, then it should execute onSuccessfulSaveCallback", async () => {
         const bus = useOpenConfigurationModalBusStore();
         const wrapper = getWrapper(ConfigurationStoreStub.withSuccessfulSave(), bus);
         const onSuccessfulSaveCallback = vi.fn();
 
         bus.openModal(onSuccessfulSaveCallback);
+        await wrapper.vm.$nextTick();
 
         wrapper.find("[data-test=close-modal-after-success]").trigger("click");
 
