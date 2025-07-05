@@ -26,6 +26,7 @@ use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\RetrieveAnArtifactLinkField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\RetrieveUsedArtifactLinkFields;
 use Tuleap\Tracker\FormElement\Field\FieldDao;
+use Tuleap\Tracker\FormElement\Field\RetrieveFieldById;
 use Tuleap\Tracker\FormElement\Field\ListFields\RetrieveUsedListField;
 use Tuleap\Tracker\FormElement\Field\RetrieveUsedFields;
 use Tuleap\Tracker\FormElement\Field\Shareable\PropagatePropertiesDao;
@@ -34,11 +35,12 @@ use Tuleap\Tracker\FormElement\FormElementDeletedEvent;
 use Tuleap\Tracker\FormElement\RetrieveFieldType;
 use Tuleap\Tracker\FormElement\RetrieveFormElementsForTracker;
 use Tuleap\Tracker\FormElement\View\Admin\FilterFormElementsThatCanBeCreatedForTracker;
+use Tuleap\Tracker\Tracker;
 use Tuleap\Tracker\XML\TrackerXmlImportFeedbackCollector;
 
 require_once __DIR__ . '/../../tracker_permissions.php';
 
-class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValuesToFieldsData, RetrieveUsedArtifactLinkFields, RetrieveFormElementsForTracker, RetrieveFieldType, RetrieveAnArtifactLinkField, RetrieveUsedListField //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
+class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValuesToFieldsData, RetrieveUsedArtifactLinkFields, RetrieveFormElementsForTracker, RetrieveFieldType, RetrieveAnArtifactLinkField, RetrieveUsedListField, RetrieveFieldById //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
     public const FIELD_STRING_TYPE                 = 'string';
     public const FIELD_TEXT_TYPE                   = 'text';
@@ -494,9 +496,9 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
      *
      * @return null|Tracker_FormElement_Field or null if not found or not a Field
      */
-    public function getFieldById($id)
+    public function getFieldById($field_id): ?Tracker_FormElement_Field
     {
-        $field = $this->getFormElementById($id);
+        $field = $this->getFormElementById($field_id);
         if (! $field instanceof Tracker_FormElement_Field) {
             $field = null;
         }
@@ -528,7 +530,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
      * All fields used by the tracker
      * @return Tracker_FormElement_Field[]
      */
-    public function getUsedFields(\Tracker $tracker): array
+    public function getUsedFields(\Tuleap\Tracker\Tracker $tracker): array
     {
         return $this->getUsedFormElementsByType($tracker, $this->getFieldsSQLTypes());
     }
@@ -778,7 +780,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
     }
 
     public function getUsedListFieldById(
-        \Tracker $tracker,
+        \Tuleap\Tracker\Tracker $tracker,
         int $field_id,
     ): \Tracker_FormElement_Field_Selectbox|\Tracker_FormElement_Field_OpenList|null {
         $field = $this->getUsedFieldByIdAndType(

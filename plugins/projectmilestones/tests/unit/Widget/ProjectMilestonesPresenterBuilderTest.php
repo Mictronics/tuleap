@@ -26,6 +26,7 @@ use AgileDashboard_Milestone_Backlog_Backlog;
 use AgileDashboard_Milestone_Backlog_BacklogFactory;
 use AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactory;
 use AgileDashboard_Milestone_Backlog_IBacklogItemCollection;
+use AgileDashboardPlugin;
 use HTTPRequest;
 use PFUser;
 use Planning;
@@ -33,18 +34,17 @@ use Planning_Milestone;
 use Planning_MilestoneFactory;
 use Planning_VirtualTopMilestone;
 use Project;
-use Tracker;
+use Project_AccessProjectNotFoundException;
 use Tuleap\AgileDashboard\ExplicitBacklog\ArtifactsInExplicitBacklogDao;
 use Tuleap\AgileDashboard\ExplicitBacklog\ExplicitBacklogDao;
 use Tuleap\AgileDashboard\FormElement\Burnup\CountElementsModeChecker;
+use Tuleap\Color\ItemColor;
+use Tuleap\Project\ProjectAccessChecker;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframe;
+use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeBuilder;
 use Tuleap\Tracker\Semantic\Timeframe\TimeframeBrokenConfigurationException;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
-use Tuleap\Tracker\TrackerColor;
-use Tuleap\Project\ProjectAccessChecker;
-use Project_AccessProjectNotFoundException;
-use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeBuilder;
-use AgileDashboardPlugin;
+use Tuleap\Tracker\Tracker;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ProjectMilestonesPresenterBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
@@ -682,7 +682,7 @@ final class ProjectMilestonesPresenterBuilderTest extends \Tuleap\Test\PHPUnit\T
 
     private function aTracker(int $id, string $name, string $color): Tracker
     {
-        return TrackerTestBuilder::aTracker()->withId($id)->withName($name)->withColor(TrackerColor::fromName($color))->build();
+        return TrackerTestBuilder::aTracker()->withId($id)->withName($name)->withColor(ItemColor::fromName($color))->build();
     }
 
     private function mockMilestoneBacklog(): void

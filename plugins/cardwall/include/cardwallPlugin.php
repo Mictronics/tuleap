@@ -43,6 +43,10 @@ use Tuleap\Tracker\Artifact\XML\Exporter\TrackerEventExportStructureXML;
 use Tuleap\Tracker\Creation\JiraImporter\Import\Semantic\ExternalSemanticsExportEvent;
 use Tuleap\Tracker\Events\AllowedFieldTypeChangesRetriever;
 use Tuleap\Tracker\Report\Renderer\ImportRendererFromXmlEvent;
+use Tuleap\Tracker\Semantic\CollectionOfFieldsDuplicator;
+use Tuleap\Tracker\Semantic\TrackerSemanticCollection;
+use Tuleap\Tracker\Semantic\TrackerSemanticFactory;
+use Tuleap\Tracker\Semantic\TrackerSemanticManager;
 use Tuleap\Tracker\Template\CompleteIssuesTemplateEvent;
 use Tuleap\Tracker\TrackerEventTrackersDuplicated;
 use Tuleap\Tracker\XML\Importer\ImportXMLProjectTrackerDone;
@@ -86,9 +90,9 @@ class cardwallPlugin extends Plugin //phpcs:ignore PSR1.Classes.ClassDeclaration
             $this->addHook(Event::JAVASCRIPT);
             $this->addHook(ImportXMLProjectTrackerDone::NAME);
             $this->addHook(AllowedFieldTypeChangesRetriever::NAME);
-            $this->addHook(Tracker_SemanticManager::TRACKER_EVENT_MANAGE_SEMANTICS);
-            $this->addHook(Tracker_SemanticFactory::TRACKER_EVENT_SEMANTIC_FROM_XML);
-            $this->addHook(Tracker_SemanticFactory::TRACKER_EVENT_GET_SEMANTIC_DUPLICATORS);
+            $this->addHook(TrackerSemanticManager::TRACKER_EVENT_MANAGE_SEMANTICS);
+            $this->addHook(TrackerSemanticFactory::TRACKER_EVENT_SEMANTIC_FROM_XML);
+            $this->addHook(TrackerSemanticFactory::TRACKER_EVENT_GET_SEMANTIC_DUPLICATORS);
             $this->addHook(TrackerEventExportFullXML::NAME);
             $this->addHook(ImportRendererFromXmlEvent::NAME);
             $this->addHook(\Tuleap\Request\CollectRoutesEvent::NAME);
@@ -338,19 +342,19 @@ class cardwallPlugin extends Plugin //phpcs:ignore PSR1.Classes.ClassDeclaration
     }
 
     /**
-     * @see Tracker_SemanticManager::TRACKER_EVENT_MANAGE_SEMANTICS
+     * @see TrackerSemanticManager::TRACKER_EVENT_MANAGE_SEMANTICS
      */
     public function tracker_event_manage_semantics($parameters) //phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
         $tracker   = $parameters['tracker'];
         $semantics = $parameters['semantics'];
-        \assert($semantics instanceof Tracker_SemanticCollection);
+        \assert($semantics instanceof TrackerSemanticCollection);
 
         $semantics->add(Cardwall_Semantic_CardFields::load($tracker));
     }
 
     /**
-     * @see Tracker_SemanticFactory::TRACKER_EVENT_SEMANTIC_FROM_XML
+     * @see TrackerSemanticFactory::TRACKER_EVENT_SEMANTIC_FROM_XML
      */
     public function tracker_event_semantic_from_xml($params) //phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
@@ -372,11 +376,11 @@ class cardwallPlugin extends Plugin //phpcs:ignore PSR1.Classes.ClassDeclaration
     }
 
     /**
-     * @see Tracker_SemanticFactory::TRACKER_EVENT_GET_SEMANTIC_DUPLICATORS
+     * @see TrackerSemanticFactory::TRACKER_EVENT_GET_SEMANTIC_DUPLICATORS
      */
     public function trackerEventGetSemanticDuplicators($params)
     {
-        $params['duplicators'][] = new Tracker_Semantic_CollectionOfFieldsDuplicator(new Cardwall_Semantic_Dao_CardFieldsDao());
+        $params['duplicators'][] = new CollectionOfFieldsDuplicator(new Cardwall_Semantic_Dao_CardFieldsDao());
         $params['duplicators'][] = new BackgroundColorSemanticFactory(new BackgroundColorDao());
     }
 

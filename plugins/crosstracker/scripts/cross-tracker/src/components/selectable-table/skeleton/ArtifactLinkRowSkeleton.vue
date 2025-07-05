@@ -19,7 +19,7 @@
   -->
 
 <template>
-    <template v-for="index of number_of_link" v-bind:key="row.number_of_forward_link + index">
+    <template v-for="index of number_of_link" v-bind:key="index">
         <empty-edit-cell class="tlp-skeleton-icon" />
         <empty-selectable-cell
             v-for="column_name of columns"
@@ -35,15 +35,10 @@ import type { ArtifactRow, ArtifactsTable } from "../../../domain/ArtifactsTable
 import EmptySelectableCell from "./EmptySelectableCell.vue";
 import EmptyEditCell from "./EmptyEditCell.vue";
 
-const props = defineProps<{
+defineProps<{
     row: ArtifactRow;
     columns: ArtifactsTable["columns"];
-    link_type: "forward" | "reverse";
     level: number;
+    number_of_link: number;
 }>();
-
-const number_of_link =
-    props.link_type === "forward"
-        ? props.row.number_of_forward_link
-        : props.row.number_of_reverse_link;
 </script>

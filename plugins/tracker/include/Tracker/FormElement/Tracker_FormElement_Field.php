@@ -31,6 +31,8 @@ use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
 use Tuleap\Tracker\Rule\TrackerRulesDateValidator;
 use Tuleap\Tracker\Rule\TrackerRulesListValidator;
 use Tuleap\Tracker\Semantic\CollectionOfSemanticsUsingAParticularTrackerField;
+use Tuleap\Tracker\Semantic\Description\CachedSemanticDescriptionFieldRetriever;
+use Tuleap\Tracker\Semantic\TrackerSemanticManager;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldDetector;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldsDao;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldsRetriever;
@@ -851,7 +853,7 @@ abstract class Tracker_FormElement_Field extends Tracker_FormElement implements 
             $csrf_token = $this->getCSRFTokenForElementUpdate();
             $html      .= '<form method="POST" action="?">';
             $html      .= $csrf_token->fetchHTMLInput();
-            $html      .= '<input type="hidden" name="func" value="' . $hp->purify(\Tracker::TRACKER_ACTION_NAME_FORM_ELEMENT_REMOVE) . '" />';
+            $html      .= '<input type="hidden" name="func" value="' . $hp->purify(\Tuleap\Tracker\Tracker::TRACKER_ACTION_NAME_FORM_ELEMENT_REMOVE) . '" />';
             $html      .= '<input type="hidden" name="tracker" value="' . $hp->purify((string) $tracker->getId()) . '" />';
             $html      .= '<input type="hidden" name="formElement" value="' . $hp->purify((string) $this->id) . '" />';
             $html      .= '<button type="submit" class="btn-link">' . $GLOBALS['HTML']->getImage('ic/cross.png', ['alt' => 'remove']) . '</button>';
@@ -959,7 +961,7 @@ abstract class Tracker_FormElement_Field extends Tracker_FormElement implements 
 
     public function getUsagesInSemantics(): CollectionOfSemanticsUsingAParticularTrackerField
     {
-        $sm = new Tracker_SemanticManager($this->getTracker());
+        $sm = new TrackerSemanticManager(CachedSemanticDescriptionFieldRetriever::instance(), $this->getTracker());
         return $sm->getSemanticsTheFieldBelongsTo($this);
     }
 

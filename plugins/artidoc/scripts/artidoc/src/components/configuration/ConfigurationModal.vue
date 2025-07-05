@@ -25,7 +25,7 @@
         aria-labelledby="artidoc-configuration-modal-title"
         ref="modal_element"
     >
-        <configuration-modal-header v-bind:close_modal="closeModal" />
+        <configuration-modal-header />
         <configuration-modal-tabs
             v-on:switch-configuration-tab="switchTab"
             v-bind:current_tab="current_tab"
@@ -37,7 +37,6 @@
                 is_tracker_configured &&
                 is_modal_shown
             "
-            v-bind:configuration_store="configuration_store"
         />
     </div>
 </template>
@@ -48,7 +47,6 @@ import type { Modal } from "@tuleap/tlp-modal";
 import { createModal } from "@tuleap/tlp-modal";
 import { OPEN_CONFIGURATION_MODAL_BUS } from "@/stores/useOpenConfigurationModalBusStore";
 import { strictInject } from "@tuleap/vue-strict-inject";
-import { CONFIGURATION_STORE } from "@/stores/configuration-store";
 import { SELECTED_TRACKER } from "@/configuration/SelectedTracker";
 import { ARE_FIELDS_ENABLED } from "@/are-fields-enabled";
 import ConfigurationModalHeader from "@/components/configuration/ConfigurationModalHeader.vue";
@@ -63,7 +61,6 @@ import {
 import ConfigurationModalTabs from "@/components/configuration/ConfigurationModalTabs.vue";
 
 const are_fields_enabled = strictInject(ARE_FIELDS_ENABLED);
-const configuration_store = strictInject(CONFIGURATION_STORE);
 const selected_tracker = strictInject(SELECTED_TRACKER);
 
 const modal_element = ref<HTMLElement | undefined>(undefined);
@@ -90,23 +87,21 @@ function openModal(onSuccessfulSaved?: () => void): void {
             dismiss_on_backdrop_click: false,
         });
     }
-    configuration_store.resetSuccessFlagFromPreviousCalls();
     modal.show();
     is_modal_shown.value = true;
 }
 
-function closeModal(): void {
+function closeModal(is_success: boolean): void {
     modal?.hide();
     is_modal_shown.value = false;
 
-    if (configuration_store.is_success.value) {
+    if (is_success) {
         onSuccessfulSaveCallback();
     }
 }
 
 function switchTab(tab: ConfigurationTab): void {
     current_tab.value = tab;
-    configuration_store.resetSuccessFlagFromPreviousCalls();
 }
 </script>
 

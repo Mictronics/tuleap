@@ -52,9 +52,9 @@ use Tuleap\Tracker\Artifact\Changeset\Comment\PrivateComment\TrackerPrivateComme
 use Tuleap\Tracker\Artifact\Changeset\Comment\PrivateComment\TrackerPrivateCommentUGroupPermissionDao;
 use Tuleap\Tracker\Artifact\Changeset\Comment\PrivateComment\TrackerPrivateCommentUGroupPermissionInserter;
 use Tuleap\Tracker\Artifact\Changeset\FieldsToBeSavedInSpecificOrderRetriever;
-use Tuleap\Tracker\Artifact\Changeset\NewChangesetPostProcessor;
 use Tuleap\Tracker\Artifact\Changeset\NewChangesetCreator;
 use Tuleap\Tracker\Artifact\Changeset\NewChangesetFieldValueSaver;
+use Tuleap\Tracker\Artifact\Changeset\NewChangesetPostProcessor;
 use Tuleap\Tracker\Artifact\Changeset\NewChangesetValidator;
 use Tuleap\Tracker\Artifact\Changeset\PostCreation\ActionsQueuer;
 use Tuleap\Tracker\Artifact\Changeset\PostCreation\MailSender;
@@ -90,6 +90,8 @@ use Tuleap\Tracker\REST\FormElementRepresentationsBuilder;
 use Tuleap\Tracker\REST\PermissionsExporter;
 use Tuleap\Tracker\REST\Tracker\PermissionsRepresentationBuilder;
 use Tuleap\Tracker\REST\WorkflowRestBuilder;
+use Tuleap\Tracker\Semantic\Description\CachedSemanticDescriptionFieldRetriever;
+use Tuleap\Tracker\Tracker;
 use Tuleap\Tracker\Webhook\ArtifactPayloadBuilder;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldDetector;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldsDao;
@@ -110,14 +112,14 @@ use Tuleap\TrackerFunctions\Administration\AdministrationController;
 use Tuleap\TrackerFunctions\Administration\AdministrationCSRFTokenProvider;
 use Tuleap\TrackerFunctions\Administration\CheckTrackerCSRFMiddleware;
 use Tuleap\TrackerFunctions\Administration\CustomCodeExecutionHistorySaver;
-use Tuleap\TrackerFunctions\Administration\MaxSize10Mb;
 use Tuleap\TrackerFunctions\Administration\FunctionDao;
+use Tuleap\TrackerFunctions\Administration\MaxSize10Mb;
 use Tuleap\TrackerFunctions\Administration\RejectNonTrackerAdministratorMiddleware;
 use Tuleap\TrackerFunctions\Administration\RemoveFunctionController;
 use Tuleap\TrackerFunctions\Administration\UpdateFunctionController;
 use Tuleap\TrackerFunctions\CustomCodeExecutionTask;
-use Tuleap\TrackerFunctions\Logs\LogLinePresenterBuilder;
 use Tuleap\TrackerFunctions\Logs\FunctionLogDao;
+use Tuleap\TrackerFunctions\Logs\LogLinePresenterBuilder;
 use Tuleap\TrackerFunctions\Logs\PayloadDownloaderController;
 use Tuleap\TrackerFunctions\Notification\BuildMessagesForAdmins;
 use Tuleap\TrackerFunctions\Notification\RetrieveTrackerAdminRecipients;
@@ -214,7 +216,7 @@ final class tracker_functionsPlugin extends Plugin
                     ),
                     new PermissionsRepresentationBuilder($ugroup_manager, $permissions_functions_wrapper,),
                     new WorkflowRestBuilder(),
-                    static fn(\Tracker $tracker) => new \Tracker_SemanticManager($tracker),
+                    static fn(Tracker $tracker) => new \Tuleap\Tracker\Semantic\TrackerSemanticManager(CachedSemanticDescriptionFieldRetriever::instance(), $tracker),
                     new ParentInHierarchyRetriever(new HierarchyDAO(), TrackerFactory::instance()),
                     TrackersPermissionsRetriever::build()
                 ),

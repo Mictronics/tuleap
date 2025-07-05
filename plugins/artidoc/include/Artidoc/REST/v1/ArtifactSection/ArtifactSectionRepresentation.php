@@ -22,8 +22,10 @@ declare(strict_types=1);
 
 namespace Tuleap\Artidoc\REST\v1\ArtifactSection;
 
+use Tuleap\Artidoc\REST\v1\ArtifactSection\Field\SectionStaticListFieldRepresentation;
 use Tuleap\Artidoc\REST\v1\ArtifactSection\Field\SectionStringFieldRepresentation;
 use Tuleap\Artidoc\REST\v1\ArtifactSection\Field\SectionUserGroupsListFieldRepresentation;
+use Tuleap\Artidoc\REST\v1\ArtifactSection\Field\SectionUserListFieldRepresentation;
 use Tuleap\Artidoc\REST\v1\SectionRepresentation;
 use Tuleap\Tracker\REST\Artifact\ArtifactReference;
 
@@ -35,7 +37,7 @@ final readonly class ArtifactSectionRepresentation implements SectionRepresentat
     public string $type;
 
     /**
-     * @param list<SectionStringFieldRepresentation | SectionUserGroupsListFieldRepresentation> $fields
+     * @param list<SectionStringFieldRepresentation | SectionUserGroupsListFieldRepresentation | SectionStaticListFieldRepresentation | SectionUserListFieldRepresentation> $fields
      */
     public function __construct(
         public string $id,

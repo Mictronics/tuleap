@@ -24,11 +24,11 @@ namespace Tuleap\TestManagement\Heartbeat;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use Tracker_ArtifactFactory;
+use Tuleap\Color\ItemColor;
 use Tuleap\Project\HeartbeatsEntryCollection;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\TestManagement\Campaign\Execution\ExecutionDao;
 use Tuleap\Tracker\Artifact\Artifact;
-use Tuleap\Tracker\TrackerColor;
 use UserManager;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
@@ -87,8 +87,8 @@ final class LatestHeartbeatsCollectorTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $this->dao->method('searchLastTestExecUpdate')->willReturn([$row_artifact]);
 
-        $color   = TrackerColor::fromName('chrome-silver');
-        $tracker = $this->createMock(\Tracker::class);
+        $color   = ItemColor::fromName('chrome-silver');
+        $tracker = $this->createMock(\Tuleap\Tracker\Tracker::class);
         $tracker->method('getColor')->willReturn($color);
 
         $artifact = $this->createMock(Artifact::class);

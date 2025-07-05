@@ -26,6 +26,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Tracker_FormElementFactory;
 use Tracker_REST_TrackerRestBuilder;
 use Tracker_RulesManager;
+use Tuleap\Color\ItemColor;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
@@ -43,7 +44,6 @@ use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Test\Stub\Hierarchy\SearchParentTrackerStub;
 use Tuleap\Tracker\Test\Stub\Permission\RetrieveUserPermissionOnTrackersStub;
 use Tuleap\Tracker\Test\Stub\RetrieveTrackerStub;
-use Tuleap\Tracker\TrackerColor;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldDetector;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldsDao;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldsRetriever;
@@ -93,7 +93,7 @@ final class TrackerRestBuilderTest extends TestCase
             new FrozenFieldsRetriever($this->createMock(FrozenFieldsDao::class), $this->form_element_factory,)
         );
 
-        $semantic_manager = $this->createMock(\Tracker_SemanticManager::class);
+        $semantic_manager = $this->createMock(\Tuleap\Tracker\Semantic\TrackerSemanticManager::class);
         $semantic_manager->method('exportToREST')->willReturn([]);
         $builder = new Tracker_REST_TrackerRestBuilder(
             $this->form_element_factory,
@@ -148,13 +148,13 @@ final class TrackerRestBuilderTest extends TestCase
         $rules_manager->method('getAllListRulesByTrackerWithOrder')->willReturn([]);
         $workflow->method('getGlobalRulesManager')->willReturn($rules_manager);
 
-        $tracker = $this->createConfiguredMock(\Tracker::class, [
+        $tracker = $this->createConfiguredMock(\Tuleap\Tracker\Tracker::class, [
             'getId' => self::TRACKER_ID,
             'getUri' => '/plugins/tracker/?tracker=' . self::TRACKER_ID,
             'getDescription' => 'Tracks User Stories for developers',
             'getName' => 'User Stories',
             'getItemName' => 'story',
-            'getColor' => TrackerColor::fromName('deep-blue'),
+            'getColor' => ItemColor::fromName('deep-blue'),
             'getWorkflow' => $workflow,
             'userIsAdmin' => false,
             'getProject' => $project,

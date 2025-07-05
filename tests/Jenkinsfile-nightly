@@ -61,19 +61,19 @@ pipeline {
                 }
             }
         }
-        stage ('PHP 8.3') {
+        stage ('PHP 8.4') {
             failFast false
             parallel {
                 stage('Unit tests') {
-                    steps { script { actions.runPHPUnitTests('83', false) } }
+                    steps { script { actions.runPHPUnitTests('84', false) } }
                     post { always { junit 'results/ut-phpunit/*/phpunit_tests_results.xml' } }
                 }
                 stage('DB/Integration') {
-                    steps { script { actions.runDBTests('mysql80', '83') } }
+                    steps { script { actions.runDBTests('mysql80', '84') } }
                     post { always { junit 'results/db/*/db_tests.xml' } }
                 }
                 stage('REST') {
-                    steps { script { actions.runRESTTests('mysql80', '83') } }
+                    steps { script { actions.runRESTTests('mysql80', '84') } }
                     post { always { junit 'results/api-rest/*/*' } }
                 }
             }

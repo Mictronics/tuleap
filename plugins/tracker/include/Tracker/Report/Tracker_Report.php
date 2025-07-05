@@ -76,6 +76,7 @@ use Tuleap\Tracker\Report\Query\QueryDao;
 use Tuleap\Tracker\Report\TrackerCreationSuccess\SuccessPresenter;
 use Tuleap\Tracker\Report\TrackerReportConfig;
 use Tuleap\Tracker\Report\TrackerReportConfigDao;
+use Tuleap\Tracker\Tracker;
 
 /**
  * Set of criteria + set of Renderer to search and display artifacts
@@ -1617,6 +1618,9 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
                     }
 
                     $this->report_session->setHasChanged();
+                    $GLOBALS['Response']->redirect('?' . http_build_query([
+                        'report' => $this->id,
+                    ]));
                 }
                 if ($request->exist('tracker_expert_query_submit') && ! $current_user->isAnonymous()) {
                     $this->checkReportUpdateRequest($request, $tracker);
@@ -1627,6 +1631,9 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
                         $this->expert_query = $expert_query;
                         $this->report_session->setHasChanged();
                     }
+                    $GLOBALS['Response']->redirect('?' . http_build_query([
+                        'report' => $this->id,
+                    ]));
                 }
                 if ($this->is_in_expert_mode && $this->expert_query) {
                     try {
@@ -1966,14 +1973,15 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
         );
     }
 
-    private function fetchUpdateRendererForm(Tracker_Report_Renderer $renderer)
+    private function fetchUpdateRendererForm(Tracker_Report_Renderer $renderer): string
     {
         $hp = Codendi_HTMLPurifier::instance();
 
         $update_renderer  = '';
         $update_renderer .= '<form action="" method="POST">';
-        $update_renderer .= '<input type="hidden" name="report" value="' . $this->id . '" />';
-        $update_renderer .= '<input type="hidden" name="renderer" value="' . (int) $renderer->id . '" />';
+        $update_renderer .= '<input type="hidden" name="report" value="' . $hp->purify($this->id) . '" />';
+        $update_renderer .= '<input type="hidden" name="renderer" value="' . $hp->purify((int) $renderer->id) . '" />';
+        $update_renderer .= $this->getCSRFTokenReportChange($renderer->getReport()->getTracker())->fetchHTMLInput();
         $update_renderer .= '
             <label class="radio">
                 <input type="radio" name="func" value="rename-renderer" id="tracker_renderer_updater_rename" />
@@ -2002,7 +2010,7 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
         return $update_renderer;
     }
 
-    private function fetchAddRendererForm($current_renderer)
+    private function fetchAddRendererForm($current_renderer): string
     {
         $hp = Codendi_HTMLPurifier::instance();
 
@@ -2010,19 +2018,20 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
 
         $add_renderer  = '';
         $add_renderer .= '<form action="" method="POST">';
-        $add_renderer .= '<input type="hidden" name="report" value="' . $this->id . '" />';
-        $add_renderer .= '<input type="hidden" name="renderer" value="' . $current_renderer_id . '" />';
+        $add_renderer .= '<input type="hidden" name="report" value="' . $hp->purify($this->id) . '" />';
+        $add_renderer .= '<input type="hidden" name="renderer" value="' . $hp->purify($current_renderer_id) . '" />';
+        $add_renderer .= $this->getCSRFTokenReportChange($this->getTracker())->fetchHTMLInput();
         $add_renderer .= '<input type="hidden" name="func" value="add-renderer" />';
         $rrf           = Tracker_Report_RendererFactory::instance();
         $types         = $rrf->getTypes();
         if (count($types) > 1) { //No need to ask for type if there is only one
             $type = '<select name="new_type" id="tracker_renderer_add_type">';
             foreach ($types as $key => $label) {
-                $type .= '<option value="' . $key . '">' .  $hp->purify($label, CODENDI_PURIFIER_CONVERT_HTML)  . '</option>';
+                $type .= '<option value="' . $hp->purify($key) . '">' .  $hp->purify($label, CODENDI_PURIFIER_CONVERT_HTML)  . '</option>';
             }
             $type .= '</select>';
         } else {
-            $type = current($types);
+            $type = $hp->purify(current($types));
         }
         $add_renderer .= '<p><strong>' . dgettext('tuleap-tracker', 'Add a new') . ' ' . $type . '</strong></p>';
         $add_renderer .= '<p>';

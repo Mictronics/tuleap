@@ -18,9 +18,13 @@
  */
 
 import type {
+    ReadonlyFieldStaticList,
+    ReadonlyFieldStaticListValue,
     ReadonlyFieldString,
     ReadonlyFieldUserGroupsList,
     ReadonlyFieldUserGroupsListValue,
+    ReadonlyFieldUserList,
+    ReadonlyFieldUserListValue,
 } from "@/sections/readonly-fields/ReadonlyFields";
 import type { ConfigurationFieldDisplayType } from "@/sections/readonly-fields/AvailableReadonlyFields";
 
@@ -37,6 +41,24 @@ export const ReadonlyFieldStub = {
     ): ReadonlyFieldUserGroupsList => ({
         type: "user_groups_list",
         label: `Readonly user-groups-list field`,
+        value,
+        display_type,
+    }),
+    staticList: (
+        value: ReadonlyFieldStaticListValue[],
+        display_type: ConfigurationFieldDisplayType,
+    ): ReadonlyFieldStaticList => ({
+        type: "static_list",
+        label: "Readonly static list field",
+        value,
+        display_type,
+    }),
+    userList: (
+        value: ReadonlyFieldUserListValue[],
+        display_type: ConfigurationFieldDisplayType,
+    ): ReadonlyFieldUserList => ({
+        type: "user_list",
+        label: "Readonly user list field",
         value,
         display_type,
     }),

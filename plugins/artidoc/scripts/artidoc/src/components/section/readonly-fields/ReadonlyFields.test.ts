@@ -30,6 +30,8 @@ import {
     DISPLAY_TYPE_COLUMN,
 } from "@/sections/readonly-fields/AvailableReadonlyFields";
 import FieldUserGroupsList from "@/components/section/readonly-fields/FieldUserGroupsList.vue";
+import FieldStaticList from "@/components/section/readonly-fields/FieldStaticList.vue";
+import FieldUserList from "@/components/section/readonly-fields/FieldUserList.vue";
 
 describe("ReadonlyFields", () => {
     const getWrapper = (fields: ReadonlyField[]): VueWrapper => {
@@ -73,11 +75,21 @@ describe("ReadonlyFields", () => {
                 [{ label: "Project Administrators" }],
                 DISPLAY_TYPE_COLUMN,
             ),
+            ReadonlyFieldStub.staticList(
+                [{ label: "Red", tlp_color: "fiesta-red" }],
+                DISPLAY_TYPE_BLOCK,
+            ),
+            ReadonlyFieldStub.userList(
+                [{ display_name: "Bob", avatar_url: "https://example.com/bob_avatar.png" }],
+                DISPLAY_TYPE_BLOCK,
+            ),
         ];
         const wrapper = getWrapper(fields);
 
         expect(wrapper.findAll("[data-test=readonly-field]")).toHaveLength(fields.length);
         expect(wrapper.findComponent(FieldString).exists()).toBe(true);
         expect(wrapper.findComponent(FieldUserGroupsList).exists()).toBe(true);
+        expect(wrapper.findComponent(FieldStaticList).exists()).toBe(true);
+        expect(wrapper.findComponent(FieldUserList).exists()).toBe(true);
     });
 });

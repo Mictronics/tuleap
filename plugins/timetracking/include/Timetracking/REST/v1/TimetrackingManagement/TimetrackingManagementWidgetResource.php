@@ -25,6 +25,7 @@ namespace Tuleap\Timetracking\REST\v1\TimetrackingManagement;
 use Luracast\Restler\RestException;
 use Tuleap\REST\AuthenticatedResource;
 use Tuleap\REST\Header;
+use Tuleap\Timetracking\Widget\Management\ManagementDao;
 
 final class TimetrackingManagementWidgetResource extends AuthenticatedResource
 {
@@ -40,11 +41,11 @@ final class TimetrackingManagementWidgetResource extends AuthenticatedResource
 
     private function getPUTHandler(): QueryPUTHandler
     {
-        $dao = new Dao();
+        $dao = new ManagementDao();
 
         return (new QueryPUTHandler(
             new FromPayloadPeriodBuilder(),
-            new FromPayloadUserDiffBuilder(new QueryUserChecker(), $dao),
+            new FromPayloadUserListBuilder(new ActiveUserRetriever(\UserManager::instance())),
             new TimetrackingManagementWidgetSaver($dao, $dao),
             new PermissionChecker($dao),
         ));
@@ -97,7 +98,7 @@ final class TimetrackingManagementWidgetResource extends AuthenticatedResource
         Header::allowOptionsPut();
 
         $this->getPUTHandler()
-            ->handle($id, $item)
+            ->handle($id, $item, \UserManager::instance()->getCurrentUser())
             ->mapErr(FaultMapper::mapToRestException(...));
     }
 }

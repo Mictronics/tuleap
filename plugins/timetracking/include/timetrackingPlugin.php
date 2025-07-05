@@ -58,6 +58,7 @@ use Tuleap\Tracker\Artifact\XML\Exporter\TrackerEventExportFullXML;
 use Tuleap\Tracker\Creation\JiraImporter\Configuration\PlatformConfigurationForExternalPluginsEvent;
 use Tuleap\Tracker\Creation\JiraImporter\Import\JiraImporterExternalPluginsEvent;
 use Tuleap\Tracker\REST\v1\Event\GetTrackersWithCriteria;
+use Tuleap\Tracker\Tracker;
 use Tuleap\Tracker\XML\Importer\ImportXMLProjectTrackerDone;
 
 require_once __DIR__ . '/../../tracker/include/trackerPlugin.php';
@@ -312,7 +313,7 @@ class timetrackingPlugin extends PluginWithLegacyInternalRouting implements Plug
             );
         }
         if ($get_widget_event->getName() === TimetrackingManagementWidget::NAME && FeatureFlagTimetrackingManagementWidget::isActive()) {
-            $get_widget_event->setWidget(new TimetrackingManagementWidget(new \Tuleap\Timetracking\REST\v1\TimetrackingManagement\Dao()));
+            $get_widget_event->setWidget(new TimetrackingManagementWidget(new \Tuleap\Timetracking\Widget\Management\ManagementDao()));
         }
     }
 

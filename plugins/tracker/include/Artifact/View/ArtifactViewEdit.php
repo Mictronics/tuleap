@@ -24,7 +24,6 @@ use Codendi_HTMLPurifier;
 use Codendi_Request;
 use PFUser;
 use TemplateRendererFactory;
-use Tracker;
 use Tracker_Artifact_ArtifactRenderer;
 use Tracker_Artifact_Followup_Item;
 use Tracker_ArtifactByEmailStatus;
@@ -37,6 +36,8 @@ use Tuleap\Tracker\Artifact\MailGateway\MailGatewayConfig;
 use Tuleap\Tracker\Artifact\MailGateway\MailGatewayConfigDao;
 use Tuleap\Tracker\Artifact\RichTextareaConfiguration;
 use Tuleap\Tracker\Artifact\RichTextareaProvider;
+use Tuleap\Tracker\Tracker;
+use Tuleap\Tracker\Semantic\Description\CachedSemanticDescriptionFieldRetriever;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldDetector;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldsRetriever;
 use Tuleap\Tracker\Workflow\SimpleMode\SimpleWorkflowDao;
@@ -306,7 +307,7 @@ readonly class ArtifactViewEdit extends TrackerArtifactView
             new MailGatewayConfigDao(),
         );
 
-        $status = new Tracker_ArtifactByEmailStatus($config);
+        $status = new Tracker_ArtifactByEmailStatus($config, CachedSemanticDescriptionFieldRetriever::instance());
 
         return $status->canUpdateArtifactInInsecureMode($this->artifact->getTracker());
     }

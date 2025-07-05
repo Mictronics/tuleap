@@ -44,6 +44,10 @@ use Tuleap\Artidoc\Document\DocumentServiceFromAllowedProjectRetriever;
 use Tuleap\Artidoc\Document\Field\ConfiguredFieldCollectionBuilder;
 use Tuleap\Artidoc\Document\Field\ConfiguredFieldDao;
 use Tuleap\Artidoc\Document\Field\FieldsWithValuesBuilder;
+use Tuleap\Artidoc\Document\Field\List\ListFieldWithValueBuilder;
+use Tuleap\Artidoc\Document\Field\List\StaticListFieldWithValueBuilder;
+use Tuleap\Artidoc\Document\Field\List\UserGroupListWithValueBuilder;
+use Tuleap\Artidoc\Document\Field\List\UserListFieldWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\SuitableFieldRetriever;
 use Tuleap\Artidoc\Document\Tracker\NoSemanticDescriptionFault;
 use Tuleap\Artidoc\Document\Tracker\NoSemanticTitleFault;
@@ -95,6 +99,7 @@ use Tuleap\REST\AuthenticatedResource;
 use Tuleap\REST\Header;
 use Tuleap\REST\I18NRestException;
 use Tuleap\Tracker\Artifact\FileUploadDataProvider;
+use Tuleap\Tracker\Semantic\Description\CachedSemanticDescriptionFieldRetriever;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldDetector;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldsDao;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldsRetriever;
@@ -102,6 +107,9 @@ use Tuleap\Tracker\Workflow\SimpleMode\SimpleWorkflowDao;
 use Tuleap\Tracker\Workflow\SimpleMode\State\StateFactory;
 use Tuleap\Tracker\Workflow\SimpleMode\State\TransitionExtractor;
 use Tuleap\Tracker\Workflow\SimpleMode\State\TransitionRetriever;
+use Tuleap\User\Avatar\AvatarHashDao;
+use Tuleap\User\Avatar\ComputeAvatarHash;
+use Tuleap\User\Avatar\UserAvatarUrlProvider;
 use UserManager;
 
 final class ArtidocResource extends AuthenticatedResource
@@ -435,7 +443,8 @@ final class ArtidocResource extends AuthenticatedResource
      */
     private function getPutConfigurationHandler(\PFUser $user): PUTConfigurationHandler
     {
-        $form_element_factory = \Tracker_FormElementFactory::instance();
+        $form_element_factory        = \Tracker_FormElementFactory::instance();
+        $description_field_retriever = CachedSemanticDescriptionFieldRetriever::instance();
 
         return new PUTConfigurationHandler(
             $this->getArtidocWithContextRetriever($user),
@@ -445,8 +454,14 @@ final class ArtidocResource extends AuthenticatedResource
                 new ConfiguredFieldDao(),
             ),
             \TrackerFactory::instance(),
-            new SuitableTrackerForDocumentChecker($form_element_factory),
-            new SuitableFieldRetriever($form_element_factory),
+            new SuitableTrackerForDocumentChecker(
+                $form_element_factory,
+                $description_field_retriever,
+            ),
+            new SuitableFieldRetriever(
+                $form_element_factory,
+                $description_field_retriever,
+            ),
         );
     }
 
@@ -458,7 +473,10 @@ final class ArtidocResource extends AuthenticatedResource
             $this->getSectionRepresentationBuilder($artidoc, $user),
             new RequiredSectionInformationCollector(
                 $user,
-                new RequiredArtifactInformationBuilder(\Tracker_ArtifactFactory::instance())
+                new RequiredArtifactInformationBuilder(
+                    \Tracker_ArtifactFactory::instance(),
+                    CachedSemanticDescriptionFieldRetriever::instance(),
+                )
             ),
         );
     }
@@ -496,8 +514,10 @@ final class ArtidocResource extends AuthenticatedResource
 
         $configured_field_collection_builder = new ConfiguredFieldCollectionBuilder(
             new ConfiguredFieldDao(),
-            new SuitableFieldRetriever($form_element_factory),
+            new SuitableFieldRetriever($form_element_factory, CachedSemanticDescriptionFieldRetriever::instance()),
         );
+
+        $provide_user_avatar_url = new UserAvatarUrlProvider(new AvatarHashDao(), new ComputeAvatarHash());
 
         return new ArtifactSectionRepresentationBuilder(
             new FileUploadDataProvider(
@@ -518,6 +538,15 @@ final class ArtidocResource extends AuthenticatedResource
             ),
             new FieldsWithValuesBuilder(
                 $configured_field_collection_builder->buildFromArtidoc($artidoc, $user),
+                new ListFieldWithValueBuilder(
+                    new UserListFieldWithValueBuilder(
+                        UserManager::instance(),
+                        $provide_user_avatar_url,
+                        $provide_user_avatar_url,
+                    ),
+                    new StaticListFieldWithValueBuilder(),
+                    new UserGroupListWithValueBuilder(),
+                ),
             )
         );
     }

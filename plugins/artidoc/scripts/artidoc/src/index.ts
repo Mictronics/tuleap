@@ -36,8 +36,10 @@ import { NOTIFICATION_COLLECTION } from "@/sections/notifications/notification-c
 import { TOOLBAR_BUS } from "@/toolbar-bus-injection-key";
 import { SECTIONS_STATES_COLLECTION } from "@/sections/states/sections-states-collection-injection-key";
 import { FILE_UPLOADS_COLLECTION } from "@/sections/attachments/sections-file-uploads-collection-injection-key";
-import { CONFIGURATION_STORE, initConfigurationStore } from "@/stores/configuration-store";
-import { PDF_TEMPLATES_STORE, initPdfTemplatesStore } from "@/stores/pdf-templates-store";
+import {
+    PDF_TEMPLATES_COLLECTION,
+    buildPdfTemplatesCollection,
+} from "@/pdf/pdf-templates-collection";
 import {
     OPEN_CONFIGURATION_MODAL_BUS,
     useOpenConfigurationModalBusStore,
@@ -74,6 +76,14 @@ import {
     buildAllowedTrackersCollection,
 } from "@/configuration/AllowedTrackersCollection";
 import { buildSelectedTracker, SELECTED_TRACKER } from "@/configuration/SelectedTracker";
+import {
+    buildSelectedFieldsCollection,
+    SELECTED_FIELDS,
+} from "@/configuration/SelectedFieldsCollection";
+import {
+    AVAILABLE_FIELDS,
+    buildAvailableFieldsCollection,
+} from "@/configuration/AvailableFieldsCollection";
 
 document.addEventListener("DOMContentLoaded", async () => {
     const vue_mount_point = document.getElementById("artidoc-mountpoint");
@@ -114,11 +124,12 @@ document.addEventListener("DOMContentLoaded", async () => {
         JSON.parse(getAttributeOrThrow(vue_mount_point, "data-allowed-trackers")),
     );
     const selected_tracker = buildSelectedTracker(saved_tracker);
-
-    const configuration_store = initConfigurationStore(
-        item_id,
-        selected_tracker,
+    const selected_fields = buildSelectedFieldsCollection(
         JSON.parse(getAttributeOrThrow(vue_mount_point, "data-selected-fields")),
+    );
+    const available_fields = await buildAvailableFieldsCollection(
+        selected_tracker,
+        selected_fields,
     );
 
     const is_loading_failed = ref(false);
@@ -154,10 +165,11 @@ document.addEventListener("DOMContentLoaded", async () => {
         )
         .provide(ALLOWED_TRACKERS, allowed_trackers)
         .provide(SELECTED_TRACKER, selected_tracker)
-        .provide(CONFIGURATION_STORE, configuration_store)
+        .provide(SELECTED_FIELDS, selected_fields)
+        .provide(AVAILABLE_FIELDS, available_fields)
         .provide(
-            PDF_TEMPLATES_STORE,
-            initPdfTemplatesStore(
+            PDF_TEMPLATES_COLLECTION,
+            buildPdfTemplatesCollection(
                 JSON.parse(getAttributeOrThrow(vue_mount_point, "data-pdf-templates")),
             ),
         )

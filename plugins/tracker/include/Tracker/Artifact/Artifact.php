@@ -42,7 +42,6 @@ use RuntimeException;
 use SimpleXMLElement;
 use SystemEventManager;
 use TemplateRendererFactory;
-use Tracker;
 use Tracker_Artifact_Changeset;
 use Tracker_Artifact_Changeset_ChangesetDataInitializator;
 use Tracker_Artifact_Changeset_CommentDao;
@@ -158,6 +157,7 @@ use Tuleap\Tracker\REST\Artifact\ChangesetValue\ArtifactLink\NewArtifactLinkChan
 use Tuleap\Tracker\REST\Artifact\ChangesetValue\ArtifactLink\NewArtifactLinkInitialChangesetValueBuilder;
 use Tuleap\Tracker\Rule\FirstValidValueAccordingToDependenciesRetriever;
 use Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributor;
+use Tuleap\Tracker\Semantic\Description\CachedSemanticDescriptionFieldRetriever;
 use Tuleap\Tracker\Semantic\Description\TrackerSemanticDescription;
 use Tuleap\Tracker\Semantic\Progress\MethodBuilder;
 use Tuleap\Tracker\Semantic\Progress\SemanticProgressBuilder;
@@ -167,6 +167,7 @@ use Tuleap\Tracker\Semantic\Status\StatusValueProvider;
 use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeBuilder;
 use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle;
+use Tuleap\Tracker\Tracker;
 use Tuleap\Tracker\Workflow\FirstPossibleValueInListRetriever;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldDetector;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldsRetriever;
@@ -197,7 +198,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
     public $tracker_id;
     public $use_artifact_permissions;
     protected $per_tracker_id;
-    protected $submitted_by;
+    protected int $submitted_by;
     protected $submitted_on;
 
     protected $changesets;
@@ -264,7 +265,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
      *
      * @param bool $use_artifact_permissions True if this artifact uses permission, false otherwise
      */
-    public function __construct($id, $tracker_id, $submitted_by, $submitted_on, $use_artifact_permissions)
+    public function __construct($id, $tracker_id, int $submitted_by, $submitted_on, $use_artifact_permissions)
     {
         $this->id                       = $id;
         $this->tracker_id               = $tracker_id;
@@ -683,14 +684,24 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
         if ($this->description !== '') {
             return $this->description;
         }
-        $provider = new ArtifactDescriptionProvider(TrackerSemanticDescription::load($this->getTracker()));
+        $provider = new ArtifactDescriptionProvider(
+            new TrackerSemanticDescription(
+                $this->getTracker(),
+                CachedSemanticDescriptionFieldRetriever::instance()->fromTracker($this->getTracker()),
+            )
+        );
 
         return $provider->getDescription($this);
     }
 
     public function getPostProcessedDescription(): string
     {
-        $provider = new ArtifactDescriptionProvider(TrackerSemanticDescription::load($this->getTracker()));
+        $provider = new ArtifactDescriptionProvider(
+            new TrackerSemanticDescription(
+                $this->getTracker(),
+                CachedSemanticDescriptionFieldRetriever::instance()->fromTracker($this->getTracker()),
+            )
+        );
 
         return $provider->getPostProcessedDescription($this);
     }
@@ -1727,7 +1738,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
      *
      * @return int the user id
      */
-    public function getSubmittedBy()
+    public function getSubmittedBy(): int
     {
         return $this->submitted_by;
     }
@@ -1749,10 +1760,10 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
         return $this->submitted_by_user;
     }
 
-    public function setSubmittedByUser(PFUser $user)
+    public function setSubmittedByUser(PFUser $user): void
     {
         $this->submitted_by_user = $user;
-        $this->submitted_by      = $user->getId();
+        $this->submitted_by      = (int) $user->getId();
     }
 
     /**

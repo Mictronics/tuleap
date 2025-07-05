@@ -25,7 +25,6 @@ namespace Tuleap\Tracker\Artifact\MailGateway;
 use PFUser;
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\NullLogger;
-use Tracker;
 use Tracker_Artifact_Changeset_IncomingMailDao;
 use Tracker_Artifact_MailGateway_CitationStripper;
 use Tracker_Artifact_MailGateway_IncomingMessage;
@@ -38,7 +37,9 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Artifact\Creation\TrackerArtifactCreator;
+use Tuleap\Tracker\Test\Stub\RetrieveSemanticDescriptionFieldStub;
 use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
+use Tuleap\Tracker\Tracker;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class MailGatewayTokenTest extends TestCase
@@ -88,6 +89,8 @@ final class MailGatewayTokenTest extends TestCase
         $notifier->method('sendErrorMailTrackerGeneric');
         $notifier->method('sendErrorMailInsufficientPermissionUpdate');
 
+        $retrieve_description_field = RetrieveSemanticDescriptionFieldStub::withNoField();
+
         $this->mailgateway = new Tracker_Artifact_MailGateway_TokenMailGateway(
             $incoming_message_factory,
             $citation_stripper,
@@ -95,9 +98,10 @@ final class MailGatewayTokenTest extends TestCase
             $this->incoming_mail_dao,
             $this->artifact_creator,
             $this->createMock(Tracker_FormElementFactory::class),
-            new Tracker_ArtifactByEmailStatus($this->tracker_config),
+            new Tracker_ArtifactByEmailStatus($this->tracker_config, $retrieve_description_field),
             new NullLogger(),
-            $filter
+            $filter,
+            $retrieve_description_field,
         );
 
         $filter->method('isAnAutoReplyMail')->willReturn(false);

@@ -22,13 +22,15 @@ declare(strict_types=1);
 
 namespace Tuleap\Artidoc\Document\Field;
 
+use Tuleap\Artidoc\Domain\Document\Section\Field\FieldWithValue\StaticListFieldWithValue;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldWithValue\StringFieldWithValue;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldWithValue\UserGroupsListFieldWithValue;
+use Tuleap\Artidoc\Domain\Document\Section\Field\FieldWithValue\UserListFieldWithValue;
 
 interface GetFieldsWithValues
 {
     /**
-     * @return list<StringFieldWithValue | UserGroupsListFieldWithValue>
+     * @return list<StringFieldWithValue | UserGroupsListFieldWithValue | StaticListFieldWithValue | UserListFieldWithValue>
      */
     public function getFieldsWithValues(\Tracker_Artifact_Changeset $changeset): array;
 }

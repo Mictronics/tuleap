@@ -35,6 +35,14 @@
                 v-if="readonly_field.type === USER_GROUP_LIST_FIELD"
                 v-bind:user_groups_list_field="readonly_field"
             />
+            <field-static-list
+                v-if="readonly_field.type === STATIC_LIST_FIELD"
+                v-bind:static_list_field="readonly_field"
+            />
+            <field-user-list
+                v-if="readonly_field.type === USER_LIST_FIELD"
+                v-bind:user_list_field="readonly_field"
+            />
         </div>
     </div>
 </template>
@@ -42,9 +50,16 @@
 <script setup lang="ts">
 import FieldString from "@/components/section/readonly-fields/FieldString.vue";
 import type { ReadonlyField } from "@/sections/readonly-fields/ReadonlyFields";
-import { STRING_FIELD, USER_GROUP_LIST_FIELD } from "@/sections/readonly-fields/ReadonlyFields";
+import {
+    STATIC_LIST_FIELD,
+    STRING_FIELD,
+    USER_GROUP_LIST_FIELD,
+    USER_LIST_FIELD,
+} from "@/sections/readonly-fields/ReadonlyFields";
 import type { SectionBasedOnArtifact } from "@/helpers/artidoc-section.type";
 import FieldUserGroupsList from "@/components/section/readonly-fields/FieldUserGroupsList.vue";
+import FieldStaticList from "@/components/section/readonly-fields/FieldStaticList.vue";
+import FieldUserList from "@/components/section/readonly-fields/FieldUserList.vue";
 
 defineProps<{
     section: SectionBasedOnArtifact;
