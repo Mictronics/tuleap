@@ -22,12 +22,12 @@ namespace Tuleap\Tracker\Artifact\ActionButtons;
 
 use EventManager;
 use PFUser;
-use Tracker;
 use Tuleap\ForgeConfigSandbox;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Tracker\Admin\MoveArtifacts\MoveActionAllowedChecker;
 use Tuleap\Tracker\Admin\MoveArtifacts\MoveActionAllowedDAO;
 use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\Tracker;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ArtifactMoveButtonPresenterBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
@@ -128,7 +128,6 @@ final class ArtifactMoveButtonPresenterBuilderTest extends \Tuleap\Test\PHPUnit\
         $this->tracker->method('userIsAdmin')->willReturn(true);
         $this->event_manager->method('processEvent');
         $this->tracker->method('hasSemanticsTitle')->willReturn(false);
-        $this->tracker->method('hasSemanticsDescription')->willReturn(false);
         $this->tracker->method('hasSemanticsStatus')->willReturn(false);
         $this->tracker->method('getContributorField')->willReturn(null);
         $this->artifact->method('getLinkedAndReverseArtifacts')->willReturn([]);

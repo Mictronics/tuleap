@@ -24,6 +24,6 @@ export type ConfigurationTab = "tracker-selection-tab" | "readonly-fields-select
 export const TRACKER_SELECTION_TAB: ConfigurationTab = "tracker-selection-tab";
 export const READONLY_FIELDS_SELECTION_TAB: ConfigurationTab = "readonly-fields-selection-tab";
 
-export const CLOSE_CONFIGURATION_MODAL: StrictInjectionKey<() => void> = Symbol(
+export const CLOSE_CONFIGURATION_MODAL: StrictInjectionKey<(is_success: boolean) => void> = Symbol(
     "close-configuration-modal",
 );

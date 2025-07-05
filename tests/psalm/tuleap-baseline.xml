@@ -2560,14 +2560,6 @@
       <code><![CDATA[$this->display_preferences]]></code>
     </UndefinedThisPropertyFetch>
   </file>
-  <file src="plugins/cardwall/include/CardFields.php">
-    <MissingReturnType>
-      <code><![CDATA[getDisplayedFields]]></code>
-    </MissingReturnType>
-    <UndefinedThisPropertyAssignment>
-      <code><![CDATA[$this->form_element_factory]]></code>
-    </UndefinedThisPropertyAssignment>
-  </file>
   <file src="plugins/cardwall/include/CardInCellPresenter.php">
     <MissingParamType>
       <code><![CDATA[$card_field_id]]></code>
@@ -5007,11 +4999,9 @@
       <code><![CDATA[_addUser]]></code>
       <code><![CDATA[_getApprovalTableNotificationCycle]]></code>
       <code><![CDATA[_getDao]]></code>
-      <code><![CDATA[_getMail]]></code>
       <code><![CDATA[_getUserManager]]></code>
       <code><![CDATA[appendReviewerList]]></code>
       <code><![CDATA[createReviewerFromRow]]></code>
-      <code><![CDATA[delUser]]></code>
       <code><![CDATA[deleteTable]]></code>
       <code><![CDATA[getAllApprovalTableForUser]]></code>
       <code><![CDATA[getAllPendingReviewsForUser]]></code>
@@ -9203,10 +9193,8 @@
       <code><![CDATA[$pluginPath]]></code>
     </MissingPropertyType>
     <MissingReturnType>
-      <code><![CDATA[_getReviews]]></code>
       <code><![CDATA[getAjaxUrl]]></code>
       <code><![CDATA[getCategory]]></code>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getTitle]]></code>
       <code><![CDATA[isAjax]]></code>
@@ -9232,7 +9220,6 @@
     </MissingPropertyType>
     <MissingReturnType>
       <code><![CDATA[getCategory]]></code>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getTitle]]></code>
     </MissingReturnType>
@@ -15720,15 +15707,10 @@
     </MissingReturnType>
     <PossiblyNullArgument>
       <code><![CDATA[$this->params['file']]]></code>
-      <code><![CDATA[$this->params['hash']]]></code>
       <code><![CDATA[preg_replace('/[^(\x20-\x7F)]*/', '', $save_as)]]></code>
     </PossiblyNullArgument>
-    <PossiblyNullReference>
-      <code><![CDATA[PathToHash]]></code>
-    </PossiblyNullReference>
     <PossiblyUndefinedArrayOffset>
       <code><![CDATA[$this->params['file']]]></code>
-      <code><![CDATA[$this->params['hash']]]></code>
     </PossiblyUndefinedArrayOffset>
     <RiskyTruthyFalsyComparison>
       <code><![CDATA[$mime]]></code>
@@ -19241,7 +19223,6 @@
       <code><![CDATA[duplicate]]></code>
       <code><![CDATA[exportToXml]]></code>
       <code><![CDATA[fetch]]></code>
-      <code><![CDATA[fetchActionButtons]]></code>
       <code><![CDATA[fetchAdditionnalButton]]></code>
       <code><![CDATA[fetchAsArray]]></code>
       <code><![CDATA[fetchContentD3Graph]]></code>
@@ -20046,8 +20027,6 @@
       <code><![CDATA[$can_be_updated]]></code>
       <code><![CDATA[$delete_url]]></code>
       <code><![CDATA[$edit_url]]></code>
-      <code><![CDATA[$my_dashboard_url]]></code>
-      <code><![CDATA[$project_dashboard_url]]></code>
     </MissingParamType>
     <MissingPropertyType>
       <code><![CDATA[$can_be_updated]]></code>
@@ -20057,8 +20036,6 @@
       <code><![CDATA[$has_one_user_dashboard]]></code>
       <code><![CDATA[$has_project_dashboard]]></code>
       <code><![CDATA[$has_user_dashboard]]></code>
-      <code><![CDATA[$my_dashboard_url]]></code>
-      <code><![CDATA[$project_dashboard_url]]></code>
     </MissingPropertyType>
     <MissingReturnType>
       <code><![CDATA[add_to_my_dashboard_label]]></code>
@@ -20178,7 +20155,6 @@
       <code><![CDATA[cloneContent]]></code>
       <code><![CDATA[destroy]]></code>
       <code><![CDATA[getCategory]]></code>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getInstallPreferences]]></code>
       <code><![CDATA[getTitle]]></code>
       <code><![CDATA[hasPreferences]]></code>
@@ -20883,7 +20859,6 @@
       <code><![CDATA[$owner_type]]></code>
     </MissingParamType>
     <MissingReturnType>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getRssUrl]]></code>
       <code><![CDATA[getTitle]]></code>
@@ -20908,7 +20883,6 @@
       <code><![CDATA[$last_build_url]]></code>
     </MissingPropertyType>
     <MissingReturnType>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getTitle]]></code>
       <code><![CDATA[initContent]]></code>
@@ -20927,7 +20901,6 @@
       <code><![CDATA[$id]]></code>
     </MissingParamType>
     <MissingReturnType>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getTitle]]></code>
       <code><![CDATA[initContent]]></code>
@@ -20946,7 +20919,6 @@
       <code><![CDATA[$id]]></code>
     </MissingParamType>
     <MissingReturnType>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getTitle]]></code>
       <code><![CDATA[initContent]]></code>
@@ -20966,7 +20938,6 @@
       <code><![CDATA[$id]]></code>
     </MissingParamType>
     <MissingReturnType>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getTitle]]></code>
       <code><![CDATA[initContent]]></code>
@@ -20981,7 +20952,7 @@
   </file>
   <file src="plugins/hudson/include/hudson_Widget_MyMonitoredJobs.php">
     <DeprecatedFunction>
-      <code><![CDATA[user_set_preference('plugin_hudson_my_not_monitored_jobs', implode(',', $this->_not_monitored_jobs))]]></code>
+      <code><![CDATA[user_set_preference('plugin_hudson_my_not_monitored_jobs', implode(',', $this->not_monitored_jobs))]]></code>
     </DeprecatedFunction>
     <DeprecatedMethod>
       <code><![CDATA[$job_dao->searchByUserID($user->getId())]]></code>
@@ -21001,8 +20972,6 @@
       <code><![CDATA[$widget_id]]></code>
     </MissingParamType>
     <MissingReturnType>
-      <code><![CDATA[_getMonitoredJobsByUser]]></code>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getTitle]]></code>
       <code><![CDATA[hasPreferences]]></code>
@@ -21018,7 +20987,6 @@
       <code><![CDATA[$plugin]]></code>
     </MissingPropertyType>
     <MissingReturnType>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getTitle]]></code>
       <code><![CDATA[hasPreferences]]></code>
@@ -21874,7 +21842,6 @@
       <code><![CDATA[destroy]]></code>
       <code><![CDATA[duplicateContent]]></code>
       <code><![CDATA[getConfigLabels]]></code>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getInstallPreferences]]></code>
       <code><![CDATA[getProjectAllLabelsPresenter]]></code>
@@ -25688,7 +25655,6 @@
     <MissingReturnType>
       <code><![CDATA[destroy]]></code>
       <code><![CDATA[getCategory]]></code>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getInstallPreferences]]></code>
       <code><![CDATA[hasPreferences]]></code>
       <code><![CDATA[isUnique]]></code>
@@ -25712,7 +25678,6 @@
     <MissingReturnType>
       <code><![CDATA[destroy]]></code>
       <code><![CDATA[getCategory]]></code>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getInstallPreferences]]></code>
       <code><![CDATA[hasPreferences]]></code>
       <code><![CDATA[isUnique]]></code>
@@ -25839,20 +25804,10 @@
     </MissingReturnType>
   </file>
   <file src="plugins/pullrequest/include/PullRequest/DefaultSettings/DefaultSettingsController.php">
-    <DeprecatedMethod>
-      <code><![CDATA[groupAddHistory]]></code>
-    </DeprecatedMethod>
-    <InvalidArgument>
-      <code><![CDATA[$is_merge_commit_allowed]]></code>
-    </InvalidArgument>
-    <InvalidClass>
-      <code><![CDATA[\gitPlugin]]></code>
-    </InvalidClass>
     <InvalidReturnType>
       <code><![CDATA[process]]></code>
     </InvalidReturnType>
     <PossiblyInvalidArgument>
-      <code><![CDATA[$project->getID()]]></code>
       <code><![CDATA[$project->getID()]]></code>
     </PossiblyInvalidArgument>
   </file>
@@ -28387,11 +28342,6 @@
       <code><![CDATA[canAddValueFromQuery]]></code>
       <code><![CDATA[initiateDatas]]></code>
     </MissingReturnType>
-  </file>
-  <file src="plugins/statistics/include/Statistics_Widget_ProjectStatistics.php">
-    <InvalidReturnStatement>
-      <code><![CDATA[$duHtml->getTotalProjectSize($group_id)]]></code>
-    </InvalidReturnStatement>
   </file>
   <file src="plugins/statistics/include/SystemEventQueueStatistics.php">
     <MissingReturnType>
@@ -31751,7 +31701,6 @@
     <MissingReturnType>
       <code><![CDATA[destroy]]></code>
       <code><![CDATA[getCategory]]></code>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getInstallPreferences]]></code>
       <code><![CDATA[getTitle]]></code>
@@ -31768,7 +31717,6 @@
     </MissingParamType>
     <MissingReturnType>
       <code><![CDATA[getCategory]]></code>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getTitle]]></code>
       <code><![CDATA[hasPreferences]]></code>
@@ -32229,9 +32177,6 @@
     <NoValue>
       <code><![CDATA[$artifact_links]]></code>
     </NoValue>
-    <PossiblyInvalidArgument>
-      <code><![CDATA[$this->getCurrentUser()->getId()]]></code>
-    </PossiblyInvalidArgument>
     <PossiblyInvalidOperand>
       <code><![CDATA[$report->id]]></code>
       <code><![CDATA[$report->id]]></code>
@@ -33114,6 +33059,15 @@
       <code><![CDATA[function ($group_id) {]]></code>
     </MissingClosureReturnType>
   </file>
+  <file src="plugins/tracker/include/Semantic/CollectionOfFieldsDuplicator.php">
+    <DeprecatedMethod>
+      <code><![CDATA[$this->dao->searchByTrackerId($from_tracker_id)]]></code>
+      <code><![CDATA[$this->dao->searchByTrackerId($from_tracker_id)]]></code>
+    </DeprecatedMethod>
+    <UndefinedInterfaceMethod>
+      <code><![CDATA[add]]></code>
+    </UndefinedInterfaceMethod>
+  </file>
   <file src="plugins/tracker/include/Semantic/Contributor/TrackerSemanticContributor.php">
     <ArgumentTypeCoercion>
       <code><![CDATA[$field]]></code>
@@ -33183,13 +33137,6 @@
     </PossiblyNullReference>
   </file>
   <file src="plugins/tracker/include/Semantic/Description/TrackerSemanticDescription.php">
-    <MissingPropertyType>
-      <code><![CDATA[$_instances]]></code>
-    </MissingPropertyType>
-    <MissingReturnType>
-      <code><![CDATA[clearInstances]]></code>
-      <code><![CDATA[setInstance]]></code>
-    </MissingReturnType>
     <PossiblyFalseArgument>
       <code><![CDATA[array_search($this->getFieldId(), $xml_mapping)]]></code>
     </PossiblyFalseArgument>
@@ -33206,6 +33153,30 @@
       <code><![CDATA[$xml_field_attributes['REF']]]></code>
       <code><![CDATA[$xml_field_attributes['REF']]]></code>
     </PossiblyNullArrayAccess>
+  </file>
+  <file src="plugins/tracker/include/Semantic/Progress/MethodBasedOnEffort.php">
+    <InvalidOperand>
+      <code><![CDATA[1 - ($remaining_effort / $total_effort)]]></code>
+    </InvalidOperand>
+    <PossiblyNullReference>
+      <code><![CDATA[addAttribute]]></code>
+      <code><![CDATA[addAttribute]]></code>
+      <code><![CDATA[addAttribute]]></code>
+    </PossiblyNullReference>
+    <RiskyTruthyFalsyComparison>
+      <code><![CDATA[! $remaining_effort_field_ref]]></code>
+      <code><![CDATA[! $total_effort]]></code>
+      <code><![CDATA[! $total_effort_field_ref]]></code>
+    </RiskyTruthyFalsyComparison>
+  </file>
+  <file src="plugins/tracker/include/Semantic/Progress/MethodBasedOnLinksCount.php">
+    <DeprecatedMethod>
+      <code><![CDATA[getAnArtifactLinkField]]></code>
+    </DeprecatedMethod>
+    <PossiblyNullReference>
+      <code><![CDATA[addAttribute]]></code>
+      <code><![CDATA[addAttribute]]></code>
+    </PossiblyNullReference>
   </file>
   <file src="plugins/tracker/include/Semantic/Status/Done/SemanticDone.php">
     <PossiblyNullReference>
@@ -33326,6 +33297,88 @@
       <code><![CDATA[addChild]]></code>
     </PossiblyNullReference>
   </file>
+  <file src="plugins/tracker/include/Semantic/Timeframe/Administration/SemanticTimeframeAdministrationPresenter.php">
+    <PossiblyFalsePropertyAssignmentValue>
+      <code><![CDATA[\json_encode($suitable_trackers)]]></code>
+      <code><![CDATA[\json_encode($usable_date_fields)]]></code>
+      <code><![CDATA[\json_encode($usable_numeric_fields)]]></code>
+    </PossiblyFalsePropertyAssignmentValue>
+  </file>
+  <file src="plugins/tracker/include/Semantic/Timeframe/Administration/SemanticTimeframeCurrentConfigurationPresenterBuilder.php">
+    <RiskyTruthyFalsyComparison>
+      <code><![CDATA[! $semantics_implied_from_tracker]]></code>
+    </RiskyTruthyFalsyComparison>
+  </file>
+  <file src="plugins/tracker/include/Semantic/Timeframe/SemanticTimeframe.php">
+    <MissingReturnType>
+      <code><![CDATA[redirectToSemanticTimeframeAdmin]]></code>
+    </MissingReturnType>
+  </file>
+  <file src="plugins/tracker/include/Semantic/Timeframe/SemanticTimeframeBuilder.php">
+    <RedundantCastGivenDocblockType>
+      <code><![CDATA[(int) $row['duration_field_id']]]></code>
+      <code><![CDATA[(int) $row['end_date_field_id']]]></code>
+    </RedundantCastGivenDocblockType>
+  </file>
+  <file src="plugins/tracker/include/Semantic/Timeframe/SemanticTimeframeFromXMLBuilder.php">
+    <PossiblyNullArrayAccess>
+      <code><![CDATA[$implied_from_tracker_attributes['id']]]></code>
+      <code><![CDATA[$xml_duration_field_attributes['REF']]]></code>
+      <code><![CDATA[$xml_duration_field_attributes['REF']]]></code>
+      <code><![CDATA[$xml_end_date_field_attributes['REF']]]></code>
+      <code><![CDATA[$xml_end_date_field_attributes['REF']]]></code>
+      <code><![CDATA[$xml_start_date_field_attributes['REF']]]></code>
+      <code><![CDATA[$xml_start_date_field_attributes['REF']]]></code>
+    </PossiblyNullArrayAccess>
+    <TypeDoesNotContainType>
+      <code><![CDATA[isset($current_semantic_xml->inherited_from_tracker)]]></code>
+      <code><![CDATA[isset($current_semantic_xml->start_date_field)]]></code>
+    </TypeDoesNotContainType>
+  </file>
+  <file src="plugins/tracker/include/Semantic/Timeframe/SemanticTimeframeUpdator.php">
+    <RiskyTruthyFalsyComparison>
+      <code><![CDATA[! $configs_relying_on_current_tracker]]></code>
+      <code><![CDATA[! $duration_field_id]]></code>
+      <code><![CDATA[! $end_date_field_id]]></code>
+      <code><![CDATA[! $start_date_field_id]]></code>
+    </RiskyTruthyFalsyComparison>
+  </file>
+  <file src="plugins/tracker/include/Semantic/Timeframe/TimeframeImpliedFromAnotherTracker.php">
+    <PossiblyNullReference>
+      <code><![CDATA[addAttribute]]></code>
+      <code><![CDATA[addAttribute]]></code>
+    </PossiblyNullReference>
+  </file>
+  <file src="plugins/tracker/include/Semantic/Timeframe/TimeframeWithDuration.php">
+    <PossiblyNullReference>
+      <code><![CDATA[addAttribute]]></code>
+      <code><![CDATA[addAttribute]]></code>
+      <code><![CDATA[addAttribute]]></code>
+    </PossiblyNullReference>
+    <RiskyTruthyFalsyComparison>
+      <code><![CDATA[! $duration_ref]]></code>
+      <code><![CDATA[! $start_date]]></code>
+      <code><![CDATA[! $start_date_ref]]></code>
+    </RiskyTruthyFalsyComparison>
+  </file>
+  <file src="plugins/tracker/include/Semantic/Timeframe/TimeframeWithEndDate.php">
+    <PossiblyNullReference>
+      <code><![CDATA[addAttribute]]></code>
+      <code><![CDATA[addAttribute]]></code>
+      <code><![CDATA[addAttribute]]></code>
+    </PossiblyNullReference>
+    <RiskyTruthyFalsyComparison>
+      <code><![CDATA[! $end_date_ref]]></code>
+      <code><![CDATA[! $start_date]]></code>
+      <code><![CDATA[! $start_date_ref]]></code>
+    </RiskyTruthyFalsyComparison>
+  </file>
+  <file src="plugins/tracker/include/Semantic/Timeframe/XML/XMLTimeframeSemantic.php">
+    <PossiblyNullReference>
+      <code><![CDATA[addAttribute]]></code>
+      <code><![CDATA[addAttribute]]></code>
+    </PossiblyNullReference>
+  </file>
   <file src="plugins/tracker/include/Semantic/Title/TrackerSemanticTitle.php">
     <MissingPropertyType>
       <code><![CDATA[$_instances]]></code>
@@ -33350,6 +33403,147 @@
       <code><![CDATA[$xml_field_attributes['REF']]]></code>
       <code><![CDATA[$xml_field_attributes['REF']]]></code>
     </PossiblyNullArrayAccess>
+  </file>
+  <file src="plugins/tracker/include/Semantic/Tooltip/OtherSemantic/ProgressTooltipEntry.php">
+    <InvalidOperand>
+      <code><![CDATA[$progress_result->getValue() * 100]]></code>
+    </InvalidOperand>
+  </file>
+  <file src="plugins/tracker/include/Semantic/Tooltip/OtherSemantic/TimeframeTooltipEntry.php">
+    <RiskyTruthyFalsyComparison>
+      <code><![CDATA[$end_date]]></code>
+      <code><![CDATA[$start_date]]></code>
+    </RiskyTruthyFalsyComparison>
+  </file>
+  <file src="plugins/tracker/include/Semantic/Tooltip/SemanticTooltip.php">
+    <InvalidReturnType>
+      <code><![CDATA[bool]]></code>
+    </InvalidReturnType>
+    <MissingParamType>
+      <code><![CDATA[$fields]]></code>
+    </MissingParamType>
+    <MissingPropertyType>
+      <code><![CDATA[$fields]]></code>
+      <code><![CDATA[$this->tracker->id]]></code>
+      <code><![CDATA[$this->tracker->id]]></code>
+      <code><![CDATA[$this->tracker->id]]></code>
+      <code><![CDATA[$this->tracker->id]]></code>
+    </MissingPropertyType>
+    <MissingReturnType>
+      <code><![CDATA[getDao]]></code>
+      <code><![CDATA[setFields]]></code>
+    </MissingReturnType>
+    <PossiblyFalseArgument>
+      <code><![CDATA[array_search($field->id, $xml_mapping)]]></code>
+    </PossiblyFalseArgument>
+    <PossiblyNullReference>
+      <code><![CDATA[addAttribute]]></code>
+      <code><![CDATA[addAttribute]]></code>
+    </PossiblyNullReference>
+  </file>
+  <file src="plugins/tracker/include/Semantic/Tooltip/SemanticTooltipDao.php">
+    <DeprecatedMethod>
+      <code><![CDATA[escapeInt]]></code>
+      <code><![CDATA[escapeInt]]></code>
+      <code><![CDATA[escapeInt]]></code>
+      <code><![CDATA[escapeInt]]></code>
+      <code><![CDATA[escapeInt]]></code>
+      <code><![CDATA[escapeInt]]></code>
+      <code><![CDATA[parent::__construct()]]></code>
+      <code><![CDATA[prepareRanking]]></code>
+      <code><![CDATA[retrieve]]></code>
+      <code><![CDATA[update]]></code>
+      <code><![CDATA[update]]></code>
+    </DeprecatedMethod>
+    <MissingParamType>
+      <code><![CDATA[$field_id]]></code>
+      <code><![CDATA[$field_id]]></code>
+      <code><![CDATA[$rank]]></code>
+      <code><![CDATA[$tracker_id]]></code>
+      <code><![CDATA[$tracker_id]]></code>
+    </MissingParamType>
+    <MissingReturnType>
+      <code><![CDATA[add]]></code>
+      <code><![CDATA[remove]]></code>
+    </MissingReturnType>
+  </file>
+  <file src="plugins/tracker/include/Semantic/Tooltip/SemanticTooltipFactory.php">
+    <PossiblyNullArrayAccess>
+      <code><![CDATA[$att['REF']]]></code>
+      <code><![CDATA[$att['REF']]]></code>
+    </PossiblyNullArrayAccess>
+  </file>
+  <file src="plugins/tracker/include/Semantic/TrackerSemantic.php">
+    <MissingReturnType>
+      <code><![CDATA[exportToREST]]></code>
+      <code><![CDATA[getFieldUserCanRead]]></code>
+    </MissingReturnType>
+    <UndefinedMethod>
+      <code><![CDATA[getField]]></code>
+    </UndefinedMethod>
+  </file>
+  <file src="plugins/tracker/include/Semantic/TrackerSemanticCollection.php">
+    <InvalidOperand>
+      <code><![CDATA[$index]]></code>
+    </InvalidOperand>
+    <InvalidScalarArgument>
+      <code><![CDATA[$position]]></code>
+    </InvalidScalarArgument>
+    <MissingParamType>
+      <code><![CDATA[$semantic_shortname]]></code>
+    </MissingParamType>
+    <MissingReturnType>
+      <code><![CDATA[add]]></code>
+      <code><![CDATA[insertAfter]]></code>
+    </MissingReturnType>
+    <MissingTemplateParam>
+      <code><![CDATA[ArrayAccess]]></code>
+      <code><![CDATA[Iterator]]></code>
+    </MissingTemplateParam>
+  </file>
+  <file src="plugins/tracker/include/Semantic/TrackerSemanticFactory.php">
+    <MissingParamType>
+      <code><![CDATA[$type]]></code>
+    </MissingParamType>
+    <MissingReturnType>
+      <code><![CDATA[getSemanticFromAnotherPlugin]]></code>
+    </MissingReturnType>
+    <PossiblyNullArrayAccess>
+      <code><![CDATA[$attributes['type']]]></code>
+    </PossiblyNullArrayAccess>
+  </file>
+  <file src="plugins/tracker/include/Semantic/TrackerSemanticManager.php">
+    <MissingParamType>
+      <code><![CDATA[$current_user]]></code>
+      <code><![CDATA[$current_user]]></code>
+      <code><![CDATA[$request]]></code>
+      <code><![CDATA[$request]]></code>
+    </MissingParamType>
+    <MissingReturnType>
+      <code><![CDATA[displayAdminSemantic]]></code>
+      <code><![CDATA[displaySemanticFooter]]></code>
+      <code><![CDATA[displaySemanticHeader]]></code>
+      <code><![CDATA[exportToREST]]></code>
+      <code><![CDATA[getSemanticOrder]]></code>
+      <code><![CDATA[process]]></code>
+    </MissingReturnType>
+    <PossiblyNullReference>
+      <code><![CDATA[exportToREST]]></code>
+      <code><![CDATA[process]]></code>
+    </PossiblyNullReference>
+    <RiskyTruthyFalsyComparison>
+      <code><![CDATA[$timeframe_dao->getSemanticsImpliedFromGivenTracker($this->tracker->getId())]]></code>
+    </RiskyTruthyFalsyComparison>
+  </file>
+  <file src="plugins/tracker/include/Semantic/XML/XMLFieldsBasedSemantic.php">
+    <PossiblyNullReference>
+      <code><![CDATA[addAttribute]]></code>
+    </PossiblyNullReference>
+  </file>
+  <file src="plugins/tracker/include/Semantic/XML/XMLSemantic.php">
+    <PossiblyNullReference>
+      <code><![CDATA[addAttribute]]></code>
+    </PossiblyNullReference>
   </file>
   <file src="plugins/tracker/include/ServiceTracker.php">
     <MissingParamType>
@@ -33376,6 +33570,221 @@
       <code><![CDATA[isThereAMigrationQueuedForTracker]]></code>
       <code><![CDATA[queueTV3Migration]]></code>
     </MissingReturnType>
+  </file>
+  <file src="plugins/tracker/include/Tracker.php">
+    <ArgumentTypeCoercion>
+      <code><![CDATA[$layout]]></code>
+      <code><![CDATA[$layout]]></code>
+      <code><![CDATA[$layout]]></code>
+      <code><![CDATA[$layout]]></code>
+      <code><![CDATA[$layout]]></code>
+      <code><![CDATA[$layout]]></code>
+      <code><![CDATA[$request]]></code>
+      <code><![CDATA[TemplateRendererFactory::build()->getRenderer(dirname(TRACKER_BASE_DIR) . '/templates')]]></code>
+    </ArgumentTypeCoercion>
+    <DeprecatedMethod>
+      <code><![CDATA[createNewChangeset]]></code>
+      <code><![CDATA[userCanSubmitArtifact]]></code>
+      <code><![CDATA[userCanSubmitArtifact]]></code>
+      <code><![CDATA[userCanSubmitArtifact]]></code>
+      <code><![CDATA[userCanSubmitArtifact]]></code>
+      <code><![CDATA[userCanSubmitArtifact]]></code>
+    </DeprecatedMethod>
+    <FalsableReturnStatement>
+      <code><![CDATA[false]]></code>
+      <code><![CDATA[false]]></code>
+    </FalsableReturnStatement>
+    <InvalidArgument>
+      <code><![CDATA[$report_id]]></code>
+    </InvalidArgument>
+    <InvalidNullableReturnType>
+      <code><![CDATA[Tracker_FormElement_Field_List]]></code>
+      <code><![CDATA[Tracker_FormElement_Field_Text]]></code>
+    </InvalidNullableReturnType>
+    <InvalidParamDefault>
+      <code><![CDATA[PFUser]]></code>
+      <code><![CDATA[PFUser]]></code>
+    </InvalidParamDefault>
+    <InvalidReturnStatement>
+      <code><![CDATA[is_array($this->cache_permissions)]]></code>
+      <code><![CDATA[true]]></code>
+    </InvalidReturnStatement>
+    <InvalidReturnType>
+      <code><![CDATA[String]]></code>
+      <code><![CDATA[int]]></code>
+      <code><![CDATA[void]]></code>
+    </InvalidReturnType>
+    <MissingParamType>
+      <code><![CDATA[$allow_copy]]></code>
+      <code><![CDATA[$breadcrumbs]]></code>
+      <code><![CDATA[$breadcrumbs]]></code>
+      <code><![CDATA[$breadcrumbs]]></code>
+      <code><![CDATA[$browse_instructions]]></code>
+      <code><![CDATA[$current_user]]></code>
+      <code><![CDATA[$current_user]]></code>
+      <code><![CDATA[$current_user]]></code>
+      <code><![CDATA[$current_user]]></code>
+      <code><![CDATA[$current_user]]></code>
+      <code><![CDATA[$current_user]]></code>
+      <code><![CDATA[$current_user]]></code>
+      <code><![CDATA[$deletion_date]]></code>
+      <code><![CDATA[$description]]></code>
+      <code><![CDATA[$enable_emailgateway]]></code>
+      <code><![CDATA[$formElement_data]]></code>
+      <code><![CDATA[$group_id]]></code>
+      <code><![CDATA[$header_line]]></code>
+      <code><![CDATA[$header_line]]></code>
+      <code><![CDATA[$id]]></code>
+      <code><![CDATA[$index]]></code>
+      <code><![CDATA[$instantiate_for_new_projects]]></code>
+      <code><![CDATA[$item]]></code>
+      <code><![CDATA[$item_name]]></code>
+      <code><![CDATA[$lines]]></code>
+      <code><![CDATA[$link]]></code>
+      <code><![CDATA[$log_priority_changes]]></code>
+      <code><![CDATA[$masschange_aids]]></code>
+      <code><![CDATA[$name]]></code>
+      <code><![CDATA[$notifications_level]]></code>
+      <code><![CDATA[$notifications_level]]></code>
+      <code><![CDATA[$request]]></code>
+      <code><![CDATA[$request]]></code>
+      <code><![CDATA[$request]]></code>
+      <code><![CDATA[$request]]></code>
+      <code><![CDATA[$request]]></code>
+      <code><![CDATA[$separator]]></code>
+      <code><![CDATA[$session]]></code>
+      <code><![CDATA[$status]]></code>
+      <code><![CDATA[$submit_instructions]]></code>
+      <code><![CDATA[$title]]></code>
+      <code><![CDATA[$title]]></code>
+      <code><![CDATA[$title]]></code>
+      <code><![CDATA[$title]]></code>
+      <code><![CDATA[$title]]></code>
+      <code><![CDATA[$title]]></code>
+      <code><![CDATA[$title]]></code>
+      <code><![CDATA[$type]]></code>
+      <code><![CDATA[$user]]></code>
+    </MissingParamType>
+    <MissingPropertyType>
+      <code><![CDATA[$allow_copy]]></code>
+      <code><![CDATA[$cache_permissions]]></code>
+      <code><![CDATA[$children]]></code>
+      <code><![CDATA[$deletion_date]]></code>
+      <code><![CDATA[$description]]></code>
+      <code><![CDATA[$enable_emailgateway]]></code>
+      <code><![CDATA[$formElementFactory]]></code>
+      <code><![CDATA[$group_id]]></code>
+      <code><![CDATA[$id]]></code>
+      <code><![CDATA[$is_project_allowed_to_use_type]]></code>
+      <code><![CDATA[$item_name]]></code>
+      <code><![CDATA[$name]]></code>
+      <code><![CDATA[$notifications_level]]></code>
+      <code><![CDATA[$parent]]></code>
+      <code><![CDATA[$project]]></code>
+      <code><![CDATA[$sharedFormElementFactory]]></code>
+      <code><![CDATA[$status]]></code>
+      <code><![CDATA[$tooltip]]></code>
+      <code><![CDATA[$workflow]]></code>
+    </MissingPropertyType>
+    <MissingReturnType>
+      <code><![CDATA[_getCSVDateformat]]></code>
+      <code><![CDATA[_getCSVSeparator]]></code>
+      <code><![CDATA[arePriorityChangesShown]]></code>
+      <code><![CDATA[createFormElement]]></code>
+      <code><![CDATA[displayAdminCSVImport]]></code>
+      <code><![CDATA[displayAdminCSVImportHeader]]></code>
+      <code><![CDATA[displayAdminFooter]]></code>
+      <code><![CDATA[displayAdminFormElements]]></code>
+      <code><![CDATA[displayAdminFormElementsHeader]]></code>
+      <code><![CDATA[displayAdminFormElementsWarnings]]></code>
+      <code><![CDATA[displayAdminItemHeader]]></code>
+      <code><![CDATA[displayAdminItemHeaderBurningParrot]]></code>
+      <code><![CDATA[displayAdminOptions]]></code>
+      <code><![CDATA[displayAdminPermsHeader]]></code>
+      <code><![CDATA[displayFooter]]></code>
+      <code><![CDATA[displayImportPreview]]></code>
+      <code><![CDATA[displayMasschangeForm]]></code>
+      <code><![CDATA[displaySubmit]]></code>
+      <code><![CDATA[displayWarningArtifactByEmailRequiredFields]]></code>
+      <code><![CDATA[displayWarningArtifactByEmailSemantic]]></code>
+      <code><![CDATA[displayWarningGeneralsettings]]></code>
+      <code><![CDATA[exportToXML]]></code>
+      <code><![CDATA[exportToXMLInProjectExportContext]]></code>
+      <code><![CDATA[fetchAdminPalette]]></code>
+      <code><![CDATA[fetchFormElementsMasschange]]></code>
+      <code><![CDATA[getArtifactXMLExporter]]></code>
+      <code><![CDATA[getChangesetXMLUpdater]]></code>
+      <code><![CDATA[getChildrenCollector]]></code>
+      <code><![CDATA[getFileXMLUpdater]]></code>
+      <code><![CDATA[getInformationsFromOtherServicesAboutUsage]]></code>
+      <code><![CDATA[getParentId]]></code>
+      <code><![CDATA[getUGroupRetrieverWithLegacy]]></code>
+      <code><![CDATA[getUserXMLExporter]]></code>
+      <code><![CDATA[isEmailgatewayEnabled]]></code>
+      <code><![CDATA[sendXML]]></code>
+      <code><![CDATA[setChildren]]></code>
+      <code><![CDATA[setFormElementFactory]]></code>
+      <code><![CDATA[setNotificationsLevel]]></code>
+      <code><![CDATA[setParent]]></code>
+      <code><![CDATA[setProject]]></code>
+      <code><![CDATA[setSharedFormElementFactory]]></code>
+    </MissingReturnType>
+    <NullableReturnStatement>
+      <code><![CDATA[null]]></code>
+      <code><![CDATA[null]]></code>
+    </NullableReturnStatement>
+    <PossiblyFalseArgument>
+      <code><![CDATA[file_get_contents($_FILES['csv_filename']['tmp_name'])]]></code>
+    </PossiblyFalseArgument>
+    <PossiblyInvalidArgument>
+      <code><![CDATA[$current_user->getid()]]></code>
+      <code><![CDATA[$this->getGroupId()]]></code>
+      <code><![CDATA[$this->getGroupId()]]></code>
+    </PossiblyInvalidArgument>
+    <PossiblyNullArgument>
+      <code><![CDATA[$source_artifact]]></code>
+      <code><![CDATA[$user]]></code>
+    </PossiblyNullArgument>
+    <PossiblyNullReference>
+      <code><![CDATA[getId]]></code>
+    </PossiblyNullReference>
+    <PossiblyUndefinedArrayOffset>
+      <code><![CDATA[$_SERVER['REQUEST_TIME']]]></code>
+    </PossiblyUndefinedArrayOffset>
+    <PossiblyUndefinedVariable>
+      <code><![CDATA[$artifact_id]]></code>
+      <code><![CDATA[$column_name]]></code>
+      <code><![CDATA[$column_name]]></code>
+    </PossiblyUndefinedVariable>
+    <RedundantCast>
+      <code><![CDATA[(int) $link_artifact_id]]></code>
+      <code><![CDATA[(int) $this->getID()]]></code>
+      <code><![CDATA[(int) $this->getId()]]></code>
+      <code><![CDATA[(int) $this->getId()]]></code>
+      <code><![CDATA[(string) $request_tracker_color]]></code>
+    </RedundantCast>
+    <RedundantCastGivenDocblockType>
+      <code><![CDATA[(int) $artifact->getId()]]></code>
+      <code><![CDATA[(int) $artifact->getId()]]></code>
+      <code><![CDATA[(int) $user]]></code>
+      <code><![CDATA[(int) $user]]></code>
+    </RedundantCastGivenDocblockType>
+    <RiskyTruthyFalsyComparison>
+      <code><![CDATA[! $user]]></code>
+      <code><![CDATA[$artifact]]></code>
+      <code><![CDATA[$report_id = $current_user->getPreference('tracker_' . $this->id . '_last_report')]]></code>
+    </RiskyTruthyFalsyComparison>
+    <TypeDoesNotContainNull>
+      <code><![CDATA[$dom === null]]></code>
+    </TypeDoesNotContainNull>
+    <TypeDoesNotContainType>
+      <code><![CDATA[$line === false]]></code>
+      <code><![CDATA[empty($this->cached_permission_authorized_ugroups)]]></code>
+      <code><![CDATA[empty($this->cached_permission_authorized_ugroups)]]></code>
+    </TypeDoesNotContainType>
+    <UndefinedMethod>
+      <code><![CDATA[getFieldDataFromCSVValue]]></code>
+    </UndefinedMethod>
   </file>
   <file src="plugins/tracker/include/Tracker/Action/CopyArtifact.php">
     <DeprecatedMethod>
@@ -33620,7 +34029,6 @@
       <code><![CDATA[$changesets]]></code>
       <code><![CDATA[$id]]></code>
       <code><![CDATA[$per_tracker_id]]></code>
-      <code><![CDATA[$submitted_by]]></code>
       <code><![CDATA[$submitted_on]]></code>
       <code><![CDATA[$tracker_id]]></code>
       <code><![CDATA[$use_artifact_permissions]]></code>
@@ -33664,7 +34072,6 @@
       <code><![CDATA[setHierarchyFactory]]></code>
       <code><![CDATA[setParentWithoutPermissionChecking]]></code>
       <code><![CDATA[setStatus]]></code>
-      <code><![CDATA[setSubmittedByUser]]></code>
       <code><![CDATA[setTitle]]></code>
       <code><![CDATA[setTracker]]></code>
       <code><![CDATA[setTransactionExecutorForTests]]></code>
@@ -34831,7 +35238,6 @@
     <MissingReturnType>
       <code><![CDATA[getChangesetFromRow]]></code>
       <code><![CDATA[setCommentsFromCache]]></code>
-      <code><![CDATA[setFieldValuesFromCache]]></code>
     </MissingReturnType>
   </file>
   <file src="plugins/tracker/include/Tracker/Artifact/Tracker_Artifact_ChangesetJsonFormatter.php">
@@ -36410,54 +36816,6 @@
     <UndefinedVariable>
       <code><![CDATA[$ugroup]]></code>
     </UndefinedVariable>
-  </file>
-  <file src="plugins/tracker/include/Tracker/DeletedTrackerPresenter.php">
-    <MissingParamType>
-      <code><![CDATA[$deletion_date]]></code>
-      <code><![CDATA[$project_id]]></code>
-      <code><![CDATA[$project_name]]></code>
-      <code><![CDATA[$restore_token]]></code>
-      <code><![CDATA[$tracker_id]]></code>
-      <code><![CDATA[$tracker_name]]></code>
-    </MissingParamType>
-    <MissingPropertyType>
-      <code><![CDATA[$csrf_token]]></code>
-      <code><![CDATA[$deletion_date]]></code>
-      <code><![CDATA[$id]]></code>
-      <code><![CDATA[$project_id]]></code>
-      <code><![CDATA[$project_name]]></code>
-      <code><![CDATA[$tracker]]></code>
-    </MissingPropertyType>
-  </file>
-  <file src="plugins/tracker/include/Tracker/DeletedTrackersListPresenter.php">
-    <MissingParamType>
-      <code><![CDATA[$has_trackers]]></code>
-    </MissingParamType>
-    <MissingPropertyType>
-      <code><![CDATA[$delete_action_column_header]]></code>
-      <code><![CDATA[$deletion_date_column_header]]></code>
-      <code><![CDATA[$id_column_header]]></code>
-      <code><![CDATA[$project_column_header]]></code>
-      <code><![CDATA[$restore_action_column_header]]></code>
-      <code><![CDATA[$tracker_column_header]]></code>
-    </MissingPropertyType>
-    <MissingReturnType>
-      <code><![CDATA[getTemplateDir]]></code>
-      <code><![CDATA[has_warnings]]></code>
-      <code><![CDATA[warning_message]]></code>
-    </MissingReturnType>
-    <UndefinedThisPropertyAssignment>
-      <code><![CDATA[$this->deleted_trackers_list]]></code>
-      <code><![CDATA[$this->has_trackers]]></code>
-      <code><![CDATA[$this->no_trackers_label]]></code>
-      <code><![CDATA[$this->restore_action]]></code>
-      <code><![CDATA[$this->title]]></code>
-      <code><![CDATA[$this->tracker_ids_warning]]></code>
-    </UndefinedThisPropertyAssignment>
-    <UndefinedThisPropertyFetch>
-      <code><![CDATA[$this->tracker_ids_warning]]></code>
-      <code><![CDATA[$this->tracker_ids_warning]]></code>
-    </UndefinedThisPropertyFetch>
   </file>
   <file src="plugins/tracker/include/Tracker/Events/AllowedFieldTypeChangesRetriever.php">
     <MissingReturnType>
@@ -38226,6 +38584,11 @@
       <code><![CDATA[create]]></code>
     </MissingReturnType>
   </file>
+  <file src="plugins/tracker/include/Tracker/FormElement/Field/RetrieveFieldById.php">
+    <MissingParamType>
+      <code><![CDATA[$field_id]]></code>
+    </MissingParamType>
+  </file>
   <file src="plugins/tracker/include/Tracker/FormElement/Field/Shareable/PropagatePropertiesDao.php">
     <DeprecatedMethod>
       <code><![CDATA[commit]]></code>
@@ -38466,6 +38829,7 @@
       <code><![CDATA[$field_id]]></code>
       <code><![CDATA[$field_id]]></code>
       <code><![CDATA[$field_id]]></code>
+      <code><![CDATA[$field_id]]></code>
       <code><![CDATA[$field_mapping]]></code>
       <code><![CDATA[$field_mapping]]></code>
       <code><![CDATA[$field_mapping]]></code>
@@ -38480,7 +38844,6 @@
       <code><![CDATA[$form_element_id]]></code>
       <code><![CDATA[$form_element_type]]></code>
       <code><![CDATA[$icon]]></code>
-      <code><![CDATA[$id]]></code>
       <code><![CDATA[$id]]></code>
       <code><![CDATA[$id]]></code>
       <code><![CDATA[$id]]></code>
@@ -41996,7 +42359,6 @@
       <code><![CDATA[userBelongsToGroup]]></code>
       <code><![CDATA[userCanViewArtifact]]></code>
       <code><![CDATA[userCanViewTracker]]></code>
-      <code><![CDATA[userHavePermissionOnTracker]]></code>
     </MissingReturnType>
     <PossiblyInvalidArgument>
       <code><![CDATA[$artifact->getTracker()->getGroupId()]]></code>
@@ -43374,9 +43736,7 @@
       <code><![CDATA[display]]></code>
       <code><![CDATA[displayHeader]]></code>
       <code><![CDATA[duplicate]]></code>
-      <code><![CDATA[fetchAddRendererForm]]></code>
       <code><![CDATA[fetchDisplayQuery]]></code>
-      <code><![CDATA[fetchUpdateRendererForm]]></code>
       <code><![CDATA[fieldAllowsCustomColumnForTableReport]]></code>
       <code><![CDATA[getAddCriteriaDropdown]]></code>
       <code><![CDATA[getCollector]]></code>
@@ -43418,10 +43778,7 @@
       <code><![CDATA[updateCriteriaValues]]></code>
     </MissingReturnType>
     <PossiblyInvalidOperand>
-      <code><![CDATA[$current_renderer_id]]></code>
       <code><![CDATA[$new_report->id]]></code>
-      <code><![CDATA[$this->id]]></code>
-      <code><![CDATA[$this->id]]></code>
       <code><![CDATA[$this->id]]></code>
       <code><![CDATA[$this->id]]></code>
       <code><![CDATA[$this->id]]></code>
@@ -43791,7 +44148,6 @@
       <code><![CDATA[$extracolumn]]></code>
       <code><![CDATA[$extracolumn]]></code>
       <code><![CDATA[$extracolumn]]></code>
-      <code><![CDATA[$field]]></code>
       <code><![CDATA[$field_id]]></code>
       <code><![CDATA[$field_mapping]]></code>
       <code><![CDATA[$from]]></code>
@@ -43799,7 +44155,6 @@
       <code><![CDATA[$from_aid]]></code>
       <code><![CDATA[$from_report_id]]></code>
       <code><![CDATA[$func]]></code>
-      <code><![CDATA[$function]]></code>
       <code><![CDATA[$id]]></code>
       <code><![CDATA[$id_suffix]]></code>
       <code><![CDATA[$is_desc]]></code>
@@ -43885,7 +44240,6 @@
       <code><![CDATA[fetchViewButtons]]></code>
       <code><![CDATA[fetchWidget]]></code>
       <code><![CDATA[formatAggregateResult]]></code>
-      <code><![CDATA[getAggregateURL]]></code>
       <code><![CDATA[getAggregates]]></code>
       <code><![CDATA[getAggregatesDao]]></code>
       <code><![CDATA[getAllUsableTypesInProjectWithCache]]></code>
@@ -44026,9 +44380,6 @@
     </UnsupportedReferenceUsage>
   </file>
   <file src="plugins/tracker/include/Tracker/Report/WidgetAddToDashboardDropdownBuilder.php">
-    <InvalidScalarArgument>
-      <code><![CDATA[$project->getID()]]></code>
-    </InvalidScalarArgument>
     <MissingParamType>
       <code><![CDATA[$type]]></code>
       <code><![CDATA[$widget_id]]></code>
@@ -44038,19 +44389,11 @@
       <code><![CDATA[$renderer->report->name]]></code>
     </MissingPropertyType>
     <MissingReturnType>
-      <code><![CDATA[build]]></code>
-      <code><![CDATA[getAddToDashboardURL]]></code>
-      <code><![CDATA[getAddToMyDashboardURL]]></code>
-      <code><![CDATA[getAddToProjectDashboardURL]]></code>
       <code><![CDATA[getAvailableDashboardsForProject]]></code>
       <code><![CDATA[getAvailableDashboardsForUser]]></code>
     </MissingReturnType>
   </file>
   <file src="plugins/tracker/include/Tracker/Report/WidgetAddToDashboardDropdownPresenter.php">
-    <MissingParamType>
-      <code><![CDATA[$my_dashboard_url]]></code>
-      <code><![CDATA[$project_dashboard_url]]></code>
-    </MissingParamType>
     <MissingPropertyType>
       <code><![CDATA[$cancel_label]]></code>
       <code><![CDATA[$dashboard]]></code>
@@ -44061,9 +44404,7 @@
       <code><![CDATA[$has_user_dashboard]]></code>
       <code><![CDATA[$is_admin]]></code>
       <code><![CDATA[$my_dashboard]]></code>
-      <code><![CDATA[$my_dashboard_url]]></code>
       <code><![CDATA[$project_dashboard]]></code>
-      <code><![CDATA[$project_dashboard_url]]></code>
     </MissingPropertyType>
     <PossiblyInvalidArgument>
       <code><![CDATA[$project->getID()]]></code>
@@ -45121,262 +45462,6 @@
       <code><![CDATA[searchInvolvedFieldsByTrackerId]]></code>
     </MissingReturnType>
   </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/CollectionOfFieldsDuplicator.php">
-    <DeprecatedMethod>
-      <code><![CDATA[$this->dao->searchByTrackerId($from_tracker_id)]]></code>
-      <code><![CDATA[$this->dao->searchByTrackerId($from_tracker_id)]]></code>
-    </DeprecatedMethod>
-    <UndefinedInterfaceMethod>
-      <code><![CDATA[add]]></code>
-    </UndefinedInterfaceMethod>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/Progress/MethodBasedOnEffort.php">
-    <InvalidOperand>
-      <code><![CDATA[1 - ($remaining_effort / $total_effort)]]></code>
-    </InvalidOperand>
-    <PossiblyNullReference>
-      <code><![CDATA[addAttribute]]></code>
-      <code><![CDATA[addAttribute]]></code>
-      <code><![CDATA[addAttribute]]></code>
-    </PossiblyNullReference>
-    <RiskyTruthyFalsyComparison>
-      <code><![CDATA[! $remaining_effort_field_ref]]></code>
-      <code><![CDATA[! $total_effort]]></code>
-      <code><![CDATA[! $total_effort_field_ref]]></code>
-    </RiskyTruthyFalsyComparison>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/Progress/MethodBasedOnLinksCount.php">
-    <DeprecatedMethod>
-      <code><![CDATA[getAnArtifactLinkField]]></code>
-    </DeprecatedMethod>
-    <PossiblyNullReference>
-      <code><![CDATA[addAttribute]]></code>
-      <code><![CDATA[addAttribute]]></code>
-    </PossiblyNullReference>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/Timeframe/Administration/SemanticTimeframeAdministrationPresenter.php">
-    <PossiblyFalsePropertyAssignmentValue>
-      <code><![CDATA[\json_encode($suitable_trackers)]]></code>
-      <code><![CDATA[\json_encode($usable_date_fields)]]></code>
-      <code><![CDATA[\json_encode($usable_numeric_fields)]]></code>
-    </PossiblyFalsePropertyAssignmentValue>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/Timeframe/Administration/SemanticTimeframeCurrentConfigurationPresenterBuilder.php">
-    <RiskyTruthyFalsyComparison>
-      <code><![CDATA[! $semantics_implied_from_tracker]]></code>
-    </RiskyTruthyFalsyComparison>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/Timeframe/SemanticTimeframe.php">
-    <MissingReturnType>
-      <code><![CDATA[redirectToSemanticTimeframeAdmin]]></code>
-    </MissingReturnType>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/Timeframe/SemanticTimeframeBuilder.php">
-    <RedundantCastGivenDocblockType>
-      <code><![CDATA[(int) $row['duration_field_id']]]></code>
-      <code><![CDATA[(int) $row['end_date_field_id']]]></code>
-    </RedundantCastGivenDocblockType>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/Timeframe/SemanticTimeframeFromXMLBuilder.php">
-    <PossiblyNullArrayAccess>
-      <code><![CDATA[$implied_from_tracker_attributes['id']]]></code>
-      <code><![CDATA[$xml_duration_field_attributes['REF']]]></code>
-      <code><![CDATA[$xml_duration_field_attributes['REF']]]></code>
-      <code><![CDATA[$xml_end_date_field_attributes['REF']]]></code>
-      <code><![CDATA[$xml_end_date_field_attributes['REF']]]></code>
-      <code><![CDATA[$xml_start_date_field_attributes['REF']]]></code>
-      <code><![CDATA[$xml_start_date_field_attributes['REF']]]></code>
-    </PossiblyNullArrayAccess>
-    <TypeDoesNotContainType>
-      <code><![CDATA[isset($current_semantic_xml->inherited_from_tracker)]]></code>
-      <code><![CDATA[isset($current_semantic_xml->start_date_field)]]></code>
-    </TypeDoesNotContainType>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/Timeframe/SemanticTimeframeUpdator.php">
-    <RiskyTruthyFalsyComparison>
-      <code><![CDATA[! $configs_relying_on_current_tracker]]></code>
-      <code><![CDATA[! $duration_field_id]]></code>
-      <code><![CDATA[! $end_date_field_id]]></code>
-      <code><![CDATA[! $start_date_field_id]]></code>
-    </RiskyTruthyFalsyComparison>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/Timeframe/TimeframeImpliedFromAnotherTracker.php">
-    <PossiblyNullReference>
-      <code><![CDATA[addAttribute]]></code>
-      <code><![CDATA[addAttribute]]></code>
-    </PossiblyNullReference>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/Timeframe/TimeframeWithDuration.php">
-    <PossiblyNullReference>
-      <code><![CDATA[addAttribute]]></code>
-      <code><![CDATA[addAttribute]]></code>
-      <code><![CDATA[addAttribute]]></code>
-    </PossiblyNullReference>
-    <RiskyTruthyFalsyComparison>
-      <code><![CDATA[! $duration_ref]]></code>
-      <code><![CDATA[! $start_date]]></code>
-      <code><![CDATA[! $start_date_ref]]></code>
-    </RiskyTruthyFalsyComparison>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/Timeframe/TimeframeWithEndDate.php">
-    <PossiblyNullReference>
-      <code><![CDATA[addAttribute]]></code>
-      <code><![CDATA[addAttribute]]></code>
-      <code><![CDATA[addAttribute]]></code>
-    </PossiblyNullReference>
-    <RiskyTruthyFalsyComparison>
-      <code><![CDATA[! $end_date_ref]]></code>
-      <code><![CDATA[! $start_date]]></code>
-      <code><![CDATA[! $start_date_ref]]></code>
-    </RiskyTruthyFalsyComparison>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/Timeframe/XML/XMLTimeframeSemantic.php">
-    <PossiblyNullReference>
-      <code><![CDATA[addAttribute]]></code>
-      <code><![CDATA[addAttribute]]></code>
-    </PossiblyNullReference>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/Tooltip/OtherSemantic/ProgressTooltipEntry.php">
-    <InvalidOperand>
-      <code><![CDATA[$progress_result->getValue() * 100]]></code>
-    </InvalidOperand>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/Tooltip/OtherSemantic/TimeframeTooltipEntry.php">
-    <RiskyTruthyFalsyComparison>
-      <code><![CDATA[$end_date]]></code>
-      <code><![CDATA[$start_date]]></code>
-    </RiskyTruthyFalsyComparison>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/Tooltip/SemanticTooltip.php">
-    <InvalidReturnType>
-      <code><![CDATA[bool]]></code>
-    </InvalidReturnType>
-    <MissingParamType>
-      <code><![CDATA[$fields]]></code>
-    </MissingParamType>
-    <MissingPropertyType>
-      <code><![CDATA[$fields]]></code>
-      <code><![CDATA[$this->tracker->id]]></code>
-      <code><![CDATA[$this->tracker->id]]></code>
-      <code><![CDATA[$this->tracker->id]]></code>
-      <code><![CDATA[$this->tracker->id]]></code>
-    </MissingPropertyType>
-    <MissingReturnType>
-      <code><![CDATA[getDao]]></code>
-      <code><![CDATA[setFields]]></code>
-    </MissingReturnType>
-    <PossiblyFalseArgument>
-      <code><![CDATA[array_search($field->id, $xml_mapping)]]></code>
-    </PossiblyFalseArgument>
-    <PossiblyNullReference>
-      <code><![CDATA[addAttribute]]></code>
-      <code><![CDATA[addAttribute]]></code>
-    </PossiblyNullReference>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/Tooltip/SemanticTooltipDao.php">
-    <DeprecatedMethod>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[parent::__construct()]]></code>
-      <code><![CDATA[prepareRanking]]></code>
-      <code><![CDATA[retrieve]]></code>
-      <code><![CDATA[update]]></code>
-      <code><![CDATA[update]]></code>
-    </DeprecatedMethod>
-    <MissingParamType>
-      <code><![CDATA[$field_id]]></code>
-      <code><![CDATA[$field_id]]></code>
-      <code><![CDATA[$rank]]></code>
-      <code><![CDATA[$tracker_id]]></code>
-      <code><![CDATA[$tracker_id]]></code>
-    </MissingParamType>
-    <MissingReturnType>
-      <code><![CDATA[add]]></code>
-      <code><![CDATA[remove]]></code>
-    </MissingReturnType>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/Tooltip/SemanticTooltipFactory.php">
-    <PossiblyNullArrayAccess>
-      <code><![CDATA[$att['REF']]]></code>
-      <code><![CDATA[$att['REF']]]></code>
-    </PossiblyNullArrayAccess>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/Tracker_Semantic.php">
-    <MissingReturnType>
-      <code><![CDATA[exportToREST]]></code>
-      <code><![CDATA[getFieldUserCanRead]]></code>
-    </MissingReturnType>
-    <UndefinedMethod>
-      <code><![CDATA[getField]]></code>
-    </UndefinedMethod>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/Tracker_SemanticCollection.php">
-    <InvalidOperand>
-      <code><![CDATA[$index]]></code>
-    </InvalidOperand>
-    <InvalidScalarArgument>
-      <code><![CDATA[$position]]></code>
-    </InvalidScalarArgument>
-    <MissingParamType>
-      <code><![CDATA[$semantic_shortname]]></code>
-    </MissingParamType>
-    <MissingReturnType>
-      <code><![CDATA[add]]></code>
-      <code><![CDATA[insertAfter]]></code>
-    </MissingReturnType>
-    <MissingTemplateParam>
-      <code><![CDATA[ArrayAccess]]></code>
-      <code><![CDATA[Iterator]]></code>
-    </MissingTemplateParam>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/Tracker_SemanticFactory.php">
-    <MissingParamType>
-      <code><![CDATA[$type]]></code>
-    </MissingParamType>
-    <MissingReturnType>
-      <code><![CDATA[getSemanticFromAnotherPlugin]]></code>
-    </MissingReturnType>
-    <PossiblyNullArrayAccess>
-      <code><![CDATA[$attributes['type']]]></code>
-    </PossiblyNullArrayAccess>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/Tracker_SemanticManager.php">
-    <MissingParamType>
-      <code><![CDATA[$current_user]]></code>
-      <code><![CDATA[$current_user]]></code>
-      <code><![CDATA[$request]]></code>
-      <code><![CDATA[$request]]></code>
-    </MissingParamType>
-    <MissingReturnType>
-      <code><![CDATA[displayAdminSemantic]]></code>
-      <code><![CDATA[displaySemanticFooter]]></code>
-      <code><![CDATA[displaySemanticHeader]]></code>
-      <code><![CDATA[exportToREST]]></code>
-      <code><![CDATA[getSemanticOrder]]></code>
-      <code><![CDATA[process]]></code>
-    </MissingReturnType>
-    <PossiblyNullReference>
-      <code><![CDATA[exportToREST]]></code>
-      <code><![CDATA[process]]></code>
-    </PossiblyNullReference>
-    <RiskyTruthyFalsyComparison>
-      <code><![CDATA[$timeframe_dao->getSemanticsImpliedFromGivenTracker($this->tracker->getId())]]></code>
-    </RiskyTruthyFalsyComparison>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/XML/XMLFieldsBasedSemantic.php">
-    <PossiblyNullReference>
-      <code><![CDATA[addAttribute]]></code>
-    </PossiblyNullReference>
-  </file>
-  <file src="plugins/tracker/include/Tracker/Semantic/XML/XMLSemantic.php">
-    <PossiblyNullReference>
-      <code><![CDATA[addAttribute]]></code>
-    </PossiblyNullReference>
-  </file>
   <file src="plugins/tracker/include/Tracker/Service/ServiceActivator.php">
     <MissingReturnType>
       <code><![CDATA[atLeastOneTrackerServiceIsUsedInTemplate]]></code>
@@ -45398,223 +45483,6 @@
       <code><![CDATA[getName]]></code>
     </MissingReturnType>
   </file>
-  <file src="plugins/tracker/include/Tracker/Tracker.php">
-    <ArgumentTypeCoercion>
-      <code><![CDATA[$layout]]></code>
-      <code><![CDATA[$layout]]></code>
-      <code><![CDATA[$layout]]></code>
-      <code><![CDATA[$layout]]></code>
-      <code><![CDATA[$layout]]></code>
-      <code><![CDATA[$layout]]></code>
-      <code><![CDATA[$request]]></code>
-      <code><![CDATA[TemplateRendererFactory::build()->getRenderer(dirname(TRACKER_BASE_DIR) . '/templates')]]></code>
-    </ArgumentTypeCoercion>
-    <DeprecatedMethod>
-      <code><![CDATA[createNewChangeset]]></code>
-      <code><![CDATA[userCanSubmitArtifact]]></code>
-      <code><![CDATA[userCanSubmitArtifact]]></code>
-      <code><![CDATA[userCanSubmitArtifact]]></code>
-      <code><![CDATA[userCanSubmitArtifact]]></code>
-      <code><![CDATA[userCanSubmitArtifact]]></code>
-    </DeprecatedMethod>
-    <FalsableReturnStatement>
-      <code><![CDATA[false]]></code>
-      <code><![CDATA[false]]></code>
-    </FalsableReturnStatement>
-    <InvalidArgument>
-      <code><![CDATA[$report_id]]></code>
-    </InvalidArgument>
-    <InvalidNullableReturnType>
-      <code><![CDATA[Tracker_FormElement_Field_List]]></code>
-      <code><![CDATA[Tracker_FormElement_Field_Text]]></code>
-      <code><![CDATA[Tracker_FormElement_Field_Text]]></code>
-    </InvalidNullableReturnType>
-    <InvalidParamDefault>
-      <code><![CDATA[PFUser]]></code>
-      <code><![CDATA[PFUser]]></code>
-    </InvalidParamDefault>
-    <InvalidReturnStatement>
-      <code><![CDATA[is_array($this->cache_permissions)]]></code>
-      <code><![CDATA[true]]></code>
-    </InvalidReturnStatement>
-    <InvalidReturnType>
-      <code><![CDATA[String]]></code>
-      <code><![CDATA[int]]></code>
-      <code><![CDATA[void]]></code>
-    </InvalidReturnType>
-    <MissingParamType>
-      <code><![CDATA[$allow_copy]]></code>
-      <code><![CDATA[$breadcrumbs]]></code>
-      <code><![CDATA[$breadcrumbs]]></code>
-      <code><![CDATA[$breadcrumbs]]></code>
-      <code><![CDATA[$browse_instructions]]></code>
-      <code><![CDATA[$current_user]]></code>
-      <code><![CDATA[$current_user]]></code>
-      <code><![CDATA[$current_user]]></code>
-      <code><![CDATA[$current_user]]></code>
-      <code><![CDATA[$current_user]]></code>
-      <code><![CDATA[$current_user]]></code>
-      <code><![CDATA[$current_user]]></code>
-      <code><![CDATA[$deletion_date]]></code>
-      <code><![CDATA[$description]]></code>
-      <code><![CDATA[$enable_emailgateway]]></code>
-      <code><![CDATA[$formElement_data]]></code>
-      <code><![CDATA[$group_id]]></code>
-      <code><![CDATA[$header_line]]></code>
-      <code><![CDATA[$header_line]]></code>
-      <code><![CDATA[$id]]></code>
-      <code><![CDATA[$index]]></code>
-      <code><![CDATA[$instantiate_for_new_projects]]></code>
-      <code><![CDATA[$item]]></code>
-      <code><![CDATA[$item_name]]></code>
-      <code><![CDATA[$lines]]></code>
-      <code><![CDATA[$link]]></code>
-      <code><![CDATA[$log_priority_changes]]></code>
-      <code><![CDATA[$masschange_aids]]></code>
-      <code><![CDATA[$name]]></code>
-      <code><![CDATA[$notifications_level]]></code>
-      <code><![CDATA[$notifications_level]]></code>
-      <code><![CDATA[$request]]></code>
-      <code><![CDATA[$request]]></code>
-      <code><![CDATA[$request]]></code>
-      <code><![CDATA[$request]]></code>
-      <code><![CDATA[$request]]></code>
-      <code><![CDATA[$separator]]></code>
-      <code><![CDATA[$session]]></code>
-      <code><![CDATA[$status]]></code>
-      <code><![CDATA[$submit_instructions]]></code>
-      <code><![CDATA[$title]]></code>
-      <code><![CDATA[$title]]></code>
-      <code><![CDATA[$title]]></code>
-      <code><![CDATA[$title]]></code>
-      <code><![CDATA[$title]]></code>
-      <code><![CDATA[$title]]></code>
-      <code><![CDATA[$title]]></code>
-      <code><![CDATA[$type]]></code>
-      <code><![CDATA[$user]]></code>
-    </MissingParamType>
-    <MissingPropertyType>
-      <code><![CDATA[$allow_copy]]></code>
-      <code><![CDATA[$cache_permissions]]></code>
-      <code><![CDATA[$children]]></code>
-      <code><![CDATA[$deletion_date]]></code>
-      <code><![CDATA[$description]]></code>
-      <code><![CDATA[$enable_emailgateway]]></code>
-      <code><![CDATA[$formElementFactory]]></code>
-      <code><![CDATA[$group_id]]></code>
-      <code><![CDATA[$id]]></code>
-      <code><![CDATA[$is_project_allowed_to_use_type]]></code>
-      <code><![CDATA[$item_name]]></code>
-      <code><![CDATA[$name]]></code>
-      <code><![CDATA[$notifications_level]]></code>
-      <code><![CDATA[$parent]]></code>
-      <code><![CDATA[$project]]></code>
-      <code><![CDATA[$sharedFormElementFactory]]></code>
-      <code><![CDATA[$status]]></code>
-      <code><![CDATA[$tooltip]]></code>
-      <code><![CDATA[$workflow]]></code>
-    </MissingPropertyType>
-    <MissingReturnType>
-      <code><![CDATA[_getCSVDateformat]]></code>
-      <code><![CDATA[_getCSVSeparator]]></code>
-      <code><![CDATA[arePriorityChangesShown]]></code>
-      <code><![CDATA[createFormElement]]></code>
-      <code><![CDATA[displayAdminCSVImport]]></code>
-      <code><![CDATA[displayAdminCSVImportHeader]]></code>
-      <code><![CDATA[displayAdminFooter]]></code>
-      <code><![CDATA[displayAdminFormElements]]></code>
-      <code><![CDATA[displayAdminFormElementsHeader]]></code>
-      <code><![CDATA[displayAdminFormElementsWarnings]]></code>
-      <code><![CDATA[displayAdminItemHeader]]></code>
-      <code><![CDATA[displayAdminItemHeaderBurningParrot]]></code>
-      <code><![CDATA[displayAdminOptions]]></code>
-      <code><![CDATA[displayAdminPermsHeader]]></code>
-      <code><![CDATA[displayFooter]]></code>
-      <code><![CDATA[displayImportPreview]]></code>
-      <code><![CDATA[displayMasschangeForm]]></code>
-      <code><![CDATA[displaySubmit]]></code>
-      <code><![CDATA[displayWarningArtifactByEmailRequiredFields]]></code>
-      <code><![CDATA[displayWarningArtifactByEmailSemantic]]></code>
-      <code><![CDATA[displayWarningGeneralsettings]]></code>
-      <code><![CDATA[exportToXML]]></code>
-      <code><![CDATA[exportToXMLInProjectExportContext]]></code>
-      <code><![CDATA[fetchAdminPalette]]></code>
-      <code><![CDATA[fetchFormElementsMasschange]]></code>
-      <code><![CDATA[getArtifactXMLExporter]]></code>
-      <code><![CDATA[getChangesetXMLUpdater]]></code>
-      <code><![CDATA[getChildrenCollector]]></code>
-      <code><![CDATA[getFileXMLUpdater]]></code>
-      <code><![CDATA[getInformationsFromOtherServicesAboutUsage]]></code>
-      <code><![CDATA[getParentId]]></code>
-      <code><![CDATA[getUGroupRetrieverWithLegacy]]></code>
-      <code><![CDATA[getUserXMLExporter]]></code>
-      <code><![CDATA[isEmailgatewayEnabled]]></code>
-      <code><![CDATA[sendXML]]></code>
-      <code><![CDATA[setChildren]]></code>
-      <code><![CDATA[setFormElementFactory]]></code>
-      <code><![CDATA[setNotificationsLevel]]></code>
-      <code><![CDATA[setParent]]></code>
-      <code><![CDATA[setProject]]></code>
-      <code><![CDATA[setSharedFormElementFactory]]></code>
-    </MissingReturnType>
-    <NullableReturnStatement>
-      <code><![CDATA[null]]></code>
-      <code><![CDATA[null]]></code>
-      <code><![CDATA[null]]></code>
-    </NullableReturnStatement>
-    <PossiblyFalseArgument>
-      <code><![CDATA[file_get_contents($_FILES['csv_filename']['tmp_name'])]]></code>
-    </PossiblyFalseArgument>
-    <PossiblyInvalidArgument>
-      <code><![CDATA[$current_user->getid()]]></code>
-      <code><![CDATA[$this->getGroupId()]]></code>
-      <code><![CDATA[$this->getGroupId()]]></code>
-    </PossiblyInvalidArgument>
-    <PossiblyNullArgument>
-      <code><![CDATA[$source_artifact]]></code>
-      <code><![CDATA[$user]]></code>
-    </PossiblyNullArgument>
-    <PossiblyNullReference>
-      <code><![CDATA[getId]]></code>
-    </PossiblyNullReference>
-    <PossiblyUndefinedArrayOffset>
-      <code><![CDATA[$_SERVER['REQUEST_TIME']]]></code>
-    </PossiblyUndefinedArrayOffset>
-    <PossiblyUndefinedVariable>
-      <code><![CDATA[$artifact_id]]></code>
-      <code><![CDATA[$column_name]]></code>
-      <code><![CDATA[$column_name]]></code>
-    </PossiblyUndefinedVariable>
-    <RedundantCast>
-      <code><![CDATA[(int) $link_artifact_id]]></code>
-      <code><![CDATA[(int) $this->getID()]]></code>
-      <code><![CDATA[(int) $this->getId()]]></code>
-      <code><![CDATA[(int) $this->getId()]]></code>
-      <code><![CDATA[(string) $request_tracker_color]]></code>
-    </RedundantCast>
-    <RedundantCastGivenDocblockType>
-      <code><![CDATA[(int) $artifact->getId()]]></code>
-      <code><![CDATA[(int) $artifact->getId()]]></code>
-      <code><![CDATA[(int) $user]]></code>
-      <code><![CDATA[(int) $user]]></code>
-    </RedundantCastGivenDocblockType>
-    <RiskyTruthyFalsyComparison>
-      <code><![CDATA[! $user]]></code>
-      <code><![CDATA[$artifact]]></code>
-      <code><![CDATA[$report_id = $current_user->getPreference('tracker_' . $this->id . '_last_report')]]></code>
-    </RiskyTruthyFalsyComparison>
-    <TypeDoesNotContainNull>
-      <code><![CDATA[$dom === null]]></code>
-    </TypeDoesNotContainNull>
-    <TypeDoesNotContainType>
-      <code><![CDATA[$line === false]]></code>
-      <code><![CDATA[empty($this->cached_permission_authorized_ugroups)]]></code>
-      <code><![CDATA[empty($this->cached_permission_authorized_ugroups)]]></code>
-    </TypeDoesNotContainType>
-    <UndefinedMethod>
-      <code><![CDATA[getFieldDataFromCSVValue]]></code>
-    </UndefinedMethod>
-  </file>
   <file src="plugins/tracker/include/Tracker/TrackerCrumbInContext.php">
     <NullArgument>
       <code><![CDATA[$link_collection]]></code>
@@ -45627,12 +45495,9 @@
   </file>
   <file src="plugins/tracker/include/Tracker/TrackerFactory.php">
     <DeprecatedMethod>
-      <code><![CDATA[$pending_trackers]]></code>
-      <code><![CDATA[$pending_trackers]]></code>
       <code><![CDATA[duplicatePermissions]]></code>
       <code><![CDATA[duplicatePermissions]]></code>
       <code><![CDATA[getRow]]></code>
-      <code><![CDATA[isError]]></code>
     </DeprecatedMethod>
     <InvalidNullableReturnType>
       <code><![CDATA[Tracker]]></code>
@@ -46063,10 +45928,8 @@
       <code><![CDATA[$artifact_show]]></code>
     </MissingPropertyType>
     <MissingReturnType>
-      <code><![CDATA[_display_artifacts]]></code>
       <code><![CDATA[getAjaxUrl]]></code>
       <code><![CDATA[getCategory]]></code>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getTitle]]></code>
       <code><![CDATA[hasPreferences]]></code>
@@ -46146,7 +46009,6 @@
       <code><![CDATA[cloneContent]]></code>
       <code><![CDATA[destroy]]></code>
       <code><![CDATA[getCategory]]></code>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getInstallPreferences]]></code>
       <code><![CDATA[getTitle]]></code>
       <code><![CDATA[hasPreferences]]></code>
@@ -46565,7 +46427,6 @@
       <code><![CDATA[escapeInt]]></code>
       <code><![CDATA[escapeInt]]></code>
       <code><![CDATA[escapeInt]]></code>
-      <code><![CDATA[escapeInt]]></code>
       <code><![CDATA[escapeIntImplode]]></code>
       <code><![CDATA[quoteSmart]]></code>
       <code><![CDATA[quoteSmart]]></code>
@@ -46601,8 +46462,6 @@
       <code><![CDATA[retrieve]]></code>
       <code><![CDATA[retrieve]]></code>
       <code><![CDATA[retrieve]]></code>
-      <code><![CDATA[retrieve]]></code>
-      <code><![CDATA[update]]></code>
       <code><![CDATA[update]]></code>
       <code><![CDATA[update]]></code>
       <code><![CDATA[update]]></code>
@@ -46612,11 +46471,9 @@
     </DeprecatedMethod>
     <FalsableReturnStatement>
       <code><![CDATA[$this->retrieve($sql)]]></code>
-      <code><![CDATA[$this->retrieve($sql)]]></code>
     </FalsableReturnStatement>
     <InvalidFalsableReturnType>
       <code><![CDATA[LegacyDataAccessResultInterface]]></code>
-      <code><![CDATA[\Tuleap\DB\Compat\Legacy2018\LegacyDataAccessResultInterface]]></code>
     </InvalidFalsableReturnType>
     <MissingParamType>
       <code><![CDATA[$allow_copy]]></code>
@@ -46944,24 +46801,16 @@
     <MissingReturnType>
       <code><![CDATA[activateArtlinkV2]]></code>
       <code><![CDATA[disableArtifactLinkTypes]]></code>
-      <code><![CDATA[displayWarnings]]></code>
-      <code><![CDATA[fillFieldMappingFromExistingTracker]]></code>
       <code><![CDATA[importHierarchy]]></code>
       <code><![CDATA[storeHierarchyInDB]]></code>
     </MissingReturnType>
     <PossiblyFalseArgument>
       <code><![CDATA[\file_get_contents($filepath)]]></code>
-      <code><![CDATA[realpath(__DIR__ . '/../resources/tracker.rng')]]></code>
     </PossiblyFalseArgument>
     <PossiblyNullArgument>
-      <code><![CDATA[$attributes['use_private_comments']]]></code>
       <code><![CDATA[$xml_type['is_used']]]></code>
     </PossiblyNullArgument>
-    <PossiblyNullArrayAccess>
-      <code><![CDATA[$tracker_attributes[$attribute_name]]]></code>
-    </PossiblyNullArrayAccess>
     <RiskyTruthyFalsyComparison>
-      <code><![CDATA[! $tracker_attributes[$attribute_name]]]></code>
       <code><![CDATA[! $tracker_xml]]></code>
       <code><![CDATA[! $tracker_xml]]></code>
     </RiskyTruthyFalsyComparison>
@@ -48848,6 +48697,11 @@
     <FalsableReturnStatement>
       <code><![CDATA[reset($this->value_ids)]]></code>
     </FalsableReturnStatement>
+  </file>
+  <file src="plugins/tracker/tests/unit/Test/Stub/RetrieveFieldByIdStub.php">
+    <MissingParamType>
+      <code><![CDATA[$field_id]]></code>
+    </MissingParamType>
   </file>
   <file src="plugins/tracker/tests/unit/XML/XMLTrackerTest.php">
     <PossiblyNullArgument>
@@ -51397,18 +51251,6 @@
     </MissingReturnType>
   </file>
   <file src="src/common/Dashboard/Widget/PreferencesController.php">
-    <MissingParamType>
-      <code><![CDATA[$row]]></code>
-    </MissingParamType>
-    <MissingReturnType>
-      <code><![CDATA[checkCSRF]]></code>
-      <code><![CDATA[checkWidgetCanBeEdited]]></code>
-      <code><![CDATA[display]]></code>
-      <code><![CDATA[forceContentIdToBePresentInRequest]]></code>
-      <code><![CDATA[forceGroupIdToBePresentInRequest]]></code>
-      <code><![CDATA[redirectToDashboard]]></code>
-      <code><![CDATA[update]]></code>
-    </MissingReturnType>
     <PossiblyNullPropertyAssignment>
       <code><![CDATA[$widget]]></code>
       <code><![CDATA[$widget]]></code>
@@ -51418,10 +51260,6 @@
     </PossiblyNullReference>
   </file>
   <file src="src/common/Dashboard/Widget/Router.php">
-    <MissingReturnType>
-      <code><![CDATA[getWidgetFromUrl]]></code>
-      <code><![CDATA[route]]></code>
-    </MissingReturnType>
     <PossiblyNullArgument>
       <code><![CDATA[$name]]></code>
     </PossiblyNullArgument>
@@ -61681,7 +61519,6 @@
   </file>
   <file src="src/common/Widget/MyWelcomeMessage.php">
     <MissingReturnType>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getFileNameForUser]]></code>
       <code><![CDATA[getTitle]]></code>
@@ -61733,7 +61570,6 @@
   </file>
   <file src="src/common/Widget/ProjectHeartbeat.php">
     <MissingReturnType>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getTitle]]></code>
     </MissingReturnType>
@@ -61787,7 +61623,6 @@
   </file>
   <file src="src/common/Widget/ProjectMembers/ProjectMembers.php">
     <MissingReturnType>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getTitle]]></code>
     </MissingReturnType>
@@ -61840,7 +61675,6 @@
       <code><![CDATA[displayRss]]></code>
       <code><![CDATA[getAjaxUrl]]></code>
       <code><![CDATA[getCategory]]></code>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getId]]></code>
       <code><![CDATA[getInstallPreferences]]></code>
@@ -61920,7 +61754,6 @@
     <MissingReturnType>
       <code><![CDATA[cloneContent]]></code>
       <code><![CDATA[destroy]]></code>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getInstallPreferences]]></code>
       <code><![CDATA[getTitle]]></code>
       <code><![CDATA[hasPreferences]]></code>
@@ -61963,9 +61796,6 @@
       <code><![CDATA[$user_is_super_admin]]></code>
     </MissingPropertyType>
     <MissingReturnType>
-      <code><![CDATA[_get_admin_row]]></code>
-      <code><![CDATA[_get_color]]></code>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getHTMLForNonSuperAdmin]]></code>
       <code><![CDATA[getHTMLForSuperAdmin]]></code>
@@ -61998,7 +61828,6 @@
     <MissingReturnType>
       <code><![CDATA[getAjaxUrl]]></code>
       <code><![CDATA[getCategory]]></code>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getPriorityColorsKey]]></code>
       <code><![CDATA[getTitle]]></code>
@@ -62029,7 +61858,6 @@
       <code><![CDATA[db_result($result, $i, 'bookmark_url')]]></code>
     </DeprecatedFunction>
     <MissingReturnType>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getTitle]]></code>
     </MissingReturnType>
@@ -62057,7 +61885,6 @@
     <MissingReturnType>
       <code><![CDATA[getAjaxUrl]]></code>
       <code><![CDATA[getCategory]]></code>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getTitle]]></code>
       <code><![CDATA[isAjax]]></code>
@@ -62091,7 +61918,6 @@
     <MissingReturnType>
       <code><![CDATA[getAjaxUrl]]></code>
       <code><![CDATA[getCategory]]></code>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getTitle]]></code>
       <code><![CDATA[isAjax]]></code>
@@ -62104,7 +61930,6 @@
   </file>
   <file src="src/common/Widget/Widget_ProjectDescription.php">
     <MissingReturnType>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getTitle]]></code>
     </MissingReturnType>
@@ -62116,7 +61941,6 @@
     <MissingReturnType>
       <code><![CDATA[canBeUsedByProject]]></code>
       <code><![CDATA[getCategory]]></code>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getTitle]]></code>
       <code><![CDATA[isAvailable]]></code>
@@ -62147,7 +61971,6 @@
       <code><![CDATA[$group_id]]></code>
     </InvalidArgument>
     <MissingReturnType>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getDescription]]></code>
       <code><![CDATA[getTitle]]></code>
     </MissingReturnType>
@@ -62240,7 +62063,6 @@
     <MissingReturnType>
       <code><![CDATA[display]]></code>
       <code><![CDATA[getAdditionalClass]]></code>
-      <code><![CDATA[getContent]]></code>
       <code><![CDATA[getTitle]]></code>
       <code><![CDATA[setAdditionalClass]]></code>
       <code><![CDATA[setContent]]></code>

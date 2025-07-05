@@ -22,10 +22,11 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\MockObject\MockObject;
+use Tuleap\Color\ItemColor;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
-use Tuleap\Tracker\TrackerColor;
+use Tuleap\Tracker\Tracker;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class TrackerTest extends \Tuleap\Test\PHPUnit\TestCase // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
@@ -62,15 +63,15 @@ final class TrackerTest extends \Tuleap\Test\PHPUnit\TestCase // phpcs:ignore PS
             'hasBlockingError',
             'getParentId',
         ];
-        $this->tracker = $this->createPartialMock(\Tracker::class, $methods);
-        $tracker1      = $this->createPartialMock(\Tracker::class, $methods);
-        $tracker2      = $this->createPartialMock(\Tracker::class, $methods);
+        $this->tracker = $this->createPartialMock(\Tuleap\Tracker\Tracker::class, $methods);
+        $tracker1      = $this->createPartialMock(\Tuleap\Tracker\Tracker::class, $methods);
+        $tracker2      = $this->createPartialMock(\Tuleap\Tracker\Tracker::class, $methods);
 
         $this->tracker_factory = $this->createMock(\TrackerFactory::class);
         $this->tracker->method('getTrackerFactory')->willReturn($this->tracker_factory);
         $tracker1->method('getTrackerFactory')->willReturn($this->tracker_factory);
         $tracker2->method('getTrackerFactory')->willReturn($this->tracker_factory);
-        $tsm = $this->createMock(\Tracker_SemanticManager::class);
+        $tsm = $this->createMock(\Tuleap\Tracker\Semantic\TrackerSemanticManager::class);
         $this->tracker->method('getTrackerSemanticManager')->willReturn($tsm);
         $tracker1->method('getTrackerSemanticManager')->willReturn($tsm);
         $tracker2->method('getTrackerSemanticManager')->willReturn($tsm);
@@ -89,7 +90,7 @@ final class TrackerTest extends \Tuleap\Test\PHPUnit\TestCase // phpcs:ignore PS
         $group_id = 999;
         $this->tracker->method('getGroupId')->willReturn($group_id);
         $this->tracker->method('getId')->willReturn(110);
-        $this->tracker->method('getColor')->willReturn(TrackerColor::default());
+        $this->tracker->method('getColor')->willReturn(ItemColor::default());
         $tracker1->method('getGroupId')->willReturn($group_id);
         $tracker1->method('getId')->willReturn(111);
         $tracker2->method('getGroupId')->willReturn($group_id);

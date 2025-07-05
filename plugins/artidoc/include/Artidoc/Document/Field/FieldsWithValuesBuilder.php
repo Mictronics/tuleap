@@ -24,15 +24,15 @@ namespace Tuleap\Artidoc\Document\Field;
 
 use Tracker_Artifact_ChangesetValue_String;
 use Tracker_FormElement_Field_List;
-use Tracker_FormElement_Field_List_BindValue;
+use Tuleap\Artidoc\Document\Field\List\BuildListFieldWithValue;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldWithValue\StringFieldWithValue;
-use Tuleap\Artidoc\Domain\Document\Section\Field\FieldWithValue\UserGroupListValue;
-use Tuleap\Artidoc\Domain\Document\Section\Field\FieldWithValue\UserGroupsListFieldWithValue;
 
 final readonly class FieldsWithValuesBuilder implements GetFieldsWithValues
 {
-    public function __construct(private ConfiguredFieldCollection $field_collection)
-    {
+    public function __construct(
+        private ConfiguredFieldCollection $field_collection,
+        private BuildListFieldWithValue $build_list_field_with_value,
+    ) {
     }
 
     public function getFieldsWithValues(\Tracker_Artifact_Changeset $changeset): array
@@ -49,25 +49,13 @@ final readonly class FieldsWithValuesBuilder implements GetFieldsWithValues
                     $changeset_value->getValue()
                 );
             }
-            if (
-                $configured_field->field instanceof Tracker_FormElement_Field_List
-                && $configured_field->field->getBind()->getType() === \Tracker_FormElement_Field_List_Bind_Ugroups::TYPE
-            ) {
+
+            if ($configured_field->field instanceof Tracker_FormElement_Field_List) {
                 assert($changeset_value instanceof \Tracker_Artifact_ChangesetValue_List);
-                $fields[] = new UserGroupsListFieldWithValue(
-                    $configured_field->field->getLabel(),
-                    $configured_field->display_type,
-                    array_values(
-                        array_map(
-                            static fn(Tracker_FormElement_Field_List_BindValue $value) => new UserGroupListValue(
-                                $value->getLabel()
-                            ),
-                            $changeset_value->getListValues()
-                        )
-                    )
-                );
+                $fields[] = $this->build_list_field_with_value->buildListFieldWithValue($configured_field, $changeset_value);
             }
         }
+
         return $fields;
     }
 }

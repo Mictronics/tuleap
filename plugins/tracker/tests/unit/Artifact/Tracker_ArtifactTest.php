@@ -136,8 +136,8 @@ final class Tracker_ArtifactTest extends TestCase //phpcs:ignore Squiz.Classes.V
         $value     = ChangesetValueDateTestBuilder::aValue(1, $changeset, $field)->build();
         $changeset->setFieldValue($field, $value);
 
-        $id       = $tracker_id = $use_artifact_permissions = $submitted_by = $submitted_on = '';
-        $artifact = new Artifact($id, $tracker_id, $submitted_by, $submitted_on, $use_artifact_permissions);
+        $id       = $tracker_id = $submitted_by = $submitted_on = 0;
+        $artifact = new Artifact($id, $tracker_id, $submitted_by, $submitted_on, false);
 
         self::assertEquals($value, $artifact->getValue($field, $changeset));
     }
@@ -586,7 +586,7 @@ final class Tracker_ArtifactTest extends TestCase //phpcs:ignore Squiz.Classes.V
             102 => '456',
         ];
         $workflow->expects($this->once())->method('checkGlobalRules')->with($updated_fields_data_by_workflow)
-            ->willThrowException(new Tracker_Workflow_GlobalRulesViolationException($tracker->getId()));
+            ->willThrowException(new Tracker_Workflow_GlobalRulesViolationException($tracker));
 
         $this->expectException(Tracker_Exception::class);
         $artifact->createNewChangeset($fields_data, $comment, $user);

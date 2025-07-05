@@ -25,7 +25,6 @@ namespace Tuleap\Tracker\Tracker\XML\Importer;
 use Exception;
 use Project;
 use SimpleXMLElement;
-use Tracker;
 use Tracker_CannedResponseFactory;
 use Tracker_Exception;
 use Tracker_FormElement;
@@ -34,10 +33,11 @@ use Tracker_FormElement_Field_ReadOnly;
 use Tracker_FormElementFactory;
 use Tracker_ReportFactory;
 use Tracker_RuleFactory;
-use Tracker_SemanticFactory;
 use TrackerFactory;
+use Tuleap\Color\ItemColor;
 use Tuleap\Project\UGroupRetrieverWithLegacy;
-use Tuleap\Tracker\TrackerColor;
+use Tuleap\Tracker\Semantic\TrackerSemanticFactory;
+use Tuleap\Tracker\Tracker;
 use Tuleap\Tracker\Webhook\WebhookFactory;
 use Tuleap\Tracker\XML\TrackerXmlImportFeedbackCollector;
 use User\XML\Import\IFindUserFromXMLReference;
@@ -51,7 +51,7 @@ readonly class GetInstanceFromXml
         private Tracker_FormElementFactory $formelement_factory,
         private IFindUserFromXMLReference $user_finder,
         private TrackerXmlImportFeedbackCollector $feedback_collector,
-        private Tracker_SemanticFactory $semantic_factory,
+        private TrackerSemanticFactory $semantic_factory,
         private Tracker_RuleFactory $rule_factory,
         private Tracker_ReportFactory $report_factory,
         private WorkflowFactory $workflow_factory,
@@ -118,9 +118,9 @@ readonly class GetInstanceFromXml
     ): array {
         $xml_tracker_color_name = $color ?? (string) $xml->color;
         if ($xml_tracker_color_name === '') {
-            $tracker_color = TrackerColor::default();
+            $tracker_color = ItemColor::default();
         } else {
-            $tracker_color = TrackerColor::fromNotStandardizedName($xml_tracker_color_name);
+            $tracker_color = ItemColor::fromNotStandardizedName($xml_tracker_color_name);
         }
 
         $att = $xml->attributes();

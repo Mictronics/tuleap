@@ -22,12 +22,12 @@ declare(strict_types=1);
 
 namespace Tuleap\User\Account\LostPassword;
 
-use Codendi_Mail;
-use EventManager;
 use ForgeConfig;
 use HTTPRequest;
 use Psr\Log\LoggerInterface;
+use Psr\EventDispatcher\EventDispatcherInterface;
 use TemplateRendererFactory;
+use Tuleap_Template_Mail;
 use Tuleap\Config\ConfigurationVariables;
 use Tuleap\Language\LocaleSwitcher;
 use Tuleap\Layout\BaseLayout;
@@ -35,7 +35,7 @@ use Tuleap\Layout\CssAssetWithoutVariantDeclinaisons;
 use Tuleap\Layout\FooterConfiguration;
 use Tuleap\Layout\HeaderConfigurationBuilder;
 use Tuleap\Layout\IncludeAssets;
-use Tuleap\Mail\TemplateWithoutFooter;
+use Tuleap\Mail\MailFactory;
 use Tuleap\NeverThrow\Err;
 use Tuleap\NeverThrow\Fault;
 use Tuleap\NeverThrow\Ok;
@@ -46,35 +46,37 @@ use Tuleap\ServerHostname;
 use Tuleap\User\Password\Reset\Creator;
 use Tuleap\User\Password\Reset\RecentlyCreatedCodeException;
 use Tuleap\User\Password\Reset\ResetTokenSerializer;
-use UserManager;
+use Tuleap\User\RetrieveUserByUserName;
 
 final class LostPasswordController implements DispatchableWithRequestNoAuthz, DispatchableWithBurningParrot
 {
     public function __construct(
-        private UserManager $user_manager,
-        private Creator $reset_token_creator,
+        private RetrieveUserByUserName $retrieve_user_by_username,
+        private Creator $password_reset_token_creator,
         private ResetTokenSerializer $reset_token_formatter,
         private LocaleSwitcher $locale_switcher,
         private TemplateRendererFactory $renderer_factory,
-        private EventManager $event_manager,
+        private EventDispatcherInterface $event_manager,
         private IncludeAssets $core_assets,
         private DisplayLostPasswordController $display_controller,
         private LoggerInterface $logger,
+        private Tuleap_Template_Mail $template_mail,
+        private MailFactory $mail_factory,
     ) {
     }
 
     public function process(HTTPRequest $request, BaseLayout $layout, array $variables): void
     {
-        $this->event_manager->processEvent('before_lostpw-confirm', []);
+        $this->event_manager->dispatch(new BeforeLostPasswordConfirm());
 
         $user     = null;
         $username = (string) $request->get('form_loginname');
         if ($username !== '') {
-            $user = $this->user_manager->getUserByUserName($username);
+            $user = $this->retrieve_user_by_username->getUserByUserName($username);
         }
 
         if ($user === null || $user->getUserPw() === null) {
-            $this->redisplayFormWithError($request, $layout, $variables, _('That user does not exist.'));
+            $this->displayConfirmation($layout);
             return;
         }
 
@@ -83,17 +85,16 @@ final class LostPasswordController implements DispatchableWithRequestNoAuthz, Di
                 $user->getLocale(),
                 function () use ($user): Ok|Err {
                     try {
-                        $reset_token = $this->reset_token_creator->create($user);
+                        $reset_token = $this->password_reset_token_creator->create($user);
                     } catch (RecentlyCreatedCodeException) {
-                        return Result::err(
-                            Fault::fromMessage(_('You already asked a recovery link recently, please check your email for the link to recover your password.'))
-                        );
+                        $this->logger->info(sprintf('Reset code for user #%d was recently requested, not sending one again', $user->getId()));
+                        return Result::ok(true);
                     }
 
                     $identifier = $this->reset_token_formatter->getIdentifier($reset_token);
 
-                    $mail = new Codendi_Mail();
-                    $mail->setLookAndFeelTemplate(new TemplateWithoutFooter());
+                    $mail = $this->mail_factory->getMail();
+                    $mail->setLookAndFeelTemplate($this->template_mail);
                     $mail->setFrom(ForgeConfig::get('sys_noreply'));
                     $mail->setTo($user->getEmail());
                     $mail->setSubject(
@@ -123,16 +124,7 @@ final class LostPasswordController implements DispatchableWithRequestNoAuthz, Di
                 }
             )->match(
                 function () use ($layout): void {
-                    $layout->addCssAsset(
-                        new CssAssetWithoutVariantDeclinaisons($this->core_assets, 'account-registration-style')
-                    );
-                    $layout->header(HeaderConfigurationBuilder::get(_('Password recovery'))->build());
-                    $this->renderer_factory
-                        ->getRenderer(__DIR__ . '/../../../../templates/account')
-                        ->renderToPage('lost-password-confirmation', [
-                            'title' => _('Password recovery'),
-                        ]);
-                    $layout->footer(FooterConfiguration::withoutContent());
+                    $this->displayConfirmation($layout);
                 },
                 function (Fault $fault) use ($request, $layout, $variables) {
                     Fault::writeToLogger($fault, $this->logger);
@@ -148,5 +140,19 @@ final class LostPasswordController implements DispatchableWithRequestNoAuthz, Di
         string $error_message,
     ): void {
         $this->display_controller->process($request, $layout, [...$variables, 'error_message' => $error_message]);
+    }
+
+    private function displayConfirmation(BaseLayout $layout): void
+    {
+        $layout->addCssAsset(
+            new CssAssetWithoutVariantDeclinaisons($this->core_assets, 'account-registration-style')
+        );
+        $layout->header(HeaderConfigurationBuilder::get(_('Password recovery'))->build());
+        $this->renderer_factory
+            ->getRenderer(__DIR__ . '/../../../../templates/account')
+            ->renderToPage('lost-password-confirmation', [
+                'title' => _('Password recovery'),
+            ]);
+        $layout->footer(FooterConfiguration::withoutContent());
     }
 }

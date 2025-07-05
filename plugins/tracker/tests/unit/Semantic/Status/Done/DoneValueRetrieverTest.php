@@ -24,16 +24,16 @@ namespace Tuleap\Tracker\Semantic\Status\Done;
 
 use PFUser;
 use PHPUnit\Framework\MockObject\MockObject;
-use Tracker;
 use Tracker_FormElement_Field_List;
 use Tracker_FormElement_Field_List_BindValue;
+use Tuleap\Color\ItemColor;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
-use Tuleap\Tracker\TrackerColor;
+use Tuleap\Tracker\Tracker;
 use Tuleap\Tracker\Workflow\FirstPossibleValueInListRetriever;
 use Tuleap\Tracker\Workflow\NoPossibleValueException;
 
@@ -356,7 +356,7 @@ final class DoneValueRetrieverTest extends TestCase
             null,
             null,
             null,
-            TrackerColor::default(),
+            ItemColor::default(),
             null
         );
     }

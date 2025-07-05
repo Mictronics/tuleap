@@ -18,6 +18,7 @@
  */
 
 use Psr\EventDispatcher\EventDispatcherInterface;
+use Tuleap\Color\ItemColor;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\DBTransactionExecutor;
 use Tuleap\DB\DBTransactionExecutorWithConnection;
@@ -44,7 +45,8 @@ use Tuleap\Tracker\RetrieveTrackersByProjectIdUserCanAdministrate;
 use Tuleap\Tracker\RetrieveTrackersByProjectIdUserCanView;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeDao;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeDuplicator;
-use Tuleap\Tracker\TrackerColor;
+use Tuleap\Tracker\Semantic\TrackerSemanticFactory;
+use Tuleap\Tracker\Tracker;
 use Tuleap\Tracker\TrackerDuplicationUserGroupMapping;
 use Tuleap\Tracker\TrackerEventTrackersDuplicated;
 use Tuleap\Tracker\TrackerIsInvalidException;
@@ -55,7 +57,7 @@ use Tuleap\Tracker\Workflow\Trigger\Siblings\SiblingsRetriever;
 use Tuleap\Tracker\Workflow\WorkflowBackendLogger;
 use Tuleap\Tracker\Workflow\WorkflowRulesManagerLoopSafeGuard;
 
-class TrackerFactory implements RetrieveTracker, RetrieveTrackersByProjectIdUserCanView, RetrieveTrackersByProjectIdUserCanAdministrate
+class TrackerFactory implements RetrieveTracker, RetrieveTrackersByProjectIdUserCanView, RetrieveTrackersByProjectIdUserCanAdministrate // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 {
     /**
      * Get the trackers required by agile dashboard
@@ -87,7 +89,7 @@ class TrackerFactory implements RetrieveTracker, RetrieveTrackersByProjectIdUser
      * Hold an instance of the class
      * @var self|null
      */
-    protected static $_instance;
+    protected static $_instance; //phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
     /**
      * The singleton method
@@ -160,10 +162,11 @@ class TrackerFactory implements RetrieveTracker, RetrieveTrackersByProjectIdUser
      */
     public function getDeletedTrackers()
     {
-        $pending_trackers = $this->getDao()->retrieveTrackersMarkAsDeleted();
+        $dao              = new \Tuleap\Tracker\TrackerDeletion\DeletedTrackerDao();
+        $pending_trackers = $dao->retrieveTrackersMarkAsDeleted();
         $deleted_trackers = [];
 
-        if ($pending_trackers && ! $pending_trackers->isError()) {
+        if ($pending_trackers) {
             foreach ($pending_trackers as $pending_tracker) {
                 $deleted_trackers[] = $this->getTrackerById($pending_tracker['id']);
             }
@@ -177,11 +180,11 @@ class TrackerFactory implements RetrieveTracker, RetrieveTrackersByProjectIdUser
      *
      * @param  int $tracker_id
      *
-     * @return bool
      */
-    public function restoreDeletedTracker($tracker_id)
+    public function restoreDeletedTracker($tracker_id): void
     {
-        return $this->getDao()->restoreTrackerMarkAsDeleted($tracker_id);
+        $dao = new \Tuleap\Tracker\TrackerDeletion\DeletedTrackerDao();
+        $dao->restoreTrackerMarkAsDeleted($tracker_id);
     }
 
     /**
@@ -301,7 +304,7 @@ class TrackerFactory implements RetrieveTracker, RetrieveTrackersByProjectIdUser
             $row['instantiate_for_new_projects'],
             $row['log_priority_changes'],
             $row['notifications_level'],
-            TrackerColor::fromName($row['color']),
+            ItemColor::fromName($row['color']),
             $row['enable_emailgateway']
         );
     }
@@ -446,7 +449,7 @@ class TrackerFactory implements RetrieveTracker, RetrieveTrackersByProjectIdUser
         );
 
         // Duplicate Semantics
-        Tracker_SemanticFactory::instance()->duplicate(
+        TrackerSemanticFactory::instance()->duplicate(
             (int) $id_template,
             $id,
             $field_mapping
@@ -789,7 +792,7 @@ class TrackerFactory implements RetrieveTracker, RetrieveTrackersByProjectIdUser
                     //create semantics
                     if (isset($tracker->semantics)) {
                         foreach ($tracker->semantics as $semantic) {
-                            Tracker_SemanticFactory::instance()->saveObject($semantic, $trackerDB);
+                            TrackerSemanticFactory::instance()->saveObject($semantic, $trackerDB);
                         }
                     }
                     //create rules

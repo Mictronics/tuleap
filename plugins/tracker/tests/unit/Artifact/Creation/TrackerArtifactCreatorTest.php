@@ -25,11 +25,11 @@ namespace Tuleap\Tracker\Artifact\Creation;
 
 use PHPUnit\Framework\MockObject\MockObject;
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Tracker;
 use Tracker_Artifact_Changeset;
 use Tracker_Artifact_Changeset_InitialChangesetFieldsValidator;
 use Tracker_ArtifactDao;
 use Tracker_ArtifactFactory;
+use Tuleap\Color\ItemColor;
 use Tuleap\GlobalLanguageMock;
 use Tuleap\Option\Option;
 use Tuleap\Test\DB\DBTransactionExecutorPassthrough;
@@ -41,7 +41,7 @@ use Tuleap\Tracker\Artifact\RecentlyVisited\VisitRecorder;
 use Tuleap\Tracker\Changeset\Validation\NullChangesetValidationContext;
 use Tuleap\Tracker\Test\Stub\Artifact\Creation\AddReverseLinksStub;
 use Tuleap\Tracker\Test\Stub\CreateInitialChangesetStub;
-use Tuleap\Tracker\TrackerColor;
+use Tuleap\Tracker\Tracker;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class TrackerArtifactCreatorTest extends \Tuleap\Test\PHPUnit\TestCase
@@ -54,7 +54,7 @@ final class TrackerArtifactCreatorTest extends \Tuleap\Test\PHPUnit\TestCase
     /** @var Tracker_ArtifactFactory */
     private $artifact_factory;
 
-    /** @var \Tracker */
+    /** @var \Tuleap\Tracker\Tracker */
     private $tracker;
 
     /** @var \PFUser */
@@ -99,7 +99,7 @@ final class TrackerArtifactCreatorTest extends \Tuleap\Test\PHPUnit\TestCase
             null,
             null,
             null,
-            TrackerColor::default(),
+            ItemColor::default(),
             null
         );
 

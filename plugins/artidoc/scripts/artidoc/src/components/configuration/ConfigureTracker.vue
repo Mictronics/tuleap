@@ -27,45 +27,43 @@
             v-on:select-tracker="onSelectTracker"
         />
     </div>
-    <configuration-modal-footer
-        v-bind:current_tab="TRACKER_SELECTION_TAB"
-        v-bind:is_submit_button_disabled="is_submit_button_disabled"
-        v-bind:on_save_callback="onSubmit"
+    <configure-tracker-footer
+        v-on:after-save="(successful) => (is_success = successful)"
+        v-bind:new_selected_tracker="new_selected_tracker"
+        v-bind:configuration_saver="configuration_saver"
     />
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import type { Option } from "@tuleap/option";
 import { strictInject } from "@tuleap/vue-strict-inject";
-import { TRACKER_SELECTION_TAB } from "@/components/configuration/configuration-modal";
 import TrackerSelectionIntroductoryText from "@/components/configuration/TrackerSelectionIntroductoryText.vue";
 import TrackerSelection from "@/components/configuration/TrackerSelection.vue";
-import ConfigurationModalFooter from "@/components/configuration/ConfigurationModalFooter.vue";
+import ConfigureTrackerFooter from "@/components/configuration/ConfigureTrackerFooter.vue";
 import type { Tracker } from "@/configuration/AllowedTrackersCollection";
 import { ALLOWED_TRACKERS } from "@/configuration/AllowedTrackersCollection";
-import { CONFIGURATION_STORE } from "@/stores/configuration-store";
 import { SELECTED_TRACKER } from "@/configuration/SelectedTracker";
+import { buildTrackerConfigurationSaver } from "@/configuration/TrackerConfigurationSaver";
+import { SELECTED_FIELDS } from "@/configuration/SelectedFieldsCollection";
+import { AVAILABLE_FIELDS } from "@/configuration/AvailableFieldsCollection";
+import { DOCUMENT_ID } from "@/document-id-injection-key";
 
-const { is_saving, is_success, saveTrackerConfiguration } = strictInject(CONFIGURATION_STORE);
+const document_id = strictInject(DOCUMENT_ID);
 const saved_tracker = strictInject(SELECTED_TRACKER);
+const selected_fields = strictInject(SELECTED_FIELDS);
+const available_fields = strictInject(AVAILABLE_FIELDS);
 const allowed_trackers = strictInject(ALLOWED_TRACKERS);
 
 const new_selected_tracker = ref<Option<Tracker>>(saved_tracker.value);
+const is_success = ref<boolean>(false);
 
-const is_submit_button_disabled = computed(
-    () =>
-        allowed_trackers.isEmpty() ||
-        is_saving.value ||
-        new_selected_tracker.value.mapOr(
-            (tracker) => tracker.id === saved_tracker.value.mapOr((saved) => saved.id, Number.NaN),
-            false,
-        ),
+const configuration_saver = buildTrackerConfigurationSaver(
+    document_id,
+    saved_tracker,
+    selected_fields,
+    available_fields,
 );
-
-function onSubmit(): void {
-    new_selected_tracker.value.apply(saveTrackerConfiguration);
-}
 
 function onSelectTracker(tracker: Option<Tracker>): void {
     new_selected_tracker.value = tracker;

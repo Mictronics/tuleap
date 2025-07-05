@@ -23,9 +23,9 @@ declare(strict_types=1);
 
 namespace Tuleap\ProgramManagement\Adapter\Program\Backlog\TopBacklog;
 
+use Tuleap\Color\ItemColor;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Tracker\Masschange\TrackerMasschangeProcessExternalActionsEvent;
-use Tuleap\Tracker\TrackerColor;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class MassChangeTopBacklogSourceInformationTest extends \Tuleap\Test\PHPUnit\TestCase
@@ -62,9 +62,9 @@ final class MassChangeTopBacklogSourceInformationTest extends \Tuleap\Test\PHPUn
         self::assertEquals($expected, MassChangeTopBacklogSourceInformation::fromProcessExternalActionEvent($event));
     }
 
-    private static function buildTracker(): \Tracker
+    private static function buildTracker(): \Tuleap\Tracker\Tracker
     {
-        return new \Tracker(
+        return new \Tuleap\Tracker\Tracker(
             '140',
             '102',
             'Test',
@@ -78,7 +78,7 @@ final class MassChangeTopBacklogSourceInformationTest extends \Tuleap\Test\PHPUn
             true,
             false,
             0,
-            TrackerColor::default(),
+            ItemColor::default(),
             false
         );
     }

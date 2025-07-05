@@ -20,6 +20,7 @@
  */
 
 use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\Tracker;
 use Tuleap\Tracker\Workflow\BeforeEvent;
 use Tuleap\Tracker\Workflow\Transition\TransitionRetriever;
 use Tuleap\Tracker\Workflow\WorkflowBackendLogger;
@@ -386,7 +387,7 @@ class Workflow // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
             return true;
         }
         if (! $this->global_rules_manager->validate($this->tracker_id, $fields_data)) {
-            throw new Tracker_Workflow_GlobalRulesViolationException($this->tracker_id);
+            throw new Tracker_Workflow_GlobalRulesViolationException($this->getTracker());
         }
     }
 

@@ -21,46 +21,54 @@
     <div class="tlp-modal-body">
         <fields-selection-introductory-text />
         <fields-selection
-            v-bind:selected_fields="selected_fields"
-            v-bind:available_fields="available_fields"
+            v-bind:selected_fields="new_selected_fields"
+            v-bind:available_fields="new_available_fields"
         />
     </div>
 
-    <configuration-modal-footer
-        v-bind:current_tab="READONLY_FIELDS_SELECTION_TAB"
-        v-bind:on_save_callback="onFieldsSubmit"
+    <configure-readonly-fields-footer
         v-bind:is_submit_button_disabled="is_submit_button_disabled"
+        v-bind:new_selected_fields="new_selected_fields"
+        v-bind:configuration_saver="configuration_saver"
     />
 </template>
 
 <script setup lang="ts">
 import { ref, toRaw, watch } from "vue";
-import type { ConfigurationStore } from "@/stores/configuration-store";
 import FieldsSelectionIntroductoryText from "@/components/configuration/FieldsSelectionIntroductoryText.vue";
 import FieldsSelection from "@/components/configuration/FieldsSelection.vue";
-import ConfigurationModalFooter from "@/components/configuration/ConfigurationModalFooter.vue";
-import { READONLY_FIELDS_SELECTION_TAB } from "@/components/configuration/configuration-modal";
+import ConfigureReadonlyFieldsFooter from "@/components/configuration/ConfigureReadonlyFieldsFooter.vue";
 import type { ConfigurationField } from "@/sections/readonly-fields/AvailableReadonlyFields";
+import { strictInject } from "@tuleap/vue-strict-inject";
+import { SELECTED_FIELDS } from "@/configuration/SelectedFieldsCollection";
+import { AVAILABLE_FIELDS } from "@/configuration/AvailableFieldsCollection";
+import { buildFieldsConfigurationSaver } from "@/configuration/FieldsConfigurationSaver";
+import { DOCUMENT_ID } from "@/document-id-injection-key";
+import { SELECTED_TRACKER } from "@/configuration/SelectedTracker";
 
-const props = defineProps<{
-    configuration_store: ConfigurationStore;
-}>();
+const document_id = strictInject(DOCUMENT_ID);
+const selected_tracker = strictInject(SELECTED_TRACKER);
+const selected_fields = strictInject(SELECTED_FIELDS);
+const available_fields = strictInject(AVAILABLE_FIELDS);
 
-const selected_fields = ref<ConfigurationField[]>(
-    structuredClone(toRaw(props.configuration_store.selected_fields.value)),
+const new_selected_fields = ref<ConfigurationField[]>(
+    structuredClone(toRaw(selected_fields.value)),
 );
-const available_fields = ref<ConfigurationField[]>(
-    structuredClone(toRaw(props.configuration_store.available_fields.value)),
+const new_available_fields = ref<ConfigurationField[]>(
+    structuredClone(toRaw(available_fields.value)),
 );
 
-function onFieldsSubmit(): void {
-    props.configuration_store.saveFieldsConfiguration(selected_fields.value);
-}
+const configuration_saver = buildFieldsConfigurationSaver(
+    document_id,
+    selected_tracker,
+    selected_fields,
+    available_fields,
+);
 
 const is_submit_button_disabled = ref(true);
-watch(selected_fields.value, () => {
+watch(new_selected_fields.value, () => {
     is_submit_button_disabled.value =
-        JSON.stringify(toRaw(selected_fields.value)) ===
-        JSON.stringify(toRaw(props.configuration_store.selected_fields.value));
+        JSON.stringify(toRaw(new_selected_fields.value)) ===
+        JSON.stringify(toRaw(selected_fields.value));
 });
 </script>

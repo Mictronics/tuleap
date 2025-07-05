@@ -28,12 +28,12 @@ use EventManager;
 use ForgeConfig;
 use Project;
 use Psr\Log\LoggerInterface;
-use Tracker;
 use Tracker_Exception;
 use TrackerFactory;
 use TrackerFromXmlException;
 use TrackerFromXmlImportCannotBeCreatedException;
 use TrackerXmlImport;
+use Tuleap\Color\ItemColor;
 use Tuleap\Project\XML\Import\ImportConfig;
 use Tuleap\Tracker\Creation\JiraImporter\Configuration\PlatformConfigurationRetriever;
 use Tuleap\Tracker\Creation\JiraImporter\Import\Artifact\Attachment\AttachmentDownloader;
@@ -48,7 +48,7 @@ use Tuleap\Tracker\Creation\JiraImporter\UserRole\UserRolesCheckerInterface;
 use Tuleap\Tracker\Creation\JiraImporter\UserRole\UserRolesResponseNotWellFormedException;
 use Tuleap\Tracker\Creation\TrackerCreationDataChecker;
 use Tuleap\Tracker\Creation\TrackerCreationHasFailedException;
-use Tuleap\Tracker\TrackerColor;
+use Tuleap\Tracker\Tracker;
 use Tuleap\Tracker\TrackerIsInvalidException;
 use Tuleap\Tracker\XML\XMLTracker;
 use Tuleap\XML\MappingsRegistry;
@@ -149,7 +149,7 @@ class FromJiraTrackerCreator
         $tracker_for_export = (new XMLTracker('T200', $itemname))
             ->withName($name)
             ->withDescription($description)
-            ->withColor(TrackerColor::fromName($color));
+            ->withColor(ItemColor::fromName($color));
 
         $jira_exporter = $this->getJiraExporter($jira_client, $this->logger);
         $tracker_xml   = $jira_exporter->exportIssuesToXml(

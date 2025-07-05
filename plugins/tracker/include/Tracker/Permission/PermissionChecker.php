@@ -21,9 +21,10 @@
 use Tuleap\Project\CheckProjectAccess;
 use Tuleap\Tracker\Admin\GlobalAdmin\GlobalAdminPermissionsChecker;
 use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\Tracker;
 use Tuleap\User\RetrieveUserById;
 
-class Tracker_Permission_PermissionChecker
+class Tracker_Permission_PermissionChecker // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
     public function __construct(
         private readonly RetrieveUserById $user_manager,
@@ -112,7 +113,7 @@ class Tracker_Permission_PermissionChecker
         return false;
     }
 
-    private function userHavePermissionOnTracker(PFUser $user, Artifact $artifact)
+    private function userHavePermissionOnTracker(PFUser $user, Artifact $artifact): bool
     {
         $permissions = $artifact->getTracker()->getAuthorizedUgroupsByPermissionType();
 
@@ -155,7 +156,7 @@ class Tracker_Permission_PermissionChecker
                 case Tracker::PERMISSION_SUBMITTER_ONLY:
                     foreach ($ugroups as $ugroup) {
                         if ($this->userBelongsToGroup($user, $artifact, $ugroup)) {
-                            if ($user->getId() == $artifact->getSubmittedBy()) {
+                            if ((int) $user->getId() === $artifact->getSubmittedBy()) {
                                 return true;
                             }
                         }

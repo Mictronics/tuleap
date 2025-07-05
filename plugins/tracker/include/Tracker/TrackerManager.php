@@ -40,8 +40,11 @@ use Tuleap\Tracker\PermissionsPerGroup\TrackerPermissionPerGroupPermissionRepres
 use Tuleap\Tracker\PermissionsPerGroup\TrackerPermissionPerGroupRepresentationBuilder;
 use Tuleap\Tracker\ServiceHomepage\HomepagePresenterBuilder;
 use Tuleap\Tracker\ServiceHomepage\HomepageRenderer;
+use Tuleap\Tracker\Tracker;
+use Tuleap\Tracker\TrackerDeletion\DeletedTrackerPresenter;
+use Tuleap\Tracker\TrackerDeletion\DeletedTrackersListPresenter;
 
-class TrackerManager implements Tracker_IFetchTrackerSwitcher
+class TrackerManager implements Tracker_IFetchTrackerSwitcher // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 {
     public const DELETED_TRACKERS_TEMPLATE_NAME = 'deleted_trackers';
 
@@ -287,12 +290,10 @@ class TrackerManager implements Tracker_IFetchTrackerSwitcher
      * Restore a deleted tracker.
      *
      * @param int $tracker_id ID of the tracker marked as deleted
-     *
-     * @return bool
      */
-    private function restoreDeletedTracker($tracker_id)
+    private function restoreDeletedTracker($tracker_id): void
     {
-        return $this->getTrackerFactory()->restoreDeletedTracker($tracker_id);
+        $this->getTrackerFactory()->restoreDeletedTracker($tracker_id);
     }
 
     public function displayHeader(Project $project, string $title, array $breadcrumbs, HeaderConfiguration|array $params): void

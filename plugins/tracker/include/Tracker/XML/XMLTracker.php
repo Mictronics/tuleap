@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Tuleap\Tracker\XML;
 
 use SimpleXMLElement;
-use Tracker;
+use Tuleap\Color\ItemColor;
 use Tuleap\Tracker\Artifact\XML\XMLArtifact;
 use Tuleap\Tracker\Creation\TrackerCreationDataChecker;
 use Tuleap\Tracker\FormElement\Container\XML\XMLContainer;
@@ -32,7 +32,7 @@ use Tuleap\Tracker\FormElement\XML\XMLFormElement;
 use Tuleap\Tracker\FormElement\XML\XMLFormElementFlattenedCollection;
 use Tuleap\Tracker\Report\XML\XMLReport;
 use Tuleap\Tracker\Semantic\XML\XMLSemantic;
-use Tuleap\Tracker\TrackerColor;
+use Tuleap\Tracker\Tracker;
 use Tuleap\Tracker\TrackerIsInvalidException;
 use Tuleap\Tracker\Workflow\XML\XMLWorkflow;
 
@@ -58,7 +58,7 @@ final class XMLTracker
      */
     private $description = '';
     /**
-     * @var TrackerColor
+     * @var ItemColor
      * @readonly
      */
     private $color;
@@ -119,7 +119,7 @@ final class XMLTracker
             throw TrackerIsInvalidException::shortnameIsInvalid($item_name);
         }
         $this->item_name = $item_name;
-        $this->color     = TrackerColor::default();
+        $this->color     = ItemColor::default();
     }
 
     /**
@@ -156,7 +156,7 @@ final class XMLTracker
     /**
      * @psalm-mutation-free
      */
-    public function withColor(TrackerColor $color): self
+    public function withColor(ItemColor $color): self
     {
         $new        = clone $this;
         $new->color = $color;

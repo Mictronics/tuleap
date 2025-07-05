@@ -24,7 +24,7 @@
             <span class="tlp-wizard-step-next">{{ $gettext("Information") }} </span>
         </nav>
 
-        <step-label v-bind:step-label="$gettext('Choose a starting point')" />
+        <step-label v-bind:step_label="$gettext('Choose a starting point')" />
         <p>
             {{
                 $gettext(
@@ -41,15 +41,6 @@
         </p>
     </div>
 </template>
-<script lang="ts">
-import Vue from "vue";
-import { Component } from "vue-property-decorator";
+<script setup lang="ts">
 import StepLabel from "../layout/StepLabel.vue";
-
-@Component({
-    components: {
-        StepLabel,
-    },
-})
-export default class StepOneInfo extends Vue {}
 </script>

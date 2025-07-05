@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace Tuleap\Artidoc\Document\Field;
 
 use PFUser;
-use Tracker;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldIsDescriptionSemanticFault;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldIsTitleSemanticFault;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldNotFoundFault;
@@ -34,8 +33,8 @@ use Tuleap\NeverThrow\Ok;
 use Tuleap\NeverThrow\Result;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
-use Tuleap\Tracker\Semantic\Description\TrackerSemanticDescription;
 use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle;
+use Tuleap\Tracker\Test\Stub\RetrieveSemanticDescriptionFieldStub;
 use Tuleap\Tracker\Test\Builders\Fields\ExternalFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListUserBindBuilder;
@@ -44,6 +43,7 @@ use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\StringFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Test\Stub\RetrieveUsedFieldsStub;
+use Tuleap\Tracker\Tracker;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class SuitableFieldRetrieverTest extends TestCase
@@ -52,19 +52,17 @@ final class SuitableFieldRetrieverTest extends TestCase
     private PFUser $user;
     private Tracker $tracker;
     private RetrieveUsedFieldsStub $field_retriever;
+    private RetrieveSemanticDescriptionFieldStub $description_field_retriever;
 
     protected function setUp(): void
     {
-        $this->tracker         = TrackerTestBuilder::aTracker()->withId(1001)->build();
-        $this->user            = UserTestBuilder::buildWithDefaults();
-        $this->field_retriever = RetrieveUsedFieldsStub::withNoFields();
+        $this->tracker                     = TrackerTestBuilder::aTracker()->withId(1001)->build();
+        $this->user                        = UserTestBuilder::buildWithDefaults();
+        $this->field_retriever             = RetrieveUsedFieldsStub::withNoFields();
+        $this->description_field_retriever = RetrieveSemanticDescriptionFieldStub::withNoField();
 
         TrackerSemanticTitle::setInstance(
             new TrackerSemanticTitle($this->tracker, null),
-            $this->tracker,
-        );
-        TrackerSemanticDescription::setInstance(
-            new TrackerSemanticDescription($this->tracker, null),
             $this->tracker,
         );
     }
@@ -72,7 +70,6 @@ final class SuitableFieldRetrieverTest extends TestCase
     protected function tearDown(): void
     {
         TrackerSemanticTitle::clearInstances();
-        TrackerSemanticDescription::clearInstances();
     }
 
     /**
@@ -80,7 +77,7 @@ final class SuitableFieldRetrieverTest extends TestCase
      */
     private function retrieve(): Ok|Err
     {
-        $retriever = new SuitableFieldRetriever($this->field_retriever);
+        $retriever = new SuitableFieldRetriever($this->field_retriever, $this->description_field_retriever);
         return $retriever->retrieveField(self::FIELD_ID, $this->user);
     }
 
@@ -128,16 +125,12 @@ final class SuitableFieldRetrieverTest extends TestCase
 
     public function testErrForFieldThatIsSemanticDescription(): void
     {
-        $field                 = StringFieldBuilder::aStringField(self::FIELD_ID)
+        $field                             = StringFieldBuilder::aStringField(self::FIELD_ID)
             ->inTracker($this->tracker)
             ->withReadPermission($this->user, true)
             ->build();
-        $this->field_retriever = RetrieveUsedFieldsStub::withFields($field);
-
-        TrackerSemanticDescription::setInstance(
-            new TrackerSemanticDescription($this->tracker, $field),
-            $this->tracker,
-        );
+        $this->field_retriever             = RetrieveUsedFieldsStub::withFields($field);
+        $this->description_field_retriever = RetrieveSemanticDescriptionFieldStub::withTextField($field);
 
         $result = $this->retrieve();
         self::assertTrue(Result::isErr($result));
@@ -173,7 +166,7 @@ final class SuitableFieldRetrieverTest extends TestCase
         self::assertSame($list_field, $result->value);
     }
 
-    public function testItRejectsListFieldBoundToStaticValues(): void
+    public function testItAllowsListFieldBoundToStaticValues(): void
     {
         $list_field            = ListStaticBindBuilder::aStaticBind(
             ListFieldBuilder::aListField(self::FIELD_ID)
@@ -185,11 +178,11 @@ final class SuitableFieldRetrieverTest extends TestCase
         $this->field_retriever = RetrieveUsedFieldsStub::withFields($list_field);
 
         $result = $this->retrieve();
-        self::assertTrue(Result::isErr($result));
-        self::assertInstanceOf(FieldNotSupportedFault::class, $result->error);
+        self::assertTrue(Result::isOk($result));
+        self::assertSame($list_field, $result->value);
     }
 
-    public function testItRejectsListFieldBoundToUsers(): void
+    public function testItAllowsListFieldBoundToUsers(): void
     {
         $list_field            = ListUserBindBuilder::aUserBind(
             ListFieldBuilder::aListField(self::FIELD_ID)
@@ -200,7 +193,7 @@ final class SuitableFieldRetrieverTest extends TestCase
         $this->field_retriever = RetrieveUsedFieldsStub::withFields($list_field);
 
         $result = $this->retrieve();
-        self::assertTrue(Result::isErr($result));
-        self::assertInstanceOf(FieldNotSupportedFault::class, $result->error);
+        self::assertTrue(Result::isOk($result));
+        self::assertSame($list_field, $result->value);
     }
 }
