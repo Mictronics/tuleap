@@ -37,6 +37,7 @@ use Tuleap\Http\HttpClientFactory;
 use Tuleap\Http\HTTPFactoryBuilder;
 use Tuleap\Mail\MailLogger;
 use Tuleap\Markdown\CommonMarkInterpreter;
+use Tuleap\Notification\Mention\MentionedUserInTextRetriever;
 use Tuleap\Tracker\Admin\ArtifactLinksUsageDao;
 use Tuleap\Tracker\Artifact\Changeset\Comment\PrivateComment\CachingTrackerPrivateCommentInformationRetriever;
 use Tuleap\Tracker\Artifact\Changeset\Comment\PrivateComment\PermissionChecker;
@@ -74,6 +75,7 @@ use Tuleap\Tracker\REST\Tracker\PermissionsRepresentationBuilder;
 use Tuleap\Tracker\REST\WorkflowRestBuilder;
 use Tuleap\Tracker\Semantic\Description\CachedSemanticDescriptionFieldRetriever;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeBuilder;
+use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
 use Tuleap\Tracker\Tracker;
 use Tuleap\Tracker\User\NotificationOnAllUpdatesRetriever;
 use Tuleap\Tracker\User\NotificationOnOwnActionRetriever;
@@ -165,7 +167,8 @@ class ActionsRunner
                     ),
                     $only_status_change_dao,
                     new NotificationOnAllUpdatesRetriever($user_preferences_dao),
-                    new NotificationOnOwnActionRetriever($user_preferences_dao)
+                    new NotificationOnOwnActionRetriever($user_preferences_dao),
+                    new MentionedUserInTextRetriever($user_manager),
                 ),
                 Tracker_Artifact_MailGateway_RecipientFactory::build(),
                 new MailGatewayConfig(
@@ -176,7 +179,7 @@ class ActionsRunner
                 new ConfigNotificationEmailCustomSender(new ConfigNotificationEmailCustomSenderDao()),
                 new EmailNotificationAttachmentProvider(
                     new CalendarEventConfigDao(),
-                    new EventSummaryRetriever(),
+                    new EventSummaryRetriever(CachedSemanticTitleFieldRetriever::instance()),
                     new EventDescriptionRetriever(
                         $description_field_retriever,
                     ),
@@ -233,7 +236,11 @@ class ActionsRunner
                         new PermissionsRepresentationBuilder($ugroup_manager, $permissions_functions_wrapper),
                         new WorkflowRestBuilder(),
                         static function (Tracker $tracker) use ($description_field_retriever) {
-                            return new \Tuleap\Tracker\Semantic\TrackerSemanticManager($description_field_retriever, $tracker);
+                            return new \Tuleap\Tracker\Semantic\TrackerSemanticManager(
+                                $description_field_retriever,
+                                CachedSemanticTitleFieldRetriever::instance(),
+                                $tracker,
+                            );
                         },
                         new ParentInHierarchyRetriever(new HierarchyDAO(), \TrackerFactory::instance()),
                         TrackersPermissionsRetriever::build()

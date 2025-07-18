@@ -41,12 +41,12 @@ use Tracker_FormElement_Field_PerTrackerArtifactId;
 use Tracker_FormElement_Field_Priority;
 use Tracker_FormElement_Field_Radiobutton;
 use Tracker_FormElement_Field_Selectbox;
-use Tracker_FormElement_Field_String;
 use Tracker_FormElement_Field_SubmittedBy;
 use Tracker_FormElement_Field_SubmittedOn;
-use Tracker_FormElement_Field_Text;
 use Tracker_FormElement_FieldVisitor;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
+use Tuleap\Tracker\FormElement\Field\String\StringField;
+use Tuleap\Tracker\FormElement\Field\Text\TextField;
 use Tuleap\Tracker\FormElement\TrackerFormElementExternalField;
 
 /**
@@ -120,7 +120,7 @@ class ReplaceValueVisitor implements Tracker_FormElement_FieldVisitor
         throw new UnsupportedFieldException();
     }
 
-    public function visitString(Tracker_FormElement_Field_String $field)
+    public function visitString(StringField $field)
     {
         $purifier        = Codendi_HTMLPurifier::instance();
         $changeset_value = $this->changeset->getValue($field);
@@ -131,7 +131,7 @@ class ReplaceValueVisitor implements Tracker_FormElement_FieldVisitor
         return $purifier->purify($changeset_value->getText(), CODENDI_PURIFIER_STRIP_HTML);
     }
 
-    public function visitText(Tracker_FormElement_Field_Text $field)
+    public function visitText(TextField $field)
     {
         throw new UnsupportedFieldException();
     }

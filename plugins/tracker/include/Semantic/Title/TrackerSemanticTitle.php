@@ -28,10 +28,9 @@ use PFUser;
 use SimpleXMLElement;
 use TemplateRendererFactory;
 use Tracker_FormElement_Field;
-use Tracker_FormElement_Field_Text;
 use Tracker_FormElementFactory;
 use TrackerManager;
-use Tuleap\Option\Option;
+use Tuleap\Tracker\FormElement\Field\Text\TextField;
 use Tuleap\Tracker\Notifications\Settings\CalendarEventConfigDao;
 use Tuleap\Tracker\Semantic\TrackerSemantic;
 use Tuleap\Tracker\Semantic\TrackerSemanticManager;
@@ -42,7 +41,7 @@ class TrackerSemanticTitle extends TrackerSemantic
     public const NAME = 'title';
 
     /**
-     * @var Tracker_FormElement_Field_Text
+     * @var TextField
      */
     protected $text_field;
 
@@ -50,9 +49,9 @@ class TrackerSemanticTitle extends TrackerSemantic
      * Cosntructor
      *
      * @param Tracker $tracker The tracker
-     * @param Tracker_FormElement_Field_Text $text_field The field
+     * @param TextField $text_field The field
      */
-    public function __construct(Tracker $tracker, ?Tracker_FormElement_Field_Text $text_field = null)
+    public function __construct(Tracker $tracker, ?TextField $text_field = null)
     {
         parent::__construct($tracker);
         $this->text_field = $text_field;
@@ -105,7 +104,7 @@ class TrackerSemanticTitle extends TrackerSemantic
     /**
      * The (text) field used for title semantic
      *
-     * @return Tracker_FormElement_Field_Text The (text) field used for title semantic, or null if no field
+     * @return TextField The (text) field used for title semantic, or null if no field
      */
     public function getField()
     {
@@ -188,48 +187,6 @@ class TrackerSemanticTitle extends TrackerSemantic
     {
         $dao = new TitleSemanticDAO();
         $dao->deleteForTracker($this->tracker->getId());
-    }
-
-    protected static $_instances; //phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
-
-    /**
-     * Load an instance of a Tracker_Semantic_Title
-     *
-     *
-     * @return TrackerSemanticTitle
-     */
-    public static function load(Tracker $tracker)
-    {
-        $tracker_id = $tracker->getId();
-        if (isset(self::$_instances[$tracker_id])) {
-            return self::$_instances[$tracker_id];
-        }
-
-        $dao                           = new TitleSemanticDAO();
-        $field                         = $dao->searchByTrackerId($tracker_id)
-            ->andThen(
-                static fn(int $field_id) => Option::fromNullable(
-                    Tracker_FormElementFactory::instance()->getFieldById($field_id)
-                )
-            )->unwrapOr(null);
-        self::$_instances[$tracker_id] = new self($tracker, $field);
-        return self::$_instances[$tracker_id];
-    }
-
-    /**
-     * Allows to inject a fake factory for test. DO NOT USE IT IN PRODUCTION!
-     */
-    public static function setInstance(TrackerSemanticTitle $semantic_title, Tracker $tracker)
-    {
-        self::$_instances[$tracker->getId()] = $semantic_title;
-    }
-
-    /**
-     * Allows clear factory instance for test. DO NOT USE IT IN PRODUCTION!
-     */
-    public static function clearInstances()
-    {
-        self::$_instances = null;
     }
 
     /**

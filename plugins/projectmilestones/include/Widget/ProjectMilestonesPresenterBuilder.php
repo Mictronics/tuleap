@@ -54,6 +54,7 @@ use Tuleap\Tracker\Artifact\Dao\PriorityDao;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframe;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeBuilder;
 use Tuleap\Tracker\Semantic\Timeframe\TimeframeBrokenConfigurationException;
+use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
 
 class ProjectMilestonesPresenterBuilder
 {
@@ -172,6 +173,7 @@ class ProjectMilestonesPresenterBuilder
                 new ArtifactsInExplicitBacklogDao(),
                 new PriorityDao(),
                 \Tuleap\Tracker\Permission\TrackersPermissionsRetriever::build(),
+                CachedSemanticTitleFieldRetriever::instance(),
             ),
             $milestone_factory,
             new ExplicitBacklogDao(),
@@ -263,9 +265,9 @@ class ProjectMilestonesPresenterBuilder
 
         foreach ($trackers_backlogs as $tracker_backlog) {
             $tracker_agile_dashboard = [
-                'id' => $tracker_backlog->getId(),
-                'color_name' => $tracker_backlog->getColor()->getName(),
-                'label' => $tracker_backlog->getName(),
+                'id'         => $tracker_backlog->getId(),
+                'color_name' => $tracker_backlog->getColor()->value,
+                'label'      => $tracker_backlog->getName(),
             ];
 
             $trackers_agile_dashboard[] = $tracker_agile_dashboard;

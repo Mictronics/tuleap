@@ -33,6 +33,8 @@ use Tracker_FormElement_Field_List;
 use Tracker_FormElement_Field_List_Bind_Static;
 use Tracker_FormElementFactory;
 use TrackerManager;
+use Tuleap\DB\DBFactory;
+use Tuleap\DB\DBTransactionExecutorWithConnection;
 use Tuleap\Layout\IncludeAssets;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\REST\SemanticStatusRepresentation;
@@ -71,7 +73,7 @@ class TrackerSemanticStatus extends TrackerSemantic
 
     private function getDao()
     {
-        return new TrackerSemanticStatusDao();
+        return new StatusSemanticDAO();
     }
 
     /**
@@ -345,7 +347,7 @@ class TrackerSemanticStatus extends TrackerSemantic
 
         $this->list_field  = null;
         $this->open_values = [];
-        $dao               = new TrackerSemanticStatusDao();
+        $dao               = new StatusSemanticDAO();
         $dao->delete($this->tracker->getId());
     }
 
@@ -359,7 +361,7 @@ class TrackerSemanticStatus extends TrackerSemantic
 
     private function doesTrackerNotificationUseStatusSemantic()
     {
-         return $this->tracker->getNotificationsLevel() === \Tuleap\Tracker\Tracker::NOTIFICATIONS_LEVEL_STATUS_CHANGE;
+        return $this->tracker->getNotificationsLevel() === \Tuleap\Tracker\Tracker::NOTIFICATIONS_LEVEL_STATUS_CHANGE;
     }
 
     /**
@@ -369,13 +371,13 @@ class TrackerSemanticStatus extends TrackerSemantic
      */
     public function save()
     {
-        $dao         = new TrackerSemanticStatusDao();
+        $dao         = new StatusSemanticDAO();
         $open_values = [];
         foreach ($this->open_values as $v) {
             if (is_scalar($v)) {
-                $open_values[] = $v;
+                $open_values[] = (int) $v;
             } else {
-                $open_values[] = $v->getId();
+                $open_values[] = (int) $v->getId();
             }
         }
         $this->open_values = $open_values;
@@ -387,18 +389,18 @@ class TrackerSemanticStatus extends TrackerSemantic
      */
     public function addOpenValue(string $new_value): ?int
     {
-        if (! $this->list_field) {
+        if ($this->list_field === null) {
             throw new SemanticStatusNotDefinedException();
         }
-        $dao = $this->getDao();
 
-        $dao->startTransaction();
-        $new_id              = $this->list_field->addBindValue($new_value);
-        $this->open_values[] = $new_id;
-        $this->save();
-        $dao->commit();
-
-        return $new_id;
+        $transaction_executor = new DBTransactionExecutorWithConnection(DBFactory::getMainTuleapDBConnection());
+        return $transaction_executor->execute(function () use ($new_value) {
+            assert($this->list_field !== null);
+            $new_id              = $this->list_field->addBindValue($new_value);
+            $this->open_values[] = $new_id;
+            $this->save();
+            return $new_id;
+        });
     }
 
     public function removeOpenValue($value)
@@ -419,31 +421,8 @@ class TrackerSemanticStatus extends TrackerSemantic
     public static function load(Tracker $tracker)
     {
         if (! isset(self::$_instances[$tracker->getId()])) {
-            return self::forceLoad($tracker);
+            self::$_instances[$tracker->getId()] = CachedSemanticStatusRetriever::instance()->fromTracker($tracker);
         }
-
-        return self::$_instances[$tracker->getId()];
-    }
-
-    public static function forceLoad(Tracker $tracker)
-    {
-        $field_id    = null;
-        $open_values = [];
-        $dao         = new TrackerSemanticStatusDao();
-
-        foreach ($dao->searchByTrackerId($tracker->getId()) as $row) {
-            $field_id      = $row['field_id'];
-            $open_values[] = (int) $row['open_value_id'];
-        }
-
-        if (! $open_values) {
-            $open_values[] = 100;
-        }
-
-        $fef   = Tracker_FormElementFactory::instance();
-        $field = $fef->getFieldById($field_id);
-
-        self::$_instances[$tracker->getId()] = new TrackerSemanticStatus($tracker, $field, $open_values);
 
         return self::$_instances[$tracker->getId()];
     }

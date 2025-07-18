@@ -34,6 +34,7 @@ import {
     IS_EXPORT_ALLOWED,
     WIDGET_ID,
     RETRIEVE_ARTIFACTS_TABLE,
+    ARROW_REDRAW_TRIGGERER,
 } from "../../injection-symbols";
 import { DATE_CELL, NUMERIC_CELL, PRETTY_TITLE_CELL, TEXT_CELL } from "../../domain/ArtifactsTable";
 import { RetrieveArtifactsTableStub } from "../../../tests/stubs/RetrieveArtifactsTableStub";
@@ -46,13 +47,13 @@ import EmptyState from "../EmptyState.vue";
 import ExportXLSXButton from "../ExportXLSXButton.vue";
 import { ColumnNameGetter } from "../../domain/ColumnNameGetter";
 import { createVueGettextProviderPassThrough } from "../../helpers/vue-gettext-provider-for-test";
-import type { Query } from "../../type";
 import type { Events, NotifyFaultEvent } from "../../helpers/widget-events";
 import { NOTIFY_FAULT_EVENT } from "../../helpers/widget-events";
 import type { Emitter } from "mitt";
 import mitt from "mitt";
 import SelectablePagination from "./SelectablePagination.vue";
 import { PRETTY_TITLE_COLUMN_NAME } from "../../domain/ColumnName";
+import type { ArrowRedrawTriggerer } from "../../ArrowRedrawTriggerer";
 import ArtifactRows from "./ArtifactRows.vue";
 
 vi.useFakeTimers();
@@ -63,9 +64,9 @@ const TEXT_COLUMN_NAME = "details";
 
 describe(`SelectableTable`, () => {
     let is_xslx_export_allowed: boolean;
-    let query: Query;
     let emitter: Emitter<Events>;
     let dispatched_fault_events: NotifyFaultEvent[];
+    let stub_arrow_redrawer_triggerer: ArrowRedrawTriggerer;
 
     const registerFaultEvent = (event: NotifyFaultEvent): void => {
         dispatched_fault_events.push(event);
@@ -74,12 +75,9 @@ describe(`SelectableTable`, () => {
     beforeEach(() => {
         is_xslx_export_allowed = true;
 
-        query = {
-            id: "",
-            tql_query: `SELECT start_date WHERE start_date != ''`,
-            title: "",
-            description: "",
-            is_default: false,
+        stub_arrow_redrawer_triggerer = {
+            listenToSelectableTableResize: vi.fn(),
+            removeListener: vi.fn(),
         };
 
         emitter = mitt<Events>();
@@ -114,10 +112,11 @@ describe(`SelectableTable`, () => {
                         createVueGettextProviderPassThrough(),
                     ),
                     [EMITTER.valueOf()]: emitter,
+                    [ARROW_REDRAW_TRIGGERER.valueOf()]: stub_arrow_redrawer_triggerer,
                 },
             },
             props: {
-                query,
+                tql_query: `SELECT start_date WHERE start_date != ''`,
             },
         });
     };
@@ -166,11 +165,9 @@ describe(`SelectableTable`, () => {
                 table,
                 total: 2,
             };
-            const table_retriever = RetrieveArtifactsTableStub.withContent(
-                table_result,
-                table_result,
-                [table_result.table],
-            );
+            const table_retriever = RetrieveArtifactsTableStub.withContent(table_result, [
+                table_result.table,
+            ]);
 
             const wrapper = getWrapper(table_retriever);
 
@@ -203,18 +200,52 @@ describe(`SelectableTable`, () => {
             expect(dispatched_fault_events).toHaveLength(1);
             expect(dispatched_fault_events[0].fault.isArtifactsRetrieval()).toBe(true);
         });
+
+        it("will add a listener on the selectable_table to watch for resize", () => {
+            const table_result = {
+                table: new ArtifactsTableBuilder().build(),
+                total: 0,
+            };
+            const table_retriever = RetrieveArtifactsTableStub.withContent(table_result, [
+                table_result.table,
+            ]);
+
+            const wrapper = getWrapper(table_retriever);
+
+            expect(
+                stub_arrow_redrawer_triggerer.listenToSelectableTableResize,
+            ).toHaveBeenCalledWith(wrapper.vm.$el);
+        });
     });
+
+    describe("Component removal", () => {
+        it("will remove the listener on the selectable_table", () => {
+            const table_result = {
+                table: new ArtifactsTableBuilder().build(),
+                total: 0,
+            };
+            const table_retriever = RetrieveArtifactsTableStub.withContent(table_result, [
+                table_result.table,
+            ]);
+
+            const wrapper = getWrapper(table_retriever);
+            wrapper.unmount();
+
+            expect(stub_arrow_redrawer_triggerer.removeListener).toHaveBeenCalledWith(
+                wrapper.vm.$el,
+            );
+        });
+    });
+
     describe("Empty state", () => {
         it("displays the empty state and no XLSX button nor pagination when there is no result", () => {
             const table_result = {
                 table: new ArtifactsTableBuilder().build(),
                 total: 0,
             };
-            const table_retriever = RetrieveArtifactsTableStub.withContent(
-                table_result,
-                table_result,
-                [table_result.table],
-            );
+            const table_retriever = RetrieveArtifactsTableStub.withContent(table_result, [
+                table_result.table,
+            ]);
 
             const wrapper = getWrapper(table_retriever);
             expect(wrapper.findComponent(EmptyState).exists()).toBe(true);
@@ -248,11 +279,9 @@ describe(`SelectableTable`, () => {
                 table,
                 total: 1,
             };
-            const table_retriever = RetrieveArtifactsTableStub.withContent(
-                table_result,
-                table_result,
-                [table_result.table],
-            );
+            const table_retriever = RetrieveArtifactsTableStub.withContent(table_result, [
+                table_result.table,
+            ]);
 
             const wrapper = getWrapper(table_retriever);
 

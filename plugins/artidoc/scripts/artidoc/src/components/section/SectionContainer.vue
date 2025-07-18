@@ -57,11 +57,13 @@ const additional_class = computed(() => {
           ? props.section.value.tracker.color
           : "";
 
-    const color_class =
-        color !== "" ? `tlp-swatch-${color}` : "artidoc-section-container-without-border";
+    const color_class = color !== "" ? `tlp-swatch-${color}` : "";
 
     if (has_artifact_parent.value) {
         return [color_class, "section-with-artifact-parent"];
+    }
+    if (props.section.value.type === "artifact" && props.section.value.fields.length > 0) {
+        return [color_class, "section-with-fields"];
     }
     return [color_class];
 });
@@ -108,12 +110,8 @@ const additional_class = computed(() => {
     padding: var(--tlp-medium-spacing) 0 0
         calc(#{whitespace.$section-left-padding} - var(--border-width));
     transition: background-color 75ms ease-in-out;
-    border-left: var(--border-width) solid var(--border-color);
+    border-left: var(--border-width) solid var(--border-color, transparent);
     background: var(--tuleap-artidoc-section-background);
-
-    &-without-border {
-        --border-color: transparent;
-    }
 
     &:has(.document-section-cancel-save-buttons) {
         --tuleap-artidoc-section-background: var(--tlp-main-color-lighter-90);
@@ -144,8 +142,14 @@ const additional_class = computed(() => {
     }
 }
 
+.section-with-fields {
+    padding-bottom: var(--tlp-medium-spacing);
+}
+
 .section-with-artifact-parent {
     --tuleap-artidoc-section-background: var(--tlp-alert-danger-background);
+
+    padding-bottom: var(--tlp-medium-spacing);
 }
 
 .section-with-artifact-parent-error {

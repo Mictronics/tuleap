@@ -19,6 +19,7 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use Tuleap\Dashboard\User\UserDashboardController;
 use Tuleap\Date\RelativeDatesAssetsRetriever;
 use Tuleap\DB\Compat\Legacy2018\LegacyDataAccessResultInterface;
 use Tuleap\Layout\CssAssetCollection;
@@ -41,7 +42,7 @@ use Tuleap\Tracker\Report\Renderer\AggregateRetriever;
 use Tuleap\Tracker\Report\Renderer\Table\GetExportOptionsMenuItemsEvent;
 use Tuleap\Tracker\Report\Renderer\Table\ProcessExportEvent;
 use Tuleap\Tracker\Report\Renderer\Table\Sort\SortWithIntegrityChecked;
-use Tuleap\Tracker\Report\WidgetAdditionalButtonPresenter;
+use Tuleap\Tracker\Report\Widget\WidgetAdditionalButtonPresenter;
 use Tuleap\Tracker\Tracker;
 
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
@@ -437,7 +438,7 @@ class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements T
 
         $html .= $this->fetchHeader($report_can_be_modified, $user, $total_rows, $queries);
         $html .= $this->fetchTHead($extracolumn, $only_one_column, $with_sort_links);
-        $html .= $this->fetchTBody($matching_ids, $total_rows, $queries, $columns, $extracolumn);
+        $html .= $this->fetchTBody($matching_ids, $total_rows, $queries, $columns, null, $extracolumn);
 
         //Display next/previous
         $html .= $this->fetchNextPrevious($total_rows, $offset, $report_can_be_modified, (int) $request->get('link-artifact-id'));
@@ -523,6 +524,7 @@ class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements T
             $total_rows,
             $queries,
             $columns,
+            null,
             $extracolumn,
             $only_one_column,
             $use_data_from_db,
@@ -620,10 +622,7 @@ class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements T
         return $html;
     }
 
-    /**
-     * Fetch content to be displayed in widget
-     */
-    public function fetchWidget(PFUser $user)
+    public function fetchWidget(PFUser $user, Widget $widget): string
     {
         $html                   = '';
         $use_data_from_db       = true;
@@ -641,7 +640,7 @@ class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements T
         $read_only              = true;
         $id_suffix              = '';
         //Display the head of the table
-        $html .= $this->fetchAdditionnalButton($this->report->getTracker());
+        $html .= $this->fetchAdditionnalButton($widget);
         $html .= $this->fetchTHead($extracolumn, $only_one_column, $with_sort_links, $use_data_from_db, $id_suffix, $store_in_session);
 
         //Display the body of the table
@@ -656,6 +655,7 @@ class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements T
             $total_rows,
             $queries,
             $columns,
+            $widget,
             $extracolumn,
             $only_one_column,
             $use_data_from_db,
@@ -1072,7 +1072,7 @@ class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements T
         return $html;
     }
 
-    private function fetchAdditionnalButton()
+    private function fetchAdditionnalButton(Widget $widget): string
     {
         $is_a_table_renderer = true;
 
@@ -1080,7 +1080,8 @@ class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements T
             'widget-additionnal-button',
             new WidgetAdditionalButtonPresenter(
                 $this->report->getTracker(),
-                $is_a_table_renderer
+                $is_a_table_renderer,
+                $widget
             )
         );
 
@@ -1136,6 +1137,7 @@ class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements T
         $total_rows,
         array $queries,
         array $columns,
+        ?Widget $widget,
         $extracolumn = 1,
         $only_one_column = null,
         $use_data_from_db = false,
@@ -1255,6 +1257,9 @@ class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements T
                         ];
                         if ($from_aid != null) {
                             $params['from_aid'] = $from_aid;
+                        }
+                        if ($widget && ($widget->owner_type === UserDashboardController::LEGACY_DASHBOARD_TYPE || $widget->owner_type === UserDashboardController::DASHBOARD_TYPE)) {
+                            $params['my-dashboard-id'] = $widget->getDashboardId();
                         }
                         $url = TRACKER_BASE_URL . '/?' . http_build_query($params);
 
@@ -2043,6 +2048,7 @@ class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements T
                                     $total_rows,
                                     $queries,
                                     $columns,
+                                    null,
                                     $extracolumn,
                                     $key
                                 );

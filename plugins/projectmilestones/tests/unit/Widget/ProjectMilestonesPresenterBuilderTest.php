@@ -38,7 +38,7 @@ use Project_AccessProjectNotFoundException;
 use Tuleap\AgileDashboard\ExplicitBacklog\ArtifactsInExplicitBacklogDao;
 use Tuleap\AgileDashboard\ExplicitBacklog\ExplicitBacklogDao;
 use Tuleap\AgileDashboard\FormElement\Burnup\CountElementsModeChecker;
-use Tuleap\Color\ItemColor;
+use Tuleap\Color\ColorName;
 use Tuleap\Project\ProjectAccessChecker;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframe;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeBuilder;
@@ -226,7 +226,10 @@ final class ProjectMilestonesPresenterBuilderTest extends \Tuleap\Test\PHPUnit\T
         $this->agiledashboard_milestone_backlog
             ->expects($this->once())
             ->method('getDescendantTrackers')
-            ->willReturn([$this->aTracker(122, 'Bug', 'fiesta-red'), $this->aTracker(124, 'Story', 'deep-blue')]);
+            ->willReturn([
+                $this->aTracker(122, 'Bug', ColorName::FIESTA_RED),
+                $this->aTracker(124, 'Story', ColorName::DEEP_BLUE),
+            ]);
 
         $this->mockAgiledashboardBacklogFactory($this->agiledashboard_milestone_backlog_factory);
 
@@ -680,9 +683,9 @@ final class ProjectMilestonesPresenterBuilderTest extends \Tuleap\Test\PHPUnit\T
         $this->http_request->method('getCurrentUser')->willReturn($this->john_doe);
     }
 
-    private function aTracker(int $id, string $name, string $color): Tracker
+    private function aTracker(int $id, string $name, ColorName $color): Tracker
     {
-        return TrackerTestBuilder::aTracker()->withId($id)->withName($name)->withColor(ItemColor::fromName($color))->build();
+        return TrackerTestBuilder::aTracker()->withId($id)->withName($name)->withColor($color)->build();
     }
 
     private function mockMilestoneBacklog(): void

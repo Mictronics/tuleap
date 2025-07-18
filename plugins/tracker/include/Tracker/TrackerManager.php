@@ -19,7 +19,6 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use Tuleap\Admin\AdminPageRenderer;
 use Tuleap\DB\DBTransactionExecutor;
 use Tuleap\Event\Events\ProjectProviderEvent;
 use Tuleap\Layout\HeaderConfiguration;
@@ -41,13 +40,11 @@ use Tuleap\Tracker\PermissionsPerGroup\TrackerPermissionPerGroupRepresentationBu
 use Tuleap\Tracker\ServiceHomepage\HomepagePresenterBuilder;
 use Tuleap\Tracker\ServiceHomepage\HomepageRenderer;
 use Tuleap\Tracker\Tracker;
-use Tuleap\Tracker\TrackerDeletion\DeletedTrackerPresenter;
-use Tuleap\Tracker\TrackerDeletion\DeletedTrackersListPresenter;
+use Tuleap\Tracker\TrackerDeletion\DeletedTrackerDao;
+use Tuleap\Tracker\TrackerDeletion\TrackerRestorer;
 
-class TrackerManager implements Tracker_IFetchTrackerSwitcher // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
+class TrackerManager implements Tracker_IFetchTrackerSwitcher //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 {
-    public const DELETED_TRACKERS_TEMPLATE_NAME = 'deleted_trackers';
-
     /**
      * Check that the service is used and the plugin is allowed for project $project
      * if it is not the case then exit with an error
@@ -207,18 +204,10 @@ class TrackerManager implements Tracker_IFetchTrackerSwitcher // phpcs:ignore PS
                                 break;
                             case 'restore-tracker':
                                 if ($global_admin_permissions_checker->doesUserHaveTrackerGlobalAdminRightsOnProject($project, $user)) {
-                                    $tracker_id = $request->get('tracker_id');
-                                    $group_id   = $request->get('group_id');
-                                    $token      = new CSRFSynchronizerToken('/tracker/admin/restore.php');
+                                    $restorer = new TrackerRestorer($this->getTrackerFactory(), new DeletedTrackerDao());
+                                    $token    = new CSRFSynchronizerToken('/tracker/admin/restore.php');
                                     $token->check();
-                                    $tracker = $this->getTrackerFactory()->getTrackerById($tracker_id);
-                                    if ($tracker === null) {
-                                        throw new RuntimeException('Tracker does not exist');
-                                    }
-                                    $tracker_name = $tracker->getName();
-                                    $this->restoreDeletedTracker($tracker_id);
-                                    $GLOBALS['Response']->addFeedback('info', sprintf(dgettext('tuleap-tracker', 'The tracker \'%1$s\' has been properly restored'), $tracker_name));
-                                    $GLOBALS['Response']->redirect('/tracker/admin/restore.php');
+                                    $restorer->restoreTracker($request, $GLOBALS['Response']);
                                 } else {
                                     $this->redirectToTrackerHomepage($group_id);
                                 }
@@ -284,16 +273,6 @@ class TrackerManager implements Tracker_IFetchTrackerSwitcher // phpcs:ignore PS
         return TRACKER_BASE_URL . '/?' . http_build_query([
             'group_id' => $project_id,
         ]);
-    }
-
-    /**
-     * Restore a deleted tracker.
-     *
-     * @param int $tracker_id ID of the tracker marked as deleted
-     */
-    private function restoreDeletedTracker($tracker_id): void
-    {
-        $this->getTrackerFactory()->restoreDeletedTracker($tracker_id);
     }
 
     public function displayHeader(Project $project, string $title, array $breadcrumbs, HeaderConfiguration|array $params): void
@@ -589,54 +568,6 @@ class TrackerManager implements Tracker_IFetchTrackerSwitcher // phpcs:ignore PS
         );
         echo $renderer->renderToString($project, $user);
         $this->displayFooter($project);
-    }
-
-    public function displayDeletedTrackers()
-    {
-        $deleted_trackers = $this->getTrackerFactory()->getDeletedTrackers();
-
-        $deleted_trackers_presenters = [];
-        $tracker_ids_warning         = [];
-        $restore_token               = new CSRFSynchronizerToken('/tracker/admin/restore.php');
-
-        foreach ($deleted_trackers as $tracker) {
-            $project             = $tracker->getProject();
-            $tracker_ids_warning = [];
-
-            if (! $project || $project->getID() === null) {
-                $tracker_ids_warning[] = $tracker->getId();
-                continue;
-            }
-
-            $project_id    = $project->getId();
-            $project_name  = $project->getUnixName();
-            $tracker_id    = $tracker->getId();
-            $tracker_name  = $tracker->getName();
-            $deletion_date = date('d-m-Y', $tracker->deletion_date);
-
-            $deleted_trackers_presenters[] = new DeletedTrackerPresenter(
-                $tracker_id,
-                $tracker_name,
-                $project_id,
-                $project_name,
-                $deletion_date,
-                $restore_token
-            );
-        }
-
-        $presenter = new DeletedTrackersListPresenter(
-            $deleted_trackers_presenters,
-            $tracker_ids_warning,
-            count($deleted_trackers_presenters) > 0
-        );
-
-        $renderer = new AdminPageRenderer();
-
-        $renderer->renderToPage(
-            $presenter->getTemplateDir(),
-            self::DELETED_TRACKERS_TEMPLATE_NAME,
-            $presenter
-        );
     }
 
     public function fetchTrackerSwitcher(PFUser $user, $separator, ?Project $include_project = null, ?Tracker $current_tracker = null)

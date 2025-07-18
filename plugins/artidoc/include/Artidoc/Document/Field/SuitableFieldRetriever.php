@@ -25,7 +25,6 @@ namespace Tuleap\Artidoc\Document\Field;
 use PFUser;
 use Tracker_FormElement_Field_List;
 use Tracker_FormElement_Field_List_Bind_Null;
-use Tracker_FormElement_Field_String;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldIsDescriptionSemanticFault;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldIsTitleSemanticFault;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldNotFoundFault;
@@ -34,20 +33,23 @@ use Tuleap\NeverThrow\Err;
 use Tuleap\NeverThrow\Fault;
 use Tuleap\NeverThrow\Ok;
 use Tuleap\NeverThrow\Result;
+use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
 use Tuleap\Tracker\FormElement\Field\RetrieveUsedFields;
+use Tuleap\Tracker\FormElement\Field\String\StringField;
 use Tuleap\Tracker\Semantic\Description\RetrieveSemanticDescriptionField;
-use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle;
+use Tuleap\Tracker\Semantic\Title\RetrieveSemanticTitleField;
 
 final readonly class SuitableFieldRetriever
 {
     public function __construct(
         private RetrieveUsedFields $factory,
         private RetrieveSemanticDescriptionField $retrieve_description_field,
+        private RetrieveSemanticTitleField $retrieve_title_field,
     ) {
     }
 
     /**
-     * @return Ok<Tracker_FormElement_Field_String> | Ok<Tracker_FormElement_Field_List> | Err<Fault>
+     * @return Ok<StringField> | Ok<Tracker_FormElement_Field_List> | Ok<ArtifactLinkField> | Err<Fault>
      */
     public function retrieveField(int $field_id, PFUser $user): Ok|Err
     {
@@ -58,23 +60,24 @@ final readonly class SuitableFieldRetriever
         }
 
         return match (true) {
-            $field instanceof Tracker_FormElement_Field_String => $this->validateStringField($field),
+            $field instanceof StringField             => $this->validateStringField($field),
             $field instanceof Tracker_FormElement_Field_List
             && $this->isListBindTypeSupported($field) => Result::ok($field),
+            $field instanceof ArtifactLinkField => Result::ok($field),
             default => Result::err(FieldNotSupportedFault::build($field_id))
         };
     }
 
     /**
-     * @return Ok<Tracker_FormElement_Field_String>|Err<Fault>
+     * @return Ok<StringField>|Err<Fault>
      */
     private function validateStringField(
-        Tracker_FormElement_Field_String $field,
+        StringField $field,
     ): Ok|Err {
         $field_id = $field->getId();
         $tracker  = $field->getTracker();
 
-        $semantic_title_field = TrackerSemanticTitle::load($tracker)->getField();
+        $semantic_title_field = $this->retrieve_title_field->fromTracker($tracker);
         if ($semantic_title_field && $semantic_title_field->getId() === $field_id) {
             return Result::err(FieldIsTitleSemanticFault::build($field_id));
         }

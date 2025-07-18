@@ -24,16 +24,16 @@ namespace Tuleap\Tracker\Semantic\Description;
 
 use Tuleap\Option\Option;
 use Tuleap\Test\PHPUnit\TestCase;
-use Tuleap\Tracker\Test\Stub\SearchDescriptionFieldStub;
 use Tuleap\Tracker\Test\Builders\Fields\TextFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Test\Stub\RetrieveFieldByIdStub;
+use Tuleap\Tracker\Test\Stub\Semantic\Description\SearchDescriptionFieldStub;
 use Tuleap\Tracker\Tracker;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class SemanticDescriptionFieldRetrieverTest extends TestCase
 {
-    private \Tracker_FormElement_Field_Text $description_field;
+    private \Tuleap\Tracker\FormElement\Field\Text\TextField $description_field;
     private Tracker $tracker;
 
     protected function setUp(): void

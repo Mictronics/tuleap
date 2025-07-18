@@ -40,12 +40,12 @@ use Tracker_FormElement_Field_PerTrackerArtifactId;
 use Tracker_FormElement_Field_Priority;
 use Tracker_FormElement_Field_Radiobutton;
 use Tracker_FormElement_Field_Selectbox;
-use Tracker_FormElement_Field_String;
 use Tracker_FormElement_Field_SubmittedBy;
 use Tracker_FormElement_Field_SubmittedOn;
-use Tracker_FormElement_Field_Text;
 use Tracker_FormElement_FieldVisitor;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
+use Tuleap\Tracker\FormElement\Field\String\StringField;
+use Tuleap\Tracker\FormElement\Field\Text\TextField;
 use Tuleap\Tracker\FormElement\TrackerFormElementExternalField;
 use Tuleap\Tracker\Report\Query\Advanced\CollectionOfListValuesExtractor;
 use Tuleap\Tracker\Report\Query\Advanced\FieldFromWhereBuilder;
@@ -98,12 +98,12 @@ final class NotInFieldComparisonVisitor implements
         return null;
     }
 
-    public function visitString(Tracker_FormElement_Field_String $field)
+    public function visitString(StringField $field)
     {
         return null;
     }
 
-    public function visitText(Tracker_FormElement_Field_Text $field)
+    public function visitText(TextField $field)
     {
         return null;
     }

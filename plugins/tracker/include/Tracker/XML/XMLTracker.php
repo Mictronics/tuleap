@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Tuleap\Tracker\XML;
 
 use SimpleXMLElement;
-use Tuleap\Color\ItemColor;
+use Tuleap\Color\ColorName;
 use Tuleap\Tracker\Artifact\XML\XMLArtifact;
 use Tuleap\Tracker\Creation\TrackerCreationDataChecker;
 use Tuleap\Tracker\FormElement\Container\XML\XMLContainer;
@@ -58,7 +58,7 @@ final class XMLTracker
      */
     private $description = '';
     /**
-     * @var ItemColor
+     * @var ColorName
      * @readonly
      */
     private $color;
@@ -119,7 +119,7 @@ final class XMLTracker
             throw TrackerIsInvalidException::shortnameIsInvalid($item_name);
         }
         $this->item_name = $item_name;
-        $this->color     = ItemColor::default();
+        $this->color     = ColorName::default();
     }
 
     /**
@@ -156,7 +156,7 @@ final class XMLTracker
     /**
      * @psalm-mutation-free
      */
-    public function withColor(ItemColor $color): self
+    public function withColor(ColorName $color): self
     {
         $new        = clone $this;
         $new->color = $color;
@@ -297,7 +297,7 @@ final class XMLTracker
         $cdata_section_factory->insert($tracker_xml, 'name', $this->name);
         $cdata_section_factory->insert($tracker_xml, 'item_name', $this->item_name);
         $cdata_section_factory->insert($tracker_xml, 'description', $this->description);
-        $cdata_section_factory->insert($tracker_xml, 'color', $this->color->getName());
+        $cdata_section_factory->insert($tracker_xml, 'color', $this->color->value);
 
         if ($this->submit_instructions !== '') {
             $cdata_section_factory->insert($tracker_xml, 'submit_instructions', $this->submit_instructions);

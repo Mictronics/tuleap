@@ -46,7 +46,6 @@ use TransitionFactory;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\DBTransactionExecutorWithConnection;
 use Tuleap\Markdown\CommonMarkInterpreter;
-use Tuleap\Notification\Mention\MentionedUserInTextRetriever;
 use Tuleap\REST\AuthenticatedResource;
 use Tuleap\REST\Header;
 use Tuleap\REST\JsonDecoder;
@@ -172,6 +171,7 @@ use Tuleap\Tracker\REST\v1\Move\PostMoveArtifactRESTAddFeedback;
 use Tuleap\Tracker\REST\v1\Move\RestArtifactMover;
 use Tuleap\Tracker\REST\WorkflowRestBuilder;
 use Tuleap\Tracker\Semantic\Description\CachedSemanticDescriptionFieldRetriever;
+use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
 use Tuleap\Tracker\Tracker;
 use Tuleap\Tracker\Tracker\XML\Updater\BindOpenValueForDuckTypingUpdater;
 use Tuleap\Tracker\Tracker\XML\Updater\BindValueForDuckTypingUpdater;
@@ -318,7 +318,11 @@ class ArtifactsResource extends AuthenticatedResource
             ),
             new PermissionsRepresentationBuilder($ugroup_manager, $permissions_functions_wrapper),
             new WorkflowRestBuilder(),
-            static fn(Tracker $tracker) => new \Tuleap\Tracker\Semantic\TrackerSemanticManager(CachedSemanticDescriptionFieldRetriever::instance(), $tracker),
+            static fn(Tracker $tracker) => new \Tuleap\Tracker\Semantic\TrackerSemanticManager(
+                CachedSemanticDescriptionFieldRetriever::instance(),
+                CachedSemanticTitleFieldRetriever::instance(),
+                $tracker,
+            ),
             new ParentInHierarchyRetriever(new HierarchyDAO(), $this->tracker_factory),
             TrackersPermissionsRetriever::build()
         );
@@ -820,7 +824,6 @@ class ArtifactsResource extends AuthenticatedResource
                     $event_dispatcher,
                     new \Tracker_Artifact_Changeset_CommentDao(),
                 ),
-                new MentionedUserInTextRetriever($user_manager),
             ),
         );
 

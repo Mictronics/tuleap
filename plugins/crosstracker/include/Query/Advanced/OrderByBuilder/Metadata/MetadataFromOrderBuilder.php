@@ -33,16 +33,16 @@ use Tuleap\CrossTracker\Query\Advanced\OrderByBuilder\ParametrizedFromOrder;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\Metadata;
 use Tuleap\Tracker\Semantic\Contributor\RetrieveContributorField;
 use Tuleap\Tracker\Semantic\Description\RetrieveSemanticDescriptionField;
-use Tuleap\Tracker\Semantic\Status\RetrieveStatusField;
-use Tuleap\Tracker\Semantic\Title\GetTitleSemantic;
+use Tuleap\Tracker\Semantic\Status\RetrieveSemanticStatusField;
+use Tuleap\Tracker\Semantic\Title\RetrieveSemanticTitleField;
 use Tuleap\Tracker\Tracker;
 
 final readonly class MetadataFromOrderBuilder
 {
     public function __construct(
-        private GetTitleSemantic $title_semantic_retriever,
+        private RetrieveSemanticTitleField $retrieve_title_field,
         private RetrieveSemanticDescriptionField $retrieve_description_field,
-        private RetrieveStatusField $status_field_retriever,
+        private RetrieveSemanticStatusField $status_field_retriever,
         private RetrieveContributorField $contributor_field_retriever,
         private TextFromOrderBuilder $text_builder,
         private StaticListFromOrderBuilder $static_list_builder,
@@ -79,9 +79,9 @@ final readonly class MetadataFromOrderBuilder
     {
         $field_ids = [];
         foreach ($trackers as $tracker) {
-            $semantic_title = $this->title_semantic_retriever->getByTracker($tracker);
-            if ($semantic_title->getField() !== null) {
-                $field_ids[] = $semantic_title->getFieldId();
+            $title_field = $this->retrieve_title_field->fromTracker($tracker);
+            if ($title_field !== null) {
+                $field_ids[] = $title_field->getId();
             }
         }
 
@@ -112,7 +112,7 @@ final readonly class MetadataFromOrderBuilder
     {
         $field_ids = [];
         foreach ($trackers as $tracker) {
-            $field = $this->status_field_retriever->getStatusField($tracker);
+            $field = $this->status_field_retriever->fromTracker($tracker);
             if ($field !== null) {
                 $field_ids[] = $field->getId();
             }

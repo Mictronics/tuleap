@@ -31,11 +31,11 @@ use Tuleap\NeverThrow\Result;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
-use Tuleap\Tracker\Test\Stub\RetrieveSemanticDescriptionFieldStub;
 use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetValueTextTestBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\TextFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
+use Tuleap\Tracker\Test\Stub\Semantic\Description\RetrieveSemanticDescriptionFieldStub;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class EventDescriptionRetrieverTest extends TestCase
@@ -186,7 +186,7 @@ final class EventDescriptionRetrieverTest extends TestCase
         self::assertFalse($logger->hasDebugRecords());
     }
 
-    private function buildDescriptionFieldWithValue(?string $value, bool $user_can_read): \Tracker_FormElement_Field_Text
+    private function buildDescriptionFieldWithValue(?string $value, bool $user_can_read): \Tuleap\Tracker\FormElement\Field\Text\TextField
     {
         $description_field = TextFieldBuilder::aTextField(1)
             ->inTracker(TrackerTestBuilder::aTracker()->withProject(

@@ -33,8 +33,10 @@ use Tuleap\NeverThrow\Ok;
 use Tuleap\NeverThrow\Result;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
-use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle;
-use Tuleap\Tracker\Test\Stub\RetrieveSemanticDescriptionFieldStub;
+use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
+use Tuleap\Tracker\FormElement\Field\String\StringField;
+use Tuleap\Tracker\Semantic\Title\RetrieveSemanticTitleField;
+use Tuleap\Tracker\Test\Builders\Fields\ArtifactLinkFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ExternalFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListUserBindBuilder;
@@ -43,6 +45,8 @@ use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\StringFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Test\Stub\RetrieveUsedFieldsStub;
+use Tuleap\Tracker\Test\Stub\Semantic\Description\RetrieveSemanticDescriptionFieldStub;
+use Tuleap\Tracker\Test\Stub\Semantic\Title\RetrieveSemanticTitleFieldStub;
 use Tuleap\Tracker\Tracker;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
@@ -53,6 +57,7 @@ final class SuitableFieldRetrieverTest extends TestCase
     private Tracker $tracker;
     private RetrieveUsedFieldsStub $field_retriever;
     private RetrieveSemanticDescriptionFieldStub $description_field_retriever;
+    private RetrieveSemanticTitleField $title_field_retriever;
 
     protected function setUp(): void
     {
@@ -60,24 +65,15 @@ final class SuitableFieldRetrieverTest extends TestCase
         $this->user                        = UserTestBuilder::buildWithDefaults();
         $this->field_retriever             = RetrieveUsedFieldsStub::withNoFields();
         $this->description_field_retriever = RetrieveSemanticDescriptionFieldStub::withNoField();
-
-        TrackerSemanticTitle::setInstance(
-            new TrackerSemanticTitle($this->tracker, null),
-            $this->tracker,
-        );
-    }
-
-    protected function tearDown(): void
-    {
-        TrackerSemanticTitle::clearInstances();
+        $this->title_field_retriever       = RetrieveSemanticTitleFieldStub::build();
     }
 
     /**
-     * @return Ok<\Tracker_FormElement_Field_String> | Ok<\Tracker_FormElement_Field_List> | Err<Fault>
+     * @return Ok<StringField> | Ok<\Tracker_FormElement_Field_List> | Ok<ArtifactLinkField> | Err<Fault>
      */
     private function retrieve(): Ok|Err
     {
-        $retriever = new SuitableFieldRetriever($this->field_retriever, $this->description_field_retriever);
+        $retriever = new SuitableFieldRetriever($this->field_retriever, $this->description_field_retriever, $this->title_field_retriever);
         return $retriever->retrieveField(self::FIELD_ID, $this->user);
     }
 
@@ -113,10 +109,7 @@ final class SuitableFieldRetrieverTest extends TestCase
             ->build();
         $this->field_retriever = RetrieveUsedFieldsStub::withFields($field);
 
-        TrackerSemanticTitle::setInstance(
-            new TrackerSemanticTitle($this->tracker, $field),
-            $this->tracker,
-        );
+        $this->title_field_retriever = RetrieveSemanticTitleFieldStub::build()->withTitleField($this->tracker, $field);
 
         $result = $this->retrieve();
         self::assertTrue(Result::isErr($result));
@@ -195,5 +188,18 @@ final class SuitableFieldRetrieverTest extends TestCase
         $result = $this->retrieve();
         self::assertTrue(Result::isOk($result));
         self::assertSame($list_field, $result->value);
+    }
+
+    public function testItAllowsArtifactLinkField(): void
+    {
+        $link_field            = ArtifactLinkFieldBuilder::anArtifactLinkField(self::FIELD_ID)
+            ->inTracker($this->tracker)
+            ->withReadPermission($this->user, true)
+            ->build();
+        $this->field_retriever = RetrieveUsedFieldsStub::withFields($link_field);
+
+        $result = $this->retrieve();
+        self::assertTrue(Result::isOk($result));
+        self::assertSame($link_field, $result->value);
     }
 }

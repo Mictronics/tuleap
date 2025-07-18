@@ -18,7 +18,7 @@
  */
 
 use Psr\EventDispatcher\EventDispatcherInterface;
-use Tuleap\Color\ItemColor;
+use Tuleap\Color\ColorName;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\DBTransactionExecutor;
 use Tuleap\DB\DBTransactionExecutorWithConnection;
@@ -156,36 +156,6 @@ class TrackerFactory implements RetrieveTracker, RetrieveTrackersByProjectIdUser
     }
 
     /**
-     * Retrieve the list of deleted trackers.
-     *
-     * @return array
-     */
-    public function getDeletedTrackers()
-    {
-        $dao              = new \Tuleap\Tracker\TrackerDeletion\DeletedTrackerDao();
-        $pending_trackers = $dao->retrieveTrackersMarkAsDeleted();
-        $deleted_trackers = [];
-
-        if ($pending_trackers) {
-            foreach ($pending_trackers as $pending_tracker) {
-                $deleted_trackers[] = $this->getTrackerById($pending_tracker['id']);
-            }
-        }
-
-        return $deleted_trackers;
-    }
-
-    /**
-     * Restore a tracker from the list of deleted trackers.
-     *
-     * @param  int $tracker_id
-     *
-     */
-    public function restoreDeletedTracker($tracker_id): void
-    {
-        $dao = new \Tuleap\Tracker\TrackerDeletion\DeletedTrackerDao();
-        $dao->restoreTrackerMarkAsDeleted($tracker_id);
-    }
 
     /**
      * @param int $group_id the project id the trackers to retrieve belong to
@@ -304,7 +274,7 @@ class TrackerFactory implements RetrieveTracker, RetrieveTrackersByProjectIdUser
             $row['instantiate_for_new_projects'],
             $row['log_priority_changes'],
             $row['notifications_level'],
-            ItemColor::fromName($row['color']),
+            ColorName::fromName($row['color']),
             $row['enable_emailgateway']
         );
     }
@@ -682,7 +652,7 @@ class TrackerFactory implements RetrieveTracker, RetrieveTrackersByProjectIdUser
             $tracker->getName(),
             $tracker->getDescription(),
             $tracker->getItemName(),
-            $tracker->getColor()->getName(),
+            $tracker->getColor()->value,
             $ugroup_mapping
         );
 
@@ -766,7 +736,7 @@ class TrackerFactory implements RetrieveTracker, RetrieveTrackersByProjectIdUser
                     $tracker->instantiate_for_new_projects,
                     $tracker->log_priority_changes,
                     $tracker->getNotificationsLevel(),
-                    $tracker->getColor()->getName(),
+                    $tracker->getColor()->value,
                     $tracker->isEmailgatewayEnabled()
                 );
                 if ($tracker_id) {

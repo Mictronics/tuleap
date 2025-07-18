@@ -39,13 +39,11 @@ use Tracker_ArtifactFactory;
 use Tracker_Exception;
 use Tracker_FormElement_Field;
 use Tracker_FormElement_Field_File;
-use Tracker_FormElement_Field_String;
 use Tracker_FormElementFactory;
 use Tracker_HierarchyFactory;
 use Tracker_NoChangeException;
 use Tracker_Workflow_GlobalRulesViolationException;
 use Tuleap\GlobalResponseMock;
-use Tuleap\Notification\Mention\MentionedUserInTextRetriever;
 use Tuleap\Project\XML\Export\ArchiveInterface;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
@@ -73,6 +71,7 @@ use Tuleap\Tracker\Artifact\XML\Exporter\NullChildrenCollector;
 use Tuleap\Tracker\Artifact\XMLImport\TrackerNoXMLImportLoggedConfig;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ParentLinkAction;
 use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
+use Tuleap\Tracker\FormElement\Field\String\StringField;
 use Tuleap\Tracker\FormElement\Field\Text\TextValueValidator;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetCommentTestBuilder;
@@ -183,13 +182,13 @@ final class Tracker_ArtifactTest extends TestCase //phpcs:ignore Squiz.Classes.V
         $artifact->method('getWorkflowUpdateChecker')->willReturn($workflow_checker);
 
         $fields_mock_methods = ['getId', 'isValid', 'userCanUpdate', 'saveNewChangeset'];
-        $field1              = $this->createPartialMock(Tracker_FormElement_Field_String::class, $fields_mock_methods);
+        $field1              = $this->createPartialMock(StringField::class, $fields_mock_methods);
         $field1->method('getId')->willReturn(101);
         $field1->method('isValid')->willReturn(true);
         $field1->method('userCanUpdate')->willReturn(true);
         $field1->expects($this->once())->method('saveNewChangeset')->willReturn(true);
 
-        $field2 = $this->createPartialMock(Tracker_FormElement_Field_String::class, $fields_mock_methods);
+        $field2 = $this->createPartialMock(StringField::class, $fields_mock_methods);
         $field2->method('getId')->willReturn(102);
         $field2->method('isValid')->willReturn(true);
         $field2->method('userCanUpdate')->willReturn(false);
@@ -285,7 +284,6 @@ final class Tracker_ArtifactTest extends TestCase //phpcs:ignore Squiz.Classes.V
                 EventDispatcherStub::withIdentityCallback(),
                 PostCreationActionsQueuerStub::doNothing(),
                 $changeset_comment_indexer,
-                new MentionedUserInTextRetriever(ProvideAndRetrieveUserStub::build($user)),
             ),
         );
         $creator->create($changeset_creation, PostCreationContext::withNoConfig(false));
@@ -303,19 +301,19 @@ final class Tracker_ArtifactTest extends TestCase //phpcs:ignore Squiz.Classes.V
         Tracker_FormElementFactory::setInstance($factory);
 
         $fields_mock_methods = ['getId', 'isValid', 'isValidRegardingRequiredProperty', 'userCanUpdate', 'saveNewChangeset'];
-        $field1              = $this->createPartialMock(Tracker_FormElement_Field_String::class, $fields_mock_methods);
+        $field1              = $this->createPartialMock(StringField::class, $fields_mock_methods);
         $field1->method('getId')->willReturn(101);
         $field1->method('isValid')->willReturn(true);
         $field1->method('isValidRegardingRequiredProperty')->willReturn(true);
         $field1->method('userCanUpdate')->willReturn(true);
         $field1->expects($this->never())->method('saveNewChangeset');
-        $field2 = $this->createPartialMock(Tracker_FormElement_Field_String::class, $fields_mock_methods);
+        $field2 = $this->createPartialMock(StringField::class, $fields_mock_methods);
         $field2->method('getId')->willReturn(102);
         $field2->method('isValid')->willReturn(true);
         $field2->method('isValidRegardingRequiredProperty')->willReturn(true);
         $field2->method('userCanUpdate')->willReturn(true);
         $field2->expects($this->never())->method('saveNewChangeset');
-        $field3 = $this->createPartialMock(Tracker_FormElement_Field_String::class, $fields_mock_methods);
+        $field3 = $this->createPartialMock(StringField::class, $fields_mock_methods);
         $field3->method('getId')->willReturn(103);
         $field3->method('isValid')->willReturn(true);
         $field3->method('isValidRegardingRequiredProperty')->willReturn(true);
@@ -385,19 +383,19 @@ final class Tracker_ArtifactTest extends TestCase //phpcs:ignore Squiz.Classes.V
         $factory = $this->createMock(Tracker_FormElementFactory::class);
 
         $fields_mock_methods = ['getId', 'isValid', 'isValidRegardingRequiredProperty', 'userCanUpdate', 'saveNewChangeset'];
-        $field1              = $this->createPartialMock(Tracker_FormElement_Field_String::class, $fields_mock_methods);
+        $field1              = $this->createPartialMock(StringField::class, $fields_mock_methods);
         $field1->method('getId')->willReturn(101);
         $field1->method('isValid')->willReturn(true);
         $field1->method('isValidRegardingRequiredProperty')->willReturn(true);
         $field1->method('userCanUpdate')->willReturn(true);
         $field1->expects($this->once())->method('saveNewChangeset')->willReturn(true);
-        $field2 = $this->createPartialMock(Tracker_FormElement_Field_String::class, $fields_mock_methods);
+        $field2 = $this->createPartialMock(StringField::class, $fields_mock_methods);
         $field2->method('getId')->willReturn(102);
         $field2->method('isValid')->willReturnCallback(static fn(Artifact $artifact, mixed $value) => $value === '123');
         $field2->method('isValidRegardingRequiredProperty')->willReturn(true);
         $field2->method('userCanUpdate')->willReturn(true);
         $field2->expects($this->once())->method('saveNewChangeset')->willReturn(true);
-        $field3 = $this->createPartialMock(Tracker_FormElement_Field_String::class, $fields_mock_methods);
+        $field3 = $this->createPartialMock(StringField::class, $fields_mock_methods);
         $field3->method('getId')->willReturn(103);
         $field3->method('isValid')->willReturn(true);
         $field3->method('isValidRegardingRequiredProperty')->willReturn(true);
@@ -498,19 +496,19 @@ final class Tracker_ArtifactTest extends TestCase //phpcs:ignore Squiz.Classes.V
         Tracker_FormElementFactory::setInstance($factory);
 
         $fields_mock_methods = ['getId', 'isValid', 'isValidRegardingRequiredProperty', 'userCanUpdate', 'saveNewChangeset'];
-        $field1              = $this->createPartialMock(Tracker_FormElement_Field_String::class, $fields_mock_methods);
+        $field1              = $this->createPartialMock(StringField::class, $fields_mock_methods);
         $field1->method('getId')->willReturn(101);
         $field1->method('isValid')->willReturn(true);
         $field1->method('isValidRegardingRequiredProperty')->willReturn(true);
         $field1->method('userCanUpdate')->willReturn(true);
         $field1->expects($this->never())->method('saveNewChangeset');
-        $field2 = $this->createPartialMock(Tracker_FormElement_Field_String::class, $fields_mock_methods);
+        $field2 = $this->createPartialMock(StringField::class, $fields_mock_methods);
         $field2->method('getId')->willReturn(102);
         $field2->method('isValid')->willReturnCallback(static fn(Artifact $artifact, mixed $value) => $value === '123');
         $field2->method('isValidRegardingRequiredProperty')->willReturn(true);
         $field2->method('userCanUpdate')->willReturn(true);
         $field2->expects($this->never())->method('saveNewChangeset');
-        $field3 = $this->createPartialMock(Tracker_FormElement_Field_String::class, $fields_mock_methods);
+        $field3 = $this->createPartialMock(StringField::class, $fields_mock_methods);
         $field3->method('getId')->willReturn(103);
         $field3->method('isValid')->willReturn(true);
         $field3->method('isValidRegardingRequiredProperty')->willReturn(true);
@@ -609,19 +607,19 @@ final class Tracker_ArtifactTest extends TestCase //phpcs:ignore Squiz.Classes.V
         $factory = $this->createMock(Tracker_FormElementFactory::class);
 
         $fields_mock_methods = ['getId', 'isValid', 'isValidRegardingRequiredProperty', 'userCanUpdate', 'saveNewChangeset'];
-        $field1              = $this->createPartialMock(Tracker_FormElement_Field_String::class, $fields_mock_methods);
+        $field1              = $this->createPartialMock(StringField::class, $fields_mock_methods);
         $field1->method('getId')->willReturn(101);
         $field1->method('isValid')->willReturn(true);
         $field1->method('isValidRegardingRequiredProperty')->willReturn(true);
         $field1->method('userCanUpdate')->willReturn(true);
         $field1->expects($this->once())->method('saveNewChangeset')->willReturn(true);
-        $field2 = $this->createPartialMock(Tracker_FormElement_Field_String::class, $fields_mock_methods);
+        $field2 = $this->createPartialMock(StringField::class, $fields_mock_methods);
         $field2->method('getId')->willReturn(102);
         $field2->method('isValid')->willReturnCallback(static fn(Artifact $artifact, mixed $value) => $value === '123');
         $field2->method('isValidRegardingRequiredProperty')->willReturn(true);
         $field2->method('userCanUpdate')->willReturn(true);
         $field2->expects($this->once())->method('saveNewChangeset')->willReturn(true);
-        $field3 = $this->createPartialMock(Tracker_FormElement_Field_String::class, $fields_mock_methods);
+        $field3 = $this->createPartialMock(StringField::class, $fields_mock_methods);
         $field3->method('getId')->willReturn(103);
         $field3->method('isValid')->willReturn(true);
         $field3->method('isValidRegardingRequiredProperty')->willReturn(true);

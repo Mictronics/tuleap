@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace Tuleap\Tracker\Semantic\Status\Done;
 
 use Tuleap\Tracker\Semantic\IDuplicateSemantic;
-use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatusDao;
+use Tuleap\Tracker\Semantic\Status\StatusSemanticDAO;
 
 class SemanticDoneDuplicator implements IDuplicateSemantic
 {
@@ -33,11 +33,11 @@ class SemanticDoneDuplicator implements IDuplicateSemantic
     private $semantic_done_dao;
 
     /**
-     * @var TrackerSemanticStatusDao
+     * @var StatusSemanticDAO
      */
     private $semantic_status_dao;
 
-    public function __construct(SemanticDoneDao $semantic_done_dao, TrackerSemanticStatusDao $semantic_status_dao)
+    public function __construct(SemanticDoneDao $semantic_done_dao, StatusSemanticDAO $semantic_status_dao)
     {
         $this->semantic_done_dao   = $semantic_done_dao;
         $this->semantic_status_dao = $semantic_status_dao;
@@ -53,28 +53,25 @@ class SemanticDoneDuplicator implements IDuplicateSemantic
             return;
         }
 
-        $from_semantic_status_field_row = $this->semantic_status_dao->searchByTrackerId($from_tracker_id)->getRow();
-        if (! $from_semantic_status_field_row) {
-            return;
-        }
+        $this->semantic_status_dao->searchFieldByTrackerId($from_tracker_id)
+            ->apply(function (int $from_semantic_status_field_id) use ($field_mapping, $result, $to_tracker_id) {
+                $values_mapping = $this->extractValueMapping(
+                    $field_mapping,
+                    $from_semantic_status_field_id
+                );
 
-        $from_semantic_status_field_id = (int) $from_semantic_status_field_row['field_id'];
-        $values_mapping                = $this->extractValueMapping(
-            $field_mapping,
-            $from_semantic_status_field_id
-        );
+                $to_selected_value_ids = [];
+                foreach ($result as $row) {
+                    $from_selected_value_id = $row['value_id'];
+                    if (isset($values_mapping[$from_selected_value_id])) {
+                        $to_selected_value_ids[] = (int) $values_mapping[$from_selected_value_id];
+                    }
+                }
 
-        $to_selected_value_ids = [];
-        foreach ($result as $row) {
-            $from_selected_value_id = $row['value_id'];
-            if (isset($values_mapping[$from_selected_value_id])) {
-                $to_selected_value_ids[] = (int) $values_mapping[$from_selected_value_id];
-            }
-        }
-
-        if (count($to_selected_value_ids) > 0) {
-            $this->semantic_done_dao->addForTracker($to_tracker_id, $to_selected_value_ids);
-        }
+                if (count($to_selected_value_ids) > 0) {
+                    $this->semantic_done_dao->addForTracker($to_tracker_id, $to_selected_value_ids);
+                }
+            });
     }
 
     private function extractValueMapping(array $field_mapping, int $from_semantic_status_field_id): array

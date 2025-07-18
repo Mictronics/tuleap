@@ -32,9 +32,7 @@
             v-on:switch-to-writing-mode="handleSwitchWriting"
         />
     </section>
-    <section class="tlp-pane-section" v-if="!is_loading">
-        <selectable-table v-bind:query="backend_query" />
-    </section>
+    <selectable-table v-if="!is_loading" v-bind:tql_query="backend_query.tql_query" />
 </template>
 
 <script setup lang="ts">
