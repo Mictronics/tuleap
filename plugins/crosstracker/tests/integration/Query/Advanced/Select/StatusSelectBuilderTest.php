@@ -24,7 +24,7 @@ namespace Tuleap\CrossTracker\Query\Advanced\Select;
 
 use PFUser;
 use ProjectUGroup;
-use Tuleap\Color\ItemColor;
+use Tuleap\Color\ColorName;
 use Tuleap\CrossTracker\Query\Advanced\CrossTrackerFieldTestCase;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Representations\StaticListRepresentation;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Representations\StaticListValueRepresentation;
@@ -45,6 +45,7 @@ final class StatusSelectBuilderTest extends CrossTrackerFieldTestCase
      */
     private array $expected_results;
 
+    #[\Override]
     public function setUp(): void
     {
         $db              = DBFactory::getMainTuleapDBConnection()->getDB();
@@ -70,7 +71,7 @@ final class StatusSelectBuilderTest extends CrossTrackerFieldTestCase
         $tracker_builder->buildColorForStaticListValue(
             $sprint_status_field_id,
             $sprint_status_values['closed'][0],
-            ItemColor::fromName('teddy-brown'),
+            ColorName::TEDDY_BROWN,
         );
 
         $tracker_builder->grantReadPermissionOnField(

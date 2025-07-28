@@ -26,7 +26,9 @@ use PFUser;
 use Tuleap\Tracker\FormElement\Field\RetrieveUsedFields;
 use Tuleap\Tracker\Permission\VerifySubmissionPermissions;
 use Tuleap\Tracker\RetrieveTracker;
+use Tuleap\Tracker\Semantic\Status\RetrieveSemanticStatus;
 use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
+use Tuleap\Tracker\Semantic\Title\RetrieveSemanticTitleField;
 use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle;
 use Tuleap\Tracker\Tracker;
 
@@ -37,6 +39,8 @@ class KanbanActionsChecker
         private readonly KanbanPermissionsManager $permissions_manager,
         private readonly RetrieveUsedFields $form_element_factory,
         private readonly VerifySubmissionPermissions $verify_submission_permissions,
+        private readonly RetrieveSemanticTitleField $title_field_retriever,
+        private readonly RetrieveSemanticStatus $semantic_status_retriever,
     ) {
     }
 
@@ -169,9 +173,9 @@ class KanbanActionsChecker
 
     public function getSemanticStatus(Tracker $tracker): TrackerSemanticStatus
     {
-        $semantic = TrackerSemanticStatus::load($tracker);
+        $semantic = $this->semantic_status_retriever->fromTracker($tracker);
 
-        if (! $semantic->getFieldId()) {
+        if ($semantic->getField() === null) {
             throw new KanbanSemanticStatusNotDefinedException();
         }
 
@@ -180,13 +184,13 @@ class KanbanActionsChecker
 
     private function getSemanticTitle(Tracker $tracker): TrackerSemanticTitle
     {
-        $semantic = TrackerSemanticTitle::load($tracker);
+        $title_field = $this->title_field_retriever->fromTracker($tracker);
 
-        if (! $semantic->getFieldId()) {
+        if ($title_field === null) {
             throw new KanbanSemanticTitleNotDefinedException();
         }
 
-        return $semantic;
+        return new TrackerSemanticTitle($tracker, $title_field);
     }
 
     private function trackerHasOnlyTitleRequired(Tracker $tracker, TrackerSemanticTitle $semantic_title): bool

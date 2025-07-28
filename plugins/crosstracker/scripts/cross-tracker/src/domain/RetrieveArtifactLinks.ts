@@ -19,6 +19,7 @@
 
 import type { ResultAsync } from "neverthrow";
 import type { Fault } from "@tuleap/fault";
+import type { ArtifactsTable } from "./ArtifactsTable";
 import type { ArtifactsTableWithTotal } from "./RetrieveArtifactsTable";
 
 export type RetrieveArtifactLinks = {
@@ -32,4 +33,14 @@ export type RetrieveArtifactLinks = {
         artifact_id: number,
         tql_query: string,
     ): ResultAsync<ArtifactsTableWithTotal, Fault>;
+    getAllForwardLinks(
+        widget_id: number,
+        artifact_id: number,
+        tql_query: string,
+    ): ResultAsync<ArtifactsTable[], Fault>;
+    getAllReverseLinks(
+        widget_id: number,
+        artifact_id: number,
+        tql_query: string,
+    ): ResultAsync<ArtifactsTable[], Fault>;
 };

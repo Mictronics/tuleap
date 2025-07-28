@@ -27,7 +27,7 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Project_AccessException;
 use Project_AccessProjectNotFoundException;
 use Psr\Log\NullLogger;
-use Tuleap\Color\ItemColor;
+use Tuleap\Color\ColorName;
 use Tuleap\Project\REST\ProjectReference;
 use Tuleap\Roadmap\RetrieveReportToFilterArtifacts;
 use Tuleap\Roadmap\RoadmapWidgetDao;
@@ -43,6 +43,7 @@ use Tuleap\Tracker\Semantic\Progress\MethodNotConfigured;
 use Tuleap\Tracker\Semantic\Progress\SemanticProgress;
 use Tuleap\Tracker\Semantic\Progress\SemanticProgressBuilder;
 use Tuleap\Tracker\Semantic\Progress\SemanticProgressDao;
+use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframe;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeBuilder;
 use Tuleap\Tracker\Semantic\Timeframe\TimeframeNotConfigured;
@@ -53,6 +54,7 @@ use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetValueDateTestBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\DateFieldBuilder;
 use Tuleap\Tracker\Test\Stub\RetrieveTrackerStub;
+use Tuleap\Tracker\Test\Stub\Semantic\Status\RetrieveSemanticStatusStub;
 use Tuleap\Tracker\Tracker;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
@@ -71,8 +73,9 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
     private \Tracker_ArtifactFactory&MockObject $artifact_factory;
     private RoadmapTasksOutOfDateFilter&MockObject $tasks_filter;
     private SemanticProgressBuilder&MockObject $progress_builder;
+    private RetrieveSemanticStatusStub $semantic_status_retriever;
 
-    private function getTracker(int $tracker_id, \Tracker_FormElement_Field_String $title_field, string $color, string $name): Tracker&MockObject
+    private function getTracker(int $tracker_id, \Tuleap\Tracker\FormElement\Field\String\StringField $title_field, ColorName $color, string $name): Tracker&MockObject
     {
         $tracker = $this->createMock(Tracker::class);
         $tracker->method('getId')->willReturn($tracker_id);
@@ -80,13 +83,14 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
         $tracker->method('userCanView')->willReturn(true);
         $tracker->method('getTitleField')->willReturn($title_field);
         $tracker->method('getId')->willReturn($tracker_id);
-        $tracker->method('getColor')->willReturn(ItemColor::fromName($color));
+        $tracker->method('getColor')->willReturn($color);
         $tracker->method('getProject')->willReturn($this->project);
         $tracker->method('getItemName')->willReturn($name);
 
         return $tracker;
     }
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->dao                        = $this->createMock(RoadmapWidgetDao::class);
@@ -95,6 +99,7 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->artifact_factory           = $this->createMock(\Tracker_ArtifactFactory::class);
         $this->tasks_filter               = $this->createMock(RoadmapTasksOutOfDateFilter::class);
         $this->progress_builder           = $this->createMock(SemanticProgressBuilder::class);
+        $this->semantic_status_retriever  = RetrieveSemanticStatusStub::build();
 
         $this->user    = UserTestBuilder::anActiveUser()->build();
         $this->project = ProjectTestBuilder::aProject()->withId(self::PROJECT_ID)->build();
@@ -118,6 +123,7 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             $this->progress_builder,
             new NullLogger(),
             $report_to_filter_retriever,
+            $this->semantic_status_retriever,
         );
     }
 
@@ -126,6 +132,7 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
         return $this->getRetriever(
             $tracker_factory,
             new class implements IRetrieveDependencies {
+                #[\Override]
                 public function getDependencies(Artifact $artifact): array
                 {
                     return [];
@@ -363,7 +370,7 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->method('userCanAccessProject')
             ->with($this->user, $this->project);
 
-        $title_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $title_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $title_field->method('userCanRead')->willReturn(false);
 
         $tracker = $this->createMock(Tracker::class);
@@ -403,7 +410,7 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->method('userCanAccessProject')
             ->with($this->user, $this->project);
 
-        $title_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $title_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $title_field->method('userCanRead')->willReturn(true);
 
         $tracker = $this->createMock(Tracker::class);
@@ -449,7 +456,7 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->method('userCanAccessProject')
             ->with($this->user, $this->project);
 
-        $title_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $title_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $title_field->method('userCanRead')->willReturn(true);
 
         $tracker = $this->createMock(Tracker::class);
@@ -509,7 +516,7 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->method('userCanAccessProject')
             ->with($this->user, $this->project);
 
-        $title_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $title_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $title_field->method('userCanRead')->willReturn(true);
 
         $tracker = $this->createMock(Tracker::class);
@@ -569,7 +576,7 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->method('userCanAccessProject')
             ->with($this->user, $this->project);
 
-        $title_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $title_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $title_field->method('userCanRead')->willReturn(true);
 
         $tracker = $this->createMock(Tracker::class);
@@ -628,9 +635,9 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->method('userCanAccessProject')
             ->with($this->user, $this->project);
 
-        $title_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $title_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $title_field->method('userCanRead')->willReturn(true);
-        $tracker = $this->getTracker(self::TRACKER_ID, $title_field, 'acid-green', 'task');
+        $tracker = $this->getTracker(self::TRACKER_ID, $title_field, ColorName::ACID_GREEN, 'task');
 
         $start_date_field = DateFieldBuilder::aDateField(1)
             ->withReadPermission($this->user, true)
@@ -665,6 +672,8 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
                 )
             );
 
+        $this->semantic_status_retriever->withSemanticStatus(new TrackerSemanticStatus($tracker, null));
+
         $task_201 = $this->anArtifact(201, 'Do this', $tracker, true, $semantic_timeframe);
         $task_202 = $this->anArtifact(202, 'Do that', $tracker, false, $semantic_timeframe);
         $task_203 = $this->anArtifactWithoutStartDate(203, 'Do those', $tracker, $semantic_timeframe);
@@ -688,6 +697,7 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->willReturn([$task_201, $task_202, $task_203]);
 
         $dependency_retriever = new class implements IRetrieveDependencies {
+            #[\Override]
             public function getDependencies(Artifact $artifact): array
             {
                 if ($artifact->getId() === 201) {
@@ -768,10 +778,10 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->method('userCanAccessProject')
             ->with($this->user, $this->project);
 
-        $title_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $title_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $title_field->method('userCanRead')->willReturn(true);
 
-        $tracker = $this->getTracker(self::TRACKER_ID, $title_field, 'acid-green', 'task');
+        $tracker = $this->getTracker(self::TRACKER_ID, $title_field, ColorName::ACID_GREEN, 'task');
 
         $start_date_field = DateFieldBuilder::aDateField(1)
             ->withReadPermission($this->user, true)
@@ -805,6 +815,8 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
                 )
             );
 
+        $this->semantic_status_retriever->withSemanticStatus(new TrackerSemanticStatus($tracker, null));
+
         $task_201 = $this->anArtifact(201, 'Do this', $tracker, true, $semantic_timeframe);
         $task_202 = $this->anArtifact(202, 'Do that', $tracker, false, $semantic_timeframe);
         $task_203 = $this->anArtifactWithoutStartDate(203, 'Do those', $tracker, $semantic_timeframe);
@@ -828,6 +840,7 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->willReturn([$task_201, $task_202, $task_203]);
 
         $dependency_retriever = new class implements IRetrieveDependencies {
+            #[\Override]
             public function getDependencies(Artifact $artifact): array
             {
                 if ($artifact->getId() === 201) {
@@ -915,10 +928,10 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->method('userCanAccessProject')
             ->with($this->user, $this->project);
 
-        $title_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $title_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $title_field->method('userCanRead')->willReturn(true);
 
-        $tracker = $this->getTracker(self::TRACKER_ID, $title_field, 'acid-green', 'task');
+        $tracker = $this->getTracker(self::TRACKER_ID, $title_field, ColorName::ACID_GREEN, 'task');
 
         $start_date_field   = DateFieldBuilder::aDateField(1)
             ->withReadPermission($this->user, true)
@@ -951,6 +964,8 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
                 )
             );
 
+        $this->semantic_status_retriever->withSemanticStatus(new TrackerSemanticStatus($tracker, null));
+
         $task_201 = $this->anArtifact(201, 'Do this', $tracker, true, $semantic_timeframe);
         $task_202 = $this->anArtifact(202, 'Do that', $tracker, false, $semantic_timeframe);
 
@@ -972,6 +987,7 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->willReturn([$task_201, $task_202]);
 
         $dependency_retriever = new class implements IRetrieveDependencies {
+            #[\Override]
             public function getDependencies(Artifact $artifact): array
             {
                 return [];
@@ -1035,13 +1051,13 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->method('userCanAccessProject')
             ->with($this->user, $this->project);
 
-        $title_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $title_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $title_field->method('userCanRead')->willReturn(true);
-        $another_title_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $another_title_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $another_title_field->method('userCanRead')->willReturn(true);
 
-        $tracker         = $this->getTracker(self::TRACKER_ID, $title_field, 'acid-green', 'task');
-        $another_tracker = $this->getTracker(self::ANOTHER_TRACKER_ID, $another_title_field, 'red-wine', 'bug');
+        $tracker         = $this->getTracker(self::TRACKER_ID, $title_field, ColorName::ACID_GREEN, 'task');
+        $another_tracker = $this->getTracker(self::ANOTHER_TRACKER_ID, $another_title_field, ColorName::RED_WINE, 'bug');
 
         $start_date_field = DateFieldBuilder::aDateField(1)
             ->withReadPermission($this->user, true)
@@ -1079,6 +1095,10 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
                 $another_tracker => new SemanticProgress($another_tracker, new MethodNotConfigured()),
             });
 
+        $this->semantic_status_retriever
+            ->withSemanticStatus(new TrackerSemanticStatus($tracker, null))
+            ->withSemanticStatus(new TrackerSemanticStatus($another_tracker, null));
+
         $task_201 = $this->anArtifact(201, 'Do this', $tracker, true, $semantic_timeframe_tracker);
         $task_203 = $this->anArtifactWithoutStartDate(203, 'Do those', $another_tracker, $semantic_timeframe_another_tracker);
 
@@ -1098,6 +1118,7 @@ final class RoadmapTasksRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->willReturn([$task_201, $task_203]);
 
         $dependency_retriever = new class implements IRetrieveDependencies {
+            #[\Override]
             public function getDependencies(Artifact $artifact): array
             {
                 return [];

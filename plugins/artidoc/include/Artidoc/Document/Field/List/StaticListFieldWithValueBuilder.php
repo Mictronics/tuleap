@@ -27,11 +27,12 @@ use Tracker_FormElement_Field_List_OpenValue;
 use Tuleap\Artidoc\Document\Field\ConfiguredField;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldWithValue\StaticListFieldWithValue;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldWithValue\StaticListValue;
-use Tuleap\Color\ItemColor;
+use Tuleap\Color\ColorName;
 
 final readonly class StaticListFieldWithValueBuilder implements BuildStaticListFieldWithValue
 {
-    public function buildStaticListFieldWithValue(ConfiguredField $configured_field, \Tracker_Artifact_ChangesetValue_List $changeset_value): StaticListFieldWithValue
+    #[\Override]
+    public function buildStaticListFieldWithValue(ConfiguredField $configured_field, ?\Tracker_Artifact_ChangesetValue_List $changeset_value): StaticListFieldWithValue
     {
         assert($configured_field->field instanceof \Tracker_FormElement_Field_List);
 
@@ -45,10 +46,10 @@ final readonly class StaticListFieldWithValueBuilder implements BuildStaticListF
 
                         return new StaticListValue(
                             $value->getLabel(),
-                            isset($decorators[$value->getId()]) ? ItemColor::fromName($decorators[$value->getId()]->getCurrentColor()) : null,
+                            isset($decorators[$value->getId()]) ? ColorName::fromName($decorators[$value->getId()]->getCurrentColor()) : null,
                         );
                     },
-                    $changeset_value->getListValues()
+                    $changeset_value?->getListValues() ?? [],
                 )
             )
         );

@@ -35,7 +35,7 @@ use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
 use Tuleap\Tracker\Semantic\Progress\MethodBuilder;
 use Tuleap\Tracker\Semantic\Progress\SemanticProgressBuilder;
 use Tuleap\Tracker\Semantic\Progress\SemanticProgressDao;
-use Tuleap\Tracker\Semantic\Status\SemanticStatusRetriever;
+use Tuleap\Tracker\Semantic\Status\CachedSemanticStatusRetriever;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeBuilder;
 
 final class RoadmapResource
@@ -83,6 +83,7 @@ final class RoadmapResource
         $form_element_factory       = \Tracker_FormElementFactory::instance();
         $tracker_factory            = \TrackerFactory::instance();
         $semantic_timeframe_builder = SemanticTimeframeBuilder::build();
+        $semantic_status_retriever  = CachedSemanticStatusRetriever::instance();
 
         $progress_dao = new SemanticProgressDao();
         $retriever    = new RoadmapTasksRetriever(
@@ -96,7 +97,7 @@ final class RoadmapResource
             new DependenciesRetriever(new NatureForRoadmapDao()),
             new RoadmapTasksOutOfDateFilter(
                 new TaskOutOfDateDetector(
-                    new SemanticStatusRetriever(),
+                    $semantic_status_retriever,
                     $semantic_timeframe_builder,
                     $this->getLogger(),
                 ),
@@ -114,6 +115,7 @@ final class RoadmapResource
             ),
             \BackendLogger::getDefaultLogger(),
             new ReportToFilterArtifactsRetriever(new FilterReportDao(), \Tracker_ReportFactory::instance()),
+            $semantic_status_retriever,
         );
 
         $tasks = $retriever->getTasks($id, $limit, $offset);

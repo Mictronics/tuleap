@@ -102,6 +102,7 @@ class Tracker_FormElement_Field_File extends Tracker_FormElement_Field
         return new Tracker_Report_Criteria_File_ValueDao();
     }
 
+    #[\Override]
     public function getDeleteCriteriaValueDAO(): DeleteReportCriteriaValue
     {
         return new CriteriaFileValueDAO();
@@ -112,7 +113,7 @@ class Tracker_FormElement_Field_File extends Tracker_FormElement_Field
         int $changeset_id,
         mixed $value,
         ?Tracker_Report $report = null,
-        ?int $from_aid = null,
+        ?array $redirection_parameters = null,
     ): string {
         $html             = '';
         $submitter_needed = true;

@@ -58,10 +58,9 @@ use Tuleap\Tracker\Report\Query\Advanced\SelectLimitExceededException;
 use Tuleap\Tracker\Report\Query\Advanced\UgroupLabelConverter;
 use Tuleap\Tracker\Semantic\Contributor\ContributorFieldRetriever;
 use Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributorFactory;
-use Tuleap\Tracker\Semantic\Status\StatusFieldRetriever;
-use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatusFactory;
 use Tuleap\Tracker\Test\Stub\Permission\RetrieveUserPermissionOnFieldsStub;
 use Tuleap\Tracker\Test\Stub\RetrieveFieldTypeStub;
+use Tuleap\Tracker\Test\Stub\RetrieveSemanticStatusFieldStub;
 use Tuleap\Tracker\Test\Stub\RetrieveUsedFieldsStub;
 use UserManager;
 
@@ -73,6 +72,7 @@ final class InvalidSelectablesCollectionBuilderTest extends TestCase
 
     private InvalidSelectablesCollectionBuilder $builder;
 
+    #[\Override]
     public function setUp(): void
     {
         $list_field_bind_value_normalizer = new ListFieldBindValueNormalizer();
@@ -128,7 +128,7 @@ final class InvalidSelectablesCollectionBuilderTest extends TestCase
                     new ArtifactIdMetadataChecker(),
                 ),
                 new InvalidOrderByListChecker(
-                    new StatusFieldRetriever(TrackerSemanticStatusFactory::instance()),
+                    RetrieveSemanticStatusFieldStub::build(),
                     new ContributorFieldRetriever(TrackerSemanticContributorFactory::instance()),
                 ),
             )),
@@ -139,7 +139,7 @@ final class InvalidSelectablesCollectionBuilderTest extends TestCase
 
     public function testItThrowsIfSelectSameFieldMultipleTimes(): void
     {
-        self::expectException(SelectablesMustBeUniqueException::class);
+        $this->expectException(SelectablesMustBeUniqueException::class);
         $this->builder->buildCollectionOfInvalidSelectables([
             new Field('a'), new Field('b'), new Metadata('meta'), new Field('b'),
         ]);
@@ -147,7 +147,7 @@ final class InvalidSelectablesCollectionBuilderTest extends TestCase
 
     public function testItThrowsIfSelectSameMetadataMultipleTimes(): void
     {
-        self::expectException(SelectablesMustBeUniqueException::class);
+        $this->expectException(SelectablesMustBeUniqueException::class);
         $this->builder->buildCollectionOfInvalidSelectables([
             new Metadata('meta'), new Metadata('meta'),
         ]);
@@ -156,7 +156,7 @@ final class InvalidSelectablesCollectionBuilderTest extends TestCase
     public function testItThrowIfSelectSizeExceedLimit(): void
     {
         ForgeConfig::set(CrossTrackerArtifactQueryFactory::MAX_SELECT, 1);
-        self::expectException(SelectLimitExceededException::class);
+        $this->expectException(SelectLimitExceededException::class);
         $this->builder->buildCollectionOfInvalidSelectables([
             new Field('a'), new Field('b'), new Metadata('meta'),
         ]);
@@ -164,7 +164,7 @@ final class InvalidSelectablesCollectionBuilderTest extends TestCase
 
     public function testItUsesVisitorIfAllIsGood(): void
     {
-        self::expectNotToPerformAssertions();
+        $this->expectNotToPerformAssertions();
         $this->builder->buildCollectionOfInvalidSelectables([
             new Field('a'), new Field('b'), new Metadata('meta'),
         ]);

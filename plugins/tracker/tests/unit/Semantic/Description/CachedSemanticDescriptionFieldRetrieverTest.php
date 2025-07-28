@@ -25,7 +25,7 @@ namespace Tuleap\Tracker\Semantic\Description;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Test\Builders\Fields\TextFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
-use Tuleap\Tracker\Test\Stub\RetrieveSemanticDescriptionFieldStub;
+use Tuleap\Tracker\Test\Stub\Semantic\Description\RetrieveSemanticDescriptionFieldStub;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class CachedSemanticDescriptionFieldRetrieverTest extends TestCase
@@ -34,7 +34,7 @@ final class CachedSemanticDescriptionFieldRetrieverTest extends TestCase
     {
         $tracker                    = TrackerTestBuilder::aTracker()->withId(12)->build();
         $description_field          = TextFieldBuilder::aTextField(1002)->inTracker($tracker)->build();
-        $retrieve_description_field = RetrieveSemanticDescriptionFieldStub::withTextField($description_field);
+        $retrieve_description_field = RetrieveSemanticDescriptionFieldStub::build()->withDescriptionField($description_field);
 
         $cache = new CachedSemanticDescriptionFieldRetriever($retrieve_description_field);
 

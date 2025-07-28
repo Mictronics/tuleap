@@ -27,7 +27,7 @@ use Project;
 use ProjectManager;
 use TrackerDao;
 use TrackerFactory;
-use Tuleap\Color\ItemColor;
+use Tuleap\Color\ColorName;
 use Tuleap\Request\CSRFSynchronizerTokenInterface;
 use Tuleap\Tracker\Creation\JiraImporter\PendingJiraImportDao;
 
@@ -92,8 +92,8 @@ class TrackerCreationPresenterBuilder
         $trackers_from_other_projects = $this->getTrackersUserIsAdmin($user);
 
         $tracker_colors = [
-            'colors_names' => ItemColor::COLOR_NAMES,
-            'default_color' => ItemColor::default()->getName(),
+            'colors_names' => ColorName::listValues(),
+            'default_color' => ColorName::default()->value,
         ];
 
         return new TrackerCreationPresenter(
@@ -167,7 +167,7 @@ class TrackerCreationPresenterBuilder
                     'id' => $tracker->getId(),
                     'name' => $tracker->getName(),
                     'description' => $tracker->getDescription(),
-                    'tlp_color' => $tracker->getColor()->getName(),
+                    'tlp_color' => $tracker->getColor()->value,
                 ];
             }
 

@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace Tuleap\PullRequest\REST\v1\RepositoryPullRequests;
 
 use ColinODell\PsrTestLogger\TestLogger;
+use CuyZ\Valinor\MapperBuilder;
 use Tuleap\Git\Tests\Builders\GitRepositoryTestBuilder;
 use Tuleap\Git\Tests\Stub\RetrieveGitRepositoryStub;
 use Tuleap\NeverThrow\Err;
@@ -61,6 +62,7 @@ final class GETHandlerTest extends TestCase
     private RetrieveUserByIdStub $retrieve_user_by_id;
     private GetReferenceByPullRequestId $get_reference_by_pull_request_id_stub;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->repository = GitRepositoryTestBuilder::aProjectRepository()->build();
@@ -125,7 +127,7 @@ final class GETHandlerTest extends TestCase
     public function handle(string $query): Ok|Err
     {
         $handler = new GETHandler(
-            new QueryToSearchCriteriaConverter(),
+            new QueryToSearchCriteriaConverter(new MapperBuilder()),
             SearchPaginatedPullRequestsStub::withAtLeastOnePullRequest($this->pull_request),
             $this->retrieve_user_by_id,
             RetrieveGitRepositoryStub::withGitRepository($this->repository),

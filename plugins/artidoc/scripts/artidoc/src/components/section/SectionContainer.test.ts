@@ -70,18 +70,12 @@ describe("SectionContainer", () => {
 
     it("should not use the tlp-swatch palette if it is a skeleton", () => {
         artidoc_section = ArtifactSectionFactory.skeleton();
-        expect(getWrapper().classes()).toStrictEqual([
-            "artidoc-section-container",
-            "artidoc-section-container-without-border",
-        ]);
+        expect(getWrapper().classes()).toStrictEqual(["artidoc-section-container"]);
     });
 
     it("should not use the tlp-swatch palette if it is a Freetext section", () => {
         artidoc_section = FreetextSectionFactory.create();
-        expect(getWrapper().classes()).toStrictEqual([
-            "artidoc-section-container",
-            "artidoc-section-container-without-border",
-        ]);
+        expect(getWrapper().classes()).toStrictEqual(["artidoc-section-container"]);
     });
 
     it(`should show a class when it is below an artifact section (which is not allowed)`, () => {
@@ -89,6 +83,24 @@ describe("SectionContainer", () => {
             "artidoc-section-container",
             "tlp-swatch-fiesta-red",
             "section-with-artifact-parent",
+        ]);
+    });
+
+    it(`should add a class when it is an artifact section with fields`, () => {
+        artidoc_section = ArtifactSectionFactory.override({
+            fields: [
+                {
+                    type: "string",
+                    label: "Label",
+                    value: "Value",
+                    display_type: "column",
+                },
+            ],
+        });
+        expect(getWrapper().classes()).toStrictEqual([
+            "artidoc-section-container",
+            "tlp-swatch-fiesta-red",
+            "section-with-fields",
         ]);
     });
 });

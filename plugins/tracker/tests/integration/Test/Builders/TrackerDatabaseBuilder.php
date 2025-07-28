@@ -26,7 +26,7 @@ use ParagonIE\EasyDB\EasyDB;
 use Tracker_FormElement;
 use Tracker_FormElement_Field_List;
 use Tracker_FormElementFactory;
-use Tuleap\Color\ItemColor;
+use Tuleap\Color\ColorName;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Semantic\Description\DescriptionSemanticDAO;
 use Tuleap\Tracker\Semantic\Title\TitleSemanticDAO;
@@ -39,9 +39,8 @@ final class TrackerDatabaseBuilder
     {
     }
 
-    public function buildTracker(int $project_id, string $name, string $color = 'inca-silver'): Tracker
+    public function buildTracker(int $project_id, string $name, ColorName $color = ColorName::INCA_SILVER): Tracker
     {
-        $color_name = ItemColor::fromName($color);
         $factory    = \TrackerFactory::instance();
         $tracker_id = (int) $this->db->insertReturnId(
             'tracker',
@@ -50,7 +49,7 @@ final class TrackerDatabaseBuilder
                 'name'      => $name,
                 'item_name' => lowercase($name),
                 'status'    => 'A',
-                'color'     => $color_name->getName(),
+                'color'     => $color->value,
             ]
         );
         $tracker    = $factory->getTrackerById($tracker_id);
@@ -587,14 +586,14 @@ final class TrackerDatabaseBuilder
         return $ids_list;
     }
 
-    public function buildColorForStaticListValue(int $field_id, int $value_id, ItemColor $color): void
+    public function buildColorForStaticListValue(int $field_id, int $value_id, ColorName $color): void
     {
         $this->db->insert(
             'tracker_field_list_bind_decorator',
             [
                 'field_id'       => $field_id,
                 'value_id'       => $value_id,
-                'tlp_color_name' => $color->getName(),
+                'tlp_color_name' => $color->value,
             ]
         );
     }

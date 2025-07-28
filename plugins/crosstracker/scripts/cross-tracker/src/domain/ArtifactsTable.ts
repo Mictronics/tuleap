@@ -31,6 +31,8 @@ export const USER_GROUP_LIST_CELL = "list_user_group";
 export const PROJECT_CELL = "project";
 export const TRACKER_CELL = "tracker";
 export const PRETTY_TITLE_CELL = "pretty_title";
+export const FORWARD_DIRECTION = "forward";
+export const REVERSE_DIRECTION = "reverse";
 
 type DateCell = {
     readonly type: typeof DATE_CELL;
@@ -114,11 +116,13 @@ export type ArtifactRow = {
     readonly id: number;
     readonly uri: string;
     readonly cells: Map<ColumnName, Cell>;
-    readonly number_of_forward_link: number;
-    readonly number_of_reverse_link: number;
+    readonly expected_number_of_forward_links: number;
+    readonly expected_number_of_reverse_links: number;
 };
 
 export type ArtifactsTable = {
     readonly columns: Set<ColumnName>;
     readonly rows: ReadonlyArray<ArtifactRow>;
 };
+
+export type ArtifactLinkDirection = typeof FORWARD_DIRECTION | typeof REVERSE_DIRECTION;

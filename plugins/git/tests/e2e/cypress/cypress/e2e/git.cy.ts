@@ -58,6 +58,14 @@ describe("Git", function () {
             cy.root().submit();
         });
 
+        cy.visitProjectService(`git-access`, "Git");
+        cy.log("Create a repository for access test");
+        cy.get("[data-test=create-repository-button]").click();
+        cy.get("[data-test=create-repository-modal-form]").within(() => {
+            cy.get("[data-test=create_repository_name]").type(`UpdateRepository${now}`);
+            cy.root().submit();
+        });
+
         cy.regularUserSession();
         cy.createNewPublicProject(`ruser-fork-${now}`, "agile_alm");
         cy.visitProjectService(`ruser-fork-${now}`, "Git");
@@ -164,18 +172,13 @@ describe("Git", function () {
                 cy.get("[data-test=no-repositories]").should("be.visible");
 
                 cy.log("User can no longer checkout the repository");
-                const uri = encodeURI(
-                    `https://ProjectAdministrator:Correct Horse Battery Staple@${repository_path}`,
-                );
-                const clone_command = `cd /tmp &&
-                    git -c http.sslVerify=false clone ${uri} ${repository_name} &&
-                    cd /tmp/${repository_name} &&
-                    git config user.name "admin" &&
-                    git config user.email "admin@example.com"
-                `;
-                cy.exec(clone_command, { failOnNonZeroExit: false })
-                    .its("stderr")
-                    .should("contain", "fatal");
+                cy.cloneRepositoryWillFail(
+                    "ProjectAdministrator",
+                    repository_path,
+                    repository_name,
+                ).then((result) => {
+                    expect(result.includes("fatal")).to.be.true;
+                });
             });
 
             it("other groups can be defined as git admin", function () {
@@ -359,6 +362,42 @@ describe("Git", function () {
                 cy.get("[data-test=feedback]").contains("successfully added to notifications");
             });
         });
+        context("Repository permissions", function () {
+            it("When Nobody can read a repository, it cannot be cloned", function () {
+                cy.projectAdministratorSession();
+                cy.visitProjectService(`git-access`, "Git");
+                cy.get("[data-test=git-repository-path]").contains("Access").click();
+                cy.get("[data-test=git-repository-tree-table]").contains("No commits");
+
+                const repository_path = "tuleap/plugins/git/git-access/Access";
+                const repository_name = `access-${now}`;
+                cy.cloneRepositoryWillFail(
+                    "ProjectAdministrator",
+                    repository_path,
+                    repository_name,
+                ).then((result) => {
+                    expect(result.includes("error")).to.be.true;
+                });
+            });
+            it("User can choose permissions of his repository", function () {
+                cy.projectAdministratorSession();
+                cy.visitProjectService(`git-access`, "Git");
+                cy.get("[data-test=git-repository-path]")
+                    .contains(`UpdateRepository${now}`)
+                    .click();
+                cy.get("[data-test=git-repository-settings]").click();
+
+                cy.log("User can change the access right of the repository");
+                cy.get("[data-test=perms]").click();
+
+                cy.get("[data-test=git-repository-read-permissions]").select("Nobody");
+                cy.get("[data-test=git-repository-write-permissions]").select("Nobody");
+                cy.get("[data-test=git-repository-rewind-permissions]").select("Nobody");
+
+                cy.get("[data-test=git-permissions-submit]").click();
+                cy.get("[data-test=feedback]").contains("Repository informations have been saved");
+            });
+        });
         context("Fine grained permissions", function () {
             it("Permissions should be respected", function () {
                 const repository_path = "tuleap/plugins/git/git-fined-grained/fine-grained";
@@ -534,6 +573,56 @@ describe("Git", function () {
                 const repository_name = `MyRepositoryClone${now}`;
                 cy.cloneRepository("ProjectAdministrator", repository_path, repository_name);
                 cy.pushGitCommit(repository_name);
+            });
+        });
+
+        context("Artifact actions", function () {
+            describe("Git branch", function () {
+                it("should create a Git branch through artifact action", () => {
+                    cy.projectAdministratorSession();
+                    cy.visitProjectService("git-artifact-action", "Trackers");
+                    cy.get("[data-test=tracker-link]").click();
+                    cy.get("[data-test=new-artifact]").click();
+                    cy.get("[data-test=summary]").type("My artifact");
+                    cy.get("[data-test=artifact-submit-and-stay]").click();
+
+                    cy.get("[data-test=tracker-artifact-value-status]").contains("To be done");
+
+                    cy.get("[data-test=tracker-artifact-actions]").click();
+                    cy.get("[data-test=create-git-branch-button]").click();
+                    cy.get("[data-test=create-branch-submit-button]").click();
+                    cy.get("[data-test=feedback]").contains("successfully created");
+
+                    cy.get("[data-test=current-artifact-id]")
+                        .should("have.attr", "data-artifact-id")
+                        .then((artifact_id) => {
+                            cy.visitProjectService("git-artifact-action", "Git");
+                            cy.get("[data-test=pull-requests-badge]").click();
+                            cy.get("[data-test=pull-request-card]").contains(
+                                `${artifact_id}-my-artifact`,
+                            );
+                            cy.get("[data-test=pull-request-card]").contains("main");
+
+                            const repository_path =
+                                "tuleap/plugins/git/git-artifact-action/MyRepository";
+                            const repository_name = `MyRepository${now}`;
+                            cy.cloneRepository(
+                                "ProjectAdministrator",
+                                repository_path,
+                                repository_name,
+                            );
+
+                            const command = `cd /tmp/${repository_name}
+                                echo aa >> README &&
+                                git add README &&
+                                git commit -m 'Closes art #${artifact_id}' &&
+                                git -c http.sslVerify=false push`;
+                            cy.exec(command);
+
+                            cy.visit(`/plugins/tracker/?&aid=${artifact_id}`);
+                            cy.get("[data-test=tracker-artifact-value-status]").contains("Done");
+                        });
+                });
             });
         });
     });

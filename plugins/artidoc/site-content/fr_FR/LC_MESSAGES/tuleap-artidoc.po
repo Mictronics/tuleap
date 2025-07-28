@@ -18,6 +18,9 @@ msgstr "Administration"
 msgid "Artidoc"
 msgstr "Artidoc"
 
+msgid "Artifact link field must use 'block' display type."
+msgstr "Le champ liens d'artifact doit utiliser l'affichage 'block'."
+
 msgid "Artifacts as Documents"
 msgstr "Artifacts sous forme de Documents"
 
@@ -139,3 +142,12 @@ msgstr ""
 
 msgid "You don't have permission to write the document."
 msgstr "Vous n'avez pas la permission de mettre à jour le document."
+
+msgid "is Child of"
+msgstr "est Enfant de"
+
+msgid "is Linked to"
+msgstr "est Lié à"
+
+msgid "is Parent of"
+msgstr "est Parent de"

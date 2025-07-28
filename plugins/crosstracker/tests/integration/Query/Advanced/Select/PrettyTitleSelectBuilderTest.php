@@ -24,6 +24,7 @@ namespace Tuleap\CrossTracker\Query\Advanced\Select;
 
 use PFUser;
 use ProjectUGroup;
+use Tuleap\Color\ColorName;
 use Tuleap\CrossTracker\Query\Advanced\CrossTrackerFieldTestCase;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Representations\PrettyTitleRepresentation;
 use Tuleap\CrossTracker\Tests\CrossTrackerQueryTestBuilder;
@@ -43,6 +44,7 @@ final class PrettyTitleSelectBuilderTest extends CrossTrackerFieldTestCase
      */
     private array $expected_values;
 
+    #[\Override]
     public function setUp(): void
     {
         $db              = DBFactory::getMainTuleapDBConnection()->getDB();
@@ -55,8 +57,8 @@ final class PrettyTitleSelectBuilderTest extends CrossTrackerFieldTestCase
         $core_builder->addUserToProjectMembers((int) $this->user->getId(), $project_id);
         $this->uuid = $this->addWidgetToProject(1, $project_id);
 
-        $release_tracker = $tracker_builder->buildTracker($project_id, 'Release', 'deep-blue');
-        $sprint_tracker  = $tracker_builder->buildTracker($project_id, 'Sprint', 'ultra-violet');
+        $release_tracker = $tracker_builder->buildTracker($project_id, 'Release', ColorName::DEEP_BLUE);
+        $sprint_tracker  = $tracker_builder->buildTracker($project_id, 'Sprint', ColorName::ULTRA_VIOLET);
         $tracker_builder->setViewPermissionOnTracker($release_tracker->getId(), Tracker::PERMISSION_FULL, ProjectUGroup::PROJECT_MEMBERS);
         $tracker_builder->setViewPermissionOnTracker($sprint_tracker->getId(), Tracker::PERMISSION_FULL, ProjectUGroup::PROJECT_MEMBERS);
 

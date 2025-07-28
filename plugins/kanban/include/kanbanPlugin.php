@@ -96,6 +96,11 @@ use Tuleap\Tracker\RealTime\RealTimeArtifactMessageSender;
 use Tuleap\Tracker\RealtimeMercure\RealTimeMercureArtifactMessageSender;
 use Tuleap\Tracker\Report\Event\TrackerReportDeleted;
 use Tuleap\Tracker\Report\Event\TrackerReportSetToPrivate;
+use Tuleap\Tracker\Semantic\Status\CachedSemanticStatusRetriever;
+use Tuleap\Tracker\Semantic\Status\SemanticStatusFieldRetriever;
+use Tuleap\Tracker\Semantic\Status\SemanticStatusRetriever;
+use Tuleap\Tracker\Semantic\Status\StatusSemanticDAO;
+use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
 use Tuleap\Tracker\TrackerCrumbInContext;
 use Tuleap\Tracker\TrackerEventTrackersDuplicated;
 use Tuleap\Tracker\XML\Importer\ImportXMLProjectTrackerDone;
@@ -362,6 +367,8 @@ final class KanbanPlugin extends Plugin implements PluginWithService
                     new KanbanPermissionsManager(),
                     Tracker_FormElementFactory::instance(),
                     \Tuleap\Tracker\Permission\SubmissionPermissionVerifier::instance(),
+                    CachedSemanticTitleFieldRetriever::instance(),
+                    CachedSemanticStatusRetriever::instance(),
                 )
             ),
         );
@@ -611,6 +618,8 @@ final class KanbanPlugin extends Plugin implements PluginWithService
                 new KanbanPermissionsManager(),
                 $this->getFormElementFactory(),
                 \Tuleap\Tracker\Permission\SubmissionPermissionVerifier::instance(),
+                CachedSemanticTitleFieldRetriever::instance(),
+                CachedSemanticStatusRetriever::instance(),
             )
         );
     }
@@ -622,9 +631,14 @@ final class KanbanPlugin extends Plugin implements PluginWithService
 
     private function getKanbanColumnFactory(): KanbanColumnFactory
     {
+        $status_semantic_dao = new StatusSemanticDAO();
         return new KanbanColumnFactory(
             new KanbanColumnDao(),
             new KanbanUserPreferences(),
+            new SemanticStatusRetriever(
+                new SemanticStatusFieldRetriever($status_semantic_dao, Tracker_FormElementFactory::instance()),
+                $status_semantic_dao,
+            ),
         );
     }
 
@@ -640,7 +654,8 @@ final class KanbanPlugin extends Plugin implements PluginWithService
     {
         return new RealTimeArtifactMessageControllerMercure(
             $this->getKanbanFactory(),
-            $this->getKanbanArtifactMessageSenderMercure()
+            $this->getKanbanArtifactMessageSenderMercure(),
+            CachedSemanticStatusRetriever::instance(),
         );
     }
 
@@ -658,7 +673,8 @@ final class KanbanPlugin extends Plugin implements PluginWithService
         );
         $realtime_artifact_message_builder = new KanbanArtifactMessageBuilder(
             $kanban_item_dao,
-            Tracker_Artifact_ChangesetFactoryBuilder::build()
+            Tracker_Artifact_ChangesetFactoryBuilder::build(),
+            CachedSemanticStatusRetriever::instance(),
         );
         $backend_logger                    = BackendLogger::getDefaultLogger('realtime_syslog');
         $realtime_artifact_message_sender  = new RealTimeArtifactMessageSender($node_js_client, $permissions_serializer);

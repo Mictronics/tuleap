@@ -25,6 +25,7 @@ namespace Tuleap\Timetracking\REST\v1\TimetrackingManagement;
 use Tuleap\NeverThrow\Err;
 use Tuleap\NeverThrow\Fault;
 use Tuleap\NeverThrow\Ok;
+use Tuleap\NeverThrow\Result;
 
 final readonly class QueryPUTHandler
 {
@@ -37,21 +38,25 @@ final readonly class QueryPUTHandler
     }
 
     /**
-     * @return Ok<true>|Err<Fault>
+     * @return Ok<UserList>|Err<Fault>
      */
     public function handle(int $query_id, QueryPUTRepresentation $representation, \PFUser $user): Ok|Err
     {
         return $this->permission_checker->checkThatCurrentUserCanUpdateTheQuery($query_id, $user)
-            ->andThen(fn () => $this->user_list_builder->getUserList($representation->users))
+            ->andThen(fn () => $this->user_list_builder->getUserList($user, $representation->users))
             ->andThen(fn (UserList $users) => $this->save($query_id, $representation, $users));
     }
 
+    /**
+     * @return Ok<UserList>|Err<Fault>
+     */
     private function save(
         int $query_id,
         QueryPUTRepresentation $representation,
         UserList $users,
     ): Ok|Err {
         return $this->data_checker->getValidatedPeriod($representation)
-            ->andThen(fn (Period $period) => $this->timetracking_management_widget_saver->save($query_id, $period, $users));
+            ->andThen(fn (Period $period) => $this->timetracking_management_widget_saver->save($query_id, $period, $users))
+            ->andThen(fn () => Result::ok($users));
     }
 }

@@ -280,21 +280,25 @@ class Tracker_FormElement_Field_OpenList extends Tracker_FormElement_Field_List 
         return new OpenListFieldDao();
     }
 
+    #[\Override]
     protected function getDeleteSpecificPropertiesDao(): DeleteSpecificProperties
     {
         return new OpenListSpecificPropertiesDAO();
     }
 
+    #[\Override]
     protected function getSearchSpecificPropertiesDao(): SearchSpecificProperties
     {
         return new OpenListSpecificPropertiesDAO();
     }
 
+    #[\Override]
     public function getDeleteCriteriaValueDAO(): DeleteReportCriteriaValue
     {
         return new CriteriaOpenListValueDAO();
     }
 
+    #[\Override]
     protected function getSaveSpecificPropertiesDao(): SaveSpecificFieldProperties
     {
         return new OpenListSpecificPropertiesDAO();
@@ -510,7 +514,7 @@ class Tracker_FormElement_Field_OpenList extends Tracker_FormElement_Field_List 
         int $changeset_id,
         mixed $value,
         ?Tracker_Report $report = null,
-        ?int $from_aid = null,
+        ?array $redirection_parameters = null,
     ): string {
         $arr       = [];
         $bindtable = $this->getBind()->getBindtableSqlFragment();

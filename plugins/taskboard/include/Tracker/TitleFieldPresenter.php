@@ -33,9 +33,9 @@ final class TitleFieldPresenter
      */
     public $is_string_field;
 
-    public function __construct(\Tracker_FormElement_Field_Text $field)
+    public function __construct(\Tuleap\Tracker\FormElement\Field\Text\TextField $field)
     {
         $this->id              = (int) $field->getId();
-        $this->is_string_field = $field instanceof \Tracker_FormElement_Field_String;
+        $this->is_string_field = $field instanceof \Tuleap\Tracker\FormElement\Field\String\StringField;
     }
 }

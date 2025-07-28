@@ -18,12 +18,12 @@
  */
 
 import { describe, it, expect, beforeEach } from "vitest";
-import { okAsync } from "neverthrow";
 import { shallowMount } from "@vue/test-utils";
 import type { VueWrapper } from "@vue/test-utils";
 import { Option } from "@tuleap/option";
 import { ArtifactsTableBuilder } from "../../../tests/builders/ArtifactsTableBuilder";
 import { ArtifactRowBuilder } from "../../../tests/builders/ArtifactRowBuilder";
+import { RetrieveArtifactLinksStub } from "../../../tests/stubs/RetrieveArtifactLinksStub";
 import { DATE_CELL, NUMERIC_CELL, TEXT_CELL } from "../../domain/ArtifactsTable";
 import type { ArtifactsTable } from "../../domain/ArtifactsTable";
 import { getGlobalTestOptions } from "../../helpers/global-options-for-tests";
@@ -36,20 +36,14 @@ const DATE_COLUMN_NAME = "start_date";
 const NUMERIC_COLUMN_NAME = "remaining_effort";
 const TEXT_COLUMN_NAME = "details";
 
-const RetrieveArtifactLinksTableStub = {
-    withDefaultContent(): RetrieveArtifactLinks {
-        return {
-            getForwardLinks: () => okAsync(new ArtifactsTableBuilder().buildWithTotal(0)),
-            getReverseLinks: () => okAsync(new ArtifactsTableBuilder().buildWithTotal(0)),
-        };
-    },
-};
-
 describe("ArtifactRows", () => {
-    let table: ArtifactsTable, artifact_links_table_retriever: RetrieveArtifactLinks;
+    let table: ArtifactsTable,
+        artifact_links_table_retriever: RetrieveArtifactLinks,
+        ancestors: number[];
 
     beforeEach(() => {
-        artifact_links_table_retriever = RetrieveArtifactLinksTableStub.withDefaultContent();
+        artifact_links_table_retriever = RetrieveArtifactLinksStub.withDefaultContent();
+        ancestors = [123, 135];
 
         table = new ArtifactsTableBuilder()
             .withColumn(DATE_COLUMN_NAME)
@@ -70,7 +64,7 @@ describe("ArtifactRows", () => {
                         type: TEXT_CELL,
                         value: "<p>Griffith</p>",
                     })
-                    .buildWithNumberOfLinks(2, 1),
+                    .buildWithExpectedNumberOfLinks(2, 1),
             )
             .withArtifactRow(
                 new ArtifactRowBuilder()
@@ -103,6 +97,7 @@ describe("ArtifactRows", () => {
                 columns: artifacts_table.columns,
                 tql_query: "SELECT @id FROM @project='self' WHERE @id>1",
                 level: 0,
+                ancestors,
             },
         });
     };
@@ -121,6 +116,31 @@ describe("ArtifactRows", () => {
         expect(artifact_rows).not.toHaveLength(0);
         artifact_rows.forEach((artifact_row) => {
             expect(artifact_row.props("level")).toBe(wrapper.props("level"));
+        });
+    });
+
+    describe("ancestors propagation", () => {
+        it("should propagate ancestors to its rows", () => {
+            const wrapper = getWrapper(table);
+
+            const artifact_rows = wrapper.findAllComponents(ArtifactRow);
+
+            expect(artifact_rows).not.toHaveLength(0);
+            artifact_rows.forEach((artifact_row) => {
+                expect(artifact_row.props("ancestors")).toStrictEqual(wrapper.props("ancestors"));
+            });
+        });
+
+        it("should propagate ancestors to its rows even if it is empty", () => {
+            ancestors = [];
+            const wrapper = getWrapper(table);
+
+            const artifact_rows = wrapper.findAllComponents(ArtifactRow);
+
+            expect(artifact_rows).not.toHaveLength(0);
+            artifact_rows.forEach((artifact_row) => {
+                expect(artifact_row.props("ancestors")).toStrictEqual(wrapper.props("ancestors"));
+            });
         });
     });
 });

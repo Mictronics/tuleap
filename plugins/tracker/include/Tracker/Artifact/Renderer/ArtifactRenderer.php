@@ -166,8 +166,14 @@ abstract class Tracker_Artifact_ArtifactRenderer // phpcs:ignore PSR1.Classes.Cl
         return $this->tracker->displayRulesAsJavascript();
     }
 
-    protected function enhanceRedirect(Codendi_Request $request)
+    protected function enhanceRedirect(Codendi_Request $request): void
     {
+        if ($request->get('my-dashboard-id')) {
+            $this->redirect->query_parameters['my-dashboard-id'] = $request->get('my-dashboard-id');
+        }
+        if ($request->get('project-dashboard-id')) {
+            $this->redirect->query_parameters['project-dashboard-id'] = $request->get('project-dashboard-id');
+        }
         $this->event_manager->processEvent(new BuildArtifactFormActionEvent($request, $this->redirect));
     }
 }

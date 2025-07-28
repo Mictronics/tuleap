@@ -34,12 +34,12 @@ use Tuleap\Artidoc\Stubs\Document\Field\RetrieveConfiguredFieldStub;
 use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
-use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle;
-use Tuleap\Tracker\Test\Stub\RetrieveSemanticDescriptionFieldStub;
 use Tuleap\Tracker\Test\Builders\Fields\ExternalFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\StringFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Test\Stub\RetrieveUsedFieldsStub;
+use Tuleap\Tracker\Test\Stub\Semantic\Description\RetrieveSemanticDescriptionFieldStub;
+use Tuleap\Tracker\Test\Stub\Semantic\Title\RetrieveSemanticTitleFieldStub;
 
 #[DisableReturnValueGenerationForTestDoubles]
 final class ConfiguredFieldCollectionBuilderTest extends TestCase
@@ -49,6 +49,7 @@ final class ConfiguredFieldCollectionBuilderTest extends TestCase
     private PFUser $user;
     private \Tuleap\Tracker\Tracker $tracker;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->tracker    = TrackerTestBuilder::aTracker()->withId(1001)->build();
@@ -57,18 +58,14 @@ final class ConfiguredFieldCollectionBuilderTest extends TestCase
         $this->user       = UserTestBuilder::buildWithDefaults();
     }
 
-    protected function tearDown(): void
-    {
-        TrackerSemanticTitle::clearInstances();
-    }
-
     public function testEmptyConfiguredFields(): void
     {
         $builder = new ConfiguredFieldCollectionBuilder(
             RetrieveConfiguredFieldStub::withoutConfiguredFields(),
             new SuitableFieldRetriever(
                 RetrieveUsedFieldsStub::withNoFields(),
-                RetrieveSemanticDescriptionFieldStub::withNoField(),
+                RetrieveSemanticDescriptionFieldStub::build(),
+                RetrieveSemanticTitleFieldStub::build(),
             ),
         );
 
@@ -89,7 +86,8 @@ final class ConfiguredFieldCollectionBuilderTest extends TestCase
                         ->inTracker($this->tracker)
                         ->build()
                 ),
-                RetrieveSemanticDescriptionFieldStub::withNoField(),
+                RetrieveSemanticDescriptionFieldStub::build(),
+                RetrieveSemanticTitleFieldStub::build(),
             ),
         );
 
@@ -119,12 +117,9 @@ final class ConfiguredFieldCollectionBuilderTest extends TestCase
                         ->inTracker($this->tracker)
                         ->build(),
                 ),
-                RetrieveSemanticDescriptionFieldStub::withNoField(),
+                RetrieveSemanticDescriptionFieldStub::build(),
+                RetrieveSemanticTitleFieldStub::build(),
             )
-        );
-        TrackerSemanticTitle::setInstance(
-            new TrackerSemanticTitle($this->tracker, null),
-            $this->tracker
         );
 
         $scenarios = [

@@ -5,8 +5,10 @@
   "license": "GPL-2.0-or-later",
   "private": true,
   "type": "module",
+  "types": "./src/index.d.ts",
   "exports": {
     ".": {
+      "types": "./src/index.d.ts",
       "sass": "./dist/plugin-tracker-color-picker.css",
       "import": "./dist/plugin-tracker-color-picker.js",
       "require": "./dist/plugin-tracker-color-picker.umd.cjs"
@@ -17,7 +19,7 @@
     "@tuleap/dom": "workspace:^",
     "@tuleap/tlp-swatch-colors": "workspace:*",
     "@tuleap/vue3-gettext-init": "workspace:*",
-    "vue": "3.3.4",
+    "vue": "3.4.38",
     "vue3-gettext": "^2.4.0"
   },
   "devDependencies": {

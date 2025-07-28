@@ -33,7 +33,6 @@ use Tuleap\Instrument\Prometheus\Prometheus;
 use Tuleap\Layout\Feedback\FeedbackSerializer;
 use Tuleap\Mapper\ValinorMapperBuilderFactory;
 use Tuleap\Markdown\CommonMarkInterpreter;
-use Tuleap\Notification\Mention\MentionedUserInTextRetriever;
 use Tuleap\Plugin\ListeningToEventClass;
 use Tuleap\Plugin\ListeningToEventName;
 use Tuleap\Project\Admin\History\GetHistoryKeyLabel;
@@ -91,6 +90,8 @@ use Tuleap\Tracker\REST\PermissionsExporter;
 use Tuleap\Tracker\REST\Tracker\PermissionsRepresentationBuilder;
 use Tuleap\Tracker\REST\WorkflowRestBuilder;
 use Tuleap\Tracker\Semantic\Description\CachedSemanticDescriptionFieldRetriever;
+use Tuleap\Tracker\Semantic\Status\CachedSemanticStatusRetriever;
+use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
 use Tuleap\Tracker\Tracker;
 use Tuleap\Tracker\Webhook\ArtifactPayloadBuilder;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldDetector;
@@ -216,7 +217,12 @@ final class tracker_functionsPlugin extends Plugin
                     ),
                     new PermissionsRepresentationBuilder($ugroup_manager, $permissions_functions_wrapper,),
                     new WorkflowRestBuilder(),
-                    static fn(Tracker $tracker) => new \Tuleap\Tracker\Semantic\TrackerSemanticManager(CachedSemanticDescriptionFieldRetriever::instance(), $tracker),
+                    static fn(Tracker $tracker) => new \Tuleap\Tracker\Semantic\TrackerSemanticManager(
+                        CachedSemanticDescriptionFieldRetriever::instance(),
+                        CachedSemanticTitleFieldRetriever::instance(),
+                        CachedSemanticStatusRetriever::instance(),
+                        $tracker,
+                    ),
                     new ParentInHierarchyRetriever(new HierarchyDAO(), TrackerFactory::instance()),
                     TrackersPermissionsRetriever::build()
                 ),
@@ -421,7 +427,6 @@ final class tracker_functionsPlugin extends Plugin
                     $event_manager,
                     new Tracker_Artifact_Changeset_CommentDao(),
                 ),
-                new MentionedUserInTextRetriever($user_manager),
             ),
         );
 

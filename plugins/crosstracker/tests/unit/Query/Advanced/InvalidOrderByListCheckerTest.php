@@ -23,59 +23,86 @@ declare(strict_types=1);
 namespace Tuleap\CrossTracker\Query\Advanced;
 
 use LogicException;
+use PHPUnit\Framework\Attributes\DataProvider;
 use Tracker_FormElement_Field_List;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\Metadata;
 use Tuleap\Tracker\Semantic\Contributor\ContributorFieldRetriever;
 use Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributorFactory;
-use Tuleap\Tracker\Semantic\Status\StatusFieldRetriever;
-use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
-use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatusFactory;
 use Tuleap\Tracker\Test\Builders\Fields\CheckboxFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\OpenListFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\RadioButtonFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
+use Tuleap\Tracker\Test\Stub\RetrieveSemanticStatusFieldStub;
+use Tuleap\Tracker\Tracker;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class InvalidOrderByListCheckerTest extends TestCase
 {
-    protected function tearDown(): void
+    private RetrieveSemanticStatusFieldStub $status_field_retriever;
+
+    #[\Override]
+    protected function setUp(): void
     {
-        TrackerSemanticStatus::clearInstances();
+        $this->status_field_retriever = RetrieveSemanticStatusFieldStub::build();
+    }
+
+    private function getChecker(): InvalidOrderByListChecker
+    {
+        return new InvalidOrderByListChecker(
+            $this->status_field_retriever,
+            new ContributorFieldRetriever(TrackerSemanticContributorFactory::instance()),
+        );
     }
 
     public function testItThrowIfUsedWithNotHandledMetadata(): void
     {
-        $checker = new InvalidOrderByListChecker(
-            new StatusFieldRetriever(TrackerSemanticStatusFactory::instance()),
-            new ContributorFieldRetriever(TrackerSemanticContributorFactory::instance()),
-        );
-        self::expectException(LogicException::class);
-        $checker->metadataListIsSortable(new Metadata('title'), [TrackerTestBuilder::aTracker()->build()]);
+        $tracker = TrackerTestBuilder::aTracker()->withId(45)->build();
+
+        $this->expectException(LogicException::class);
+        $this->getChecker()->metadataListIsSortable(new Metadata('title'), [$tracker]);
     }
 
     public static function generateFields(): iterable
     {
-        yield 'It allows radio button' => [RadioButtonFieldBuilder::aRadioButtonField(101)->build(), true];
-        yield 'It allows selectbox' => [ListFieldBuilder::aListField(101)->build(), true];
-        yield 'It rejects checkbox' => [CheckboxFieldBuilder::aCheckboxField(101)->build(), false];
-        yield 'It rejects multi-selectbox' => [ListFieldBuilder::aListField(101)->withMultipleValues()->build(), false];
-        yield 'It rejects open list' => [OpenListFieldBuilder::anOpenListField()->build(), false];
+        $tracker = TrackerTestBuilder::aTracker()->withId(903)->build();
+
+        yield 'It allows radio button' => [
+            RadioButtonFieldBuilder::aRadioButtonField(101)->inTracker($tracker)->build(),
+            $tracker,
+            true,
+        ];
+        yield 'It allows selectbox' => [
+            ListFieldBuilder::aListField(101)->inTracker($tracker)->build(),
+            $tracker,
+            true,
+        ];
+        yield 'It rejects checkbox' => [
+            CheckboxFieldBuilder::aCheckboxField(101)->inTracker($tracker)->build(),
+            $tracker,
+            false,
+        ];
+        yield 'It rejects multi-selectbox' => [
+            ListFieldBuilder::aListField(101)->withMultipleValues()->inTracker($tracker)->build(),
+            $tracker,
+            false,
+        ];
+        yield 'It rejects open list' => [
+            OpenListFieldBuilder::anOpenListField()->withTracker($tracker)->build(),
+            $tracker,
+            false,
+        ];
     }
 
-    #[\PHPUnit\Framework\Attributes\DataProvider('generateFields')]
-    public function testItAllowsSingleValueListFields(Tracker_FormElement_Field_List $list, bool $is_allowed): void
+    #[DataProvider('generateFields')]
+    public function testItAllowsSingleValueListFields(Tracker_FormElement_Field_List $list, Tracker $tracker, bool $is_allowed): void
     {
-        $checker = new InvalidOrderByListChecker(
-            new StatusFieldRetriever(TrackerSemanticStatusFactory::instance()),
-            new ContributorFieldRetriever(TrackerSemanticContributorFactory::instance()),
+        $this->status_field_retriever->withField($list);
+
+        self::assertSame(
+            $is_allowed,
+            $this->getChecker()->metadataListIsSortable(new Metadata('status'), [$tracker])
         );
-        $tracker = TrackerTestBuilder::aTracker()->withId(45)->build();
-        TrackerSemanticStatus::setInstance(
-            new TrackerSemanticStatus($tracker, $list),
-            $tracker,
-        );
-        self::assertSame($is_allowed, $checker->metadataListIsSortable(new Metadata('status'), [$tracker]));
     }
 }

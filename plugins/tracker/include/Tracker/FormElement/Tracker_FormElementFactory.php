@@ -26,10 +26,14 @@ use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\RetrieveAnArtifactLinkField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\RetrieveUsedArtifactLinkFields;
 use Tuleap\Tracker\FormElement\Field\FieldDao;
-use Tuleap\Tracker\FormElement\Field\RetrieveFieldById;
+use Tuleap\Tracker\FormElement\Field\Float\FloatField;
+use Tuleap\Tracker\FormElement\Field\Integer\IntegerField;
 use Tuleap\Tracker\FormElement\Field\ListFields\RetrieveUsedListField;
+use Tuleap\Tracker\FormElement\Field\RetrieveFieldById;
 use Tuleap\Tracker\FormElement\Field\RetrieveUsedFields;
 use Tuleap\Tracker\FormElement\Field\Shareable\PropagatePropertiesDao;
+use Tuleap\Tracker\FormElement\Field\String\StringField;
+use Tuleap\Tracker\FormElement\Field\Text\TextField;
 use Tuleap\Tracker\FormElement\FieldNameFormatter;
 use Tuleap\Tracker\FormElement\FormElementDeletedEvent;
 use Tuleap\Tracker\FormElement\RetrieveFieldType;
@@ -88,16 +92,16 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
 
     // Please use unique key for each element
     protected $classnames = [
-        self::FIELD_STRING_TYPE           => Tracker_FormElement_Field_String::class,
-        self::FIELD_TEXT_TYPE             => Tracker_FormElement_Field_Text::class,
-        self::FIELD_FLOAT_TYPE            => Tracker_FormElement_Field_Float::class,
+        self::FIELD_STRING_TYPE           => StringField::class,
+        self::FIELD_TEXT_TYPE             => TextField::class,
+        self::FIELD_FLOAT_TYPE            => FloatField::class,
         self::FIELD_DATE_TYPE => Tracker_FormElement_Field_Date::class,
         self::FIELD_SELECT_BOX_TYPE => Tracker_FormElement_Field_Selectbox::class,
         self::FIELD_RADIO_BUTTON_TYPE => Tracker_FormElement_Field_Radiobutton::class,
         self::FIELD_MULTI_SELECT_BOX_TYPE => Tracker_FormElement_Field_MultiSelectbox::class,
         self::FIELD_FILE_TYPE => Tracker_FormElement_Field_File::class,
         self::FIELD_CHECKBOX_TYPE => Tracker_FormElement_Field_Checkbox::class,
-        self::FIELD_INTEGER_TYPE => Tracker_FormElement_Field_Integer::class,
+        self::FIELD_INTEGER_TYPE => IntegerField::class,
         self::FIELD_OPEN_LIST_TYPE => Tracker_FormElement_Field_OpenList::class,
         self::FIELD_ARTIFACT_LINKS => ArtifactLinkField::class,
         self::FIELD_PERMISSION_ON_ARTIFACT_TYPE => Tracker_FormElement_Field_PermissionsOnArtifact::class,
@@ -801,7 +805,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
 
     /**
      * @param Tracker $tracker
-     * @return Tracker_FormElement_Field_Text[] All text formElements used by the tracker
+     * @return TextField[] All text formElements used by the tracker
      */
     public function getUsedTextFields($tracker)
     {

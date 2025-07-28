@@ -62,6 +62,8 @@ use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindDecoratorRetriever;
 use Tuleap\Tracker\REST\Helpers\ArtifactsRankOrderer;
 use Tuleap\Tracker\REST\Helpers\IdsFromBodyAreNotUniqueException;
 use Tuleap\Tracker\REST\Helpers\OrderRepresentation;
+use Tuleap\Tracker\Semantic\Status\CachedSemanticStatusFieldRetriever;
+use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
 use UserManager;
 
 /**
@@ -122,6 +124,8 @@ class ProjectBacklogResource
             new ArtifactsInExplicitBacklogDao(),
             new PriorityDao(),
             \Tuleap\Tracker\Permission\TrackersPermissionsRetriever::build(),
+            CachedSemanticTitleFieldRetriever::instance(),
+            CachedSemanticStatusFieldRetriever::instance(),
         );
 
         $this->milestone_validator = new MilestoneResourceValidator(

@@ -40,8 +40,13 @@
                 v-bind:static_list_field="readonly_field"
             />
             <field-user-list
-                v-if="readonly_field.type === USER_LIST_FIELD"
+                v-if="readonly_field.type === USER_LIST_FIELD || readonly_field.type === USER_FIELD"
                 v-bind:user_list_field="readonly_field"
+            />
+            <field-links v-if="readonly_field.type === LINKS_FIELD" v-bind:field="readonly_field" />
+            <field-numeric
+                v-if="readonly_field.type === NUMERIC_FIELD"
+                v-bind:field="readonly_field"
             />
         </div>
     </div>
@@ -49,24 +54,30 @@
 
 <script setup lang="ts">
 import FieldString from "@/components/section/readonly-fields/FieldString.vue";
-import type { ReadonlyField } from "@/sections/readonly-fields/ReadonlyFields";
 import {
+    NUMERIC_FIELD,
+    LINKS_FIELD,
     STATIC_LIST_FIELD,
     STRING_FIELD,
     USER_GROUP_LIST_FIELD,
     USER_LIST_FIELD,
+    USER_FIELD,
 } from "@/sections/readonly-fields/ReadonlyFields";
+import type { ReadonlyField } from "@/sections/readonly-fields/ReadonlyFields";
 import type { SectionBasedOnArtifact } from "@/helpers/artidoc-section.type";
 import FieldUserGroupsList from "@/components/section/readonly-fields/FieldUserGroupsList.vue";
 import FieldStaticList from "@/components/section/readonly-fields/FieldStaticList.vue";
 import FieldUserList from "@/components/section/readonly-fields/FieldUserList.vue";
+import FieldLinks from "@/components/section/readonly-fields/FieldLinks.vue";
+import FieldNumeric from "@/components/section/readonly-fields/FieldNumeric.vue";
+import { DISPLAY_TYPE_BLOCK } from "@/sections/readonly-fields/AvailableReadonlyFields";
 
 defineProps<{
     section: SectionBasedOnArtifact;
 }>();
 
 const getFieldClasses = (readonly_field: ReadonlyField): string[] => {
-    if (readonly_field.display_type === "block") {
+    if (readonly_field.display_type === DISPLAY_TYPE_BLOCK) {
         return ["display-field-in-block", "document-grid-element-full-row"];
     }
 
@@ -79,6 +90,8 @@ const getFieldClasses = (readonly_field: ReadonlyField): string[] => {
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
     margin: var(--tlp-medium-spacing) 0 0;
+    overflow-wrap: normal;
+    gap: var(--tlp-small-spacing);
 
     > .display-field-in-block {
         grid-column-start: span 4;

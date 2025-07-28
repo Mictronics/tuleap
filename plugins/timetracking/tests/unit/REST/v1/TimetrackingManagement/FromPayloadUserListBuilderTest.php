@@ -25,7 +25,7 @@ namespace Tuleap\Timetracking\REST\v1\TimetrackingManagement;
 use Tuleap\NeverThrow\Result;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
-use Tuleap\Timetracking\Tests\Stub\GetActiveUserStub;
+use Tuleap\Timetracking\Tests\Stub\GetViewableUserStub;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FromPayloadUserListBuilderTest extends TestCase
@@ -37,41 +37,88 @@ final class FromPayloadUserListBuilderTest extends TestCase
     private \PFUser $alice;
     private \PFUser $bob;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->alice = UserTestBuilder::aUser()->withId(self::ALICE_ID)->build();
         $this->bob   = UserTestBuilder::aUser()->withId(self::BOB_ID)->build();
     }
 
-    public function testItReturnsAFaultWhenUserIdDoesNotMatchActiveUser(): void
+    public function testItIgnoresWhenUserIdDoesNotMatchActiveUser(): void
     {
+        $current_user = UserTestBuilder::buildWithDefaults();
+
         $result = (
             new FromPayloadUserListBuilder(
-                GetActiveUserStub::withActiveUsers($this->alice, $this->bob),
+                GetViewableUserStub::withViewableUsers($this->alice, $this->bob),
             )
         )->getUserList(
+            $current_user,
             [
-                ['id' => self::ALICE_ID],
-                ['id' => self::CHARLIE_ID],
-            ]
+                QueryUserRepresentation::fromId(self::ALICE_ID),
+                QueryUserRepresentation::fromId(self::CHARLIE_ID),
+            ],
         );
-
-        self::assertTrue(Result::isErr($result));
-        self::assertInstanceOf(QueryInvalidUserIdFault::class, $result->error);
-    }
-
-    public function testItReturnsAUserListWhenValidUsersAreProvided(): void
-    {
-        $result = (
-        new FromPayloadUserListBuilder(
-            GetActiveUserStub::withActiveUsers($this->alice, $this->bob),
-        )
-        )->getUserList([['id' => self::ALICE_ID], ['id' => self::BOB_ID]]);
 
         self::assertTrue(Result::isOk($result));
         self::assertEquals(
             new UserList(
-                [self::ALICE_ID, self::BOB_ID],
+                [$this->alice],
+                [],
+                [self::CHARLIE_ID],
+            ),
+            $result->value
+        );
+    }
+
+    public function testItReturnsAUserListWhenValidUsersAreProvided(): void
+    {
+        $current_user = UserTestBuilder::buildWithDefaults();
+
+        $check_that_user_is_active = GetViewableUserStub::withViewableUsers($this->alice, $this->bob);
+
+        $builder = new FromPayloadUserListBuilder($check_that_user_is_active);
+        $result  = $builder->getUserList(
+            $current_user,
+            [
+                QueryUserRepresentation::fromId(self::ALICE_ID),
+                QueryUserRepresentation::fromId(self::BOB_ID),
+            ],
+        );
+
+        self::assertTrue(Result::isOk($result));
+        self::assertEquals(
+            new UserList(
+                [$this->alice, $this->bob],
+                [],
+                [],
+            ),
+            $result->value
+        );
+    }
+
+    public function testItReturnsAUserListWhenValidUsersAreProvidedButSomeAreNotViewable(): void
+    {
+        $current_user = UserTestBuilder::buildWithDefaults();
+
+        $check_that_user_is_active = GetViewableUserStub::withViewableUsers($this->alice)
+            ->andNotViewableUsers($this->bob);
+
+        $builder = new FromPayloadUserListBuilder($check_that_user_is_active);
+        $result  = $builder->getUserList(
+            $current_user,
+            [
+                QueryUserRepresentation::fromId(self::ALICE_ID),
+                QueryUserRepresentation::fromId(self::BOB_ID),
+            ],
+        );
+
+        self::assertTrue(Result::isOk($result));
+        self::assertEquals(
+            new UserList(
+                [$this->alice],
+                [$this->bob],
+                [],
             ),
             $result->value
         );

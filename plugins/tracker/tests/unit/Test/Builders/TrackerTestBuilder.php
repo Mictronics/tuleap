@@ -23,14 +23,14 @@ declare(strict_types=1);
 namespace Tuleap\Tracker\Test\Builders;
 
 use Project;
-use Tuleap\Color\ItemColor;
+use Tuleap\Color\ColorName;
 use Tuleap\Tracker\Permission\VerifySubmissionPermissions;
 use Tuleap\Tracker\Test\Stub\VerifySubmissionPermissionStub;
 use Tuleap\Tracker\Tracker;
 
 final class TrackerTestBuilder
 {
-    private ?ItemColor $color     = null;
+    private ColorName $color;
     private string $name          = 'Irrelevant';
     private string $description   = 'Irrelevant';
     private string $short_name    = 'irrelevant';
@@ -42,6 +42,11 @@ final class TrackerTestBuilder
     private ?Tracker $parent      = Tracker::NO_PARENT;
     private ?bool $user_can_view  = null;
     private ?bool $user_is_admin  = null;
+
+    private function __construct()
+    {
+        $this->color = ColorName::default();
+    }
 
     public static function aTracker(): self
     {
@@ -90,7 +95,7 @@ final class TrackerTestBuilder
         return $this;
     }
 
-    public function withColor(ItemColor $color): self
+    public function withColor(ColorName $color): self
     {
         $this->color = $color;
 
@@ -141,15 +146,6 @@ final class TrackerTestBuilder
         return (int) $this->project->getId();
     }
 
-    private function getColor(): ItemColor
-    {
-        if (! $this->color) {
-            return ItemColor::default();
-        }
-
-        return $this->color;
-    }
-
     public function build(): Tracker
     {
         $tracker = new class (
@@ -166,7 +162,7 @@ final class TrackerTestBuilder
             true,
             false,
             Tracker::NOTIFICATIONS_LEVEL_DEFAULT,
-            $this->getColor(),
+            $this->color,
             false,
             $this->user_can_submit,
             $this->user_can_view,
@@ -186,7 +182,7 @@ final class TrackerTestBuilder
                 bool $instantiate_for_new_projects,
                 bool $log_priority_changes,
                 int $notifications_level,
-                ItemColor $color,
+                ColorName $color,
                 bool $enable_emailgateway,
                 private readonly bool $user_can_submit,
                 private readonly ?bool $user_can_view,
@@ -195,6 +191,7 @@ final class TrackerTestBuilder
                 parent::__construct($id, $group_id, $name, $description, $item_name, $allow_copy, $submit_instructions, $browse_instructions, $status, $deletion_date, $instantiate_for_new_projects, $log_priority_changes, $notifications_level, $color, $enable_emailgateway);
             }
 
+            #[\Override]
             protected function getTrackerArtifactSubmissionPermission(): VerifySubmissionPermissions
             {
                 return $this->user_can_submit
@@ -202,11 +199,13 @@ final class TrackerTestBuilder
                     : VerifySubmissionPermissionStub::withoutSubmitPermission();
             }
 
+            #[\Override]
             public function userCanView($user = 0): bool
             {
                 return $this->user_can_view ?? parent::userCanView($user);
             }
 
+            #[\Override]
             public function userIsAdmin($user = 0): bool
             {
                 return $this->user_is_admin ?? parent::userIsAdmin($user);

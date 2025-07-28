@@ -82,14 +82,12 @@ use Tuleap\Tracker\Report\Query\Advanced\ListFieldBindValueNormalizer;
 use Tuleap\Tracker\Report\Query\Advanced\UgroupLabelConverter;
 use Tuleap\Tracker\Semantic\Contributor\ContributorFieldRetriever;
 use Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributorFactory;
-use Tuleap\Tracker\Semantic\Status\StatusFieldRetriever;
-use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatusFactory;
 use Tuleap\Tracker\Test\Builders\Fields\CheckboxFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\DateFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ExternalFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\FileFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\FloatFieldBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\IntFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\IntegerFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListUserGroupBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
@@ -100,6 +98,7 @@ use Tuleap\Tracker\Test\Builders\Fields\TextFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Test\Stub\Permission\RetrieveUserPermissionOnFieldsStub;
 use Tuleap\Tracker\Test\Stub\RetrieveFieldTypeStub;
+use Tuleap\Tracker\Test\Stub\RetrieveSemanticStatusFieldStub;
 use Tuleap\Tracker\Test\Stub\RetrieveUsedFieldsStub;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
@@ -118,6 +117,7 @@ final class InvalidTermCollectorVisitorTest extends TestCase
     private \Tuleap\Tracker\Tracker $second_tracker;
     private RetrieveUsedFieldsStub $fields_retriever;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->first_tracker  = TrackerTestBuilder::aTracker()->withId(67)->build();
@@ -129,7 +129,7 @@ final class InvalidTermCollectorVisitorTest extends TestCase
 
         $this->metadata_checker = MetadataCheckerStub::withValidMetadata();
         $this->fields_retriever = RetrieveUsedFieldsStub::withFields(
-            IntFieldBuilder::anIntField(628)
+            IntegerFieldBuilder::anIntField(628)
                 ->withName(self::FIELD_NAME)
                 ->inTracker($this->first_tracker)
                 ->withReadPermission($this->user, true)
@@ -179,7 +179,7 @@ final class InvalidTermCollectorVisitorTest extends TestCase
                         new ArtifactIdMetadataChecker(),
                     ),
                     new InvalidOrderByListChecker(
-                        new StatusFieldRetriever(TrackerSemanticStatusFactory::instance()),
+                        RetrieveSemanticStatusFieldStub::build(),
                         new ContributorFieldRetriever(TrackerSemanticContributorFactory::instance()),
                     ),
                 ),
@@ -255,7 +255,7 @@ final class InvalidTermCollectorVisitorTest extends TestCase
     public function testItAddsFieldUserCanNotReadToInvalidCollection(): void
     {
         $this->fields_retriever = RetrieveUsedFieldsStub::withFields(
-            IntFieldBuilder::anIntField(628)
+            IntegerFieldBuilder::anIntField(628)
                 ->withName(self::FIELD_NAME)
                 ->inTracker($this->first_tracker)
                 ->withReadPermission($this->user, false)
@@ -312,7 +312,7 @@ final class InvalidTermCollectorVisitorTest extends TestCase
     public function testItRejectsInvalidNumericComparisons(Comparison $comparison): void
     {
         $this->fields_retriever = RetrieveUsedFieldsStub::withFields(
-            IntFieldBuilder::anIntField(975)
+            IntegerFieldBuilder::anIntField(975)
                 ->withName(self::FIELD_NAME)
                 ->inTracker($this->first_tracker)
                 ->withReadPermission($this->user, true)
@@ -548,7 +548,7 @@ final class InvalidTermCollectorVisitorTest extends TestCase
         $tracker = TrackerTestBuilder::aTracker()->withId(311)->build();
         $user    = UserTestBuilder::buildWithId(300);
         yield 'int' => [
-            IntFieldBuilder::anIntField(132)
+            IntegerFieldBuilder::anIntField(132)
                 ->withName(self::FIELD_NAME)
                 ->inTracker($tracker)
                 ->withReadPermission($user, true)
@@ -893,12 +893,12 @@ final class InvalidTermCollectorVisitorTest extends TestCase
     public function testItAddsInvalidFieldInNestedExpressions(Logical $parsed_query): void
     {
         $this->fields_retriever = RetrieveUsedFieldsStub::withFields(
-            IntFieldBuilder::anIntField(893)
+            IntegerFieldBuilder::anIntField(893)
                 ->withName(self::FIELD_NAME)
                 ->inTracker($this->first_tracker)
                 ->withReadPermission($this->user, true)
                 ->build(),
-            IntFieldBuilder::anIntField(120)
+            IntegerFieldBuilder::anIntField(120)
                 ->withName(self::FIELD_NAME)
                 ->inTracker($this->second_tracker)
                 ->withReadPermission($this->user, true)

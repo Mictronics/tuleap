@@ -33,7 +33,6 @@ use Planning_Milestone;
 use Planning_MilestoneFactory;
 use PlanningFactory;
 use Tracker_ArtifactFactory;
-use Tracker_FormElement_Field_Integer;
 use Tuleap\AgileDashboard\BacklogItemDao;
 use Tuleap\AgileDashboard\BacklogItemPresenter;
 use Tuleap\AgileDashboard\ExplicitBacklog\ArtifactsInExplicitBacklogDao;
@@ -44,9 +43,12 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Artifact\Dao\PriorityDao;
+use Tuleap\Tracker\FormElement\Field\Integer\IntegerField;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Test\Stub\Permission\TrackersPermissionsPassthroughRetriever;
+use Tuleap\Tracker\Test\Stub\RetrieveSemanticStatusFieldStub;
+use Tuleap\Tracker\Test\Stub\Semantic\Title\RetrieveSemanticTitleFieldStub;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest extends TestCase //phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
@@ -85,6 +87,8 @@ final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest ex
                 $this->artifacts_in_explicit_backlog_dao,
                 $this->artifact_priority_dao,
                 new TrackersPermissionsPassthroughRetriever(),
+                RetrieveSemanticTitleFieldStub::build(),
+                RetrieveSemanticStatusFieldStub::build(),
             ])
             ->onlyMethods([
                 'userCanReadBacklogTitleField',
@@ -308,7 +312,7 @@ final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest ex
         $this->collection_factory->expects($this->once())->method('userCanReadBacklogTitleField')->willReturn(true);
         $this->collection_factory->expects($this->once())->method('userCanReadBacklogStatusField')->willReturn(true);
 
-        $field = $this->createMock(Tracker_FormElement_Field_Integer::class);
+        $field = $this->createMock(IntegerField::class);
         $field->method('getComputedValue')->willReturn(65);
         $this->collection_factory->expects($this->once())->method('getInitialEffortField')->willReturn($field);
         $this->collection_factory->expects($this->once())->method('userCanReadInitialEffortField')->willReturn(true);
@@ -363,7 +367,7 @@ final class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactoryTest ex
         $this->collection_factory->expects($this->once())->method('userCanReadBacklogTitleField')->willReturn(false);
         $this->collection_factory->expects($this->once())->method('userCanReadBacklogStatusField')->willReturn(false);
 
-        $field = $this->createMock(Tracker_FormElement_Field_Integer::class);
+        $field = $this->createMock(IntegerField::class);
         $field->method('getComputedValue')->willReturn(65);
         $this->collection_factory->expects($this->never())->method('getInitialEffortField');
         $this->collection_factory->expects($this->once())->method('userCanReadInitialEffortField')->willReturn(false);

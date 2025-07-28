@@ -9,16 +9,17 @@ exports[`ChildrenSwimlane displays the parent card in its own cell and children 
   <parent-cell-stub
     swimlane="[object Object]"
   />
-   
-  <children-cell-stub
+  
+  <drop-container-cell-stub
     column="[object Object]"
-    column_index="0"
+    is_solo_card="false"
     swimlane="[object Object]"
   />
-  <children-cell-stub
+  <drop-container-cell-stub
     column="[object Object]"
-    column_index="1"
+    is_solo_card="false"
     swimlane="[object Object]"
   />
+  
 </div>
 `;

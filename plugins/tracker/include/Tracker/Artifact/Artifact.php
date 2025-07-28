@@ -77,13 +77,14 @@ use TrackerFactory;
 use trackerPlugin;
 use TransitionFactory;
 use Tuleap;
+use Tuleap\Dashboard\Project\ProjectDashboardRetriever;
+use Tuleap\Dashboard\Widget\DashboardWidgetDao;
 use Tuleap\DB\DBTransactionExecutor;
 use Tuleap\Http\HTTPFactoryBuilder;
 use Tuleap\Http\Response\JSONResponseBuilder;
 use Tuleap\Layout\JavascriptViteAsset;
 use Tuleap\Layout\TooltipJSON;
 use Tuleap\Mapper\ValinorMapperBuilderFactory;
-use Tuleap\Notification\Mention\MentionedUserInTextRetriever;
 use Tuleap\Project\ProjectAccessChecker;
 use Tuleap\Project\RestrictedUserCanAccessProjectVerifier;
 use Tuleap\Project\UGroupLiteralizer;
@@ -162,11 +163,11 @@ use Tuleap\Tracker\Semantic\Description\TrackerSemanticDescription;
 use Tuleap\Tracker\Semantic\Progress\MethodBuilder;
 use Tuleap\Tracker\Semantic\Progress\SemanticProgressBuilder;
 use Tuleap\Tracker\Semantic\Progress\SemanticProgressDao;
+use Tuleap\Tracker\Semantic\Status\CachedSemanticStatusRetriever;
 use Tuleap\Tracker\Semantic\Status\StatusValueForChangesetProvider;
 use Tuleap\Tracker\Semantic\Status\StatusValueProvider;
-use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeBuilder;
-use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle;
+use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
 use Tuleap\Tracker\Tracker;
 use Tuleap\Tracker\Workflow\FirstPossibleValueInListRetriever;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldDetector;
@@ -180,6 +181,7 @@ use Tuleap\Tracker\Workflow\SimpleMode\State\TransitionExtractor;
 use Tuleap\Tracker\Workflow\SimpleMode\State\TransitionRetriever;
 use Tuleap\Tracker\Workflow\ValidValuesAccordingToTransitionsRetriever;
 use Tuleap\Tracker\Workflow\WorkflowUpdateChecker;
+use Tuleap\Widget\WidgetFactory;
 use User_ForgeUserGroupPermissionsDao;
 use User_ForgeUserGroupPermissionsManager;
 use UserManager;
@@ -638,7 +640,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
     {
         $hp = Codendi_HTMLPurifier::instance();
 
-        return '<span class="' . $hp->purify($this->getTracker()->getColor()->getName()) . ' xref-in-title">' .
+        return '<span class="' . $hp->purify($this->getTracker()->getColor()->value) . ' xref-in-title">' .
                $hp->purify($this->getXRef()) . "\n" .
                '</span>' .
                $hp->purify($this->getTitle());
@@ -649,7 +651,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
         $purifier = Codendi_HTMLPurifier::instance();
 
         return '<span class="colored-xref ' . $purifier->purify(
-            $this->getTracker()->getColor()->getName()
+            $this->getTracker()->getColor()->value
         ) . '"><a class="cross-reference" href="' . $this->getUri() . '">' . $this->getXRef() . '</a></span>';
     }
 
@@ -662,7 +664,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
     {
         if (! isset($this->title)) {
             $this->title = null;
-            if ($title_field = TrackerSemanticTitle::load($this->getTracker())->getField()) {
+            if ($title_field = CachedSemanticTitleFieldRetriever::instance()->fromTracker($this->getTracker())) {
                 if ($title_field->userCanRead()) {
                     if ($last_changeset = $this->getLastChangeset()) {
                         if ($title_field_value = $last_changeset->getValue($title_field)) {
@@ -801,7 +803,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
     public function isOpen(): bool
     {
         if ($this->is_open === null) {
-            $this->is_open = TrackerSemanticStatus::load($this->getTracker())->isOpen($this);
+            $this->is_open = CachedSemanticStatusRetriever::instance()->fromTracker($this->getTracker())->isOpen($this);
         }
         return $this->is_open;
     }
@@ -809,11 +811,6 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
     public function setIsOpen(bool $is_open): void
     {
         $this->is_open = $is_open;
-    }
-
-    public function isOpenAtGivenChangeset(Tracker_Artifact_Changeset $changeset)
-    {
-        return TrackerSemanticStatus::load($this->getTracker())->isOpenAtGivenChangeset($changeset);
     }
 
     /**
@@ -826,7 +823,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
     public function fetchMailTitle($recipient, $format = 'text', $ignore_perms = false)
     {
         $output = '';
-        if ($title_field = TrackerSemanticTitle::load($this->getTracker())->getField()) {
+        if ($title_field = CachedSemanticTitleFieldRetriever::instance()->fromTracker($this->getTracker())) {
             if ($ignore_perms || $title_field->userCanRead($recipient)) {
                 if ($value = $this->getLastChangeset()->getValue($title_field)) {
                     if ($title = $value->getText()) {
@@ -915,6 +912,13 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
                 $this->checkIsAnAcceptableRequestForTrackerViewArtifactManipulation($request);
                 $artifact_factory     = $this->getArtifactFactory();
                 $form_element_factory = $this->getFormElementFactory();
+                $widget_dao           = new DashboardWidgetDao(
+                    new WidgetFactory(
+                        UserManager::instance(),
+                        new User_ForgeUserGroupPermissionsManager(new User_ForgeUserGroupPermissionsDao()),
+                        EventManager::instance(),
+                    )
+                );
                 $action               = new UpdateArtifactAction(
                     $this,
                     $form_element_factory,
@@ -940,6 +944,8 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
                         ),
                         new NewArtifactLinkInitialChangesetValueBuilder(),
                     ),
+                    new ProjectDashboardRetriever(new Tuleap\Dashboard\Project\ProjectDashboardDao($widget_dao)),
+                    ProjectManager::instance()
                 );
                 $action->process($layout, $request, $current_user);
                 break;
@@ -1002,7 +1008,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
                     $this->getTypeIsChildLinkRetriever(),
                     $this->getVisitRecorder(),
                     $this->getHiddenFieldsetsDetector(),
-                    new Renderer\ArtifactViewCollectionBuilder($this->getEventManager(), $this->getTypeIsChildLinkRetriever())
+                    new Renderer\ArtifactViewCollectionBuilder($this->getEventManager())
                 );
 
                 $renderer->display($request, $current_user);
@@ -1043,7 +1049,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
                         $this->getTypeIsChildLinkRetriever(),
                         $this->getVisitRecorder(),
                         $this->getHiddenFieldsetsDetector(),
-                        new Renderer\ArtifactViewCollectionBuilder($this->getEventManager(), $this->getTypeIsChildLinkRetriever())
+                        new Renderer\ArtifactViewCollectionBuilder($this->getEventManager())
                     );
                     $renderer->display($request, $current_user);
                 }
@@ -1124,7 +1130,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
         $presenters = [];
         foreach ($this->getChildrenForUser($current_user) as $child) {
             $tracker   = $child->getTracker();
-            $semantics = TrackerSemanticStatus::load($tracker);
+            $semantics = CachedSemanticStatusRetriever::instance()->fromTracker($tracker);
 
             $presenters[] = new Tracker_ArtifactChildPresenter(
                 $child,
@@ -2282,7 +2288,6 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
                     $event_dispatcher,
                     new \Tracker_Artifact_Changeset_CommentDao(),
                 ),
-                new MentionedUserInTextRetriever($this->getUserManager()),
             ),
         );
     }

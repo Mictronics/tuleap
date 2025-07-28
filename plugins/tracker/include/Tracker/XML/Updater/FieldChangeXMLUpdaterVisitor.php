@@ -19,6 +19,10 @@
  */
 
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
+use Tuleap\Tracker\FormElement\Field\Float\FloatField;
+use Tuleap\Tracker\FormElement\Field\Integer\IntegerField;
+use Tuleap\Tracker\FormElement\Field\String\StringField;
+use Tuleap\Tracker\FormElement\Field\Text\TextField;
 use Tuleap\Tracker\FormElement\TrackerFormElementExternalField;
 use Tuleap\Tracker\XML\Updater\FieldChange\FieldChangeComputedXMLUpdater;
 use Tuleap\Tracker\XML\Updater\FieldChange\FieldChangeExternalFieldXMLUpdater;
@@ -66,12 +70,12 @@ class Tracker_XML_Updater_FieldChangeXMLUpdaterVisitor implements Tracker_FormEl
         return $this->unknown_updater;
     }
 
-    public function visitFloat(Tracker_FormElement_Field_Float $field)
+    public function visitFloat(FloatField $field)
     {
         return $this->float_updater;
     }
 
-    public function visitInteger(Tracker_FormElement_Field_Integer $field)
+    public function visitInteger(IntegerField $field)
     {
         return $this->integer_updater;
     }
@@ -86,12 +90,12 @@ class Tracker_XML_Updater_FieldChangeXMLUpdaterVisitor implements Tracker_FormEl
         return $this->perms_updater;
     }
 
-    public function visitString(Tracker_FormElement_Field_String $field)
+    public function visitString(StringField $field)
     {
         return $this->string_updater;
     }
 
-    public function visitText(Tracker_FormElement_Field_Text $field)
+    public function visitText(TextField $field)
     {
         return $this->text_updater;
     }

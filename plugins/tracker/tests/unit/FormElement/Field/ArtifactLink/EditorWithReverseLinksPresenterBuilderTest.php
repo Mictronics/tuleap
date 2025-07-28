@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace Tuleap\Tracker\FormElement\Field\ArtifactLink;
 
-use Tuleap\Color\ItemColor;
+use Tuleap\Color\ColorName;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
@@ -44,13 +44,14 @@ final class EditorWithReverseLinksPresenterBuilderTest extends TestCase
     private const LINK_FIELD_LABEL          = 'My Artifact Links';
     private const CURRENT_ARTIFACT_ID       = 891;
     private const CURRENT_TRACKER_ID        = 611;
-    private const CURRENT_TRACKER_COLOR     = 'deep-blue';
+    private const CURRENT_TRACKER_COLOR     = ColorName::DEEP_BLUE;
     private const CURRENT_TRACKER_SHORTNAME = 'story';
     private const PARENT_TRACKER_ID         = 487;
     private const CURRENT_PROJECT_ID        = 565;
     private SearchParentTrackerStub $search_parent_tracker;
     private RetrieveUserPermissionOnTrackersStub $tracker_permissions_retriever;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->search_parent_tracker         = SearchParentTrackerStub::withParentTracker(self::PARENT_TRACKER_ID);
@@ -68,7 +69,7 @@ final class EditorWithReverseLinksPresenterBuilderTest extends TestCase
             ->withProject($current_project)
             ->build();
         $current_tracker = TrackerTestBuilder::aTracker()->withId(self::CURRENT_TRACKER_ID)
-            ->withColor(ItemColor::fromName(self::CURRENT_TRACKER_COLOR))
+            ->withColor(self::CURRENT_TRACKER_COLOR)
             ->withShortName(self::CURRENT_TRACKER_SHORTNAME)
             ->withProject($current_project)
             ->build();
@@ -99,7 +100,7 @@ final class EditorWithReverseLinksPresenterBuilderTest extends TestCase
         self::assertSame(self::LINK_FIELD_LABEL, $presenter->link_field_label);
         self::assertSame(self::CURRENT_ARTIFACT_ID, $presenter->current_artifact_id);
         self::assertSame(self::CURRENT_TRACKER_ID, $presenter->current_tracker_id);
-        self::assertSame(self::CURRENT_TRACKER_COLOR, $presenter->current_tracker_color);
+        self::assertSame(self::CURRENT_TRACKER_COLOR->value, $presenter->current_tracker_color);
         self::assertSame(self::CURRENT_TRACKER_SHORTNAME, $presenter->current_tracker_short_name);
         self::assertSame(self::PARENT_TRACKER_ID, $presenter->parent_tracker_id);
         self::assertSame(self::CURRENT_PROJECT_ID, $presenter->current_project_id);
@@ -114,7 +115,7 @@ final class EditorWithReverseLinksPresenterBuilderTest extends TestCase
             ->withProject($current_project)
             ->build();
         $current_tracker = TrackerTestBuilder::aTracker()->withId(self::CURRENT_TRACKER_ID)
-            ->withColor(ItemColor::fromName(self::CURRENT_TRACKER_COLOR))
+            ->withColor(self::CURRENT_TRACKER_COLOR)
             ->withShortName(self::CURRENT_TRACKER_SHORTNAME)
             ->withProject($current_project)
             ->build();
@@ -137,7 +138,7 @@ final class EditorWithReverseLinksPresenterBuilderTest extends TestCase
         self::assertSame(self::LINK_FIELD_LABEL, $presenter->link_field_label);
         self::assertNull($presenter->current_artifact_id);
         self::assertSame(self::CURRENT_TRACKER_ID, $presenter->current_tracker_id);
-        self::assertSame(self::CURRENT_TRACKER_COLOR, $presenter->current_tracker_color);
+        self::assertSame(self::CURRENT_TRACKER_COLOR->value, $presenter->current_tracker_color);
         self::assertSame(self::CURRENT_TRACKER_SHORTNAME, $presenter->current_tracker_short_name);
         self::assertSame(self::PARENT_TRACKER_ID, $presenter->parent_tracker_id);
         self::assertSame(self::CURRENT_PROJECT_ID, $presenter->current_project_id);

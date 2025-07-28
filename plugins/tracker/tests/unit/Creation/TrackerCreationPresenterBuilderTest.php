@@ -30,13 +30,13 @@ use Project;
 use ProjectManager;
 use TrackerDao;
 use TrackerFactory;
-use Tuleap\Color\ItemColor;
+use Tuleap\Color\ColorName;
 use Tuleap\Request\CSRFSynchronizerTokenInterface;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\CSRFSynchronizerTokenStub;
 use Tuleap\Tracker\Creation\JiraImporter\PendingJiraImportDao;
-use Tuleap\Tracker\Tracker;
+use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
 #[DisableReturnValueGenerationForTestDoubles]
 final class TrackerCreationPresenterBuilderTest extends TestCase
@@ -200,15 +200,15 @@ final class TrackerCreationPresenterBuilderTest extends TestCase
         $this->default_templates_collection_builder->expects($this->once())->method('build')
             ->willReturn(new DefaultTemplatesCollection());
 
-        $tracker_user_not_admin = $this->createMock(Tracker::class);
-        $tracker_user_not_admin->method('userIsAdmin')->willReturn(false);
+        $tracker_user_not_admin = TrackerTestBuilder::aTracker()->withUserIsAdmin(false)->build();
 
-        $tracker_user_admin = $this->createMock(Tracker::class);
-        $tracker_user_admin->method('userIsAdmin')->willReturn(true);
-        $tracker_user_admin->method('getId')->willReturn(4);
-        $tracker_user_admin->method('getName')->willReturn('MyAwesomeTracker');
-        $tracker_user_admin->method('getDescription')->willReturn('Description');
-        $tracker_user_admin->method('getColor')->willReturn(ItemColor::fromName('red-wine'));
+        $tracker_user_admin = TrackerTestBuilder::aTracker()
+            ->withUserIsAdmin(true)
+            ->withId(4)
+            ->withName('MyAwesomeTracker')
+            ->withDescription('Description')
+            ->withColor(ColorName::RED_WINE)
+            ->build();
 
         $this->project_manager->method('getProject')->with('101')->willReturn($project);
 
@@ -303,8 +303,8 @@ final class TrackerCreationPresenterBuilderTest extends TestCase
     private function getTrackerColors(): array
     {
         return [
-            'colors_names'  => ItemColor::COLOR_NAMES,
-            'default_color' => ItemColor::default()->getName(),
+            'colors_names'  => ColorName::listValues(),
+            'default_color' => ColorName::default()->value,
         ];
     }
 }

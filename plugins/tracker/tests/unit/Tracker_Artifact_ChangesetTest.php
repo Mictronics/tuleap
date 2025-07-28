@@ -33,12 +33,12 @@ use Tracker_Artifact_Changeset_ValueDao;
 use Tracker_Artifact_ChangesetDao;
 use Tracker_Artifact_ChangesetValue_Date;
 use Tracker_FormElement_Field_Date;
-use Tracker_FormElement_Field_Float;
-use Tracker_FormElement_Field_Text;
 use Tracker_FormElementFactory;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\FormElement\Field\Float\FloatField;
+use Tuleap\Tracker\FormElement\Field\Text\TextField;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 
 #[DisableReturnValueGenerationForTestDoubles]
@@ -323,9 +323,9 @@ final class Tracker_Artifact_ChangesetTest extends TestCase //phpcs:ignore Squiz
         );
 
         $formelement_factory = $this->createMock(Tracker_FormElementFactory::class);
-        $field_text          = $this->createMock(Tracker_FormElement_Field_Text::class);
+        $field_text          = $this->createMock(TextField::class);
         $field_text->expects($this->once())->method('deleteChangesetValue')->with(self::anything(), 1025);
-        $field_float = $this->createMock(Tracker_FormElement_Field_Float::class);
+        $field_float = $this->createMock(FloatField::class);
         $field_float->expects($this->once())->method('deleteChangesetValue')->with(self::anything(), 1026);
         $formelement_factory->method('getFieldById')->willReturnCallback(static fn(int $id) => match ($id) {
             125 => $field_text,

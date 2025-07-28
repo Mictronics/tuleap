@@ -70,7 +70,7 @@ final class ProcessChildrenTriggersCommandTest extends TestCase
         $previous_changeset->setFieldValue(
             $this->field,
             ChangesetValueArtifactLinkTestBuilder::aValue(534, $previous_changeset, $this->field)
-                ->withLinks([123 => new Tracker_ArtifactLinkInfo(123, 'art', 101, 1, 12345, '')])
+                ->withForwardLinks([123 => new Tracker_ArtifactLinkInfo(123, 'art', 101, 1, 12345, '')])
                 ->build(),
         );
 
@@ -78,7 +78,7 @@ final class ProcessChildrenTriggersCommandTest extends TestCase
         $new_changeset->setFieldValue(
             $this->field,
             ChangesetValueArtifactLinkTestBuilder::aValue(535, $new_changeset, $this->field)
-                ->withLinks([
+                ->withForwardLinks([
                     123 => new Tracker_ArtifactLinkInfo(123, 'art', 101, 1, 12345, ''),
                     456 => new Tracker_ArtifactLinkInfo(456, 'art', 101, 1, 12345, ''),
                 ])
@@ -96,7 +96,7 @@ final class ProcessChildrenTriggersCommandTest extends TestCase
         $previous_changeset->setFieldValue(
             $this->field,
             ChangesetValueArtifactLinkTestBuilder::aValue(534, $previous_changeset, $this->field)
-                ->withLinks([123 => new Tracker_ArtifactLinkInfo(123, 'art', 101, 1, 12345, '')])
+                ->withForwardLinks([123 => new Tracker_ArtifactLinkInfo(123, 'art', 101, 1, 12345, '')])
                 ->build(),
         );
 
@@ -104,7 +104,7 @@ final class ProcessChildrenTriggersCommandTest extends TestCase
         $new_changeset->setFieldValue(
             $this->field,
             ChangesetValueArtifactLinkTestBuilder::aValue(535, $new_changeset, $this->field)
-                ->withLinks([123 => new Tracker_ArtifactLinkInfo(123, 'art', 101, 1, 12345, '')])
+                ->withForwardLinks([123 => new Tracker_ArtifactLinkInfo(123, 'art', 101, 1, 12345, '')])
                 ->build(),
         );
 
@@ -116,13 +116,13 @@ final class ProcessChildrenTriggersCommandTest extends TestCase
     public function testItDoesntFailWhenPreviousChangesetHasNoValue(): void
     {
         $previous_changeset = ChangesetTestBuilder::aChangeset(678)->build();
-        $previous_changeset->setFieldValue($this->field);
+        $previous_changeset->setFieldValue($this->field, null);
 
         $new_changeset = ChangesetTestBuilder::aChangeset(679)->build();
         $new_changeset->setFieldValue(
             $this->field,
             ChangesetValueArtifactLinkTestBuilder::aValue(535, $new_changeset, $this->field)
-                ->withLinks([123 => new Tracker_ArtifactLinkInfo(123, 'art', 101, 1, 12345, '')])
+                ->withForwardLinks([123 => new Tracker_ArtifactLinkInfo(123, 'art', 101, 1, 12345, '')])
                 ->build(),
         );
 
@@ -139,7 +139,7 @@ final class ProcessChildrenTriggersCommandTest extends TestCase
         $new_changeset->setFieldValue(
             $this->field,
             ChangesetValueArtifactLinkTestBuilder::aValue(535, $new_changeset, $this->field)
-                ->withLinks([123 => new Tracker_ArtifactLinkInfo(123, 'art', 101, 1, 12345, '')])
+                ->withForwardLinks([123 => new Tracker_ArtifactLinkInfo(123, 'art', 101, 1, 12345, '')])
                 ->build(),
         );
 

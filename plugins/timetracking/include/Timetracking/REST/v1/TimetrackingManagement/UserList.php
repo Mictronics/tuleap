@@ -22,10 +22,19 @@ declare(strict_types=1);
 
 namespace Tuleap\Timetracking\REST\v1\TimetrackingManagement;
 
+use PFUser;
+
 final readonly class UserList
 {
+    /**
+     * @param PFUser[] $viewable_users
+     * @param PFUser[] $not_viewable_users
+     * @param int[] $invalid_user_ids
+     */
     public function __construct(
-        public array $user_ids,
+        public array $viewable_users,
+        public array $not_viewable_users,
+        public array $invalid_user_ids,
     ) {
     }
 }

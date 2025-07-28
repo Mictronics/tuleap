@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Tuleap\PullRequest\REST\v1\RepositoryPullRequests;
 
+use CuyZ\Valinor\MapperBuilder;
 use Tuleap\NeverThrow\Result;
 use Tuleap\PullRequest\Criterion\MalformedQueryFault;
 use Tuleap\Test\PHPUnit\TestCase;
@@ -31,9 +32,10 @@ final class QueryToSearchCriteriaConverterTest extends TestCase
 {
     private QueryToSearchCriteriaConverter $converter;
 
+    #[\Override]
     protected function setUp(): void
     {
-        $this->converter = new QueryToSearchCriteriaConverter();
+        $this->converter = new QueryToSearchCriteriaConverter(new MapperBuilder());
     }
 
     public function testItReturnsAnErrorWhenTheQueryIsNotAValidJSON(): void

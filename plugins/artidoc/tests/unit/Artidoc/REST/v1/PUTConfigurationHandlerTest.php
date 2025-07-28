@@ -40,12 +40,13 @@ use Tuleap\NeverThrow\Ok;
 use Tuleap\NeverThrow\Result;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
-use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle;
-use Tuleap\Tracker\Test\Stub\RetrieveSemanticDescriptionFieldStub;
+use Tuleap\Tracker\Test\Builders\Fields\ArtifactLinkFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\StringFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Test\Stub\RetrieveTrackerStub;
 use Tuleap\Tracker\Test\Stub\RetrieveUsedFieldsStub;
+use Tuleap\Tracker\Test\Stub\Semantic\Description\RetrieveSemanticDescriptionFieldStub;
+use Tuleap\Tracker\Test\Stub\Semantic\Title\RetrieveSemanticTitleFieldStub;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class PUTConfigurationHandlerTest extends TestCase
@@ -69,6 +70,7 @@ final class PUTConfigurationHandlerTest extends TestCase
     private CheckTrackerIsSuitableForDocumentStub $tracker_checker;
     private RetrieveUsedFieldsStub $field_retriever;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->tracker = TrackerTestBuilder::aTracker()
@@ -80,10 +82,6 @@ final class PUTConfigurationHandlerTest extends TestCase
             new ArtidocWithContext(
                 new ArtidocDocument(['item_id' => 1, 'group_id' => self::PROJECT_ID]),
             ),
-        );
-        TrackerSemanticTitle::setInstance(
-            new TrackerSemanticTitle($this->tracker, null),
-            $this->tracker
         );
 
         $this->field_retriever  = RetrieveUsedFieldsStub::withNoFields();
@@ -97,11 +95,6 @@ final class PUTConfigurationHandlerTest extends TestCase
         $this->user         = UserTestBuilder::buildWithDefaults();
     }
 
-    protected function tearDown(): void
-    {
-        TrackerSemanticTitle::clearInstances();
-    }
-
     private function handle(): Ok|Err
     {
         $handler = new PUTConfigurationHandler(
@@ -111,7 +104,8 @@ final class PUTConfigurationHandlerTest extends TestCase
             $this->tracker_checker,
             new SuitableFieldRetriever(
                 $this->field_retriever,
-                RetrieveSemanticDescriptionFieldStub::withNoField(),
+                RetrieveSemanticDescriptionFieldStub::build(),
+                RetrieveSemanticTitleFieldStub::build(),
             ),
         );
 
@@ -223,10 +217,6 @@ final class PUTConfigurationHandlerTest extends TestCase
                 ->inTracker($another_tracker)
                 ->build(),
         );
-        TrackerSemanticTitle::setInstance(
-            new TrackerSemanticTitle($another_tracker, null),
-            $another_tracker
-        );
 
         $this->saver = SaveConfigurationStub::withCallback($this->assertNeverSaved(...));
 
@@ -292,6 +282,25 @@ final class PUTConfigurationHandlerTest extends TestCase
     public function testFaultWhenTrackerIsNotSuitable(): void
     {
         $this->tracker_checker = CheckTrackerIsSuitableForDocumentStub::withoutSuitableTracker();
+
+        $this->saver = SaveConfigurationStub::withCallback($this->assertNeverSaved(...));
+
+        $result = $this->handle();
+
+        self::assertTrue(Result::isErr($result));
+    }
+
+    public function testFaultWhenLinkFieldInColumnDisplayType(): void
+    {
+        $this->input_fields    = [
+            new ConfiguredFieldRepresentation(self::FIELD_1_ID, 'column'),
+        ];
+        $this->field_retriever = RetrieveUsedFieldsStub::withFields(
+            ArtifactLinkFieldBuilder::anArtifactLinkField(self::FIELD_1_ID)
+                ->withReadPermission($this->user, true)
+                ->inTracker($this->tracker)
+                ->build(),
+        );
 
         $this->saver = SaveConfigurationStub::withCallback($this->assertNeverSaved(...));
 

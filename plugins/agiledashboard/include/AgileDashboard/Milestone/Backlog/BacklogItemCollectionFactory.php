@@ -29,7 +29,9 @@ use Tuleap\AgileDashboard\RemainingEffortValueRetriever;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Artifact\Dao\PriorityDao;
 use Tuleap\Tracker\Permission\RetrieveUserPermissionOnArtifacts;
+use Tuleap\Tracker\Semantic\Status\RetrieveSemanticStatusField;
 use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
+use Tuleap\Tracker\Semantic\Title\RetrieveSemanticTitleField;
 use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle;
 use Tuleap\Tracker\Tracker;
 
@@ -103,6 +105,8 @@ class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactory //phpcs:igno
         ArtifactsInExplicitBacklogDao $artifacts_in_explicit_backlog_dao,
         PriorityDao $artifact_priority_dao,
         private readonly RetrieveUserPermissionOnArtifacts $user_permission_on_artifacts_retriever,
+        private readonly RetrieveSemanticTitleField $retrieve_semantic_title_field,
+        private readonly RetrieveSemanticStatusField $retrieve_semantic_status_field,
     ) {
         $this->dao                               = $dao;
         $this->artifact_factory                  = $artifact_factory;
@@ -477,7 +481,7 @@ class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactory //phpcs:igno
     protected function userCanReadBacklogTitleField(PFUser $user, Tracker $tracker): bool
     {
         if (! isset($this->cache_read_title[$tracker->getId()])) {
-            $field = TrackerSemanticTitle::load($tracker)->getField();
+            $field = $this->retrieve_semantic_title_field->fromTracker($tracker);
             if (! $field) {
                 $this->cache_read_title[$tracker->getId()] = false;
             } else {
@@ -494,7 +498,7 @@ class AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactory //phpcs:igno
     {
         if (! isset($this->cache_read_status[$tracker->getId()])) {
             $this->cache_read_status[$tracker->getId()] = false;
-            $field                                      = TrackerSemanticStatus::load($tracker)->getField();
+            $field                                      = $this->retrieve_semantic_status_field->fromTracker($tracker);
             if ($field) {
                 $this->cache_read_status[$tracker->getId()] = $field->userCanRead($user);
             }

@@ -26,6 +26,8 @@ enum FieldType: string
 {
     case STRING           = 'string';
     case USER_GROUPS_LIST = 'user_groups_list';
-    case STATIC_LIST      =  'static_list';
-    case USER_LIST        =  'user_list';
+    case STATIC_LIST      = 'static_list';
+    case USER_LIST        = 'user_list';
+    case ARTIFACT_LINK    = 'links';
+    case NUMERIC          = 'numeric';
 }

@@ -82,7 +82,6 @@ use Tuleap\Kanban\REST\v1\TrackerReport\FilteredItemCollectionRepresentationBuil
 use Tuleap\Kanban\TrackerReport\ReportFilterFromWhereBuilder;
 use Tuleap\Kanban\TrackerReport\TrackerReportDao;
 use Tuleap\Kanban\TrackerReport\TrackerReportUpdater;
-use Tuleap\Notification\Mention\MentionedUserInTextRetriever;
 use Tuleap\RealTime\NodeJSClient;
 use Tuleap\RealTimeMercure\Client;
 use Tuleap\RealTimeMercure\ClientBuilder;
@@ -124,10 +123,15 @@ use Tuleap\Tracker\REST\Helpers\OrderValidator;
 use Tuleap\Tracker\REST\v1\Report\MatchingIdsOrderer;
 use Tuleap\Tracker\REST\v1\ReportArtifactFactory;
 use Tuleap\Tracker\Rule\FirstValidValueAccordingToDependenciesRetriever;
+use Tuleap\Tracker\Semantic\Status\CachedSemanticStatusRetriever;
 use Tuleap\Tracker\Semantic\Status\SemanticStatusClosedValueNotFoundException;
+use Tuleap\Tracker\Semantic\Status\SemanticStatusFieldRetriever;
 use Tuleap\Tracker\Semantic\Status\SemanticStatusNotDefinedException;
+use Tuleap\Tracker\Semantic\Status\SemanticStatusRetriever;
+use Tuleap\Tracker\Semantic\Status\StatusSemanticDAO;
 use Tuleap\Tracker\Semantic\Status\StatusValueRetriever;
 use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatusFactory;
+use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
 use Tuleap\Tracker\Tracker;
 use Tuleap\Tracker\Workflow\FirstPossibleValueInListRetriever;
 use Tuleap\Tracker\Workflow\NoPossibleValueException;
@@ -191,9 +195,14 @@ final class KanbanResource extends AuthenticatedResource
         );
 
         $this->user_preferences      = new KanbanUserPreferences();
+        $status_semantic_dao         = new StatusSemanticDAO();
         $this->kanban_column_factory = new KanbanColumnFactory(
             new KanbanColumnDao(),
-            $this->user_preferences
+            $this->user_preferences,
+            new SemanticStatusRetriever(
+                new SemanticStatusFieldRetriever($status_semantic_dao, Tracker_FormElementFactory::instance()),
+                $status_semantic_dao,
+            ),
         );
 
         $this->artifact_factory = Tracker_ArtifactFactory::instance();
@@ -206,6 +215,8 @@ final class KanbanResource extends AuthenticatedResource
             $this->permissions_manager,
             $this->form_element_factory,
             SubmissionPermissionVerifier::instance(),
+            CachedSemanticTitleFieldRetriever::instance(),
+            CachedSemanticStatusRetriever::instance(),
         );
 
         $this->kanban_representation_builder = new KanbanRepresentationBuilder(
@@ -1695,7 +1706,6 @@ final class KanbanResource extends AuthenticatedResource
                     $event_dispatcher,
                     new \Tracker_Artifact_Changeset_CommentDao(),
                 ),
-                new MentionedUserInTextRetriever($user_manager),
             ),
         );
     }

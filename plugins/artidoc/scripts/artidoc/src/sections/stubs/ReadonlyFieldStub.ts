@@ -18,15 +18,20 @@
  */
 
 import type {
+    ReadonlyFieldLinkedArtifact,
+    ReadonlyFieldLinks,
+    ReadonlyFieldNumeric,
     ReadonlyFieldStaticList,
     ReadonlyFieldStaticListValue,
     ReadonlyFieldString,
+    ReadonlyFieldUser,
     ReadonlyFieldUserGroupsList,
     ReadonlyFieldUserGroupsListValue,
     ReadonlyFieldUserList,
     ReadonlyFieldUserListValue,
 } from "@/sections/readonly-fields/ReadonlyFields";
 import type { ConfigurationFieldDisplayType } from "@/sections/readonly-fields/AvailableReadonlyFields";
+import { DISPLAY_TYPE_BLOCK } from "@/sections/readonly-fields/AvailableReadonlyFields";
 
 export const ReadonlyFieldStub = {
     string: (value: string, display_type: ConfigurationFieldDisplayType): ReadonlyFieldString => ({
@@ -59,6 +64,30 @@ export const ReadonlyFieldStub = {
     ): ReadonlyFieldUserList => ({
         type: "user_list",
         label: "Readonly user list field",
+        value,
+        display_type,
+    }),
+    linkField: (value: ReadonlyFieldLinkedArtifact[]): ReadonlyFieldLinks => ({
+        type: "links",
+        label: "Readonly links field",
+        display_type: DISPLAY_TYPE_BLOCK,
+        value,
+    }),
+    numericField: (
+        value: number | null,
+        display_type: ConfigurationFieldDisplayType,
+    ): ReadonlyFieldNumeric => ({
+        type: "numeric",
+        label: "Readonly numeric field",
+        value,
+        display_type,
+    }),
+    userField: (
+        value: ReadonlyFieldUserListValue,
+        display_type: ConfigurationFieldDisplayType,
+    ): ReadonlyFieldUser => ({
+        type: "user",
+        label: "Readonly user field",
         value,
         display_type,
     }),

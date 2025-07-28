@@ -29,13 +29,25 @@ import {
     RADIO_BUTTON_FIELD,
     SELECTBOX_FIELD,
     STRING_FIELD as TRACKER_STRING_FIELD,
+    ARTIFACT_LINK_FIELD,
+    ARTIFACT_ID_FIELD,
+    ARTIFACT_ID_IN_TRACKER_FIELD,
+    FLOAT_FIELD,
+    INT_FIELD,
+    PRIORITY_FIELD,
+    COMPUTED_FIELD,
 } from "@tuleap/plugin-tracker-constants";
 import type {
     ConfigurationField,
     ConfigurationFieldType,
 } from "@/sections/readonly-fields/AvailableReadonlyFields";
-import { DISPLAY_TYPE_COLUMN } from "@/sections/readonly-fields/AvailableReadonlyFields";
 import {
+    DISPLAY_TYPE_BLOCK,
+    DISPLAY_TYPE_COLUMN,
+} from "@/sections/readonly-fields/AvailableReadonlyFields";
+import {
+    LINKS_FIELD,
+    NUMERIC_FIELD,
     STATIC_LIST_FIELD,
     STRING_FIELD,
     USER_GROUP_LIST_FIELD,
@@ -56,15 +68,48 @@ const buildConfiguredListFieldType = (list_bind_type: ListBindType): Configurati
     throw new Error(`Unknown list bind type ${list_bind_type}`);
 };
 
+const isNumericField = (field: StructureFields): boolean => {
+    const numeric_types: string[] = [
+        ARTIFACT_ID_FIELD,
+        ARTIFACT_ID_IN_TRACKER_FIELD,
+        FLOAT_FIELD,
+        INT_FIELD,
+        PRIORITY_FIELD,
+        COMPUTED_FIELD,
+    ];
+    return numeric_types.includes(field.type);
+};
+
 const buildConfiguredFieldIfSupported = (field: StructureFields): Option<ConfigurationField> => {
     const field_base = {
         field_id: field.field_id,
         label: field.label,
-        display_type: DISPLAY_TYPE_COLUMN,
+        can_display_type_be_changed: true,
     };
 
     if (field.type === TRACKER_STRING_FIELD) {
-        return Option.fromValue<ConfigurationField>({ ...field_base, type: STRING_FIELD });
+        return Option.fromValue<ConfigurationField>({
+            ...field_base,
+            display_type: DISPLAY_TYPE_COLUMN,
+            type: STRING_FIELD,
+        });
+    }
+
+    if (isNumericField(field)) {
+        return Option.fromValue<ConfigurationField>({
+            ...field_base,
+            display_type: DISPLAY_TYPE_COLUMN,
+            type: NUMERIC_FIELD,
+        });
+    }
+
+    if (field.type === ARTIFACT_LINK_FIELD) {
+        return Option.fromValue<ConfigurationField>({
+            ...field_base,
+            display_type: DISPLAY_TYPE_BLOCK,
+            type: LINKS_FIELD,
+            can_display_type_be_changed: false,
+        });
     }
 
     if (
@@ -76,6 +121,7 @@ const buildConfiguredFieldIfSupported = (field: StructureFields): Option<Configu
     ) {
         return Option.fromValue<ConfigurationField>({
             ...field_base,
+            display_type: DISPLAY_TYPE_COLUMN,
             type: buildConfiguredListFieldType(field.bindings.type),
         });
     }

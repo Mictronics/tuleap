@@ -105,7 +105,7 @@ class Tracker_Artifact_EditRenderer extends Tracker_Artifact_EditAbstractRendere
         return $this->cached_parent_hierarchy;
     }
 
-    protected function enhanceRedirect(Codendi_Request $request)
+    protected function enhanceRedirect(Codendi_Request $request): void
     {
         $from_aid = $request->get('from_aid');
         if ($from_aid != null) {
@@ -181,7 +181,7 @@ class Tracker_Artifact_EditRenderer extends Tracker_Artifact_EditAbstractRendere
 
     protected function fetchView(Codendi_Request $request, PFUser $user): string
     {
-        return $this->collection_builder->build($this->artifact, $this->tracker, $request, $user, $this)->fetchRequestedView($request);
+        return $this->collection_builder->build($this->artifact, $request, $user, $this)->fetchRequestedView($request);
     }
 
     protected function fetchTitle()

@@ -49,6 +49,7 @@ final class GetArtifactLinksTest extends TestCase
     private Tracker_Artifact_Changeset $changeset;
     private Artifact $artifact;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->user      = new PFUser(['language_id' => 'en']);
@@ -63,6 +64,7 @@ final class GetArtifactLinksTest extends TestCase
         $this->artifact->setHierarchyFactory($hierarchy_factory);
     }
 
+    #[\Override]
     protected function tearDown(): void
     {
         $this->current_id++;
@@ -81,11 +83,14 @@ final class GetArtifactLinksTest extends TestCase
         $artifact_222 = ArtifactTestBuilder::anArtifact(222)->withChangesets(ChangesetTestBuilder::aChangeset(222)->build())->userCanView($this->user)->build();
 
         $field = ArtifactLinkFieldBuilder::anArtifactLinkField(6541)->build();
-        $this->changeset->setFieldValue($field, ChangesetValueArtifactLinkTestBuilder::aValue(1, $this->changeset, $field)
-            ->withLinks([
-                111 => Tracker_ArtifactLinkInfo::buildFromArtifact($artifact_111, ''),
-                222 => Tracker_ArtifactLinkInfo::buildFromArtifact($artifact_222, ''),
-            ])->build());
+        $this->changeset->setFieldValue(
+            $field,
+            ChangesetValueArtifactLinkTestBuilder::aValue(1, $this->changeset, $field)
+                ->withForwardLinks([
+                    111 => Tracker_ArtifactLinkInfo::buildFromArtifact($artifact_111, ''),
+                    222 => Tracker_ArtifactLinkInfo::buildFromArtifact($artifact_222, ''),
+                ])->build()
+        );
 
         $artifact_factory = $this->createMock(Tracker_ArtifactFactory::class);
         $artifact_factory->expects($this->exactly(2))->method('getArtifactById')->willReturnCallback(static fn(int $id) => match ($id) {
@@ -113,11 +118,14 @@ final class GetArtifactLinksTest extends TestCase
         $artifact1 = $this->giveMeAnArtifactWithChildren([$artifact2, $artifact3]);
 
         $field = ArtifactLinkFieldBuilder::anArtifactLinkField(6541)->build();
-        $this->changeset->setFieldValue($field, ChangesetValueArtifactLinkTestBuilder::aValue(1, $this->changeset, $field)
-            ->withLinks([
-                $artifact1->getId() => Tracker_ArtifactLinkInfo::buildFromArtifact($artifact1, ''),
-                $artifact2->getId() => Tracker_ArtifactLinkInfo::buildFromArtifact($artifact2, ''),
-            ])->build());
+        $this->changeset->setFieldValue(
+            $field,
+            ChangesetValueArtifactLinkTestBuilder::aValue(1, $this->changeset, $field)
+                ->withForwardLinks([
+                    $artifact1->getId() => Tracker_ArtifactLinkInfo::buildFromArtifact($artifact1, ''),
+                    $artifact2->getId() => Tracker_ArtifactLinkInfo::buildFromArtifact($artifact2, ''),
+                ])->build()
+        );
 
         $artifact_factory = $this->createMock(Tracker_ArtifactFactory::class);
         $artifact_factory->expects($this->exactly(2))->method('getArtifactById')->willReturnCallback(static fn(int $id) => match ($id) {
@@ -147,11 +155,14 @@ final class GetArtifactLinksTest extends TestCase
         $artifact1 = $this->giveMeAnArtifactWithChildren([$artifact2, $artifact3]);
 
         $field = ArtifactLinkFieldBuilder::anArtifactLinkField(6541)->build();
-        $this->changeset->setFieldValue($field, ChangesetValueArtifactLinkTestBuilder::aValue(1, $this->changeset, $field)
-            ->withLinks([
-                $artifact1->getId() => Tracker_ArtifactLinkInfo::buildFromArtifact($artifact1, ''),
-                $artifact4->getId() => Tracker_ArtifactLinkInfo::buildFromArtifact($artifact4, ''),
-            ])->build());
+        $this->changeset->setFieldValue(
+            $field,
+            ChangesetValueArtifactLinkTestBuilder::aValue(1, $this->changeset, $field)
+                ->withForwardLinks([
+                    $artifact1->getId() => Tracker_ArtifactLinkInfo::buildFromArtifact($artifact1, ''),
+                    $artifact4->getId() => Tracker_ArtifactLinkInfo::buildFromArtifact($artifact4, ''),
+                ])->build()
+        );
 
         $artifact_factory = $this->createMock(Tracker_ArtifactFactory::class);
         $artifact_factory->expects($this->exactly(2))->method('getArtifactById')->willReturnCallback(static fn(int $id) => match ($id) {
@@ -215,21 +226,21 @@ final class GetArtifactLinksTest extends TestCase
         $artifact4           = ArtifactTestBuilder::anArtifact(4)->inTracker($bug_tracker)->withChangesets($artifact4_changeset)->userCanView($this->user)->build();
         $artifact4_changeset->setFieldValue(
             $bug_link_field,
-            ChangesetValueArtifactLinkTestBuilder::aValue(4, $artifact4_changeset, $bug_link_field)->withLinks([])->build(),
+            ChangesetValueArtifactLinkTestBuilder::aValue(4, $artifact4_changeset, $bug_link_field)->withForwardLinks([])->build(),
         );
 
         $artifact3_changeset = ChangesetTestBuilder::aChangeset(3)->build();
         $artifact3           = ArtifactTestBuilder::anArtifact(3)->inTracker($bug_tracker)->withChangesets($artifact3_changeset)->userCanView($this->user)->build();
         $artifact3_changeset->setFieldValue(
             $bug_link_field,
-            ChangesetValueArtifactLinkTestBuilder::aValue(3, $artifact3_changeset, $bug_link_field)->withLinks([])->build(),
+            ChangesetValueArtifactLinkTestBuilder::aValue(3, $artifact3_changeset, $bug_link_field)->withForwardLinks([])->build(),
         );
 
         $artifact2_changeset = ChangesetTestBuilder::aChangeset(2)->build();
         $artifact2           = ArtifactTestBuilder::anArtifact(2)->inTracker($task_tracker)->withChangesets($artifact2_changeset)->userCanView($this->user)->build();
         $artifact2_changeset->setFieldValue(
             $task_link_field,
-            ChangesetValueArtifactLinkTestBuilder::aValue(2, $artifact2_changeset, $task_link_field)->withLinks([
+            ChangesetValueArtifactLinkTestBuilder::aValue(2, $artifact2_changeset, $task_link_field)->withForwardLinks([
                 3 => Tracker_ArtifactLinkInfo::buildFromArtifact($artifact3, ''),
                 4 => Tracker_ArtifactLinkInfo::buildFromArtifact($artifact4, ''),
             ])->build(),
@@ -239,7 +250,7 @@ final class GetArtifactLinksTest extends TestCase
         $artifact1           = ArtifactTestBuilder::anArtifact(1)->inTracker($us_tracker)->withChangesets($artifact1_changeset)->userCanView($this->user)->build();
         $artifact1_changeset->setFieldValue(
             $us_link_field,
-            ChangesetValueArtifactLinkTestBuilder::aValue(1, $artifact1_changeset, $us_link_field)->withLinks([
+            ChangesetValueArtifactLinkTestBuilder::aValue(1, $artifact1_changeset, $us_link_field)->withForwardLinks([
                 2 => Tracker_ArtifactLinkInfo::buildFromArtifact($artifact2, ''),
             ])->build(),
         );
@@ -248,7 +259,11 @@ final class GetArtifactLinksTest extends TestCase
         $artifact0           = ArtifactTestBuilder::anArtifact(0)->inTracker($sprint_tracker)->withChangesets($artifact0_changeset)->userCanView($this->user)->build();
         $artifact0_changeset->setFieldValue(
             $sprint_link_field,
-            ChangesetValueArtifactLinkTestBuilder::aValue(0, $artifact0_changeset, $sprint_link_field)->withLinks([
+            ChangesetValueArtifactLinkTestBuilder::aValue(
+                0,
+                $artifact0_changeset,
+                $sprint_link_field
+            )->withForwardLinks([
                 1 => Tracker_ArtifactLinkInfo::buildFromArtifact($artifact1, ''),
                 3 => Tracker_ArtifactLinkInfo::buildFromArtifact($artifact3, ''),
             ])->build(),
@@ -308,7 +323,7 @@ final class GetArtifactLinksTest extends TestCase
         $field     = ArtifactLinkFieldBuilder::anArtifactLinkField(6541)->build();
         $changeset->setFieldValue(
             $field,
-            ChangesetValueArtifactLinkTestBuilder::aValue(1, $changeset, $field)->withLinks($links)->build(),
+            ChangesetValueArtifactLinkTestBuilder::aValue(1, $changeset, $field)->withForwardLinks($links)->build(),
         );
 
         $artifact_factory = $this->createMock(Tracker_ArtifactFactory::class);

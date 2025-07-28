@@ -59,6 +59,7 @@ final class IterationsRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
     private \PFUser $user;
     private \PHPUnit\Framework\MockObject\MockObject&Tracker $tracker;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->dao                        = $this->createMock(RoadmapWidgetDao::class);
@@ -447,7 +448,7 @@ final class IterationsRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->with($this->user)
             ->willReturn(true);
 
-        $title_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $title_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $title_field->method('userCanRead')->willReturn(false);
 
         $this->tracker
@@ -506,7 +507,7 @@ final class IterationsRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->with($this->user)
             ->willReturn(true);
 
-        $title_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $title_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $title_field->method('userCanRead')->willReturn(true);
 
         $this->tracker
@@ -571,7 +572,7 @@ final class IterationsRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->with($this->user)
             ->willReturn(true);
 
-        $title_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $title_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $title_field->method('userCanRead')->willReturn(true);
 
         $this->tracker
@@ -650,7 +651,7 @@ final class IterationsRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->with($this->user)
             ->willReturn(true);
 
-        $title_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $title_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $title_field->method('userCanRead')->willReturn(true);
 
         $this->tracker
@@ -729,7 +730,7 @@ final class IterationsRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->with($this->user)
             ->willReturn(true);
 
-        $title_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $title_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $title_field->method('userCanRead')->willReturn(true);
 
         $this->tracker
@@ -808,7 +809,7 @@ final class IterationsRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->with($this->user)
             ->willReturn(true);
 
-        $title_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $title_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $title_field->method('userCanRead')->willReturn(true);
 
         $this->tracker
@@ -897,7 +898,7 @@ final class IterationsRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->with($this->user)
             ->willReturn(true);
 
-        $title_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $title_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $title_field->method('userCanRead')->willReturn(true);
 
         $this->tracker
@@ -984,7 +985,7 @@ final class IterationsRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->with($this->user)
             ->willReturn(true);
 
-        $title_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $title_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $title_field->method('userCanRead')->willReturn(true);
 
         $this->tracker
@@ -1080,7 +1081,7 @@ final class IterationsRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->with($this->user)
             ->willReturn(true);
 
-        $title_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $title_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $title_field->method('userCanRead')->willReturn(true);
 
         $this->tracker
@@ -1176,7 +1177,7 @@ final class IterationsRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->with($this->user)
             ->willReturn(true);
 
-        $title_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $title_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $title_field->method('userCanRead')->willReturn(true);
 
         $this->tracker
@@ -1273,7 +1274,7 @@ final class IterationsRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
             ->with($this->user)
             ->willReturn(true);
 
-        $title_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $title_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $title_field->method('userCanRead')->willReturn(true);
 
         $this->tracker

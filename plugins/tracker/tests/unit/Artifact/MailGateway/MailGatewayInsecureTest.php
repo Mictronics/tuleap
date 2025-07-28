@@ -38,11 +38,11 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Artifact\Creation\TrackerArtifactCreator;
-use Tuleap\Tracker\Test\Stub\RetrieveSemanticDescriptionFieldStub;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\StringFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\TextFieldBuilder;
+use Tuleap\Tracker\Test\Stub\Semantic\Description\RetrieveSemanticDescriptionFieldStub;
 use Tuleap\Tracker\Tracker;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
@@ -91,9 +91,9 @@ final class MailGatewayInsecureTest extends TestCase
         $this->incoming_mail = $this->createMock(IncomingMail::class);
         $this->incoming_mail->method('getRawMail')->willReturn('Raw mail');
 
-        $title_field                = StringFieldBuilder::aStringField(452)->build();
-        $description_field          = TextFieldBuilder::aTextField(854)->build();
-        $retrieve_description_field = RetrieveSemanticDescriptionFieldStub::withTextField($description_field);
+        $title_field                = StringFieldBuilder::aStringField(452)->inTracker($this->tracker)->build();
+        $description_field          = TextFieldBuilder::aTextField(854)->inTracker($this->tracker)->build();
+        $retrieve_description_field = RetrieveSemanticDescriptionFieldStub::build()->withDescriptionField($description_field);
 
         $this->tracker->method('getTitleField')->willReturn($title_field);
         $this->tracker->method('getFormElementFields')->willReturn([$title_field, $description_field]);

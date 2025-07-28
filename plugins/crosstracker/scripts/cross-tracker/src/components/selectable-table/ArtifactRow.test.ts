@@ -18,43 +18,33 @@
  */
 
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import type { ResultAsync } from "neverthrow";
 import { errAsync, okAsync } from "neverthrow";
 import { shallowMount } from "@vue/test-utils";
 import type { VueWrapper } from "@vue/test-utils";
 import { Option } from "@tuleap/option";
 import { Fault } from "@tuleap/fault";
 import { ArtifactRowBuilder } from "../../../tests/builders/ArtifactRowBuilder";
-import { ArtifactsTableBuilder as ArtifactsTableBuilderForTests } from "../../../tests/builders/ArtifactsTableBuilder";
+import { ArtifactsTableBuilder } from "../../../tests/builders/ArtifactsTableBuilder";
+import { RetrieveArtifactLinksStub } from "../../../tests/stubs/RetrieveArtifactLinksStub";
+import { MAXIMAL_LIMIT_OF_ARTIFACT_LINKS_FETCHED } from "../../api/ArtifactLinksRetriever";
 import { NUMERIC_CELL, PRETTY_TITLE_CELL } from "../../domain/ArtifactsTable";
 import { getGlobalTestOptions } from "../../helpers/global-options-for-tests";
 import type { ColumnName } from "../../domain/ColumnName";
 import { PRETTY_TITLE_COLUMN_NAME } from "../../domain/ColumnName";
-import type { ArtifactsTableWithTotal } from "../../domain/RetrieveArtifactsTable";
 import type { RetrieveArtifactLinks } from "../../domain/RetrieveArtifactLinks";
-import RowErrorMessage from "../feedback/RowErrorMessage.vue";
 import { RETRIEVE_ARTIFACT_LINKS, WIDGET_ID } from "../../injection-symbols";
-import ArtifactRow from "./ArtifactRow.vue";
-import SelectableCell from "./SelectableCell.vue";
+import RowLoadAllButton from "../feedback/RowLoadAllButton.vue";
+import RowErrorMessage from "../feedback/RowErrorMessage.vue";
 import ArtifactLinkRows from "./ArtifactLinkRows.vue";
-
-const RetrieveArtifactLinksTableStub = {
-    withContent(
-        forward_links: ResultAsync<ArtifactsTableWithTotal, Fault>,
-        reverse_links: ResultAsync<ArtifactsTableWithTotal, Fault>,
-    ): RetrieveArtifactLinks {
-        return {
-            getForwardLinks: () => forward_links,
-            getReverseLinks: () => reverse_links,
-        };
-    },
-};
+import SelectableCell from "./SelectableCell.vue";
+import ArtifactRow from "./ArtifactRow.vue";
 
 vi.useFakeTimers();
 
 const NUMERIC_COLUMN_NAME = "remaining_effort";
 const error_message = "Ooops";
 const fault = Fault.fromMessage(error_message);
+const html_element = {} as HTMLElement;
 
 const artifact_row = new ArtifactRowBuilder()
     .addCell(PRETTY_TITLE_COLUMN_NAME, {
@@ -68,29 +58,32 @@ const artifact_row = new ArtifactRowBuilder()
         type: NUMERIC_CELL,
         value: Option.fromValue(74),
     })
-    .buildWithNumberOfLinks(1, 1);
+    .buildWithExpectedNumberOfLinks(1, 1);
 
-const forward_table = new ArtifactsTableBuilderForTests()
+const forward_table = new ArtifactsTableBuilder()
     .withColumn(PRETTY_TITLE_COLUMN_NAME)
     .withColumn(NUMERIC_COLUMN_NAME)
     .withArtifactRow(artifact_row)
     .withArtifactRow(artifact_row)
     .buildWithTotal(2);
 
-const reverse_table = new ArtifactsTableBuilderForTests()
+const reverse_table = new ArtifactsTableBuilder()
     .withColumn(PRETTY_TITLE_COLUMN_NAME)
     .withColumn(NUMERIC_COLUMN_NAME)
     .withArtifactRow(artifact_row)
     .buildWithTotal(2);
 
 describe("ArtifactRow", () => {
-    let artifact_links_table_retriever: RetrieveArtifactLinks;
+    let artifact_links_table_retriever: RetrieveArtifactLinks,
+        ancestors: number[],
+        artifact_id: number,
+        level: number;
 
     beforeEach(() => {
-        artifact_links_table_retriever = RetrieveArtifactLinksTableStub.withContent(
-            okAsync(forward_table),
-            okAsync(reverse_table),
-        );
+        artifact_id = 512;
+        ancestors = [123, 234];
+        artifact_links_table_retriever = RetrieveArtifactLinksStub.withDefaultContent();
+        level = 0;
     });
 
     function getWrapper(): VueWrapper<InstanceType<typeof ArtifactRow>> {
@@ -105,16 +98,23 @@ describe("ArtifactRow", () => {
             props: {
                 tql_query: 'SELECT @pretty_title FROM @project="self"',
                 row: new ArtifactRowBuilder()
+                    .withRowId(artifact_id)
                     .addCell(PRETTY_TITLE_COLUMN_NAME, {
                         type: PRETTY_TITLE_CELL,
                         title: "earthmaking",
                         tracker_name: "lifesome",
-                        artifact_id: 512,
+                        artifact_id,
                         color: "inca-silver",
                     })
-                    .buildWithNumberOfLinks(1, 1),
+                    .buildWithExpectedNumberOfLinks(1, 1),
                 columns: new Set<ColumnName>().add(PRETTY_TITLE_COLUMN_NAME),
-                level: 0,
+                level,
+                is_last: false,
+                parent_element: undefined,
+                parent_caret: undefined,
+                direction: undefined,
+                reverse_links_count: undefined,
+                ancestors,
             },
         });
     }
@@ -124,7 +124,7 @@ describe("ArtifactRow", () => {
         const getReverseLinks = vi.spyOn(artifact_links_table_retriever, "getReverseLinks");
         const wrapper = getWrapper();
 
-        await wrapper.findComponent(SelectableCell).trigger("toggle-links");
+        wrapper.findComponent(SelectableCell).vm.$emit("toggle-links", html_element, html_element);
         await vi.runOnlyPendingTimersAsync();
         const row_error_message = wrapper.findComponent(RowErrorMessage);
         const artifact_link_rows = wrapper.findAllComponents(ArtifactLinkRows);
@@ -182,13 +182,15 @@ describe("ArtifactRow", () => {
     ])(
         "should display an error message if an error occurred when retrieving %s",
         async (name, forward, reverse) => {
-            artifact_links_table_retriever = RetrieveArtifactLinksTableStub.withContent(
+            artifact_links_table_retriever = RetrieveArtifactLinksStub.withForwardAndReverseContent(
                 forward,
                 reverse,
             );
             const wrapper = getWrapper();
 
-            await wrapper.findComponent(SelectableCell).trigger("toggle-links");
+            wrapper
+                .findComponent(SelectableCell)
+                .vm.$emit("toggle-links", html_element, html_element);
             await vi.runOnlyPendingTimersAsync();
             const row_error_message = wrapper.findComponent(RowErrorMessage);
 
@@ -196,4 +198,299 @@ describe("ArtifactRow", () => {
             expect(row_error_message.props("error_message")).toStrictEqual(error_message);
         },
     );
+
+    describe("Load all button", () => {
+        it("should not display a load all button if there is less than MAXIMAL_LIMIT_OF_ARTIFACT_LINKS_FETCHED forward or reverse links", async () => {
+            artifact_links_table_retriever = RetrieveArtifactLinksStub.withTotalNumberOfLinks(
+                MAXIMAL_LIMIT_OF_ARTIFACT_LINKS_FETCHED - 5,
+                MAXIMAL_LIMIT_OF_ARTIFACT_LINKS_FETCHED - 1,
+            );
+            const wrapper = getWrapper();
+            wrapper
+                .findComponent(SelectableCell)
+                .vm.$emit("toggle-links", html_element, html_element);
+            await vi.runOnlyPendingTimersAsync();
+
+            expect(wrapper.findComponent(RowLoadAllButton).exists()).toBe(false);
+        });
+
+        it.each([
+            ["forward", MAXIMAL_LIMIT_OF_ARTIFACT_LINKS_FETCHED + 9, 3],
+            ["reverse", 3, MAXIMAL_LIMIT_OF_ARTIFACT_LINKS_FETCHED + 16],
+            [
+                "forward or reverse",
+                MAXIMAL_LIMIT_OF_ARTIFACT_LINKS_FETCHED + 6,
+                MAXIMAL_LIMIT_OF_ARTIFACT_LINKS_FETCHED + 22,
+            ],
+        ])(
+            "should display a load all button if there is more than MAXIMAL_LIMIT_OF_ARTIFACT_LINKS_FETCHED %s links",
+            async (name, number_of_forward_links, number_of_reverse_links) => {
+                artifact_links_table_retriever = RetrieveArtifactLinksStub.withTotalNumberOfLinks(
+                    number_of_forward_links,
+                    number_of_reverse_links,
+                );
+                const wrapper = getWrapper();
+                wrapper
+                    .findComponent(SelectableCell)
+                    .vm.$emit("toggle-links", html_element, html_element);
+                await vi.runOnlyPendingTimersAsync();
+
+                expect(wrapper.findComponent(RowLoadAllButton).exists()).toBe(true);
+            },
+        );
+
+        it.each([
+            ["forward", 59, 3],
+            ["reverse", 3, 62],
+            ["forward or reverse", 56, 72],
+        ])(
+            "should fetch all forward and reverse links if load all button is clicked and the button should be hidden",
+            async (name, number_of_forward_links, number_of_reverse_links) => {
+                ancestors = [456, artifact_id];
+                level = 1;
+                artifact_links_table_retriever = RetrieveArtifactLinksStub.withTotalNumberOfLinks(
+                    number_of_forward_links,
+                    number_of_reverse_links,
+                );
+                const getAllForwardLinks = vi.spyOn(
+                    artifact_links_table_retriever,
+                    "getAllForwardLinks",
+                );
+                const getAllReverseLinks = vi.spyOn(
+                    artifact_links_table_retriever,
+                    "getAllReverseLinks",
+                );
+                const wrapper = getWrapper();
+
+                wrapper
+                    .findComponent(SelectableCell)
+                    .vm.$emit("toggle-links", html_element, html_element);
+                await vi.runOnlyPendingTimersAsync();
+
+                expect(wrapper.findComponent(RowLoadAllButton).exists()).toBe(true);
+                expect(getAllForwardLinks).toHaveBeenCalledTimes(0);
+                expect(getAllReverseLinks).toHaveBeenCalledTimes(0);
+
+                wrapper.findComponent(RowLoadAllButton).vm.$emit("click");
+                await vi.runOnlyPendingTimersAsync();
+
+                expect(wrapper.findComponent(RowLoadAllButton).exists()).toBe(false);
+                expect(getAllForwardLinks).toHaveBeenCalledTimes(1);
+                expect(getAllReverseLinks).toHaveBeenCalledTimes(1);
+            },
+        );
+    });
+
+    describe("Ancestors propagation", () => {
+        it("Should include its own row into the ancestors collection passed to ArtifactLinks", async () => {
+            ancestors = [472];
+
+            const wrapper = getWrapper();
+
+            wrapper
+                .findComponent(SelectableCell)
+                .vm.$emit("toggle-links", html_element, html_element);
+
+            await vi.runOnlyPendingTimersAsync();
+
+            const artifact_link_rows = wrapper.findAllComponents(ArtifactLinkRows);
+
+            expect(artifact_link_rows).not.toHaveLength(0);
+            artifact_link_rows.forEach((artifact_link_row) => {
+                expect(artifact_link_row.props("ancestors")).toStrictEqual([472, artifact_id]);
+            });
+        });
+    });
+
+    describe("Parents filtering", () => {
+        it.each([
+            ["forward", 0],
+            ["reverse", 1],
+        ])(
+            "should not filter anything if my parent is not in the list of %s links",
+            async (name, component_index) => {
+                const row_1 = new ArtifactRowBuilder()
+                    .addCell(PRETTY_TITLE_COLUMN_NAME, {
+                        type: PRETTY_TITLE_CELL,
+                        title: "earthmaking",
+                        tracker_name: "lifesome",
+                        artifact_id: 512,
+                        color: "inca-silver",
+                    })
+                    .addCell(NUMERIC_COLUMN_NAME, {
+                        type: NUMERIC_CELL,
+                        value: Option.fromValue(74),
+                    })
+                    .withRowId(675)
+                    .buildWithExpectedNumberOfLinks(1, 1);
+
+                const row_2 = new ArtifactRowBuilder()
+                    .addCell(PRETTY_TITLE_COLUMN_NAME, {
+                        type: PRETTY_TITLE_CELL,
+                        title: "earthmaking",
+                        tracker_name: "lifesome",
+                        artifact_id: 512,
+                        color: "inca-silver",
+                    })
+                    .addCell(NUMERIC_COLUMN_NAME, {
+                        type: NUMERIC_CELL,
+                        value: Option.fromValue(74),
+                    })
+                    .withRowId(988)
+                    .buildWithExpectedNumberOfLinks(1, 1);
+
+                const links_table = new ArtifactsTableBuilder()
+                    .withColumn(PRETTY_TITLE_COLUMN_NAME)
+                    .withColumn(NUMERIC_COLUMN_NAME)
+                    .withArtifactRow(row_1)
+                    .withArtifactRow(row_2)
+                    .buildWithTotal(2);
+
+                artifact_links_table_retriever =
+                    RetrieveArtifactLinksStub.withForwardAndReverseContent(
+                        okAsync(links_table),
+                        okAsync(links_table),
+                    );
+
+                const wrapper = getWrapper();
+
+                wrapper
+                    .findComponent(SelectableCell)
+                    .vm.$emit("toggle-links", html_element, html_element);
+                await vi.runOnlyPendingTimersAsync();
+
+                const artifact_link_rows_component =
+                    wrapper.findAllComponents(ArtifactLinkRows)[component_index];
+                const artifact_links_rows =
+                    artifact_link_rows_component.props("artifact_links_rows");
+
+                expect(artifact_links_rows).toHaveLength(links_table.total);
+            },
+        );
+
+        it.each([
+            ["forward", 0],
+            ["reverse", 1],
+        ])(
+            "should filter my parent out if it is in the list of %s links",
+            async (name, index_component) => {
+                const row_1 = new ArtifactRowBuilder()
+                    .addCell(PRETTY_TITLE_COLUMN_NAME, {
+                        type: PRETTY_TITLE_CELL,
+                        title: "earthmaking",
+                        tracker_name: "lifesome",
+                        artifact_id: 512,
+                        color: "inca-silver",
+                    })
+                    .addCell(NUMERIC_COLUMN_NAME, {
+                        type: NUMERIC_CELL,
+                        value: Option.fromValue(74),
+                    })
+                    .withRowId(675)
+                    .buildWithExpectedNumberOfLinks(1, 1);
+
+                const row_2 = new ArtifactRowBuilder()
+                    .addCell(PRETTY_TITLE_COLUMN_NAME, {
+                        type: PRETTY_TITLE_CELL,
+                        title: "earthmaking",
+                        tracker_name: "lifesome",
+                        artifact_id: 512,
+                        color: "inca-silver",
+                    })
+                    .addCell(NUMERIC_COLUMN_NAME, {
+                        type: NUMERIC_CELL,
+                        value: Option.fromValue(74),
+                    })
+                    .withRowId(artifact_id)
+                    .buildWithExpectedNumberOfLinks(1, 1);
+
+                const links_table = new ArtifactsTableBuilder()
+                    .withColumn(PRETTY_TITLE_COLUMN_NAME)
+                    .withColumn(NUMERIC_COLUMN_NAME)
+                    .withArtifactRow(row_1)
+                    .withArtifactRow(row_2)
+                    .buildWithTotal(2);
+
+                artifact_links_table_retriever =
+                    RetrieveArtifactLinksStub.withForwardAndReverseContent(
+                        okAsync(links_table),
+                        okAsync(links_table),
+                    );
+
+                ancestors = [345, 5498, artifact_id];
+
+                const wrapper = getWrapper();
+
+                wrapper
+                    .findComponent(SelectableCell)
+                    .vm.$emit("toggle-links", html_element, html_element);
+                await vi.runOnlyPendingTimersAsync();
+
+                const artifact_link_rows_component =
+                    wrapper.findAllComponents(ArtifactLinkRows)[index_component];
+                const artifact_links_rows =
+                    artifact_link_rows_component.props("artifact_links_rows");
+
+                expect(artifact_links_rows.filter((row) => row.id === artifact_id)).toHaveLength(0);
+            },
+        );
+
+        it("should work even if I have no ancestors", async () => {
+            const reverse_row_1 = new ArtifactRowBuilder()
+                .addCell(PRETTY_TITLE_COLUMN_NAME, {
+                    type: PRETTY_TITLE_CELL,
+                    title: "earthmaking",
+                    tracker_name: "lifesome",
+                    artifact_id: 512,
+                    color: "inca-silver",
+                })
+                .addCell(NUMERIC_COLUMN_NAME, {
+                    type: NUMERIC_CELL,
+                    value: Option.fromValue(74),
+                })
+                .withRowId(675)
+                .buildWithExpectedNumberOfLinks(1, 1);
+
+            const reverse_row_2 = new ArtifactRowBuilder()
+                .addCell(PRETTY_TITLE_COLUMN_NAME, {
+                    type: PRETTY_TITLE_CELL,
+                    title: "earthmaking",
+                    tracker_name: "lifesome",
+                    artifact_id: 512,
+                    color: "inca-silver",
+                })
+                .addCell(NUMERIC_COLUMN_NAME, {
+                    type: NUMERIC_CELL,
+                    value: Option.fromValue(74),
+                })
+                .withRowId(artifact_id)
+                .buildWithExpectedNumberOfLinks(1, 1);
+
+            const reverse_links_table = new ArtifactsTableBuilder()
+                .withColumn(PRETTY_TITLE_COLUMN_NAME)
+                .withColumn(NUMERIC_COLUMN_NAME)
+                .withArtifactRow(reverse_row_1)
+                .withArtifactRow(reverse_row_2)
+                .buildWithTotal(2);
+
+            artifact_links_table_retriever = RetrieveArtifactLinksStub.withForwardAndReverseContent(
+                okAsync(forward_table),
+                okAsync(reverse_links_table),
+            );
+
+            ancestors = [];
+
+            const wrapper = getWrapper();
+
+            wrapper
+                .findComponent(SelectableCell)
+                .vm.$emit("toggle-links", html_element, html_element);
+            await vi.runOnlyPendingTimersAsync();
+
+            const reverse_artifact_link_rows = wrapper.findAllComponents(ArtifactLinkRows)[1];
+            const reverse_rows = reverse_artifact_link_rows.props("artifact_links_rows");
+
+            expect(reverse_rows).toHaveLength(reverse_links_table.total);
+        });
+    });
 });

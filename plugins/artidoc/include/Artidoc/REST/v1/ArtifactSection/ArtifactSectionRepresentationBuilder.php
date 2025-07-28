@@ -22,13 +22,18 @@ declare(strict_types=1);
 
 namespace Tuleap\Artidoc\REST\v1\ArtifactSection;
 
+use PFUser;
 use Tuleap\Artidoc\Document\Field\GetFieldsWithValues;
+use Tuleap\Artidoc\Domain\Document\Section\Field\FieldWithValue\ArtifactLinkFieldWithValue;
+use Tuleap\Artidoc\Domain\Document\Section\Field\FieldWithValue\NumericFieldWithValue;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldWithValue\StaticListFieldWithValue;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldWithValue\StringFieldWithValue;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldWithValue\UserGroupsListFieldWithValue;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldWithValue\UserListFieldWithValue;
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifier;
 use Tuleap\Artidoc\Domain\Document\Section\Level;
+use Tuleap\Artidoc\REST\v1\ArtifactSection\Field\SectionArtifactLinkFieldRepresentation;
+use Tuleap\Artidoc\REST\v1\ArtifactSection\Field\SectionNumericFieldRepresentation;
 use Tuleap\Artidoc\REST\v1\ArtifactSection\Field\SectionStaticListFieldRepresentation;
 use Tuleap\Artidoc\REST\v1\ArtifactSection\Field\SectionStringFieldRepresentation;
 use Tuleap\Artidoc\REST\v1\ArtifactSection\Field\SectionUserGroupsListFieldRepresentation;
@@ -50,7 +55,7 @@ final readonly class ArtifactSectionRepresentationBuilder
         RequiredArtifactInformation $artifact_information,
         SectionIdentifier $section_identifier,
         Level $level,
-        \PFUser $user,
+        PFUser $user,
     ): ArtifactSectionRepresentation {
         $can_user_edit_section = $artifact_information->title_field->userCanUpdate($user)
             && $artifact_information->description_field->userCanUpdate($user);
@@ -88,7 +93,7 @@ final readonly class ArtifactSectionRepresentationBuilder
     }
 
     /**
-     * @return list<SectionStringFieldRepresentation | SectionUserGroupsListFieldRepresentation | SectionStaticListFieldRepresentation | SectionUserListFieldRepresentation>
+     * @return list<SectionStringFieldRepresentation | SectionUserGroupsListFieldRepresentation | SectionStaticListFieldRepresentation | SectionUserListFieldRepresentation | SectionArtifactLinkFieldRepresentation | SectionNumericFieldRepresentation>
      */
     private function getFieldValues(RequiredArtifactInformation $artifact_information): array
     {
@@ -96,10 +101,12 @@ final readonly class ArtifactSectionRepresentationBuilder
         $representations = [];
         foreach ($fields as $field) {
             $representations[] = match ($field::class) {
-                StringFieldWithValue::class => new SectionStringFieldRepresentation($field),
+                StringFieldWithValue::class         => new SectionStringFieldRepresentation($field),
                 UserGroupsListFieldWithValue::class => new SectionUserGroupsListFieldRepresentation($field),
-                StaticListFieldWithValue::class => new SectionStaticListFieldRepresentation($field),
-                UserListFieldWithValue::class => new SectionUserListFieldRepresentation($field),
+                StaticListFieldWithValue::class     => new SectionStaticListFieldRepresentation($field),
+                UserListFieldWithValue::class       => new SectionUserListFieldRepresentation($field),
+                ArtifactLinkFieldWithValue::class   => new SectionArtifactLinkFieldRepresentation($field),
+                NumericFieldWithValue::class        => new SectionNumericFieldRepresentation($field),
             };
         }
         return $representations;

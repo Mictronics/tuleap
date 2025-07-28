@@ -265,11 +265,12 @@ use Tuleap\Tracker\Report\TrackerReportConfigDao;
 use Tuleap\Tracker\REST\OAuth2\OAuth2TrackerReadScope;
 use Tuleap\Tracker\Rule\FirstValidValueAccordingToDependenciesRetriever;
 use Tuleap\Tracker\Search\IndexAllArtifactsProcessor;
+use Tuleap\Tracker\Semantic\Status\CachedSemanticStatusFieldRetriever;
+use Tuleap\Tracker\Semantic\Status\CachedSemanticStatusRetriever;
 use Tuleap\Tracker\Semantic\Status\Done\DoneValueRetriever;
 use Tuleap\Tracker\Semantic\Status\Done\SemanticDoneDao;
 use Tuleap\Tracker\Semantic\Status\Done\SemanticDoneFactory;
 use Tuleap\Tracker\Semantic\Status\Done\SemanticDoneValueChecker;
-use Tuleap\Tracker\Semantic\Status\StatusFieldRetriever;
 use Tuleap\Tracker\Semantic\Status\StatusValueRetriever;
 use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatusFactory;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeBuilder;
@@ -277,6 +278,9 @@ use Tuleap\Tracker\Service\CheckPromotedTrackerConfiguration;
 use Tuleap\Tracker\Service\PromotedTrackerConfiguration;
 use Tuleap\Tracker\Service\ServiceActivator;
 use Tuleap\Tracker\Tracker;
+use Tuleap\Tracker\TrackerDeletion\DeletedTrackerDao;
+use Tuleap\Tracker\TrackerDeletion\DeleteTrackerPresenterBuilder;
+use Tuleap\Tracker\TrackerDeletion\TrackerDeletionRetriever;
 use Tuleap\Tracker\User\NotificationOnAllUpdatesRetriever;
 use Tuleap\Tracker\User\NotificationOnOwnActionRetriever;
 use Tuleap\Tracker\User\UserPreferencesPostController;
@@ -328,6 +332,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
     public const EMAILGATEWAY_INSECURE_ARTIFACT_UPDATE   = 'forge__artifact';
     public const SERVICE_SHORTNAME                       = 'plugin_tracker';
     public const TRUNCATED_SERVICE_NAME                  = 'Trackers';
+    public const DELETED_TRACKERS_TEMPLATE_NAME          = 'deleted_trackers';
 
     public function __construct($id)
     {
@@ -1158,8 +1163,15 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
 
     public function display_deleted_trackers(array &$params)//phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
-        $tracker_manager = new TrackerManager();
-        $tracker_manager->displayDeletedTrackers();
+        $deleted_tracker_presenter_builder = new DeleteTrackerPresenterBuilder(new TrackerDeletionRetriever(new DeletedTrackerDao(), $this->getTrackerFactory()));
+        $presenter                         = $deleted_tracker_presenter_builder->displayDeletedTrackers();
+        $renderer                          = new AdminPageRenderer();
+
+        $renderer->renderToPage(
+            $presenter->getTemplateDir(),
+            self::DELETED_TRACKERS_TEMPLATE_NAME,
+            $presenter
+        );
     }
 
     /**
@@ -2498,10 +2510,11 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         $unsubscribers_notification_dao = new UnsubscribersNotificationDAO();
         $user_preferences_dao           = new UserPreferencesDao();
         $only_status_change_dao         = new UserNotificationOnlyStatusChangeDAO();
+        $user_manager                   = UserManager::instance();
         return new NotificationsForceUsageUpdater(
             new RecipientsManager(
                 Tracker_FormElementFactory::instance(),
-                UserManager::instance(),
+                $user_manager,
                 $unsubscribers_notification_dao,
                 new UserNotificationSettingsRetriever(
                     new Tracker_GlobalNotificationDao(),
@@ -2511,7 +2524,8 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
                 ),
                 $only_status_change_dao,
                 new NotificationOnAllUpdatesRetriever($user_preferences_dao),
-                new NotificationOnOwnActionRetriever($user_preferences_dao)
+                new NotificationOnOwnActionRetriever($user_preferences_dao),
+                new MentionedUserInTextRetriever($user_manager),
             ),
             new UserNotificationSettingsDAO()
         );
@@ -2792,7 +2806,6 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
                     $event_manager,
                     new \Tracker_Artifact_Changeset_CommentDao(),
                 ),
-                new MentionedUserInTextRetriever($user_manager),
             ),
         );
 
@@ -2803,10 +2816,14 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             $user_manager,
             new ArtifactWasClosedCache(),
             new ArtifactCloser(
-                new StatusFieldRetriever($status_semantic_factory),
+                CachedSemanticStatusFieldRetriever::instance(),
                 new StatusValueRetriever($status_semantic_factory, $first_possible_value_retriever),
                 new DoneValueRetriever(
-                    new SemanticDoneFactory(new SemanticDoneDao(), new SemanticDoneValueChecker()),
+                    new SemanticDoneFactory(
+                        new SemanticDoneDao(),
+                        new SemanticDoneValueChecker(),
+                        CachedSemanticStatusRetriever::instance(),
+                    ),
                     $first_possible_value_retriever
                 ),
                 $logger,

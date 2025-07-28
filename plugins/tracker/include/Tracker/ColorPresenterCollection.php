@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-use Tuleap\Color\ItemColor;
+use Tuleap\Color\ColorName;
 use Tuleap\Tracker\Tracker;
 
 class Tracker_ColorPresenterCollection implements Iterator // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
@@ -29,10 +29,10 @@ class Tracker_ColorPresenterCollection implements Iterator // phpcs:ignore PSR1.
 
     public function __construct(Tracker $tracker)
     {
-        foreach (ItemColor::COLOR_NAMES as $color) {
+        foreach (ColorName::cases() as $color) {
              $this->colors[] = [
-                 'color'    => $color,
-                 'selected' => $color === $tracker->getColor()->getName(),
+                 'color'    => $color->value,
+                 'selected' => $color === $tracker->getColor(),
              ];
         }
     }

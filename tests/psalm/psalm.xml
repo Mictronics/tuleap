@@ -7,7 +7,7 @@
     resolveFromConfigFile="false"
     errorBaseline="./tests/psalm/tuleap-baseline.xml"
     allowNamedArgumentCalls="false"
-    ensureOverrideAttribute="false"
+    ensureOverrideAttribute="true"
     findUnusedBaselineEntry="false"
 >
     <projectFiles>
@@ -939,8 +939,6 @@
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_ComputedTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_CriteriaTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_DateTest.php"/>
-            <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_FloatTest.php"/>
-            <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_IntegerTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_LastUpdateDateTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_ListTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_ListTypes_GetDefaultValueTest.php"/>
@@ -959,7 +957,6 @@
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_RadiobuttonTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_SelectboxTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_SubmittedOnTest.php"/>
-            <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_TextTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Line_BreakTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_SeparatorTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_SharedFormElementFactoryTest.php"/>
@@ -1124,7 +1121,6 @@
             <file name="plugins/tracker/tests/unit/Semantic/Status/Done/SemanticDoneValueCheckerTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Status/Open/AdminPresenterBuilderTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Status/StatusColorForChangesetProviderTest.php"/>
-            <file name="plugins/tracker/tests/unit/Semantic/Status/StatusFieldRetrieverTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Status/StatusValueForChangesetProviderTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Status/StatusValueProviderTest.php"/>
             <file name="plugins/tracker/tests/unit/Semantic/Status/StatusValueRetrieverTest.php"/>
@@ -1316,6 +1312,13 @@
             <file name="plugins/tracker/tests/unit/XML/Updater/Tracker_XML_Updater_ChangesetXMLUpdaterTest.php"/>
             <file name="plugins/tracker/tests/unit/XML/Updater/Tracker_XML_Updater_TemporaryFileCreatorTest.php"/>
             <file name="plugins/tracker/tests/unit/XML/Updater/Tracker_XML_Updater_TemporaryFileXMLUpdaterTest.php"/>
+            <!-- Avoid issues when executed inside the dev container since it will want to scan MW code -->
+            <file name="plugins/mediawiki/www/LocalSettings.php"/>
+            <file name="plugins/mediawiki/www/upgrade_sample.php"/>
+            <file name="plugins/mediawiki/www/setenv.php"/>
+            <file name="plugins/mediawiki/www/setpath.php"/>
+            <file name="plugins/mediawiki/bin/migrate_to_123.php"/>
+            <file name="plugins/mediawiki/bin/mw-maintenance-wrapper.php"/>
         </ignoreFiles>
     </projectFiles>
 

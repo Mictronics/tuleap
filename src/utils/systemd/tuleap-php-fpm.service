@@ -3,13 +3,13 @@ Description=The PHP FastCGI Process Manager for Tuleap
 Documentation=https://docs.tuleap.org
 After=tuleap.service
 PartOf=tuleap.service
-Conflicts=php82-php-fpm.service php84-php-fpm.service
+Conflicts=php84-php-fpm.service
 
 [Service]
 Type=notify
 ExecStartPre=/bin/sh -c 'until /usr/bin/tuleap --version 2> /dev/null; do echo "Waiting on services to be ready to start"; /bin/sleep 5; done'
 ExecStartPre=/usr/bin/tuleap sanity-check
-ExecStart=/opt/remi/php82/root/usr/sbin/php-fpm --nodaemonize
+ExecStart=/opt/remi/php84/root/usr/sbin/php-fpm --nodaemonize
 ExecReload=/bin/kill -USR2 $MAINPID
 PrivateTmp=false
 

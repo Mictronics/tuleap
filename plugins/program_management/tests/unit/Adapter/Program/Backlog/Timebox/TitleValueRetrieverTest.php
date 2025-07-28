@@ -35,7 +35,8 @@ use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetValueStringTestBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\StringFieldBuilder;
-use Tuleap\Tracker\Test\Stub\Semantic\GetTitleSemanticStub;
+use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
+use Tuleap\Tracker\Test\Stub\Semantic\Title\RetrieveSemanticTitleFieldStub;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class TitleValueRetrieverTest extends TestCase
@@ -46,6 +47,7 @@ final class TitleValueRetrieverTest extends TestCase
     private bool $is_title_semantic_defined = true;
     private bool $can_user_read_title_field = true;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->user = UserTestBuilder::aUser()->build();
@@ -54,7 +56,9 @@ final class TitleValueRetrieverTest extends TestCase
     private function getRetriever(): TitleValueRetriever
     {
         $changeset = ChangesetTestBuilder::aChangeset(1)->build();
+        $tracker   = TrackerTestBuilder::aTracker()->withId(741)->build();
         $artifact  = ArtifactTestBuilder::anArtifact(self::ARTIFACT_ID)
+            ->inTracker($tracker)
             ->withTitle(self::TITLE)
             ->withChangesets($changeset)
             ->build();
@@ -64,11 +68,15 @@ final class TitleValueRetrieverTest extends TestCase
             $title_field,
             ChangesetValueStringTestBuilder::aValue(1, $changeset, $title_field)->withValue(self::TITLE)->build(),
         );
+        $title_field_retriever = RetrieveSemanticTitleFieldStub::build();
+        if ($this->is_title_semantic_defined) {
+            $title_field_retriever->withTitleField($tracker, $title_field);
+        }
 
         return new TitleValueRetriever(
             RetrieveFullArtifactStub::withArtifact($artifact),
             RetrieveUserStub::withUser($this->user),
-            $this->is_title_semantic_defined ? GetTitleSemanticStub::withTextField($title_field) : GetTitleSemanticStub::withoutTextField(),
+            $title_field_retriever,
         );
     }
 

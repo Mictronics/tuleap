@@ -31,10 +31,12 @@ use Tuleap\Taskboard\Column\FieldValuesToColumnMapping\Freestyle\SearchMappedFie
 use Tuleap\Taskboard\Column\FieldValuesToColumnMapping\MappedFieldRetriever;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
+use Tuleap\Tracker\FormElement\Field\Text\TextField;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ArtifactLinkFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Test\Stub\FormElement\Field\ListFields\RetrieveUsedListFieldStub;
+use Tuleap\Tracker\Test\Stub\Semantic\Title\RetrieveSemanticTitleFieldStub;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class TrackerPresenterCollectionBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
@@ -45,13 +47,16 @@ final class TrackerPresenterCollectionBuilderTest extends \Tuleap\Test\PHPUnit\T
     private AddInPlaceRetriever&MockObject $add_in_place_tracker_retriever;
     private \Planning_ArtifactMilestone $milestone;
     private \PFUser $user;
+    private RetrieveSemanticTitleFieldStub $title_field_retriever;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->trackers_retriever             = $this->createMock(TrackerCollectionRetriever::class);
         $this->search_mapped_field            = SearchMappedFieldStub::withNoField();
         $this->field_retriever                = RetrieveUsedListFieldStub::withNoField();
         $this->add_in_place_tracker_retriever = $this->createMock(AddInPlaceRetriever::class);
+        $this->title_field_retriever          = RetrieveSemanticTitleFieldStub::build();
 
         $project_id      = 122;
         $this->milestone = new \Planning_ArtifactMilestone(
@@ -62,9 +67,9 @@ final class TrackerPresenterCollectionBuilderTest extends \Tuleap\Test\PHPUnit\T
         $this->user      = UserTestBuilder::buildWithDefaults();
     }
 
+    #[\Override]
     protected function tearDown(): void
     {
-        \Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle::clearInstances();
         \Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributor::clearInstances();
     }
 
@@ -83,7 +88,8 @@ final class TrackerPresenterCollectionBuilderTest extends \Tuleap\Test\PHPUnit\T
                     $this->field_retriever
                 )
             ),
-            $this->add_in_place_tracker_retriever
+            $this->add_in_place_tracker_retriever,
+            $this->title_field_retriever,
         );
         return $builder->buildCollection($this->milestone, $this->user);
     }
@@ -176,7 +182,7 @@ final class TrackerPresenterCollectionBuilderTest extends \Tuleap\Test\PHPUnit\T
 
         $this->mockSemanticTitle($first_taskboard_tracker, false, true);
         $this->mockSemanticTitle($second_taskboard_tracker, true, true);
-        $this->mockSemanticTitle($third_taskboard_tracker, true, true, \Tracker_FormElement_Field_String::class);
+        $this->mockSemanticTitle($third_taskboard_tracker, true, true, \Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $this->mockSemanticTitle($fourth_taskboard_tracker, true, true);
 
         $this->mockSemanticContributor($first_taskboard_tracker, false, false);
@@ -276,20 +282,17 @@ final class TrackerPresenterCollectionBuilderTest extends \Tuleap\Test\PHPUnit\T
         TaskboardTracker $taskboard_tracker,
         bool $is_semantic_set,
         bool $can_user_update,
-        string $classname = \Tracker_FormElement_Field_Text::class,
+        string $classname = TextField::class,
     ): void {
-        $semantic_title = $this->createMock(\Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle::class);
-        \Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle::setInstance($semantic_title, $taskboard_tracker->getTracker());
-
-        $title_field = null;
-
-        if ($is_semantic_set) {
-            $title_field = $this->createMock($classname);
-            $title_field->method('getId')->willReturn(1533);
-            $title_field->method('userCanUpdate')->willReturn($can_user_update);
+        if (! $is_semantic_set) {
+            return;
         }
 
-        $semantic_title->method('getField')->willReturn($title_field);
+        $title_field = $this->createMock($classname);
+        $title_field->method('getId')->willReturn(1533);
+        $title_field->method('userCanUpdate')->willReturn($can_user_update);
+        assert($title_field instanceof TextField);
+        $this->title_field_retriever->withTitleField($taskboard_tracker->getTracker(), $title_field);
     }
 
     /**

@@ -23,6 +23,9 @@ declare(strict_types=1);
 namespace Tuleap\Artidoc\Document\Field;
 
 use PFUser;
+use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
+use Tracker_FormElement_Field_List;
+use Tracker_FormElement_Field_Numeric;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldIsDescriptionSemanticFault;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldIsTitleSemanticFault;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldNotFoundFault;
@@ -33,51 +36,54 @@ use Tuleap\NeverThrow\Ok;
 use Tuleap\NeverThrow\Result;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
-use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle;
-use Tuleap\Tracker\Test\Stub\RetrieveSemanticDescriptionFieldStub;
+use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
+use Tuleap\Tracker\FormElement\Field\String\StringField;
+use Tuleap\Tracker\Semantic\Title\RetrieveSemanticTitleField;
+use Tuleap\Tracker\Test\Builders\Fields\ArtifactIdFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\ArtifactLinkFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\ComputedFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ExternalFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\FloatFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\IntegerFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListUserBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListUserGroupBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\PerTrackerArtifactIdFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\PriorityFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\StringFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Test\Stub\RetrieveUsedFieldsStub;
+use Tuleap\Tracker\Test\Stub\Semantic\Description\RetrieveSemanticDescriptionFieldStub;
+use Tuleap\Tracker\Test\Stub\Semantic\Title\RetrieveSemanticTitleFieldStub;
 use Tuleap\Tracker\Tracker;
 
-#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
+#[DisableReturnValueGenerationForTestDoubles]
 final class SuitableFieldRetrieverTest extends TestCase
 {
-    private const FIELD_ID = 513;
+    private const int FIELD_ID = 513;
     private PFUser $user;
     private Tracker $tracker;
     private RetrieveUsedFieldsStub $field_retriever;
     private RetrieveSemanticDescriptionFieldStub $description_field_retriever;
+    private RetrieveSemanticTitleField $title_field_retriever;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->tracker                     = TrackerTestBuilder::aTracker()->withId(1001)->build();
         $this->user                        = UserTestBuilder::buildWithDefaults();
         $this->field_retriever             = RetrieveUsedFieldsStub::withNoFields();
-        $this->description_field_retriever = RetrieveSemanticDescriptionFieldStub::withNoField();
-
-        TrackerSemanticTitle::setInstance(
-            new TrackerSemanticTitle($this->tracker, null),
-            $this->tracker,
-        );
-    }
-
-    protected function tearDown(): void
-    {
-        TrackerSemanticTitle::clearInstances();
+        $this->description_field_retriever = RetrieveSemanticDescriptionFieldStub::build();
+        $this->title_field_retriever       = RetrieveSemanticTitleFieldStub::build();
     }
 
     /**
-     * @return Ok<\Tracker_FormElement_Field_String> | Ok<\Tracker_FormElement_Field_List> | Err<Fault>
+     * @return Ok<StringField> | Ok<Tracker_FormElement_Field_List> | Ok<ArtifactLinkField> | OK<Tracker_FormElement_Field_Numeric> | Err<Fault>
      */
     private function retrieve(): Ok|Err
     {
-        $retriever = new SuitableFieldRetriever($this->field_retriever, $this->description_field_retriever);
+        $retriever = new SuitableFieldRetriever($this->field_retriever, $this->description_field_retriever, $this->title_field_retriever);
         return $retriever->retrieveField(self::FIELD_ID, $this->user);
     }
 
@@ -113,10 +119,7 @@ final class SuitableFieldRetrieverTest extends TestCase
             ->build();
         $this->field_retriever = RetrieveUsedFieldsStub::withFields($field);
 
-        TrackerSemanticTitle::setInstance(
-            new TrackerSemanticTitle($this->tracker, $field),
-            $this->tracker,
-        );
+        $this->title_field_retriever = RetrieveSemanticTitleFieldStub::build()->withTitleField($this->tracker, $field);
 
         $result = $this->retrieve();
         self::assertTrue(Result::isErr($result));
@@ -125,12 +128,12 @@ final class SuitableFieldRetrieverTest extends TestCase
 
     public function testErrForFieldThatIsSemanticDescription(): void
     {
-        $field                             = StringFieldBuilder::aStringField(self::FIELD_ID)
+        $field                 = StringFieldBuilder::aStringField(self::FIELD_ID)
             ->inTracker($this->tracker)
             ->withReadPermission($this->user, true)
             ->build();
-        $this->field_retriever             = RetrieveUsedFieldsStub::withFields($field);
-        $this->description_field_retriever = RetrieveSemanticDescriptionFieldStub::withTextField($field);
+        $this->field_retriever = RetrieveUsedFieldsStub::withFields($field);
+        $this->description_field_retriever->withDescriptionField($field);
 
         $result = $this->retrieve();
         self::assertTrue(Result::isErr($result));
@@ -195,5 +198,96 @@ final class SuitableFieldRetrieverTest extends TestCase
         $result = $this->retrieve();
         self::assertTrue(Result::isOk($result));
         self::assertSame($list_field, $result->value);
+    }
+
+    public function testItAllowsArtifactLinkField(): void
+    {
+        $link_field            = ArtifactLinkFieldBuilder::anArtifactLinkField(self::FIELD_ID)
+            ->inTracker($this->tracker)
+            ->withReadPermission($this->user, true)
+            ->build();
+        $this->field_retriever = RetrieveUsedFieldsStub::withFields($link_field);
+
+        $result = $this->retrieve();
+        self::assertTrue(Result::isOk($result));
+        self::assertSame($link_field, $result->value);
+    }
+
+    public function testItAllowsIntegerField(): void
+    {
+        $int_field             = IntegerFieldBuilder::anIntField(self::FIELD_ID)
+            ->inTracker($this->tracker)
+            ->withReadPermission($this->user, true)
+            ->build();
+        $this->field_retriever = RetrieveUsedFieldsStub::withFields($int_field);
+
+        $result = $this->retrieve();
+        self::assertTrue(Result::isOk($result));
+        self::assertSame($int_field, $result->value);
+    }
+
+    public function testItAllowsFloatField(): void
+    {
+        $float_field           = FloatFieldBuilder::aFloatField(self::FIELD_ID)
+            ->inTracker($this->tracker)
+            ->withReadPermission($this->user, true)
+            ->build();
+        $this->field_retriever = RetrieveUsedFieldsStub::withFields($float_field);
+
+        $result = $this->retrieve();
+        self::assertTrue(Result::isOk($result));
+        self::assertSame($float_field, $result->value);
+    }
+
+    public function testItAllowsArtifactIdField(): void
+    {
+        $aid_field             = ArtifactIdFieldBuilder::anArtifactIdField(self::FIELD_ID)
+            ->inTracker($this->tracker)
+            ->withReadPermission($this->user, true)
+            ->build();
+        $this->field_retriever = RetrieveUsedFieldsStub::withFields($aid_field);
+
+        $result = $this->retrieve();
+        self::assertTrue(Result::isOk($result));
+        self::assertSame($aid_field, $result->value);
+    }
+
+    public function testItAllowsPerTrackerArtifactIdField(): void
+    {
+        $int_field             = PerTrackerArtifactIdFieldBuilder::aPerTrackerArtifactIdField(self::FIELD_ID)
+            ->inTracker($this->tracker)
+            ->withReadPermission($this->user, true)
+            ->build();
+        $this->field_retriever = RetrieveUsedFieldsStub::withFields($int_field);
+
+        $result = $this->retrieve();
+        self::assertTrue(Result::isOk($result));
+        self::assertSame($int_field, $result->value);
+    }
+
+    public function testItAllowsPriorityField(): void
+    {
+        $int_field             = PriorityFieldBuilder::aPriorityField(self::FIELD_ID)
+            ->inTracker($this->tracker)
+            ->withReadPermission($this->user, true)
+            ->build();
+        $this->field_retriever = RetrieveUsedFieldsStub::withFields($int_field);
+
+        $result = $this->retrieve();
+        self::assertTrue(Result::isOk($result));
+        self::assertSame($int_field, $result->value);
+    }
+
+    public function testItAllowsComputedField(): void
+    {
+        $int_field             = ComputedFieldBuilder::aComputedField(self::FIELD_ID)
+            ->inTracker($this->tracker)
+            ->withReadPermission($this->user, true)
+            ->build();
+        $this->field_retriever = RetrieveUsedFieldsStub::withFields($int_field);
+
+        $result = $this->retrieve();
+        self::assertTrue(Result::isOk($result));
+        self::assertSame($int_field, $result->value);
     }
 }

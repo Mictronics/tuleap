@@ -21,11 +21,12 @@
 
 use Tuleap\Option\Option;
 use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\FormElement\Field\Integer\IntegerField;
 use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
 use Tuleap\Tracker\Report\Query\ParametrizedSQLFragment;
 
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
-class Tracker_FormElement_Field_ArtifactId extends Tracker_FormElement_Field_Integer implements Tracker_FormElement_Field_ReadOnly
+class Tracker_FormElement_Field_ArtifactId extends IntegerField implements Tracker_FormElement_Field_ReadOnly
 {
     public array $default_properties = [];
 
@@ -79,10 +80,11 @@ class Tracker_FormElement_Field_ArtifactId extends Tracker_FormElement_Field_Int
         int $changeset_id,
         mixed $value,
         ?Tracker_Report $report = null,
-        ?int $from_aid = null,
+        ?array $redirection_parameters = null,
     ): string {
-        if ($from_aid != null) {
-            return '<a class="direct-link-to-artifact" href="' . TRACKER_BASE_URL . '/?' . http_build_query(['aid' => (int) $value]) . '&from_aid=' . $from_aid . '">' . $value . '</a>';
+        if ($redirection_parameters !== null && count($redirection_parameters) > 0) {
+            $url = TRACKER_BASE_URL . '/?' . http_build_query($redirection_parameters);
+            return '<a class="direct-link-to-artifact" href="' . $url . '">' . $value . '</a>';
         }
         return '<a class="direct-link-to-artifact" href="' . TRACKER_BASE_URL . '/?' . http_build_query(['aid' => (int) $value]) . '">' . $value . '</a>';
     }

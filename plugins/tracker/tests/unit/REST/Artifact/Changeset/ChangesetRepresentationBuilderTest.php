@@ -78,11 +78,11 @@ final class ChangesetRepresentationBuilderTest extends \Tuleap\Test\PHPUnit\Test
         $user      = $this->buildUser();
         $changeset = $this->buildChangeset();
 
-        $string_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $string_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $string_field->method('userCanRead')->willReturn(true);
         $string_value = new ArtifactFieldValueTextRepresentation(10000, 'string', 'Title', 'overcompensation', 'overcompensation', 'text');
         $string_field->method('getRESTValue')->willReturn($string_value);
-        $int_field = $this->createMock(\Tracker_FormElement_Field_Integer::class);
+        $int_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\Integer\IntegerField::class);
         $int_field->method('userCanRead')->willReturn(true);
         $int_value = new ArtifactFieldValueFullRepresentation();
         $int_value->build(10001, 'int', 'Initial effort', 8);
@@ -125,7 +125,7 @@ final class ChangesetRepresentationBuilderTest extends \Tuleap\Test\PHPUnit\Test
         $permission_on_artifact_field = $this->createMock(\Tracker_FormElement_Field_PermissionsOnArtifact::class);
         $permission_on_artifact_field->method('userCanRead')->willReturn(true);
         $permission_on_artifact_field->method('getRESTValue')->willReturn(null);
-        $string_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $string_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $string_field->method('userCanRead')->willReturn(true);
         $string_value = new ArtifactFieldValueTextRepresentation(10000, 'string', 'Title', 'overcompensation', 'overcompensation', 'text');
         $string_field->method('getRESTValue')->willReturn($string_value);
@@ -155,9 +155,9 @@ final class ChangesetRepresentationBuilderTest extends \Tuleap\Test\PHPUnit\Test
         $user      = $this->buildUser();
         $changeset = $this->buildChangeset();
 
-        $int_field_user_can_not_read = $this->createMock(\Tracker_FormElement_Field_Integer::class);
+        $int_field_user_can_not_read = $this->createMock(\Tuleap\Tracker\FormElement\Field\Integer\IntegerField::class);
         $int_field_user_can_not_read->method('userCanRead')->willReturn(false);
-        $string_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $string_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $string_field->method('userCanRead')->willReturn(true);
         $string_value = new ArtifactFieldValueTextRepresentation(10000, 'string', 'Title', 'overcompensation', 'overcompensation', 'text');
         $string_field->method('getRESTValue')->willReturn($string_value);
@@ -223,7 +223,7 @@ final class ChangesetRepresentationBuilderTest extends \Tuleap\Test\PHPUnit\Test
         $changeset->method('getSubmittedBy')->willReturn(101);
         $changeset->method('getSubmittedOn')->willReturn(1234567890);
 
-        $string_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $string_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $string_field->method('userCanRead')->willReturn(false);
 
         $value = $this->createMock(\Tracker_Artifact_ChangesetValue::class);
@@ -419,14 +419,14 @@ final class ChangesetRepresentationBuilderTest extends \Tuleap\Test\PHPUnit\Test
         $user      = $this->buildUser();
         $changeset = $this->buildChangeset();
 
-        $string_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $string_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $string_value = new ArtifactFieldValueTextRepresentation(10000, 'string', 'Title', 'overcompensation', 'overcompensation', 'text');
         $string_field
             ->method('getRESTValue')
             ->with(self::isInstanceOf(Tracker_UserWithReadAllPermission::class), $changeset)
             ->willReturn($string_value);
 
-        $int_field = $this->createMock(\Tracker_FormElement_Field_Integer::class);
+        $int_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\Integer\IntegerField::class);
         $int_value = new ArtifactFieldValueFullRepresentation();
         $int_value->build(10001, 'int', 'Initial effort', 8);
         $int_field
@@ -457,7 +457,7 @@ final class ChangesetRepresentationBuilderTest extends \Tuleap\Test\PHPUnit\Test
 
         $permission_on_artifact_field = $this->createMock(\Tracker_FormElement_Field_PermissionsOnArtifact::class);
         $permission_on_artifact_field->method('getRESTValue')->willReturn(null);
-        $string_field = $this->createMock(\Tracker_FormElement_Field_String::class);
+        $string_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\String\StringField::class);
         $string_value = new ArtifactFieldValueTextRepresentation(10000, 'string', 'Title', 'overcompensation', 'overcompensation', 'text');
         $string_field->method('getRESTValue')->willReturn($string_value);
 

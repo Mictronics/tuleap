@@ -23,8 +23,13 @@ import * as fetch_result from "@tuleap/fetch-result";
 import { SelectableQueryContentRepresentationStub } from "../../tests/builders/SelectableQueryContentRepresentationStub";
 import { ArtifactRepresentationStub } from "../../tests/builders/ArtifactRepresentationStub";
 import type { RetrieveArtifactLinks } from "../domain/RetrieveArtifactLinks";
-import { ArtifactLinksRetriever } from "./ArtifactLinksRetriever";
+import {
+    ArtifactLinksRetriever,
+    MAXIMAL_LIMIT_OF_ARTIFACT_LINKS_FETCHED,
+} from "./ArtifactLinksRetriever";
 import { ArtifactsTableBuilder } from "./ArtifactsTableBuilder";
+import type { ArtifactsTable } from "../domain/ArtifactsTable";
+import { FORWARD_DIRECTION, REVERSE_DIRECTION } from "../domain/ArtifactsTable";
 
 describe("ArtifactsLinksRetriever", () => {
     const widget_id = 109;
@@ -36,19 +41,89 @@ describe("ArtifactsLinksRetriever", () => {
 
     it.each([
         [
-            "forward",
+            FORWARD_DIRECTION,
+            getRetriever().getAllForwardLinks,
+            {
+                source_artifact_id: artifact_id,
+                tql_query: 'SELECT @pretty_title FROM @project="self"',
+                limit: MAXIMAL_LIMIT_OF_ARTIFACT_LINKS_FETCHED,
+            },
+        ],
+        [
+            REVERSE_DIRECTION,
+            getRetriever().getAllReverseLinks,
+            {
+                target_artifact_id: artifact_id,
+                tql_query: 'SELECT @pretty_title FROM @project="self"',
+                limit: MAXIMAL_LIMIT_OF_ARTIFACT_LINKS_FETCHED,
+            },
+        ],
+    ])(
+        "should call for all the %s links linked to an artifact and return an ArtifactTable accordingly",
+        async (direction, retriever_call, params) => {
+            const date_field_name = "start_date";
+            const first_date_value = "2022-04-27T11:54:15+07:00";
+            const query_content = SelectableQueryContentRepresentationStub.build(
+                [{ type: "date", name: date_field_name }],
+                [
+                    ArtifactRepresentationStub.build({
+                        [date_field_name]: { value: first_date_value, with_time: true },
+                    }),
+                    ArtifactRepresentationStub.build({
+                        [date_field_name]: { value: null, with_time: false },
+                    }),
+                ],
+            );
+            const getAllJSON = vi
+                .spyOn(fetch_result, "getAllJSON")
+                .mockReturnValue(okAsync([query_content]));
+
+            const result = await retriever_call(
+                widget_id,
+                artifact_id,
+                'SELECT @pretty_title FROM @project="self"',
+            );
+
+            expect(getAllJSON).toHaveBeenCalledWith(
+                fetch_result.uri`/api/v1/crosstracker_widget/${widget_id}/${direction}_links`,
+                {
+                    params,
+                },
+            );
+            if (!result.isOk()) {
+                throw Error("Expected an Ok");
+            }
+            result.match(
+                (artifacts: ArtifactsTable[]) => {
+                    artifacts.forEach((artifact) => {
+                        expect(artifact.columns).toHaveLength(2);
+                        expect(artifact.rows).toHaveLength(2);
+                    });
+                },
+                (error) => {
+                    throw new Error(`Unexpected error: ${error}`);
+                },
+            );
+        },
+    );
+
+    it.each([
+        [
+            FORWARD_DIRECTION,
             getRetriever().getForwardLinks,
             {
                 source_artifact_id: artifact_id,
                 tql_query: 'SELECT @pretty_title FROM @project="self"',
+                limit: MAXIMAL_LIMIT_OF_ARTIFACT_LINKS_FETCHED,
             },
         ],
         [
-            "reverse",
+            REVERSE_DIRECTION,
             getRetriever().getReverseLinks,
             {
                 target_artifact_id: artifact_id,
                 tql_query: 'SELECT @pretty_title FROM @project="self"',
+                limit: MAXIMAL_LIMIT_OF_ARTIFACT_LINKS_FETCHED,
             },
         ],
     ])(

@@ -38,6 +38,7 @@ final class SubmittedValueConvertorTest extends TestCase
     private SubmittedValueConvertor $convertor;
     private ArtifactLinkChangesetValue $previous_changesetvalue;
 
+    #[\Override]
     protected function setUp(): void
     {
         $tracker = TrackerTestBuilder::aTracker()->build();
@@ -53,7 +54,7 @@ final class SubmittedValueConvertorTest extends TestCase
         $artifact_factory = $this->createMock(Tracker_ArtifactFactory::class);
 
         $this->previous_changesetvalue = ChangesetValueArtifactLinkTestBuilder::aValue(1, $changesets_123, ArtifactLinkFieldBuilder::anArtifactLinkField(654)->build())
-            ->withLinks([201 => Tracker_ArtifactLinkInfo::buildFromArtifact($art_201, '_is_child')])->build();
+            ->withForwardLinks([201 => Tracker_ArtifactLinkInfo::buildFromArtifact($art_201, '_is_child')])->build();
 
         $artifact_factory->method('getArtifactById')->willReturnCallback(static fn(int $id) => match ($id) {
             123 => $art_123,

@@ -59,14 +59,12 @@ use Tuleap\Tracker\Report\Query\Advanced\ListFieldBindValueNormalizer;
 use Tuleap\Tracker\Report\Query\Advanced\UgroupLabelConverter;
 use Tuleap\Tracker\Semantic\Contributor\ContributorFieldRetriever;
 use Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributorFactory;
-use Tuleap\Tracker\Semantic\Status\StatusFieldRetriever;
-use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
-use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatusFactory;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Test\Stub\Permission\RetrieveUserPermissionOnFieldsStub;
 use Tuleap\Tracker\Test\Stub\RetrieveFieldTypeStub;
+use Tuleap\Tracker\Test\Stub\RetrieveSemanticStatusFieldStub;
 use Tuleap\Tracker\Test\Stub\RetrieveUsedFieldsStub;
 use Tuleap\Tracker\Tracker;
 use UserManager;
@@ -82,16 +80,14 @@ final class InvalidOrderByBuilderTest extends TestCase
      */
     private array $trackers = [];
     private RetrieveUsedFields $used_field_retriever;
+    private RetrieveSemanticStatusFieldStub $status_field_retriever;
 
+    #[\Override]
     protected function setUp(): void
     {
-        $this->metadata_checker     = MetadataCheckerStub::withValidMetadata();
-        $this->used_field_retriever = RetrieveUsedFieldsStub::withNoFields();
-    }
-
-    protected function tearDown(): void
-    {
-        TrackerSemanticStatus::clearInstances();
+        $this->metadata_checker       = MetadataCheckerStub::withValidMetadata();
+        $this->used_field_retriever   = RetrieveUsedFieldsStub::withNoFields();
+        $this->status_field_retriever = RetrieveSemanticStatusFieldStub::build();
     }
 
     private function checkOrderBy(OrderBy $order_by): ?InvalidOrderBy
@@ -151,7 +147,7 @@ final class InvalidOrderByBuilderTest extends TestCase
                     new ArtifactIdMetadataChecker(),
                 ),
                 new InvalidOrderByListChecker(
-                    new StatusFieldRetriever(TrackerSemanticStatusFactory::instance()),
+                    $this->status_field_retriever,
                     new ContributorFieldRetriever(TrackerSemanticContributorFactory::instance()),
                 ),
             ),
@@ -181,10 +177,12 @@ final class InvalidOrderByBuilderTest extends TestCase
 
     public function testItReturnsErrorIfSemanticListWithMultipleValues(): void
     {
-        $tracker = TrackerTestBuilder::aTracker()->build();
-        TrackerSemanticStatus::setInstance(
-            new TrackerSemanticStatus($tracker, ListFieldBuilder::aListField(102)->withMultipleValues()->build()),
-            $tracker
+        $tracker = TrackerTestBuilder::aTracker()->withId(646)->build();
+        $this->status_field_retriever->withField(
+            ListFieldBuilder::aListField(102)
+                ->withMultipleValues()
+                ->inTracker($tracker)
+                ->build()
         );
         $this->trackers = [$tracker];
         $result         = $this->checkOrderBy(new OrderBy(new Metadata('status'), OrderByDirection::ASCENDING));

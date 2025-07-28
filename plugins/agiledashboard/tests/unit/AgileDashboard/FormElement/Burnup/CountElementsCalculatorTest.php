@@ -33,6 +33,7 @@ use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetValueArtifactLinkTestBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ArtifactLinkFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
+use Tuleap\Tracker\Test\Stub\Semantic\Status\RetrieveSemanticStatusStub;
 use Tuleap\Tracker\Tracker;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
@@ -45,23 +46,26 @@ final class CountElementsCalculatorTest extends TestCase
     private BurnupDataDAO&MockObject $burnup_dao;
     private Tracker $task_tracker;
     private Tracker $user_story_tracker;
+    private RetrieveSemanticStatusStub $semantic_status_retriever;
 
     protected function setUp(): void
     {
         parent::setUp();
 
-        $this->changeset_factory    = $this->createMock(Tracker_Artifact_ChangesetFactory::class);
-        $this->artifact_factory     = $this->createMock(Tracker_ArtifactFactory::class);
-        $this->form_element_factory = $this->createMock(Tracker_FormElementFactory::class);
-        $this->burnup_dao           = $this->createMock(BurnupDataDAO::class);
-        $this->user_story_tracker   = TrackerTestBuilder::aTracker()->withId(10)->build();
-        $this->task_tracker         = TrackerTestBuilder::aTracker()->withId(20)->build();
+        $this->changeset_factory         = $this->createMock(Tracker_Artifact_ChangesetFactory::class);
+        $this->artifact_factory          = $this->createMock(Tracker_ArtifactFactory::class);
+        $this->form_element_factory      = $this->createMock(Tracker_FormElementFactory::class);
+        $this->burnup_dao                = $this->createMock(BurnupDataDAO::class);
+        $this->user_story_tracker        = TrackerTestBuilder::aTracker()->withId(10)->build();
+        $this->task_tracker              = TrackerTestBuilder::aTracker()->withId(20)->build();
+        $this->semantic_status_retriever = RetrieveSemanticStatusStub::build();
 
         $this->calculator = new CountElementsCalculator(
             $this->changeset_factory,
             $this->artifact_factory,
             $this->form_element_factory,
-            $this->burnup_dao
+            $this->burnup_dao,
+            $this->semantic_status_retriever,
         );
     }
 
@@ -128,17 +132,17 @@ final class CountElementsCalculatorTest extends TestCase
         $changeset_epic           = ChangesetTestBuilder::aChangeset(1)->build();
         $epic_artifact_link_field = ArtifactLinkFieldBuilder::anArtifactLinkField(1)->build();
         ChangesetValueArtifactLinkTestBuilder::aValue(1, $changeset_epic, $epic_artifact_link_field)
-            ->withLinks([
+            ->withForwardLinks([
                 3 => new Tracker_ArtifactLinkInfo(3, '', 101, $this->user_story_tracker->getId(), 1, null),
                 4 => new Tracker_ArtifactLinkInfo(4, '', 101, $this->user_story_tracker->getId(), 1, null),
             ])
             ->build();
-        TrackerSemanticStatus::setInstance(new TrackerSemanticStatus(
-            $epic_tracker
-        ), $epic_tracker);
+        $epic_semantic_status = new TrackerSemanticStatus($epic_tracker);
+        $this->semantic_status_retriever->withSemanticStatus($epic_semantic_status);
 
         $user_story_status_semantic = $this->createMock(TrackerSemanticStatus::class);
-        TrackerSemanticStatus::setInstance($user_story_status_semantic, $this->user_story_tracker);
+        $user_story_status_semantic->method('getTracker')->willReturn($this->user_story_tracker);
+        $this->semantic_status_retriever->withSemanticStatus($user_story_status_semantic);
         $user_story_artifact_link_field = ArtifactLinkFieldBuilder::anArtifactLinkField(1)->build();
 
         $user_story_01           = ArtifactTestBuilder::anArtifact(3)
@@ -147,7 +151,7 @@ final class CountElementsCalculatorTest extends TestCase
             ->build();
         $changeset_user_story_01 = ChangesetTestBuilder::aChangeset(1)->build();
         ChangesetValueArtifactLinkTestBuilder::aValue(1, $changeset_user_story_01, $user_story_artifact_link_field)
-            ->withLinks([])
+            ->withForwardLinks([])
             ->build();
 
         $user_story_02           = ArtifactTestBuilder::anArtifact(4)
@@ -156,14 +160,15 @@ final class CountElementsCalculatorTest extends TestCase
             ->build();
         $changeset_user_story_02 = ChangesetTestBuilder::aChangeset(1)->build();
         ChangesetValueArtifactLinkTestBuilder::aValue(1, $changeset_user_story_02, $user_story_artifact_link_field)
-            ->withLinks([
+            ->withForwardLinks([
                 5 => new Tracker_ArtifactLinkInfo(5, '', 101, $this->task_tracker->getId(), 1, null),
                 6 => new Tracker_ArtifactLinkInfo(6, '', 101, $this->task_tracker->getId(), 1, null),
             ])
             ->build();
 
         $task_status_semantic = $this->createMock(TrackerSemanticStatus::class);
-        TrackerSemanticStatus::setInstance($task_status_semantic, $this->task_tracker);
+        $task_status_semantic->method('getTracker')->willReturn($this->task_tracker);
+        $this->semantic_status_retriever->withSemanticStatus($task_status_semantic);
 
         $task_01           = ArtifactTestBuilder::anArtifact(5)
             ->inTracker($this->task_tracker)
@@ -229,20 +234,22 @@ final class CountElementsCalculatorTest extends TestCase
 
         $epic_tracker         = TrackerTestBuilder::aTracker()->build();
         $epic_status_semantic = $this->createMock(TrackerSemanticStatus::class);
-        TrackerSemanticStatus::setInstance($epic_status_semantic, $epic_tracker);
+        $epic_status_semantic->method('getTracker')->willReturn($epic_tracker);
+        $this->semantic_status_retriever->withSemanticStatus($epic_status_semantic);
         $epic_artifact_link_field = ArtifactLinkFieldBuilder::anArtifactLinkField(1)->build();
 
         $epic           = ArtifactTestBuilder::anArtifact(2)->inTracker($epic_tracker)->build();
         $changeset_epic = ChangesetTestBuilder::aChangeset(1)->build();
         ChangesetValueArtifactLinkTestBuilder::aValue(1, $changeset_epic, $epic_artifact_link_field)
-            ->withLinks([
+            ->withForwardLinks([
                 3 => new Tracker_ArtifactLinkInfo(3, '', 101, $this->user_story_tracker->getId(), 1, null),
                 4 => new Tracker_ArtifactLinkInfo(4, '', 101, $this->user_story_tracker->getId(), 1, null),
             ])
             ->build();
 
         $user_story_status_semantic = $this->createMock(TrackerSemanticStatus::class);
-        TrackerSemanticStatus::setInstance($user_story_status_semantic, $this->user_story_tracker);
+        $user_story_status_semantic->method('getTracker')->willReturn($this->user_story_tracker);
+        $this->semantic_status_retriever->withSemanticStatus($user_story_status_semantic);
         $user_story_artifact_link_field = ArtifactLinkFieldBuilder::anArtifactLinkField(1)->build();
 
         $user_story_01           = ArtifactTestBuilder::anArtifact(3)
@@ -251,7 +258,7 @@ final class CountElementsCalculatorTest extends TestCase
             ->build();
         $changeset_user_story_01 = ChangesetTestBuilder::aChangeset(1)->build();
         ChangesetValueArtifactLinkTestBuilder::aValue(1, $changeset_user_story_01, $user_story_artifact_link_field)
-            ->withLinks([])
+            ->withForwardLinks([])
             ->build();
 
         $user_story_02           = ArtifactTestBuilder::anArtifact(4)
@@ -260,14 +267,15 @@ final class CountElementsCalculatorTest extends TestCase
             ->build();
         $changeset_user_story_02 = ChangesetTestBuilder::aChangeset(1)->build();
         ChangesetValueArtifactLinkTestBuilder::aValue(1, $changeset_user_story_02, $user_story_artifact_link_field)
-            ->withLinks([
+            ->withForwardLinks([
                 5 => new Tracker_ArtifactLinkInfo(5, '', 101, $this->task_tracker->getId(), 1, null),
                 6 => new Tracker_ArtifactLinkInfo(6, '', 101, $this->task_tracker->getId(), 1, null),
             ])
             ->build();
 
         $task_status_semantic = $this->createMock(TrackerSemanticStatus::class);
-        TrackerSemanticStatus::setInstance($task_status_semantic, $this->task_tracker);
+        $task_status_semantic->method('getTracker')->willReturn($this->task_tracker);
+        $this->semantic_status_retriever->withSemanticStatus($task_status_semantic);
 
         $task_01           = ArtifactTestBuilder::anArtifact(5)
             ->inTracker($this->task_tracker)
@@ -326,7 +334,8 @@ final class CountElementsCalculatorTest extends TestCase
             ]);
 
         $user_story_status_semantic = $this->createMock(TrackerSemanticStatus::class);
-        TrackerSemanticStatus::setInstance($user_story_status_semantic, $this->user_story_tracker);
+        $user_story_status_semantic->method('getTracker')->willReturn($this->user_story_tracker);
+        $this->semantic_status_retriever->withSemanticStatus($user_story_status_semantic);
 
         $user_story_01           = ArtifactTestBuilder::anArtifact(2)->inTracker($this->user_story_tracker)->build();
         $changeset_user_story_01 = ChangesetTestBuilder::aChangeset(1)->build();
@@ -402,25 +411,26 @@ final class CountElementsCalculatorTest extends TestCase
             ]);
 
         $user_story_status_semantic = $this->createMock(TrackerSemanticStatus::class);
-        TrackerSemanticStatus::setInstance($user_story_status_semantic, $this->user_story_tracker);
+        $user_story_status_semantic->method('getTracker')->willReturn($this->user_story_tracker);
+        $this->semantic_status_retriever->withSemanticStatus($user_story_status_semantic);
         $artifact_link_field = ArtifactLinkFieldBuilder::anArtifactLinkField(1)->build();
 
         $user_story_01           = ArtifactTestBuilder::anArtifact(2)->inTracker($this->user_story_tracker)->build();
         $changeset_user_story_01 = ChangesetTestBuilder::aChangeset(1)->build();
         ChangesetValueArtifactLinkTestBuilder::aValue(1, $changeset_user_story_01, $artifact_link_field)
-            ->withLinks([])
+            ->withForwardLinks([])
             ->build();
 
         $user_story_02           = ArtifactTestBuilder::anArtifact(3)->inTracker($this->user_story_tracker)->build();
         $changeset_user_story_02 = ChangesetTestBuilder::aChangeset(1)->build();
         ChangesetValueArtifactLinkTestBuilder::aValue(1, $changeset_user_story_02, $artifact_link_field)
-            ->withLinks([])
+            ->withForwardLinks([])
             ->build();
 
         $user_story_03           = ArtifactTestBuilder::anArtifact(4)->inTracker($this->user_story_tracker)->build();
         $changeset_user_story_03 = ChangesetTestBuilder::aChangeset(1)->build();
         ChangesetValueArtifactLinkTestBuilder::aValue(1, $changeset_user_story_03, $artifact_link_field)
-            ->withLinks([])
+            ->withForwardLinks([])
             ->build();
         $matcher = self::exactly(3);
 

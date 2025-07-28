@@ -18,6 +18,7 @@
   -->
 
 <template>
+    <no-more-viewable-users-warning />
     <widget-query-displayer
         v-if="!is_query_being_edited"
         v-on:click="is_query_being_edited = true"
@@ -33,6 +34,7 @@ import { ref } from "vue";
 import WidgetQuerySaveRequest from "./WidgetQuerySaveRequest.vue";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import { RETRIEVE_QUERY } from "../injection-symbols";
+import NoMoreViewableUsersWarning from "./NoMoreViewableUsersWarning.vue";
 
 const is_query_being_edited = ref(false);
 const { has_the_query_been_modified } = strictInject(RETRIEVE_QUERY);

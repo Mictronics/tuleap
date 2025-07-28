@@ -46,23 +46,24 @@ final class FieldValuesGathererTest extends \Tuleap\Test\PHPUnit\TestCase
      * @var Stub&\Tracker_FormElementFactory
      */
     private $form_element_factory;
-    private \Tracker_FormElement_Field_String $title_field;
-    private \Tracker_FormElement_Field_Text $description_field;
+    private \Tuleap\Tracker\FormElement\Field\String\StringField $title_field;
+    private \Tuleap\Tracker\FormElement\Field\Text\TextField $description_field;
     private \Tracker_FormElement_Field_Selectbox $status_field;
     private \Tracker_FormElement_Field_Date $start_date_field;
     private \Tracker_FormElement_Field_Date $end_date_field;
-    private \Tracker_FormElement_Field_Integer $duration_field;
+    private \Tuleap\Tracker\FormElement\Field\Integer\IntegerField $duration_field;
     private DurationFieldReferenceStub $duration_reference;
     private EndDateFieldReferenceStub $end_date_reference;
 
+    #[\Override]
     protected function setUp(): void
     {
-        $this->title_field       = new \Tracker_FormElement_Field_String(1376, 89, 1000, 'title', 'Title', 'Irrelevant', true, 'P', true, '', 2);
-        $this->description_field = new \Tracker_FormElement_Field_Text(1412, 89, 1000, 'description', 'Description', 'Irrelevant', true, 'P', false, '', 3);
+        $this->title_field       = new \Tuleap\Tracker\FormElement\Field\String\StringField(1376, 89, 1000, 'title', 'Title', 'Irrelevant', true, 'P', true, '', 2);
+        $this->description_field = new \Tuleap\Tracker\FormElement\Field\Text\TextField(1412, 89, 1000, 'description', 'Description', 'Irrelevant', true, 'P', false, '', 3);
         $this->status_field      = new \Tracker_FormElement_Field_Selectbox(1499, 89, 1000, 'status', 'Status', 'Irrelevant', true, 'P', false, '', 4);
         $this->start_date_field  = new \Tracker_FormElement_Field_Date(1784, 89, 1000, 'date', 'Date', 'Irrelevant', true, 'P', false, '', 5);
         $this->end_date_field    = new \Tracker_FormElement_Field_Date(1368, 89, 1000, 'date', 'Date', 'Irrelevant', true, 'P', false, '', 6);
-        $this->duration_field    = new \Tracker_FormElement_Field_Integer(1618, 89, 1000, 'duration', 'Duration', 'Irrelevant', true, 'P', false, '', 7);
+        $this->duration_field    = new \Tuleap\Tracker\FormElement\Field\Integer\IntegerField(1618, 89, 1000, 'duration', 'Duration', 'Irrelevant', true, 'P', false, '', 7);
 
         $this->form_element_factory = $this->createStub(\Tracker_FormElementFactory::class);
         $this->fields               = SynchronizedFieldReferencesBuilder::build();

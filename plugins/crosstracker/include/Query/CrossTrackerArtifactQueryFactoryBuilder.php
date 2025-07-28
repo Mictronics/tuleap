@@ -133,11 +133,10 @@ use Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributorDao;
 use Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributorFactory;
 use Tuleap\Tracker\Semantic\Description\CachedSemanticDescriptionFieldRetriever;
 use Tuleap\Tracker\Semantic\Description\DescriptionSemanticDAO;
-use Tuleap\Tracker\Semantic\Status\StatusFieldRetriever;
-use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatusDao;
-use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatusFactory;
+use Tuleap\Tracker\Semantic\Status\CachedSemanticStatusFieldRetriever;
+use Tuleap\Tracker\Semantic\Status\StatusSemanticDAO;
+use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
 use Tuleap\Tracker\Semantic\Title\TitleSemanticDAO;
-use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitleFactory;
 use UGroupManager;
 use UserHelper;
 use UserManager;
@@ -200,7 +199,7 @@ final class CrossTrackerArtifactQueryFactoryBuilder
                 Tracker_FormElementFactory::instance(),
                 new TitleSemanticDAO(),
                 new DescriptionSemanticDAO(),
-                new TrackerSemanticStatusDao(),
+                new StatusSemanticDAO(),
                 new TrackerSemanticContributorDao(),
             ),
             new InvalidMetadataChecker(
@@ -214,7 +213,7 @@ final class CrossTrackerArtifactQueryFactoryBuilder
                 new ArtifactIdMetadataChecker(),
             ),
             new InvalidOrderByListChecker(
-                new StatusFieldRetriever(TrackerSemanticStatusFactory::instance()),
+                CachedSemanticStatusFieldRetriever::instance(),
                 new ContributorFieldRetriever(TrackerSemanticContributorFactory::instance()),
             ),
         );
@@ -308,6 +307,7 @@ final class CrossTrackerArtifactQueryFactoryBuilder
 
     public function getArtifactFactory(): CrossTrackerArtifactQueryFactory
     {
+        $tuleap_db                 = DBFactory::getMainTuleapDBConnection()->getDB();
         $form_element_factory      = Tracker_FormElementFactory::instance();
         $tracker_artifact_factory  = Tracker_ArtifactFactory::instance();
         $retrieve_field_type       = new FieldTypeRetrieverWrapper($form_element_factory);
@@ -317,12 +317,12 @@ final class CrossTrackerArtifactQueryFactoryBuilder
                 $form_element_factory,
                 $retrieve_field_type,
                 $trackers_permissions,
-                new DateSelectFromBuilder(),
-                new TextSelectFromBuilder(),
-                new NumericSelectFromBuilder(),
-                new StaticListSelectFromBuilder(),
-                new UGroupListSelectFromBuilder(),
-                new UserListSelectFromBuilder()
+                new DateSelectFromBuilder($tuleap_db),
+                new TextSelectFromBuilder($tuleap_db),
+                new NumericSelectFromBuilder($tuleap_db),
+                new StaticListSelectFromBuilder($tuleap_db),
+                new UGroupListSelectFromBuilder($tuleap_db),
+                new UserListSelectFromBuilder($tuleap_db)
             ),
             new MetadataSelectFromBuilder(
                 new TitleSelectFromBuilder(),
@@ -358,33 +358,40 @@ final class CrossTrackerArtifactQueryFactoryBuilder
                 new ProjectNameResultBuilder(),
                 new TrackerNameResultBuilder(),
                 new PrettyTitleResultBuilder(),
-                new ArtifactResultBuilder($tracker_artifact_factory),
+                new ArtifactResultBuilder(
+                    $tracker_artifact_factory,
+                    new TrackersListAllowedByPlugins(
+                        EventManager::instance(),
+                        TrackerFactory::instance()
+                    )
+                ),
             ),
         );
-        $text_order_builder        = new TextFromOrderBuilder();
-        $static_list_order_builder = new StaticListFromOrderBuilder();
+        $text_order_builder        = new TextFromOrderBuilder($tuleap_db);
+        $static_list_order_builder = new StaticListFromOrderBuilder($tuleap_db);
         $user_order_by_builder     = new UserOrderByBuilder(UserManager::instance());
-        $user_list_builder         = new UserListFromOrderBuilder($user_order_by_builder);
+        $user_list_builder         = new UserListFromOrderBuilder($user_order_by_builder, $tuleap_db);
         $order_builder_visitor     = new OrderByBuilderVisitor(
             new FieldFromOrderBuilder(
                 $field_retriever,
                 $retrieve_field_type,
-                new DateFromOrderBuilder(),
-                new NumericFromOrderBuilder(),
+                new DateFromOrderBuilder($tuleap_db),
+                new NumericFromOrderBuilder($tuleap_db),
                 $text_order_builder,
                 $static_list_order_builder,
-                new UGroupListFromOrderBuilder($user_group_manager),
+                new UGroupListFromOrderBuilder($user_group_manager, $tuleap_db),
                 $user_list_builder,
             ),
             new MetadataFromOrderBuilder(
-                TrackerSemanticTitleFactory::instance(),
+                CachedSemanticTitleFieldRetriever::instance(),
                 CachedSemanticDescriptionFieldRetriever::instance(),
-                new StatusFieldRetriever(TrackerSemanticStatusFactory::instance()),
+                CachedSemanticStatusFieldRetriever::instance(),
                 new ContributorFieldRetriever(TrackerSemanticContributorFactory::instance()),
                 $text_order_builder,
                 $static_list_order_builder,
                 $user_list_builder,
                 $user_order_by_builder,
+                $tuleap_db
             ),
         );
         $field_checker             = $this->getDuckTypedFieldChecker();
@@ -409,7 +416,10 @@ final class CrossTrackerArtifactQueryFactoryBuilder
             $tracker_artifact_factory,
             new ForwardLinkFromWhereBuilder($tracker_artifact_factory),
             new ReverseLinkFromWhereBuilder($tracker_artifact_factory),
-            $query_trackers_retriever,
+            new TrackersListAllowedByPlugins(
+                EventManager::instance(),
+                TrackerFactory::instance()
+            ),
             TrackersPermissionsRetriever::build(),
         );
     }
@@ -422,11 +432,14 @@ final class CrossTrackerArtifactQueryFactoryBuilder
             $this->getFromBuilderVisitor(),
             TrackersPermissionsRetriever::build(),
             new CrossTrackerTQLQueryDao(),
-            TrackerFactory::instance(),
             new WidgetInProjectChecker($widget_dao),
             $widget_dao,
             ProjectManager::instance(),
             EventManager::instance(),
+            new TrackersListAllowedByPlugins(
+                EventManager::instance(),
+                TrackerFactory::instance()
+            ),
         );
     }
 }

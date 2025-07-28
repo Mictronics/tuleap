@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Tuleap\Tracker\XML;
 
 use PHPUnit\Framework\Attributes\CoversClass;
-use Tuleap\Color\ItemColor;
+use Tuleap\Color\ColorName;
 use Tuleap\Tracker\Artifact\Changeset\XML\XMLChangeset;
 use Tuleap\Tracker\Artifact\XML\Exporter\FieldChange\ArtifactLinkChange;
 use Tuleap\Tracker\Artifact\XML\XMLArtifact;
@@ -54,6 +54,7 @@ use Tuleap\Tracker\Report\XML\XMLReportCriterion;
 use Tuleap\Tracker\Semantic\Status\XML\XMLStatusSemantic;
 use Tuleap\Tracker\Semantic\Timeframe\XML\XMLTimeframeSemantic;
 use Tuleap\Tracker\Semantic\Title\XML\XMLTitleSemantic;
+use Tuleap\Tracker\Tracker;
 use function PHPUnit\Framework\assertCount;
 use function PHPUnit\Framework\assertEquals;
 use function PHPUnit\Framework\assertFalse;
@@ -149,23 +150,25 @@ class XMLTrackerTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testExportFromTrackerObject(): void
     {
-        $tracker = XMLTracker::fromTracker(new \Tuleap\Tracker\Tracker(
-            23,
-            115,
-            'Bugs',
-            'Collect issues',
-            'bug',
-            false,
-            'Here are the rules',
-            'See all my stuff',
-            null,
-            null,
-            false,
-            false,
-            false,
-            ItemColor::fromName('flamingo-pink'),
-            false,
-        ));
+        $tracker = XMLTracker::fromTracker(
+            new Tracker(
+                23,
+                115,
+                'Bugs',
+                'Collect issues',
+                'bug',
+                false,
+                'Here are the rules',
+                'See all my stuff',
+                null,
+                null,
+                false,
+                false,
+                false,
+                ColorName::FLAMINGO_PINK,
+                false,
+            )
+        );
 
         $xml = $tracker->export(new \SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?><foo/>'));
         assertEquals('T23', (string) $xml['id']);
@@ -180,6 +183,7 @@ class XMLTrackerTest extends \Tuleap\Test\PHPUnit\TestCase
     {
         $id_generator = new class implements IDGenerator
         {
+            #[\Override]
             public function getNextId(): int
             {
                 return 58;
@@ -231,6 +235,7 @@ class XMLTrackerTest extends \Tuleap\Test\PHPUnit\TestCase
     {
         $id_generator = new class implements IDGenerator
         {
+            #[\Override]
             public function getNextId(): int
             {
                 return 58;

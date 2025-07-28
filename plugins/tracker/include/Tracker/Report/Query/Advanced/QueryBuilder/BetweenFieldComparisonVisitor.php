@@ -27,8 +27,6 @@ use Tracker_FormElement_Field_Computed;
 use Tracker_FormElement_Field_CrossReferences;
 use Tracker_FormElement_Field_Date;
 use Tracker_FormElement_Field_File;
-use Tracker_FormElement_Field_Float;
-use Tracker_FormElement_Field_Integer;
 use Tracker_FormElement_Field_LastModifiedBy;
 use Tracker_FormElement_Field_LastUpdateDate;
 use Tracker_FormElement_Field_MultiSelectbox;
@@ -38,12 +36,14 @@ use Tracker_FormElement_Field_PerTrackerArtifactId;
 use Tracker_FormElement_Field_Priority;
 use Tracker_FormElement_Field_Radiobutton;
 use Tracker_FormElement_Field_Selectbox;
-use Tracker_FormElement_Field_String;
 use Tracker_FormElement_Field_SubmittedBy;
 use Tracker_FormElement_Field_SubmittedOn;
-use Tracker_FormElement_Field_Text;
 use Tracker_FormElement_FieldVisitor;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
+use Tuleap\Tracker\FormElement\Field\Float\FloatField;
+use Tuleap\Tracker\FormElement\Field\Integer\IntegerField;
+use Tuleap\Tracker\FormElement\Field\String\StringField;
+use Tuleap\Tracker\FormElement\Field\Text\TextField;
 use Tuleap\Tracker\FormElement\TrackerFormElementExternalField;
 use Tuleap\Tracker\Report\Query\Advanced\FieldFromWhereBuilder;
 
@@ -75,14 +75,14 @@ final class BetweenFieldComparisonVisitor implements Tracker_FormElement_FieldVi
         return null;
     }
 
-    public function visitFloat(Tracker_FormElement_Field_Float $field)
+    public function visitFloat(FloatField $field)
     {
         return new BetweenComparison\ForFloat(
             new FromWhereComparisonFieldBuilder()
         );
     }
 
-    public function visitInteger(Tracker_FormElement_Field_Integer $field)
+    public function visitInteger(IntegerField $field)
     {
         return new BetweenComparison\ForInteger(
             new FromWhereComparisonFieldBuilder()
@@ -99,12 +99,12 @@ final class BetweenFieldComparisonVisitor implements Tracker_FormElement_FieldVi
         return null;
     }
 
-    public function visitString(Tracker_FormElement_Field_String $field)
+    public function visitString(StringField $field)
     {
         return null;
     }
 
-    public function visitText(Tracker_FormElement_Field_Text $field)
+    public function visitText(TextField $field)
     {
         return null;
     }

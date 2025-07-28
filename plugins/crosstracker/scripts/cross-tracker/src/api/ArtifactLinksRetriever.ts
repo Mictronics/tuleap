@@ -19,11 +19,14 @@
 
 import type { ResultAsync } from "neverthrow";
 import type { Fault } from "@tuleap/fault";
-import type { ArtifactsTableBuilder } from "./ArtifactsTableBuilder";
-import type { RetrieveArtifactLinks } from "../domain/RetrieveArtifactLinks";
+import { decodeJSON, getResponse, uri, getAllJSON } from "@tuleap/fetch-result";
 import type { ArtifactsTableWithTotal } from "../domain/RetrieveArtifactsTable";
+import type { RetrieveArtifactLinks } from "../domain/RetrieveArtifactLinks";
+import type { ArtifactsTable } from "../domain/ArtifactsTable";
 import type { SelectableQueryContentRepresentation } from "./cross-tracker-rest-api-types";
-import { decodeJSON, getResponse, uri } from "@tuleap/fetch-result";
+import type { ArtifactsTableBuilder } from "./ArtifactsTableBuilder";
+
+export const MAXIMAL_LIMIT_OF_ARTIFACT_LINKS_FETCHED = 50;
 
 export const ArtifactLinksRetriever = (
     table_builder: ArtifactsTableBuilder,
@@ -38,6 +41,7 @@ export const ArtifactLinksRetriever = (
                 params: {
                     source_artifact_id: artifact_id,
                     tql_query,
+                    limit: MAXIMAL_LIMIT_OF_ARTIFACT_LINKS_FETCHED,
                 },
             }).andThen((response) => {
                 const total = Number.parseInt(response.headers.get("X-PAGINATION-SIZE") ?? "0", 10);
@@ -51,6 +55,7 @@ export const ArtifactLinksRetriever = (
                 );
             });
         },
+
         getReverseLinks(
             widget_id: number,
             artifact_id: number,
@@ -60,6 +65,7 @@ export const ArtifactLinksRetriever = (
                 params: {
                     target_artifact_id: artifact_id,
                     tql_query,
+                    limit: MAXIMAL_LIMIT_OF_ARTIFACT_LINKS_FETCHED,
                 },
             }).andThen((response) => {
                 const total = Number.parseInt(response.headers.get("X-PAGINATION-SIZE") ?? "0", 10);
@@ -70,6 +76,48 @@ export const ArtifactLinksRetriever = (
                             total,
                         };
                     },
+                );
+            });
+        },
+
+        getAllForwardLinks(
+            widget_id: number,
+            artifact_id: number,
+            tql_query: string,
+        ): ResultAsync<ArtifactsTable[], Fault> {
+            return getAllJSON<SelectableQueryContentRepresentation>(
+                uri`/api/v1/crosstracker_widget/${widget_id}/forward_links`,
+                {
+                    params: {
+                        source_artifact_id: artifact_id,
+                        tql_query,
+                        limit: MAXIMAL_LIMIT_OF_ARTIFACT_LINKS_FETCHED,
+                    },
+                },
+            ).map((query_content) => {
+                return query_content.map((table) =>
+                    table_builder.mapQueryContentToArtifactsTable(table),
+                );
+            });
+        },
+
+        getAllReverseLinks(
+            widget_id: number,
+            artifact_id: number,
+            tql_query: string,
+        ): ResultAsync<ArtifactsTable[], Fault> {
+            return getAllJSON<SelectableQueryContentRepresentation>(
+                uri`/api/v1/crosstracker_widget/${widget_id}/reverse_links`,
+                {
+                    params: {
+                        target_artifact_id: artifact_id,
+                        tql_query,
+                        limit: MAXIMAL_LIMIT_OF_ARTIFACT_LINKS_FETCHED,
+                    },
+                },
+            ).map((query_content) => {
+                return query_content.map((table) =>
+                    table_builder.mapQueryContentToArtifactsTable(table),
                 );
             });
         },

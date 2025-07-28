@@ -27,6 +27,7 @@ use Tuleap\CrossTracker\REST\v1\CrossTrackerQueryNotFoundException;
 use Tuleap\CrossTracker\Tests\Stub\Query\RetrieveQueriesStub;
 use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\DB\UUID;
+use Tuleap\Option\Option;
 use Tuleap\Test\PHPUnit\TestCase;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
@@ -36,6 +37,7 @@ final class CrossTrackerQueryFactoryTest extends TestCase
 
     private UUID $query_id;
 
+    #[\Override]
     protected function setUp(): void
     {
         $query_id = (new DatabaseUUIDV7Factory())->buildUUIDFromHexadecimalString(self::QUERY_ID)->unwrapOr(null);
@@ -89,7 +91,7 @@ final class CrossTrackerQueryFactoryTest extends TestCase
             '',
             '',
             '',
-            1,
+            Option::fromValue(1),
             false,
         );
 
@@ -111,7 +113,7 @@ final class CrossTrackerQueryFactoryTest extends TestCase
             '',
             '',
             '',
-            1,
+            Option::fromValue(1),
             false
         );
 

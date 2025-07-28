@@ -39,6 +39,7 @@ final class BoardPresenterTest extends \Tuleap\Test\PHPUnit\TestCase
     private \Project $project;
     private \Planning_Milestone&MockObject $milestone;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->milestone_presenter = $this->createMock(\AgileDashboard_MilestonePresenter::class);
@@ -102,7 +103,7 @@ final class BoardPresenterTest extends \Tuleap\Test\PHPUnit\TestCase
         $tracker           = TrackerTestBuilder::aTracker()->withId(96)->build();
         $taskboard_tracker = new TaskboardTracker(TrackerTestBuilder::aTracker()->build(), $tracker);
 
-        $text_field = $this->createMock(\Tracker_FormElement_Field_Text::class);
+        $text_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\Text\TextField::class);
         $text_field->method('getId')->willReturn(123);
 
         $title_field = new TitleFieldPresenter($text_field);
