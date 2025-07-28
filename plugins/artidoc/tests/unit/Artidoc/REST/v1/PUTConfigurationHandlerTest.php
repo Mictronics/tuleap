@@ -70,6 +70,7 @@ final class PUTConfigurationHandlerTest extends TestCase
     private CheckTrackerIsSuitableForDocumentStub $tracker_checker;
     private RetrieveUsedFieldsStub $field_retriever;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->tracker = TrackerTestBuilder::aTracker()
@@ -103,7 +104,7 @@ final class PUTConfigurationHandlerTest extends TestCase
             $this->tracker_checker,
             new SuitableFieldRetriever(
                 $this->field_retriever,
-                RetrieveSemanticDescriptionFieldStub::withNoField(),
+                RetrieveSemanticDescriptionFieldStub::build(),
                 RetrieveSemanticTitleFieldStub::build(),
             ),
         );

@@ -42,9 +42,9 @@ final class DurationFieldReferenceProxyTest extends \Tuleap\Test\PHPUnit\TestCas
         self::assertSame(self::FIELD_LABEL, $field->getLabel());
     }
 
-    private function getIntegerField(): \Tracker_FormElement_Field_Integer
+    private function getIntegerField(): \Tuleap\Tracker\FormElement\Field\Integer\IntegerField
     {
-        return new \Tracker_FormElement_Field_Integer(
+        return new \Tuleap\Tracker\FormElement\Field\Integer\IntegerField(
             self::FIELD_ID,
             68,
             1,
@@ -59,9 +59,9 @@ final class DurationFieldReferenceProxyTest extends \Tuleap\Test\PHPUnit\TestCas
         );
     }
 
-    private function getFloatField(): \Tracker_FormElement_Field_Float
+    private function getFloatField(): \Tuleap\Tracker\FormElement\Field\Float\FloatField
     {
-        return new \Tracker_FormElement_Field_Float(
+        return new \Tuleap\Tracker\FormElement\Field\Float\FloatField(
             self::FIELD_ID,
             68,
             1,

@@ -32,6 +32,7 @@ class InvitationsTest extends \RestBase
 
     private TuleapConfig $tuleap_config;
 
+    #[\Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -79,7 +80,7 @@ class InvitationsTest extends \RestBase
         $this->assertEquals(400, $response->getStatusCode());
     }
 
-    public function testPostHappyPathFailsBecauseTestEnvironmentIsNotAbleToSendEmails(): void
+    public function testPostHappyPath(): void
     {
         $this->tuleap_config->enableInviteBuddies();
 
@@ -93,8 +94,6 @@ class InvitationsTest extends \RestBase
                 ->withBody($this->stream_factory->createStream($invitation))
         );
 
-        $body = json_decode($response->getBody()->getContents(), false, 512, JSON_THROW_ON_ERROR);
-        $this->assertEquals('An error occurred while trying to send invitation', $body->error->i18n_error_message);
-        $this->assertEquals(500, $response->getStatusCode());
+        self::assertEquals(201, $response->getStatusCode());
     }
 }

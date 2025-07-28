@@ -29,7 +29,7 @@ use Tuleap\Tracker\FormElement\Field\String\StringField;
 final readonly class ConfiguredField
 {
     public function __construct(
-        public StringField|\Tracker_FormElement_Field_List|ArtifactLinkField $field,
+        public StringField|\Tracker_FormElement_Field_List|ArtifactLinkField|\Tracker_FormElement_Field_Numeric $field,
         public DisplayType $display_type,
     ) {
     }

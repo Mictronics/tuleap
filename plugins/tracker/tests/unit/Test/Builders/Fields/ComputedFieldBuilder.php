@@ -24,6 +24,7 @@ namespace Tuleap\Tracker\Test\Builders\Fields;
 
 use Tracker_FormElement_Field_Computed;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
+use Tuleap\Tracker\Tracker;
 
 final class ComputedFieldBuilder
 {
@@ -41,6 +42,12 @@ final class ComputedFieldBuilder
     public static function aComputedField(int $id): self
     {
         return new self($id);
+    }
+
+    public function inTracker(Tracker $tracker): self
+    {
+        $this->tracker = $tracker;
+        return $this;
     }
 
     public function thatIsRequired(): self

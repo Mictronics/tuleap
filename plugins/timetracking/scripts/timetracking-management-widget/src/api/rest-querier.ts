@@ -24,12 +24,17 @@ import type { TimetrackingManagementQuery } from "../query/QueryRetriever";
 import type { User } from "@tuleap/core-rest-api-types";
 import { formatDatetimeToISO } from "@tuleap/plugin-timetracking-time-formatters";
 
+export interface PutQueryResult {
+    readonly viewable_users: User[];
+    readonly no_more_viewable_users: User[];
+}
+
 export function putQuery(
     widget_id: number,
     query: TimetrackingManagementQuery,
-): ResultAsync<void, Fault> {
+): ResultAsync<PutQueryResult, Fault> {
     const formatted_user_list: { id: number }[] = [];
-    query.users_list.forEach((user: User) => formatted_user_list.push({ id: user.id }));
+    query.users_list.value.forEach((user: User) => formatted_user_list.push({ id: user.id }));
 
     if (query.predefined_time_period !== "") {
         return putJSON(uri`/api/v1/timetracking_management_widget/${widget_id}/query`, {

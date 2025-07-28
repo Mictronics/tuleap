@@ -23,8 +23,14 @@ declare(strict_types=1);
 namespace Tuleap\Timetracking\Widget\Management;
 
 use PFUser;
+use Tuleap\NeverThrow\Err;
+use Tuleap\NeverThrow\Fault;
+use Tuleap\NeverThrow\Ok;
 
 interface GetViewableUser
 {
-    public function getViewableUser(PFUser $current_user, int $user_id): ?\PFUser;
+    /**
+     * @return Ok<PFUser>|Err<Fault>
+     */
+    public function getViewableUser(PFUser $current_user, int $user_id): Ok|Err;
 }

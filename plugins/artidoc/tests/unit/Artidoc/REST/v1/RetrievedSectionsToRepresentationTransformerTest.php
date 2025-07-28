@@ -39,6 +39,7 @@ use Tuleap\Artidoc\REST\v1\ArtifactSection\ArtifactSectionRepresentationBuilder;
 use Tuleap\Artidoc\REST\v1\ArtifactSection\RequiredArtifactInformationBuilder;
 use Tuleap\Artidoc\Stubs\Document\Field\ArtifactLink\BuildArtifactLinkFieldWithValueStub;
 use Tuleap\Artidoc\Stubs\Document\Field\List\BuildListFieldWithValueStub;
+use Tuleap\Artidoc\Stubs\Document\Field\Numeric\BuildNumericFieldWithValueStub;
 use Tuleap\Artidoc\Stubs\Document\FreetextIdentifierStub;
 use Tuleap\Artidoc\Stubs\Document\SectionIdentifierStub;
 use Tuleap\NeverThrow\Err;
@@ -54,8 +55,6 @@ use Tuleap\Tracker\FormElement\Field\String\StringField;
 use Tuleap\Tracker\FormElement\Field\Text\TextField;
 use Tuleap\Tracker\REST\Artifact\ArtifactFieldValueFileFullRepresentation;
 use Tuleap\Tracker\REST\Artifact\FileInfoRepresentation;
-use Tuleap\Tracker\Semantic\Description\RetrieveSemanticDescriptionField;
-use Tuleap\Tracker\Semantic\Title\RetrieveSemanticTitleField;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetValueTextTestBuilder;
@@ -75,7 +74,10 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
     private Tracker $tracker;
     private RetrieveArtifactStub $artifact_retriever;
     private GetFileUploadDataStub $file_upload_provider;
+    private RetrieveSemanticDescriptionFieldStub $retrieve_description_field;
+    private RetrieveSemanticTitleFieldStub $retrieve_title_field;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->user    = UserTestBuilder::buildWithDefaults();
@@ -83,8 +85,10 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
             ->withProject(ProjectTestBuilder::aProject()->build())
             ->build();
 
-        $this->artifact_retriever   = RetrieveArtifactStub::withNoArtifact();
-        $this->file_upload_provider = GetFileUploadDataStub::withoutField();
+        $this->artifact_retriever         = RetrieveArtifactStub::withNoArtifact();
+        $this->file_upload_provider       = GetFileUploadDataStub::withoutField();
+        $this->retrieve_description_field = RetrieveSemanticDescriptionFieldStub::build();
+        $this->retrieve_title_field       = RetrieveSemanticTitleFieldStub::build();
     }
 
     /**
@@ -93,8 +97,6 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
      */
     private function getRepresentation(
         array $sections,
-        RetrieveSemanticDescriptionField $retrieve_description_field,
-        RetrieveSemanticTitleField $retrieve_semantic_title_field,
     ): Ok|Err {
         $transformer = new RetrievedSectionsToRepresentationTransformer(
             new SectionRepresentationBuilder(
@@ -112,6 +114,11 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
                                 throw new \Exception('This test was not supposed to build link fields.');
                             },
                         ),
+                        BuildNumericFieldWithValueStub::withCallback(
+                            static function () {
+                                throw new \Exception('This test was not supposed to build numeric fields.');
+                            },
+                        ),
                     )
                 ),
             ),
@@ -119,8 +126,8 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
                 $this->user,
                 new RequiredArtifactInformationBuilder(
                     $this->artifact_retriever,
-                    $retrieve_description_field,
-                    $retrieve_semantic_title_field,
+                    $this->retrieve_description_field,
+                    $this->retrieve_title_field,
                 ),
             ),
         );
@@ -194,12 +201,14 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
             ->withReadPermission($this->user, true)
             ->withUpdatePermission($this->user, $can_user_edit_title)
             ->build();
+        $this->retrieve_title_field->withTitleField($this->tracker, $title_field);
 
         $description_field = TextFieldBuilder::aTextField(1002)
             ->inTracker($this->tracker)
             ->withReadPermission($this->user, true)
             ->withUpdatePermission($this->user, $can_user_edit_description)
             ->build();
+        $this->retrieve_description_field->withDescriptionField($description_field);
 
         $file = $this->createMock(Tracker_FormElement_Field_File::class);
         $file->method('getId')->willReturn(600);
@@ -221,12 +230,14 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
                 $art4->getLastChangeset() => $this->getFileValue($file, $art4),
             });
 
-        $result = $this->getRepresentation([
-            RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 0, 'level' => 1]),
-            RetrievedSection::fromArtifact(['artifact_id' => 2, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 1, 'level' => 1]),
-            RetrievedSection::fromArtifact(['artifact_id' => 3, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 2, 'level' => 1]),
-            RetrievedSection::fromArtifact(['artifact_id' => 4, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 3, 'level' => 1]),
-        ], RetrieveSemanticDescriptionFieldStub::withTextField($description_field), RetrieveSemanticTitleFieldStub::build()->withTitleField($this->tracker, $title_field));
+        $result = $this->getRepresentation(
+            [
+                RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 0, 'level' => 1]),
+                RetrievedSection::fromArtifact(['artifact_id' => 2, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 1, 'level' => 1]),
+                RetrievedSection::fromArtifact(['artifact_id' => 3, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 2, 'level' => 1]),
+                RetrievedSection::fromArtifact(['artifact_id' => 4, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 3, 'level' => 1]),
+            ],
+        );
 
         self::assertTrue(Result::isOk($result));
         self::assertSame(10, $result->value->total);
@@ -259,12 +270,14 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
             ->withReadPermission($this->user, true)
             ->withUpdatePermission($this->user, true)
             ->build();
+        $this->retrieve_title_field->withTitleField($this->tracker, $title_field);
 
         $description_field = TextFieldBuilder::aTextField(1002)
             ->inTracker($this->tracker)
             ->withReadPermission($this->user, true)
             ->withUpdatePermission($this->user, true)
             ->build();
+        $this->retrieve_description_field->withDescriptionField($description_field);
 
         $file = $this->createMock(Tracker_FormElement_Field_File::class);
         $file->method('getId')->willReturn(600);
@@ -279,9 +292,11 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
                 $art1->getLastChangeset() => $this->getFileValue($file, $art1),
             });
 
-        $result = $this->getRepresentation([
-            RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 1, 'level' => 1]),
-        ], RetrieveSemanticDescriptionFieldStub::withTextField($description_field), RetrieveSemanticTitleFieldStub::build()->withTitleField($this->tracker, $title_field));
+        $result = $this->getRepresentation(
+            [
+                RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 1, 'level' => 1]),
+            ],
+        );
 
         self::assertTrue(Result::isOk($result));
         self::assertSame(10, $result->value->total);
@@ -300,12 +315,14 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
             ->withReadPermission($this->user, true)
             ->withUpdatePermission($this->user, true)
             ->build();
+        $this->retrieve_title_field->withTitleField($this->tracker, $title_field);
 
         $description_field = TextFieldBuilder::aTextField(1002)
             ->inTracker($this->tracker)
             ->withReadPermission($this->user, true)
             ->withUpdatePermission($this->user, true)
             ->build();
+        $this->retrieve_description_field->withDescriptionField($description_field);
 
         $file = $this->createMock(Tracker_FormElement_Field_File::class);
         $file->method('getId')->willReturn(600);
@@ -320,9 +337,11 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
                 $art1->getLastChangeset() => $this->getFileValue($file, $art1),
             });
 
-        $result = $this->getRepresentation([
-            RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 1, 'level' => 1]),
-        ], RetrieveSemanticDescriptionFieldStub::withTextField($description_field), RetrieveSemanticTitleFieldStub::build()->withTitleField($this->tracker, $title_field));
+        $result = $this->getRepresentation(
+            [
+                RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 1, 'level' => 1]),
+            ],
+        );
 
         self::assertTrue(Result::isOk($result));
         self::assertSame(10, $result->value->total);
@@ -341,12 +360,14 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
             ->withReadPermission($this->user, true)
             ->withUpdatePermission($this->user, true)
             ->build();
+        $this->retrieve_title_field->withTitleField($this->tracker, $title_field);
 
         $description_field = TextFieldBuilder::aTextField(1002)
             ->inTracker($this->tracker)
             ->withReadPermission($this->user, true)
             ->withUpdatePermission($this->user, true)
             ->build();
+        $this->retrieve_description_field->withDescriptionField($description_field);
 
         $file = $this->createMock(Tracker_FormElement_Field_File::class);
         $file->method('getId')->willReturn(600);
@@ -361,18 +382,22 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
                 $art1->getLastChangeset() => $this->getFileValue($file, $art1),
             });
 
-        $result = $this->getRepresentation([
-            RetrievedSection::fromFreetext([
-                'freetext_title'       => 'Requirements',
-                'freetext_description' => 'Lorem ipsum',
-                'freetext_id'          => FreetextIdentifierStub::create(),
-                'id'                   => SectionIdentifierStub::create(),
-                'item_id'              => 101,
-                'rank'                 => 0,
-                'level'                => 1,
-            ]),
-            RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 1, 'level' => 1]),
-        ], RetrieveSemanticDescriptionFieldStub::withTextField($description_field), RetrieveSemanticTitleFieldStub::build()->withTitleField($this->tracker, $title_field));
+        $result = $this->getRepresentation(
+            [
+                RetrievedSection::fromFreetext([
+                    'freetext_title'       => 'Requirements',
+                    'freetext_description' => 'Lorem ipsum',
+                    'freetext_id'          => FreetextIdentifierStub::create(),
+                    'id'                   => SectionIdentifierStub::create(),
+                    'item_id'              => 101,
+                    'rank'                 => 0,
+                    'level'                => 1,
+                ]),
+                RetrievedSection::fromArtifact(
+                    ['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 1, 'level' => 1]
+                ),
+            ],
+        );
 
         self::assertTrue(Result::isOk($result));
         self::assertSame(10, $result->value->total);
@@ -396,12 +421,14 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
             ->withReadPermission($this->user, true)
             ->withUpdatePermission($this->user, true)
             ->build();
+        $this->retrieve_title_field->withTitleField($this->tracker, $title_field);
 
         $description_field = TextFieldBuilder::aTextField(1002)
             ->inTracker($this->tracker)
             ->withReadPermission($this->user, true)
             ->withUpdatePermission($this->user, true)
             ->build();
+        $this->retrieve_description_field->withDescriptionField($description_field);
 
         $file = $this->createMock(Tracker_FormElement_Field_File::class);
         $file->method('getId')->willReturn(600);
@@ -413,9 +440,11 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
 
         $file->method('getRESTValue')->willReturn(null);
 
-        $result = $this->getRepresentation([
-            RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 0, 'level' => 1]),
-        ], RetrieveSemanticDescriptionFieldStub::withTextField($description_field), RetrieveSemanticTitleFieldStub::build()->withTitleField($this->tracker, $title_field));
+        $result = $this->getRepresentation(
+            [
+                RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 0, 'level' => 1]),
+            ],
+        );
 
         self::assertTrue(Result::isOk($result));
         self::assertSame(10, $result->value->total);
@@ -431,12 +460,14 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
             ->withReadPermission($this->user, true)
             ->withUpdatePermission($this->user, true)
             ->build();
+        $this->retrieve_title_field->withTitleField($this->tracker, $title_field);
 
         $description_field = TextFieldBuilder::aTextField(1002)
             ->inTracker($this->tracker)
             ->withReadPermission($this->user, true)
             ->withUpdatePermission($this->user, true)
             ->build();
+        $this->retrieve_description_field->withDescriptionField($description_field);
 
         $art1                     = $this->getArtifact(1, $title_field, $description_field, \Tracker_Artifact_ChangesetValue_Text::HTML_CONTENT);
         $this->artifact_retriever = RetrieveArtifactStub::withArtifacts($art1);
@@ -444,9 +475,11 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
         $editor_builder = $this->createMock(UploadDataAttributesForRichTextEditorBuilder::class);
         $editor_builder->method('getDataAttributes')->willReturn([]);
 
-        $result = $this->getRepresentation([
-            RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 0, 'level' => 1]),
-        ], RetrieveSemanticDescriptionFieldStub::withTextField($description_field), RetrieveSemanticTitleFieldStub::build()->withTitleField($this->tracker, $title_field));
+        $result = $this->getRepresentation(
+            [
+                RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 0, 'level' => 1]),
+            ],
+        );
 
         self::assertTrue(Result::isOk($result));
         self::assertSame(10, $result->value->total);
@@ -476,12 +509,14 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
             ->withReadPermission($this->user, true)
             ->withUpdatePermission($this->user, false)
             ->build();
+        $this->retrieve_title_field->withTitleField($this->tracker, $title_field);
 
         $description_field = TextFieldBuilder::aTextField(1002)
             ->inTracker($this->tracker)
             ->withReadPermission($this->user, true)
             ->withUpdatePermission($this->user, false)
             ->build();
+        $this->retrieve_description_field->withDescriptionField($description_field);
 
         $art1 = $this->getArtifact(1, $title_field, $description_field, \Tracker_Artifact_ChangesetValue_Text::HTML_CONTENT);
         $art2 = $this->getArtifact(2, $title_field, $description_field, \Tracker_Artifact_ChangesetValue_Text::HTML_CONTENT);
@@ -493,12 +528,14 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
         $editor_builder = $this->createMock(UploadDataAttributesForRichTextEditorBuilder::class);
         $editor_builder->method('getDataAttributes')->willReturn([]);
 
-        $result = $this->getRepresentation([
-            RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 0, 'level' => 1]),
-            RetrievedSection::fromArtifact(['artifact_id' => 2, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 1, 'level' => 1]),
-            RetrievedSection::fromArtifact(['artifact_id' => 3, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 2, 'level' => 1]),
-            RetrievedSection::fromArtifact(['artifact_id' => 4, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 3, 'level' => 1]),
-        ], RetrieveSemanticDescriptionFieldStub::withTextField($description_field), RetrieveSemanticTitleFieldStub::build()->withTitleField($this->tracker, $title_field));
+        $result = $this->getRepresentation(
+            [
+                RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 0, 'level' => 1]),
+                RetrievedSection::fromArtifact(['artifact_id' => 2, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 1, 'level' => 1]),
+                RetrievedSection::fromArtifact(['artifact_id' => 3, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 2, 'level' => 1]),
+                RetrievedSection::fromArtifact(['artifact_id' => 4, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 3, 'level' => 1]),
+            ]
+        );
 
         self::assertTrue(Result::isOk($result));
         self::assertSame(10, $result->value->total);
@@ -532,6 +569,7 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
             ->inTracker($this->tracker)
             ->withReadPermission($this->user, true)
             ->build();
+        $this->retrieve_description_field->withDescriptionField($description_field);
 
         $art1 = $this->getArtifact(1, $title_field, $description_field, \Tracker_Artifact_ChangesetValue_Text::HTML_CONTENT);
         $art2 = $this->getArtifact(2, $title_field, $description_field, \Tracker_Artifact_ChangesetValue_Text::HTML_CONTENT);
@@ -540,12 +578,14 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
 
         $this->artifact_retriever = RetrieveArtifactStub::withArtifacts($art1, $art2, $art3, $art4);
 
-        $result = $this->getRepresentation([
-            RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 0, 'level' => 1]),
-            RetrievedSection::fromArtifact(['artifact_id' => 2, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 1, 'level' => 1]),
-            RetrievedSection::fromArtifact(['artifact_id' => 3, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 2, 'level' => 1]),
-            RetrievedSection::fromArtifact(['artifact_id' => 4, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 3, 'level' => 1]),
-        ], RetrieveSemanticDescriptionFieldStub::withTextField($description_field), RetrieveSemanticTitleFieldStub::build());
+        $result = $this->getRepresentation(
+            [
+                RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 0, 'level' => 1]),
+                RetrievedSection::fromArtifact(['artifact_id' => 2, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 1, 'level' => 1]),
+                RetrievedSection::fromArtifact(['artifact_id' => 3, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 2, 'level' => 1]),
+                RetrievedSection::fromArtifact(['artifact_id' => 4, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 3, 'level' => 1]),
+            ]
+        );
 
         self::assertTrue(Result::isErr($result));
     }
@@ -556,11 +596,13 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
             ->inTracker($this->tracker)
             ->withReadPermission($this->user, false)
             ->build();
+        $this->retrieve_title_field->withTitleField($this->tracker, $title_field);
 
         $description_field = TextFieldBuilder::aTextField(1002)
             ->inTracker($this->tracker)
             ->withReadPermission($this->user, true)
             ->build();
+        $this->retrieve_description_field->withDescriptionField($description_field);
 
         $art1 = $this->getArtifact(1, $title_field, $description_field, \Tracker_Artifact_ChangesetValue_Text::HTML_CONTENT);
         $art2 = $this->getArtifact(2, $title_field, $description_field, \Tracker_Artifact_ChangesetValue_Text::HTML_CONTENT);
@@ -569,12 +611,14 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
 
         $this->artifact_retriever = RetrieveArtifactStub::withArtifacts($art1, $art2, $art3, $art4);
 
-        $result = $this->getRepresentation([
-            RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 0, 'level' => 1]),
-            RetrievedSection::fromArtifact(['artifact_id' => 2, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 1, 'level' => 1]),
-            RetrievedSection::fromArtifact(['artifact_id' => 3, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 2, 'level' => 1]),
-            RetrievedSection::fromArtifact(['artifact_id' => 4, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 3, 'level' => 1]),
-        ], RetrieveSemanticDescriptionFieldStub::withTextField($description_field), RetrieveSemanticTitleFieldStub::build()->withTitleField($this->tracker, $title_field));
+        $result = $this->getRepresentation(
+            [
+                RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 0, 'level' => 1]),
+                RetrievedSection::fromArtifact(['artifact_id' => 2, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 1, 'level' => 1]),
+                RetrievedSection::fromArtifact(['artifact_id' => 3, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 2, 'level' => 1]),
+                RetrievedSection::fromArtifact(['artifact_id' => 4, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 3, 'level' => 1]),
+            ]
+        );
 
         self::assertTrue(Result::isErr($result));
     }
@@ -585,11 +629,13 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
             ->inTracker($this->tracker)
             ->withReadPermission($this->user, true)
             ->build();
+        $this->retrieve_title_field->withTitleField($this->tracker, $title_field);
 
         $description_field = TextFieldBuilder::aTextField(1002)
             ->inTracker($this->tracker)
             ->withReadPermission($this->user, false)
             ->build();
+        $this->retrieve_description_field->withDescriptionField($description_field);
 
         $art1 = $this->getArtifact(1, $title_field, $description_field, \Tracker_Artifact_ChangesetValue_Text::HTML_CONTENT);
         $art2 = $this->getArtifact(2, $title_field, $description_field, \Tracker_Artifact_ChangesetValue_Text::HTML_CONTENT);
@@ -598,12 +644,14 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
 
         $this->artifact_retriever = RetrieveArtifactStub::withArtifacts($art1, $art2, $art3, $art4);
 
-        $result = $this->getRepresentation([
-            RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 0, 'level' => 1]),
-            RetrievedSection::fromArtifact(['artifact_id' => 2, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 1, 'level' => 1]),
-            RetrievedSection::fromArtifact(['artifact_id' => 3, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 2, 'level' => 1]),
-            RetrievedSection::fromArtifact(['artifact_id' => 4, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 3, 'level' => 1]),
-        ], RetrieveSemanticDescriptionFieldStub::withTextField($description_field), RetrieveSemanticTitleFieldStub::build()->withTitleField($this->tracker, $title_field));
+        $result = $this->getRepresentation(
+            [
+                RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 0, 'level' => 1]),
+                RetrievedSection::fromArtifact(['artifact_id' => 2, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 1, 'level' => 1]),
+                RetrievedSection::fromArtifact(['artifact_id' => 3, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 2, 'level' => 1]),
+                RetrievedSection::fromArtifact(['artifact_id' => 4, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 3, 'level' => 1]),
+            ],
+        );
 
         self::assertTrue(Result::isErr($result));
     }
@@ -614,6 +662,7 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
             ->inTracker($this->tracker)
             ->withReadPermission($this->user, true)
             ->build();
+        $this->retrieve_title_field->withTitleField($this->tracker, $title_field);
 
         $description_field = TextFieldBuilder::aTextField(1002)
             ->inTracker($this->tracker)
@@ -627,12 +676,14 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
 
         $this->artifact_retriever = RetrieveArtifactStub::withArtifacts($art1, $art2, $art3, $art4);
 
-        $result = $this->getRepresentation([
-            RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 0, 'level' => 1]),
-            RetrievedSection::fromArtifact(['artifact_id' => 2, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 1, 'level' => 1]),
-            RetrievedSection::fromArtifact(['artifact_id' => 3, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 2, 'level' => 1]),
-            RetrievedSection::fromArtifact(['artifact_id' => 4, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 3, 'level' => 1]),
-        ], RetrieveSemanticDescriptionFieldStub::withNoField(), RetrieveSemanticTitleFieldStub::build()->withTitleField($this->tracker, $title_field));
+        $result = $this->getRepresentation(
+            [
+                RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 0, 'level' => 1]),
+                RetrievedSection::fromArtifact(['artifact_id' => 2, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 1, 'level' => 1]),
+                RetrievedSection::fromArtifact(['artifact_id' => 3, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 2, 'level' => 1]),
+                RetrievedSection::fromArtifact(['artifact_id' => 4, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 3, 'level' => 1]),
+            ],
+        );
 
         self::assertTrue(Result::isErr($result));
     }
@@ -643,11 +694,13 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
             ->inTracker($this->tracker)
             ->withReadPermission($this->user, true)
             ->build();
+        $this->retrieve_title_field->withTitleField($this->tracker, $title_field);
 
         $description_field = TextFieldBuilder::aTextField(1002)
             ->inTracker($this->tracker)
             ->withReadPermission($this->user, true)
             ->build();
+        $this->retrieve_description_field->withDescriptionField($description_field);
 
         $art1 = $this->getArtifact(1, $title_field, $description_field, \Tracker_Artifact_ChangesetValue_Text::HTML_CONTENT);
         $art2 = $this->getArtifact(2, $title_field, $description_field, \Tracker_Artifact_ChangesetValue_Text::HTML_CONTENT);
@@ -656,12 +709,14 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
 
         $this->artifact_retriever = RetrieveArtifactStub::withArtifacts($art1, $art2, $art3, $art4);
 
-        $result = $this->getRepresentation([
-            RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 0, 'level' => 1]),
-            RetrievedSection::fromArtifact(['artifact_id' => 2, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 1, 'level' => 1]),
-            RetrievedSection::fromArtifact(['artifact_id' => 3, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 2, 'level' => 1]),
-            RetrievedSection::fromArtifact(['artifact_id' => 4, 'id' => SectionIdentifierStub::create(), 'item_id' => 101, 'rank' => 3, 'level' => 1]),
-        ], RetrieveSemanticDescriptionFieldStub::withTextField($description_field), RetrieveSemanticTitleFieldStub::build()->withTitleField($this->tracker, $title_field));
+        $result = $this->getRepresentation(
+            [
+                RetrievedSection::fromArtifact(['artifact_id' => 1, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 0, 'level' => 1]),
+                RetrievedSection::fromArtifact(['artifact_id' => 2, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 1, 'level' => 1]),
+                RetrievedSection::fromArtifact(['artifact_id' => 3, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 2, 'level' => 1]),
+                RetrievedSection::fromArtifact(['artifact_id' => 4, 'id' => SectionIdentifierStub::create(), 'item_id'   => 101, 'rank' => 3, 'level' => 1]),
+            ],
+        );
 
         self::assertTrue(Result::isErr($result));
     }
@@ -670,7 +725,7 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
     {
         $this->artifact_retriever = RetrieveArtifactStub::withNoArtifact();
 
-        $result = $this->getRepresentation([], RetrieveSemanticDescriptionFieldStub::withNoField(), RetrieveSemanticTitleFieldStub::build());
+        $result = $this->getRepresentation([]);
 
         self::assertTrue(Result::isOk($result));
         self::assertSame(10, $result->value->total);

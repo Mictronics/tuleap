@@ -67,7 +67,7 @@ use Tuleap\Tracker\Test\Builders\Fields\ArtifactLinkFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\DateFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ExternalFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\FloatFieldBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\IntFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\IntegerFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListUserBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListUserGroupBindBuilder;
@@ -97,10 +97,11 @@ final class FieldResultBuilderTest extends TestCase
     private Tracker $first_tracker;
     private Tracker $second_tracker;
 
+    #[\Override]
     protected function setUp(): void
     {
         ForgeConfig::set(ConfigurationVariables::SERVER_TIMEZONE, 'Europe/Paris');
-        $this->field_hash     = md5('my_field');
+        $this->field_hash     = 'my_field';
         $this->user           = UserTestBuilder::buildWithId(133);
         $project              = ProjectTestBuilder::aProject()->withId(154)->build();
         $this->first_tracker  = TrackerTestBuilder::aTracker()->withId(38)->withProject($project)->build();
@@ -121,7 +122,8 @@ final class FieldResultBuilderTest extends TestCase
                 FieldPermissionType::PERMISSION_READ,
             )
         );
-        $builder         = new FieldResultBuilder(
+
+        $builder = new FieldResultBuilder(
             new FieldTypeRetrieverWrapper(RetrieveFieldTypeStub::withDetectionOfType()),
             new DateResultBuilder($artifact_retriever, $fields_retriever),
             new TextResultBuilder(
@@ -145,7 +147,7 @@ final class FieldResultBuilderTest extends TestCase
                 ),
                 RetrieveUserByEmailStub::withNoUser(),
                 ProvideAndRetrieveUserStub::build(UserTestBuilder::buildWithDefaults()),
-                $user_helper,
+                $user_helper
             ),
             $field_retriever
         );
@@ -262,7 +264,7 @@ EOL
     {
         $result = $this->getSelectedResult(
             RetrieveUsedFieldsStub::withFields(
-                IntFieldBuilder::anIntField(self::FIRST_FIELD_ID)
+                IntegerFieldBuilder::anIntField(self::FIRST_FIELD_ID)
                     ->withName(self::FIELD_NAME)
                     ->inTracker($this->first_tracker)
                     ->build(),

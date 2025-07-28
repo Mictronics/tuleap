@@ -33,7 +33,7 @@ export const injected_query: Query = {
             start_date: start_date,
             end_date: end_date,
             predefined_time_period: predefined_time_period,
-            users_list: users_list,
+            users_list: ref(users_list),
         };
     },
     setQuery: (
@@ -49,6 +49,7 @@ export const injected_query: Query = {
     },
     has_the_query_been_modified,
     saveQuery: (): void => {},
+    no_more_viewable_users: ref([]),
 };
 
 export const RetrieveQueryStub = {
@@ -58,7 +59,7 @@ export const RetrieveQueryStub = {
                 start_date: start_date,
                 end_date: end_date,
                 predefined_time_period: predefined_time_period,
-                users_list: users,
+                users_list: ref(users),
             };
         },
         setQuery: (start, end, period, users): void => {
@@ -69,5 +70,6 @@ export const RetrieveQueryStub = {
         },
         has_the_query_been_modified,
         saveQuery: (): void => {},
+        no_more_viewable_users: ref([]),
     }),
 };

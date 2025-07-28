@@ -35,7 +35,7 @@ final class SemanticStatusRetrieverTest extends TestCase
     public function testItReturnsEmptySemanticWhenNoField(): void
     {
         $retriever = new SemanticStatusRetriever(
-            RetrieveSemanticStatusFieldStub::withNoField(),
+            RetrieveSemanticStatusFieldStub::build(),
             SearchStatusOpenValuesStub::withCallback(static fn() => self::fail('Should not be called')),
         );
 
@@ -53,7 +53,7 @@ final class SemanticStatusRetrieverTest extends TestCase
         $open_values = [12, 15, 16];
 
         $retriever = new SemanticStatusRetriever(
-            RetrieveSemanticStatusFieldStub::withField($field),
+            RetrieveSemanticStatusFieldStub::build()->withField($field),
             SearchStatusOpenValuesStub::withCallback(static function (int $field_id) use ($field, $open_values) {
                 self::assertSame($field->getId(), $field_id);
                 return $open_values;

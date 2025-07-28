@@ -29,4 +29,5 @@ enum FieldType: string
     case STATIC_LIST      = 'static_list';
     case USER_LIST        = 'user_list';
     case ARTIFACT_LINK    = 'links';
+    case NUMERIC          = 'numeric';
 }

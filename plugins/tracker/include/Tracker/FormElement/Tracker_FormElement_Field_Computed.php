@@ -26,13 +26,14 @@ use Tuleap\Tracker\FormElement\ComputedFieldCalculator;
 use Tuleap\Tracker\FormElement\Field\Computed\ComputedFieldDao;
 use Tuleap\Tracker\FormElement\Field\Computed\ComputedFieldDaoCache;
 use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
+use Tuleap\Tracker\FormElement\Field\Float\FloatField;
 use Tuleap\Tracker\FormElement\FieldCalculator;
 use Tuleap\Tracker\FormElement\FieldSpecificProperties\ComputedFieldSpecificPropertiesDAO;
 use Tuleap\Tracker\FormElement\FieldSpecificProperties\SaveSpecificFieldProperties;
 use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
 use Tuleap\Tracker\REST\Artifact\ArtifactFieldComputedValueFullRepresentation;
 
-class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float //phpcs:ignore
+class Tracker_FormElement_Field_Computed extends FloatField //phpcs:ignore
 {
     private const DISPLAY_AUTOCOMPUTED_VALUE_MAX_PRECISION = 10;
     public const FIELD_VALUE_IS_AUTOCOMPUTED               = 'is_autocomputed';
@@ -501,7 +502,7 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
         int $changeset_id,
         mixed $value,
         ?Tracker_Report $report = null,
-        ?int $from_aid = null,
+        ?array $redirection_parameters = null,
     ): string {
         $current_user = UserManager::instance()->getCurrentUser();
         $artifact     = Tracker_ArtifactFactory::instance()->getArtifactById($artifact_id);
@@ -615,21 +616,25 @@ class Tracker_FormElement_Field_Computed extends Tracker_FormElement_Field_Float
         return new ComputedFieldDao();
     }
 
+    #[\Override]
     protected function getDuplicateSpecificPropertiesDao(): ComputedFieldSpecificPropertiesDAO
     {
         return new ComputedFieldSpecificPropertiesDAO();
     }
 
+    #[\Override]
     protected function getDeleteSpecificPropertiesDao(): ComputedFieldSpecificPropertiesDAO
     {
         return new ComputedFieldSpecificPropertiesDAO();
     }
 
+    #[\Override]
     protected function getSearchSpecificPropertiesDao(): ComputedFieldSpecificPropertiesDAO
     {
         return new ComputedFieldSpecificPropertiesDAO();
     }
 
+    #[\Override]
     protected function getSaveSpecificPropertiesDao(): SaveSpecificFieldProperties
     {
         return new ComputedFieldSpecificPropertiesDAO();

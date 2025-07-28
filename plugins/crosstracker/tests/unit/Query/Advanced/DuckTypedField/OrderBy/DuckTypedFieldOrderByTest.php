@@ -34,7 +34,7 @@ use Tuleap\NeverThrow\Result;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Test\Builders\Fields\ExternalFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\FloatFieldBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\IntFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\IntegerFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\OpenListFieldBuilder;
@@ -56,13 +56,14 @@ final class DuckTypedFieldOrderByTest extends TestCase
     /** @var list<Tracker_FormElement_Field> */
     private array $fields;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->first_tracker  = TrackerTestBuilder::aTracker()->withId(self::FIRST_TRACKER_ID)->build();
         $this->second_tracker = TrackerTestBuilder::aTracker()->withId(self::SECOND_TRACKER_ID)->build();
 
         $this->fields = [
-            IntFieldBuilder::anIntField(self::INT_FIELD_ID)
+            IntegerFieldBuilder::anIntField(self::INT_FIELD_ID)
                 ->withName(self::FIELD_NAME)
                 ->inTracker($this->first_tracker)
                 ->build(),
@@ -130,7 +131,7 @@ final class DuckTypedFieldOrderByTest extends TestCase
     public function testItReturnsErrWhenSecondFieldTypeIsNotSupported(): void
     {
         $this->fields = [
-            IntFieldBuilder::anIntField(self::INT_FIELD_ID)
+            IntegerFieldBuilder::anIntField(self::INT_FIELD_ID)
                 ->withName(self::FIELD_NAME)
                 ->inTracker($this->first_tracker)
                 ->build(),
@@ -149,7 +150,7 @@ final class DuckTypedFieldOrderByTest extends TestCase
     public function testItReturnsErrWhenFieldHasAnIncompatibleTypeInSecondTracker(): void
     {
         $this->fields = [
-            IntFieldBuilder::anIntField(self::INT_FIELD_ID)
+            IntegerFieldBuilder::anIntField(self::INT_FIELD_ID)
                 ->withName(self::FIELD_NAME)
                 ->inTracker($this->first_tracker)
                 ->build(),

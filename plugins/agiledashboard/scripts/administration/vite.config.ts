@@ -30,6 +30,7 @@ export default vite.defineAppConfig(
             rollupOptions: {
                 input: {
                     administration: path.resolve(__dirname, "src/main.ts"),
+                    colorpicker: path.resolve(__dirname, "src/planning-admin-colorpicker.ts"),
                 },
             },
         },

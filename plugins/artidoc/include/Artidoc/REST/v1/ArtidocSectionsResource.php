@@ -65,6 +65,7 @@ use Tuleap\Artidoc\Document\Field\List\ListFieldWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\List\StaticListFieldWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\List\UserGroupListWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\List\UserListFieldWithValueBuilder;
+use Tuleap\Artidoc\Document\Field\Numeric\NumericFieldWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\SuitableFieldRetriever;
 use Tuleap\Artidoc\Domain\Document\RetrieveArtidocWithContext;
 use Tuleap\Artidoc\Domain\Document\Section\CannotUpdatePartiallyReadableDocumentFault;
@@ -116,6 +117,7 @@ use Tuleap\Tracker\Artifact\ChangesetValue\ArtifactLink\ReverseLinksToNewChanges
 use Tuleap\Tracker\Artifact\ChangesetValue\ChangesetValueSaver;
 use Tuleap\Tracker\Artifact\ChangesetValue\InitialChangesetValueSaver;
 use Tuleap\Tracker\Artifact\Creation\TrackerArtifactCreator;
+use Tuleap\Tracker\Artifact\Dao\PriorityDao;
 use Tuleap\Tracker\Artifact\FileUploadDataProvider;
 use Tuleap\Tracker\Artifact\Link\ArtifactReverseLinksUpdater;
 use Tuleap\Tracker\FormElement\ArtifactLinkValidator;
@@ -134,6 +136,7 @@ use Tuleap\Tracker\REST\Artifact\CreateArtifact;
 use Tuleap\Tracker\REST\Artifact\HandlePUT;
 use Tuleap\Tracker\REST\Artifact\PUTHandler;
 use Tuleap\Tracker\Semantic\Description\CachedSemanticDescriptionFieldRetriever;
+use Tuleap\Tracker\Semantic\Status\CachedSemanticStatusRetriever;
 use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldDetector;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldsDao;
@@ -547,8 +550,10 @@ final class ArtidocSectionsResource extends AuthenticatedResource
                 new ArtifactLinkFieldWithValueBuilder(
                     $user,
                     $title_field_retriever,
+                    CachedSemanticStatusRetriever::instance(),
                     new TypePresenterFactory(new TypeDao(), new ArtifactLinksUsageDao()),
                 ),
+                new NumericFieldWithValueBuilder(new PriorityDao()),
             )
         );
     }

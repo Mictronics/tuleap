@@ -45,10 +45,11 @@ use Tuleap\Tracker\Tracker;
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class StaticListFieldWithValueBuilderTest extends TestCase
 {
-    private const TRACKER_ID = 65453;
+    private const int TRACKER_ID = 65453;
     private Tracker $tracker;
     private \Tracker_Artifact_Changeset $changeset;
 
+    #[\Override]
     protected function setUp(): void
     {
         $project         = ProjectTestBuilder::aProject()->withId(168)->build();
@@ -76,6 +77,20 @@ final class StaticListFieldWithValueBuilderTest extends TestCase
         );
     }
 
+    public function testItReturnsEmptyValuesWhenNoChangesetValue(): void
+    {
+        $list_field = ListStaticBindBuilder::aStaticBind(
+            ListFieldBuilder::aListField(123)->inTracker($this->tracker)->withLabel('static list field')->build(),
+        )->build()->getField();
+
+        $this->changeset->setFieldValue($list_field, null);
+
+        self::assertEquals(
+            new StaticListFieldWithValue('static list field', DisplayType::BLOCK, []),
+            $this->getField(new ConfiguredField($list_field, DisplayType::BLOCK)),
+        );
+    }
+
     public function testItBuildsValuesWithDecorators(): void
     {
         $list_field_value_red      = ListStaticValueBuilder::aStaticValue('Red')->withId(10002)->build();
@@ -87,7 +102,7 @@ final class StaticListFieldWithValueBuilderTest extends TestCase
             $list_field_value_red,
             $list_field_value_no_color,
         ])->withDecorators([
-            $list_field_value_red->getId() => StaticBindDecoratorBuilder::withColor(ColorName::RED_WINE)->withFieldId(124)->withValueId($list_field_value_red->getId())->build(),
+            StaticBindDecoratorBuilder::withColor(ColorName::RED_WINE)->withFieldId(124)->withValueId($list_field_value_red->getId())->build(),
         ])->build()->getField();
 
         $this->changeset->setFieldValue(
@@ -131,7 +146,7 @@ final class StaticListFieldWithValueBuilderTest extends TestCase
     private function getField(ConfiguredField $configured_field): StaticListFieldWithValue
     {
         $changeset_value = $this->changeset->getValue($configured_field->field);
-        assert($changeset_value instanceof \Tracker_Artifact_ChangesetValue_List);
+        assert($changeset_value === null || $changeset_value instanceof \Tracker_Artifact_ChangesetValue_List);
 
         return (new StaticListFieldWithValueBuilder())->buildStaticListFieldWithValue($configured_field, $changeset_value);
     }

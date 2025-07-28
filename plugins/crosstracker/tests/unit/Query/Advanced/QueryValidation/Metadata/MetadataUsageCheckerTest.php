@@ -31,7 +31,7 @@ use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\Metadata;
 use Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributorDao;
 use Tuleap\Tracker\Semantic\Status\StatusSemanticDAO;
-use Tuleap\Tracker\Test\Builders\Fields\IntFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\IntegerFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Test\Stub\Semantic\Description\SearchTrackersWithoutDescriptionSemanticStub;
 use Tuleap\Tracker\Test\Stub\Semantic\Title\SearchTrackersWithoutTitleSemanticStub;
@@ -53,6 +53,7 @@ final class MetadataUsageCheckerTest extends TestCase
     private Tracker_FormElement_Field_SubmittedOn&MockObject $submitted_on_101;
     private Tracker_FormElement_Field_SubmittedOn&MockObject $submitted_on_102;
 
+    #[\Override]
     public function setUp(): void
     {
         $this->tracker_101 = TrackerTestBuilder::aTracker()->withId(self::FIRST_TRACKER_ID)->build();
@@ -236,11 +237,11 @@ final class MetadataUsageCheckerTest extends TestCase
 
         $fields_map = [
             [$this->tracker_101, 'aid', true, [
-                IntFieldBuilder::anIntField(1)->withReadPermission($this->user, true)->build(),
+                IntegerFieldBuilder::anIntField(1)->withReadPermission($this->user, true)->build(),
             ],
             ],
             [$this->tracker_102, 'aid', true, [
-                IntFieldBuilder::anIntField(2)->withReadPermission($this->user, true)->build(),
+                IntegerFieldBuilder::anIntField(2)->withReadPermission($this->user, true)->build(),
             ],
             ],
         ];

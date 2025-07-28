@@ -58,6 +58,7 @@ use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\StringFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Test\Stub\FormElement\Field\ArtifactLink\Type\RetrieveTypeFromShortnameStub;
+use Tuleap\Tracker\Test\Stub\Semantic\Status\RetrieveSemanticStatusStub;
 use Tuleap\Tracker\Test\Stub\Semantic\Title\RetrieveSemanticTitleFieldStub;
 use Tuleap\Tracker\Tracker;
 
@@ -68,10 +69,10 @@ final class ArtifactLinkFieldWithValueBuilderTest extends TestCase
     private const PROJECT_ICON = '🛰️';
     private const PROJECT_NAME = 'Parabema retransit';
 
+    #[\Override]
     protected function tearDown(): void
     {
         Tracker_ArtifactFactory::clearInstance();
-        TrackerSemanticStatus::clearInstances();
     }
 
     public function testItBuildsArtifactLinkField(): void
@@ -92,12 +93,9 @@ final class ArtifactLinkFieldWithValueBuilderTest extends TestCase
         $open_value   = ListStaticValueBuilder::aStaticValue('Open')->withId(12)->build();
         $closed_value = ListStaticValueBuilder::aStaticValue('Closed')->withId(13)->build();
         $status_field = ListStaticBindBuilder::aStaticBind(ListFieldBuilder::aListField(855)->inTracker($tracker)->build())
-            ->withBuildStaticValues([
-                $open_value->getId()   => $open_value,
-                $closed_value->getId() => $closed_value,
-            ])
+            ->withBuildStaticValues([$open_value, $closed_value])
             ->withDecorators([
-                $open_value->getId() => StaticBindDecoratorBuilder::withColor(ColorName::NEON_GREEN)->withValueId($open_value->getId())->build(),
+                StaticBindDecoratorBuilder::withColor(ColorName::NEON_GREEN)->withValueId($open_value->getId())->build(),
             ])
             ->build()
             ->getField();
@@ -113,8 +111,6 @@ final class ArtifactLinkFieldWithValueBuilderTest extends TestCase
             23 => $this->buildArtifact(23, $tracker, $user, $title_field, 'Artifact 23', $status_field, null),
         });
         Tracker_ArtifactFactory::setInstance($artifact_factory);
-
-        TrackerSemanticStatus::setInstance(new TrackerSemanticStatus($tracker, $status_field, [$open_value->getId()]), $tracker);
 
         $changeset = ChangesetValueArtifactLinkTestBuilder::aValue(12, ChangesetTestBuilder::aChangeset(852)->build(), $link_field)
             ->withForwardLinks([
@@ -132,6 +128,7 @@ final class ArtifactLinkFieldWithValueBuilderTest extends TestCase
         $builder = new ArtifactLinkFieldWithValueBuilder(
             $user,
             RetrieveSemanticTitleFieldStub::build()->withTitleField($tracker, $title_field),
+            RetrieveSemanticStatusStub::build()->withSemanticStatus(new TrackerSemanticStatus($tracker, $status_field, [$open_value->getId()])),
             RetrieveTypeFromShortnameStub::build()
                 ->withTypePresenter(ArtifactLinkField::TYPE_IS_CHILD, new TypeIsChildPresenter())
                 ->withTypePresenter('_covered_by', new TypePresenter('_covered_by', 'Covers', 'Covered by', true))

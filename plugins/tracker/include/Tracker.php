@@ -104,6 +104,9 @@ use TrackerFactory;
 use trackerPlugin;
 use TransitionFactory;
 use Tuleap\Color\ColorName;
+use Tuleap\Dashboard\Project\ProjectDashboardDao;
+use Tuleap\Dashboard\Project\ProjectDashboardRetriever;
+use Tuleap\Dashboard\Widget\DashboardWidgetDao;
 use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\DBTransactionExecutorWithConnection;
@@ -217,7 +220,8 @@ use Tuleap\Tracker\REST\Artifact\ChangesetValue\ArtifactLink\NewArtifactLinkChan
 use Tuleap\Tracker\REST\Artifact\ChangesetValue\ArtifactLink\NewArtifactLinkInitialChangesetValueBuilder;
 use Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributor;
 use Tuleap\Tracker\Semantic\Description\CachedSemanticDescriptionFieldRetriever;
-use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
+use Tuleap\Tracker\Semantic\Status\CachedSemanticStatusFieldRetriever;
+use Tuleap\Tracker\Semantic\Status\CachedSemanticStatusRetriever;
 use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatusFactory;
 use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
 use Tuleap\Tracker\Semantic\Tooltip\SemanticTooltip;
@@ -240,6 +244,7 @@ use Tuleap\Tracker\Workflow\SimpleMode\State\TransitionRetriever;
 use Tuleap\Tracker\Workflow\WorkflowMenuPresenterBuilder;
 use Tuleap\Tracker\Workflow\WorkflowUpdateChecker;
 use Tuleap\Tracker\XML\Updater\FieldChange\FieldChangeComputedXMLUpdater;
+use Tuleap\Widget\WidgetFactory;
 use UGroupDao;
 use UGroupManager;
 use User_ForgeUserGroupPermissionsDao;
@@ -958,6 +963,12 @@ class Tracker implements Tracker_Dispatchable_Interface
                     new ChangesetValueArtifactLinkDao(),
                     $artifact_factory,
                 );
+                $widget_factory          = new WidgetFactory(
+                    $this->getUserManager(),
+                    new \User_ForgeUserGroupPermissionsManager(new \User_ForgeUserGroupPermissionsDao()),
+                    \EventManager::instance(),
+                );
+                $widget_dao              = new DashboardWidgetDao($widget_factory);
                 $action                  = new CreateArtifactAction(
                     $this,
                     $this->getArtifactCreator(),
@@ -976,6 +987,8 @@ class Tracker implements Tracker_Dispatchable_Interface
                         new NewArtifactLinkChangesetValueBuilder($forward_links_retriever),
                         new NewArtifactLinkInitialChangesetValueBuilder(),
                     ),
+                    new ProjectDashboardRetriever(new ProjectDashboardDao($widget_dao)),
+                    ProjectManager::instance()
                 );
                 $action->process($layout, $request, $current_user);
                 break;
@@ -1865,7 +1878,12 @@ class Tracker implements Tracker_Dispatchable_Interface
 
     public function getTrackerSemanticManager(): TrackerSemanticManager
     {
-        return new TrackerSemanticManager(CachedSemanticDescriptionFieldRetriever::instance(), CachedSemanticTitleFieldRetriever::instance(), $this);
+        return new TrackerSemanticManager(
+            CachedSemanticDescriptionFieldRetriever::instance(),
+            CachedSemanticTitleFieldRetriever::instance(),
+            CachedSemanticStatusRetriever::instance(),
+            $this,
+        );
     }
 
     /**
@@ -3150,27 +3168,20 @@ class Tracker implements Tracker_Dispatchable_Interface
 
     /**
      * Say if the tracker as "status" defined
-     *
-     * @return bool
      */
-    public function hasSemanticsStatus()
+    public function hasSemanticsStatus(): bool
     {
-        return TrackerSemanticStatus::load($this)->getFieldId() ? true : false;
+        return $this->getStatusField() !== null;
     }
 
     /**
      * Return the status field, or null if no status field defined
      *
-     * @return Tracker_FormElement_Field_List|null the status field, or null if not defined
+     * @return ?Tracker_FormElement_Field_List the status field, or null if not defined
      */
-    public function getStatusField()
+    public function getStatusField(): ?Tracker_FormElement_Field_List
     {
-        $status_field = TrackerSemanticStatus::load($this)->getField();
-        if ($status_field) {
-            return $status_field;
-        } else {
-            return null;
-        }
+        return CachedSemanticStatusFieldRetriever::instance()->fromTracker($this);
     }
 
     /**

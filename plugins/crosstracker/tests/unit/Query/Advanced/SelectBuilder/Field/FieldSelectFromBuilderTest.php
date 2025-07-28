@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Field;
 
+use ParagonIE\EasyDB\EasyDB;
 use PFUser;
 use Tuleap\CrossTracker\Query\Advanced\DuckTypedField\FieldTypeRetrieverWrapper;
 use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Field\Date\DateSelectFromBuilder;
@@ -39,7 +40,7 @@ use Tuleap\Tracker\Test\Builders\Fields\ArtifactLinkFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\DateFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\FileFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\FloatFieldBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\IntFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\IntegerFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListUserBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListUserGroupBindBuilder;
@@ -61,6 +62,7 @@ final class FieldSelectFromBuilderTest extends TestCase
     private Tracker $first_tracker;
     private Tracker $second_tracker;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->user           = UserTestBuilder::buildWithId(133);
@@ -71,6 +73,8 @@ final class FieldSelectFromBuilderTest extends TestCase
     private function getSelectFrom(
         RetrieveUsedFieldsStub $fields_retriever,
     ): IProvideParametrizedSelectAndFromSQLFragments {
+        $tuleap_db = $this->createStub(EasyDB::class);
+        $tuleap_db->method('escapeIdentifier');
         $builder = new FieldSelectFromBuilder(
             $fields_retriever,
             new FieldTypeRetrieverWrapper(RetrieveFieldTypeStub::withDetectionOfType()),
@@ -78,12 +82,12 @@ final class FieldSelectFromBuilderTest extends TestCase
                 [self::FIRST_FIELD_ID, self::SECOND_FIELD_ID],
                 FieldPermissionType::PERMISSION_READ,
             ),
-            new DateSelectFromBuilder(),
-            new TextSelectFromBuilder(),
-            new NumericSelectFromBuilder(),
-            new StaticListSelectFromBuilder(),
-            new UGroupListSelectFromBuilder(),
-            new UserListSelectFromBuilder()
+            new DateSelectFromBuilder($tuleap_db),
+            new TextSelectFromBuilder($tuleap_db),
+            new NumericSelectFromBuilder($tuleap_db),
+            new StaticListSelectFromBuilder($tuleap_db),
+            new UGroupListSelectFromBuilder($tuleap_db),
+            new UserListSelectFromBuilder($tuleap_db)
         );
 
         return $builder->getSelectFrom(
@@ -159,7 +163,7 @@ final class FieldSelectFromBuilderTest extends TestCase
     public function testItReturnsSQLForNumericField(): void
     {
         $fields_retriever = RetrieveUsedFieldsStub::withFields(
-            IntFieldBuilder::anIntField(self::FIRST_FIELD_ID)
+            IntegerFieldBuilder::anIntField(self::FIRST_FIELD_ID)
                     ->withName(self::FIELD_NAME)
                     ->inTracker($this->first_tracker)
                     ->withReadPermission($this->user, true)

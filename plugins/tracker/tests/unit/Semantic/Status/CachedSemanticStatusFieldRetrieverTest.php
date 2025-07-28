@@ -35,7 +35,7 @@ final class CachedSemanticStatusFieldRetrieverTest extends TestCase
     {
         $tracker   = TrackerTestBuilder::aTracker()->withId(12)->build();
         $field     = ListFieldBuilder::aListField(1002)->inTracker($tracker)->build();
-        $retriever = RetrieveSemanticStatusFieldStub::withField($field);
+        $retriever = RetrieveSemanticStatusFieldStub::build()->withField($field);
 
         $cache = new CachedSemanticStatusFieldRetriever($retriever);
 

@@ -49,6 +49,7 @@ use Tuleap\Artidoc\Document\Field\List\ListFieldWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\List\StaticListFieldWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\List\UserGroupListWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\List\UserListFieldWithValueBuilder;
+use Tuleap\Artidoc\Document\Field\Numeric\NumericFieldWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\SuitableFieldRetriever;
 use Tuleap\Artidoc\Document\Tracker\NoSemanticDescriptionFault;
 use Tuleap\Artidoc\Document\Tracker\NoSemanticTitleFault;
@@ -101,10 +102,12 @@ use Tuleap\REST\AuthenticatedResource;
 use Tuleap\REST\Header;
 use Tuleap\REST\I18NRestException;
 use Tuleap\Tracker\Admin\ArtifactLinksUsageDao;
+use Tuleap\Tracker\Artifact\Dao\PriorityDao;
 use Tuleap\Tracker\Artifact\FileUploadDataProvider;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
 use Tuleap\Tracker\Semantic\Description\CachedSemanticDescriptionFieldRetriever;
+use Tuleap\Tracker\Semantic\Status\CachedSemanticStatusRetriever;
 use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldDetector;
 use Tuleap\Tracker\Workflow\PostAction\FrozenFields\FrozenFieldsDao;
@@ -569,8 +572,10 @@ final class ArtidocResource extends AuthenticatedResource
                 new ArtifactLinkFieldWithValueBuilder(
                     $user,
                     $title_field_retriever,
+                    CachedSemanticStatusRetriever::instance(),
                     new TypePresenterFactory(new TypeDao(), new ArtifactLinksUsageDao()),
                 ),
+                new NumericFieldWithValueBuilder(new PriorityDao()),
             )
         );
     }

@@ -142,7 +142,7 @@ class ArtifactLinkField extends Tracker_FormElement_Field
         int $changeset_id,
         mixed $value,
         ?Tracker_Report $report = null,
-        ?int $from_aid = null,
+        ?array $redirection_parameters = null,
     ): string {
         $arr    = [];
         $values = $this->getChangesetValues($this->getCurrentUser(), $changeset_id);
@@ -1862,6 +1862,7 @@ class ArtifactLinkField extends Tracker_FormElement_Field
         return new FieldDataBuilder();
     }
 
+    #[\Override]
     public function getDeleteCriteriaValueDAO(): DeleteReportCriteriaValue
     {
         return new CriteriaAlphaNumValueDAO();
@@ -1872,16 +1873,19 @@ class ArtifactLinkField extends Tracker_FormElement_Field
         return $this->getProperty('can_edit_reverse_links') === 1;
     }
 
+    #[\Override]
     protected function getSearchSpecificPropertiesDao(): ?SearchSpecificProperties
     {
         return new ArtifactLinkFieldSpecificPropertiesDAO();
     }
 
+    #[\Override]
     protected function getSaveSpecificPropertiesDao(): ?SaveSpecificFieldProperties
     {
         return new ArtifactLinkFieldSpecificPropertiesDAO();
     }
 
+    #[\Override]
     protected function getDuplicateSpecificPropertiesDao(): ?DuplicateSpecificProperties
     {
         return new ArtifactLinkFieldSpecificPropertiesDAO();

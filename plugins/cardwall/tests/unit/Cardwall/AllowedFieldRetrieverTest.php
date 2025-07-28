@@ -27,7 +27,7 @@ use Tracker_FormElement_Field;
 use Tracker_FormElementFactory;
 use Tuleap\Cardwall\Semantic\FieldUsedInSemanticObjectChecker;
 use Tuleap\Test\PHPUnit\TestCase;
-use Tuleap\Tracker\Test\Builders\Fields\IntFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\IntegerFieldBuilder;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AllowedFieldRetrieverTest extends TestCase
@@ -37,13 +37,14 @@ final class AllowedFieldRetrieverTest extends TestCase
     private AllowedFieldRetriever $allowed_field_retriever;
     private Tracker_FormElementFactory&MockObject $form_element_factory;
 
+    #[\Override]
     public function setUp(): void
     {
         $this->checker                 = $this->createMock(FieldUsedInSemanticObjectChecker::class);
         $this->form_element_factory    = $this->createMock(Tracker_FormElementFactory::class);
         $this->allowed_field_retriever = new AllowedFieldRetriever($this->form_element_factory, $this->checker);
 
-        $this->field = IntFieldBuilder::anIntField(153)->build();
+        $this->field = IntegerFieldBuilder::anIntField(153)->build();
     }
 
     public function testReturnsAndEmptyArrayIfFieldIsNotUsedForBackgroundSemantic(): void

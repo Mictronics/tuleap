@@ -31,8 +31,13 @@ use ProjectManager;
 use Tracker_Artifact_Redirect;
 use Tracker_ArtifactFactory;
 use Tracker_FormElementFactory;
+use Tuleap\Dashboard\Project\ProjectDashboard;
+use Tuleap\Dashboard\Project\ProjectDashboardRetriever;
+use Tuleap\Option\Option;
+use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
+use Tuleap\Test\Stubs\ProjectByIDFactoryStub;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Artifact\ChangesetValue\ArtifactLink\CollectionOfForwardLinks;
 use Tuleap\Tracker\Artifact\ChangesetValue\BuildInitialChangesetValuesContainer;
@@ -62,7 +67,10 @@ final class CreateArtifactActionTest extends TestCase
     private ArtifactLinkField $parent_art_link_field;
     private ArtifactLinkField $art_link_field;
     private Tracker_Artifact_Redirect $redirect;
+    private ProjectDashboardRetriever&MockObject $dashboard_retriever;
+    private \Project $project;
 
+    #[\Override]
     protected function setUp(): void
     {
         $event_manager = $this->createMock(EventManager::class);
@@ -80,10 +88,13 @@ final class CreateArtifactActionTest extends TestCase
         $this->new_artifact->method('getId')->willReturn(123);
 
         $this->tracker->method('getId')->willReturn($tracker_id);
+        $this->project = ProjectTestBuilder::aProject()->build();
 
         $this->parent_tracker        = TrackerTestBuilder::aTracker()->withId(666)->build();
         $this->parent_art_link_field = ArtifactLinkFieldBuilder::anArtifactLinkField(1001)->build();
         $this->art_link_field        = ArtifactLinkFieldBuilder::anArtifactLinkField(333)->build();
+
+        $this->dashboard_retriever = $this->createMock(ProjectDashboardRetriever::class);
 
         $this->action = new class (
             $this->tracker,
@@ -97,12 +108,16 @@ final class CreateArtifactActionTest extends TestCase
                 RetrieveTrackerStub::withTracker($this->parent_tracker),
             ),
             $this->createStub(BuildInitialChangesetValuesContainer::class),
+            $this->dashboard_retriever,
+            ProjectByIDFactoryStub::buildWith($this->project)
         ) extends CreateArtifactAction {
+            #[\Override]
             public function redirectToParentCreationIfNeeded(Artifact $artifact, PFUser $current_user, Tracker_Artifact_Redirect $redirect, Codendi_Request $request): void
             {
                 parent::redirectToParentCreationIfNeeded($artifact, $current_user, $redirect, $request);
             }
 
+            #[\Override]
             public function redirectUrlAfterArtifactSubmission(Codendi_Request $request, $tracker_id, $artifact_id): Tracker_Artifact_Redirect
             {
                 return parent::redirectUrlAfterArtifactSubmission($request, $tracker_id, $artifact_id);
@@ -113,6 +128,7 @@ final class CreateArtifactActionTest extends TestCase
         $this->redirect = new Tracker_Artifact_Redirect();
     }
 
+    #[\Override]
     protected function tearDown(): void
     {
         EventManager::clearInstance();
@@ -161,6 +177,18 @@ final class CreateArtifactActionTest extends TestCase
         $artifact_id  = 66;
         $redirect_uri = $this->getRedirectUrlFor($request_data, $tracker_id, $artifact_id);
         $this->assertStringStartsWith('/my/?', $redirect_uri->toUrl());
+        $this->assertUriHasArgument($redirect_uri->toUrl(), 'dashboard_id', '9');
+    }
+
+    public function testItRedirectsToProjectDashboard(): void
+    {
+        $request_data      = ['project-dashboard-id' => '9'];
+        $tracker_id        = 73;
+        $artifact_id       = 66;
+        $project_dashboard = new ProjectDashboard(1, (int) $this->project->getID(), 'My dashboard');
+        $this->dashboard_retriever->method('getProjectDashboardById')->willReturn(Option::fromValue($project_dashboard));
+        $redirect_uri = $this->getRedirectUrlFor($request_data, $tracker_id, $artifact_id);
+        $this->assertStringStartsWith('/projects/testproject/?', $redirect_uri->toUrl());
         $this->assertUriHasArgument($redirect_uri->toUrl(), 'dashboard_id', '9');
     }
 
@@ -223,7 +251,10 @@ final class CreateArtifactActionTest extends TestCase
             $this->createMock(ArtifactLinker::class),
             new ParentInHierarchyRetriever(SearchParentTrackerStub::withNoParent(), RetrieveTrackerStub::withoutTracker()),
             $this->createStub(BuildInitialChangesetValuesContainer::class),
+            $this->dashboard_retriever,
+            ProjectByIDFactoryStub::buildWith($this->project)
         ) extends CreateArtifactAction {
+            #[\Override]
             public function redirectToParentCreationIfNeeded(Artifact $artifact, PFUser $current_user, Tracker_Artifact_Redirect $redirect, Codendi_Request $request): void
             {
                 parent::redirectToParentCreationIfNeeded($artifact, $current_user, $redirect, $request);
@@ -268,7 +299,10 @@ final class CreateArtifactActionTest extends TestCase
             $artifact_linker,
             new ParentInHierarchyRetriever(SearchParentTrackerStub::withNoParent(), RetrieveTrackerStub::withoutTracker()),
             $this->createStub(BuildInitialChangesetValuesContainer::class),
+            $this->dashboard_retriever,
+            ProjectByIDFactoryStub::buildWith($this->project)
         ) extends CreateArtifactAction {
+            #[\Override]
             public function associateImmediatelyIfNeeded(Artifact $new_artifact, Codendi_Request $request, PFUser $current_user): void
             {
                 parent::associateImmediatelyIfNeeded($new_artifact, $request, $current_user);

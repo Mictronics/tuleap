@@ -62,7 +62,12 @@ final class ArtifactContentUpdaterTest extends TestCase
     private StringField $updatable_title_field;
     private TextField $readonly_description_field;
     private TextField $updatable_description_field;
+    private RetrieveArtifactStub $artifact_retriever;
+    private GetFileUploadDataStub $file_upload_data_provider;
+    private RetrieveSemanticDescriptionFieldStub $retrieve_description_field;
+    private RetrieveSemanticTitleFieldStub $retrieve_title_field;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->user = UserTestBuilder::buildWithDefaults();
@@ -76,22 +81,37 @@ final class ArtifactContentUpdaterTest extends TestCase
 
         $this->readonly_description_field  = $this->getTextField(self::DESCRIPTION_ID, false);
         $this->updatable_description_field = $this->getTextField(self::DESCRIPTION_ID, true);
+
+        $artifact = ArtifactTestBuilder::anArtifact(self::ARTIFACT_ID)->inTracker($this->tracker)
+            ->userCanView($this->user)
+            ->build();
+
+        $this->artifact_retriever         = RetrieveArtifactStub::withArtifacts($artifact);
+        $this->file_upload_data_provider  = GetFileUploadDataStub::withoutField();
+        $this->retrieve_description_field = RetrieveSemanticDescriptionFieldStub::build()->withDescriptionField($this->updatable_description_field);
+        $this->retrieve_title_field       = RetrieveSemanticTitleFieldStub::build()->withTitleField($this->tracker, $this->updatable_title_field);
+    }
+
+    private function getUpdater(UpdateLevelStub $update_level, HandlePUTStub $update_artifact): ArtifactContentUpdater
+    {
+        return new ArtifactContentUpdater(
+            $this->artifact_retriever,
+            $this->file_upload_data_provider,
+            $update_level,
+            $update_artifact,
+            $this->retrieve_description_field,
+            $this->retrieve_title_field,
+            $this->user,
+        );
     }
 
     public function testFaultWhenArtifactCannotBeFound(): void
     {
-        $update_artifact = HandlePUTStub::build();
-        $update_level    = UpdateLevelStub::build();
+        $update_artifact          = HandlePUTStub::build();
+        $update_level             = UpdateLevelStub::build();
+        $this->artifact_retriever = RetrieveArtifactStub::withNoArtifact();
 
-        $updater = new ArtifactContentUpdater(
-            RetrieveArtifactStub::withNoArtifact(),
-            GetFileUploadDataStub::withoutField(),
-            $update_level,
-            $update_artifact,
-            RetrieveSemanticDescriptionFieldStub::withNoField(),
-            RetrieveSemanticTitleFieldStub::build(),
-            $this->user,
-        );
+        $updater = $this->getUpdater($update_level, $update_artifact);
 
         $result = $updater->updateArtifactContent(
             $this->section_identifier,
@@ -112,22 +132,11 @@ final class ArtifactContentUpdaterTest extends TestCase
 
     public function testFaultWhenNoTitleField(): void
     {
-        $update_artifact = HandlePUTStub::build();
-        $update_level    = UpdateLevelStub::build();
+        $update_artifact            = HandlePUTStub::build();
+        $update_level               = UpdateLevelStub::build();
+        $this->retrieve_title_field = RetrieveSemanticTitleFieldStub::build();
 
-        $artifact = ArtifactTestBuilder::anArtifact(self::ARTIFACT_ID)->inTracker($this->tracker)
-            ->userCanView($this->user)
-            ->build();
-
-        $updater = new ArtifactContentUpdater(
-            RetrieveArtifactStub::withArtifacts($artifact),
-            GetFileUploadDataStub::withoutField(),
-            $update_level,
-            $update_artifact,
-            RetrieveSemanticDescriptionFieldStub::withNoField(),
-            RetrieveSemanticTitleFieldStub::build(),
-            $this->user,
-        );
+        $updater = $this->getUpdater($update_level, $update_artifact);
 
         $result = $updater->updateArtifactContent(
             $this->section_identifier,
@@ -150,20 +159,9 @@ final class ArtifactContentUpdaterTest extends TestCase
     {
         $update_artifact = HandlePUTStub::build();
         $update_level    = UpdateLevelStub::build();
+        $this->retrieve_title_field->withTitleField($this->tracker, $this->readonly_title_field);
 
-        $artifact = ArtifactTestBuilder::anArtifact(self::ARTIFACT_ID)->inTracker($this->tracker)
-            ->userCanView($this->user)
-            ->build();
-
-        $updater = new ArtifactContentUpdater(
-            RetrieveArtifactStub::withArtifacts($artifact),
-            GetFileUploadDataStub::withoutField(),
-            $update_level,
-            $update_artifact,
-            RetrieveSemanticDescriptionFieldStub::withNoField(),
-            RetrieveSemanticTitleFieldStub::build()->withTitleField($this->tracker, $this->readonly_title_field),
-            $this->user,
-        );
+        $updater = $this->getUpdater($update_level, $update_artifact);
 
         $result = $updater->updateArtifactContent(
             $this->section_identifier,
@@ -184,22 +182,11 @@ final class ArtifactContentUpdaterTest extends TestCase
 
     public function testFaultWhenNoDescriptionField(): void
     {
-        $update_artifact = HandlePUTStub::build();
-        $update_level    = UpdateLevelStub::build();
+        $update_artifact                  = HandlePUTStub::build();
+        $update_level                     = UpdateLevelStub::build();
+        $this->retrieve_description_field = RetrieveSemanticDescriptionFieldStub::build();
 
-        $artifact = ArtifactTestBuilder::anArtifact(self::ARTIFACT_ID)->inTracker($this->tracker)
-            ->userCanView($this->user)
-            ->build();
-
-        $updater = new ArtifactContentUpdater(
-            RetrieveArtifactStub::withArtifacts($artifact),
-            GetFileUploadDataStub::withoutField(),
-            $update_level,
-            $update_artifact,
-            RetrieveSemanticDescriptionFieldStub::withNoField(),
-            RetrieveSemanticTitleFieldStub::build()->withTitleField($this->tracker, $this->updatable_title_field),
-            $this->user,
-        );
+        $updater = $this->getUpdater($update_level, $update_artifact);
 
         $result = $updater->updateArtifactContent(
             $this->section_identifier,
@@ -222,20 +209,9 @@ final class ArtifactContentUpdaterTest extends TestCase
     {
         $update_artifact = HandlePUTStub::build();
         $update_level    = UpdateLevelStub::build();
+        $this->retrieve_description_field->withDescriptionField($this->readonly_description_field);
 
-        $artifact = ArtifactTestBuilder::anArtifact(self::ARTIFACT_ID)->inTracker($this->tracker)
-            ->userCanView($this->user)
-            ->build();
-
-        $updater = new ArtifactContentUpdater(
-            RetrieveArtifactStub::withArtifacts($artifact),
-            GetFileUploadDataStub::withoutField(),
-            $update_level,
-            $update_artifact,
-            RetrieveSemanticDescriptionFieldStub::withTextField($this->readonly_description_field),
-            RetrieveSemanticTitleFieldStub::build()->withTitleField($this->tracker, $this->updatable_title_field),
-            $this->user,
-        );
+        $updater = $this->getUpdater($update_level, $update_artifact);
 
         $result = $updater->updateArtifactContent(
             $this->section_identifier,
@@ -259,19 +235,7 @@ final class ArtifactContentUpdaterTest extends TestCase
         $update_artifact = HandlePUTStub::buildWithException();
         $update_level    = UpdateLevelStub::build();
 
-        $artifact = ArtifactTestBuilder::anArtifact(self::ARTIFACT_ID)->inTracker($this->tracker)
-            ->userCanView($this->user)
-            ->build();
-
-        $updater = new ArtifactContentUpdater(
-            RetrieveArtifactStub::withArtifacts($artifact),
-            GetFileUploadDataStub::withoutField(),
-            $update_level,
-            $update_artifact,
-            RetrieveSemanticDescriptionFieldStub::withTextField($this->updatable_description_field),
-            RetrieveSemanticTitleFieldStub::build()->withTitleField($this->tracker, $this->updatable_title_field),
-            $this->user,
-        );
+        $updater = $this->getUpdater($update_level, $update_artifact);
 
         $this->expectException(RestException::class);
 
@@ -295,19 +259,7 @@ final class ArtifactContentUpdaterTest extends TestCase
         $update_artifact = HandlePUTStub::build();
         $update_level    = UpdateLevelStub::build();
 
-        $artifact = ArtifactTestBuilder::anArtifact(self::ARTIFACT_ID)->inTracker($this->tracker)
-            ->userCanView($this->user)
-            ->build();
-
-        $updater = new ArtifactContentUpdater(
-            RetrieveArtifactStub::withArtifacts($artifact),
-            GetFileUploadDataStub::withoutField(),
-            $update_level,
-            $update_artifact,
-            RetrieveSemanticDescriptionFieldStub::withTextField($this->updatable_description_field),
-            RetrieveSemanticTitleFieldStub::build()->withTitleField($this->tracker, $this->updatable_title_field),
-            $this->user,
-        );
+        $updater = $this->getUpdater($update_level, $update_artifact);
 
         $result = $updater->updateArtifactContent(
             $this->section_identifier,
@@ -342,20 +294,9 @@ final class ArtifactContentUpdaterTest extends TestCase
     {
         $update_artifact = HandlePUTStub::build();
         $update_level    = UpdateLevelStub::build();
+        $this->retrieve_title_field->withTitleField($this->tracker, $this->getTextField(self::TITLE_ID, true));
 
-        $artifact = ArtifactTestBuilder::anArtifact(self::ARTIFACT_ID)->inTracker($this->tracker)
-            ->userCanView($this->user)
-            ->build();
-
-        $updater = new ArtifactContentUpdater(
-            RetrieveArtifactStub::withArtifacts($artifact),
-            GetFileUploadDataStub::withoutField(),
-            $update_level,
-            $update_artifact,
-            RetrieveSemanticDescriptionFieldStub::withTextField($this->updatable_description_field),
-            RetrieveSemanticTitleFieldStub::build()->withTitleField($this->tracker, $this->getTextField(self::TITLE_ID, true)),
-            $this->user,
-        );
+        $updater = $this->getUpdater($update_level, $update_artifact);
 
         $result = $updater->updateArtifactContent(
             $this->section_identifier,
@@ -394,24 +335,13 @@ final class ArtifactContentUpdaterTest extends TestCase
 
     public function testHappyPathPayloadWhenUpdatableAttachmentField(): void
     {
-        $update_artifact = HandlePUTStub::build();
-        $update_level    = UpdateLevelStub::build();
-
-        $artifact = ArtifactTestBuilder::anArtifact(self::ARTIFACT_ID)->inTracker($this->tracker)
-            ->userCanView($this->user)
-            ->build();
-
-        $updater = new ArtifactContentUpdater(
-            RetrieveArtifactStub::withArtifacts($artifact),
-            GetFileUploadDataStub::withField(
-                FileFieldBuilder::aFileField(self::FILES_ID)->build(),
-            ),
-            $update_level,
-            $update_artifact,
-            RetrieveSemanticDescriptionFieldStub::withTextField($this->updatable_description_field),
-            RetrieveSemanticTitleFieldStub::build()->withTitleField($this->tracker, $this->updatable_title_field),
-            $this->user,
+        $update_artifact                 = HandlePUTStub::build();
+        $update_level                    = UpdateLevelStub::build();
+        $this->file_upload_data_provider = GetFileUploadDataStub::withField(
+            FileFieldBuilder::aFileField(self::FILES_ID)->build(),
         );
+
+        $updater = $this->getUpdater($update_level, $update_artifact);
 
         $result = $updater->updateArtifactContent(
             $this->section_identifier,
