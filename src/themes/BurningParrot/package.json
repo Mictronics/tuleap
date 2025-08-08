@@ -9,9 +9,11 @@
     "@tuleap/burningparrot-sign-in": "workspace:*",
     "@tuleap/cross-ref-badges": "workspace:*",
     "@tuleap/list-picker": "workspace:*",
+    "@tuleap/pie-chart": "workspace:^",
     "@tuleap/project-background": "workspace:*",
     "@tuleap/tlp-badge": "workspace:^",
     "@tuleap/tlp-dropdown": "workspace:*",
+    "@tuleap/tlp-popovers": "workspace:^",
     "@tuleap/tlp-swatch-colors": "workspace:*",
     "dragula": "^3.7.2"
   }

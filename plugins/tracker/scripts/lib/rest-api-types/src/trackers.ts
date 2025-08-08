@@ -18,23 +18,26 @@
  */
 
 import type {
+    ArtifactIdFieldIdentifier,
+    ArtifactIdInTrackerFieldIdentifier,
     ColorName,
     ColumnIdentifier,
+    ComputedFieldIdentifier,
     CreatePermission,
     DateFieldIdentifier,
     FieldSetIdentifier,
+    FloatFieldIdentifier,
+    IntFieldIdentifier,
+    LastUpdateByFieldIdentifier,
     LastUpdateDateFieldIdentifier,
     PermissionFieldIdentifier,
+    PriorityFieldIdentifier,
     ReadPermission,
     StringFieldIdentifier,
     SubmissionDateFieldIdentifier,
+    SubmittedByFieldIdentifier,
+    TextFieldIdentifier,
     UpdatePermission,
-    ArtifactIdFieldIdentifier,
-    ArtifactIdInTrackerFieldIdentifier,
-    ComputedFieldIdentifier,
-    FloatFieldIdentifier,
-    IntFieldIdentifier,
-    PriorityFieldIdentifier,
 } from "@tuleap/plugin-tracker-constants";
 import type { ProjectReference } from "@tuleap/core-rest-api-types";
 
@@ -63,6 +66,10 @@ export interface UnknownFieldStructure extends BaseFieldStructure {
 
 interface StringFieldStructure extends BaseFieldStructure {
     readonly type: StringFieldIdentifier;
+}
+
+interface TextFieldStructure extends BaseFieldStructure {
+    readonly type: TextFieldIdentifier;
 }
 
 export interface CommonDateFieldStructure extends BaseFieldStructure {
@@ -103,6 +110,10 @@ export interface NumericFieldStructure extends BaseFieldStructure {
         | ComputedFieldIdentifier;
 }
 
+export interface UserFieldStructure extends BaseFieldStructure {
+    readonly type: SubmittedByFieldIdentifier | LastUpdateByFieldIdentifier;
+}
+
 export type StructureFields =
     | UnknownFieldStructure
     | ArtifactLinkFieldStructure
@@ -112,7 +123,9 @@ export type StructureFields =
     | OpenListFieldStructure
     | PermissionsOnArtifactFieldStructure
     | StringFieldStructure
-    | NumericFieldStructure;
+    | TextFieldStructure
+    | NumericFieldStructure
+    | UserFieldStructure;
 
 export interface StructureFormat {
     readonly id: number;
@@ -123,6 +136,9 @@ export type TrackerProjectRepresentation = ProjectReference;
 
 export type SemanticsRepresentation = {
     readonly title?: {
+        readonly field_id: number;
+    };
+    readonly description?: {
         readonly field_id: number;
     };
 };

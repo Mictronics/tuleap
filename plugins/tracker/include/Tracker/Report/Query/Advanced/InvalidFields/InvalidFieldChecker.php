@@ -55,30 +55,30 @@ final readonly class InvalidFieldChecker
     public function checkFieldIsValidForComparison(Comparison $comparison, \Tracker_FormElement_Field $field): void
     {
         match ($field::class) {
-            \Tuleap\Tracker\FormElement\Field\Float\FloatField::class     => $this->float_field_checker->checkFieldIsValidForComparison($comparison, $field),
-            \Tuleap\Tracker\FormElement\Field\Integer\IntegerField::class => $this->int_field_checker->checkFieldIsValidForComparison($comparison, $field),
+            \Tuleap\Tracker\FormElement\Field\Float\FloatField::class             => $this->float_field_checker->checkFieldIsValidForComparison($comparison, $field),
+            \Tuleap\Tracker\FormElement\Field\Integer\IntegerField::class         => $this->int_field_checker->checkFieldIsValidForComparison($comparison, $field),
             \Tuleap\Tracker\FormElement\Field\String\StringField::class,
-            \Tuleap\Tracker\FormElement\Field\Text\TextField::class       => $this->text_field_checker->checkFieldIsValidForComparison($comparison, $field),
+            \Tuleap\Tracker\FormElement\Field\Text\TextField::class               => $this->text_field_checker->checkFieldIsValidForComparison($comparison, $field),
             \Tracker_FormElement_Field_Date::class,
             \Tracker_FormElement_Field_LastUpdateDate::class,
-            \Tracker_FormElement_Field_SubmittedOn::class                 => $this->date_field_checker->checkFieldIsValidForComparison($comparison, $field),
-            \Tracker_FormElement_Field_File::class                        => $this->file_field_checker->checkFieldIsValidForComparison($comparison, $field),
+            \Tuleap\Tracker\FormElement\Field\SubmittedOn\SubmittedOnField::class => $this->date_field_checker->checkFieldIsValidForComparison($comparison, $field),
+            \Tracker_FormElement_Field_File::class                                => $this->file_field_checker->checkFieldIsValidForComparison($comparison, $field),
             \Tracker_FormElement_Field_Radiobutton::class,
             \Tracker_FormElement_Field_Checkbox::class,
             \Tracker_FormElement_Field_MultiSelectbox::class,
-            \Tracker_FormElement_Field_Selectbox::class                   => $this->list_field_checker->checkFieldIsValidForComparison($comparison, $field),
+            \Tracker_FormElement_Field_Selectbox::class                           => $this->list_field_checker->checkFieldIsValidForComparison($comparison, $field),
             \Tracker_FormElement_Field_SubmittedBy::class,
-            \Tracker_FormElement_Field_LastModifiedBy::class        => $this->submitter_checker->checkFieldIsValidForComparison($comparison, $field),
-            \Tracker_FormElement_Field_OpenList::class => $this->checkOpenList($comparison, $field),
+            \Tracker_FormElement_Field_LastModifiedBy::class                      => $this->submitter_checker->checkFieldIsValidForComparison($comparison, $field),
+            \Tracker_FormElement_Field_OpenList::class                            => $this->checkOpenList($comparison, $field),
             \Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField::class,
             \Tracker_FormElement_Field_PermissionsOnArtifact::class,
-            \Tracker_FormElement_Field_ArtifactId::class,
-            \Tracker_FormElement_Field_PerTrackerArtifactId::class,
+            \Tuleap\Tracker\FormElement\Field\ArtifactId\ArtifactIdField::class,
+            \Tuleap\Tracker\FormElement\Field\PerTrackerArtifactId\PerTrackerArtifactIdField::class,
             \Tracker_FormElement_Field_CrossReferences::class,
             \Tracker_FormElement_Field_Burndown::class,
-            \Tracker_FormElement_Field_Computed::class,
-            \Tracker_FormElement_Field_Priority::class => throw new FieldIsNotSupportedAtAllException($field),
-            default => throw new ExternalFieldNotSupportedException()
+            \Tuleap\Tracker\FormElement\Field\Computed\ComputedField::class,
+            \Tuleap\Tracker\FormElement\Field\Priority\PriorityField::class       => throw new FieldIsNotSupportedAtAllException($field),
+            default                                                         => throw new ExternalFieldNotSupportedException()
         };
     }
 

@@ -18,24 +18,22 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
+declare(strict_types=1);
+
 namespace Tuleap\TestManagement\Step;
 
-class Step
+/**
+ * @psalm-immutable
+ */
+final readonly class Step
 {
-    /** @var int */
-    private $id;
-    /** @var string */
-    private $description;
-    /** @var string */
-    private $description_format;
-    /** @var string|null */
-    private $expected_results;
-    /** @var string */
-    private $expected_results_format;
-    /** @var string */
-    private $step_type;
-    /** @var int */
-    private $rank;
+    private int $id;
+    private string $description;
+    private string $description_format;
+    private string $expected_results;
+    private string $expected_results_format;
+    private string $step_type;
+    private int $rank;
 
     public function __construct(
         int $id,
@@ -55,62 +53,42 @@ class Step
         $this->step_type               = $step_type;
     }
 
-    /**
-     * @return int
-     */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
 
-    /**
-     * @return string
-     */
-    public function getDescription()
+    public function getDescription(): string
     {
         return $this->description;
     }
 
-    /**
-     * @return string
-     */
-    public function getDescriptionFormat()
+    public function getDescriptionFormat(): string
     {
         return $this->description_format;
     }
 
-    /**
-     * @return string|null
-     */
-    public function getExpectedResults()
+    public function getExpectedResults(): ?string
     {
         return $this->expected_results;
     }
 
-    /**
-     * @return string
-     */
-    public function getExpectedResultsFormat()
+    public function getExpectedResultsFormat(): string
     {
         return $this->expected_results_format;
     }
 
-    /**
-     * @return string
-     */
-    public function getStepType()
+    public function getStepType(): string
     {
         return $this->step_type;
     }
 
-    /**
-     * @return int
-     */
-    public function getRank()
+    public function getRank(): int
     {
         return $this->rank;
     }
 
+    #[\Override]
     public function __toString(): string
     {
         return json_encode(

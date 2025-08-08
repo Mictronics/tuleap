@@ -22,15 +22,26 @@ declare(strict_types=1);
 
 namespace Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\Special\PrettyTitle;
 
+use LogicException;
+use PFUser;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Representations\PrettyTitleRepresentation;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\SelectedValue;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\SelectedValuesCollection;
 use Tuleap\CrossTracker\REST\v1\Representation\CrossTrackerSelectedRepresentation;
 use Tuleap\CrossTracker\REST\v1\Representation\CrossTrackerSelectedType;
+use Tuleap\Tracker\Artifact\RetrieveArtifact;
+use Tuleap\Tracker\Semantic\Title\RetrieveSemanticTitleField;
 
-final readonly class PrettyTitleResultBuilder
+final readonly class PrettyTitleResultBuilder implements BuildResultPrettyTitle
 {
-    public function getResult(array $select_results): SelectedValuesCollection
+    public function __construct(
+        private RetrieveArtifact $retrieve_artifact,
+        private RetrieveSemanticTitleField $semantic_retriever,
+    ) {
+    }
+
+    #[\Override]
+    public function getResult(array $select_results, PFUser $user): SelectedValuesCollection
     {
         $values = [];
 
@@ -43,6 +54,17 @@ final readonly class PrettyTitleResultBuilder
             $tracker_name  = $result['@pretty_title.tracker'];
             $tracker_color = $result['@pretty_title.color'];
             $title         = $result['@pretty_title'];
+
+            $artifact = $this->retrieve_artifact->getArtifactById($id);
+            if ($artifact === null) {
+                throw new LogicException("Artifact #$id not found");
+            }
+
+            $field = $this->semantic_retriever->fromTracker($artifact->getTracker());
+
+            if ($field !== null) {
+                $title = ! $field->userCanRead($user) ? '' : $title;
+            }
 
             $values[$id] = new SelectedValue('@pretty_title', new PrettyTitleRepresentation($tracker_name, $tracker_color, $id, $title ?? ''));
         }

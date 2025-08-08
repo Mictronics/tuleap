@@ -35,4 +35,5 @@ enum CrossTrackerSelectedType: string
     case TYPE_TRACKER         = 'tracker';
     case TYPE_PRETTY_TITLE    = 'pretty_title';
     case TYPE_ARTIFACT        = 'artifact';
+    case LINK_TYPE            = 'link_type';
 }

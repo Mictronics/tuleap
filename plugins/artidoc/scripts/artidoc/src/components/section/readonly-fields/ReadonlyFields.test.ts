@@ -28,12 +28,13 @@ import {
     DISPLAY_TYPE_COLUMN,
 } from "@/sections/readonly-fields/AvailableReadonlyFields";
 import ReadonlyFields from "@/components/section/readonly-fields/ReadonlyFields.vue";
-import FieldString from "@/components/section/readonly-fields/FieldString.vue";
+import FieldText from "@/components/section/readonly-fields/FieldText.vue";
 import FieldUserGroupsList from "@/components/section/readonly-fields/FieldUserGroupsList.vue";
 import FieldStaticList from "@/components/section/readonly-fields/FieldStaticList.vue";
 import FieldUserList from "@/components/section/readonly-fields/FieldUserList.vue";
 import FieldLinks from "@/components/section/readonly-fields/FieldLinks.vue";
 import FieldNumeric from "@/components/section/readonly-fields/FieldNumeric.vue";
+import FieldDate from "@/components/section/readonly-fields/FieldDate.vue";
 
 describe("ReadonlyFields", () => {
     const getWrapper = (fields: ReadonlyField[]): VueWrapper => {
@@ -53,7 +54,7 @@ describe("ReadonlyFields", () => {
             ReadonlyFieldStub.string("The first field", DISPLAY_TYPE_COLUMN),
         ]);
 
-        expect(wrapper.findComponent(FieldString).exists()).toBe(true);
+        expect(wrapper.findComponent(FieldText).exists()).toBe(true);
         expect(wrapper.findAll(".tlp-property")[0].classes()).toStrictEqual(["tlp-property"]);
     });
 
@@ -62,7 +63,7 @@ describe("ReadonlyFields", () => {
             ReadonlyFieldStub.string("The first field", DISPLAY_TYPE_BLOCK),
         ]);
 
-        expect(wrapper.findComponent(FieldString).exists()).toBe(true);
+        expect(wrapper.findComponent(FieldText).exists()).toBe(true);
         expect(wrapper.findAll(".tlp-property")[0].classes()).toStrictEqual([
             "tlp-property",
             "display-field-in-block",
@@ -86,15 +87,18 @@ describe("ReadonlyFields", () => {
             ReadonlyFieldStub.linkField([]),
             ReadonlyFieldStub.numericField(42, DISPLAY_TYPE_COLUMN),
             ReadonlyFieldStub.userField(bob, DISPLAY_TYPE_COLUMN),
+            ReadonlyFieldStub.dateField("2025-07-28T09:07:52+02:00", false, DISPLAY_TYPE_COLUMN),
+            ReadonlyFieldStub.permissionsField([{ label: "Project Members" }], DISPLAY_TYPE_COLUMN),
         ];
         const wrapper = getWrapper(fields);
 
         expect(wrapper.findAll("[data-test=readonly-field]")).toHaveLength(fields.length);
-        expect(wrapper.findComponent(FieldString).exists()).toBe(true);
-        expect(wrapper.findComponent(FieldUserGroupsList).exists()).toBe(true);
+        expect(wrapper.findComponent(FieldText).exists()).toBe(true);
+        expect(wrapper.findAllComponents(FieldUserGroupsList)).toHaveLength(2);
         expect(wrapper.findComponent(FieldStaticList).exists()).toBe(true);
         expect(wrapper.findAllComponents(FieldUserList)).toHaveLength(2);
         expect(wrapper.findComponent(FieldLinks).exists()).toBe(true);
         expect(wrapper.findComponent(FieldNumeric).exists()).toBe(true);
+        expect(wrapper.findComponent(FieldDate).exists()).toBe(true);
     });
 });

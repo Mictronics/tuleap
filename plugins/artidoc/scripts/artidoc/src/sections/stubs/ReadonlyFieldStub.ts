@@ -18,12 +18,14 @@
  */
 
 import type {
+    ReadonlyFieldDate,
     ReadonlyFieldLinkedArtifact,
     ReadonlyFieldLinks,
     ReadonlyFieldNumeric,
+    ReadonlyFieldPermissions,
     ReadonlyFieldStaticList,
     ReadonlyFieldStaticListValue,
-    ReadonlyFieldString,
+    ReadonlyFieldText,
     ReadonlyFieldUser,
     ReadonlyFieldUserGroupsList,
     ReadonlyFieldUserGroupsListValue,
@@ -34,8 +36,8 @@ import type { ConfigurationFieldDisplayType } from "@/sections/readonly-fields/A
 import { DISPLAY_TYPE_BLOCK } from "@/sections/readonly-fields/AvailableReadonlyFields";
 
 export const ReadonlyFieldStub = {
-    string: (value: string, display_type: ConfigurationFieldDisplayType): ReadonlyFieldString => ({
-        type: "string",
+    string: (value: string, display_type: ConfigurationFieldDisplayType): ReadonlyFieldText => ({
+        type: "text",
         label: `Readonly string field`,
         display_type,
         value,
@@ -88,6 +90,26 @@ export const ReadonlyFieldStub = {
     ): ReadonlyFieldUser => ({
         type: "user",
         label: "Readonly user field",
+        value,
+        display_type,
+    }),
+    dateField: (
+        value: string | null,
+        with_time: boolean,
+        display_type: ConfigurationFieldDisplayType,
+    ): ReadonlyFieldDate => ({
+        type: "date",
+        label: "Readonly date field",
+        display_type,
+        value,
+        with_time,
+    }),
+    permissionsField: (
+        value: ReadonlyFieldUserGroupsListValue[],
+        display_type: ConfigurationFieldDisplayType,
+    ): ReadonlyFieldPermissions => ({
+        type: "permissions",
+        label: `Readonly permissions on artifact field`,
         value,
         display_type,
     }),

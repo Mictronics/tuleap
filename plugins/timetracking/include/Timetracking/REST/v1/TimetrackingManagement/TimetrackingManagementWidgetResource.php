@@ -33,13 +33,15 @@ use Tuleap\Timetracking\Widget\Management\ViewableUserRetriever;
 use Tuleap\User\Avatar\AvatarHashDao;
 use Tuleap\User\Avatar\ComputeAvatarHash;
 use Tuleap\User\Avatar\UserAvatarUrlProvider;
+use User_ForgeUserGroupPermissionsDao;
+use User_ForgeUserGroupPermissionsManager;
 
 final class TimetrackingManagementWidgetResource extends AuthenticatedResource
 {
     public const NAME = 'timetracking_management_widget';
 
     /**
-     * @url OPTIONS {id}/query
+     * @url OPTIONS {id}
      */
     public function allowQuery(int $id): void
     {
@@ -56,6 +58,9 @@ final class TimetrackingManagementWidgetResource extends AuthenticatedResource
                 new ViewableUserRetriever(
                     \UserManager::instance(),
                     new ManagerCanSeeTimetrackingOfUserVerifierDao(),
+                    new User_ForgeUserGroupPermissionsManager(
+                        new User_ForgeUserGroupPermissionsDao(),
+                    ),
                 ),
             ),
             new TimetrackingManagementWidgetSaver($dao, $dao),
@@ -64,9 +69,9 @@ final class TimetrackingManagementWidgetResource extends AuthenticatedResource
     }
 
     /**
-     * Update a query
+     * Update a widget
      *
-     * Update the query of a given Timetracking Management widget.<br>
+     * Update the configuration of a given Timetracking Management widget.<br>
      *
      * <br>
      * With dates:
@@ -95,14 +100,16 @@ final class TimetrackingManagementWidgetResource extends AuthenticatedResource
      * </pre>
      *
      *
-     * @url PUT {id}/query
+     * @url PUT {id}
+     * @access protected
+     *
      * @status 200
      * @param int $id Id of the timetracking management widget
      * @param QueryPUTRepresentation $item The edited query
      *
      * @throws RestException
      */
-    protected function putQuery(int $id, QueryPUTRepresentation $item): QueryPUTResultRepresentation
+    protected function put(int $id, QueryPUTRepresentation $item): QueryPUTResultRepresentation
     {
         $this->checkAccess();
 

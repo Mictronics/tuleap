@@ -21,8 +21,11 @@ import type { User } from "@tuleap/core-rest-api-types";
 import type { ResultAsync } from "neverthrow";
 import type { Fault } from "@tuleap/fault";
 import { uri, getJSON } from "@tuleap/fetch-result";
+import type { FetchMatchingUsers } from "../UsersAutocompleter";
 
-export const fetchMatchingUsers = (query: string): ResultAsync<User[], Fault> => {
+export const fetchMatchingUsers: FetchMatchingUsers = (
+    query: string,
+): ResultAsync<User[], Fault> => {
     return getJSON(uri`/api/v1/users`, {
         params: {
             query,

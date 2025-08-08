@@ -18,10 +18,15 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use Tuleap\Tracker\FormElement\Field\ArtifactId\ArtifactIdField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
+use Tuleap\Tracker\FormElement\Field\Computed\ComputedField;
 use Tuleap\Tracker\FormElement\Field\Float\FloatField;
 use Tuleap\Tracker\FormElement\Field\Integer\IntegerField;
+use Tuleap\Tracker\FormElement\Field\PerTrackerArtifactId\PerTrackerArtifactIdField;
+use Tuleap\Tracker\FormElement\Field\Priority\PriorityField;
 use Tuleap\Tracker\FormElement\Field\String\StringField;
+use Tuleap\Tracker\FormElement\Field\SubmittedOn\SubmittedOnField;
 use Tuleap\Tracker\FormElement\Field\Text\TextField;
 use Tuleap\Tracker\FormElement\TrackerFormElementExternalField;
 
@@ -62,9 +67,9 @@ interface Tracker_FormElement_FieldVisitor // phpcs:ignore PSR1.Classes.ClassDec
 
     public function visitLastModifiedBy(Tracker_FormElement_Field_LastModifiedBy $field);
 
-    public function visitArtifactId(Tracker_FormElement_Field_ArtifactId $field);
+    public function visitArtifactId(ArtifactIdField $field);
 
-    public function visitPerTrackerArtifactId(Tracker_FormElement_Field_PerTrackerArtifactId $field);
+    public function visitPerTrackerArtifactId(PerTrackerArtifactIdField $field);
 
     public function visitCrossReferences(Tracker_FormElement_Field_CrossReferences $field);
 
@@ -72,11 +77,11 @@ interface Tracker_FormElement_FieldVisitor // phpcs:ignore PSR1.Classes.ClassDec
 
     public function visitLastUpdateDate(Tracker_FormElement_Field_LastUpdateDate $field);
 
-    public function visitSubmittedOn(Tracker_FormElement_Field_SubmittedOn $field);
+    public function visitSubmittedOn(SubmittedOnField $field);
 
-    public function visitComputed(Tracker_FormElement_Field_Computed $field);
+    public function visitComputed(ComputedField $field);
 
     public function visitExternalField(TrackerFormElementExternalField $element);
 
-    public function visitPriority(Tracker_FormElement_Field_Priority $field);
+    public function visitPriority(PriorityField $field);
 }

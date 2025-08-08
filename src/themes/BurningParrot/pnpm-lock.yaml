@@ -14,6 +14,9 @@ dependencies:
   '@tuleap/list-picker':
     specifier: workspace:*
     version: link:../../../lib/frontend/list-picker
+  '@tuleap/pie-chart':
+    specifier: workspace:^
+    version: link:../../../lib/frontend/pie-chart
   '@tuleap/project-background':
     specifier: workspace:*
     version: link:../../../lib/frontend/project-background
@@ -23,6 +26,9 @@ dependencies:
   '@tuleap/tlp-dropdown':
     specifier: workspace:*
     version: link:../../../lib/frontend/tlp-dropdown
+  '@tuleap/tlp-popovers':
+    specifier: workspace:^
+    version: link:../../../lib/frontend/tlp-popovers
   '@tuleap/tlp-swatch-colors':
     specifier: workspace:*
     version: link:../../../lib/frontend/tlp-swatch-colors

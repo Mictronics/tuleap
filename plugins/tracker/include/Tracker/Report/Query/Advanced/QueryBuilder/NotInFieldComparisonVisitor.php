@@ -21,10 +21,8 @@ namespace Tuleap\Tracker\Report\Query\Advanced\QueryBuilder;
 
 use BaseLanguageFactory;
 use Tracker_FormElement_Field;
-use Tracker_FormElement_Field_ArtifactId;
 use Tracker_FormElement_Field_Burndown;
 use Tracker_FormElement_Field_Checkbox;
-use Tracker_FormElement_Field_Computed;
 use Tracker_FormElement_Field_CrossReferences;
 use Tracker_FormElement_Field_Date;
 use Tracker_FormElement_Field_File;
@@ -34,17 +32,19 @@ use Tracker_FormElement_Field_List;
 use Tracker_FormElement_Field_MultiSelectbox;
 use Tracker_FormElement_Field_OpenList;
 use Tracker_FormElement_Field_PermissionsOnArtifact;
-use Tracker_FormElement_Field_PerTrackerArtifactId;
-use Tracker_FormElement_Field_Priority;
 use Tracker_FormElement_Field_Radiobutton;
 use Tracker_FormElement_Field_Selectbox;
 use Tracker_FormElement_Field_SubmittedBy;
-use Tracker_FormElement_Field_SubmittedOn;
 use Tracker_FormElement_FieldVisitor;
+use Tuleap\Tracker\FormElement\Field\ArtifactId\ArtifactIdField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
+use Tuleap\Tracker\FormElement\Field\Computed\ComputedField;
 use Tuleap\Tracker\FormElement\Field\Float\FloatField;
 use Tuleap\Tracker\FormElement\Field\Integer\IntegerField;
+use Tuleap\Tracker\FormElement\Field\PerTrackerArtifactId\PerTrackerArtifactIdField;
+use Tuleap\Tracker\FormElement\Field\Priority\PriorityField;
 use Tuleap\Tracker\FormElement\Field\String\StringField;
+use Tuleap\Tracker\FormElement\Field\SubmittedOn\SubmittedOnField;
 use Tuleap\Tracker\FormElement\Field\Text\TextField;
 use Tuleap\Tracker\FormElement\TrackerFormElementExternalField;
 use Tuleap\Tracker\Report\Query\Advanced\CollectionOfListValuesExtractor;
@@ -178,12 +178,12 @@ final class NotInFieldComparisonVisitor implements
         );
     }
 
-    public function visitArtifactId(Tracker_FormElement_Field_ArtifactId $field)
+    public function visitArtifactId(ArtifactIdField $field)
     {
         return null;
     }
 
-    public function visitPerTrackerArtifactId(Tracker_FormElement_Field_PerTrackerArtifactId $field)
+    public function visitPerTrackerArtifactId(PerTrackerArtifactIdField $field)
     {
         return null;
     }
@@ -203,12 +203,12 @@ final class NotInFieldComparisonVisitor implements
         return null;
     }
 
-    public function visitSubmittedOn(Tracker_FormElement_Field_SubmittedOn $field)
+    public function visitSubmittedOn(SubmittedOnField $field)
     {
         return null;
     }
 
-    public function visitComputed(Tracker_FormElement_Field_Computed $field)
+    public function visitComputed(ComputedField $field)
     {
         return null;
     }
@@ -218,7 +218,7 @@ final class NotInFieldComparisonVisitor implements
         return null;
     }
 
-    public function visitPriority(Tracker_FormElement_Field_Priority $field)
+    public function visitPriority(PriorityField $field)
     {
         return null;
     }

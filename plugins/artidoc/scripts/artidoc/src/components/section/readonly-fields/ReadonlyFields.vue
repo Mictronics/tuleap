@@ -27,12 +27,15 @@
             v-bind:class="getFieldClasses(readonly_field)"
             data-test="readonly-field"
         >
-            <field-string
-                v-if="readonly_field.type === STRING_FIELD"
-                v-bind:field_string="readonly_field"
+            <field-text
+                v-if="readonly_field.type === TEXT_FIELD"
+                v-bind:field_text="readonly_field"
             />
             <field-user-groups-list
-                v-if="readonly_field.type === USER_GROUP_LIST_FIELD"
+                v-if="
+                    readonly_field.type === USER_GROUP_LIST_FIELD ||
+                    readonly_field.type === PERMISSIONS_FIELD
+                "
                 v-bind:user_groups_list_field="readonly_field"
             />
             <field-static-list
@@ -48,29 +51,33 @@
                 v-if="readonly_field.type === NUMERIC_FIELD"
                 v-bind:field="readonly_field"
             />
+            <field-date v-if="readonly_field.type === DATE_FIELD" v-bind:field="readonly_field" />
         </div>
     </div>
 </template>
 
 <script setup lang="ts">
-import FieldString from "@/components/section/readonly-fields/FieldString.vue";
+import type { ReadonlyField } from "@/sections/readonly-fields/ReadonlyFields";
 import {
-    NUMERIC_FIELD,
+    DATE_FIELD,
     LINKS_FIELD,
+    NUMERIC_FIELD,
+    PERMISSIONS_FIELD,
     STATIC_LIST_FIELD,
-    STRING_FIELD,
+    TEXT_FIELD,
+    USER_FIELD,
     USER_GROUP_LIST_FIELD,
     USER_LIST_FIELD,
-    USER_FIELD,
 } from "@/sections/readonly-fields/ReadonlyFields";
-import type { ReadonlyField } from "@/sections/readonly-fields/ReadonlyFields";
 import type { SectionBasedOnArtifact } from "@/helpers/artidoc-section.type";
+import FieldText from "@/components/section/readonly-fields/FieldText.vue";
 import FieldUserGroupsList from "@/components/section/readonly-fields/FieldUserGroupsList.vue";
 import FieldStaticList from "@/components/section/readonly-fields/FieldStaticList.vue";
 import FieldUserList from "@/components/section/readonly-fields/FieldUserList.vue";
 import FieldLinks from "@/components/section/readonly-fields/FieldLinks.vue";
 import FieldNumeric from "@/components/section/readonly-fields/FieldNumeric.vue";
 import { DISPLAY_TYPE_BLOCK } from "@/sections/readonly-fields/AvailableReadonlyFields";
+import FieldDate from "@/components/section/readonly-fields/FieldDate.vue";
 
 defineProps<{
     section: SectionBasedOnArtifact;
