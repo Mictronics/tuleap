@@ -18,10 +18,15 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use Tuleap\Tracker\FormElement\Field\ArtifactId\ArtifactIdField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
+use Tuleap\Tracker\FormElement\Field\Computed\ComputedField;
 use Tuleap\Tracker\FormElement\Field\Float\FloatField;
 use Tuleap\Tracker\FormElement\Field\Integer\IntegerField;
+use Tuleap\Tracker\FormElement\Field\PerTrackerArtifactId\PerTrackerArtifactIdField;
+use Tuleap\Tracker\FormElement\Field\Priority\PriorityField;
 use Tuleap\Tracker\FormElement\Field\String\StringField;
+use Tuleap\Tracker\FormElement\Field\SubmittedOn\SubmittedOnField;
 use Tuleap\Tracker\FormElement\Field\Text\TextField;
 use Tuleap\Tracker\FormElement\TrackerFormElementExternalField;
 use Tuleap\Tracker\XML\Updater\FieldChange\FieldChangeComputedXMLUpdater;
@@ -100,12 +105,12 @@ class Tracker_XML_Updater_FieldChangeXMLUpdaterVisitor implements Tracker_FormEl
         return $this->text_updater;
     }
 
-    public function visitArtifactId(Tracker_FormElement_Field_ArtifactId $field)
+    public function visitArtifactId(ArtifactIdField $field)
     {
         return $this->unknown_updater;
     }
 
-    public function visitPerTrackerArtifactId(Tracker_FormElement_Field_PerTrackerArtifactId $field)
+    public function visitPerTrackerArtifactId(PerTrackerArtifactIdField $field)
     {
         return $this->unknown_updater;
     }
@@ -155,12 +160,12 @@ class Tracker_XML_Updater_FieldChangeXMLUpdaterVisitor implements Tracker_FormEl
         return $this->unknown_updater;
     }
 
-    public function visitSubmittedOn(Tracker_FormElement_Field_SubmittedOn $field)
+    public function visitSubmittedOn(SubmittedOnField $field)
     {
         return $this->unknown_updater;
     }
 
-    public function visitComputed(Tracker_FormElement_Field_Computed $field)
+    public function visitComputed(ComputedField $field)
     {
         return $this->computed_updater;
     }
@@ -170,7 +175,7 @@ class Tracker_XML_Updater_FieldChangeXMLUpdaterVisitor implements Tracker_FormEl
         return $this->external_field_updater;
     }
 
-    public function visitPriority(Tracker_FormElement_Field_Priority $field)
+    public function visitPriority(PriorityField $field)
     {
         return $this->unknown_updater;
     }

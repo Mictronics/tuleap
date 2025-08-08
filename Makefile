@@ -231,7 +231,7 @@ psalm-with-info: ## Run Psalm (PHP static analysis tool) with INFO findings. Use
 
 .PHONY:psalm-taint-analysis
 psalm-taint-analysis: ## Run Psalm (PHP static analysis tool) taint analysis. Use FILES variables to execute on a given set of files or directories.
-	$(PHP) ./src/vendor/bin/psalm --memory-limit=4096M --threads=1 --no-cache --taint-analysis -c=tests/psalm/psalm.xml $(FILES)
+	$(PHP) ./src/vendor/bin/psalm --memory-limit=6144M --threads=1 --no-cache --taint-analysis -c=tests/psalm/psalm.xml $(FILES)
 
 .PHONY:psalm-baseline-update
 psalm-baseline-update: ## Update the baseline used by Psalm (PHP static analysis tool).
@@ -298,7 +298,7 @@ scan-vuln-deps:
 
 .PHONY:scan-secrets
 scan-secrets: ## Scan for committed secrets in the repository
-	trufflehog git --since-commit=56e5e8f1d3a37afd065d53f136be404de56ca276 file://"$(CURDIR)" --config="$(CURDIR)/tools/utils/trufflehog-config.yml" --filter-entropy=3.4 --fail
+	trufflehog git --since-commit=b574ac6719e69ecb39431939383dd521c278454c file://"$(CURDIR)" --config="$(CURDIR)/tools/utils/trufflehog-config.yml" --filter-entropy=3.4 --fail
 
 #
 # Dev setup

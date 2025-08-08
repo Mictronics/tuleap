@@ -23,10 +23,8 @@ declare(strict_types=1);
 namespace Tuleap\Tracker\Artifact\ArtifactsDeletion;
 
 use Tracker_Artifact_ChangesetValue_File;
-use Tracker_FormElement_Field_ArtifactId;
 use Tracker_FormElement_Field_Burndown;
 use Tracker_FormElement_Field_Checkbox;
-use Tracker_FormElement_Field_Computed;
 use Tracker_FormElement_Field_CrossReferences;
 use Tracker_FormElement_Field_Date;
 use Tracker_FormElement_Field_File;
@@ -35,18 +33,20 @@ use Tracker_FormElement_Field_LastUpdateDate;
 use Tracker_FormElement_Field_MultiSelectbox;
 use Tracker_FormElement_Field_OpenList;
 use Tracker_FormElement_Field_PermissionsOnArtifact;
-use Tracker_FormElement_Field_PerTrackerArtifactId;
-use Tracker_FormElement_Field_Priority;
 use Tracker_FormElement_Field_Radiobutton;
 use Tracker_FormElement_Field_Selectbox;
 use Tracker_FormElement_Field_SubmittedBy;
-use Tracker_FormElement_Field_SubmittedOn;
 use Tracker_FormElement_FieldVisitor;
 use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\FormElement\Field\ArtifactId\ArtifactIdField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
+use Tuleap\Tracker\FormElement\Field\Computed\ComputedField;
 use Tuleap\Tracker\FormElement\Field\Float\FloatField;
 use Tuleap\Tracker\FormElement\Field\Integer\IntegerField;
+use Tuleap\Tracker\FormElement\Field\PerTrackerArtifactId\PerTrackerArtifactIdField;
+use Tuleap\Tracker\FormElement\Field\Priority\PriorityField;
 use Tuleap\Tracker\FormElement\Field\String\StringField;
+use Tuleap\Tracker\FormElement\Field\SubmittedOn\SubmittedOnField;
 use Tuleap\Tracker\FormElement\Field\Text\TextField;
 use Tuleap\Tracker\FormElement\TrackerFormElementExternalField;
 
@@ -131,11 +131,11 @@ class ArtifactFilesDeletorVisitor implements Tracker_FormElement_FieldVisitor
     {
     }
 
-    public function visitArtifactId(Tracker_FormElement_Field_ArtifactId $field): void
+    public function visitArtifactId(ArtifactIdField $field): void
     {
     }
 
-    public function visitPerTrackerArtifactId(Tracker_FormElement_Field_PerTrackerArtifactId $field): void
+    public function visitPerTrackerArtifactId(PerTrackerArtifactIdField $field): void
     {
     }
 
@@ -151,11 +151,11 @@ class ArtifactFilesDeletorVisitor implements Tracker_FormElement_FieldVisitor
     {
     }
 
-    public function visitSubmittedOn(Tracker_FormElement_Field_SubmittedOn $field): void
+    public function visitSubmittedOn(SubmittedOnField $field): void
     {
     }
 
-    public function visitComputed(Tracker_FormElement_Field_Computed $field): void
+    public function visitComputed(ComputedField $field): void
     {
     }
 
@@ -163,7 +163,7 @@ class ArtifactFilesDeletorVisitor implements Tracker_FormElement_FieldVisitor
     {
     }
 
-    public function visitPriority(Tracker_FormElement_Field_Priority $field): void
+    public function visitPriority(PriorityField $field): void
     {
     }
 }

@@ -242,6 +242,7 @@ use Tuleap\User\Account\UserAvatarSaver;
 use Tuleap\User\Account\UserWellKnownChangePasswordController;
 use Tuleap\User\Avatar\AvatarHashDao;
 use Tuleap\User\Avatar\ComputeAvatarHash;
+use Tuleap\User\InternalRedirectController;
 use Tuleap\User\Password\Change\PasswordChanger;
 use Tuleap\User\Password\Reset\LostPasswordDAO;
 use Tuleap\User\Password\Reset\ResetTokenSerializer;
@@ -269,6 +270,7 @@ use Tuleap\WebAuthn\WebAuthnRegistration;
 use Tuleap\Widget\WidgetFactory;
 use UGroupManager;
 use URLVerification;
+use URLVerificationFactory;
 use User_ForgeUserGroupPermissionsDao;
 use User_ForgeUserGroupPermissionsManager;
 use Webauthn\AttestationStatement\AttestationObjectLoader;
@@ -523,6 +525,14 @@ class RouteCollector
             HTTPFactoryBuilder::responseFactory(),
             HTTPFactoryBuilder::streamFactory(),
             new SapiEmitter()
+        );
+    }
+
+    public static function getInternalRedirect(): InternalRedirectController
+    {
+        return new InternalRedirectController(
+            (new URLVerificationFactory(EventManager::instance()))->getURLVerification($GLOBALS['_SERVER'] ?? []),
+            TemplateRendererFactory::build(),
         );
     }
 
@@ -904,7 +914,7 @@ class RouteCollector
 
     public static function getGetServices(): DispatchableWithRequest
     {
-        $assets = new IncludeAssets(
+        $assets = new IncludeViteAssets(
             __DIR__ . '/../../scripts/project-services/frontend-assets',
             '/assets/core/project-services'
         );
@@ -912,8 +922,8 @@ class RouteCollector
             AdministrationLayoutHelper::buildSelf(),
             new ServicesPresenterBuilder(ServiceManager::instance(), EventManager::instance()),
             TemplateRendererFactory::build()->getRenderer(__DIR__ . '/../../templates/project/admin/services/'),
-            new JavascriptAsset($assets, 'project-admin-services.js'),
-            new JavascriptAsset($assets, 'site-admin-services.js'),
+            new JavascriptViteAsset($assets, 'src/index-project-admin.js'),
+            new JavascriptViteAsset($assets, 'src/index-site-admin.js'),
         );
     }
 
@@ -1664,6 +1674,7 @@ class RouteCollector
             $r->post('/register.php', [self::class, 'postRegister']);
         });
         $r->get('/.well-known/change-password', [self::class, 'getWellKnownUrlChangePassword']);
+        $r->get('/my/redirect.php', [self::class, 'getInternalRedirect']);
 
         $r->addGroup('/users', function (FastRoute\RouteCollector $r) {
             $r->get('/{name}[/]', [self::class, 'getUsersName']);

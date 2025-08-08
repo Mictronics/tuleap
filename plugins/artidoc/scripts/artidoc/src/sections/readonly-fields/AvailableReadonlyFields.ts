@@ -25,10 +25,13 @@ import type {
     TrackerResponseNoInstance,
 } from "@tuleap/plugin-tracker-rest-api-types";
 import type {
+    DATE_FIELD,
     LINKS_FIELD,
     NUMERIC_FIELD,
+    PERMISSIONS_FIELD,
     STATIC_LIST_FIELD,
-    STRING_FIELD,
+    TEXT_FIELD,
+    USER_FIELD,
     USER_GROUP_LIST_FIELD,
     USER_LIST_FIELD,
 } from "@/sections/readonly-fields/ReadonlyFields";
@@ -41,12 +44,15 @@ export const DISPLAY_TYPE_BLOCK = "block";
 export type ConfigurationFieldDisplayType = typeof DISPLAY_TYPE_COLUMN | typeof DISPLAY_TYPE_BLOCK;
 
 export type ConfigurationFieldType =
-    | typeof STRING_FIELD
+    | typeof TEXT_FIELD
     | typeof LINKS_FIELD
     | typeof USER_GROUP_LIST_FIELD
     | typeof STATIC_LIST_FIELD
     | typeof USER_LIST_FIELD
-    | typeof NUMERIC_FIELD;
+    | typeof NUMERIC_FIELD
+    | typeof USER_FIELD
+    | typeof DATE_FIELD
+    | typeof PERMISSIONS_FIELD;
 
 export type ConfigurationField = {
     readonly type: ConfigurationFieldType;
@@ -64,7 +70,7 @@ export const getAvailableFields = (
         const supported_fields = getSupportedFields(tracker.fields);
 
         return filterAlreadySelectedFields(
-            filterSemanticTitleBoundField(tracker, supported_fields),
+            filterSemanticsTitleDescriptionBoundField(tracker, supported_fields),
             selected_fields,
         );
     });
@@ -82,12 +88,15 @@ export function getSupportedFields(
     return supported_fields;
 }
 
-export function filterSemanticTitleBoundField(
+export function filterSemanticsTitleDescriptionBoundField(
     tracker: TrackerForFields,
     string_fields: ConfigurationField[],
 ): ConfigurationField[] {
     const title_field_id = tracker.semantics.title?.field_id;
-    return string_fields.filter((field) => field.field_id !== title_field_id);
+    const description_field_id = tracker.semantics.description?.field_id;
+    return string_fields.filter(
+        (field) => field.field_id !== title_field_id && field.field_id !== description_field_id,
+    );
 }
 
 export function filterAlreadySelectedFields(

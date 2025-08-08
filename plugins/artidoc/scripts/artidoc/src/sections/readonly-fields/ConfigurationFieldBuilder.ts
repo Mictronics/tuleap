@@ -20,22 +20,29 @@
 import type { StructureFields } from "@tuleap/plugin-tracker-rest-api-types";
 import type { ListBindType } from "@tuleap/plugin-tracker-constants";
 import {
+    ARTIFACT_ID_FIELD,
+    ARTIFACT_ID_IN_TRACKER_FIELD,
+    ARTIFACT_LINK_FIELD,
     CHECKBOX_FIELD,
+    COMPUTED_FIELD,
+    DATE_FIELD as TRACKER_DATE_FIELD,
+    FLOAT_FIELD,
+    INT_FIELD,
+    LAST_UPDATE_DATE_FIELD,
+    LAST_UPDATED_BY_FIELD,
     LIST_BIND_STATIC,
     LIST_BIND_UGROUPS,
     LIST_BIND_USERS,
     MULTI_SELECTBOX_FIELD,
     OPEN_LIST_FIELD,
+    PERMISSION_FIELD as TRACKER_PERMISSIONS_FIELD,
+    PRIORITY_FIELD,
     RADIO_BUTTON_FIELD,
     SELECTBOX_FIELD,
     STRING_FIELD as TRACKER_STRING_FIELD,
-    ARTIFACT_LINK_FIELD,
-    ARTIFACT_ID_FIELD,
-    ARTIFACT_ID_IN_TRACKER_FIELD,
-    FLOAT_FIELD,
-    INT_FIELD,
-    PRIORITY_FIELD,
-    COMPUTED_FIELD,
+    SUBMISSION_DATE_FIELD,
+    SUBMITTED_BY_FIELD,
+    TEXT_FIELD as TRACKER_TEXT_FIELD,
 } from "@tuleap/plugin-tracker-constants";
 import type {
     ConfigurationField,
@@ -46,10 +53,13 @@ import {
     DISPLAY_TYPE_COLUMN,
 } from "@/sections/readonly-fields/AvailableReadonlyFields";
 import {
+    DATE_FIELD,
     LINKS_FIELD,
     NUMERIC_FIELD,
+    PERMISSIONS_FIELD,
     STATIC_LIST_FIELD,
-    STRING_FIELD,
+    TEXT_FIELD,
+    USER_FIELD,
     USER_GROUP_LIST_FIELD,
     USER_LIST_FIELD,
 } from "@/sections/readonly-fields/ReadonlyFields";
@@ -91,7 +101,16 @@ const buildConfiguredFieldIfSupported = (field: StructureFields): Option<Configu
         return Option.fromValue<ConfigurationField>({
             ...field_base,
             display_type: DISPLAY_TYPE_COLUMN,
-            type: STRING_FIELD,
+            type: TEXT_FIELD,
+        });
+    }
+
+    if (field.type === TRACKER_TEXT_FIELD) {
+        return Option.fromValue<ConfigurationField>({
+            ...field_base,
+            display_type: DISPLAY_TYPE_BLOCK,
+            type: TEXT_FIELD,
+            can_display_type_be_changed: false,
         });
     }
 
@@ -112,6 +131,14 @@ const buildConfiguredFieldIfSupported = (field: StructureFields): Option<Configu
         });
     }
 
+    if (field.type === LAST_UPDATED_BY_FIELD || field.type === SUBMITTED_BY_FIELD) {
+        return Option.fromValue<ConfigurationField>({
+            ...field_base,
+            display_type: DISPLAY_TYPE_COLUMN,
+            type: USER_FIELD,
+        });
+    }
+
     if (
         field.type === SELECTBOX_FIELD ||
         field.type === MULTI_SELECTBOX_FIELD ||
@@ -123,6 +150,26 @@ const buildConfiguredFieldIfSupported = (field: StructureFields): Option<Configu
             ...field_base,
             display_type: DISPLAY_TYPE_COLUMN,
             type: buildConfiguredListFieldType(field.bindings.type),
+        });
+    }
+
+    if (
+        field.type === TRACKER_DATE_FIELD ||
+        field.type === SUBMISSION_DATE_FIELD ||
+        field.type === LAST_UPDATE_DATE_FIELD
+    ) {
+        return Option.fromValue<ConfigurationField>({
+            ...field_base,
+            display_type: DISPLAY_TYPE_COLUMN,
+            type: DATE_FIELD,
+        });
+    }
+
+    if (field.type === TRACKER_PERMISSIONS_FIELD) {
+        return Option.fromValue<ConfigurationField>({
+            ...field_base,
+            display_type: DISPLAY_TYPE_COLUMN,
+            type: PERMISSIONS_FIELD,
         });
     }
 

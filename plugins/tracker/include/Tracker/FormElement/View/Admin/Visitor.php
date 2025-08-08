@@ -18,11 +18,16 @@
  */
 
 use Tuleap\JSONHeader;
+use Tuleap\Tracker\FormElement\Field\ArtifactId\ArtifactIdField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkFieldAdmin;
+use Tuleap\Tracker\FormElement\Field\Computed\ComputedField;
 use Tuleap\Tracker\FormElement\Field\Float\FloatField;
 use Tuleap\Tracker\FormElement\Field\Integer\IntegerField;
+use Tuleap\Tracker\FormElement\Field\PerTrackerArtifactId\PerTrackerArtifactIdField;
+use Tuleap\Tracker\FormElement\Field\Priority\PriorityField;
 use Tuleap\Tracker\FormElement\Field\String\StringField;
+use Tuleap\Tracker\FormElement\Field\SubmittedOn\SubmittedOnField;
 use Tuleap\Tracker\FormElement\Field\Text\TextField;
 use Tuleap\Tracker\FormElement\TrackerFormElementExternalField;
 use Tuleap\Tracker\FormElement\View\Admin\Field\Computed;
@@ -124,7 +129,7 @@ class Tracker_FormElement_View_Admin_Visitor implements Tracker_FormElement_Visi
         $this->visitField($field);
     }
 
-    public function visitComputed(Tracker_FormElement_Field_Computed $element)
+    public function visitComputed(ComputedField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Computed($element, $this->allUsedElements);
@@ -136,13 +141,13 @@ class Tracker_FormElement_View_Admin_Visitor implements Tracker_FormElement_Visi
         $this->adminElement = new Tracker_FormElement_View_Admin_Field($element, $this->allUsedElements);
     }
 
-    public function visitArtifactId(Tracker_FormElement_Field_ArtifactId $element)
+    public function visitArtifactId(ArtifactIdField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_ArtifactId($element, $this->allUsedElements);
     }
 
-    public function visitPerTrackerArtifactId(Tracker_FormElement_Field_PerTrackerArtifactId $element)
+    public function visitPerTrackerArtifactId(PerTrackerArtifactIdField $element)
     {
         $this->visitArtifactId($element);
     }
@@ -195,7 +200,7 @@ class Tracker_FormElement_View_Admin_Visitor implements Tracker_FormElement_Visi
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_LastModifiedBy($element, $this->allUsedElements);
     }
 
-    public function visitSubmittedOn(Tracker_FormElement_Field_SubmittedOn $element)
+    public function visitSubmittedOn(SubmittedOnField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_SubmittedOn($element, $this->allUsedElements);
@@ -244,7 +249,7 @@ class Tracker_FormElement_View_Admin_Visitor implements Tracker_FormElement_Visi
         $this->adminElement = new Tracker_FormElement_View_Admin_Shared($element, $this->allUsedElements);
     }
 
-    public function visitPriority(Tracker_FormElement_Field_Priority $element)
+    public function visitPriority(PriorityField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Priority($element, $this->allUsedElements);

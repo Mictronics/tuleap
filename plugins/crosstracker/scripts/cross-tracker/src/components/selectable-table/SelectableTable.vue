@@ -70,7 +70,12 @@ import { ArtifactsRetrievalFault } from "../../domain/ArtifactsRetrievalFault";
 import type { ColumnName } from "../../domain/ColumnName";
 import { PRETTY_TITLE_COLUMN_NAME } from "../../domain/ColumnName";
 import type { RefreshArtifactsEvent } from "../../helpers/widget-events";
-import { NOTIFY_FAULT_EVENT, REFRESH_ARTIFACTS_EVENT } from "../../helpers/widget-events";
+import {
+    SEARCH_ARTIFACTS_EVENT,
+    NOTIFY_FAULT_EVENT,
+    REFRESH_ARTIFACTS_EVENT,
+    SEARCH_ARTIFACTS_SUCCESS_EVENT,
+} from "../../helpers/widget-events";
 import ArtifactRows from "./ArtifactRows.vue";
 
 const column_name_getter = strictInject(GET_COLUMN_NAME);
@@ -119,6 +124,7 @@ function resetArtifactList(): void {
 onMounted(() => {
     refreshArtifactList();
     emitter.on(REFRESH_ARTIFACTS_EVENT, handleRefreshArtifactsEvent);
+    emitter.on(SEARCH_ARTIFACTS_EVENT, handleSearchArtifactsEvent);
 
     if (!selectable_table_element.value) {
         return;
@@ -128,6 +134,8 @@ onMounted(() => {
 
 onBeforeUnmount(() => {
     emitter.off(REFRESH_ARTIFACTS_EVENT, handleRefreshArtifactsEvent);
+    emitter.off(SEARCH_ARTIFACTS_EVENT, handleSearchArtifactsEvent);
+
     if (!selectable_table_element.value) {
         return;
     }
@@ -137,6 +145,11 @@ onBeforeUnmount(() => {
 function handleRefreshArtifactsEvent(event: RefreshArtifactsEvent): void {
     resetArtifactList();
     getSelectableQueryContent(event.query.tql_query);
+}
+
+function handleSearchArtifactsEvent(): void {
+    resetArtifactList();
+    getSelectableQueryContent(props.tql_query);
 }
 
 function getSelectableQueryContent(tql_query: string): void {
@@ -154,6 +167,7 @@ function getSelectableQueryContent(tql_query: string): void {
                 number_of_selected_columns.value = columns.value.size - 1;
                 rows.value = content_with_total.table.rows;
                 total.value = content_with_total.total;
+                emitter.emit(SEARCH_ARTIFACTS_SUCCESS_EVENT);
             },
             (fault) => {
                 emitter.emit(NOTIFY_FAULT_EVENT, {

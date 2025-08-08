@@ -52,13 +52,13 @@ use Tuleap\CrossTracker\Query\Advanced\QueryBuilder\ArtifactLink\ForwardLinkFrom
 use Tuleap\CrossTracker\Query\Advanced\QueryBuilder\ArtifactLink\ReverseLinkFromWhereBuilder;
 use Tuleap\CrossTracker\Query\Advanced\QueryBuilder\CrossTrackerTQLQueryDao;
 use Tuleap\CrossTracker\Query\Advanced\QueryBuilder\FromWhereSearchableVisitor;
+use Tuleap\CrossTracker\Query\Advanced\QueryBuilder\Metadata\Special\ForwardLinkTypeFromWhereBuilder;
 use Tuleap\CrossTracker\Query\Advanced\QueryBuilderVisitor;
 use Tuleap\CrossTracker\Query\Advanced\QueryValidation\DuckTypedField\DuckTypedFieldChecker;
 use Tuleap\CrossTracker\Query\Advanced\QueryValidation\Metadata\ArtifactIdMetadataChecker;
 use Tuleap\CrossTracker\Query\Advanced\QueryValidation\Metadata\AssignedToChecker;
 use Tuleap\CrossTracker\Query\Advanced\QueryValidation\Metadata\InvalidMetadataChecker;
 use Tuleap\CrossTracker\Query\Advanced\QueryValidation\Metadata\MetadataChecker;
-use Tuleap\CrossTracker\Query\Advanced\QueryValidation\Metadata\MetadataUsageChecker;
 use Tuleap\CrossTracker\Query\Advanced\QueryValidation\Metadata\StatusChecker;
 use Tuleap\CrossTracker\Query\Advanced\QueryValidation\Metadata\SubmissionDateChecker;
 use Tuleap\CrossTracker\Query\Advanced\QueryValidation\Metadata\TextSemanticChecker;
@@ -75,11 +75,13 @@ use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\ArtifactResultBuil
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\Date\MetadataDateResultBuilder;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\MetadataResultBuilder;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\Semantic\AssignedTo\AssignedToResultBuilder;
+use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\Semantic\Description\DescriptionResultBuilder;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\Semantic\Status\StatusResultBuilder;
+use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\Semantic\Title\TitleResultBuilder;
+use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\Special\LinkType\ForwardLinkTypeResultBuilder;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\Special\PrettyTitle\PrettyTitleResultBuilder;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\Special\ProjectName\ProjectNameResultBuilder;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\Special\TrackerName\TrackerNameResultBuilder;
-use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\Text\MetadataTextResultBuilder;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\User\MetadataUserResultBuilder;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilderVisitor;
 use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Field\Date\DateSelectFromBuilder;
@@ -94,6 +96,7 @@ use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Metadata\Semantic\AssignedT
 use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Metadata\Semantic\Description\DescriptionSelectFromBuilder;
 use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Metadata\Semantic\Status\StatusSelectFromBuilder;
 use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Metadata\Semantic\Title\TitleSelectFromBuilder;
+use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Metadata\Special\LinkType\ForwardLinkTypeSelectFromBuilder;
 use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Metadata\Special\PrettyTitle\PrettyTitleSelectFromBuilder;
 use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Metadata\Special\ProjectName\ProjectNameSelectFromBuilder;
 use Tuleap\CrossTracker\Query\Advanced\SelectBuilderVisitor;
@@ -129,14 +132,11 @@ use Tuleap\Tracker\Report\Query\Advanced\UgroupLabelConverter;
 use Tuleap\Tracker\Report\TrackerReportConfig;
 use Tuleap\Tracker\Report\TrackerReportConfigDao;
 use Tuleap\Tracker\Semantic\Contributor\ContributorFieldRetriever;
-use Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributorDao;
 use Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributorFactory;
 use Tuleap\Tracker\Semantic\Description\CachedSemanticDescriptionFieldRetriever;
-use Tuleap\Tracker\Semantic\Description\DescriptionSemanticDAO;
 use Tuleap\Tracker\Semantic\Status\CachedSemanticStatusFieldRetriever;
-use Tuleap\Tracker\Semantic\Status\StatusSemanticDAO;
+use Tuleap\Tracker\Semantic\Status\CachedSemanticStatusRetriever;
 use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
-use Tuleap\Tracker\Semantic\Title\TitleSemanticDAO;
 use UGroupManager;
 use UserHelper;
 use UserManager;
@@ -195,13 +195,6 @@ final class CrossTrackerArtifactQueryFactoryBuilder
     public function getMetadataChecker(): MetadataChecker
     {
         return new MetadataChecker(
-            new MetadataUsageChecker(
-                Tracker_FormElementFactory::instance(),
-                new TitleSemanticDAO(),
-                new DescriptionSemanticDAO(),
-                new StatusSemanticDAO(),
-                new TrackerSemanticContributorDao(),
-            ),
             new InvalidMetadataChecker(
                 new TextSemanticChecker(),
                 new StatusChecker(),
@@ -300,6 +293,7 @@ final class CrossTrackerArtifactQueryFactoryBuilder
                 new \Tuleap\CrossTracker\Query\Advanced\QueryBuilder\Metadata\AlwaysThereField\Date\DateFromWhereBuilder($date_time_value_rounder),
                 new \Tuleap\CrossTracker\Query\Advanced\QueryBuilder\Metadata\AlwaysThereField\Users\UsersFromWhereBuilder(UserManager::instance()),
                 new \Tuleap\CrossTracker\Query\Advanced\QueryBuilder\Metadata\AlwaysThereField\ArtifactId\ArtifactIdFromWhereBuilder(),
+                new ForwardLinkTypeFromWhereBuilder(),
                 $form_element_factory,
             ),
         );
@@ -331,12 +325,17 @@ final class CrossTrackerArtifactQueryFactoryBuilder
                 new AssignedToSelectFromBuilder(),
                 new ProjectNameSelectFromBuilder(),
                 new PrettyTitleSelectFromBuilder(),
+                new ForwardLinkTypeSelectFromBuilder()
             ),
         );
         $purifier                  = Codendi_HTMLPurifier::instance();
         $text_value_interpreter    = new TextValueInterpreter($purifier, CommonMarkInterpreter::build($purifier));
         $field_retriever           = new ReadableFieldRetriever($form_element_factory, $trackers_permissions);
         $user_group_manager        = new UGroupManager();
+        $user_manager              = UserManager::instance();
+        $user_helper               = UserHelper::instance();
+        $tracker_factory           = TrackerFactory::instance();
+        $semantic_title_retriever  = CachedSemanticTitleFieldRetriever::instance();
         $result_builder_visitor    = new ResultBuilderVisitor(
             new FieldResultBuilder(
                 $retrieve_field_type,
@@ -345,31 +344,33 @@ final class CrossTrackerArtifactQueryFactoryBuilder
                 new NumericResultBuilder(),
                 new StaticListResultBuilder(),
                 new UGroupListResultBuilder($tracker_artifact_factory, $user_group_manager),
-                new UserListResultBuilder(UserManager::instance(), UserManager::instance(), UserManager::instance(), UserHelper::instance()),
+                new UserListResultBuilder($user_manager, $user_manager, $user_manager, $user_helper),
                 $field_retriever
             ),
             new MetadataResultBuilder(
-                new MetadataTextResultBuilder($tracker_artifact_factory, $text_value_interpreter),
-                new StatusResultBuilder(),
-                new AssignedToResultBuilder(UserManager::instance(), UserHelper::instance()),
+                new TitleResultBuilder($tracker_artifact_factory, $text_value_interpreter, $semantic_title_retriever),
+                new DescriptionResultBuilder($tracker_artifact_factory, $text_value_interpreter, CachedSemanticDescriptionFieldRetriever::instance()),
+                new StatusResultBuilder($tracker_artifact_factory, CachedSemanticStatusRetriever::instance()),
+                new AssignedToResultBuilder($user_manager, $user_helper, $tracker_artifact_factory),
                 new MetadataDateResultBuilder(),
-                new MetadataUserResultBuilder(UserManager::instance(), UserHelper::instance()),
+                new MetadataUserResultBuilder($user_manager, $user_helper),
                 new ArtifactIdResultBuilder(),
                 new ProjectNameResultBuilder(),
                 new TrackerNameResultBuilder(),
-                new PrettyTitleResultBuilder(),
+                new PrettyTitleResultBuilder($tracker_artifact_factory, $semantic_title_retriever),
+                new ForwardLinkTypeResultBuilder(),
                 new ArtifactResultBuilder(
                     $tracker_artifact_factory,
                     new TrackersListAllowedByPlugins(
                         EventManager::instance(),
-                        TrackerFactory::instance()
+                        $tracker_factory
                     )
                 ),
             ),
         );
         $text_order_builder        = new TextFromOrderBuilder($tuleap_db);
         $static_list_order_builder = new StaticListFromOrderBuilder($tuleap_db);
-        $user_order_by_builder     = new UserOrderByBuilder(UserManager::instance());
+        $user_order_by_builder     = new UserOrderByBuilder($user_manager);
         $user_list_builder         = new UserListFromOrderBuilder($user_order_by_builder, $tuleap_db);
         $order_builder_visitor     = new OrderByBuilderVisitor(
             new FieldFromOrderBuilder(
@@ -383,7 +384,7 @@ final class CrossTrackerArtifactQueryFactoryBuilder
                 $user_list_builder,
             ),
             new MetadataFromOrderBuilder(
-                CachedSemanticTitleFieldRetriever::instance(),
+                $semantic_title_retriever,
                 CachedSemanticDescriptionFieldRetriever::instance(),
                 CachedSemanticStatusFieldRetriever::instance(),
                 new ContributorFieldRetriever(TrackerSemanticContributorFactory::instance()),

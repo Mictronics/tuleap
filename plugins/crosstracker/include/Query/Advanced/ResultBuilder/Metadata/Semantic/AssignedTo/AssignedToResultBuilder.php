@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\Semantic\AssignedTo;
 
 use LogicException;
+use PFUser;
 use Tracker_FormElement_Field_List_Bind;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Representations\UserListRepresentation;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Representations\UserRepresentation;
@@ -30,18 +31,23 @@ use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\SelectedValue;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\SelectedValuesCollection;
 use Tuleap\CrossTracker\REST\v1\Representation\CrossTrackerSelectedRepresentation;
 use Tuleap\CrossTracker\REST\v1\Representation\CrossTrackerSelectedType;
+use Tuleap\Option\Option;
+use Tuleap\Tracker\Artifact\RetrieveArtifact;
+use Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributor;
 use Tuleap\User\RetrieveUserById;
 use UserHelper;
 
-final readonly class AssignedToResultBuilder
+final readonly class AssignedToResultBuilder implements BuildResultAssignedTo
 {
     public function __construct(
         private RetrieveUserById $user_retriever,
         private UserHelper $user_helper,
+        private RetrieveArtifact $retrieve_artifact,
     ) {
     }
 
-    public function getResult(array $select_results): SelectedValuesCollection
+    #[\Override]
+    public function getResult(array $select_results, PFUser $user): SelectedValuesCollection
     {
         $values = [];
         $alias  = '@assigned_to';
@@ -52,20 +58,61 @@ final readonly class AssignedToResultBuilder
                 $values[$id] = [];
             }
 
-            $value = $result[$alias];
-            if (! is_int($value) || $value === Tracker_FormElement_Field_List_Bind::NONE_VALUE) {
+            $value    = $result[$alias];
+            $user_ids = is_array($value) ? $value : [$value];
+
+            if (! $this->isAssignedToAValidAllowedValue($id, $user)) {
                 continue;
             }
-            $user = $this->user_retriever->getUserById($value);
-            if ($user === null) {
-                throw new LogicException("User $value not found");
+
+            foreach ($user_ids as $user_id) {
+                if (! is_int($user_id)) {
+                    continue;
+                }
+
+                $this->buildUserValueFromAssignedTo($user_id)->apply(
+                    static function (UserRepresentation $user) use (&$values, $id): void {
+                        $values[$id][] = $user;
+                    },
+                );
             }
-            $values[$id][] = UserRepresentation::fromPFUser($user, $this->user_helper);
         }
 
         return new SelectedValuesCollection(
             new CrossTrackerSelectedRepresentation('@assigned_to', CrossTrackerSelectedType::TYPE_USER_LIST),
             array_map(static fn(array $selected_values) => new SelectedValue('@assigned_to', new UserListRepresentation($selected_values)), $values),
         );
+    }
+
+    private function isAssignedToAValidAllowedValue(int $artifact_id, PFUser $user): bool
+    {
+        $artifact = $this->retrieve_artifact->getArtifactById($artifact_id);
+        if ($artifact === null) {
+            throw new LogicException("Artifact #$artifact_id not found");
+        }
+
+        $semantic = TrackerSemanticContributor::load($artifact->getTracker());
+        if (! $semantic->getField() || ! $semantic->getField()->userCanRead($user)) {
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * @return Option<UserRepresentation>
+     */
+    private function buildUserValueFromAssignedTo(int $user_id): Option
+    {
+        if ($user_id === Tracker_FormElement_Field_List_Bind::NONE_VALUE) {
+            return Option::nothing(UserRepresentation::class);
+        }
+
+        $user = $this->user_retriever->getUserById($user_id);
+        if ($user === null) {
+            throw new LogicException("User $user_id not found");
+        }
+
+        return Option::fromValue(UserRepresentation::fromPFUser($user, $this->user_helper));
     }
 }

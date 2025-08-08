@@ -22,16 +22,18 @@ import type {
 } from "@/sections/readonly-fields/AvailableReadonlyFields";
 import type { ColorName } from "@tuleap/plugin-tracker-constants";
 
-export const STRING_FIELD = "string";
+export const TEXT_FIELD = "text";
 export const USER_GROUP_LIST_FIELD = "user_groups_list";
 export const STATIC_LIST_FIELD = "static_list";
 export const USER_LIST_FIELD = "user_list";
 export const LINKS_FIELD = "links";
 export const NUMERIC_FIELD = "numeric";
 export const USER_FIELD = "user";
+export const DATE_FIELD = "date";
+export const PERMISSIONS_FIELD = "permissions";
 
-export type ReadonlyFieldString = Readonly<{
-    type: typeof STRING_FIELD;
+export type ReadonlyFieldText = Readonly<{
+    type: typeof TEXT_FIELD;
     label: string;
     value: string;
     display_type: ConfigurationFieldDisplayType;
@@ -116,11 +118,28 @@ export type ReadonlyFieldUser = Readonly<{
     display_type: ConfigurationFieldDisplayType;
 }>;
 
+export type ReadonlyFieldDate = Readonly<{
+    type: typeof DATE_FIELD;
+    label: string;
+    display_type: ConfigurationFieldDisplayType;
+    value: string | null;
+    with_time: boolean;
+}>;
+
+export type ReadonlyFieldPermissions = Readonly<{
+    type: typeof PERMISSIONS_FIELD;
+    label: string;
+    display_type: ConfigurationFieldDisplayType;
+    value: ReadonlyFieldUserGroupsListValue[];
+}>;
+
 export type ReadonlyField =
-    | ReadonlyFieldString
+    | ReadonlyFieldText
     | ReadonlyFieldUserGroupsList
     | ReadonlyFieldStaticList
     | ReadonlyFieldUserList
     | ReadonlyFieldLinks
     | ReadonlyFieldNumeric
-    | ReadonlyFieldUser;
+    | ReadonlyFieldUser
+    | ReadonlyFieldDate
+    | ReadonlyFieldPermissions;

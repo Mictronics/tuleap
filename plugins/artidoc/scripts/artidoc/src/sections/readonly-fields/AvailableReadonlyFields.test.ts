@@ -17,35 +17,43 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { ConfigurationField } from "@/sections/readonly-fields/AvailableReadonlyFields";
 import {
     filterAlreadySelectedFields,
+    filterSemanticsTitleDescriptionBoundField,
     getSupportedFields,
-    filterSemanticTitleBoundField,
 } from "@/sections/readonly-fields/AvailableReadonlyFields";
 import type { StructureFields } from "@tuleap/plugin-tracker-rest-api-types";
 import {
-    STRING_FIELD as TRACKER_STRING_FIELD,
-    SELECTBOX_FIELD,
-    MULTI_SELECTBOX_FIELD,
-    OPEN_LIST_FIELD,
-    CONTAINER_COLUMN,
-    LIST_BIND_UGROUPS,
-    LIST_BIND_STATIC,
-    LIST_BIND_USERS,
-    CHECKBOX_FIELD,
     ARTIFACT_ID_FIELD,
     ARTIFACT_ID_IN_TRACKER_FIELD,
+    CHECKBOX_FIELD,
+    COMPUTED_FIELD,
+    CONTAINER_COLUMN,
+    DATE_FIELD,
     FLOAT_FIELD,
     INT_FIELD,
+    LAST_UPDATE_DATE_FIELD,
+    LAST_UPDATED_BY_FIELD,
+    LIST_BIND_STATIC,
+    LIST_BIND_UGROUPS,
+    LIST_BIND_USERS,
+    MULTI_SELECTBOX_FIELD,
+    OPEN_LIST_FIELD,
+    PERMISSION_FIELD as TRACKER_PERMISSION_FIELD,
     PRIORITY_FIELD,
-    COMPUTED_FIELD,
+    SELECTBOX_FIELD,
+    STRING_FIELD as TRACKER_STRING_FIELD,
+    SUBMISSION_DATE_FIELD,
+    SUBMITTED_BY_FIELD,
+    TEXT_FIELD as TRACKER_TEXT_FIELD,
 } from "@tuleap/plugin-tracker-constants";
 import { ConfigurationFieldBuilder } from "@/sections/readonly-fields/ConfigurationFieldBuilder";
 
 describe("getAvailableFields", () => {
     const title_field_id = 599;
+    const description_field_id = 600;
 
     const string_field = {
         field_id: 123,
@@ -53,10 +61,22 @@ describe("getAvailableFields", () => {
         label: "String field",
     } as StructureFields;
 
+    const text_field = {
+        field_id: 124,
+        type: TRACKER_TEXT_FIELD,
+        label: "Text field",
+    } as StructureFields;
+
     const summary_field = {
         field_id: title_field_id,
         type: TRACKER_STRING_FIELD,
         label: "Summary",
+    } as StructureFields;
+
+    const description_field = {
+        field_id: description_field_id,
+        type: TRACKER_TEXT_FIELD,
+        label: "Description",
     } as StructureFields;
 
     const user_group_list_field = {
@@ -200,9 +220,47 @@ describe("getAvailableFields", () => {
         label: "Total remaining effort",
     } as StructureFields;
 
+    const submitted_by_field = {
+        field_id: 146,
+        type: SUBMITTED_BY_FIELD,
+        label: "Submitted by",
+    } as StructureFields;
+
+    const last_update_by_field = {
+        field_id: 147,
+        type: LAST_UPDATED_BY_FIELD,
+        label: "Last update by",
+    } as StructureFields;
+
+    const date_field = {
+        field_id: 148,
+        type: DATE_FIELD,
+        label: "Date",
+    } as StructureFields;
+
+    const submitted_on_field = {
+        field_id: 149,
+        type: SUBMISSION_DATE_FIELD,
+        label: "Submitted on",
+    } as StructureFields;
+
+    const last_update_date_field = {
+        field_id: 150,
+        type: LAST_UPDATE_DATE_FIELD,
+        label: "Last update date",
+    } as StructureFields;
+
+    const permissions_field = {
+        field_id: 151,
+        type: TRACKER_PERMISSION_FIELD,
+        label: "Permissions field",
+    } as StructureFields;
+
     const all_fields: Readonly<StructureFields[]> = [
         string_field,
+        text_field,
         summary_field,
+        description_field,
         user_group_list_field,
         static_value_list_field,
         user_value_list_field,
@@ -229,11 +287,20 @@ describe("getAvailableFields", () => {
         int_field,
         priority_field,
         computed_field,
+        submitted_by_field,
+        last_update_by_field,
+        date_field,
+        submitted_on_field,
+        last_update_date_field,
+        permissions_field,
     ];
 
     const tracker_information = {
         fields: all_fields,
-        semantics: { title: { field_id: title_field_id } },
+        semantics: {
+            title: { field_id: title_field_id },
+            description: { field_id: description_field_id },
+        },
     };
 
     describe("getSupportedFields", () => {
@@ -242,7 +309,9 @@ describe("getAvailableFields", () => {
 
             expect(supported_fields).toStrictEqual([
                 ConfigurationFieldBuilder.fromSupportedTrackerField(string_field),
+                ConfigurationFieldBuilder.fromSupportedTrackerField(text_field),
                 ConfigurationFieldBuilder.fromSupportedTrackerField(summary_field),
+                ConfigurationFieldBuilder.fromSupportedTrackerField(description_field),
                 ConfigurationFieldBuilder.fromSupportedTrackerField(user_group_list_field),
                 ConfigurationFieldBuilder.fromSupportedTrackerField(static_value_list_field),
                 ConfigurationFieldBuilder.fromSupportedTrackerField(user_value_list_field),
@@ -264,18 +333,28 @@ describe("getAvailableFields", () => {
                 ConfigurationFieldBuilder.fromSupportedTrackerField(int_field),
                 ConfigurationFieldBuilder.fromSupportedTrackerField(priority_field),
                 ConfigurationFieldBuilder.fromSupportedTrackerField(computed_field),
+                ConfigurationFieldBuilder.fromSupportedTrackerField(submitted_by_field),
+                ConfigurationFieldBuilder.fromSupportedTrackerField(last_update_by_field),
+                ConfigurationFieldBuilder.fromSupportedTrackerField(date_field),
+                ConfigurationFieldBuilder.fromSupportedTrackerField(submitted_on_field),
+                ConfigurationFieldBuilder.fromSupportedTrackerField(last_update_date_field),
+                ConfigurationFieldBuilder.fromSupportedTrackerField(permissions_field),
             ]);
         });
     });
 
-    describe("filterSemanticTitleBoundField", () => {
-        it("should remove the semantics title of a ConfigurationFields collection", () => {
+    describe("filterSemanticsTitleDescriptionBoundField", () => {
+        it("should remove the semantics title and description of a ConfigurationFields collection", () => {
             const configuration_string_field =
                 ConfigurationFieldBuilder.fromSupportedTrackerField(string_field);
-            const available_fields = filterSemanticTitleBoundField(tracker_information, [
-                configuration_string_field,
-                ConfigurationFieldBuilder.fromSupportedTrackerField(summary_field),
-            ]);
+            const available_fields = filterSemanticsTitleDescriptionBoundField(
+                tracker_information,
+                [
+                    configuration_string_field,
+                    ConfigurationFieldBuilder.fromSupportedTrackerField(summary_field),
+                    ConfigurationFieldBuilder.fromSupportedTrackerField(description_field),
+                ],
+            );
 
             expect(available_fields).toStrictEqual([configuration_string_field]);
         });

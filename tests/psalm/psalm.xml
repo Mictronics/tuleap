@@ -634,7 +634,6 @@
             <file name="plugins/testmanagement/tests/unit/TestManagement/REST/v1/TestStatusAccordingToStepsStatusChangesBuilderTest.php"/>
             <file name="plugins/testmanagement/tests/unit/TestManagement/Step/Definition/Field/StepDefinitionDataConverterTest.php"/>
             <file name="plugins/testmanagement/tests/unit/TestManagement/Step/Definition/Field/StepDefinitionSubmittedValuesTransformatorTest.php"/>
-            <file name="plugins/testmanagement/tests/unit/TestManagement/Step/Definition/Field/StepDefinitionTest.php"/>
             <file name="plugins/testmanagement/tests/unit/TestManagement/Step/Definition/Field/XML/XMLStepDefinitionTest.php"/>
             <file name="plugins/testmanagement/tests/unit/TestManagement/Step/StepCheckerTest.php"/>
             <file name="plugins/testmanagement/tests/unit/TestManagement/TestmanagementTrackersConfiguratorTest.php"/>
@@ -912,7 +911,6 @@
             <file name="plugins/tracker/tests/unit/FormElement/Field/ListFields/FieldValueMatcherTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Field/ListFields/ItemsDataset/ItemsDatasetBuilderTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Field/ListFields/XML/XMLSelectBoxFieldTest.php"/>
-            <file name="plugins/tracker/tests/unit/FormElement/Field/Numeric/Tracker_FormElement_Field_NumericTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Field/PermissionsOnArtifact/ChangesCheckerTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Field/PermissionsOnArtifact/PermissionDuckTypingMatcherTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Field/PermissionsOnArtifact/Tracker_FormElement_Field_PermissionsOnArtifactTest.php"/>
@@ -936,7 +934,6 @@
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Container_FieldsetTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_BurndownTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_CheckboxTest.php"/>
-            <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_ComputedTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_CriteriaTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_DateTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_LastUpdateDateTest.php"/>
@@ -956,7 +953,6 @@
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_OpenListTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_RadiobuttonTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_SelectboxTest.php"/>
-            <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Field_SubmittedOnTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_Line_BreakTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_FormElement_SeparatorTest.php"/>
             <file name="plugins/tracker/tests/unit/FormElement/Tracker_SharedFormElementFactoryTest.php"/>
