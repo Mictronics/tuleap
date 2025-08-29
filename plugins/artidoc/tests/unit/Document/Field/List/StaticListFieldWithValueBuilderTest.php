@@ -34,11 +34,12 @@ use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetValueListTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetValueOpenListBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\List\BindDecoratorLegacyColor;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticValueBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\OpenListValueBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\StaticBindDecoratorBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\SelectboxFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\OpenListFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Tracker;
@@ -62,7 +63,7 @@ final class StaticListFieldWithValueBuilderTest extends TestCase
     public function testItReturnsEmptyValuesWhenNoneIsSelected(): void
     {
         $list_field = ListStaticBindBuilder::aStaticBind(
-            ListFieldBuilder::aListField(123)->inTracker($this->tracker)->withLabel('static list field')->build(),
+            SelectboxFieldBuilder::aSelectboxField(123)->inTracker($this->tracker)->withLabel('static list field')->build(),
         )->withBuildStaticValues([
             ListStaticValueBuilder::aStaticValue('Something')->build(),
         ])->build()->getField();
@@ -81,7 +82,7 @@ final class StaticListFieldWithValueBuilderTest extends TestCase
     public function testItReturnsEmptyValuesWhenNoChangesetValue(): void
     {
         $list_field = ListStaticBindBuilder::aStaticBind(
-            ListFieldBuilder::aListField(123)->inTracker($this->tracker)->withLabel('static list field')->build(),
+            SelectboxFieldBuilder::aSelectboxField(123)->inTracker($this->tracker)->withLabel('static list field')->build(),
         )->build()->getField();
 
         $this->changeset->setFieldValue($list_field, null);
@@ -98,7 +99,7 @@ final class StaticListFieldWithValueBuilderTest extends TestCase
         $list_field_value_no_color = ListStaticValueBuilder::aStaticValue('No color')->withId(10004)->build();
 
         $list_field = ListStaticBindBuilder::aStaticBind(
-            ListFieldBuilder::aListField(124)->inTracker($this->tracker)->withLabel('static list field with decorators')->build(),
+            SelectboxFieldBuilder::aSelectboxField(124)->inTracker($this->tracker)->withLabel('static list field with decorators')->build(),
         )->withBuildStaticValues([
             $list_field_value_red,
             $list_field_value_no_color,
@@ -141,6 +142,31 @@ final class StaticListFieldWithValueBuilderTest extends TestCase
                 new StaticListValue('Custom value', Option::nothing(ColorName::class)),
             ]),
             $this->getField(new ConfiguredField($open_list_field, DisplayType::COLUMN)),
+        );
+    }
+
+    public function testValuesHaveNoColorWhenOldPaletteIsUsed(): void
+    {
+        $list_field_value       = ListStaticValueBuilder::aStaticValue('Value with legacy color')->withId(10002)->build();
+        $legacy_color_decorator = StaticBindDecoratorBuilder::withLegacyColor(BindDecoratorLegacyColor::build())->withFieldId(124)->withValueId($list_field_value->getId())->build();
+        $selectbox              = SelectboxFieldBuilder::aSelectboxField(124)->inTracker($this->tracker)->withLabel('static list field with legacy color decorator')->build();
+
+        $list_field = ListStaticBindBuilder::aStaticBind($selectbox)
+            ->withBuildStaticValues([$list_field_value])
+            ->withDecorators([$legacy_color_decorator])
+            ->build()
+            ->getField();
+
+        $this->changeset->setFieldValue(
+            $list_field,
+            ChangesetValueListTestBuilder::aListOfValue(407, $this->changeset, $list_field)->withValues([$list_field_value])->build(),
+        );
+
+        self::assertEquals(
+            new StaticListFieldWithValue($selectbox->getLabel(), DisplayType::COLUMN, [
+                new StaticListValue($list_field_value->getLabel(), Option::nothing(ColorName::class)),
+            ]),
+            $this->getField(new ConfiguredField($list_field, DisplayType::COLUMN)),
         );
     }
 

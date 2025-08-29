@@ -27,11 +27,13 @@ import { OpenLinkMenuCommandBuilder } from "./image/OpenLinkMenuCommandBuilder";
 import { buildKeymap } from "./keymap";
 import { buildInputRules } from "./input-rules";
 import { setupMonoToolbar } from "./mono-toolbar";
+import { OpenEmojiMenuCommandBuilder } from "./emoji/OpenEmojiMenuCommandBuilder";
 
 export { buildKeymap };
 export type { LinkState } from "./links/LinkState";
 export type { ImageState } from "./image/ImageState";
 export type { ListState } from "./list/ListState";
+export type { EmojiState } from "./emoji/EmojiState";
 export type { Heading } from "./text-style/Heading";
 
 export const NB_HEADING = 3;
@@ -49,6 +51,7 @@ export function setupToolbar(
                 SingleListInSelectionDetector(schema.nodes.ordered_list),
                 SingleListInSelectionDetector(schema.nodes.bullet_list),
                 OpenLinkMenuCommandBuilder(toolbar_bus),
+                OpenEmojiMenuCommandBuilder(toolbar_bus),
                 are_headings_enabled,
                 are_subtitles_enabled,
             ),

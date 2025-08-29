@@ -20,14 +20,28 @@
 
 use Tuleap\Tracker\FormElement\Field\ArtifactId\ArtifactIdField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
+use Tuleap\Tracker\FormElement\Field\Burndown\BurndownField;
 use Tuleap\Tracker\FormElement\Field\Computed\ComputedField;
+use Tuleap\Tracker\FormElement\Field\CrossReferences\CrossReferencesField;
+use Tuleap\Tracker\FormElement\Field\Date\DateField;
+use Tuleap\Tracker\FormElement\Field\Files\FilesField;
 use Tuleap\Tracker\FormElement\Field\Float\FloatField;
 use Tuleap\Tracker\FormElement\Field\Integer\IntegerField;
+use Tuleap\Tracker\FormElement\Field\LastUpdateBy\LastUpdateByField;
+use Tuleap\Tracker\FormElement\Field\LastUpdateDate\LastUpdateDateField;
+use Tuleap\Tracker\FormElement\Field\List\CheckboxField;
+use Tuleap\Tracker\FormElement\Field\List\MultiSelectboxField;
+use Tuleap\Tracker\FormElement\Field\List\OpenListField;
+use Tuleap\Tracker\FormElement\Field\List\RadioButtonField;
+use Tuleap\Tracker\FormElement\Field\List\SelectboxField;
+use Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField;
 use Tuleap\Tracker\FormElement\Field\PerTrackerArtifactId\PerTrackerArtifactIdField;
 use Tuleap\Tracker\FormElement\Field\Priority\PriorityField;
 use Tuleap\Tracker\FormElement\Field\String\StringField;
+use Tuleap\Tracker\FormElement\Field\SubmittedBy\SubmittedByField;
 use Tuleap\Tracker\FormElement\Field\SubmittedOn\SubmittedOnField;
 use Tuleap\Tracker\FormElement\Field\Text\TextField;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
 use Tuleap\Tracker\FormElement\TrackerFormElementExternalField;
 use Tuleap\Tracker\XML\Updater\FieldChange\FieldChangeComputedXMLUpdater;
 use Tuleap\Tracker\XML\Updater\FieldChange\FieldChangeExternalFieldXMLUpdater;
@@ -52,7 +66,7 @@ class Tracker_XML_Updater_FieldChangeXMLUpdaterVisitor implements Tracker_FormEl
 
     public function update(
         SimpleXMLElement $field_change_xml,
-        Tracker_FormElement_Field $field,
+        TrackerField $field,
         $submitted_value,
     ) {
         $updater = $field->accept($this);
@@ -65,12 +79,12 @@ class Tracker_XML_Updater_FieldChangeXMLUpdaterVisitor implements Tracker_FormEl
         return $this->unknown_updater;
     }
 
-    public function visitDate(Tracker_FormElement_Field_Date $field)
+    public function visitDate(DateField $field)
     {
         return $this->date_updater;
     }
 
-    public function visitFile(Tracker_FormElement_Field_File $field)
+    public function visitFile(FilesField $field)
     {
         return $this->unknown_updater;
     }
@@ -85,12 +99,12 @@ class Tracker_XML_Updater_FieldChangeXMLUpdaterVisitor implements Tracker_FormEl
         return $this->integer_updater;
     }
 
-    public function visitOpenList(Tracker_FormElement_Field_OpenList $field)
+    public function visitOpenList(OpenListField $field)
     {
         return $this->open_list_updater;
     }
 
-    public function visitPermissionsOnArtifact(Tracker_FormElement_Field_PermissionsOnArtifact $field)
+    public function visitPermissionsOnArtifact(PermissionsOnArtifactField $field)
     {
         return $this->perms_updater;
     }
@@ -115,47 +129,47 @@ class Tracker_XML_Updater_FieldChangeXMLUpdaterVisitor implements Tracker_FormEl
         return $this->unknown_updater;
     }
 
-    public function visitBurndown(Tracker_FormElement_Field_Burndown $field)
+    public function visitBurndown(BurndownField $field)
     {
         return $this->unknown_updater;
     }
 
-    public function visitCheckbox(Tracker_FormElement_Field_Checkbox $field)
+    public function visitCheckbox(CheckboxField $field)
     {
         return $this->list_updater;
     }
 
-    public function visitCrossReferences(Tracker_FormElement_Field_CrossReferences $field)
+    public function visitCrossReferences(CrossReferencesField $field)
     {
         return $this->unknown_updater;
     }
 
-    public function visitLastUpdateDate(Tracker_FormElement_Field_LastUpdateDate $field)
+    public function visitLastUpdateDate(LastUpdateDateField $field)
     {
         return $this->unknown_updater;
     }
 
-    public function visitMultiSelectbox(Tracker_FormElement_Field_MultiSelectbox $field)
+    public function visitMultiSelectbox(MultiSelectboxField $field)
     {
         return $this->list_updater;
     }
 
-    public function visitRadiobutton(Tracker_FormElement_Field_Radiobutton $field)
+    public function visitRadiobutton(RadioButtonField $field)
     {
         return $this->list_updater;
     }
 
-    public function visitSelectbox(Tracker_FormElement_Field_Selectbox $field)
+    public function visitSelectbox(SelectboxField $field)
     {
         return $this->list_updater;
     }
 
-    public function visitSubmittedBy(Tracker_FormElement_Field_SubmittedBy $field)
+    public function visitSubmittedBy(SubmittedByField $field)
     {
         return $this->unknown_updater;
     }
 
-    public function visitLastModifiedBy(Tracker_FormElement_Field_LastModifiedBy $field)
+    public function visitLastModifiedBy(LastUpdateByField $field)
     {
         return $this->unknown_updater;
     }

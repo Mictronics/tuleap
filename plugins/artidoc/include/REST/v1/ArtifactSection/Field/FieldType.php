@@ -34,4 +34,5 @@ enum FieldType: string
     case DATE             = 'date';
     case PERMISSIONS      = 'permissions';
     case STEPS_DEFINITION = 'steps_definition';
+    case STEPS_EXECUTION  = 'steps_execution';
 }

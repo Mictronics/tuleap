@@ -26,6 +26,7 @@ import * as tlp_modal from "@tuleap/tlp-modal";
 import emitter from "../../../../helpers/emitter";
 import { getGlobalTestOptions } from "../../../../helpers/global-options-for-test";
 import { nextTick } from "vue";
+import { IS_STATUS_PROPERTY_USED, PROJECT_ID } from "../../../../configuration-keys";
 
 vi.mock("tlp", () => {
     return { datePicker: vi.fn() };
@@ -90,7 +91,6 @@ describe("NewFolderModal", () => {
                         },
                         configuration: {
                             state: {
-                                is_status_property_used: true,
                                 has_loaded_properties: true,
                             },
                             namespaced: true,
@@ -100,6 +100,10 @@ describe("NewFolderModal", () => {
                         current_folder,
                     },
                 }),
+                provide: {
+                    [PROJECT_ID.valueOf()]: 101,
+                    [IS_STATUS_PROPERTY_USED.valueOf()]: true,
+                },
             },
         });
     }

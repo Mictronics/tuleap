@@ -22,31 +22,31 @@ namespace Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\CustomColumn;
 
 use Codendi_HTMLPurifier;
 use Tracker_Artifact_Changeset;
-use Tracker_FormElement_Field;
-use Tracker_FormElement_Field_Burndown;
-use Tracker_FormElement_Field_Checkbox;
-use Tracker_FormElement_Field_CrossReferences;
-use Tracker_FormElement_Field_Date;
-use Tracker_FormElement_Field_File;
-use Tracker_FormElement_Field_LastModifiedBy;
-use Tracker_FormElement_Field_LastUpdateDate;
-use Tracker_FormElement_Field_MultiSelectbox;
-use Tracker_FormElement_Field_OpenList;
-use Tracker_FormElement_Field_PermissionsOnArtifact;
-use Tracker_FormElement_Field_Radiobutton;
-use Tracker_FormElement_Field_Selectbox;
-use Tracker_FormElement_Field_SubmittedBy;
 use Tracker_FormElement_FieldVisitor;
 use Tuleap\Tracker\FormElement\Field\ArtifactId\ArtifactIdField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
+use Tuleap\Tracker\FormElement\Field\Burndown\BurndownField;
 use Tuleap\Tracker\FormElement\Field\Computed\ComputedField;
+use Tuleap\Tracker\FormElement\Field\CrossReferences\CrossReferencesField;
+use Tuleap\Tracker\FormElement\Field\Date\DateField;
+use Tuleap\Tracker\FormElement\Field\Files\FilesField;
 use Tuleap\Tracker\FormElement\Field\Float\FloatField;
 use Tuleap\Tracker\FormElement\Field\Integer\IntegerField;
+use Tuleap\Tracker\FormElement\Field\LastUpdateBy\LastUpdateByField;
+use Tuleap\Tracker\FormElement\Field\LastUpdateDate\LastUpdateDateField;
+use Tuleap\Tracker\FormElement\Field\List\CheckboxField;
+use Tuleap\Tracker\FormElement\Field\List\MultiSelectboxField;
+use Tuleap\Tracker\FormElement\Field\List\OpenListField;
+use Tuleap\Tracker\FormElement\Field\List\RadioButtonField;
+use Tuleap\Tracker\FormElement\Field\List\SelectboxField;
+use Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField;
 use Tuleap\Tracker\FormElement\Field\PerTrackerArtifactId\PerTrackerArtifactIdField;
 use Tuleap\Tracker\FormElement\Field\Priority\PriorityField;
 use Tuleap\Tracker\FormElement\Field\String\StringField;
+use Tuleap\Tracker\FormElement\Field\SubmittedBy\SubmittedByField;
 use Tuleap\Tracker\FormElement\Field\SubmittedOn\SubmittedOnField;
 use Tuleap\Tracker\FormElement\Field\Text\TextField;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
 use Tuleap\Tracker\FormElement\TrackerFormElementExternalField;
 
 /**
@@ -60,11 +60,11 @@ class ReplaceValueVisitor implements Tracker_FormElement_FieldVisitor
     private $changeset;
 
     /**
-     * @var Tracker_FormElement_Field
+     * @var TrackerField
      */
     private $field;
 
-    public function __construct(Tracker_FormElement_Field $field, Tracker_Artifact_Changeset $changeset)
+    public function __construct(TrackerField $field, Tracker_Artifact_Changeset $changeset)
     {
         $this->field     = $field;
         $this->changeset = $changeset;
@@ -80,12 +80,12 @@ class ReplaceValueVisitor implements Tracker_FormElement_FieldVisitor
         throw new UnsupportedFieldException();
     }
 
-    public function visitDate(Tracker_FormElement_Field_Date $field)
+    public function visitDate(DateField $field)
     {
         throw new UnsupportedFieldException();
     }
 
-    public function visitFile(Tracker_FormElement_Field_File $field)
+    public function visitFile(FilesField $field)
     {
         throw new UnsupportedFieldException();
     }
@@ -110,12 +110,12 @@ class ReplaceValueVisitor implements Tracker_FormElement_FieldVisitor
         return $changeset_value->getInteger();
     }
 
-    public function visitOpenList(Tracker_FormElement_Field_OpenList $field)
+    public function visitOpenList(OpenListField $field)
     {
         throw new UnsupportedFieldException();
     }
 
-    public function visitPermissionsOnArtifact(Tracker_FormElement_Field_PermissionsOnArtifact $field)
+    public function visitPermissionsOnArtifact(PermissionsOnArtifactField $field)
     {
         throw new UnsupportedFieldException();
     }
@@ -146,37 +146,37 @@ class ReplaceValueVisitor implements Tracker_FormElement_FieldVisitor
         throw new UnsupportedFieldException();
     }
 
-    public function visitBurndown(Tracker_FormElement_Field_Burndown $field)
+    public function visitBurndown(BurndownField $field)
     {
         throw new UnsupportedFieldException();
     }
 
-    public function visitCheckbox(Tracker_FormElement_Field_Checkbox $field)
+    public function visitCheckbox(CheckboxField $field)
     {
         throw new UnsupportedFieldException();
     }
 
-    public function visitCrossReferences(Tracker_FormElement_Field_CrossReferences $field)
+    public function visitCrossReferences(CrossReferencesField $field)
     {
         throw new UnsupportedFieldException();
     }
 
-    public function visitLastUpdateDate(Tracker_FormElement_Field_LastUpdateDate $field)
+    public function visitLastUpdateDate(LastUpdateDateField $field)
     {
         throw new UnsupportedFieldException();
     }
 
-    public function visitMultiSelectbox(Tracker_FormElement_Field_MultiSelectbox $field)
+    public function visitMultiSelectbox(MultiSelectboxField $field)
     {
         throw new UnsupportedFieldException();
     }
 
-    public function visitRadiobutton(Tracker_FormElement_Field_Radiobutton $field)
+    public function visitRadiobutton(RadioButtonField $field)
     {
         throw new UnsupportedFieldException();
     }
 
-    public function visitSelectbox(Tracker_FormElement_Field_Selectbox $field)
+    public function visitSelectbox(SelectboxField $field)
     {
         $changeset_value = $this->changeset->getValue($field);
         if (! $changeset_value) {
@@ -194,12 +194,12 @@ class ReplaceValueVisitor implements Tracker_FormElement_FieldVisitor
         return $first_value->getLabel();
     }
 
-    public function visitSubmittedBy(Tracker_FormElement_Field_SubmittedBy $field)
+    public function visitSubmittedBy(SubmittedByField $field)
     {
         throw new UnsupportedFieldException();
     }
 
-    public function visitLastModifiedBy(Tracker_FormElement_Field_LastModifiedBy $field)
+    public function visitLastModifiedBy(LastUpdateByField $field)
     {
         throw new UnsupportedFieldException();
     }

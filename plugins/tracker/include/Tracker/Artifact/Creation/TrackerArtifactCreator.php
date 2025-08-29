@@ -67,9 +67,10 @@ use Tuleap\Tracker\Changeset\Validation\NullChangesetValidationContext;
 use Tuleap\Tracker\FormElement\ArtifactLinkFieldDoesNotExistException;
 use Tuleap\Tracker\FormElement\ArtifactLinkValidator;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ParentLinkAction;
+use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\SystemTypePresenterBuilder;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
-use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
+use Tuleap\Tracker\FormElement\Field\Files\CreatedFileURLMapping;
 use Tuleap\Tracker\FormElement\Field\Text\TextValueValidator;
 use Tuleap\Tracker\Semantic\SemanticNotSupportedException;
 use Tuleap\Tracker\Tracker;
@@ -146,7 +147,7 @@ class TrackerArtifactCreator
                             $form_element_factory,
                             new ArtifactLinkValidator(
                                 $artifact_factory,
-                                new TypePresenterFactory(new TypeDao(), $usage_dao),
+                                new TypePresenterFactory(new TypeDao(), $usage_dao, new SystemTypePresenterBuilder($event_dispatcher)),
                                 $usage_dao,
                                 $event_dispatcher,
                             ),

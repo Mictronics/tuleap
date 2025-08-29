@@ -70,7 +70,7 @@ use Tuleap\TestManagement\REST\ResourcesInjector;
 use Tuleap\TestManagement\Step\Definition\Field\StepsDefinition;
 use Tuleap\TestManagement\Step\Definition\Field\StepsDefinitionChangesetValue;
 use Tuleap\TestManagement\Step\Definition\Field\StepDefinitionSubmittedValuesTransformator;
-use Tuleap\TestManagement\Step\Execution\Field\StepExecution;
+use Tuleap\TestManagement\Step\Execution\Field\StepsExecution;
 use Tuleap\TestManagement\TestManagementPluginInfo;
 use Tuleap\TestManagement\TestmanagementTrackersConfiguration;
 use Tuleap\TestManagement\TestmanagementTrackersConfigurator;
@@ -106,8 +106,8 @@ use Tuleap\Tracker\Events\XMLImportArtifactLinkTypeCanBeDisabled;
 use Tuleap\Tracker\FormElement\Event\ImportExternalElement;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkValueSaver;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
-use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
-use Tuleap\Tracker\FormElement\Field\File\FileURLSubstitutor;
+use Tuleap\Tracker\FormElement\Field\Files\CreatedFileURLMapping;
+use Tuleap\Tracker\FormElement\Field\Files\FileURLSubstitutor;
 use Tuleap\Tracker\FormElement\View\Admin\DisplayAdminFormElementsWarningsEvent;
 use Tuleap\Tracker\FormElement\View\Admin\FilterFormElementsThatCanBeCreatedForTracker;
 use Tuleap\Tracker\REST\v1\Workflow\PostAction\CheckPostActionsForTracker;
@@ -172,7 +172,7 @@ class testmanagementPlugin extends Plugin implements PluginWithService, \Tuleap\
     public function trackerFormelementGetClassnames(array $params): void // phpcs:ignore PSR1.Methods.CamelCapsMethodName
     {
         $params['fields'][StepsDefinition::TYPE] = StepsDefinition::class;
-        $params['fields'][StepExecution::TYPE]   = StepExecution::class;
+        $params['fields'][StepsExecution::TYPE]  = StepsExecution::class;
     }
 
     public function isUsedByProject(Project $project): bool
@@ -684,7 +684,7 @@ class testmanagementPlugin extends Plugin implements PluginWithService, \Tuleap\
         $project = $event->getTracker()->getProject();
         if (! $project->usesService($this->getServiceShortname())) {
             $event->removeByType(StepsDefinition::TYPE);
-            $event->removeByType(StepExecution::TYPE);
+            $event->removeByType(StepsExecution::TYPE);
         }
     }
 
@@ -951,7 +951,7 @@ class testmanagementPlugin extends Plugin implements PluginWithService, \Tuleap\
 
     private function isStepField(?SimpleXMLElement $attributes): bool
     {
-        return $attributes && isset($attributes['type']) && ((string) $attributes['type'] === StepsDefinition::TYPE || (string) $attributes['type'] === StepExecution::TYPE);
+        return $attributes && isset($attributes['type']) && ((string) $attributes['type'] === StepsDefinition::TYPE || (string) $attributes['type'] === StepsExecution::TYPE);
     }
 
     #[\Tuleap\Plugin\ListeningToEventClass]

@@ -25,9 +25,10 @@ namespace Tuleap\Artidoc;
 require_once __DIR__ . '/../../../docman/vendor/autoload.php';
 
 use Psl\Json;
-use REST_TestDataBuilder;
 use Tuleap\Docman\Test\rest\DocmanDataBuilder;
 use Tuleap\Docman\Test\rest\Helper\DocmanTestExecutionHelper;
+use Tuleap\REST\BaseTestDataBuilder;
+use Tuleap\REST\RESTTestDataBuilder;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ArtidocTest extends DocmanTestExecutionHelper
@@ -162,7 +163,7 @@ final class ArtidocTest extends DocmanTestExecutionHelper
 
         $response = $this->getResponse(
             $this->request_factory->createRequest('POST', 'docman_folders/' . $root_id . '/others')->withBody($this->stream_factory->createStream($query)),
-            REST_TestDataBuilder::TEST_BOT_USER_NAME
+            RESTTestDataBuilder::TEST_BOT_USER_NAME
         );
 
         self::assertSame(403, $response->getStatusCode());
@@ -556,7 +557,7 @@ final class ArtidocTest extends DocmanTestExecutionHelper
         self::assertSame(200, $get_by_regular_user_response->getStatusCode(), 'Regular user can read the document');
 
         $put_permissions_response = $this->getResponseByName(
-            \TestDataBuilder::ADMIN_USER_NAME,
+            BaseTestDataBuilder::ADMIN_USER_NAME,
             $this->request_factory
                 ->createRequest('PUT', 'docman_other_type_documents/' . $artidoc_id . '/permissions')
                 ->withBody(
@@ -583,7 +584,7 @@ final class ArtidocTest extends DocmanTestExecutionHelper
 
         $get_by_admin_response = $this->getResponse(
             $this->request_factory->createRequest('GET', 'docman_items/' . $artidoc_id),
-            \TestDataBuilder::ADMIN_USER_NAME
+            BaseTestDataBuilder::ADMIN_USER_NAME
         );
         self::assertSame(200, $get_by_admin_response->getStatusCode(), 'Admin can read the document');
 
@@ -667,7 +668,7 @@ final class ArtidocTest extends DocmanTestExecutionHelper
             $this->request_factory->createRequest('POST', 'artidoc_files')->withBody(
                 $this->stream_factory->createStream(Json\encode($payload))
             ),
-            REST_TestDataBuilder::TEST_BOT_USER_NAME
+            RESTTestDataBuilder::TEST_BOT_USER_NAME
         );
         self::assertSame(403, $post_response->getStatusCode());
 

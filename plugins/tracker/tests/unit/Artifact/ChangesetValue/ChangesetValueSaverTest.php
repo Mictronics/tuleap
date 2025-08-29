@@ -24,7 +24,7 @@ namespace Tuleap\Tracker\Artifact\ChangesetValue;
 
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Tracker\Artifact\Artifact;
-use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
+use Tuleap\Tracker\FormElement\Field\Files\CreatedFileURLMapping;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
 
@@ -35,7 +35,7 @@ final class ChangesetValueSaverTest extends \Tuleap\Test\PHPUnit\TestCase
     private const NEW_CHANGESET_ID = 866;
     private const FIELD_VALUE      = 'Sufistic pathogenous';
     /**
-     * @var \PHPUnit\Framework\MockObject\MockObject & \Tracker_FormElement_Field
+     * @var \PHPUnit\Framework\MockObject\MockObject & \Tuleap\Tracker\FormElement\Field\TrackerField
      */
     private $field;
     /**
@@ -46,7 +46,7 @@ final class ChangesetValueSaverTest extends \Tuleap\Test\PHPUnit\TestCase
 
     protected function setUp(): void
     {
-        $this->field = $this->createMock(\Tracker_FormElement_Field::class);
+        $this->field = $this->createMock(\Tuleap\Tracker\FormElement\Field\TrackerField::class);
         $this->field->method('getId')->willReturn(self::FIELD_ID);
         $this->workflow    = $this->createStub(\Workflow::class);
         $this->fields_data = [];

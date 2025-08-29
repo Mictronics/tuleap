@@ -29,6 +29,7 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\LegacyTabTranslationsSupport;
 use Tuleap\Test\Stubs\ProvideCurrentUserStub;
 use Tuleap\Tracker\Admin\ArtifactLinksUsageDao;
+use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\SystemTypePresenterBuilder;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
 use Tuleap\Tracker\FormElement\Field\ListFields\OpenListValueDao;
@@ -77,16 +78,17 @@ use Tuleap\Tracker\Report\Query\Advanced\InvalidMetadata\NotEqualComparisonCheck
 use Tuleap\Tracker\Report\Query\Advanced\InvalidMetadata\NotInComparisonChecker;
 use Tuleap\Tracker\Test\Builders\Fields\CheckboxFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\DateFieldBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\FileFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\FilesFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\FloatFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\IntegerFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\LastUpdateByFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\LastUpdateDateFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListUserGroupBindBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\MultiSelectboxFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\OpenListFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\RadioButtonFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\SelectboxFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\StringFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\SubmittedByFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\SubmittedOnFieldBuilder;
@@ -142,6 +144,7 @@ final class InvalidTermCollectorVisitorTest extends \Tuleap\Test\PHPUnit\TestCas
                 new TypePresenterFactory(
                     new TypeDao(),
                     new ArtifactLinksUsageDao(),
+                    new SystemTypePresenterBuilder(\EventManager::instance())
                 ),
             ),
             new EqualComparisonChecker(),
@@ -441,7 +444,7 @@ final class InvalidTermCollectorVisitorTest extends \Tuleap\Test\PHPUnit\TestCas
     {
         $this->formelement_factory->method('getUsedFormElementFieldByNameForUser')
             ->willReturn(
-                FileFieldBuilder::aFileField(324)
+                FilesFieldBuilder::aFileField(324)
                     ->withName(self::FIELD_NAME)
                     ->build()
             );
@@ -486,7 +489,7 @@ final class InvalidTermCollectorVisitorTest extends \Tuleap\Test\PHPUnit\TestCas
         $this->formelement_factory->method('getUsedFormElementFieldByNameForUser')
             ->willReturn(
                 ListStaticBindBuilder::aStaticBind(
-                    ListFieldBuilder::aListField(957)->withName(self::FIELD_NAME)->build()
+                    SelectboxFieldBuilder::aSelectboxField(957)->withName(self::FIELD_NAME)->build()
                 )->build()->getField()
             );
         $this->comparison = $comparison;
@@ -501,7 +504,7 @@ final class InvalidTermCollectorVisitorTest extends \Tuleap\Test\PHPUnit\TestCas
         $this->formelement_factory->method('getUsedFormElementFieldByNameForUser')
             ->willReturn(
                 ListStaticBindBuilder::aStaticBind(
-                    ListFieldBuilder::aListField(957)->withMultipleValues()->withName(self::FIELD_NAME)->build()
+                    MultiSelectboxFieldBuilder::aMultiSelectboxField(957)->withName(self::FIELD_NAME)->build()
                 )->build()->getField()
             );
         $this->comparison = $comparison;
@@ -596,16 +599,16 @@ final class InvalidTermCollectorVisitorTest extends \Tuleap\Test\PHPUnit\TestCas
         yield 'last update date' => [
             LastUpdateDateFieldBuilder::aLastUpdateDateField(129)->withName(self::FIELD_NAME)->build(),
         ];
-        yield 'file' => [FileFieldBuilder::aFileField(272)->withName(self::FIELD_NAME)->build()];
+        yield 'file' => [FilesFieldBuilder::aFileField(272)->withName(self::FIELD_NAME)->build()];
 
-        $list_field = ListFieldBuilder::aListField(175)->withName(self::FIELD_NAME)->build();
+        $list_field = SelectboxFieldBuilder::aSelectboxField(175)->withName(self::FIELD_NAME)->build();
 
         yield 'static list' => [ListStaticBindBuilder::aStaticBind($list_field)->build()->getField()];
         yield 'user group list' => [ListUserGroupBindBuilder::aUserGroupBind($list_field)->build()->getField()];
     }
 
     #[DataProvider('generateFieldTypes')]
-    public function testItRejectsInvalidComparisonToMyself(\Tracker_FormElement_Field $field): void
+    public function testItRejectsInvalidComparisonToMyself(\Tuleap\Tracker\FormElement\Field\TrackerField $field): void
     {
         $this->formelement_factory->method('getUsedFormElementFieldByNameForUser')->willReturn($field);
 

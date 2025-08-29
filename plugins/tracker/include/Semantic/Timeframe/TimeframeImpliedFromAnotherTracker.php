@@ -62,12 +62,12 @@ class TimeframeImpliedFromAnotherTracker implements IComputeTimeframes
         );
     }
 
-    public function getStartDateField(): ?\Tracker_FormElement_Field_Date
+    public function getStartDateField(): ?\Tuleap\Tracker\FormElement\Field\Date\DateField
     {
         return null;
     }
 
-    public function getEndDateField(): ?\Tracker_FormElement_Field_Date
+    public function getEndDateField(): ?\Tuleap\Tracker\FormElement\Field\Date\DateField
     {
         return null;
     }
@@ -178,7 +178,7 @@ class TimeframeImpliedFromAnotherTracker implements IComputeTimeframes
         );
     }
 
-    public function isFieldUsed(\Tracker_FormElement_Field $field): bool
+    public function isFieldUsed(\Tuleap\Tracker\FormElement\Field\TrackerField $field): bool
     {
         if (! ($field instanceof \Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField)) {
             return false;

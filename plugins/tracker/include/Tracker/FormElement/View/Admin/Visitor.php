@@ -21,14 +21,29 @@ use Tuleap\JSONHeader;
 use Tuleap\Tracker\FormElement\Field\ArtifactId\ArtifactIdField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkFieldAdmin;
+use Tuleap\Tracker\FormElement\Field\Burndown\BurndownField;
 use Tuleap\Tracker\FormElement\Field\Computed\ComputedField;
+use Tuleap\Tracker\FormElement\Field\CrossReferences\CrossReferencesField;
+use Tuleap\Tracker\FormElement\Field\Date\DateField;
+use Tuleap\Tracker\FormElement\Field\Files\FilesField;
 use Tuleap\Tracker\FormElement\Field\Float\FloatField;
 use Tuleap\Tracker\FormElement\Field\Integer\IntegerField;
+use Tuleap\Tracker\FormElement\Field\LastUpdateBy\LastUpdateByField;
+use Tuleap\Tracker\FormElement\Field\LastUpdateDate\LastUpdateDateField;
+use Tuleap\Tracker\FormElement\Field\List\CheckboxField;
+use Tuleap\Tracker\FormElement\Field\List\MultiSelectboxField;
+use Tuleap\Tracker\FormElement\Field\List\OpenListField;
+use Tuleap\Tracker\FormElement\Field\List\RadioButtonField;
+use Tuleap\Tracker\FormElement\Field\List\SelectboxField;
+use Tuleap\Tracker\FormElement\Field\ListField;
+use Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField;
 use Tuleap\Tracker\FormElement\Field\PerTrackerArtifactId\PerTrackerArtifactIdField;
 use Tuleap\Tracker\FormElement\Field\Priority\PriorityField;
 use Tuleap\Tracker\FormElement\Field\String\StringField;
+use Tuleap\Tracker\FormElement\Field\SubmittedBy\SubmittedByField;
 use Tuleap\Tracker\FormElement\Field\SubmittedOn\SubmittedOnField;
 use Tuleap\Tracker\FormElement\Field\Text\TextField;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
 use Tuleap\Tracker\FormElement\TrackerFormElementExternalField;
 use Tuleap\Tracker\FormElement\View\Admin\Field\Computed;
 
@@ -94,12 +109,12 @@ class Tracker_FormElement_View_Admin_Visitor implements Tracker_FormElement_Visi
         );
     }
 
-    public function visitDate(Tracker_FormElement_Field_Date $field)
+    public function visitDate(DateField $field)
     {
         $this->visitField($field);
     }
 
-    public function visitFile(Tracker_FormElement_Field_File $field)
+    public function visitFile(FilesField $field)
     {
         $this->visitField($field);
     }
@@ -114,7 +129,7 @@ class Tracker_FormElement_View_Admin_Visitor implements Tracker_FormElement_Visi
         $this->visitField($field);
     }
 
-    public function visitOpenList(Tracker_FormElement_Field_OpenList $field)
+    public function visitOpenList(OpenListField $field)
     {
         $this->visitList($field);
     }
@@ -135,7 +150,7 @@ class Tracker_FormElement_View_Admin_Visitor implements Tracker_FormElement_Visi
         $this->adminElement = new Computed($element, $this->allUsedElements);
     }
 
-    private function visitField(Tracker_FormElement_Field $element)
+    private function visitField(TrackerField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field($element, $this->allUsedElements);
@@ -152,49 +167,49 @@ class Tracker_FormElement_View_Admin_Visitor implements Tracker_FormElement_Visi
         $this->visitArtifactId($element);
     }
 
-    public function visitCrossReferences(Tracker_FormElement_Field_CrossReferences $element)
+    public function visitCrossReferences(CrossReferencesField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_CrossReferences($element, $this->allUsedElements);
     }
 
-    public function visitBurndown(Tracker_FormElement_Field_Burndown $element)
+    public function visitBurndown(BurndownField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_Burndown($element, $this->allUsedElements);
     }
 
-    public function visitLastUpdateDate(Tracker_FormElement_Field_LastUpdateDate $element)
+    public function visitLastUpdateDate(LastUpdateDateField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_LastUpdateDate($element, $this->allUsedElements);
     }
 
-    public function visitPermissionsOnArtifact(Tracker_FormElement_Field_PermissionsOnArtifact $element)
+    public function visitPermissionsOnArtifact(PermissionsOnArtifactField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_PermissionsOnArtifact($element, $this->allUsedElements);
     }
 
-    private function visitList(Tracker_FormElement_Field_List $element)
+    private function visitList(ListField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_List($element, $this->allUsedElements);
     }
 
-    public function visitSelectbox(Tracker_FormElement_Field_Selectbox $element)
+    public function visitSelectbox(SelectboxField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_Selectbox($element, $this->allUsedElements);
     }
 
-    public function visitSubmittedBy(Tracker_FormElement_Field_SubmittedBy $element)
+    public function visitSubmittedBy(SubmittedByField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_SubmittedBy($element, $this->allUsedElements);
     }
 
-    public function visitLastModifiedBy(Tracker_FormElement_Field_LastModifiedBy $element)
+    public function visitLastModifiedBy(LastUpdateByField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_LastModifiedBy($element, $this->allUsedElements);
@@ -206,19 +221,19 @@ class Tracker_FormElement_View_Admin_Visitor implements Tracker_FormElement_Visi
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_SubmittedOn($element, $this->allUsedElements);
     }
 
-    public function visitMultiSelectbox(Tracker_FormElement_Field_MultiSelectbox $element)
+    public function visitMultiSelectbox(MultiSelectboxField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_MultiSelectbox($element, $this->allUsedElements);
     }
 
-    public function visitCheckbox(Tracker_FormElement_Field_Checkbox $element)
+    public function visitCheckbox(CheckboxField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_Checkbox($element, $this->allUsedElements);
     }
 
-    public function visitRadiobutton(Tracker_FormElement_Field_Radiobutton $element)
+    public function visitRadiobutton(RadioButtonField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_Radiobutton($element, $this->allUsedElements);

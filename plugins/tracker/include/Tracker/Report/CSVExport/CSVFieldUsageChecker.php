@@ -23,20 +23,20 @@ declare(strict_types=1);
 
 namespace Tuleap\Tracker\Report\CSVExport;
 
-use Tracker_FormElement_Field;
 use Tuleap\Tracker\FormElement\Field\ArtifactId\ArtifactIdField;
-use Tracker_FormElement_Field_Burndown;
+use Tuleap\Tracker\FormElement\Field\Burndown\BurndownField;
 use Tuleap\Tracker\FormElement\Field\PerTrackerArtifactId\PerTrackerArtifactIdField;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
 
 class CSVFieldUsageChecker
 {
-    public static function canFieldBeExportedToCSV(Tracker_FormElement_Field $field): bool
+    public static function canFieldBeExportedToCSV(TrackerField $field): bool
     {
         return $field->isUsed()
             && $field->userCanRead()
             && ! (
                 ($field instanceof ArtifactIdField && ! $field instanceof PerTrackerArtifactIdField)
-                || $field instanceof Tracker_FormElement_Field_Burndown
+                || $field instanceof BurndownField
             );
     }
 }

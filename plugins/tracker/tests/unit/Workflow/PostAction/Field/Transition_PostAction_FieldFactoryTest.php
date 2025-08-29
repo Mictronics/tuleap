@@ -22,8 +22,10 @@
 declare(strict_types=1);
 
 use PHPUnit\Framework\MockObject\MockObject;
+use Tuleap\Tracker\FormElement\Field\Date\DateField;
 use Tuleap\Tracker\FormElement\Field\Float\FloatField;
 use Tuleap\Tracker\FormElement\Field\Integer\IntegerField;
+use Tuleap\Tracker\FormElement\Field\List\SelectboxField;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticValueBuilder;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
@@ -144,7 +146,7 @@ final class Transition_PostAction_FieldFactoryTest extends \Tuleap\Test\PHPUnit\
         $this->element_factory
             ->method('getFormElementById')
             ->with($this->field_id)
-            ->willReturn(new Tracker_FormElement_Field_Date(null, null, null, null, null, null, null, null, null, null, null));
+            ->willReturn(new DateField(null, null, null, null, null, null, null, null, null, null, null));
 
         $post_action_rows = [
             'id'         => $this->post_action_id,
@@ -173,11 +175,11 @@ final class Transition_PostAction_FieldFactoryTest extends \Tuleap\Test\PHPUnit\
 
     public function testItDelegatesDuplicationToTheCorrespondingDao(): void
     {
-        $select_box1 = $this->createMock(Tracker_FormElement_Field_Selectbox::class);
+        $select_box1 = $this->createMock(SelectboxField::class);
         $select_box1->method('getId')->willReturn(2065);
-        $select_box2 = $this->createMock(Tracker_FormElement_Field_Selectbox::class);
+        $select_box2 = $this->createMock(SelectboxField::class);
         $select_box2->method('getId')->willReturn(2066);
-        $select_box3 = $this->createMock(Tracker_FormElement_Field_Selectbox::class);
+        $select_box3 = $this->createMock(SelectboxField::class);
         $select_box3->method('getId')->willReturn(2067);
         $this->element_factory->method('getFormElementById')->willReturnCallback(static fn (int $id) => match ($id) {
             $select_box1->getId() => $select_box1,
@@ -291,7 +293,7 @@ final class Transition_PostAction_FieldFactoryTest extends \Tuleap\Test\PHPUnit\
         $transition = $this->createMock(Transition::class);
         $transition->method('getId')->willReturn(123);
 
-        $field_date = $this->createMock(Tracker_FormElement_Field_Date::class);
+        $field_date = $this->createMock(DateField::class);
         $field_date->method('getId')->willReturn(456);
 
         $post_action = new Transition_PostAction_Field_Date(
@@ -346,7 +348,7 @@ final class Transition_PostAction_FieldFactoryTest extends \Tuleap\Test\PHPUnit\
     public function testItIsTrueWhenFieldIsUsedInADatePostAction(): void
     {
         $field_id = 45617;
-        $field    = $this->createMock(\Tracker_FormElement_Field::class);
+        $field    = $this->createMock(\Tuleap\Tracker\FormElement\Field\TrackerField::class);
         $field->method('getId')->willReturn($field_id);
         $this->date_dao->method('countByFieldId')->with($field_id)->willReturn(1);
         $this->int_dao->method('countByFieldId')->with($field_id)->willReturn(0);
@@ -358,7 +360,7 @@ final class Transition_PostAction_FieldFactoryTest extends \Tuleap\Test\PHPUnit\
     public function testItIsTrueWhenFieldIsUsedInAnIntPostAction(): void
     {
         $field_id = 45617;
-        $field    = $this->createMock(\Tracker_FormElement_Field::class);
+        $field    = $this->createMock(\Tuleap\Tracker\FormElement\Field\TrackerField::class);
         $field->method('getId')->willReturn($field_id);
         $this->date_dao->method('countByFieldId')->with($field_id)->willReturn(0);
         $this->int_dao->method('countByFieldId')->with($field_id)->willReturn(2);
@@ -370,7 +372,7 @@ final class Transition_PostAction_FieldFactoryTest extends \Tuleap\Test\PHPUnit\
     public function testItIsTrueWhenFieldIsUsedInAFloatPostAction(): void
     {
         $field_id = 45617;
-        $field    = $this->createMock(\Tracker_FormElement_Field::class);
+        $field    = $this->createMock(\Tuleap\Tracker\FormElement\Field\TrackerField::class);
         $field->method('getId')->willReturn($field_id);
         $this->date_dao->method('countByFieldId')->with($field_id)->willReturn(0);
         $this->int_dao->method('countByFieldId')->with($field_id)->willReturn(0);
@@ -382,7 +384,7 @@ final class Transition_PostAction_FieldFactoryTest extends \Tuleap\Test\PHPUnit\
     public function testItIsTrueWhenFieldIsUsedInMultiplePostActions(): void
     {
         $field_id = 45617;
-        $field    = $this->createMock(\Tracker_FormElement_Field::class);
+        $field    = $this->createMock(\Tuleap\Tracker\FormElement\Field\TrackerField::class);
         $field->method('getId')->willReturn($field_id);
         $this->date_dao->method('countByFieldId')->with($field_id)->willReturn(1);
         $this->int_dao->method('countByFieldId')->with($field_id)->willReturn(2);
@@ -394,7 +396,7 @@ final class Transition_PostAction_FieldFactoryTest extends \Tuleap\Test\PHPUnit\
     public function testItIsFalseWhenFieldIsNotUsedInAnyPostAction(): void
     {
         $field_id = 45617;
-        $field    = $this->createMock(\Tracker_FormElement_Field::class);
+        $field    = $this->createMock(\Tuleap\Tracker\FormElement\Field\TrackerField::class);
         $field->method('getId')->willReturn($field_id);
         $this->date_dao->method('countByFieldId')->with($field_id)->willReturn(0);
         $this->int_dao->method('countByFieldId')->with($field_id)->willReturn(0);

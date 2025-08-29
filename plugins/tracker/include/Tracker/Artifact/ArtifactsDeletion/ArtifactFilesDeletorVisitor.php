@@ -23,29 +23,29 @@ declare(strict_types=1);
 namespace Tuleap\Tracker\Artifact\ArtifactsDeletion;
 
 use Tracker_Artifact_ChangesetValue_File;
-use Tracker_FormElement_Field_Burndown;
-use Tracker_FormElement_Field_Checkbox;
-use Tracker_FormElement_Field_CrossReferences;
-use Tracker_FormElement_Field_Date;
-use Tracker_FormElement_Field_File;
-use Tracker_FormElement_Field_LastModifiedBy;
-use Tracker_FormElement_Field_LastUpdateDate;
-use Tracker_FormElement_Field_MultiSelectbox;
-use Tracker_FormElement_Field_OpenList;
-use Tracker_FormElement_Field_PermissionsOnArtifact;
-use Tracker_FormElement_Field_Radiobutton;
-use Tracker_FormElement_Field_Selectbox;
-use Tracker_FormElement_Field_SubmittedBy;
 use Tracker_FormElement_FieldVisitor;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\FormElement\Field\ArtifactId\ArtifactIdField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
+use Tuleap\Tracker\FormElement\Field\Burndown\BurndownField;
 use Tuleap\Tracker\FormElement\Field\Computed\ComputedField;
+use Tuleap\Tracker\FormElement\Field\CrossReferences\CrossReferencesField;
+use Tuleap\Tracker\FormElement\Field\Date\DateField;
+use Tuleap\Tracker\FormElement\Field\Files\FilesField;
 use Tuleap\Tracker\FormElement\Field\Float\FloatField;
 use Tuleap\Tracker\FormElement\Field\Integer\IntegerField;
+use Tuleap\Tracker\FormElement\Field\LastUpdateBy\LastUpdateByField;
+use Tuleap\Tracker\FormElement\Field\LastUpdateDate\LastUpdateDateField;
+use Tuleap\Tracker\FormElement\Field\List\CheckboxField;
+use Tuleap\Tracker\FormElement\Field\List\MultiSelectboxField;
+use Tuleap\Tracker\FormElement\Field\List\OpenListField;
+use Tuleap\Tracker\FormElement\Field\List\RadioButtonField;
+use Tuleap\Tracker\FormElement\Field\List\SelectboxField;
+use Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField;
 use Tuleap\Tracker\FormElement\Field\PerTrackerArtifactId\PerTrackerArtifactIdField;
 use Tuleap\Tracker\FormElement\Field\Priority\PriorityField;
 use Tuleap\Tracker\FormElement\Field\String\StringField;
+use Tuleap\Tracker\FormElement\Field\SubmittedBy\SubmittedByField;
 use Tuleap\Tracker\FormElement\Field\SubmittedOn\SubmittedOnField;
 use Tuleap\Tracker\FormElement\Field\Text\TextField;
 use Tuleap\Tracker\FormElement\TrackerFormElementExternalField;
@@ -66,11 +66,11 @@ class ArtifactFilesDeletorVisitor implements Tracker_FormElement_FieldVisitor
     {
     }
 
-    public function visitDate(Tracker_FormElement_Field_Date $field): void
+    public function visitDate(DateField $field): void
     {
     }
 
-    public function visitFile(Tracker_FormElement_Field_File $field): void
+    public function visitFile(FilesField $field): void
     {
         $files                    = [];
         $artifact_changeset_value =  $this->artifact->getValue($field);
@@ -91,11 +91,11 @@ class ArtifactFilesDeletorVisitor implements Tracker_FormElement_FieldVisitor
     {
     }
 
-    public function visitOpenList(Tracker_FormElement_Field_OpenList $field): void
+    public function visitOpenList(OpenListField $field): void
     {
     }
 
-    public function visitPermissionsOnArtifact(Tracker_FormElement_Field_PermissionsOnArtifact $field): void
+    public function visitPermissionsOnArtifact(PermissionsOnArtifactField $field): void
     {
     }
 
@@ -107,27 +107,27 @@ class ArtifactFilesDeletorVisitor implements Tracker_FormElement_FieldVisitor
     {
     }
 
-    public function visitRadiobutton(Tracker_FormElement_Field_Radiobutton $field): void
+    public function visitRadiobutton(RadioButtonField $field): void
     {
     }
 
-    public function visitCheckbox(Tracker_FormElement_Field_Checkbox $field): void
+    public function visitCheckbox(CheckboxField $field): void
     {
     }
 
-    public function visitMultiSelectbox(Tracker_FormElement_Field_MultiSelectbox $field): void
+    public function visitMultiSelectbox(MultiSelectboxField $field): void
     {
     }
 
-    public function visitSelectbox(Tracker_FormElement_Field_Selectbox $field): void
+    public function visitSelectbox(SelectboxField $field): void
     {
     }
 
-    public function visitSubmittedBy(Tracker_FormElement_Field_SubmittedBy $field): void
+    public function visitSubmittedBy(SubmittedByField $field): void
     {
     }
 
-    public function visitLastModifiedBy(Tracker_FormElement_Field_LastModifiedBy $field): void
+    public function visitLastModifiedBy(LastUpdateByField $field): void
     {
     }
 
@@ -139,15 +139,15 @@ class ArtifactFilesDeletorVisitor implements Tracker_FormElement_FieldVisitor
     {
     }
 
-    public function visitCrossReferences(Tracker_FormElement_Field_CrossReferences $field): void
+    public function visitCrossReferences(CrossReferencesField $field): void
     {
     }
 
-    public function visitBurndown(Tracker_FormElement_Field_Burndown $field): void
+    public function visitBurndown(BurndownField $field): void
     {
     }
 
-    public function visitLastUpdateDate(Tracker_FormElement_Field_LastUpdateDate $field): void
+    public function visitLastUpdateDate(LastUpdateDateField $field): void
     {
     }
 

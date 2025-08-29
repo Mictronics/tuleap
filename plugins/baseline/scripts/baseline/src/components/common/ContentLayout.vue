@@ -30,7 +30,7 @@
                     <div class="tlp-pane-header">
                         <h1 class="tlp-pane-title">
                             <i class="fa fa-list-ul tlp-pane-title-icon"></i>
-                            <translate>Filters</translate>
+                            {{ $gettext("Filters") }}
                         </h1>
                     </div>
 
@@ -44,7 +44,7 @@
                     <div class="tlp-pane-header">
                         <h1 class="tlp-pane-title">
                             <i class="fa fa-files-o tlp-pane-title-icon"></i>
-                            <translate>Content</translate>
+                            {{ $gettext("Content") }}
                         </h1>
                     </div>
                     <section v-if="has_comment_slot" class="tlp-pane-section comparison-comment">
@@ -60,7 +60,9 @@
 </template>
 <script setup lang="ts">
 import { computed, useSlots } from "vue";
+import { useGettext } from "vue3-gettext";
 
+const { $gettext } = useGettext();
 const slots = useSlots();
 
 const has_comment_slot = computed((): boolean => Boolean(slots.comment));

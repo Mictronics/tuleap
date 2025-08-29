@@ -35,9 +35,6 @@ use TestHelper;
 use Tracker_Artifact_Changeset;
 use Tracker_Artifact_XMLImport;
 use Tracker_Artifact_XMLImport_XMLImportZipArchive;
-use Tracker_FormElement_Field_MultiSelectbox;
-use Tracker_FormElement_Field_OpenList;
-use Tracker_FormElement_Field_PermissionsOnArtifact;
 use Tracker_FormElementFactory;
 use Tracker_XML_Importer_ArtifactImportedMapping;
 use TrackerXmlFieldsMapping_InSamePlatform;
@@ -60,14 +57,17 @@ use Tuleap\Tracker\Artifact\XMLImport\MoveImportConfig;
 use Tuleap\Tracker\Artifact\XMLImport\TrackerImportConfig;
 use Tuleap\Tracker\Artifact\XMLImport\TrackerXmlImportConfig;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
-use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
+use Tuleap\Tracker\FormElement\Field\Files\CreatedFileURLMapping;
+use Tuleap\Tracker\FormElement\Field\List\MultiSelectboxField;
+use Tuleap\Tracker\FormElement\Field\List\OpenListField;
 use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindStaticValueDao;
+use Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField;
 use Tuleap\Tracker\FormElement\Field\String\StringField;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ArtifactLinkFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\DateFieldBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\FileFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\FilesFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\FloatFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\IntegerFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\StringFieldBuilder;
@@ -1255,7 +1255,7 @@ final class Tracker_Artifact_XMLImportTest extends TestCase // phpcs:ignore Squi
     {
         $this->artifact_creator->method('create')->willReturn($this->artifact);
         $this->formelement_factory->method('getUsedFieldByName')->with(self::TRACKER_ID, 'attachment')
-            ->willReturn(FileFieldBuilder::aFileField(51)->build());
+            ->willReturn(FilesFieldBuilder::aFileField(51)->build());
 
         touch($this->extraction_path . '/34_File33.png');
 
@@ -1382,7 +1382,7 @@ final class Tracker_Artifact_XMLImportTest extends TestCase // phpcs:ignore Squi
         touch($this->extraction_path . '/34_File34.pdf');
 
         $this->formelement_factory->method('getUsedFieldByName')->with(self::TRACKER_ID, 'attachment')
-            ->willReturn(FileFieldBuilder::aFileField(51)->build());
+            ->willReturn(FilesFieldBuilder::aFileField(51)->build());
         $this->user_manager->method('getUserByIdentifier')->with('manuel')->willReturn($this->john_doe);
         $this->private_comment_extractor->method('extractUGroupsFromXML')->willReturn([]);
 
@@ -1442,7 +1442,7 @@ final class Tracker_Artifact_XMLImportTest extends TestCase // phpcs:ignore Squi
         touch($this->extraction_path . '/34_File34.pdf');
 
         $this->formelement_factory->method('getUsedFieldByName')->with(self::TRACKER_ID, 'attachment')
-            ->willReturn(FileFieldBuilder::aFileField(51)->build());
+            ->willReturn(FilesFieldBuilder::aFileField(51)->build());
         $this->user_manager->method('getUserByIdentifier')->with('manuel')->willReturn($this->john_doe);
         $this->private_comment_extractor->method('extractUGroupsFromXML')->willReturn([]);
 
@@ -1497,7 +1497,7 @@ final class Tracker_Artifact_XMLImportTest extends TestCase // phpcs:ignore Squi
         $this->artifact_creator->method('createBare')->willReturn($this->artifact);
         $this->artifact_creator->method('createFirstChangeset')->willReturn(ChangesetTestBuilder::aChangeset(259)->build());
 
-        $open_list_field = $this->createMock(Tracker_FormElement_Field_OpenList::class);
+        $open_list_field = $this->createMock(OpenListField::class);
         $open_list_field->method('setTracker');
         $open_list_field->method('getId')->willReturn(369);
         $open_list_field->method('validateField')->willReturn(true);
@@ -1520,7 +1520,7 @@ final class Tracker_Artifact_XMLImportTest extends TestCase // phpcs:ignore Squi
 
     public function testItCreatesArtifactWithCCFieldData(): void
     {
-        $open_list_field = $this->createMock(Tracker_FormElement_Field_OpenList::class);
+        $open_list_field = $this->createMock(OpenListField::class);
         $open_list_field->method('setTracker');
         $open_list_field->method('getId')->willReturn(369);
         $open_list_field->method('validateField')->willReturn(true);
@@ -1563,7 +1563,7 @@ final class Tracker_Artifact_XMLImportTest extends TestCase // phpcs:ignore Squi
 
     public function testItCreatesArtifactWithPermsFieldData(): void
     {
-        $perms_field = $this->createMock(Tracker_FormElement_Field_PermissionsOnArtifact::class);
+        $perms_field = $this->createMock(PermissionsOnArtifactField::class);
         $perms_field->method('getId')->willReturn(369);
         $perms_field->method('validateField')->willReturn(true);
         $perms_field->method('setTracker');
@@ -1932,7 +1932,7 @@ final class Tracker_Artifact_XMLImportTest extends TestCase // phpcs:ignore Squi
 
     public function testItCreatesArtifactWithAllMultiSelectboxValue(): void
     {
-        $static_multi_selectbox_field = $this->createMock(Tracker_FormElement_Field_MultiSelectbox::class);
+        $static_multi_selectbox_field = $this->createMock(MultiSelectboxField::class);
         $static_multi_selectbox_field->method('getId')->willReturn(456);
         $static_multi_selectbox_field->method('validateField')->willReturn(true);
         $static_multi_selectbox_field->method('setTracker');
@@ -1998,7 +1998,7 @@ final class Tracker_Artifact_XMLImportTest extends TestCase // phpcs:ignore Squi
 
     public function testItCreatesArtifactWithAllUserMultiSelectboxValue(): void
     {
-        $user_multi_selectbox_field = $this->createMock(Tracker_FormElement_Field_MultiSelectbox::class);
+        $user_multi_selectbox_field = $this->createMock(MultiSelectboxField::class);
         $user_multi_selectbox_field->method('getId')->willReturn(456);
         $user_multi_selectbox_field->method('validateField')->willReturn(true);
         $user_multi_selectbox_field->method('setTracker');

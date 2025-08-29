@@ -32,6 +32,12 @@ export const USER_FIELD = "user";
 export const DATE_FIELD = "date";
 export const PERMISSIONS_FIELD = "permissions";
 export const STEPS_DEFINITION_FIELD = "steps_definition";
+export const STEPS_EXECUTION_FIELD = "steps_execution";
+
+export const STEP_NOT_RUN: StepExecutionStatus = "notrun";
+export const STEP_BLOCKED: StepExecutionStatus = "blocked";
+export const STEP_PASSED: StepExecutionStatus = "passed";
+export const STEP_FAILED: StepExecutionStatus = "failed";
 
 export type ReadonlyFieldText = Readonly<{
     type: typeof TEXT_FIELD;
@@ -134,6 +140,33 @@ export type ReadonlyFieldPermissions = Readonly<{
     value: ReadonlyFieldUserGroupsListValue[];
 }>;
 
+export type ReadonlyFieldStepDefinitionValue = Readonly<{
+    description: string;
+    expected_results: string;
+}>;
+
+export type ReadonlyFieldStepsDefinition = Readonly<{
+    type: typeof STEPS_DEFINITION_FIELD;
+    label: string;
+    display_type: ConfigurationFieldDisplayType;
+    value: ReadonlyFieldStepDefinitionValue[];
+}>;
+
+export type StepExecutionStatus = "notrun" | "blocked" | "passed" | "failed";
+
+export type ReadonlyFieldStepExecutionValue = Readonly<{
+    description: string;
+    expected_results: string;
+    status: StepExecutionStatus;
+}>;
+
+export type ReadonlyFieldStepsExecution = Readonly<{
+    type: typeof STEPS_EXECUTION_FIELD;
+    label: string;
+    display_type: ConfigurationFieldDisplayType;
+    value: ReadonlyFieldStepExecutionValue[];
+}>;
+
 export type ReadonlyField =
     | ReadonlyFieldText
     | ReadonlyFieldUserGroupsList
@@ -143,4 +176,6 @@ export type ReadonlyField =
     | ReadonlyFieldNumeric
     | ReadonlyFieldUser
     | ReadonlyFieldDate
-    | ReadonlyFieldPermissions;
+    | ReadonlyFieldPermissions
+    | ReadonlyFieldStepsDefinition
+    | ReadonlyFieldStepsExecution;

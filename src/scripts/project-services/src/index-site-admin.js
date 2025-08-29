@@ -23,8 +23,9 @@ import { createGettext } from "vue3-gettext";
 import { selectOrThrow } from "@tuleap/dom";
 import BaseSiteAdminAddModal from "./components/BaseSiteAdminAddModal.vue";
 import BaseSiteAdminEditModal from "./components/BaseSiteAdminEditModal.vue";
-import { setupDeleteButtons } from "./setup-delete-buttons.js";
-import { gatherConfiguration } from "./gather-configuration.js";
+import { setupDeleteButtons } from "./setup-delete-buttons.ts";
+import { gatherConfiguration } from "./gather-configuration.ts";
+import { ALLOWED_ICONS, CSRF_TOKEN, MINIMAL_RANK, PROJECT_ID } from "./injection-symbols";
 
 const ADD_BUTTON_SELECTOR = "#project-admin-services-add-button";
 const ADD_MOUNT_POINT_SELECTOR = "#service-add-modal";
@@ -36,17 +37,29 @@ document.addEventListener("DOMContentLoaded", async () => {
         createGettext,
         (locale) => import(`../po/${getPOFileFromLocaleWithoutExtension(locale)}.po`),
     );
+    const gettext_provider = {
+        $gettext: gettext_plugin.$gettext,
+        $gettextInterpolate: gettext_plugin.interpolate,
+    };
+
     setupCreateServiceModal(gettext_plugin);
     setupEditServiceModals(gettext_plugin);
-    setupDeleteButtons(gettext_plugin);
+    setupDeleteButtons(gettext_provider);
 });
 
 function setupCreateServiceModal(gettext_plugin) {
     const vue_mount_point = selectOrThrow(document, ADD_MOUNT_POINT_SELECTOR);
 
     const configuration = gatherConfiguration(vue_mount_point);
-    const add_modal = createApp(BaseSiteAdminAddModal, configuration)
+    const add_modal = createApp(BaseSiteAdminAddModal)
         .use(gettext_plugin)
+        .provide(PROJECT_ID, configuration.project_id)
+        .provide(MINIMAL_RANK, configuration.minimal_rank)
+        .provide(CSRF_TOKEN, {
+            value: configuration.csrf_token,
+            name: configuration.csrf_token_name,
+        })
+        .provide(ALLOWED_ICONS, configuration.allowed_icons)
         .mount(vue_mount_point);
 
     const add_button = selectOrThrow(document, ADD_BUTTON_SELECTOR, HTMLButtonElement);
@@ -59,8 +72,15 @@ function setupEditServiceModals(gettext_plugin) {
     const vue_mount_point = selectOrThrow(document, EDIT_MOUNT_POINT_SELECTOR);
 
     const configuration = gatherConfiguration(vue_mount_point);
-    const edit_modal = createApp(BaseSiteAdminEditModal, configuration)
+    const edit_modal = createApp(BaseSiteAdminEditModal)
         .use(gettext_plugin)
+        .provide(PROJECT_ID, configuration.project_id)
+        .provide(MINIMAL_RANK, configuration.minimal_rank)
+        .provide(CSRF_TOKEN, {
+            value: configuration.csrf_token,
+            name: configuration.csrf_token_name,
+        })
+        .provide(ALLOWED_ICONS, configuration.allowed_icons)
         .mount(vue_mount_point);
 
     const buttons = document.querySelectorAll(EDIT_BUTTONS_SELECTOR);

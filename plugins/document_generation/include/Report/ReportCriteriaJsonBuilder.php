@@ -22,13 +22,13 @@ declare(strict_types=1);
 
 namespace Tuleap\DocumentGeneration\Report;
 
-use Tracker_FormElement_Field_Date;
-use Tracker_FormElement_Field_List;
-use Tracker_FormElement_Field_OpenList;
 use Tracker_FormElement_InvalidFieldValueException;
 use Tracker_Report;
 use Tracker_Report_Criteria;
 use Tuleap\REST\JsonCast;
+use Tuleap\Tracker\FormElement\Field\Date\DateField;
+use Tuleap\Tracker\FormElement\Field\List\OpenListField;
+use Tuleap\Tracker\FormElement\Field\ListField;
 
 class ReportCriteriaJsonBuilder
 {
@@ -57,22 +57,22 @@ class ReportCriteriaJsonBuilder
         $criteria_value_json = [];
         foreach ($report->getCriteria() as $criterion) {
             $criterion_field = $criterion->getField();
-            if ($criterion_field instanceof Tracker_FormElement_Field_Date) {
+            if ($criterion_field instanceof DateField) {
                 $date_criterion_json_value = $this->buildCriterionValueJsonFromDateValue($criterion);
                 if ($date_criterion_json_value !== null) {
                     $criteria_value_json[] = $date_criterion_json_value;
                 }
-            } elseif ($criterion_field instanceof Tracker_FormElement_Field_OpenList) {
+            } elseif ($criterion_field instanceof OpenListField) {
                 $open_list_criterion_json_value = $this->buildCriterionValueJsonFromOpenListValue($criterion);
                 if ($open_list_criterion_json_value !== null) {
                     $criteria_value_json[] = $open_list_criterion_json_value;
                 }
-            } elseif ($criterion_field instanceof Tracker_FormElement_Field_List) {
+            } elseif ($criterion_field instanceof ListField) {
                 $list_criterion_json_value = $this->buildCriterionValueJsonFromListValue($criterion);
                 if ($list_criterion_json_value !== null) {
                     $criteria_value_json[] = $list_criterion_json_value;
                 }
-            } elseif ($criterion_field instanceof \Tracker_FormElement_Field_PermissionsOnArtifact) {
+            } elseif ($criterion_field instanceof \Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField) {
                 $value = $this->buildCriterionValueJsonFromPermissionsOnArtifactValue($criterion);
                 if ($value !== null) {
                     $criteria_value_json[] = $value;
@@ -160,7 +160,7 @@ class ReportCriteriaJsonBuilder
 
         $criterion_values_labels = [];
         foreach ($criterion_value as $value_id) {
-            if ((int) $value_id === Tracker_FormElement_Field_List::NONE_VALUE) {
+            if ((int) $value_id === ListField::NONE_VALUE) {
                 $criterion_values_labels[] = $GLOBALS['Language']->getText('global', 'none');
             } else {
                 try {

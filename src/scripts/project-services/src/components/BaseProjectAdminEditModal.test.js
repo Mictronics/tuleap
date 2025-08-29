@@ -21,7 +21,8 @@ import { shallowMount } from "@vue/test-utils";
 import BaseProjectAdminEditModal from "./BaseProjectAdminEditModal.vue";
 import InEditionCustomService from "./Service/InEditionCustomService.vue";
 import ReadOnlySystemService from "./Service/ReadOnlySystemService.vue";
-import { getGlobalTestOptions } from "../support/global-options-for-tests.js";
+import { getGlobalTestOptions } from "../support/global-options-for-tests";
+import { CSRF_TOKEN, MINIMAL_RANK, PROJECT_ID } from "../injection-symbols";
 
 function createFakeButton(service) {
     return {
@@ -32,17 +33,6 @@ function createFakeButton(service) {
 }
 
 describe(`BaseProjectAdminEdit`, () => {
-    let props;
-    beforeEach(() => {
-        props = {
-            project_id: "101",
-            minimal_rank: 10,
-            csrf_token: "csrf",
-            csrf_token_name: "challenge",
-            allowed_icons: {},
-        };
-    });
-
     function createWrapper() {
         return shallowMount(BaseProjectAdminEditModal, {
             global: {
@@ -55,8 +45,12 @@ describe(`BaseProjectAdminEdit`, () => {
                         },
                     },
                 },
+                provide: {
+                    [PROJECT_ID.valueOf()]: 101,
+                    [MINIMAL_RANK.valueOf()]: 10,
+                    [CSRF_TOKEN.valueOf()]: { value: "csrf", name: "challenge" },
+                },
             },
-            props,
         });
     }
 

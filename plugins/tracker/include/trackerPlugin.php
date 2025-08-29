@@ -195,6 +195,7 @@ use Tuleap\Tracker\FormElement\BurndownCalculator;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ParentLinkAction;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\ArtifactLinkConfigController;
+use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\SystemTypePresenterBuilder;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeCreator;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDeletor;
@@ -206,14 +207,14 @@ use Tuleap\Tracker\FormElement\Field\Burndown\BurndownFieldDao;
 use Tuleap\Tracker\FormElement\Field\Computed\ComputedFieldDao;
 use Tuleap\Tracker\FormElement\Field\Computed\ComputedFieldDaoCache;
 use Tuleap\Tracker\FormElement\Field\FieldDao;
-use Tuleap\Tracker\FormElement\Field\File\AttachmentController;
-use Tuleap\Tracker\FormElement\Field\File\Upload\FileOngoingUploadDao;
-use Tuleap\Tracker\FormElement\Field\File\Upload\FileUploadCleaner;
-use Tuleap\Tracker\FormElement\Field\File\Upload\Tus\FileBeingUploadedInformationProvider;
-use Tuleap\Tracker\FormElement\Field\File\Upload\Tus\FileDataStore;
-use Tuleap\Tracker\FormElement\Field\File\Upload\Tus\FileUploadCanceler;
-use Tuleap\Tracker\FormElement\Field\File\Upload\Tus\FileUploadFinisher;
-use Tuleap\Tracker\FormElement\Field\File\Upload\UploadPathAllocator;
+use Tuleap\Tracker\FormElement\Field\Files\AttachmentController;
+use Tuleap\Tracker\FormElement\Field\Files\Upload\FileOngoingUploadDao;
+use Tuleap\Tracker\FormElement\Field\Files\Upload\FileUploadCleaner;
+use Tuleap\Tracker\FormElement\Field\Files\Upload\Tus\FileBeingUploadedInformationProvider;
+use Tuleap\Tracker\FormElement\Field\Files\Upload\Tus\FileDataStore;
+use Tuleap\Tracker\FormElement\Field\Files\Upload\Tus\FileUploadCanceler;
+use Tuleap\Tracker\FormElement\Field\Files\Upload\Tus\FileUploadFinisher;
+use Tuleap\Tracker\FormElement\Field\Files\Upload\UploadPathAllocator;
 use Tuleap\Tracker\FormElement\Field\Text\TextValueValidator;
 use Tuleap\Tracker\FormElement\FieldCalculator;
 use Tuleap\Tracker\FormElement\FieldSpecificProperties\ArtifactLinkFieldSpecificPropertiesDAO;
@@ -1291,10 +1292,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             ->exportToXml($params['project'], $params['into_xml'], $user);
     }
 
-    /**
-     * @return TrackerXmlExport
-     */
-    private function getTrackerXmlExport(UserXMLExporter $user_xml_exporter, $can_bypass_threshold)
+    private function getTrackerXmlExport(UserXMLExporter $user_xml_exporter, $can_bypass_threshold): TrackerXmlExport
     {
         $rng_validator            = new XML_RNGValidator();
         $artifact_link_usage_dao  = new ArtifactLinksUsageDao();
@@ -1313,7 +1311,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             ),
             $user_xml_exporter,
             EventManager::instance(),
-            new TypePresenterFactory(new TypeDao(), $artifact_link_usage_dao),
+            new TypePresenterFactory(new TypeDao(), $artifact_link_usage_dao, new SystemTypePresenterBuilder(EventManager::instance())),
             $artifact_link_usage_dao,
             $external_field_extractor,
             $this->getBackendLogger()
@@ -2161,7 +2159,8 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
                 ),
                 new TypePresenterFactory(
                     $nature_dao,
-                    $artifact_link_usage_dao
+                    $artifact_link_usage_dao,
+                    new SystemTypePresenterBuilder(EventManager::instance())
                 ),
                 new TypeUsagePresenterFactory(
                     $nature_dao
@@ -2358,7 +2357,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
     {
         $dao                     = new ArtifactLinksUsageDao();
         $updater                 = new ArtifactLinksUsageUpdater($dao);
-        $types_presenter_factory = new TypePresenterFactory(new TypeDao(), $dao);
+        $types_presenter_factory = new TypePresenterFactory(new TypeDao(), $dao, new SystemTypePresenterBuilder(EventManager::instance()));
         $event_manager           = EventManager::instance();
 
         return new ArtifactLinksController(
@@ -2778,7 +2777,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
                     $form_element_factory,
                     new ArtifactLinkValidator(
                         $artifact_factory,
-                        new TypePresenterFactory(new TypeDao(), $artifact_links_usage_dao),
+                        new TypePresenterFactory(new TypeDao(), $artifact_links_usage_dao, new SystemTypePresenterBuilder(EventManager::instance())),
                         $artifact_links_usage_dao,
                         $event_manager,
                     ),

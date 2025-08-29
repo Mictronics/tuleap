@@ -19,7 +19,9 @@
  */
 
 use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\SystemTypePresenterBuilder;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
 
 /**
  * I validate fields for initial changeset
@@ -28,7 +30,7 @@ class Tracker_Artifact_Changeset_InitialChangesetFieldsValidator extends Tracker
 {
     protected function canValidateField(
         Artifact $artifact,
-        Tracker_FormElement_Field $field,
+        TrackerField $field,
         PFUser $user,
     ): bool {
         //we do not validate if the field is required and we can't submit the field
@@ -37,7 +39,7 @@ class Tracker_Artifact_Changeset_InitialChangesetFieldsValidator extends Tracker
 
     protected function validateField(
         Artifact $artifact,
-        Tracker_FormElement_Field $field,
+        TrackerField $field,
         \PFUser $user,
         $submitted_value,
     ) {
@@ -57,16 +59,18 @@ class Tracker_Artifact_Changeset_InitialChangesetFieldsValidator extends Tracker
     {
         $form_element_factory = \Tracker_FormElementFactory::instance();
         $artifact_factory     = Tracker_ArtifactFactory::instance();
+        $event_manager        = EventManager::instance();
 
         $artifact_link_usage_dao = new \Tuleap\Tracker\Admin\ArtifactLinksUsageDao();
         $artifact_link_validator = new \Tuleap\Tracker\FormElement\ArtifactLinkValidator(
             $artifact_factory,
             new TypePresenterFactory(
                 new \Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao(),
-                $artifact_link_usage_dao
+                $artifact_link_usage_dao,
+                new SystemTypePresenterBuilder($event_manager)
             ),
             $artifact_link_usage_dao,
-            EventManager::instance(),
+            $event_manager,
         );
 
         return new self($form_element_factory, $artifact_link_validator);

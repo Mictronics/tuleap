@@ -22,14 +22,14 @@ declare(strict_types=1);
 
 namespace Tuleap\Kanban;
 
-use Tracker_FormElement_Field_List;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Tracker\FormElement\Field\String\StringField;
+use Tuleap\Tracker\FormElement\Field\ListField;
 use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
 use Tuleap\Tracker\Semantic\Title\RetrieveSemanticTitleField;
 use Tuleap\Tracker\Test\Builders\Fields\IntegerFieldBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\SelectboxFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\StringFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\TextFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
@@ -46,7 +46,7 @@ final class KanbanActionsCheckerTest extends \Tuleap\Test\PHPUnit\TestCase
     private const STRING_FIELD_ID = 201;
     private const LIST_FIELD_ID   = 40;
     private StringField $field_string;
-    private Tracker_FormElement_Field_List $field_list;
+    private ListField $field_list;
     private Tracker $tracker;
     private RetrieveSemanticTitleField $title_field_retriever;
     private RetrieveSemanticStatusStub $semantic_status_retriever;
@@ -61,7 +61,7 @@ final class KanbanActionsCheckerTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->field_string = StringFieldBuilder::aStringField(self::STRING_FIELD_ID)
             ->inTracker($this->tracker)
             ->build();
-        $this->field_list   = ListFieldBuilder::aListField(self::LIST_FIELD_ID)
+        $this->field_list   = SelectboxFieldBuilder::aSelectboxField(self::LIST_FIELD_ID)
             ->inTracker($this->tracker)
             ->build();
 
@@ -117,13 +117,13 @@ final class KanbanActionsCheckerTest extends \Tuleap\Test\PHPUnit\TestCase
             ->inTracker($this->tracker)
             ->thatIsRequired()
             ->build();
-        $this->field_list   = ListFieldBuilder::aListField(self::LIST_FIELD_ID)
+        $this->field_list   = SelectboxFieldBuilder::aSelectboxField(self::LIST_FIELD_ID)
             ->inTracker($this->tracker)
             ->thatIsRequired()
             ->build();
 
         $this->title_field_retriever = RetrieveSemanticTitleFieldStub::build()->withTitleField($this->field_string);
-        $status_field                = $this->createMock(Tracker_FormElement_Field_List::class);
+        $status_field                = $this->createMock(ListField::class);
         $status_field->method('userCanSubmit')->willReturn(true);
         $this->semantic_status_retriever->withSemanticStatus(new TrackerSemanticStatus($this->tracker, $status_field));
 
@@ -139,7 +139,7 @@ final class KanbanActionsCheckerTest extends \Tuleap\Test\PHPUnit\TestCase
             ->build();
 
         $this->title_field_retriever = RetrieveSemanticTitleFieldStub::build();
-        $status_field                = $this->createMock(Tracker_FormElement_Field_List::class);
+        $status_field                = $this->createMock(ListField::class);
         $status_field->method('userCanSubmit')->willReturn(true);
         $this->semantic_status_retriever->withSemanticStatus(new TrackerSemanticStatus($this->tracker, $status_field));
 
@@ -149,13 +149,13 @@ final class KanbanActionsCheckerTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testItRaisesAnExceptionIfTheMandatoryFieldIsNotTheSemanticTitle(): void
     {
-        $this->field_list = ListFieldBuilder::aListField(self::LIST_FIELD_ID)
+        $this->field_list = SelectboxFieldBuilder::aSelectboxField(self::LIST_FIELD_ID)
             ->inTracker($this->tracker)
             ->thatIsRequired()
             ->build();
 
         $this->title_field_retriever = RetrieveSemanticTitleFieldStub::build()->withTitleField($this->field_string);
-        $status_field                = $this->createMock(Tracker_FormElement_Field_List::class);
+        $status_field                = $this->createMock(ListField::class);
         $status_field->method('userCanSubmit')->willReturn(true);
         $this->semantic_status_retriever->withSemanticStatus(new TrackerSemanticStatus($this->tracker, $status_field));
 
@@ -172,7 +172,7 @@ final class KanbanActionsCheckerTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->verify_submission_permissions = VerifySubmissionPermissionStub::withoutSubmitPermission();
 
         $this->title_field_retriever = RetrieveSemanticTitleFieldStub::build()->withTitleField($this->field_string);
-        $status_field                = $this->createMock(Tracker_FormElement_Field_List::class);
+        $status_field                = $this->createMock(ListField::class);
         $status_field->method('userCanSubmit')->willReturn(true);
         $this->semantic_status_retriever->withSemanticStatus(new TrackerSemanticStatus($this->tracker, $status_field));
 
@@ -188,7 +188,7 @@ final class KanbanActionsCheckerTest extends \Tuleap\Test\PHPUnit\TestCase
             ->build();
 
         $this->title_field_retriever = RetrieveSemanticTitleFieldStub::build()->withTitleField($this->field_string);
-        $status_field                = $this->createMock(Tracker_FormElement_Field_List::class);
+        $status_field                = $this->createMock(ListField::class);
         $status_field->method('userCanSubmit')->willReturn(false);
         $this->semantic_status_retriever->withSemanticStatus(new TrackerSemanticStatus($this->tracker, $status_field));
 

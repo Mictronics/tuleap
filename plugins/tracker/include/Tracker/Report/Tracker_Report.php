@@ -33,9 +33,11 @@ use Tuleap\Tracker\Artifact\Changeset\Comment\PrivateComment\TrackerPrivateComme
 use Tuleap\Tracker\Artifact\Changeset\Comment\PrivateComment\TrackerPrivateCommentUGroupEnabledDao;
 use Tuleap\Tracker\Artifact\Changeset\NewChangesetCreatorBuilder;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
+use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\SystemTypePresenterBuilder;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
 use Tuleap\Tracker\FormElement\Field\ListFields\OpenListValueDao;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
 use Tuleap\Tracker\Masschange\MasschangeDataValueExtractor;
 use Tuleap\Tracker\Masschange\MasschangeUpdater;
 use Tuleap\Tracker\Report\AdditionalCriteria\CommentCriterionPresenter;
@@ -277,7 +279,7 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
                     $formElement = $ff->getUsedFormElementById($key);
                     if ($formElement !== null) {
                         if ($formElement->userCanRead()) {
-                            assert($formElement instanceof Tracker_FormElement_Field);
+                            assert($formElement instanceof TrackerField);
                             $criteria_value = $this->getCriteriaValueForFormElement($formElement, $value['value']);
 
                             $formElement->setCriteriaValue($criteria_value, $this->id);
@@ -836,7 +838,7 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
         return new ArtifactLinksUsageDao();
     }
 
-    private function fieldAllowsCustomColumnForTableReport(Tracker_FormElement_Field $field, $dropdown_type)
+    private function fieldAllowsCustomColumnForTableReport(TrackerField $field, $dropdown_type)
     {
         return $this->getArtifactLinksUsageUpdater()->isProjectAllowedToUseArtifactLinkTypes($this->getTracker()->getProject()) &&
             $dropdown_type === self::TYPE_TABLE &&
@@ -848,7 +850,7 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
      */
     private function getTypePresenterFactory()
     {
-        return new TypePresenterFactory(new TypeDao(), $this->getArtifactLinksUsageDao());
+        return new TypePresenterFactory(new TypeDao(), $this->getArtifactLinksUsageDao(), new SystemTypePresenterBuilder(EventManager::instance()));
     }
 
     /**
@@ -1194,7 +1196,7 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
     /**
      * Remove a formElement from criteria
      */
-    private function removeCriteria(Tracker_FormElement_Field $field): void
+    private function removeCriteria(TrackerField $field): void
     {
         $criteria = $this->getCriteria();
         if (! isset($criteria[$field->getId()])) {
@@ -2228,6 +2230,7 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
                     new TypePresenterFactory(
                         new TypeDao(),
                         new ArtifactLinksUsageDao(),
+                        new SystemTypePresenterBuilder(EventManager::instance())
                     ),
                 ),
                 new InvalidMetadata\EqualComparisonChecker(),

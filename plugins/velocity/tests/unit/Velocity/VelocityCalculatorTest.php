@@ -29,10 +29,10 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Tracker_Artifact_Changeset;
 use Tracker_Artifact_ChangesetValue_List;
 use Tracker_ArtifactFactory;
-use Tracker_FormElement_Field;
-use Tracker_FormElement_Field_Selectbox;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\FormElement\Field\Integer\IntegerField;
+use Tuleap\Tracker\FormElement\Field\List\SelectboxField;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
 use Tuleap\Tracker\Semantic\Status\Done\SemanticDone;
 use Tuleap\Tracker\Semantic\Status\Done\SemanticDoneFactory;
 use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
@@ -106,7 +106,7 @@ final class VelocityCalculatorTest extends \Tuleap\Test\PHPUnit\TestCase
         $last_changeset = $this->createMock(Tracker_Artifact_Changeset::class);
         $linked_artifact->method('getLastChangeset')->willReturn($last_changeset);
 
-        $initial_effort_field = $this->createMock(Tracker_FormElement_Field_Selectbox::class);
+        $initial_effort_field = $this->createMock(SelectboxField::class);
         $this->mockSemanticInitialEffort($linked_artifact, $initial_effort_field);
 
         $status_field = $this->mockSemanticDone();
@@ -218,7 +218,7 @@ final class VelocityCalculatorTest extends \Tuleap\Test\PHPUnit\TestCase
         $last_changeset = $this->createMock(Tracker_Artifact_Changeset::class);
         $linked_artifact->method('getLastChangeset')->willReturn($last_changeset);
 
-        $initial_effort_field = $this->createMock(Tracker_FormElement_Field_Selectbox::class);
+        $initial_effort_field = $this->createMock(SelectboxField::class);
         $this->mockSemanticInitialEffortWithListValueNotInteger($linked_artifact, $initial_effort_field);
 
         $status_field = $this->mockSemanticDone();
@@ -238,7 +238,7 @@ final class VelocityCalculatorTest extends \Tuleap\Test\PHPUnit\TestCase
 
     private function mockSemanticInitialEffort(
         Artifact $linked_artifact,
-        MockObject&Tracker_FormElement_Field $initial_effort_field,
+        MockObject&TrackerField $initial_effort_field,
     ): void {
         $initial_effort_field->method('getComputedValue')
             ->with($this->user, $linked_artifact)
@@ -254,7 +254,7 @@ final class VelocityCalculatorTest extends \Tuleap\Test\PHPUnit\TestCase
 
     private function mockSemanticInitialEffortWithListValueNotInteger(
         Artifact $linked_artifact,
-        MockObject&Tracker_FormElement_Field $initial_effort_field,
+        MockObject&TrackerField $initial_effort_field,
     ): void {
         $initial_effort_field->method('getComputedValue')
             ->with($this->user, $linked_artifact)
@@ -278,9 +278,9 @@ final class VelocityCalculatorTest extends \Tuleap\Test\PHPUnit\TestCase
             ->willReturn($semantic_initial_effort);
     }
 
-    private function mockSemanticDone(): MockObject&Tracker_FormElement_Field_Selectbox
+    private function mockSemanticDone(): MockObject&SelectboxField
     {
-        $status_field    = $this->createMock(Tracker_FormElement_Field_Selectbox::class);
+        $status_field    = $this->createMock(SelectboxField::class);
         $semantic_status = $this->createMock(TrackerSemanticStatus::class);
         $semantic_status->method('getField')->willReturn($status_field);
 

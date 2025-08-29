@@ -255,7 +255,7 @@ final class PluginFactoryTest extends \Tuleap\Test\PHPUnit\TestCase
             }
         };
 
-        self::expectException(MissingInstallRequirementException::class);
+        $this->expectException(MissingInstallRequirementException::class);
         self::expectExceptionMessageMatches('/test_plugin.+missing_requirement/');
         $this->factory->enablePlugin($plugin);
     }
@@ -327,10 +327,8 @@ final class PluginFactoryTest extends \Tuleap\Test\PHPUnit\TestCase
         self::assertNull($this->factory->instantiatePlugin(1, 'does not exist'));
     }
 
-    /**
-     * @testWith ["doc", "docPlugin", false]
-     *           ["customdoc", "customdocPlugin", true]
-     */
+    #[\PHPUnit\Framework\Attributes\TestWith(['doc', 'docPlugin', false])]
+    #[\PHPUnit\Framework\Attributes\TestWith(['customdoc', 'customdocPlugin', true])]
     public function testInstantiatePluginReturnsInstanceWithRegularPHPExtension(
         string $plugin_name,
         string $expected_class,

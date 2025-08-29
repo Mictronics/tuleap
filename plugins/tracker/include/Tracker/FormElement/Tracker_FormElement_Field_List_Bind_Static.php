@@ -20,14 +20,16 @@
  */
 
 use Tuleap\Tracker\Colorpicker\ColorpickerMountPointPresenter;
+use Tuleap\Tracker\FormElement\Field\List\OpenListField;
 use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindParameters;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindStaticXmlExporter;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindVisitor;
 use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindStaticDao;
 use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindStaticValueDao;
+use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindStaticXmlExporter;
+use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindVisitor;
 use Tuleap\Tracker\FormElement\Field\ListFields\OpenListValueDao;
-use Tuleap\Tracker\FormElement\View\Admin\Field\ListFields\BindValuesAdder;
+use Tuleap\Tracker\FormElement\Field\ListField;
 use Tuleap\Tracker\FormElement\FormElementListValueAdminViewPresenterBuilder;
+use Tuleap\Tracker\FormElement\View\Admin\Field\ListFields\BindValuesAdder;
 use Tuleap\Tracker\REST\FieldListOpenValueRepresentation;
 use Tuleap\Tracker\REST\FieldListStaticValueRepresentation;
 
@@ -903,7 +905,7 @@ class Tracker_FormElement_Field_List_Bind_Static extends Tracker_FormElement_Fie
         return self::TYPE;
     }
 
-    public function getFieldDataFromRESTObject(array $rest_data, Tracker_FormElement_Field_List $field)
+    public function getFieldDataFromRESTObject(array $rest_data, ListField $field)
     {
         if (isset($rest_data['id']) && is_numeric($rest_data['id'])) {
             $id = (int) $rest_data['id'];
@@ -914,9 +916,9 @@ class Tracker_FormElement_Field_List_Bind_Static extends Tracker_FormElement_Fie
                     throw new Tracker_FormElement_InvalidFieldValueException('Bind Value with ID ' . $id . ' does not exist for field ID ' . $field->getId());
                 }
 
-                return Tracker_FormElement_Field_OpenList::OPEN_PREFIX . $id;
+                return OpenListField::OPEN_PREFIX . $id;
             }
-            return Tracker_FormElement_Field_OpenList::BIND_PREFIX . $id;
+            return OpenListField::BIND_PREFIX . $id;
         }
         if (isset($rest_data['label'])) {
             $identifier = (string) $rest_data['label'];
@@ -926,10 +928,10 @@ class Tracker_FormElement_Field_List_Bind_Static extends Tracker_FormElement_Fie
 
         $row = $this->getOpenValueDao()->searchByExactLabel($field->getId(), $identifier)->getRow();
         if ($row) {
-            return Tracker_FormElement_Field_OpenList::OPEN_PREFIX . $row['id'];
+            return OpenListField::OPEN_PREFIX . $row['id'];
         }
 
-        return Tracker_FormElement_Field_OpenList::NEW_VALUE_PREFIX . $identifier;
+        return OpenListField::NEW_VALUE_PREFIX . $identifier;
     }
 
     public function getRESTAvailableValues()

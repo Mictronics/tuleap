@@ -30,15 +30,15 @@ use Tuleap\Tracker\FormElement\Field\RetrieveUsedFields;
 final class DryRunDuckTypingFieldCollector implements CollectDryRunTypingField
 {
     /**
-     * @var \Tracker_FormElement_Field[]
+     * @var \Tuleap\Tracker\FormElement\Field\TrackerField[]
      */
     private array $migrateable_fields = [];
     /**
-     * @var \Tracker_FormElement_Field[]
+     * @var \Tuleap\Tracker\FormElement\Field\TrackerField[]
      */
     private array $not_migrateable_fields = [];
     /**
-     * @var \Tracker_FormElement_Field[]
+     * @var \Tuleap\Tracker\FormElement\Field\TrackerField[]
      */
     private array $partially_migrated_fields = [];
     /**
@@ -100,8 +100,8 @@ final class DryRunDuckTypingFieldCollector implements CollectDryRunTypingField
                 $this->verify_is_open_list_field->isAnOpenListField($source_field)
                 && $this->verify_is_open_list_field->isAnOpenListField($destination_field)
             ) {
-                assert($source_field instanceof \Tracker_FormElement_Field_OpenList);
-                assert($destination_field instanceof \Tracker_FormElement_Field_OpenList);
+                assert($source_field instanceof \Tuleap\Tracker\FormElement\Field\List\OpenListField);
+                assert($destination_field instanceof \Tuleap\Tracker\FormElement\Field\List\OpenListField);
                 $this->collectOpenListFields($source_field, $destination_field, $logger);
                 continue;
             }
@@ -110,8 +110,8 @@ final class DryRunDuckTypingFieldCollector implements CollectDryRunTypingField
                 $this->verify_is_static_list_field->isStaticListField($source_field)
                 && $this->verify_is_static_list_field->isStaticListField($destination_field)
             ) {
-                assert($source_field instanceof \Tracker_FormElement_Field_List);
-                assert($destination_field instanceof \Tracker_FormElement_Field_List);
+                assert($source_field instanceof \Tuleap\Tracker\FormElement\Field\ListField);
+                assert($destination_field instanceof \Tuleap\Tracker\FormElement\Field\ListField);
                 $this->collectStaticFields($source_field, $destination_field, $artifact, $logger);
                 continue;
             }
@@ -120,8 +120,8 @@ final class DryRunDuckTypingFieldCollector implements CollectDryRunTypingField
                 $this->verify_is_user_list_field->isUserListField($source_field)
                 && $this->verify_is_user_list_field->isUserListField($destination_field)
             ) {
-                assert($source_field instanceof \Tracker_FormElement_Field_List);
-                assert($destination_field instanceof \Tracker_FormElement_Field_List);
+                assert($source_field instanceof \Tuleap\Tracker\FormElement\Field\ListField);
+                assert($destination_field instanceof \Tuleap\Tracker\FormElement\Field\ListField);
                 $this->collectUserBoundFields($source_field, $destination_field, $artifact, $logger);
                 continue;
             }
@@ -130,8 +130,8 @@ final class DryRunDuckTypingFieldCollector implements CollectDryRunTypingField
                 $this->verify_is_user_group_list_field->isUserGroupListField($source_field)
                 && $this->verify_is_user_group_list_field->isUserGroupListField($destination_field)
             ) {
-                assert($source_field instanceof \Tracker_FormElement_Field_List);
-                assert($destination_field instanceof \Tracker_FormElement_Field_List);
+                assert($source_field instanceof \Tuleap\Tracker\FormElement\Field\ListField);
+                assert($destination_field instanceof \Tuleap\Tracker\FormElement\Field\ListField);
                 $this->collectUserGroupBoundFields($source_field, $destination_field, $artifact, $logger);
                 continue;
             }
@@ -140,8 +140,8 @@ final class DryRunDuckTypingFieldCollector implements CollectDryRunTypingField
                 $this->verify_is_permissions_on_artifact_field->isPermissionsOnArtifactField($source_field)
                 && $this->verify_is_permissions_on_artifact_field->isPermissionsOnArtifactField($destination_field)
             ) {
-                assert($source_field instanceof \Tracker_FormElement_Field_PermissionsOnArtifact);
-                assert($destination_field instanceof \Tracker_FormElement_Field_PermissionsOnArtifact);
+                assert($source_field instanceof \Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField);
+                assert($destination_field instanceof \Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField);
                 $this->collectPermissionsOnArtifactFields($source_field, $destination_field, $artifact, $logger);
                 continue;
             }
@@ -156,8 +156,8 @@ final class DryRunDuckTypingFieldCollector implements CollectDryRunTypingField
     }
 
     private function collectStaticFields(
-        \Tracker_FormElement_Field_List $source_field,
-        \Tracker_FormElement_Field_List $destination_field,
+        \Tuleap\Tracker\FormElement\Field\ListField $source_field,
+        \Tuleap\Tracker\FormElement\Field\ListField $destination_field,
         Artifact $artifact,
         LoggerInterface $logger,
     ): void {
@@ -176,8 +176,8 @@ final class DryRunDuckTypingFieldCollector implements CollectDryRunTypingField
     }
 
     private function collectUserBoundFields(
-        \Tracker_FormElement_Field_List $source_field,
-        \Tracker_FormElement_Field_List $destination_field,
+        \Tuleap\Tracker\FormElement\Field\ListField $source_field,
+        \Tuleap\Tracker\FormElement\Field\ListField $destination_field,
         Artifact $artifact,
         LoggerInterface $logger,
     ): void {
@@ -196,8 +196,8 @@ final class DryRunDuckTypingFieldCollector implements CollectDryRunTypingField
     }
 
     private function collectUserGroupBoundFields(
-        \Tracker_FormElement_Field_List $source_field,
-        \Tracker_FormElement_Field_List $destination_field,
+        \Tuleap\Tracker\FormElement\Field\ListField $source_field,
+        \Tuleap\Tracker\FormElement\Field\ListField $destination_field,
         Artifact $artifact,
         LoggerInterface $logger,
     ): void {
@@ -216,8 +216,8 @@ final class DryRunDuckTypingFieldCollector implements CollectDryRunTypingField
     }
 
     private function collectPermissionsOnArtifactFields(
-        \Tracker_FormElement_Field_PermissionsOnArtifact $source_field,
-        \Tracker_FormElement_Field_PermissionsOnArtifact $destination_field,
+        \Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField $source_field,
+        \Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField $destination_field,
         Artifact $artifact,
         LoggerInterface $logger,
     ): void {
@@ -236,8 +236,8 @@ final class DryRunDuckTypingFieldCollector implements CollectDryRunTypingField
     }
 
     private function collectOpenListFields(
-        \Tracker_FormElement_Field_OpenList $source_field,
-        \Tracker_FormElement_Field_OpenList $destination_field,
+        \Tuleap\Tracker\FormElement\Field\List\OpenListField $source_field,
+        \Tuleap\Tracker\FormElement\Field\List\OpenListField $destination_field,
         LoggerInterface $logger,
     ): void {
         if (! $this->verify_open_list_fields_are_compatible->areOpenListFieldsCompatible($source_field, $destination_field)) {
@@ -250,8 +250,8 @@ final class DryRunDuckTypingFieldCollector implements CollectDryRunTypingField
     }
 
     private function collectExternalFields(
-        \Tracker_FormElement_Field $source_field,
-        \Tracker_FormElement_Field $destination_field,
+        \Tuleap\Tracker\FormElement\Field\TrackerField $source_field,
+        \Tuleap\Tracker\FormElement\Field\TrackerField $destination_field,
     ): void {
         if (! $this->verify_external_fields_have_same_type->haveBothFieldsSameType($source_field, $destination_field)) {
             $this->addFieldToNotMigrateableList($source_field);
@@ -274,19 +274,19 @@ final class DryRunDuckTypingFieldCollector implements CollectDryRunTypingField
         $this->addFieldToMigrateableList($source_field, $destination_field);
     }
 
-    private function addFieldToMigrateableList(\Tracker_FormElement_Field $source_field, \Tracker_FormElement_Field $destination_field): void
+    private function addFieldToMigrateableList(\Tuleap\Tracker\FormElement\Field\TrackerField $source_field, \Tuleap\Tracker\FormElement\Field\TrackerField $destination_field): void
     {
         $this->fields_mapping[]     = FieldMapping::fromFields($source_field, $destination_field);
         $this->migrateable_fields[] = $source_field;
     }
 
-    private function addFieldToPartiallyMigratedList(\Tracker_FormElement_Field $source_field, \Tracker_FormElement_Field $destination_field): void
+    private function addFieldToPartiallyMigratedList(\Tuleap\Tracker\FormElement\Field\TrackerField $source_field, \Tuleap\Tracker\FormElement\Field\TrackerField $destination_field): void
     {
         $this->partially_migrated_fields[] = $source_field;
         $this->fields_mapping[]            = FieldMapping::fromFields($source_field, $destination_field);
     }
 
-    private function addFieldToNotMigrateableList(\Tracker_FormElement_Field $source_field): void
+    private function addFieldToNotMigrateableList(\Tuleap\Tracker\FormElement\Field\TrackerField $source_field): void
     {
         $this->not_migrateable_fields[] = $source_field;
     }

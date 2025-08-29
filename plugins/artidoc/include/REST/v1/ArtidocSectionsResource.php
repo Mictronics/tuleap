@@ -69,7 +69,8 @@ use Tuleap\Artidoc\Document\Field\List\UserGroupListWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\List\UserListFieldWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\Numeric\NumericFieldWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\Permissions\PermissionsOnArtifactFieldWithValueBuilder;
-use Tuleap\Artidoc\Document\Field\StepDefinition\StepsDefinitionFieldWithValueBuilder;
+use Tuleap\Artidoc\Document\Field\StepsDefinition\StepsDefinitionFieldWithValueBuilder;
+use Tuleap\Artidoc\Document\Field\StepsExecution\StepsExecutionFieldWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\SuitableFieldRetriever;
 use Tuleap\Artidoc\Document\Field\User\UserFieldWithValueBuilder;
 use Tuleap\Artidoc\Domain\Document\RetrieveArtidocWithContext;
@@ -129,6 +130,7 @@ use Tuleap\Tracker\Artifact\FileUploadDataProvider;
 use Tuleap\Tracker\Artifact\Link\ArtifactReverseLinksUpdater;
 use Tuleap\Tracker\FormElement\ArtifactLinkValidator;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ParentLinkAction;
+use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\SystemTypePresenterBuilder;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
 use Tuleap\Tracker\FormElement\Field\Text\TextValueValidator;
@@ -543,6 +545,7 @@ final class ArtidocSectionsResource extends AuthenticatedResource
         $provide_user_avatar_url             = new UserAvatarUrlProvider(new AvatarHashDao(), new ComputeAvatarHash());
         $user_manager                        = UserManager::instance();
         $purifier                            = Codendi_HTMLPurifier::instance();
+        $text_value_interpreter              = new TextValueInterpreter($purifier, CommonMarkInterpreter::build($purifier));
 
         return new ArtifactSectionRepresentationBuilder(
             $this->getFileUploadDataProvider(),
@@ -561,7 +564,7 @@ final class ArtidocSectionsResource extends AuthenticatedResource
                     $user,
                     $title_field_retriever,
                     CachedSemanticStatusRetriever::instance(),
-                    new TypePresenterFactory(new TypeDao(), new ArtifactLinksUsageDao()),
+                    new TypePresenterFactory(new TypeDao(), new ArtifactLinksUsageDao(), new SystemTypePresenterBuilder(EventManager::instance())),
                 ),
                 new NumericFieldWithValueBuilder(new PriorityDao()),
                 new UserFieldWithValueBuilder(
@@ -573,7 +576,8 @@ final class ArtidocSectionsResource extends AuthenticatedResource
                 ),
                 new DateFieldWithValueBuilder($user),
                 new PermissionsOnArtifactFieldWithValueBuilder(),
-                new StepsDefinitionFieldWithValueBuilder(new TextValueInterpreter($purifier, CommonMarkInterpreter::build($purifier))),
+                new StepsDefinitionFieldWithValueBuilder($text_value_interpreter),
+                new StepsExecutionFieldWithValueBuilder($text_value_interpreter),
             )
         );
     }
@@ -631,7 +635,7 @@ final class ArtidocSectionsResource extends AuthenticatedResource
                     $form_element_factory,
                     new ArtifactLinkValidator(
                         $artifact_factory,
-                        new TypePresenterFactory(new TypeDao(), $usage_dao),
+                        new TypePresenterFactory(new TypeDao(), $usage_dao, new SystemTypePresenterBuilder($event_dispatcher)),
                         $usage_dao,
                         $event_dispatcher,
                     ),

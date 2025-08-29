@@ -27,8 +27,6 @@ use ArtifactType;
 use ProjectManager;
 use ProjectUGroup;
 use Tracker_FormElement;
-use Tracker_FormElement_Field_Date;
-use Tracker_FormElement_Field_List;
 use Tracker_FormElement_Field_List_Bind_StaticValue;
 use Tracker_FormElementFactory;
 use Tracker_Migration_V3;
@@ -39,8 +37,10 @@ use Tuleap\DB\DBFactory;
 use Tuleap\Disposable\Dispose;
 use Tuleap\GlobalLanguageMock;
 use Tuleap\Test\Helpers\CodendiLogSwitcher;
+use Tuleap\Tracker\FormElement\Field\Date\DateField;
 use Tuleap\Tracker\FormElement\Field\String\StringField;
 use Tuleap\Tracker\FormElement\Field\Text\TextField;
+use Tuleap\Tracker\FormElement\Field\ListField;
 use Tuleap\Tracker\Semantic\TrackerSemanticFactory;
 use Tuleap\Tracker\Tracker;
 
@@ -167,7 +167,7 @@ final class DefectTrackerTest extends \Tuleap\Test\PHPUnit\TestCase
     private function checkItHasAStatusSemantic(): void
     {
         $field = $this->defect_tracker->getStatusField();
-        self::assertInstanceOf(Tracker_FormElement_Field_List::class, $field);
+        self::assertInstanceOf(ListField::class, $field);
         self::assertSame('status_id', $field->getName());
         self::assertSame('Status', $field->getLabel());
         self::assertTrue($field->isRequired());
@@ -196,7 +196,7 @@ final class DefectTrackerTest extends \Tuleap\Test\PHPUnit\TestCase
     private function checkItHasAnAssignedToSemantic(): void
     {
         $field = $this->defect_tracker->getContributorField();
-        self::assertInstanceOf(Tracker_FormElement_Field_List::class, $field);
+        self::assertInstanceOf(ListField::class, $field);
         self::assertSame('assigned_to', $field->getName());
         self::assertSame('Assigned to', $field->getLabel());
         self::assertFalse($field->isRequired());
@@ -218,7 +218,7 @@ final class DefectTrackerTest extends \Tuleap\Test\PHPUnit\TestCase
     private function checkItHasSubmittedBy(): void
     {
         $field = $this->form_element_factory->getFormElementByName($this->defect_tracker->getId(), 'submitted_by');
-        self::assertInstanceOf(Tracker_FormElement_Field_List::class, $field);
+        self::assertInstanceOf(ListField::class, $field);
         self::assertSame('submitted_by', $field->getName());
         self::assertSame('Submitted by', $field->getLabel());
         self::assertFalse($field->isRequired());
@@ -254,7 +254,7 @@ final class DefectTrackerTest extends \Tuleap\Test\PHPUnit\TestCase
     private function checkItHasAnUnusedDateFieldCloseDate(): void
     {
         $field = $this->form_element_factory->getFormElementByName($this->defect_tracker->getId(), 'close_date');
-        self::assertInstanceOf(Tracker_FormElement_Field_Date::class, $field);
+        self::assertInstanceOf(DateField::class, $field);
         self::assertSame('close_date', $field->getName());
         self::assertSame('Close Date', $field->getLabel());
         self::assertFalse($field->isRequired());
@@ -281,7 +281,7 @@ final class DefectTrackerTest extends \Tuleap\Test\PHPUnit\TestCase
     private function checkItHasAListFieldResolutionWithValues(): void
     {
         $field = $this->form_element_factory->getFormElementByName($this->defect_tracker->getId(), 'resolution_id');
-        self::assertInstanceOf(Tracker_FormElement_Field_List::class, $field);
+        self::assertInstanceOf(ListField::class, $field);
         self::assertSame('resolution_id', $field->getName());
         self::assertSame('Resolution', $field->getLabel());
         self::assertFalse($field->isRequired());

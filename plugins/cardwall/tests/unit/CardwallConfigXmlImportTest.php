@@ -40,7 +40,7 @@ use Tuleap\GlobalResponseMock;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetValueListTestBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\SelectboxFieldBuilder;
 use Tuleap\XML\ParseExceptionWithErrors;
 use XML_ParseException;
 use XML_RNGValidator;
@@ -166,7 +166,7 @@ final class CardwallConfigXmlImportTest extends TestCase
               <agiledashboard/>
             </project>');
 
-        $field    = ListFieldBuilder::aListField(1)->build();
+        $field    = SelectboxFieldBuilder::aSelectboxField(1)->build();
         $value_01 = ChangesetValueListTestBuilder::aListOfValue(401, ChangesetTestBuilder::aChangeset(1)->build(), $field)->build();
         $value_02 = ChangesetValueListTestBuilder::aListOfValue(402, ChangesetTestBuilder::aChangeset(2)->build(), $field)->build();
         $value_03 = ChangesetValueListTestBuilder::aListOfValue(403, ChangesetTestBuilder::aChangeset(3)->build(), $field)->build();
@@ -402,7 +402,7 @@ final class CardwallConfigXmlImportTest extends TestCase
 
         $this->event_manager->expects($this->never())->method('processEvent')->with(Event::IMPORT_XML_PROJECT_CARDWALL_DONE, self::anything());
 
-        self::expectException(CardwallFromXmlImportCannotBeEnabledException::class);
+        $this->expectException(CardwallFromXmlImportCannotBeEnabledException::class);
         $cardwall_config_xml_import->import($this->default_xml_input);
     }
 
@@ -425,7 +425,7 @@ final class CardwallConfigXmlImportTest extends TestCase
             $this->logger
         );
 
-        self::expectException(XML_ParseException::class);
+        $this->expectException(XML_ParseException::class);
 
         $cardwall_config_xml_import->import($this->default_xml_input);
     }

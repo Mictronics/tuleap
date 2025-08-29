@@ -47,12 +47,11 @@ export interface RootActionsRetrieve {
 
 export const loadRootFolder = async (
     context: ActionContext<RootState, RootState>,
+    project_id: number,
 ): Promise<void> => {
     try {
         context.commit("beginLoading");
-        const service = await getDocumentManagerServiceInformation(
-            Number(context.state.configuration.project_id),
-        );
+        const service = await getDocumentManagerServiceInformation(project_id);
         const root: RestFolder = await service.root_item;
 
         const folder = convertFolderItemToFolder(root);
@@ -123,7 +122,10 @@ export const loadFolder = (
 
     return Promise.all(promises);
 
-    function getCurrentFolder(): { is_folder_found_in_hierarchy: boolean; current_folder: Folder } {
+    function getCurrentFolder(): {
+        is_folder_found_in_hierarchy: boolean;
+        current_folder: Folder | null;
+    } {
         const index_of_folder_in_hierarchy =
             context.state.current_folder_ascendant_hierarchy.findIndex(
                 (item) => item.id === folder_id,
@@ -163,7 +165,7 @@ export const loadFolder = (
         return folder_in_store;
     }
 
-    function getLoadingCurrentFolderPromise(current_folder: Folder): Promise<Folder> {
+    function getLoadingCurrentFolderPromise(current_folder: Folder | null): Promise<Folder> {
         if (shouldWeRemotelyLoadTheFolder(current_folder)) {
             return getItem(folder_id).then((folder): Folder => {
                 context.commit("setCurrentFolder", folder);
@@ -176,10 +178,14 @@ export const loadFolder = (
             });
         }
 
+        if (context.state.current_folder === null) {
+            throw new Error("current_folder cannot be null");
+        }
+
         return Promise.resolve(context.state.current_folder);
     }
 
-    function shouldWeRemotelyLoadTheFolder(current_folder: Folder): boolean {
+    function shouldWeRemotelyLoadTheFolder(current_folder: Folder | null): boolean {
         return !current_folder || current_folder.id !== folder_id;
     }
 };

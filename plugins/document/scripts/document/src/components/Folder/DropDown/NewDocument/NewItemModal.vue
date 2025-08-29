@@ -134,6 +134,8 @@ import type { ConfigurationState } from "../../../../store/configuration";
 import type { ErrorState } from "../../../../store/error/module";
 import type { PermissionsState } from "../../../../store/permissions/permissions-default-state";
 import { useGettext } from "vue3-gettext";
+import { strictInject } from "@tuleap/vue-strict-inject";
+import { IS_STATUS_PROPERTY_USED, PROJECT_ID } from "../../../../configuration-keys";
 
 const { $gettext } = useGettext();
 const $store = useStore();
@@ -150,9 +152,12 @@ const form = ref<HTMLFormElement>();
 let modal: Modal | null = null;
 
 const { current_folder } = useState<Pick<RootState, "current_folder">>(["current_folder"]);
-const { project_id, is_status_property_used, user_locale } = useNamespacedState<
-    Pick<ConfigurationState, "project_id" | "is_status_property_used" | "user_locale">
->("configuration", ["project_id", "is_status_property_used", "user_locale"]);
+const project_id = strictInject(PROJECT_ID);
+const is_status_property_used = strictInject(IS_STATUS_PROPERTY_USED);
+const { user_locale } = useNamespacedState<Pick<ConfigurationState, "user_locale">>(
+    "configuration",
+    ["user_locale"],
+);
 const { has_modal_error } = useNamespacedState<Pick<ErrorState, "has_modal_error">>("error", [
     "has_modal_error",
 ]);
@@ -262,17 +267,13 @@ async function show(event: CreateItemEvent): Promise<void> {
 
     transformCustomPropertiesForItemCreation(item.value.properties);
     if (isFolder(parent.value)) {
-        transformStatusPropertyForItemCreation(
-            item.value,
-            parent.value,
-            is_status_property_used.value,
-        );
+        transformStatusPropertyForItemCreation(item.value, parent.value, is_status_property_used);
     }
 
     is_displayed.value = true;
     modal?.show();
     try {
-        await $store.dispatch("permissions/loadProjectUserGroupsIfNeeded", project_id.value);
+        await $store.dispatch("permissions/loadProjectUserGroupsIfNeeded", project_id);
     } catch (err) {
         await handleErrors($store, err);
         modal?.hide();

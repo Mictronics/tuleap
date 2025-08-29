@@ -31,7 +31,7 @@
             <p>
                 <slot></slot>
                 <br />
-                <span v-translate>Please confirm your action.</span>
+                {{ $gettext("Please confirm your action.") }}
             </p>
         </div>
 
@@ -41,9 +41,8 @@
                 data-dismiss="modal"
                 type="button"
                 v-bind:disabled="is_deleting"
-                v-translate
             >
-                Cancel
+                {{ $gettext("Cancel") }}
             </button>
             <button
                 class="tlp-button-danger tlp-modal-action"
@@ -57,7 +56,7 @@
                     class="tlp-button-icon fa fa-fw fa-spinner fa-spin"
                     data-test-type="spinner"
                 ></i>
-                <i class="fa fa-fw fa-trash-o tlp-button-icon" v-else></i>
+                <i class="fa-solid fa-fw fa-trash tlp-button-icon" v-else></i>
                 {{ submit_label }}
             </button>
         </div>
@@ -65,8 +64,11 @@
 </template>
 
 <script setup lang="ts">
-import { getMessageFromException } from "../../support/rest-utils";
 import { ref } from "vue";
+import { useGettext } from "vue3-gettext";
+import { getMessageFromException } from "../../support/rest-utils";
+
+const { $gettext } = useGettext();
 
 const props = defineProps<{
     submit_label: string;

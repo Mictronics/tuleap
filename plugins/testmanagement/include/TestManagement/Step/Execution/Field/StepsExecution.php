@@ -1,0 +1,346 @@
+<?php
+/**
+ * Copyright (c) Enalean, 2018-Present. All Rights Reserved.
+ *
+ * This file is a part of Tuleap.
+ *
+ * Tuleap is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * Tuleap is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
+ */
+
+namespace Tuleap\TestManagement\Step\Execution\Field;
+
+use Codendi_HTMLPurifier;
+use Override;
+use TemplateRendererFactory;
+use Tracker_Artifact_Changeset;
+use Tracker_Artifact_ChangesetValue;
+use Tracker_FormElement_FieldVisitor;
+use Tracker_Report_Criteria;
+use Tuleap\Option\Option;
+use Tuleap\TestManagement\Step\Execution\StepResult;
+use Tuleap\TestManagement\Step\Execution\StepResultPresenter;
+use Tuleap\TestManagement\Step\Step;
+use Tuleap\TestManagement\Step\StepPresenter;
+use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\FormElement\Field\Files\CreatedFileURLMapping;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
+use Tuleap\Tracker\FormElement\TrackerFormElementExternalField;
+use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
+
+class StepsExecution extends TrackerField implements TrackerFormElementExternalField
+{
+    public const string TYPE             = 'ttmstepexec';
+    public const string UPDATE_VALUE_KEY = 'steps_results';
+
+    /**
+     * @return void
+     */
+    #[Override]
+    public function accept(Tracker_FormElement_FieldVisitor $visitor)
+    {
+        $visitor->visitExternalField($this);
+    }
+
+    #[Override]
+    public static function getFactoryLabel()
+    {
+        return dgettext('tuleap-testmanagement', 'Steps execution');
+    }
+
+    #[Override]
+    public static function getFactoryDescription()
+    {
+        return dgettext('tuleap-testmanagement', 'Execution result of steps');
+    }
+
+    #[Override]
+    public static function getFactoryIconUseIt()
+    {
+        return TESTMANAGEMENT_BASE_URL . '/images/ic/tick-circle.png';
+    }
+
+    #[Override]
+    public static function getFactoryIconCreate()
+    {
+        return TESTMANAGEMENT_BASE_URL . '/images/ic/tick-circle--plus.png';
+    }
+
+    #[Override]
+    public static function getFactoryUniqueField()
+    {
+        return true;
+    }
+
+    #[Override]
+    protected function fetchAdminFormElement()
+    {
+        return '<ol><li><span>First step definition</span> <span class="label">passed</span></li></ol>';
+    }
+
+    /**
+     * @return null
+     */
+    #[Override]
+    public function getRESTAvailableValues()
+    {
+        return null;
+    }
+
+    /**
+     * @return false
+     */
+    #[Override]
+    public function canBeUsedAsReportCriterion()
+    {
+        return false;
+    }
+
+    /**
+     * @return false
+     */
+    #[Override]
+    public function canBeUsedAsReportColumn()
+    {
+        return false;
+    }
+
+    #[Override]
+    public function fetchCriteriaValue(Tracker_Report_Criteria $criteria): string
+    {
+        return '';
+    }
+
+    #[Override]
+    public function fetchRawValue(mixed $value): string
+    {
+        return '';
+    }
+
+    #[Override]
+    public function getCriteriaFromWhere(Tracker_Report_Criteria $criteria): Option
+    {
+        return Option::nothing(ParametrizedFromWhere::class);
+    }
+
+    #[Override]
+    public function getQuerySelect(): string
+    {
+        return '';
+    }
+
+    #[Override]
+    protected function getCriteriaDao()
+    {
+        return null;
+    }
+
+    #[Override]
+    protected function fetchArtifactValue(
+        Artifact $artifact,
+        ?Tracker_Artifact_ChangesetValue $value,
+        array $submitted_values,
+    ): string {
+        return '<div class="alert">'
+            . dgettext(
+                'tuleap-testmanagement',
+                'Direct edition of steps results is not allowed. Please use TestManagement service instead.'
+            )
+            . '</div>'
+            . $this->fetchArtifactValueReadOnly($artifact, $value);
+    }
+
+    #[Override]
+    public function fetchArtifactValueReadOnly(
+        Artifact $artifact,
+        ?Tracker_Artifact_ChangesetValue $value = null,
+    ) {
+        $renderer = TemplateRendererFactory::build()->getRenderer(TESTMANAGEMENT_BASE_DIR . '/templates');
+
+        $purifier       = Codendi_HTMLPurifier::instance();
+        $no_value_label = $this->getNoValueLabel();
+
+        return $renderer->renderToString(
+            'step-exec-readonly',
+            [
+                'steps'                   => $this->getStepResultPresentersFromChangesetValue($value),
+                'purified_no_value_label' => $purifier->purify($no_value_label, CODENDI_PURIFIER_FULL),
+            ]
+        );
+    }
+
+    /**
+     * @return string
+     */
+    #[Override]
+    public function fetchArtifactValueWithEditionFormIfEditable(
+        Artifact $artifact,
+        ?Tracker_Artifact_ChangesetValue $value = null,
+        array $submitted_values = [],
+    ) {
+        return $this->fetchArtifactValueReadOnly($artifact, $value) .
+            $this->getHiddenArtifactValueForEdition($artifact, $value, $submitted_values);
+    }
+
+    #[Override]
+    protected function fetchSubmitValue(array $submitted_values): string
+    {
+        return '';
+    }
+
+    #[Override]
+    protected function fetchSubmitValueMasschange(): string
+    {
+        return '';
+    }
+
+    #[Override]
+    protected function fetchTooltipValue(Artifact $artifact, ?Tracker_Artifact_ChangesetValue $value = null): string
+    {
+        return '';
+    }
+
+    #[Override]
+    public function fetchAddCardFields(array $used_fields, string $prefix = ''): string
+    {
+        return '';
+    }
+
+    #[Override]
+    public function canBeDisplayedInTooltip(): bool
+    {
+        return false;
+    }
+
+    /**
+     * @return StepExecutionChangesetValueDao
+     */
+    #[Override]
+    protected function getValueDao()
+    {
+        return new StepExecutionChangesetValueDao();
+    }
+
+    #[Override]
+    public function fetchRawValueFromChangeset(Tracker_Artifact_Changeset $changeset): string
+    {
+        return '';
+    }
+
+    #[Override]
+    protected function validate(Artifact $artifact, $value)
+    {
+        return true;
+    }
+
+    #[Override]
+    public function hasChanges(
+        Artifact $artifact,
+        Tracker_Artifact_ChangesetValue $old_value,
+        $new_value,
+    ) {
+        $old_values = [];
+        /** @var StepResult[] $old_steps */
+        $old_steps = $old_value->getValue();
+        foreach ($old_steps as $step_result) {
+            $old_values[$step_result->getStep()->getId()] = [$step_result->getStatus(), $step_result->getComment()];
+        }
+        $new_values = $new_value[self::UPDATE_VALUE_KEY];
+
+        return array_diff(array_map('serialize', $new_values), array_map('serialize', $old_values)) !== [] || array_diff_assoc(array_map('serialize', $old_values), array_map('serialize', $new_values)) !== [];
+    }
+
+    #[Override]
+    protected function saveValue(
+        $artifact,
+        $changeset_value_id,
+        $value,
+        ?Tracker_Artifact_ChangesetValue $previous_changesetvalue,
+        CreatedFileURLMapping $url_mapping,
+    ) {
+        return $this->getValueDao()->create($changeset_value_id, $value[self::UPDATE_VALUE_KEY]);
+    }
+
+    #[Override]
+    public function getChangesetValue($changeset, $value_id, $has_changed)
+    {
+        $steps = [];
+        foreach ($this->getValueDao()->searchById($value_id) as $row) {
+            $step = new Step(
+                $row['id'],
+                $row['description'],
+                $row['description_format'],
+                $row['expected_results'],
+                $row['expected_results_format'],
+                $row['rank'],
+                $row['step_type']
+            );
+
+            $steps[] = new StepResult($step, $row['status'], $row['comment']);
+        }
+
+        return new StepsExecutionChangesetValue($value_id, $changeset, $this, $has_changed, $steps);
+    }
+
+    #[Override]
+    public function fetchChangesetValue(
+        int $artifact_id,
+        int $changeset_id,
+        mixed $value,
+        ?\Tracker_Report $report = null,
+        ?array $redirection_parameters = null,
+    ): string {
+        return '';
+    }
+
+    /**
+     * @return ViewAdmin
+     */
+    #[Override]
+    public function getFormAdminVisitor(TrackerField $element, array $used_element)
+    {
+        return new ViewAdmin($element, $used_element);
+    }
+
+    /**
+     *
+     * @return StepResultPresenter[]
+     */
+    private function getStepResultPresentersFromChangesetValue(?Tracker_Artifact_ChangesetValue $value = null)
+    {
+        $step_results = [];
+        if ($value) {
+            $step_results = $value->getValue();
+        }
+
+        $tracker = $this->getTracker();
+        if (! $tracker) {
+            return [];
+        }
+
+        return array_map(
+            static function (StepResult $step_result) use ($tracker) {
+                $step_presenter = new StepPresenter($step_result->getStep(), $tracker->getProject());
+
+                return new StepResultPresenter($step_presenter, $step_result);
+            },
+            $step_results
+        );
+    }
+
+    #[Override]
+    public function isAlwaysInEditMode(): bool
+    {
+        return false;
+    }
+}

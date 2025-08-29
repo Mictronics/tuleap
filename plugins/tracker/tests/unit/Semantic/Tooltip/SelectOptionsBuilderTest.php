@@ -82,7 +82,7 @@ final class SelectOptionsBuilderTest extends TestCase
         $tracker = TrackerTestBuilder::aTracker()->build();
         $user    = UserTestBuilder::buildWithDefaults();
 
-        $stepdef = $this->createMock(\Tracker_FormElement_Field::class);
+        $stepdef = $this->createMock(\Tuleap\Tracker\FormElement\Field\TrackerField::class);
         $stepdef->method('userCanRead')->willReturn(true);
         $stepdef->method('getLabel')->willReturn('Step definition');
         $stepdef->method('getId')->willReturn(123);
@@ -219,9 +219,9 @@ final class SelectOptionsBuilderTest extends TestCase
         self::assertEquals('Priority', $root->optgroups[1]->options[1]->label);
     }
 
-    private function aSelectBoxField(int $id, string $label, bool $readable): \Tracker_FormElement_Field_Selectbox
+    private function aSelectBoxField(int $id, string $label, bool $readable): \Tuleap\Tracker\FormElement\Field\List\SelectboxField
     {
-        $sb = $this->createMock(\Tracker_FormElement_Field_Selectbox::class);
+        $sb = $this->createMock(\Tuleap\Tracker\FormElement\Field\List\SelectboxField::class);
         $sb->method('userCanRead')->willReturn($readable);
         $sb->method('getLabel')->willReturn($label);
         $sb->method('getId')->willReturn($id);
@@ -230,9 +230,9 @@ final class SelectOptionsBuilderTest extends TestCase
         return $sb;
     }
 
-    private function aFieldset(int $id, string $label, bool $readable, array $subelements): \Tracker_FormElement_Container_Fieldset
+    private function aFieldset(int $id, string $label, bool $readable, array $subelements): \Tuleap\Tracker\FormElement\Container\Fieldset\FieldsetContainer
     {
-        $fieldset = $this->createMock(\Tracker_FormElement_Container_Fieldset::class);
+        $fieldset = $this->createMock(\Tuleap\Tracker\FormElement\Container\Fieldset\FieldsetContainer::class);
         $fieldset->method('userCanRead')->willReturn($readable);
         $fieldset->method('getLabel')->willReturn($label);
         $fieldset->method('getId')->willReturn($id);

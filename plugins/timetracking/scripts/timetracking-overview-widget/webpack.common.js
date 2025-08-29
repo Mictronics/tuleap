@@ -21,9 +21,16 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { webpack_configurator } from "@tuleap/build-system-configurator";
 import POGettextPlugin from "@tuleap/po-gettext-plugin";
+import { VueLoaderPlugin } from "vue-loader";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+const rule_vue_loader = {
+    test: /\.vue$/,
+    exclude: /node_modules/,
+    use: [{ loader: "vue-loader" }],
+};
 
 export default [
     {
@@ -36,12 +43,9 @@ export default [
             path.resolve(__dirname, "./frontend-assets"),
             "/assets/timetracking/timetracking-overview-widget/",
         ),
-        externals: {
-            tlp: "tlp",
-        },
         module: {
             rules: [
-                webpack_configurator.rule_vue_loader,
+                rule_vue_loader,
                 webpack_configurator.rule_scss_loader,
                 webpack_configurator.rule_css_assets,
                 ...webpack_configurator.configureTypescriptRules(),
@@ -50,14 +54,14 @@ export default [
         resolve: {
             extensions: [".ts", ".js", ".vue"],
             alias: {
-                vue: path.resolve(__dirname, "node_modules", "@vue", "compat"),
+                vue: path.resolve(__dirname, "node_modules", "vue"),
             },
         },
         plugins: [
             webpack_configurator.getCleanWebpackPlugin(),
             webpack_configurator.getManifestPlugin(),
             POGettextPlugin.webpack(),
-            webpack_configurator.getVueLoaderPlugin(),
+            new VueLoaderPlugin(),
             ...webpack_configurator.getCSSExtractionPlugins(),
         ],
     },

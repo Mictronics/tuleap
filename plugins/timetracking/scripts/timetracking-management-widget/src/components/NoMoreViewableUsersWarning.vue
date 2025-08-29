@@ -39,9 +39,11 @@
 
 <script setup lang="ts">
 import { useGettext } from "vue3-gettext";
-import { strictInject } from "@tuleap/vue-strict-inject";
-import { RETRIEVE_QUERY } from "../injection-symbols";
+import type { User } from "@tuleap/core-rest-api-types";
 
 const { $ngettext } = useGettext();
-const { no_more_viewable_users } = strictInject(RETRIEVE_QUERY);
+
+defineProps<{
+    no_more_viewable_users: User[];
+}>();
 </script>

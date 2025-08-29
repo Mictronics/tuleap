@@ -20,12 +20,13 @@
 
 namespace Tuleap\Tracker\Action;
 
-use Tracker_FormElement_Field_List;
 use Tuleap\Test\PHPUnit\TestCase;
+use Tuleap\Tracker\FormElement\Field\ListField;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListUserBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListUserGroupBindBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\MultiSelectboxFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\SelectboxFieldBuilder;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class AreListFieldsCompatibleVerifierTest extends TestCase
@@ -39,8 +40,8 @@ final class AreListFieldsCompatibleVerifierTest extends TestCase
 
     #[\PHPUnit\Framework\Attributes\DataProvider('getSourceAndDestinationFieldsForSameBindTypeTest')]
     public function testReturnsFalseWhenTheFieldsDoNotHaveTheSameTypeOfBind(
-        Tracker_FormElement_Field_List $source_field,
-        Tracker_FormElement_Field_List $destination_field,
+        ListField $source_field,
+        ListField $destination_field,
         bool $are_compatible_expectation,
     ): void {
         self::assertSame(
@@ -55,17 +56,17 @@ final class AreListFieldsCompatibleVerifierTest extends TestCase
     public function testItReturnsFalseWhenSelectBoxesHaveNotTheSameMultiplicity(): void
     {
         $source_single   = ListStaticBindBuilder::aStaticBind(
-            ListFieldBuilder::aListField(197)->build()
+            SelectboxFieldBuilder::aSelectboxField(197)->build()
         )->build()->getField();
         $source_multiple = ListStaticBindBuilder::aStaticBind(
-            ListFieldBuilder::aListField(869)->withMultipleValues()->build()
+            MultiSelectboxFieldBuilder::aMultiSelectboxField(869)->build()
         )->build()->getField();
 
         $destination_single   = ListStaticBindBuilder::aStaticBind(
-            ListFieldBuilder::aListField(487)->build()
+            SelectboxFieldBuilder::aSelectboxField(487)->build()
         )->build()->getField();
         $destination_multiple = ListStaticBindBuilder::aStaticBind(
-            ListFieldBuilder::aListField(132)->withMultipleValues()->build()
+            MultiSelectboxFieldBuilder::aMultiSelectboxField(132)->build()
         )->build()->getField();
 
         self::assertFalse($this->verifier->areListFieldsCompatible($source_single, $destination_multiple));
@@ -77,13 +78,13 @@ final class AreListFieldsCompatibleVerifierTest extends TestCase
     public static function getSourceAndDestinationFieldsForSameBindTypeTest(): array
     {
         $static_list_field     = ListStaticBindBuilder::aStaticBind(
-            ListFieldBuilder::aListField(992)->build()
+            SelectboxFieldBuilder::aSelectboxField(992)->build()
         )->build()->getField();
         $user_list_field       = ListUserBindBuilder::aUserBind(
-            ListFieldBuilder::aListField(935)->build()
+            SelectboxFieldBuilder::aSelectboxField(935)->build()
         )->build()->getField();
         $user_group_list_field = ListUserGroupBindBuilder::aUserGroupBind(
-            ListFieldBuilder::aListField(807)->build()
+            SelectboxFieldBuilder::aSelectboxField(807)->build()
         )->build()->getField();
 
         return [

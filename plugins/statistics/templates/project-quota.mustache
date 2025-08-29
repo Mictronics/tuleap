@@ -42,7 +42,9 @@
                     <div class="tlp-table-actions">
                         <button type="button"
                                 class="tlp-button-primary tlp-table-actions-element"
-                                data-modal-id="modal-add-quota"
+                                data-statistics-button
+                                data-target-modal-id="modal-add-quota"
+                                data-test="modal-add-quota-button"
                         >
                             <i class="tlp-button-icon fa fa-plus"></i> {{ add_quota_label }}
                         </button>
@@ -61,7 +63,7 @@
                         </thead>
                         <tbody>
                             {{# quotas }}
-                                <tr>
+                                <tr data-test="project-quota-row">
                                     <td class="siteadmin-statistics-project-quota-results-project">
                                         <a href="/admin/groupedit.php?group_id={{ project_id }}">{{ project_name }}</a>
                                     </td>
@@ -72,13 +74,16 @@
                                     <td class="tlp-table-cell-actions siteadmin-statistics-project-quota-results-actions">
                                         <button type="button"
                                                 class="tlp-table-cell-actions-button tlp-button-small tlp-button-primary tlp-button-outline"
-                                                data-modal-id="modal-details-quota-{{ project_id }}"
+                                                data-statistics-button
+                                                data-target-modal-id="modal-details-quota-{{ project_id }}"
                                         >
                                             <i class="fa fa-list tlp-button-icon"></i> {{ details_label }}
                                         </button>
                                         <button type="button"
                                                 class="tlp-table-cell-actions-button tlp-button-small tlp-button-danger tlp-button-outline"
-                                                data-modal-id="modal-delete-quota-{{ project_id }}"
+                                                data-statistics-button
+                                                data-target-modal-id="modal-delete-quota-{{ project_id }}"
+                                                data-test="modal-delete-quota"
                                         >
                                             <i class="far fa-trash-alt tlp-button-icon"></i> {{ delete_label }}
                                         </button>

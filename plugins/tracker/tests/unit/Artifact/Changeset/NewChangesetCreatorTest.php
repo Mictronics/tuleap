@@ -34,7 +34,7 @@ use Tuleap\Tracker\Artifact\Changeset\Comment\CommentFormatIdentifier;
 use Tuleap\Tracker\Artifact\Changeset\Comment\PrivateComment\TrackerPrivateCommentUGroupPermissionInserter;
 use Tuleap\Tracker\Artifact\Changeset\PostCreation\PostCreationContext;
 use Tuleap\Tracker\Artifact\ChangesetValue\ChangesetValueSaver;
-use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
+use Tuleap\Tracker\FormElement\Field\Files\CreatedFileURLMapping;
 use Tuleap\Tracker\FormElement\Field\Text\TextValueValidator;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
@@ -162,7 +162,7 @@ final class NewChangesetCreatorTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->workflow->expects($this->never())->method('after');
         $this->comment_dao->method('createNewVersion')->willReturn(true);
 
-        self::expectException(\Tracker_AfterSaveException::class);
+        $this->expectException(\Tracker_AfterSaveException::class);
         $this->create();
     }
 
@@ -172,7 +172,7 @@ final class NewChangesetCreatorTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->changeset_saver->expects($this->once())->method('saveChangeset')
             ->willThrowException(new \Tracker_Artifact_Exception_CannotCreateNewChangeset());
 
-        self::expectException(\Tracker_ChangesetNotCreatedException::class);
+        $this->expectException(\Tracker_ChangesetNotCreatedException::class);
         $this->create();
     }
 

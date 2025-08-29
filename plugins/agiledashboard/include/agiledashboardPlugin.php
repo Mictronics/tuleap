@@ -150,6 +150,7 @@ use Tuleap\Tracker\Creation\JiraImporter\Import\JiraImporterExternalPluginsEvent
 use Tuleap\Tracker\Events\CollectTrackerDependantServices;
 use Tuleap\Tracker\FormElement\Event\MessageFetcherAdditionalWarnings;
 use Tuleap\Tracker\FormElement\Field\Priority\PriorityField;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
 use Tuleap\Tracker\Hierarchy\TrackerHierarchyUpdateEvent;
 use Tuleap\Tracker\Masschange\TrackerMasschangeGetExternalActionsEvent;
 use Tuleap\Tracker\Masschange\TrackerMasschangeProcessExternalActionsEvent;
@@ -218,6 +219,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
         bindTextDomain('tuleap-agiledashboard', AGILEDASHBOARD_BASE_DIR . '/../site-content');
     }
 
+    #[Override]
     public function getHooksAndCallbacks()
     {
         // Do not load the plugin if tracker is not installed & active
@@ -291,16 +293,19 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
     /**
      * @see Plugin::getDependencies()
      */
+    #[Override]
     public function getDependencies()
     {
         return ['kanban', 'tracker', 'cardwall'];
     }
 
+    #[Override]
     public function getServiceShortname(): string
     {
         return self::PLUGIN_SHORTNAME;
     }
 
+    #[Override]
     #[ListeningToEventClass]
     public function serviceClassnamesCollector(ServiceClassnamesCollector $event): void
     {
@@ -311,6 +316,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
      * @see Event::SERVICE_IS_USED
      * @param array{shortname: string, is_used: bool, group_id: int|string} $params
      */
+    #[Override]
     public function serviceIsUsed(array $params): void
     {
         if (! isset($params['shortname']) || ! isset($params['is_used'])) {
@@ -335,16 +341,19 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
         );
     }
 
+    #[Override]
     public function projectServiceBeforeActivation(ProjectServiceBeforeActivation $event): void
     {
         // nothing to do for Agile Dashboard
     }
 
+    #[Override]
     public function serviceDisabledCollector(ServiceDisabledCollector $event): void
     {
         // nothing to do for Agile Dashboard
     }
 
+    #[Override]
     public function addMissingService(AddMissingService $event): void
     {
         // nothing to do for Agile Dashboard
@@ -690,6 +699,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
         }
     }
 
+    #[Override]
     public function getConfigKeys(ConfigClassProvider $event): void
     {
         $event->addConfigClass(MilestonesInSidebarDao::class);
@@ -719,6 +729,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
     /**
      * @return AgileDashboardPluginInfo
      */
+    #[Override]
     public function getPluginInfo()
     {
         if (! $this->pluginInfo) {
@@ -973,7 +984,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
         );
     }
 
-    private function isFieldPriority(Tracker_FormElement_Field $field)
+    private function isFieldPriority(TrackerField $field)
     {
         return $field instanceof PriorityField;
     }
@@ -1485,6 +1496,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
         }
     }
 
+    #[Override]
     public function serviceEnableForXmlImportRetriever(ServiceEnableForXmlImportRetriever $event): void
     {
         $event->addServiceIfPluginIsNotRestricted($this, $this->getServiceShortname());

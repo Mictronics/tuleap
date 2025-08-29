@@ -98,9 +98,8 @@ final class GerritUserAccountManagerTest extends TestCase
 
     public function testItCallsRemoteServerFactory(): void
     {
-        $this->expectNotToPerformAssertions();
-        $this->gerrit_driver->method('removeSSHKeyFromAccount');
-        $this->gerrit_driver->method('addSSHKeyToAccount');
+        $this->gerrit_driver->expects($this->atLeastOnce())->method('removeSSHKeyFromAccount');
+        $this->gerrit_driver->expects($this->atLeastOnce())->method('addSSHKeyToAccount');
         $this->user_account_manager->synchroniseSSHKeys($this->original_keys, $this->new_keys, $this->user);
     }
 
@@ -167,7 +166,7 @@ final class GerritUserAccountManagerTest extends TestCase
         $this->gerrit_driver->method('addSSHKeyToAccount')->willThrowException(new Git_Driver_Gerrit_Exception());
         $this->gerrit_driver->method('removeSSHKeyFromAccount');
 
-        self::expectException(Git_UserSynchronisationException::class);
+        $this->expectException(Git_UserSynchronisationException::class);
         $this->user_account_manager->synchroniseSSHKeys($this->original_keys, $this->new_keys, $this->user);
     }
 }

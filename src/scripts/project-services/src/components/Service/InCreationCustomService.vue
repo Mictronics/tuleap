@@ -26,9 +26,8 @@
         />
         <icon-selector
             id="project-service-add-modal-icon"
-            v-bind:value="service.icon_name"
+            v-bind:icon_name="service.icon_name"
             v-on:input="onEditIcon"
-            v-bind:allowed_icons="allowed_icons"
         />
         <service-is-used
             id="project-service-add-modal-enabled"
@@ -36,13 +35,9 @@
             v-bind:disabled-reason="service.is_disabled_reason"
         />
         <slot name="is_active">
-            <hidden-service-is-active v-bind:value="service.is_active" />
+            <hidden-service-is-active v-bind:is_active="service.is_active" />
         </slot>
-        <service-rank
-            id="project-service-add-modal-rank"
-            v-bind:minimal_rank="minimal_rank"
-            v-bind:value="service.rank"
-        />
+        <service-rank id="project-service-add-modal-rank" v-bind:value="service.rank" />
         <service-link id="project-service-add-modal-link" v-bind:value="service.link" />
         <slot name="shortname" />
         <service-description
@@ -57,7 +52,9 @@
         />
     </div>
 </template>
-<script>
+<script setup lang="ts">
+import { ref } from "vue";
+import type { Service } from "../../type";
 import ServiceOpenInNewTab from "./ServiceOpenInNewTab.vue";
 import IconSelector from "./IconSelector.vue";
 import ServiceLabel from "./ServiceLabel.vue";
@@ -66,37 +63,22 @@ import ServiceDescription from "./ServiceDescription.vue";
 import ServiceIsUsed from "./ServiceIsUsed.vue";
 import ServiceRank from "./ServiceRank.vue";
 import HiddenServiceIsActive from "./HiddenServiceIsActive.vue";
-import { service_mixin } from "./service-mixin.js";
 
-export default {
-    name: "InCreationCustomService",
-    components: {
-        ServiceOpenInNewTab,
-        HiddenServiceIsActive,
-        ServiceRank,
-        ServiceIsUsed,
-        ServiceDescription,
-        ServiceLink,
-        ServiceLabel,
-        IconSelector,
-    },
-    mixins: [service_mixin],
-    props: {
-        allowed_icons: {
-            type: Object,
-            required: true,
-        },
-    },
-    methods: {
-        onEditServiceLabel(new_label) {
-            this.service.label = new_label;
-        },
-        onEditIcon(new_icon) {
-            this.service.icon_name = new_icon;
-        },
-        onNewTabChange(new_tab) {
-            this.service.is_in_new_tab = new_tab;
-        },
-    },
-};
+const props = defineProps<{
+    service_prop: Service;
+}>();
+
+const service = ref(props.service_prop);
+
+function onEditServiceLabel(new_label: string) {
+    service.value.label = new_label;
+}
+
+function onEditIcon(new_icon: string) {
+    service.value.icon_name = new_icon;
+}
+
+function onNewTabChange(new_tab: boolean) {
+    service.value.is_in_new_tab = new_tab;
+}
 </script>

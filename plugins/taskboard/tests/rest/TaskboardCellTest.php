@@ -22,10 +22,11 @@ declare(strict_types=1);
 
 namespace Tuleap\Taskboard\REST;
 
-use REST_TestDataBuilder;
+use Tuleap\REST\BaseTestDataBuilder;
+use Tuleap\REST\RESTTestDataBuilder;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
-final class TaskboardCellTest extends \RestBase
+final class TaskboardCellTest extends \Tuleap\REST\RestBase
 {
     /** @var int */
     private static $milestone_id;
@@ -90,7 +91,7 @@ final class TaskboardCellTest extends \RestBase
         ];
         $response         = $this->getResponse(
             $this->request_factory->createRequest('PATCH', 'taskboard_cells/' . $US4_swimlane_id . '/column/' . $review_column_id)->withBody($this->stream_factory->createStream(json_encode($patch_payload))),
-            REST_TestDataBuilder::TEST_USER_1_NAME
+            RESTTestDataBuilder::TEST_USER_1_NAME
         );
 
         $this->assertEquals(200, $response->getStatusCode());
@@ -127,8 +128,8 @@ final class TaskboardCellTest extends \RestBase
     public static function getUserNameAndExpectedStatusCode(): array
     {
         return [
-            'REST API User 1' => [REST_TestDataBuilder::TEST_USER_1_NAME, 200],
-            'Read-only bot' => [REST_TestDataBuilder::TEST_BOT_USER_NAME, 404],
+            'REST API User 1' => [RESTTestDataBuilder::TEST_USER_1_NAME, 200],
+            'Read-only bot' => [RESTTestDataBuilder::TEST_BOT_USER_NAME, 404],
         ];
     }
 
@@ -139,7 +140,7 @@ final class TaskboardCellTest extends \RestBase
     {
         $response = $this->getResponse(
             $this->request_factory->createRequest('GET', 'taskboard/' . self::$milestone_id . '/cards'),
-            \TestDataBuilder::TEST_USER_1_NAME
+            BaseTestDataBuilder::TEST_USER_1_NAME
         );
         self::assertSame(200, $response->getStatusCode());
         return $this->indexByLabel(json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR));
@@ -152,7 +153,7 @@ final class TaskboardCellTest extends \RestBase
     {
         $response = $this->getResponse(
             $this->request_factory->createRequest('GET', 'taskboard_cards/' . $swimlane_id . '/children?milestone_id=' . self::$milestone_id),
-            REST_TestDataBuilder::TEST_USER_1_NAME
+            RESTTestDataBuilder::TEST_USER_1_NAME
         );
         self::assertSame(200, $response->getStatusCode());
         return $this->indexByLabel(json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR));
@@ -165,7 +166,7 @@ final class TaskboardCellTest extends \RestBase
     {
         $response = $this->getResponse(
             $this->request_factory->createRequest('GET', 'taskboard/' . self::$milestone_id . '/columns'),
-            \TestDataBuilder::TEST_USER_1_NAME
+            BaseTestDataBuilder::TEST_USER_1_NAME
         );
         self::assertSame(200, $response->getStatusCode());
         return $this->indexByLabel(json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR));

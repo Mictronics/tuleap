@@ -48,7 +48,7 @@ class TimeframeNotConfigured implements IComputeTimeframes
         return null;
     }
 
-    public function isFieldUsed(\Tracker_FormElement_Field $field): bool
+    public function isFieldUsed(\Tuleap\Tracker\FormElement\Field\TrackerField $field): bool
     {
         return false;
     }
@@ -63,12 +63,12 @@ class TimeframeNotConfigured implements IComputeTimeframes
         return false;
     }
 
-    public function getStartDateField(): ?\Tracker_FormElement_Field_Date
+    public function getStartDateField(): ?\Tuleap\Tracker\FormElement\Field\Date\DateField
     {
         return null;
     }
 
-    public function getEndDateField(): ?\Tracker_FormElement_Field_Date
+    public function getEndDateField(): ?\Tuleap\Tracker\FormElement\Field\Date\DateField
     {
         return null;
     }

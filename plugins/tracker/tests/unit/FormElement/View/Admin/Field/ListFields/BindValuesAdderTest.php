@@ -23,25 +23,25 @@ declare(strict_types=1);
 namespace Tuleap\Tracker\FormElement\View\Admin\Field\ListFields;
 
 use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
-use Tracker_FormElement_Field_List;
 use Tracker_FormElement_Field_List_Bind_StaticValue_None;
 use Tuleap\GlobalLanguageMock;
 use Tuleap\Test\PHPUnit\TestCase;
+use Tuleap\Tracker\FormElement\Field\ListField;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticValueBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\SelectboxFieldBuilder;
 
 #[DisableReturnValueGenerationForTestDoubles]
 final class BindValuesAdderTest extends TestCase
 {
     use GlobalLanguageMock;
 
-    private Tracker_FormElement_Field_List $field;
+    private ListField $field;
     private BindValuesAdder $adder;
 
     protected function setUp(): void
     {
         $this->adder = new BindValuesAdder();
-        $this->field = ListFieldBuilder::aListField(145345)->build();
+        $this->field = SelectboxFieldBuilder::aSelectboxField(145345)->build();
     }
 
     public function testItAlwaysReturnsAllValuesWithNone(): void

@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Tuleap\CrossTracker\Query\Advanced;
 
+use EventManager;
 use Tuleap\CrossTracker\Query\Advanced\QueryValidation\DuckTypedField\DuckTypedFieldChecker;
 use Tuleap\CrossTracker\Query\Advanced\QueryValidation\Metadata\ArtifactIdMetadataChecker;
 use Tuleap\CrossTracker\Query\Advanced\QueryValidation\Metadata\AssignedToChecker;
@@ -36,6 +37,7 @@ use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\ProvideAndRetrieveUserStub;
 use Tuleap\Test\Stubs\ProvideCurrentUserStub;
 use Tuleap\Tracker\Admin\ArtifactLinksUsageDao;
+use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\SystemTypePresenterBuilder;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
 use Tuleap\Tracker\FormElement\Field\ListFields\OpenListValueDao;
@@ -84,14 +86,15 @@ use Tuleap\Tracker\Semantic\Contributor\TrackerSemanticContributorFactory;
 use Tuleap\Tracker\Test\Builders\Fields\CheckboxFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\DateFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ExternalFieldBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\FileFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\FilesFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\FloatFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\IntegerFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListUserGroupBindBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\MultiSelectboxFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\OpenListFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\RadioButtonFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\SelectboxFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\StringFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\TextFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
@@ -214,7 +217,8 @@ final class InvalidTermCollectorVisitorTest extends TestCase
             new ArtifactLinkTypeChecker(
                 new TypePresenterFactory(
                     $this->createStub(TypeDao::class),
-                    $this->createStub(ArtifactLinksUsageDao::class)
+                    $this->createStub(ArtifactLinksUsageDao::class),
+                    new SystemTypePresenterBuilder(EventManager::instance())
                 )
             )
         );
@@ -422,7 +426,7 @@ final class InvalidTermCollectorVisitorTest extends TestCase
     public function testItRejectsInvalidFileComparisons(Comparison $comparison): void
     {
         $this->fields_retriever = RetrieveUsedFieldsStub::withFields(
-            FileFieldBuilder::aFileField(324)
+            FilesFieldBuilder::aFileField(324)
                 ->withName(self::FIELD_NAME)
                 ->inTracker($this->first_tracker)
                 ->withReadPermission($this->user, true)
@@ -475,16 +479,15 @@ final class InvalidTermCollectorVisitorTest extends TestCase
     {
         $this->fields_retriever = RetrieveUsedFieldsStub::withFields(
             ListStaticBindBuilder::aStaticBind(
-                ListFieldBuilder::aListField(334)
+                SelectboxFieldBuilder::aSelectboxField(334)
                     ->withName(self::FIELD_NAME)
                     ->inTracker($this->first_tracker)
                     ->withReadPermission($this->user, true)
                     ->build()
             )->build()->getField(),
             ListStaticBindBuilder::aStaticBind(
-                ListFieldBuilder::aListField(789)
+                MultiSelectboxFieldBuilder::aMultiSelectboxField(789)
                     ->withName(self::FIELD_NAME)
-                    ->withMultipleValues()
                     ->inTracker($this->second_tracker)
                     ->withReadPermission($this->user, true)
                     ->build()
@@ -589,7 +592,7 @@ final class InvalidTermCollectorVisitorTest extends TestCase
             $user,
         ];
         yield 'file' => [
-            FileFieldBuilder::aFileField(415)
+            FilesFieldBuilder::aFileField(415)
                 ->withName(self::FIELD_NAME)
                 ->inTracker($tracker)
                 ->withReadPermission($user, true)
@@ -598,7 +601,7 @@ final class InvalidTermCollectorVisitorTest extends TestCase
             $user,
         ];
 
-        $list_field = ListFieldBuilder::aListField(637)
+        $list_field = SelectboxFieldBuilder::aSelectboxField(637)
             ->withName(self::FIELD_NAME)
             ->inTracker($tracker)
             ->withReadPermission($user, true)
@@ -634,7 +637,7 @@ final class InvalidTermCollectorVisitorTest extends TestCase
 
     #[\PHPUnit\Framework\Attributes\DataProvider('generateFieldsThatCannotBeComparedToMyself')]
     public function testItRejectsInvalidFieldComparisonsToMyself(
-        \Tracker_FormElement_Field $field,
+        \Tuleap\Tracker\FormElement\Field\TrackerField $field,
         \Tuleap\Tracker\Tracker $tracker,
         \PFUser $user,
     ): void {

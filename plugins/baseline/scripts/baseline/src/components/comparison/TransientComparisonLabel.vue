@@ -20,16 +20,16 @@
 
 <template>
     <h2 class="comparison-label">
-        Unsaved comparison
+        {{ $gettext("Unsaved comparison") }}
         <div class="comparison-actions">
             <button
                 v-on:click="openSaveModal"
                 type="button"
                 class="tlp-button-primary"
-                data-test-action="save-comparison"
+                data-test="save-comparison"
             >
                 <i class="fa fa-save tlp-button-icon"></i>
-                <translate>Save</translate>
+                {{ $gettext("Save") }}
             </button>
         </div>
     </h2>

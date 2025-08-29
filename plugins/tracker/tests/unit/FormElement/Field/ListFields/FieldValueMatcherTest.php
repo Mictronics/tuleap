@@ -26,38 +26,38 @@ use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
 use PHPUnit\Framework\MockObject\MockObject;
 use SimpleXMLElement;
-use Tracker_FormElement_Field_List;
 use Tracker_FormElement_Field_List_Bind_Static;
 use Tracker_FormElement_Field_List_BindValue;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
+use Tuleap\Tracker\FormElement\Field\ListField;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticValueBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\SelectboxFieldBuilder;
 use User\XML\Import\IFindUserFromXMLReference;
 
 #[DisableReturnValueGenerationForTestDoubles]
 final class FieldValueMatcherTest extends TestCase
 {
     private FieldValueMatcher $matcher;
-    private Tracker_FormElement_Field_List $source_field;
-    private Tracker_FormElement_Field_List $destination_field;
+    private ListField $source_field;
+    private ListField $destination_field;
     private Tracker_FormElement_Field_List_Bind_Static&MockObject $source_field_bind;
     private Tracker_FormElement_Field_List_Bind_Static&MockObject $destination_field_bind;
-    private Tracker_FormElement_Field_List&MockObject $destination_user_field;
+    private ListField&MockObject $destination_user_field;
     private SimpleXMLElement $xml;
     private IFindUserFromXMLReference&MockObject $user_finder;
 
     public function setUp(): void
     {
-        $this->source_field           = ListFieldBuilder::aListField(154)->build();
-        $this->destination_field      = ListFieldBuilder::aListField(155)->build();
+        $this->source_field           = SelectboxFieldBuilder::aSelectboxField(154)->build();
+        $this->destination_field      = SelectboxFieldBuilder::aSelectboxField(155)->build();
         $this->source_field_bind      = $this->createMock(Tracker_FormElement_Field_List_Bind_Static::class);
         $this->destination_field_bind = $this->createMock(Tracker_FormElement_Field_List_Bind_Static::class);
 
         $this->source_field->setBind($this->source_field_bind);
         $this->destination_field->setBind($this->destination_field_bind);
 
-        $this->destination_user_field = $this->createMock(Tracker_FormElement_Field_List::class);
+        $this->destination_user_field = $this->createMock(ListField::class);
 
         $this->xml = new SimpleXMLElement('<?xml version="1.0" encoding="UTF-8"?>
             <value format="ldap">101</value>

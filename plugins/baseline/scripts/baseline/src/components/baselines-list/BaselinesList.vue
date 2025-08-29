@@ -21,11 +21,13 @@
     <table class="tlp-table baselines-table">
         <thead>
             <tr>
-                <th class="tlp-table-cell-numeric baselines-table-column-header" v-translate>Id</th>
-                <th class="baselines-table-column-header" v-translate>Name</th>
-                <th class="baselines-table-column-header" v-translate>Milestone</th>
-                <th class="baselines-table-column-header" v-translate>Snapshot Date</th>
-                <th class="baselines-table-column-header" v-translate>Author</th>
+                <th class="tlp-table-cell-numeric baselines-table-column-header">
+                    {{ $gettext("Id") }}
+                </th>
+                <th class="baselines-table-column-header">{{ $gettext("Name") }}</th>
+                <th class="baselines-table-column-header">{{ $gettext("Milestone") }}</th>
+                <th class="baselines-table-column-header">{{ $gettext("Snapshot Date") }}</th>
+                <th class="baselines-table-column-header">{{ $gettext("Author") }}</th>
                 <th></th>
             </tr>
         </thead>
@@ -51,9 +53,8 @@
                     class="tlp-table-cell-empty"
                     key="no-baseline"
                     data-test-type="empty-baseline"
-                    v-translate
                 >
-                    No baseline available
+                    {{ $gettext("No baseline available") }}
                 </td>
             </tr>
         </tbody>
@@ -63,7 +64,7 @@
 <script>
 import BaselineSkeleton from "./BaselineSkeleton.vue";
 import BaselineListItem from "./BaselineListItem.vue";
-import { mapState, mapGetters } from "vuex";
+import { mapState, mapGetters, mapActions } from "vuex";
 
 export default {
     name: "BaselinesList",
@@ -79,8 +80,12 @@ export default {
         ...mapGetters("baselines", ["are_baselines_available"]),
     },
 
+    methods: {
+        ...mapActions("baselines", ["load"]),
+    },
+
     mounted() {
-        this.$store.dispatch("baselines/load", { project_id: this.project_id });
+        this.load({ project_id: this.project_id });
     },
 };
 </script>

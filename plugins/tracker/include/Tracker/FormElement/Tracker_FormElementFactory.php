@@ -21,24 +21,40 @@
 
 use Tuleap\DB\Compat\Legacy2018\LegacyDataAccessResultInterface;
 use Tuleap\Tracker\Artifact\ChangesetValue\AddDefaultValuesToFieldsData;
+use Tuleap\Tracker\FormElement\Container\Fieldset\FieldsetContainer;
 use Tuleap\Tracker\FormElement\Event\ImportExternalElement;
 use Tuleap\Tracker\FormElement\Field\ArtifactId\ArtifactIdField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\RetrieveAnArtifactLinkField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\RetrieveUsedArtifactLinkFields;
+use Tuleap\Tracker\FormElement\Field\Burndown\BurndownField;
 use Tuleap\Tracker\FormElement\Field\Computed\ComputedField;
+use Tuleap\Tracker\FormElement\Field\CrossReferences\CrossReferencesField;
+use Tuleap\Tracker\FormElement\Field\Date\DateField;
 use Tuleap\Tracker\FormElement\Field\FieldDao;
+use Tuleap\Tracker\FormElement\Field\Files\FilesField;
 use Tuleap\Tracker\FormElement\Field\Float\FloatField;
 use Tuleap\Tracker\FormElement\Field\Integer\IntegerField;
+use Tuleap\Tracker\FormElement\Field\LastUpdateBy\LastUpdateByField;
+use Tuleap\Tracker\FormElement\Field\LastUpdateDate\LastUpdateDateField;
+use Tuleap\Tracker\FormElement\Field\List\CheckboxField;
+use Tuleap\Tracker\FormElement\Field\List\MultiSelectboxField;
+use Tuleap\Tracker\FormElement\Field\List\OpenListField;
+use Tuleap\Tracker\FormElement\Field\List\RadioButtonField;
+use Tuleap\Tracker\FormElement\Field\List\SelectboxField;
+use Tuleap\Tracker\FormElement\Field\ListField;
 use Tuleap\Tracker\FormElement\Field\ListFields\RetrieveUsedListField;
+use Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField;
 use Tuleap\Tracker\FormElement\Field\PerTrackerArtifactId\PerTrackerArtifactIdField;
 use Tuleap\Tracker\FormElement\Field\Priority\PriorityField;
 use Tuleap\Tracker\FormElement\Field\RetrieveFieldById;
 use Tuleap\Tracker\FormElement\Field\RetrieveUsedFields;
 use Tuleap\Tracker\FormElement\Field\Shareable\PropagatePropertiesDao;
 use Tuleap\Tracker\FormElement\Field\String\StringField;
+use Tuleap\Tracker\FormElement\Field\SubmittedBy\SubmittedByField;
 use Tuleap\Tracker\FormElement\Field\SubmittedOn\SubmittedOnField;
 use Tuleap\Tracker\FormElement\Field\Text\TextField;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
 use Tuleap\Tracker\FormElement\FieldNameFormatter;
 use Tuleap\Tracker\FormElement\FormElementDeletedEvent;
 use Tuleap\Tracker\FormElement\RetrieveFieldType;
@@ -100,33 +116,33 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
         self::FIELD_STRING_TYPE           => StringField::class,
         self::FIELD_TEXT_TYPE             => TextField::class,
         self::FIELD_FLOAT_TYPE            => FloatField::class,
-        self::FIELD_DATE_TYPE => Tracker_FormElement_Field_Date::class,
-        self::FIELD_SELECT_BOX_TYPE => Tracker_FormElement_Field_Selectbox::class,
-        self::FIELD_RADIO_BUTTON_TYPE => Tracker_FormElement_Field_Radiobutton::class,
-        self::FIELD_MULTI_SELECT_BOX_TYPE => Tracker_FormElement_Field_MultiSelectbox::class,
-        self::FIELD_FILE_TYPE => Tracker_FormElement_Field_File::class,
-        self::FIELD_CHECKBOX_TYPE => Tracker_FormElement_Field_Checkbox::class,
+        self::FIELD_DATE_TYPE => DateField::class,
+        self::FIELD_SELECT_BOX_TYPE => SelectboxField::class,
+        self::FIELD_RADIO_BUTTON_TYPE => RadioButtonField::class,
+        self::FIELD_MULTI_SELECT_BOX_TYPE => MultiSelectboxField::class,
+        self::FIELD_FILE_TYPE => FilesField::class,
+        self::FIELD_CHECKBOX_TYPE => CheckboxField::class,
         self::FIELD_INTEGER_TYPE => IntegerField::class,
-        self::FIELD_OPEN_LIST_TYPE => Tracker_FormElement_Field_OpenList::class,
+        self::FIELD_OPEN_LIST_TYPE => OpenListField::class,
         self::FIELD_ARTIFACT_LINKS => ArtifactLinkField::class,
-        self::FIELD_PERMISSION_ON_ARTIFACT_TYPE => Tracker_FormElement_Field_PermissionsOnArtifact::class,
+        self::FIELD_PERMISSION_ON_ARTIFACT_TYPE => PermissionsOnArtifactField::class,
         self::FIELD_SHARED => Tracker_FormElement_Shared::class,
     ];
 
     protected $special_classnames     = [
-        self::FIELD_LAST_UPDATE_DATE_TYPE => Tracker_FormElement_Field_LastUpdateDate::class,
+        self::FIELD_LAST_UPDATE_DATE_TYPE => LastUpdateDateField::class,
         self::FIELD_ARTIFACT_ID_TYPE => ArtifactIdField::class,
         self::FIELD_SUBMITTED_ON_TYPE => SubmittedOnField::class,
         self::FIELD_ARTIFACT_IN_TRACKER => PerTrackerArtifactIdField::class,
-        self::FIELD_SUBMITTED_BY_TYPE => Tracker_FormElement_Field_SubmittedBy::class,
-        self::FIELD_LAST_MODIFIED_BY => Tracker_FormElement_Field_LastModifiedBy::class,
-        self::FIELD_CROSS_REFERENCES => Tracker_FormElement_Field_CrossReferences::class,
-        self::FIELD_BURNDOWN => Tracker_FormElement_Field_Burndown::class,
+        self::FIELD_SUBMITTED_BY_TYPE => SubmittedByField::class,
+        self::FIELD_LAST_MODIFIED_BY => LastUpdateByField::class,
+        self::FIELD_CROSS_REFERENCES => CrossReferencesField::class,
+        self::FIELD_BURNDOWN => BurndownField::class,
         self::FIELD_COMPUTED => ComputedField::class,
         self::FIELD_RANK => PriorityField::class,
     ];
     protected $group_classnames       = [
-        self::CONTAINER_FIELDSET_TYPE => Tracker_FormElement_Container_Fieldset::class,
+        self::CONTAINER_FIELDSET_TYPE => FieldsetContainer::class,
         self::CONTAINER_COLUMN_TYPE   => Tracker_FormElement_Container_Column::class,
     ];
     protected $staticfield_classnames = [
@@ -241,7 +257,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
     /**
      * Get a formElement by id
      * @param int $form_element_id the id of the formElement to retrieve
-     * @return Tracker_FormElement_Field
+     * @return TrackerField
      */
     public function getFormElementById($form_element_id)
     {
@@ -255,32 +271,32 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
     }
 
     /**
-     * @return Tracker_FormElement_Field
+     * @return TrackerField
      */
     public function getFormElementFieldById($id)
     {
         $field = $this->getFormElementById($id);
-        if ($field instanceof Tracker_FormElement_Field) {
+        if ($field instanceof TrackerField) {
             return $field;
         }
     }
 
-    public function getUsedFormElementFieldById(int $id): ?Tracker_FormElement_Field
+    public function getUsedFormElementFieldById(int $id): ?TrackerField
     {
         $field = $this->getUsedFormElementById($id);
-        if ($field instanceof Tracker_FormElement_Field) {
+        if ($field instanceof TrackerField) {
             return $field;
         }
         return null;
     }
 
     /**
-     * @return Tracker_FormElement_Field_List|null
+     * @return ListField|null
      */
     public function getFormElementListById($field_id)
     {
         $field = $this->getFormElementById($field_id);
-        if ($field instanceof Tracker_FormElement_Field_List) {
+        if ($field instanceof ListField) {
             return $field;
         }
         return null;
@@ -292,7 +308,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
      * @param int $tracker_id the tracker of the formElement to retrieve
      * @param string $name the name of the formElement to retrieve
      *
-     * @return Tracker_FormElement_Field
+     * @return TrackerField
      */
     public function getFormElementByName($tracker_id, $name)
     {
@@ -309,7 +325,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
     /**
      * Get a formElement by id
      * @param int $id the id of the formElement to retrieve
-     * @return Tracker_FormElement_Field
+     * @return TrackerField
      */
     public function getUsedFormElementById($id)
     {
@@ -323,7 +339,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
         return $this->used_formElements[$id];
     }
 
-    public function getUsedFieldByName(int $tracker_id, string $field_name): ?Tracker_FormElement_Field
+    public function getUsedFieldByName(int $tracker_id, string $field_name): ?TrackerField
     {
         if (! isset($this->used_form_element_fields_by_name[$tracker_id])) {
             $this->used_form_element_fields_by_name[$tracker_id] = [];
@@ -335,7 +351,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
         $row = $this->getDao()->searchUsedByTrackerIdAndName($tracker_id, $field_name)->getRow();
         if ($row !== false) {
             $form_element = $this->getCachedInstanceFromRow($row);
-            if ($form_element instanceof Tracker_FormElement_Field) {
+            if ($form_element instanceof TrackerField) {
                 $this->used_form_element_fields_by_name[$tracker_id][$field_name] = $form_element;
                 return $form_element;
             }
@@ -352,7 +368,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
      * @param string $field_name
      *
      */
-    public function getUsedFieldByNameForUser($tracker_id, $field_name, PFUser $user): ?Tracker_FormElement_Field
+    public function getUsedFieldByNameForUser($tracker_id, $field_name, PFUser $user): ?TrackerField
     {
         $field = $this->getUsedFieldByName($tracker_id, $field_name);
         if ($field !== null && $field->userCanRead($user)) {
@@ -395,7 +411,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
     }
 
     /**
-     * @return null|\Tracker_FormElement_Field
+     * @return null|\Tuleap\Tracker\FormElement\Field\TrackerField
      */
     public function getUsedFormElementFieldByNameForUser($tracker_id, $field_name, PFUser $user)
     {
@@ -413,12 +429,12 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
      * @param int    $tracker_id
      * @param string $field_name
      *
-     * @return Tracker_FormElement_Field_Selectbox | null
+     * @return SelectboxField | null
      */
     public function getSelectboxFieldByNameForUser($tracker_id, $field_name, PFUser $user)
     {
         $field = $this->getUsedFieldByNameForUser($tracker_id, $field_name, $user);
-        if ($field && $field instanceof Tracker_FormElement_Field_Selectbox) {
+        if ($field && $field instanceof SelectboxField) {
             return $field;
         }
         return null;
@@ -501,14 +517,14 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
 
     /**
      *
+     * @return null|TrackerField or null if not found or not a Field
      * @todo Check the type of the field.
      *
-     * @return null|Tracker_FormElement_Field or null if not found or not a Field
      */
-    public function getFieldById($field_id): ?Tracker_FormElement_Field
+    public function getFieldById($field_id): ?TrackerField
     {
         $field = $this->getFormElementById($field_id);
-        if (! $field instanceof Tracker_FormElement_Field) {
+        if (! $field instanceof TrackerField) {
             $field = null;
         }
         return $field;
@@ -517,7 +533,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
     public function getFieldsetById($id)
     {
         $fieldset = $this->getFormElementById($id);
-        if (! $fieldset instanceof Tracker_FormElement_Container_Fieldset) {
+        if (! $fieldset instanceof FieldsetContainer) {
             $fieldset = null;
         }
         return $fieldset;
@@ -537,7 +553,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
 
     /**
      * All fields used by the tracker
-     * @return Tracker_FormElement_Field[]
+     * @return TrackerField[]
      */
     public function getUsedFields(\Tuleap\Tracker\Tracker $tracker): array
     {
@@ -548,7 +564,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
      * Returns FormElements used by a tracker, except those already in REST Basic Info
      *
      *
-     * @return Tracker_FormElement_Field[]
+     * @return TrackerField[]
      */
     public function getUsedFieldsForREST(Tracker $tracker)
     {
@@ -589,7 +605,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
 
     /**
      * @param Tracker $tracker
-     * @return Tracker_FormElement_Field[] - All fields used and  unused by the tracker
+     * @return TrackerField[] - All fields used and  unused by the tracker
      */
     public function getFields($tracker)
     {
@@ -626,7 +642,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
 
     /**
      * @param Tracker $tracker
-     * @return Tracker_FormElement_Field_File[]
+     * @return FilesField[]
      */
     public function getUsedFileFields($tracker)
     {
@@ -634,7 +650,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
     }
 
     /**
-     * @return Tracker_FormElement_Field[] All custom date formElements used by the tracker
+     * @return TrackerField[] All custom date formElements used by the tracker
      */
     public function getUsedCustomDateFields(Tracker $tracker)
     {
@@ -644,12 +660,12 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
     /**
      * @param int     $field_id
      *
-     * @return Tracker_FormElement_Field_Date|null
+     * @return DateField|null
      */
     public function getUsedDateFieldById(Tracker $tracker, $field_id)
     {
         $date_field = $this->getUsedFieldByIdAndType($tracker, $field_id, ['date', 'subon', 'lud']);
-        assert($date_field === null || $date_field instanceof Tracker_FormElement_Field_Date);
+        assert($date_field === null || $date_field instanceof DateField);
 
         return $date_field;
     }
@@ -674,7 +690,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
 
     /**
      * It retrieves simple value fields that can potentially contain numeric values
-     * @return Tracker_FormElement_Field[] All numeric or computed formElements used by the tracker
+     * @return TrackerField[] All numeric or computed formElements used by the tracker
      */
     public function getUsedPotentiallyContainingNumericValueFields(Tracker $tracker)
     {
@@ -683,7 +699,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
 
     /**
      * @param Tracker $tracker
-     * @return Tracker_FormElement_Field_List[] All (multi) selectboxes formElements used by the tracker
+     * @return ListField[] All (multi) selectboxes formElements used by the tracker
      */
     public function getUsedListFields($tracker)
     {
@@ -709,7 +725,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
 
     /**
      * @param Tracker $tracker
-     * @return Tracker_FormElement_Container_Fieldset[]
+     * @return FieldsetContainer[]
      */
     public function getUsedFieldsets($tracker)
     {
@@ -728,7 +744,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
     /**
      * @param Tracker $tracker
      *
-     * @return Tracker_FormElement_Field_Burndown[]
+     * @return BurndownField[]
      */
     private function getUsedBurndownFields($tracker)
     {
@@ -736,7 +752,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
     }
 
     /**
-     * @return Tracker_FormElement_Field_Burndown|null
+     * @return BurndownField|null
      */
     public function getABurndownField(PFUser $user, Tracker $tracker)
     {
@@ -750,7 +766,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
 
     /**
      *
-     * @return array<Tracker_FormElement_Field_Selectbox|Tracker_FormElement_Field_Checkbox|Tracker_FormElement_Field_MultiSelectbox|Tracker_FormElement_Field_Radiobutton>
+     * @return array<SelectboxField|CheckboxField|MultiSelectboxField|RadioButtonField>
      */
     public function searchUsedUserClosedListFields(Tracker $tracker): array
     {
@@ -758,10 +774,10 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
         foreach ($this->getDao()->searchUsedUserClosedListFieldsByTrackerId($tracker->getId()) as $row) {
             $list = $this->getCachedInstanceFromRow($row);
             assert(
-                $list instanceof Tracker_FormElement_Field_Selectbox
-                || $list instanceof Tracker_FormElement_Field_Checkbox
-                || $list instanceof Tracker_FormElement_Field_MultiSelectbox
-                || $list instanceof Tracker_FormElement_Field_Radiobutton
+                $list instanceof SelectboxField
+                || $list instanceof CheckboxField
+                || $list instanceof MultiSelectboxField
+                || $list instanceof RadioButtonField
             );
             $form_elements[] = $list;
         }
@@ -791,14 +807,14 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
     public function getUsedListFieldById(
         \Tuleap\Tracker\Tracker $tracker,
         int $field_id,
-    ): \Tracker_FormElement_Field_Selectbox|\Tracker_FormElement_Field_OpenList|null {
+    ): \Tuleap\Tracker\FormElement\Field\List\SelectboxField|OpenListField|null {
         $field = $this->getUsedFieldByIdAndType(
             $tracker,
             $field_id,
             [self::FIELD_SELECT_BOX_TYPE, self::FIELD_MULTI_SELECT_BOX_TYPE, self::FIELD_OPEN_LIST_TYPE, self::FIELD_CHECKBOX_TYPE, self::FIELD_RADIO_BUTTON_TYPE]
         );
         assert(
-            $field === null || $field instanceof \Tracker_FormElement_Field_Selectbox || $field instanceof \Tracker_FormElement_Field_OpenList
+            $field === null || $field instanceof \Tuleap\Tracker\FormElement\Field\List\SelectboxField || $field instanceof OpenListField
         );
         return $field;
     }
@@ -1322,9 +1338,9 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
                     //Set default permissions
                     $permissions = [ $form_element_id =>
                          [
-                             ProjectUGroup::ANONYMOUS        => plugin_tracker_permission_get_input_value_from_permission(Tracker_FormElement_Field::PERMISSION_READ),
-                             ProjectUGroup::REGISTERED       => plugin_tracker_permission_get_input_value_from_permission(Tracker_FormElement_Field::PERMISSION_SUBMIT),
-                             ProjectUGroup::PROJECT_MEMBERS  => plugin_tracker_permission_get_input_value_from_permission(Tracker_FormElement_Field::PERMISSION_UPDATE),
+                             ProjectUGroup::ANONYMOUS        => plugin_tracker_permission_get_input_value_from_permission(TrackerField::PERMISSION_READ),
+                             ProjectUGroup::REGISTERED       => plugin_tracker_permission_get_input_value_from_permission(TrackerField::PERMISSION_SUBMIT),
+                             ProjectUGroup::PROJECT_MEMBERS  => plugin_tracker_permission_get_input_value_from_permission(TrackerField::PERMISSION_UPDATE),
                          ],
                     ];
                     $tracker     = $form_element->getTracker();
@@ -1642,9 +1658,9 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
         } else {
             $ugroups_permissions = [$elmtId =>
                 [
-                    ProjectUGroup::ANONYMOUS       => plugin_tracker_permission_get_input_value_from_permission(Tracker_FormElement_Field::PERMISSION_READ),
-                    ProjectUGroup::REGISTERED      => plugin_tracker_permission_get_input_value_from_permission(Tracker_FormElement_Field::PERMISSION_SUBMIT),
-                    ProjectUGroup::PROJECT_MEMBERS => plugin_tracker_permission_get_input_value_from_permission(Tracker_FormElement_Field::PERMISSION_UPDATE),
+                    ProjectUGroup::ANONYMOUS       => plugin_tracker_permission_get_input_value_from_permission(TrackerField::PERMISSION_READ),
+                    ProjectUGroup::REGISTERED      => plugin_tracker_permission_get_input_value_from_permission(TrackerField::PERMISSION_SUBMIT),
+                    ProjectUGroup::PROJECT_MEMBERS => plugin_tracker_permission_get_input_value_from_permission(TrackerField::PERMISSION_UPDATE),
                 ],
             ];
         }
@@ -1688,7 +1704,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
         }
     }
 
-    public function isFieldASimpleListField(Tracker_FormElement_Field $field)
+    public function isFieldASimpleListField(TrackerField $field)
     {
         return in_array($this->getType($field), ['sb', 'rb']);
     }
@@ -1696,7 +1712,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
     /**
      * @return bool
      */
-    public function isFieldAFileField(Tracker_FormElement_Field $field)
+    public function isFieldAFileField(TrackerField $field)
     {
         return $this->getType($field) === 'file';
     }

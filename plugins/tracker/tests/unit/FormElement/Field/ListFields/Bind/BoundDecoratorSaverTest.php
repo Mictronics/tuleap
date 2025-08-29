@@ -24,16 +24,16 @@ namespace Tuleap\Tracker\FormElement\Field\ListFields\Bind;
 
 use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
 use PHPUnit\Framework\MockObject\MockObject;
-use Tracker_FormElement_Field_List;
 use Tuleap\Test\PHPUnit\TestCase;
-use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
+use Tuleap\Tracker\FormElement\Field\ListField;
+use Tuleap\Tracker\Test\Builders\Fields\SelectboxFieldBuilder;
 
 #[DisableReturnValueGenerationForTestDoubles]
 final class BoundDecoratorSaverTest extends TestCase
 {
     private const FIELD_ID = 101;
 
-    private Tracker_FormElement_Field_List $field;
+    private ListField $field;
     private BoundDecoratorSaver $bound_decorator_saver;
     private BindDecoratorDao&MockObject $bind_decorator_dao;
 
@@ -42,7 +42,7 @@ final class BoundDecoratorSaverTest extends TestCase
         $this->bind_decorator_dao    = $this->createMock(BindDecoratorDao::class);
         $this->bound_decorator_saver = new BoundDecoratorSaver($this->bind_decorator_dao);
 
-        $this->field = ListFieldBuilder::aListField(self::FIELD_ID)->build();
+        $this->field = SelectboxFieldBuilder::aSelectboxField(self::FIELD_ID)->build();
     }
 
     public function testItHasSpecificSaveForLegacyColor(): void
@@ -54,7 +54,7 @@ final class BoundDecoratorSaverTest extends TestCase
     public function testItHasSpecificSaveForNoneLegacyColor(): void
     {
         $this->bind_decorator_dao->expects($this->once())->method('saveNoneLegacyColor')->with(self::FIELD_ID, 255, 255, 255);
-        $this->bound_decorator_saver->save($this->field, Tracker_FormElement_Field_List::NONE_VALUE, '#FFFFFF');
+        $this->bound_decorator_saver->save($this->field, ListField::NONE_VALUE, '#FFFFFF');
     }
 
     public function testItHasSpecificSaveForTlpColor(): void
@@ -66,6 +66,6 @@ final class BoundDecoratorSaverTest extends TestCase
     public function testItHasSpecificSaveForNoneTlpColor(): void
     {
         $this->bind_decorator_dao->expects($this->once())->method('saveNoneTlpColor')->with(self::FIELD_ID, 'peggy-pink');
-        $this->bound_decorator_saver->save($this->field, Tracker_FormElement_Field_List::NONE_VALUE, 'peggy-pink');
+        $this->bound_decorator_saver->save($this->field, ListField::NONE_VALUE, 'peggy-pink');
     }
 }

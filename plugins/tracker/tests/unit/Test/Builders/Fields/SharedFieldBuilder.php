@@ -22,8 +22,8 @@ declare(strict_types=1);
 
 namespace Tuleap\Tracker\Test\Builders\Fields;
 
-use Tracker_FormElement_Field;
-use Tracker_FormElement_Field_Selectbox;
+use Tuleap\Tracker\FormElement\Field\List\SelectboxField;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
 use Tuleap\Tracker\Tracker;
 
 final class SharedFieldBuilder
@@ -34,11 +34,11 @@ final class SharedFieldBuilder
 
     private function __construct(
         private readonly int $id,
-        private readonly Tracker_FormElement_Field $original_field,
+        private readonly TrackerField $original_field,
     ) {
     }
 
-    public static function aSharedField(int $id, Tracker_FormElement_Field $original_field): self
+    public static function aSharedField(int $id, TrackerField $original_field): self
     {
         return new self($id, $original_field);
     }
@@ -61,9 +61,9 @@ final class SharedFieldBuilder
         return $this;
     }
 
-    public function build(): Tracker_FormElement_Field_Selectbox
+    public function build(): SelectboxField
     {
-        $field = new Tracker_FormElement_Field_Selectbox(
+        $field = new SelectboxField(
             $this->id,
             $this->tracker->getId(),
             15,

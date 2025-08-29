@@ -18,34 +18,32 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/
  */
 
-namespace Tuleap\REST;
+declare(strict_types=1);
 
-use RestBase;
-use REST_TestDataBuilder;
+namespace Tuleap\REST;
 
 class ArtifactBase extends RestBase
 {
-    protected $level_one_tracker_id;
-    protected $level_two_tracker_id;
-    protected $level_three_tracker_id;
-    protected $level_four_tracker_id;
-    protected $niveau_1_tracker_id;
-    protected $niveau_2_tracker_id;
-    protected $pokemon_tracker_id;
-    protected $suspended_tracker_id;
+    protected int $level_one_tracker_id;
+    protected int $level_two_tracker_id;
+    protected int $level_three_tracker_id;
+    protected int $level_four_tracker_id;
+    protected int $niveau_1_tracker_id;
+    protected int $niveau_2_tracker_id;
+    protected int $pokemon_tracker_id;
+    protected int $suspended_tracker_id;
 
-    protected $level_one_artifact_ids          = [];
-    protected $level_two_artifact_ids          = [];
-    protected $level_three_artifact_ids        = [];
-    protected $level_four_artifact_ids         = [];
-    protected $niveau_1_artifact_ids           = [];
-    protected $niveau_2_artifact_ids           = [];
-    protected $pokemon_artifact_ids            = [];
-    protected $suspended_tracker_artifacts_ids = [];
+    protected array $level_one_artifact_ids          = [];
+    protected array $level_two_artifact_ids          = [];
+    protected array $level_three_artifact_ids        = [];
+    protected array $level_four_artifact_ids         = [];
+    protected array $niveau_1_artifact_ids           = [];
+    protected array $niveau_2_artifact_ids           = [];
+    protected array $pokemon_artifact_ids            = [];
+    protected array $suspended_tracker_artifacts_ids = [];
 
-    protected $project_computed_fields_id;
-    protected $project_burndown_id;
-    protected $project_suspended_id;
+    protected int $project_computed_fields_id;
+    protected int $project_burndown_id;
 
     #[\Override]
     public function setUp(): void
@@ -55,9 +53,8 @@ class ArtifactBase extends RestBase
         $this->getReleaseArtifactIds();
         $this->getStoryArtifactIds();
 
-        $this->project_computed_fields_id = $this->getProjectId(REST_TestDataBuilder::PROJECT_COMPUTED_FIELDS);
-        $this->project_burndown_id        = $this->getProjectId(REST_TestDataBuilder::PROJECT_BURNDOWN);
-        $this->project_suspended_id       = $this->getProjectId(REST_TestDataBuilder::PROJECT_SUSPENDED_SHORTNAME);
+        $this->project_computed_fields_id = $this->getProjectId(BaseTestDataBuilder::PROJECT_COMPUTED_FIELDS);
+        $this->project_burndown_id        = $this->getProjectId(BaseTestDataBuilder::PROJECT_BURNDOWN);
 
         $this->getTrackerIdsForComputedFieldsProject();
         $this->getLevelOneArtifactIds();
@@ -73,15 +70,15 @@ class ArtifactBase extends RestBase
         $this->getSuspendedTrackerArtifactsIds();
     }
 
-    private function getTrackerIdsForComputedFieldsProject()
+    private function getTrackerIdsForComputedFieldsProject(): void
     {
-        $this->level_one_tracker_id   = $this->tracker_ids[$this->project_computed_fields_id][REST_TestDataBuilder::LEVEL_ONE_TRACKER_SHORTNAME];
-        $this->level_two_tracker_id   = $this->tracker_ids[$this->project_computed_fields_id][REST_TestDataBuilder::LEVEL_TWO_TRACKER_SHORTNAME];
-        $this->level_three_tracker_id = $this->tracker_ids[$this->project_computed_fields_id][REST_TestDataBuilder::LEVEL_THREE_TRACKER_SHORTNAME];
-        $this->level_four_tracker_id  = $this->tracker_ids[$this->project_computed_fields_id][REST_TestDataBuilder::LEVEL_FOUR_TRACKER_SHORTNAME];
+        $this->level_one_tracker_id   = $this->tracker_ids[$this->project_computed_fields_id][RESTTestDataBuilder::LEVEL_ONE_TRACKER_SHORTNAME];
+        $this->level_two_tracker_id   = $this->tracker_ids[$this->project_computed_fields_id][RESTTestDataBuilder::LEVEL_TWO_TRACKER_SHORTNAME];
+        $this->level_three_tracker_id = $this->tracker_ids[$this->project_computed_fields_id][RESTTestDataBuilder::LEVEL_THREE_TRACKER_SHORTNAME];
+        $this->level_four_tracker_id  = $this->tracker_ids[$this->project_computed_fields_id][RESTTestDataBuilder::LEVEL_FOUR_TRACKER_SHORTNAME];
     }
 
-    private function getLevelOneArtifactIds()
+    private function getLevelOneArtifactIds(): void
     {
         $this->getArtifactIds(
             $this->level_one_tracker_id,
@@ -89,7 +86,7 @@ class ArtifactBase extends RestBase
         );
     }
 
-    private function getLevelTwoArtifactIds()
+    private function getLevelTwoArtifactIds(): void
     {
         $this->getArtifactIds(
             $this->level_two_tracker_id,
@@ -97,7 +94,7 @@ class ArtifactBase extends RestBase
         );
     }
 
-    private function getLevelThreeArtifactIds()
+    private function getLevelThreeArtifactIds(): void
     {
         $this->getArtifactIds(
             $this->level_three_tracker_id,
@@ -105,7 +102,7 @@ class ArtifactBase extends RestBase
         );
     }
 
-    private function getLevelFourArtifactIds()
+    private function getLevelFourArtifactIds(): void
     {
         $this->getArtifactIds(
             $this->level_four_tracker_id,
@@ -113,14 +110,14 @@ class ArtifactBase extends RestBase
         );
     }
 
-    private function getTrackerIdsForBurndownProject()
+    private function getTrackerIdsForBurndownProject(): void
     {
-        $this->niveau_1_tracker_id = $this->tracker_ids[$this->project_burndown_id][REST_TestDataBuilder::NIVEAU_1_TRACKER_SHORTNAME];
-        $this->niveau_2_tracker_id = $this->tracker_ids[$this->project_burndown_id][REST_TestDataBuilder::NIVEAU_2_TRACKER_SHORTNAME];
-        $this->pokemon_tracker_id  = $this->tracker_ids[$this->project_burndown_id][REST_TestDataBuilder::POKEMON_TRACKER_SHORTNAME];
+        $this->niveau_1_tracker_id = $this->tracker_ids[$this->project_burndown_id][RESTTestDataBuilder::NIVEAU_1_TRACKER_SHORTNAME];
+        $this->niveau_2_tracker_id = $this->tracker_ids[$this->project_burndown_id][RESTTestDataBuilder::NIVEAU_2_TRACKER_SHORTNAME];
+        $this->pokemon_tracker_id  = $this->tracker_ids[$this->project_burndown_id][RESTTestDataBuilder::POKEMON_TRACKER_SHORTNAME];
     }
 
-    private function getNiveau1ArtifactIds()
+    private function getNiveau1ArtifactIds(): void
     {
         $this->getArtifactIds(
             $this->niveau_1_tracker_id,
@@ -128,7 +125,7 @@ class ArtifactBase extends RestBase
         );
     }
 
-    private function getNiveau2ArtifactIds()
+    private function getNiveau2ArtifactIds(): void
     {
         $this->getArtifactIds(
             $this->niveau_2_tracker_id,
@@ -136,7 +133,7 @@ class ArtifactBase extends RestBase
         );
     }
 
-    private function getPokemonArtifactIds()
+    private function getPokemonArtifactIds(): void
     {
         $this->getArtifactIds(
             $this->pokemon_tracker_id,
@@ -144,12 +141,12 @@ class ArtifactBase extends RestBase
         );
     }
 
-    private function getSuspendedTrackerId()
+    private function getSuspendedTrackerId(): void
     {
-        $this->suspended_tracker_id = $this->tracker_ids[$this->project_suspended_id][REST_TestDataBuilder::SUSPENDED_TRACKER_SHORTNAME];
+        $this->suspended_tracker_id = $this->tracker_ids[$this->project_suspended_id][RESTTestDataBuilder::SUSPENDED_TRACKER_SHORTNAME];
     }
 
-    private function getSuspendedTrackerArtifactsIds()
+    private function getSuspendedTrackerArtifactsIds(): void
     {
         $this->getArtifactIds(
             $this->suspended_tracker_id,

@@ -19,7 +19,10 @@
  */
 
 use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\FormElement\Field\Date\DateField;
+use Tuleap\Tracker\FormElement\Field\LastUpdateDate\LastUpdateDateField;
 use Tuleap\Tracker\FormElement\Field\SubmittedOn\SubmittedOnField;
+use Tuleap\Tracker\FormElement\Field\ListField;
 
 class Tracker_Artifact_Changeset_ChangesetDataInitializator // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
 {
@@ -43,7 +46,7 @@ class Tracker_Artifact_Changeset_ChangesetDataInitializator // phpcs:ignore PSR1
                     if ($field_value) {
                         $tracker_data[$key] = $field_value;
                     } else {
-                        $tracker_data[$key] = [Tracker_FormElement_Field_List::NONE_VALUE];
+                        $tracker_data[$key] = [ListField::NONE_VALUE];
                     }
                 }
             }
@@ -56,20 +59,20 @@ class Tracker_Artifact_Changeset_ChangesetDataInitializator // phpcs:ignore PSR1
 
         //addlastUpdateDate and submitted on if available
         foreach ($this->formelement_factory->getAllFormElementsForTracker($artifact->getTracker()) as $field) {
-            if ($field instanceof Tracker_FormElement_Field_LastUpdateDate) {
+            if ($field instanceof LastUpdateDateField) {
                  $tracker_data[$field->getId()] = date('Y-m-d');
             }
             if ($field instanceof SubmittedOnField) {
                  $tracker_data[$field->getId()] = $artifact->getSubmittedOn();
             }
             if (
-                $field instanceof Tracker_FormElement_Field_Date &&
-                    ! array_key_exists($field->getId(), $tracker_data)
+                $field instanceof DateField &&
+                ! array_key_exists($field->getId(), $tracker_data)
             ) {
                 //user doesn't have access to field
                 $tracker_data[$field->getId()] = $field->getDefaultValue();
             }
-            if ($field instanceof Tracker_FormElement_Field_List && ! isset($tracker_data[$field->getId()])) {
+            if ($field instanceof ListField && ! isset($tracker_data[$field->getId()])) {
                 $tracker_data[$field->getId()] = $field->getDefaultValue();
             }
         }

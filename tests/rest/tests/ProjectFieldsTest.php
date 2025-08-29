@@ -17,12 +17,13 @@
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
+
 declare(strict_types=1);
 
 namespace Tuleap\REST\v1;
 
-use REST_TestDataBuilder;
-use RestBase;
+use Tuleap\REST\RESTTestDataBuilder;
+use Tuleap\REST\RestBase;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class ProjectFieldsTest extends RestBase
@@ -45,7 +46,7 @@ class ProjectFieldsTest extends RestBase
 
         $response = $this->getResponse(
             $this->request_factory->createRequest('GET', 'project_fields/'),
-            REST_TestDataBuilder::TEST_USER_1_NAME
+            RESTTestDataBuilder::TEST_USER_1_NAME
         );
 
         $this->assertEquals($expected_result, json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR));

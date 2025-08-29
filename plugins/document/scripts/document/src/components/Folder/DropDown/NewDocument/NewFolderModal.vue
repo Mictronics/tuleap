@@ -79,7 +79,8 @@ import { useNamespacedState, useState, useStore } from "vuex-composition-helpers
 import type { Item, RootState } from "../../../../type";
 import type { ErrorState } from "../../../../store/error/module";
 import type { PermissionsState } from "../../../../store/permissions/permissions-default-state";
-import type { ConfigurationState } from "../../../../store/configuration";
+import { strictInject } from "@tuleap/vue-strict-inject";
+import { IS_STATUS_PROPERTY_USED, PROJECT_ID } from "../../../../configuration-keys";
 
 const $store = useStore();
 
@@ -98,9 +99,8 @@ const { project_ugroups } = useNamespacedState<Pick<PermissionsState, "project_u
     "permissions",
     ["project_ugroups"],
 );
-const { project_id, is_status_property_used } = useNamespacedState<
-    Pick<ConfigurationState, "project_id" | "is_status_property_used">
->("configuration", ["project_id", "is_status_property_used"]);
+const project_id = strictInject(PROJECT_ID);
+const is_status_property_used = strictInject(IS_STATUS_PROPERTY_USED);
 
 onMounted(() => {
     modal = createModal(form.value);
@@ -147,7 +147,7 @@ async function show(event: { detail: { parent: Item } }): Promise<void> {
     is_displayed.value = true;
     modal?.show();
     try {
-        await $store.dispatch("permissions/loadProjectUserGroupsIfNeeded", project_id.value);
+        await $store.dispatch("permissions/loadProjectUserGroupsIfNeeded", project_id);
     } catch (err) {
         await handleErrors($store, err);
         modal?.hide();
@@ -185,7 +185,7 @@ function addParentPropertiesToDefaultItem(): void {
         item.value.properties = formatted_properties;
     }
 
-    transformStatusPropertyForItemCreation(item.value, parent.value, is_status_property_used.value);
+    transformStatusPropertyForItemCreation(item.value, parent.value, is_status_property_used);
 }
 
 function updateMultiplePropertiesListValue(event: UpdateMultipleListValueEvent): void {
