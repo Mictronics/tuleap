@@ -51,20 +51,20 @@ import StatusPropertyWithCustomBindingForFolderCreate from "./StatusPropertyWith
 import CustomProperty from "../../PropertiesForCreateOrUpdate/CustomProperties/CustomProperty.vue";
 import type { Property } from "../../../../../type";
 import { useNamespacedActions, useNamespacedState } from "vuex-composition-helpers";
-import type { ConfigurationState } from "../../../../../store/configuration";
 import type { PropertiesState } from "../../../../../store/properties/module";
 import { computed, onMounted } from "vue";
 import type { PropertiesActions } from "../../../../../store/properties/properties-actions";
+import { strictInject } from "@tuleap/vue-strict-inject";
+import { IS_STATUS_PROPERTY_USED, PROJECT_ID } from "../../../../../configuration-keys";
 
 const props = defineProps<{ status_value: string; properties: Array<Property> }>();
+
+const project_id = strictInject(PROJECT_ID);
+const is_status_property_used = strictInject(IS_STATUS_PROPERTY_USED);
 
 const { loadProjectProperties } = useNamespacedActions<PropertiesActions>("properties", [
     "loadProjectProperties",
 ]);
-
-const { is_status_property_used } = useNamespacedState<
-    Pick<ConfigurationState, "is_status_property_used">
->("configuration", ["is_status_property_used"]);
 
 const { has_loaded_properties } = useNamespacedState<
     Pick<PropertiesState, "has_loaded_properties">
@@ -72,13 +72,13 @@ const { has_loaded_properties } = useNamespacedState<
 
 onMounted((): void => {
     if (!has_loaded_properties.value) {
-        loadProjectProperties();
+        loadProjectProperties(project_id);
     }
 });
 
 const has_recursion_property = computed((): boolean => {
     return (
-        is_status_property_used.value === true ||
+        is_status_property_used === true ||
         (props.properties !== null && props.properties.length > 0)
     );
 });

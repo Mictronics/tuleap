@@ -23,6 +23,7 @@ declare(strict_types=1);
 namespace Tuleap\CrossTracker\Query\Advanced\SelectBuilder;
 
 use PFUser;
+use Tuleap\Option\Option;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\VisitorParameters;
 use Tuleap\Tracker\Tracker;
 
@@ -30,10 +31,13 @@ final readonly class SelectBuilderVisitorParameters implements VisitorParameters
 {
     /**
      * @param Tracker[] $trackers
+     * @param Option<int> $target_artifact_id_for_reverse_links
      */
     public function __construct(
         public array $trackers,
         public PFUser $user,
+        public Option $target_artifact_id_for_reverse_links,
+        public array $artifact_ids,
     ) {
     }
 }

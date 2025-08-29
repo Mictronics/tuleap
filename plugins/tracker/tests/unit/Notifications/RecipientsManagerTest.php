@@ -29,14 +29,14 @@ use PHPUnit\Framework\MockObject\MockObject;
 use Psr\Log\NullLogger;
 use Tracker_Artifact_Changeset;
 use Tracker_Artifact_ChangesetValue_List;
-use Tracker_FormElement_Field_Date;
-use Tracker_FormElement_Field_Selectbox;
 use Tracker_FormElementFactory;
 use Tuleap\Notification\Mention\MentionedUserInTextRetriever;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\StoreUserPreferenceStub;
 use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\FormElement\Field\Date\DateField;
+use Tuleap\Tracker\FormElement\Field\List\SelectboxField;
 use Tuleap\Tracker\Notifications\RemoveRecipient\RemoveRecipientWhenTheyAreInCreationOnlyMode;
 use Tuleap\Tracker\Notifications\Settings\UserNotificationSettings;
 use Tuleap\Tracker\Notifications\Settings\UserNotificationSettingsRetriever;
@@ -90,7 +90,7 @@ final class RecipientsManagerTest extends TestCase
 
     public function testItReturnsRecipientsFromField(): void
     {
-        $field = $this->createMock(Tracker_FormElement_Field_Selectbox::class);
+        $field = $this->createMock(SelectboxField::class);
         $field->method('isNotificationsSupported')->willReturn(true);
         $field->method('hasNotifications')->willReturn(true);
         $field->method('getRecipients')->willReturn(['recipient1']);
@@ -298,7 +298,7 @@ final class RecipientsManagerTest extends TestCase
 
     public function testItCleansUserFromRecipientsWhenUserHasUnsubscribedFromArtifact(): void
     {
-        $field = $this->createMock(Tracker_FormElement_Field_Selectbox::class);
+        $field = $this->createMock(SelectboxField::class);
         $field->method('isNotificationsSupported')->willReturn(true);
         $field->method('hasNotifications')->willReturn(true);
         $field->method('getRecipients')->willReturn(['recipient1']);
@@ -685,7 +685,7 @@ final class RecipientsManagerTest extends TestCase
 
     private function mockADateField(bool $user_can_read): void
     {
-        $field = $this->createMock(Tracker_FormElement_Field_Date::class);
+        $field = $this->createMock(DateField::class);
         $field->method('isNotificationsSupported')->willReturn(false);
         $field->method('userCanRead')->willReturn($user_can_read);
         $this->formelement_factory->method('getFieldById')->with(1)->willReturn($field);

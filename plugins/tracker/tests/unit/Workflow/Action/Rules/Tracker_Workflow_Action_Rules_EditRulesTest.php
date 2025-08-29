@@ -23,6 +23,8 @@ declare(strict_types=1);
 use PHPUnit\Framework\MockObject\MockObject;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
+use Tuleap\Tracker\FormElement\Field\Date\DateField;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
 use Tuleap\Tracker\Test\Builders\Fields\DateFieldBuilder;
 use Tuleap\Tracker\Tracker;
 
@@ -44,10 +46,10 @@ final class Tracker_Workflow_Action_Rules_EditRulesTest extends \Tuleap\Test\PHP
     private Tracker_Rule_Date_Factory&MockObject $date_factory;
     private Tracker&MockObject $tracker;
 
-    private Tracker_FormElement_Field_Date $planned_start_date;
-    private Tracker_FormElement_Field_Date $actual_start_date;
-    private Tracker_FormElement_Field_Date $planned_end_date;
-    private Tracker_FormElement_Field_Date $actual_end_date;
+    private DateField $planned_start_date;
+    private DateField $actual_start_date;
+    private DateField $planned_end_date;
+    private DateField $actual_end_date;
     private int $source_field_id        = 44;
     private int $target_field_id        = 22;
     private int $actual_source_field_id = 66;
@@ -131,7 +133,7 @@ final class Tracker_Workflow_Action_Rules_EditRulesTest extends \Tuleap\Test\PHP
         $this->action              = new Tracker_Workflow_Action_Rules_EditRules($this->tracker, $this->date_factory, $token, $this->project_history_dao);
     }
 
-    private function setUpRule($id, Tracker_FormElement_Field $source_field, $comparator, Tracker_FormElement_Field $target_field): Tracker_Rule_Date
+    private function setUpRule($id, TrackerField $source_field, $comparator, TrackerField $target_field): Tracker_Rule_Date
     {
         $rule = new Tracker_Rule_Date();
         $rule->setId($id);

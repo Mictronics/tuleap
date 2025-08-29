@@ -25,9 +25,12 @@ use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\Stubs\CSRF\CSRFSessionKeyStorageStub;
 use Tuleap\Test\Stubs\CSRF\CSRFSigningKeyStorageStub;
+use Tuleap\Tracker\FormElement\Container\Fieldset\FieldsetContainer;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
+use Tuleap\Tracker\FormElement\Field\Date\DateField;
 use Tuleap\Tracker\FormElement\Field\FieldDao;
 use Tuleap\Tracker\FormElement\Field\Text\TextField;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Tracker;
 
@@ -81,7 +84,7 @@ final class Tracker_FormElementFactoryTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testSaveObject(): void
     {
-        $a_formelement = $this->createMock(Tracker_FormElement_Container_Fieldset::class);
+        $a_formelement = $this->createMock(FieldsetContainer::class);
 
         $a_formelement->method('getFormElementDataForCreation');
         $a_formelement->expects($this->once())->method('afterSaveObject');
@@ -154,8 +157,8 @@ final class Tracker_FormElementFactoryTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testGetFieldById(): void
     {
-        $date     = $this->createMock(\Tracker_FormElement_Field_Date::class);
-        $fieldset = $this->createMock(\Tracker_FormElement_Container_Fieldset::class);
+        $date     = $this->createMock(\Tuleap\Tracker\FormElement\Field\Date\DateField::class);
+        $fieldset = $this->createMock(\Tuleap\Tracker\FormElement\Container\Fieldset\FieldsetContainer::class);
 
         $this->factory->method('getFormElementById')->willReturnCallback(
             static fn (int $id) => match ($id) {
@@ -165,7 +168,7 @@ final class Tracker_FormElementFactoryTest extends \Tuleap\Test\PHPUnit\TestCase
             }
         );
 
-        $this->assertInstanceOf(Tracker_FormElement_Field::class, $this->factory->getFieldById(123));
+        $this->assertInstanceOf(TrackerField::class, $this->factory->getFieldById(123));
         $this->assertNull($this->factory->getFieldById(456), 'A fieldset is not a Field');
         $this->assertNull($this->factory->getFieldById(789), 'Field does not exist');
     }
@@ -230,7 +233,7 @@ final class Tracker_FormElementFactoryTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $found_fields = [];
         foreach ($result as $field) {
-            if ($field instanceof Tracker_FormElement_Field_Date) {
+            if ($field instanceof DateField) {
                 $found_fields['date'] = true;
                 $this->assertEquals(666, $field->getId());
             }

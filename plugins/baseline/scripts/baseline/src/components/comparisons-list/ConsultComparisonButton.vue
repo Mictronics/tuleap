@@ -19,8 +19,10 @@
   -->
 
 <template>
-    <action-button icon="eye" v-on:click="showComparison()">
-        <span v-translate>Consult</span>
+    <action-button icon="eye" v-on:click="showComparison()" v-bind:disabled="false">
+        <template v-slot:default>
+            {{ $gettext("Consult") }}
+        </template>
     </action-button>
 </template>
 <script>

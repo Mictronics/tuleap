@@ -27,6 +27,7 @@ import { TYPE_EMBEDDED, TYPE_EMPTY, TYPE_FILE, TYPE_LINK, TYPE_WIKI } from "../.
 import emitter, { default as real_emitter } from "../../../../helpers/emitter";
 import * as get_office_file from "../../../../helpers/office/get-empty-office-file";
 import { getGlobalTestOptions } from "../../../../helpers/global-options-for-test";
+import { EMBEDDED_ARE_ALLOWED, USER_CAN_CREATE_WIKI } from "../../../../configuration-keys";
 
 vi.useFakeTimers();
 
@@ -51,10 +52,8 @@ describe("NewVersionEmptyMenuOptions", function () {
     });
 
     function getWrapper(
-        configuration: Pick<ConfigurationState, "embedded_are_allowed" | "user_can_create_wiki"> = {
-            embedded_are_allowed: false,
-            user_can_create_wiki: false,
-        },
+        user_can_create_wiki: boolean,
+        embedded_are_allowed: boolean,
         create_new_item_alternatives: NewItemAlternativeArray = [],
     ): VueWrapper<InstanceType<typeof NewVersionEmptyMenuOptions>> {
         return shallowMount(NewVersionEmptyMenuOptions, {
@@ -67,8 +66,7 @@ describe("NewVersionEmptyMenuOptions", function () {
                     modules: {
                         configuration: {
                             state: {
-                                embedded_are_allowed: configuration.embedded_are_allowed,
-                                user_can_create_wiki: configuration.user_can_create_wiki,
+                                user_locale: "en_US",
                             } as unknown as ConfigurationState,
                             namespaced: true,
                         },
@@ -79,13 +77,15 @@ describe("NewVersionEmptyMenuOptions", function () {
                 }),
                 provide: {
                     create_new_item_alternatives,
+                    [USER_CAN_CREATE_WIKI.valueOf()]: user_can_create_wiki,
+                    [EMBEDDED_ARE_ALLOWED.valueOf()]: embedded_are_allowed,
                 },
             },
         });
     }
 
     it("should not allow to create a folder", function () {
-        const wrapper = getWrapper();
+        const wrapper = getWrapper(false, false);
 
         expect(wrapper.find("[data-test=document-new-folder-creation-button]").exists()).toBe(
             false,
@@ -93,7 +93,7 @@ describe("NewVersionEmptyMenuOptions", function () {
     });
 
     it("should allow to create a file", async function () {
-        const wrapper = getWrapper();
+        const wrapper = getWrapper(false, false);
 
         await wrapper.find("[data-test=document-new-file-creation-button]").trigger("click");
 
@@ -104,7 +104,7 @@ describe("NewVersionEmptyMenuOptions", function () {
     });
 
     it("should allow to create a link", async function () {
-        const wrapper = getWrapper();
+        const wrapper = getWrapper(false, false);
 
         await wrapper.find("[data-test=document-new-link-creation-button]").trigger("click");
 
@@ -115,13 +115,13 @@ describe("NewVersionEmptyMenuOptions", function () {
     });
 
     it("should not allow to create an empty", function () {
-        const wrapper = getWrapper();
+        const wrapper = getWrapper(false, false);
 
         expect(wrapper.find("[data-test=document-new-empty-creation-button]").exists()).toBe(false);
     });
 
     it("should allow to create a wiki", async function () {
-        const wrapper = getWrapper({ user_can_create_wiki: true, embedded_are_allowed: false });
+        const wrapper = getWrapper(true, false);
 
         await wrapper.find("[data-test=document-new-wiki-creation-button]").trigger("click");
 
@@ -132,13 +132,13 @@ describe("NewVersionEmptyMenuOptions", function () {
     });
 
     it("should not allow to create wiki if user cannot", function () {
-        const wrapper = getWrapper({ user_can_create_wiki: false, embedded_are_allowed: false });
+        const wrapper = getWrapper(false, false);
 
         expect(wrapper.find("[data-test=document-new-wiki-creation-button]").exists()).toBe(false);
     });
 
     it("should allow to create an embedded", async function () {
-        const wrapper = getWrapper({ user_can_create_wiki: false, embedded_are_allowed: true });
+        const wrapper = getWrapper(false, true);
 
         await wrapper.find("[data-test=document-new-embedded-creation-button]").trigger("click");
 
@@ -149,7 +149,7 @@ describe("NewVersionEmptyMenuOptions", function () {
     });
 
     it("should not allow to create embedded if user cannot", function () {
-        const wrapper = getWrapper({ user_can_create_wiki: false, embedded_are_allowed: false });
+        const wrapper = getWrapper(false, false);
 
         expect(wrapper.find("[data-test=document-new-embedded-creation-button]").exists()).toBe(
             false,
@@ -164,7 +164,7 @@ describe("NewVersionEmptyMenuOptions", function () {
             file,
         });
 
-        const wrapper = getWrapper({ user_can_create_wiki: false, embedded_are_allowed: false }, [
+        const wrapper = getWrapper(false, false, [
             {
                 title: "section",
                 alternatives: [

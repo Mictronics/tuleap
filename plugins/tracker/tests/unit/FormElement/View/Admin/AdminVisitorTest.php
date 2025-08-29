@@ -23,13 +23,6 @@ namespace Tuleap\Tracker\FormElement\View\Admin;
 
 use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
 use Tracker_FormElement_Container_Column;
-use Tracker_FormElement_Field_CrossReferences;
-use Tracker_FormElement_Field_LastUpdateDate;
-use Tracker_FormElement_Field_MultiSelectbox;
-use Tracker_FormElement_Field_OpenList;
-use Tracker_FormElement_Field_PermissionsOnArtifact;
-use Tracker_FormElement_Field_Selectbox;
-use Tracker_FormElement_Field_SubmittedBy;
 use Tracker_FormElement_StaticField_LineBreak;
 use Tracker_FormElement_StaticField_RichText;
 use Tracker_FormElement_StaticField_Separator;
@@ -50,7 +43,14 @@ use Tracker_FormElement_View_Admin_StaticField_Separator;
 use Tracker_FormElement_View_Admin_Visitor;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\FormElement\Field\ArtifactId\ArtifactIdField;
+use Tuleap\Tracker\FormElement\Field\CrossReferences\CrossReferencesField;
+use Tuleap\Tracker\FormElement\Field\LastUpdateDate\LastUpdateDateField;
+use Tuleap\Tracker\FormElement\Field\List\MultiSelectboxField;
+use Tuleap\Tracker\FormElement\Field\List\OpenListField;
+use Tuleap\Tracker\FormElement\Field\List\SelectboxField;
+use Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField;
 use Tuleap\Tracker\FormElement\Field\String\StringField;
+use Tuleap\Tracker\FormElement\Field\SubmittedBy\SubmittedByField;
 use Tuleap\Tracker\FormElement\Field\SubmittedOn\SubmittedOnField;
 
 #[DisableReturnValueGenerationForTestDoubles]
@@ -75,7 +75,7 @@ final class AdminVisitorTest extends TestCase
     public function testVisitAnOpenListShouldFallbackOnList(): void
     {
         $visitor     = new Tracker_FormElement_View_Admin_Visitor([]);
-        $formElement = new Tracker_FormElement_Field_OpenList(null, null, null, null, null, null, null, null, null, null, null, null);
+        $formElement = new OpenListField(null, null, null, null, null, null, null, null, null, null, null, null);
         $formElement->accept($visitor);
         self::assertInstanceOf(Tracker_FormElement_View_Admin_Field_List::class, $visitor->getAdmin());
     }
@@ -91,7 +91,7 @@ final class AdminVisitorTest extends TestCase
     public function testVisitSelectbox(): void
     {
         $visitor     = new Tracker_FormElement_View_Admin_Visitor([]);
-        $formElement = new Tracker_FormElement_Field_Selectbox(null, null, null, null, null, null, null, null, null, null, null, null);
+        $formElement = new SelectboxField(null, null, null, null, null, null, null, null, null, null, null, null);
         $formElement->accept($visitor);
         self::assertInstanceOf(Tracker_FormElement_View_Admin_Field_Selectbox::class, $visitor->getAdmin());
     }
@@ -107,7 +107,7 @@ final class AdminVisitorTest extends TestCase
     public function testVisitCrossReferences(): void
     {
         $visitor     = new Tracker_FormElement_View_Admin_Visitor([]);
-        $formElement = new Tracker_FormElement_Field_CrossReferences(null, null, null, null, null, null, null, null, null, null, null, null);
+        $formElement = new CrossReferencesField(null, null, null, null, null, null, null, null, null, null, null, null);
         $formElement->accept($visitor);
         self::assertInstanceOf(Tracker_FormElement_View_Admin_Field_CrossReferences::class, $visitor->getAdmin());
     }
@@ -115,7 +115,7 @@ final class AdminVisitorTest extends TestCase
     public function testVisitLastUpdateDate(): void
     {
         $visitor     = new Tracker_FormElement_View_Admin_Visitor([]);
-        $formElement = new Tracker_FormElement_Field_LastUpdateDate(null, null, null, null, null, null, null, null, null, null, null, null);
+        $formElement = new LastUpdateDateField(null, null, null, null, null, null, null, null, null, null, null, null);
         $formElement->accept($visitor);
         self::assertInstanceOf(Tracker_FormElement_View_Admin_Field_LastUpdateDate::class, $visitor->getAdmin());
     }
@@ -123,7 +123,7 @@ final class AdminVisitorTest extends TestCase
     public function testVisitMultiSelectbox(): void
     {
         $visitor     = new Tracker_FormElement_View_Admin_Visitor([]);
-        $formElement = new Tracker_FormElement_Field_MultiSelectbox(null, null, null, null, null, null, null, null, null, null, null, null);
+        $formElement = new MultiSelectboxField(null, null, null, null, null, null, null, null, null, null, null, null);
         $formElement->accept($visitor);
         self::assertInstanceOf(Tracker_FormElement_View_Admin_Field_MultiSelectbox::class, $visitor->getAdmin());
     }
@@ -131,7 +131,7 @@ final class AdminVisitorTest extends TestCase
     public function testVisitPermissionsOnArtifact(): void
     {
         $visitor     = new Tracker_FormElement_View_Admin_Visitor([]);
-        $formElement = new Tracker_FormElement_Field_PermissionsOnArtifact(null, null, null, null, null, null, null, null, null, null, null, null);
+        $formElement = new PermissionsOnArtifactField(null, null, null, null, null, null, null, null, null, null, null, null);
         $formElement->accept($visitor);
         self::assertInstanceOf(Tracker_FormElement_View_Admin_Field_PermissionsOnArtifact::class, $visitor->getAdmin());
     }
@@ -139,7 +139,7 @@ final class AdminVisitorTest extends TestCase
     public function testVisitSubmittedBy(): void
     {
         $visitor     = new Tracker_FormElement_View_Admin_Visitor([]);
-        $formElement = new Tracker_FormElement_Field_SubmittedBy(null, null, null, null, null, null, null, null, null, null, null, null);
+        $formElement = new SubmittedByField(null, null, null, null, null, null, null, null, null, null, null, null);
         $formElement->accept($visitor);
         self::assertInstanceOf(Tracker_FormElement_View_Admin_Field_SubmittedBy::class, $visitor->getAdmin());
     }

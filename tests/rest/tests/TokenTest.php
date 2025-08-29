@@ -19,9 +19,12 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+use Tuleap\REST\RESTTestDataBuilder;
+use Tuleap\REST\RestBase;
+
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 #[\PHPUnit\Framework\Attributes\Group('TokenTests')]
-class TokenTest extends RestBase
+class TokenTest extends RestBase //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 {
     public function testPostThrowExceptionIfUsernameDoesNotExist()
     {
@@ -47,7 +50,7 @@ class TokenTest extends RestBase
         )->withBody(
             $this->stream_factory->createStream(
                 json_encode([
-                    'username' => REST_TestDataBuilder::TEST_USER_1_LDAPID,
+                    'username' => RESTTestDataBuilder::TEST_USER_1_LDAPID,
                     'password' => 'pwd',
                 ])
             )

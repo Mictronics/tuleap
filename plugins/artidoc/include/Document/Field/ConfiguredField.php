@@ -22,13 +22,14 @@ declare(strict_types=1);
 
 namespace Tuleap\Artidoc\Document\Field;
 
-use Tracker_FormElement_Field_Date;
-use Tracker_FormElement_Field_List;
-use Tracker_FormElement_Field_PermissionsOnArtifact;
 use Tuleap\Artidoc\Domain\Document\Section\Field\DisplayType;
 use Tuleap\TestManagement\Step\Definition\Field\StepsDefinition;
+use Tuleap\TestManagement\Step\Execution\Field\StepsExecution;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
+use Tuleap\Tracker\FormElement\Field\Date\DateField;
+use Tuleap\Tracker\FormElement\Field\ListField;
 use Tuleap\Tracker\FormElement\Field\NumericField;
+use Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField;
 use Tuleap\Tracker\FormElement\Field\Text\TextField;
 
 final readonly class ConfiguredField
@@ -36,14 +37,15 @@ final readonly class ConfiguredField
     public bool $can_display_type_be_changed;
 
     public function __construct(
-        public TextField|Tracker_FormElement_Field_List|ArtifactLinkField|NumericField|Tracker_FormElement_Field_Date|Tracker_FormElement_Field_PermissionsOnArtifact|StepsDefinition $field,
+        public TextField|ListField|ArtifactLinkField|NumericField|DateField|PermissionsOnArtifactField|StepsDefinition|StepsExecution $field,
         public DisplayType $display_type,
     ) {
         $this->can_display_type_be_changed = match ($this->field::class) {
             ArtifactLinkField::class,
             TextField::class,
-            StepsDefinition::class => true,
-            default                => false,
+            StepsDefinition::class,
+            StepsExecution::class => false,
+            default               => true,
         };
     }
 }

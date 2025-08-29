@@ -23,12 +23,7 @@ declare(strict_types=1);
 namespace Tuleap\Artidoc\Document\Field;
 
 use PFUser;
-use Tracker_FormElement_Field_Date;
-use Tracker_FormElement_Field_LastModifiedBy;
-use Tracker_FormElement_Field_List;
 use Tracker_FormElement_Field_List_Bind_Null;
-use Tracker_FormElement_Field_PermissionsOnArtifact;
-use Tracker_FormElement_Field_SubmittedBy;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldIsDescriptionSemanticFault;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldIsTitleSemanticFault;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldNotFoundFault;
@@ -38,9 +33,15 @@ use Tuleap\NeverThrow\Fault;
 use Tuleap\NeverThrow\Ok;
 use Tuleap\NeverThrow\Result;
 use Tuleap\TestManagement\Step\Definition\Field\StepsDefinition;
+use Tuleap\TestManagement\Step\Execution\Field\StepsExecution;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
+use Tuleap\Tracker\FormElement\Field\Date\DateField;
+use Tuleap\Tracker\FormElement\Field\LastUpdateBy\LastUpdateByField;
+use Tuleap\Tracker\FormElement\Field\ListField;
 use Tuleap\Tracker\FormElement\Field\NumericField;
+use Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField;
 use Tuleap\Tracker\FormElement\Field\RetrieveUsedFields;
+use Tuleap\Tracker\FormElement\Field\SubmittedBy\SubmittedByField;
 use Tuleap\Tracker\FormElement\Field\Text\TextField;
 use Tuleap\Tracker\Semantic\Description\RetrieveSemanticDescriptionField;
 use Tuleap\Tracker\Semantic\Title\RetrieveSemanticTitleField;
@@ -55,7 +56,7 @@ final readonly class SuitableFieldRetriever
     }
 
     /**
-     * @return Ok<TextField> | Ok<Tracker_FormElement_Field_List> | Ok<ArtifactLinkField> | Ok<NumericField> | OK<Tracker_FormElement_Field_Date> | Ok<Tracker_FormElement_Field_PermissionsOnArtifact> | Ok<StepsDefinition> | Err<Fault>
+     * @return Ok<TextField> | Ok<ListField> | Ok<ArtifactLinkField> | Ok<NumericField> | OK<DateField> | Ok<PermissionsOnArtifactField> | Ok<StepsDefinition> | Ok<StepsExecution> | Err<Fault>
      */
     public function retrieveField(int $field_id, PFUser $user): Ok|Err
     {
@@ -66,14 +67,15 @@ final readonly class SuitableFieldRetriever
         }
 
         return match (true) {
-            $field instanceof TextField                                       => $this->validateTextField($field),
-            $field instanceof Tracker_FormElement_Field_List                  => $this->validateListField($field),
-            $field instanceof ArtifactLinkField                               => Result::ok($field),
-            $field instanceof NumericField                                    => Result::ok($field),
-            $field instanceof Tracker_FormElement_Field_Date                  => Result::ok($field),
-            $field instanceof Tracker_FormElement_Field_PermissionsOnArtifact => Result::ok($field),
-            $field instanceof StepsDefinition                                 => Result::ok($field),
-            default                                                           => Result::err(FieldNotSupportedFault::build($field_id))
+            $field instanceof TextField                  => $this->validateTextField($field),
+            $field instanceof ListField                  => $this->validateListField($field),
+            $field instanceof ArtifactLinkField          => Result::ok($field),
+            $field instanceof NumericField               => Result::ok($field),
+            $field instanceof DateField                  => Result::ok($field),
+            $field instanceof PermissionsOnArtifactField => Result::ok($field),
+            $field instanceof StepsDefinition            => Result::ok($field),
+            $field instanceof StepsExecution             => Result::ok($field),
+            default                                      => Result::err(FieldNotSupportedFault::build($field_id))
         };
     }
 
@@ -99,15 +101,15 @@ final readonly class SuitableFieldRetriever
     }
 
     /**
-     * @return Ok<Tracker_FormElement_Field_List>|Err<Fault>
+     * @return Ok<ListField>|Err<Fault>
      */
-    private function validateListField(Tracker_FormElement_Field_List $field): Ok|Err
+    private function validateListField(ListField $field): Ok|Err
     {
         if (
-            $field instanceof Tracker_FormElement_Field_LastModifiedBy
-            || $field instanceof Tracker_FormElement_Field_SubmittedBy
+            $field instanceof LastUpdateByField
+            || $field instanceof SubmittedByField
         ) {
-            /** @psalm-var Tracker_FormElement_Field_List $field_return */
+            /** @psalm-var ListField $field_return */
             $field_return = $field;
             return Result::ok($field_return);
         }

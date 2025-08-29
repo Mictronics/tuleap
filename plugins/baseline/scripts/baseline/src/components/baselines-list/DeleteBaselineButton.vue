@@ -20,14 +20,16 @@
 
 <template>
     <action-button
-        icon="trash-o"
+        icon="trash"
         v-on:click="showConfirmation"
         class="tlp-button-danger"
         v-if="is_admin"
         v-bind:disabled="is_disabled"
         v-bind:title="title"
     >
-        <span v-translate>Delete</span>
+        <template v-slot:default>
+            {{ $gettext("Delete") }}
+        </template>
     </action-button>
 </template>
 

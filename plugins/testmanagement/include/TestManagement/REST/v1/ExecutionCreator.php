@@ -108,7 +108,7 @@ class ExecutionCreator
         return [$status_value, $link_value];
     }
 
-    /** @return \Tracker_FormElement_Field_List */
+    /** @return \Tuleap\Tracker\FormElement\Field\ListField */
     private function getStatusField(
         TrackerReference $tracker_reference,
         PFUser $user,
@@ -118,7 +118,7 @@ class ExecutionCreator
             $user,
             ExecutionRepresentation::FIELD_STATUS
         );
-        assert($field instanceof \Tracker_FormElement_Field_List);
+        assert($field instanceof \Tuleap\Tracker\FormElement\Field\ListField);
         return $field;
     }
 
@@ -140,7 +140,7 @@ class ExecutionCreator
         TrackerReference $tracker_reference,
         PFUser $user,
         string $field_name,
-    ): \Tracker_FormElement_Field {
+    ): \Tuleap\Tracker\FormElement\Field\TrackerField {
         $field = $this->formelement_factory->getUsedFieldByNameForUser(
             $tracker_reference->id,
             $field_name,

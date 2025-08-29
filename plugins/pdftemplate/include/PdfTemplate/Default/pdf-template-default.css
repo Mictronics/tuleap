@@ -7,11 +7,15 @@ body {
     --dimmed-color-darker-10: #585858;
 
     --dark-color: #282621;
+    --white-color: #ffffff;
 
     --medium-spacing: 16px;
     --small-spacing: 8px;
 
-    --secondary-background-color: #e3e6eb;
+    --secondary-color: #e3e6eb;
+    --info-color: #1aacd8;
+    --success-color: #1aa350;
+    --danger-color: #e04b4b;
 
     /* tlp-colors */
     --inca-silver-primary: #5d5d5d;
@@ -519,8 +523,29 @@ tlp-relative-date {
     border: 1px solid var(--border-color);
 }
 
-.document-badge-outline {
+.document-badge-outline, .document-badge {
     border-radius: 3px;
+}
+
+.document-badge {
+    padding: 4px var(--small-spacing);
+    font-size: .75rem;
+    font-weight: 600;
+    line-height: .75rem;
+    white-space: nowrap;
+    color: var(--white-color);
+}
+
+.document-badge-success {
+    background-color: var(--success-color);
+}
+
+.document-badge-info {
+    background-color: var(--info-color);
+}
+
+.document-badge-danger {
+    background-color: var(--danger-color);
 }
 
 .document-avatar-mini {
@@ -533,8 +558,13 @@ tlp-relative-date {
 .document-artifact-link-row {
     display: flex;
     align-items: center;
-    padding: var(--small-spacing);
+    padding: var(--small-spacing) 0;
     gap: var(--small-spacing);
+}
+
+.document-link-type {
+    width: 110px;
+    flex-shrink: 0;
 }
 
 .document-xref {
@@ -557,4 +587,59 @@ tlp-relative-date {
     margin: 2px 0 0;
     color: var(--dimmed-color);
     font-size: 0.65rem;
+}
+
+.document-steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--small-spacing);
+}
+
+.document-step {
+    display: flex;
+    align-items: flex-start;
+    font-size: 14px;
+    line-height: 20px;
+    gap: var(--small-spacing);
+}
+
+.document-step-rank {
+    padding: 0 6px;
+    border: 1px solid var(--main-color);
+    border-radius: 10px;
+    color: var(--main-color);
+}
+
+.document-step-definition {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px 0;
+}
+
+.document-step-description,
+.document-step-expected {
+    > p:first-child {
+        margin-top: unset;
+    }
+
+    > p:last-child {
+        margin-bottom: unset;
+    }
+}
+
+.document-step-results {
+    display: grid;
+    grid:
+        "icon label" auto
+        ". expect" auto / 16px auto;
+    gap: 5px;
+}
+
+.document-step-arrow {
+    align-self: center;
+}
+
+.document-step-expected {
+    grid-area: expect;
 }

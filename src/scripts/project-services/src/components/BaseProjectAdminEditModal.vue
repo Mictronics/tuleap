@@ -20,54 +20,75 @@
 <template>
     <edit-modal v-bind:form_url="form_url" ref="modal" v-on:reset-modal="resetModal">
         <template v-slot:content>
-            <input type="hidden" v-bind:name="csrf_token_name" v-bind:value="csrf_token" />
+            <input type="hidden" v-bind:name="csrf_token.name" v-bind:value="csrf_token.value" />
             <sidebar-previewer
                 v-bind:label="service.label"
                 v-bind:icon_name="service.icon_name"
                 v-bind:is_in_new_tab="service.is_in_new_tab"
-                v-bind:allowed_icons="allowed_icons"
             />
             <in-edition-custom-service
                 v-if="service.is_project_scope && is_shown"
-                v-bind:minimal_rank="minimal_rank"
-                v-bind:service="service"
-                v-bind:allowed_icons="allowed_icons"
+                v-bind:service_prop="service"
             />
             <read-only-system-service
                 v-if="!service.is_project_scope && is_shown"
-                v-bind:minimal_rank="minimal_rank"
                 v-bind:service="service"
             />
         </template>
     </edit-modal>
 </template>
 <script>
+import { strictInject } from "@tuleap/vue-strict-inject";
+import { CSRF_TOKEN, MINIMAL_RANK, PROJECT_ID } from "../injection-symbols";
 import InEditionCustomService from "./Service/InEditionCustomService.vue";
 import SidebarPreviewer from "./SidebarPreviewer.vue";
 import EditModal from "./EditModal.vue";
 import ReadOnlySystemService from "./Service/ReadOnlySystemService.vue";
-import { edit_modal_mixin } from "./edit-modal-mixin.js";
 
 export default {
     name: "BaseProjectAdminEditModal",
     components: { ReadOnlySystemService, EditModal, InEditionCustomService, SidebarPreviewer },
-    mixins: [edit_modal_mixin],
-    props: {
-        minimal_rank: {
-            type: Number,
-            required: true,
+    setup() {
+        const project_id = strictInject(PROJECT_ID);
+        const minimal_rank = strictInject(MINIMAL_RANK);
+        const csrf_token = strictInject(CSRF_TOKEN);
+        return { project_id, minimal_rank, csrf_token };
+    },
+    data() {
+        return {
+            is_shown: false,
+            service: this.resetService(),
+        };
+    },
+    computed: {
+        form_url() {
+            return `/project/${encodeURIComponent(this.project_id)}/admin/services/edit`;
         },
-        csrf_token: {
-            type: String,
-            required: true,
+    },
+    methods: {
+        show(button) {
+            this.is_shown = true;
+            this.service = JSON.parse(button.dataset.serviceJson);
+            this.$refs.modal.show();
         },
-        csrf_token_name: {
-            type: String,
-            required: true,
+        resetModal() {
+            this.is_shown = false;
+            this.service = this.resetService();
         },
-        allowed_icons: {
-            type: Object,
-            required: true,
+        resetService() {
+            return {
+                id: null,
+                icon_name: "",
+                label: "",
+                link: "",
+                description: "",
+                is_active: true,
+                is_used: true,
+                is_in_iframe: false,
+                is_in_new_tab: false,
+                rank: this.minimal_rank,
+                is_project_scope: true,
+            };
         },
     },
 };

@@ -94,6 +94,7 @@ use Tuleap\Tracker\Artifact\Creation\TrackerArtifactCreator;
 use Tuleap\Tracker\Artifact\FileUploadDataProvider;
 use Tuleap\Tracker\FormElement\ArtifactLinkValidator;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ParentLinkAction;
+use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\SystemTypePresenterBuilder;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
 use Tuleap\Tracker\FormElement\Field\Text\TextValueValidator;
@@ -294,7 +295,7 @@ class ExecutionsResource
                     $this->formelement_factory,
                     new ArtifactLinkValidator(
                         $this->artifact_factory,
-                        new TypePresenterFactory(new TypeDao(), $usage_dao),
+                        new TypePresenterFactory(new TypeDao(), $usage_dao, new SystemTypePresenterBuilder($event_dispatcher)),
                         $usage_dao,
                         $event_dispatcher,
                     ),
@@ -700,7 +701,7 @@ class ExecutionsResource
         $this->optionsIssues($id);
     }
 
-    private function getFieldByName(string $field_name, int $tracker_id, PFUser $user): ?\Tracker_FormElement_Field
+    private function getFieldByName(string $field_name, int $tracker_id, PFUser $user): ?\Tuleap\Tracker\FormElement\Field\TrackerField
     {
         return $this->formelement_factory->getUsedFieldByNameForUser(
             $tracker_id,
@@ -747,7 +748,7 @@ class ExecutionsResource
 
         if ($status_field) {
             $status_field_binds = [];
-            assert($status_field instanceof \Tracker_FormElement_Field_List);
+            assert($status_field instanceof \Tuleap\Tracker\FormElement\Field\ListField);
             $bind = $status_field->getBind();
             if ($bind) {
                 assert($bind instanceof Tracker_FormElement_Field_List_Bind);

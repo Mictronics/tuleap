@@ -59,7 +59,7 @@ final class JenkinsClientTest extends \Tuleap\Test\PHPUnit\TestCase
             $this->jenkins_csrf_crumb_retriever
         );
 
-        self::expectException(Jenkins_ClientUnableToLaunchBuildException::class);
+        $this->expectException(Jenkins_ClientUnableToLaunchBuildException::class);
         $jenkins_client->launchJobBuild('https://some.url.example.com/job/my_job');
     }
 
@@ -80,14 +80,12 @@ final class JenkinsClientTest extends \Tuleap\Test\PHPUnit\TestCase
             $this->jenkins_csrf_crumb_retriever
         );
 
-        self::expectException(Jenkins_ClientUnableToLaunchBuildException::class);
+        $this->expectException(Jenkins_ClientUnableToLaunchBuildException::class);
         $jenkins_client->launchJobBuild('https://some.url.example.com/job/my_job');
     }
 
-    /**
-     * @testWith [200]
-     *           [201]
-     */
+    #[\PHPUnit\Framework\Attributes\TestWith([200])]
+    #[\PHPUnit\Framework\Attributes\TestWith([201])]
     public function testLaunchJobSetsCorrectOptions(int $http_response_status_code): void
     {
         $http_client    = new Client();
@@ -225,7 +223,7 @@ final class JenkinsClientTest extends \Tuleap\Test\PHPUnit\TestCase
             $this->jenkins_csrf_crumb_retriever
         );
 
-        self::expectException(Jenkins_ClientUnableToLaunchBuildException::class);
+        $this->expectException(Jenkins_ClientUnableToLaunchBuildException::class);
         $jenkins_client->launchJobBuild('https://some.url.example.com/not_a_job_url');
     }
 }

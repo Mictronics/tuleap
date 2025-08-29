@@ -1,6 +1,6 @@
-%define _prefix /usr
 %define _datadir /usr/share
 %define _bindir /usr/bin
+%define _localstatedir /var
 %define _unitdir /usr/lib/systemd/system
 %define _tmpfilesdir /usr/lib/tmpfiles.d
 
@@ -24,8 +24,6 @@
 
 %define app_group        codendiadm
 %define app_user         codendiadm
-%define dummy_group      dummy
-%define dummy_user       dummy
 %define ftpadmin_group   ftpadmin
 %define ftpadmin_user    ftpadmin
 %define ftp_group        ftp
@@ -50,12 +48,13 @@ AutoReqProv: no
 
 # Php and web related stuff
 Requires: php84-php-common
-Requires: php84-php, php84-php-mysql, php84-php-xml, php84-php-mbstring, php84-php-gd
+Requires: php84-php, php84-php-cli, php84-php-mysql, php84-php-xml, php84-php-mbstring, php84-php-gd
 Requires: php84-php-intl, php84-php-process, php84-php-opcache, php84-php-fpm, php84-php-pecl-redis5, php84-php-sodium
 Requires: php84-php-pecl-zip
 Requires: php84-php-ffi
 Requires: glibc-locale-source
 
+Requires: openssl
 Requires: sudo, openssh
 Requires: perl(File::Copy)
 Requires: highlight, nginx, logrotate
@@ -530,13 +529,10 @@ Requires: %{name} = %{tuleap_version}-%{tuleap_release}%{?dist}
 %package plugin-graphs
 Summary: Graphs for tuleap
 Group: Development/Tools
-Requires: %{name} = %{tuleap_version}-%{tuleap_release}%{?dist}
+Requires: %{name} = %{tuleap_version}-%{tuleap_release}%{?dist}, tuleap-plugin-tracker
 %description plugin-graphs
-Provides some graph features.
+%{summary}.
 
-%files plugin-graphs
-%defattr(-,root,root,-)
-%{APP_DIR}/plugins/graphs
 
 %endif
 
@@ -587,7 +583,6 @@ done
 # Remove old scripts: not used and add unneeded perl depedencies to the package
 %{__rm} -f $RPM_BUILD_ROOT/%{APP_DIR}/src/utils/DocmanUploader.pl
 %{__rm} -f $RPM_BUILD_ROOT/%{APP_DIR}/src/utils/DocmanLegacyDownloader.pl
-%{__rm} -rf $RPM_BUILD_ROOT/%{APP_DIR}/plugins/graphs
 # No need of template
 %{__rm} -rf $RPM_BUILD_ROOT/%{APP_DIR}/plugins/template
 
@@ -623,6 +618,7 @@ done
 
 %if %{with experimental}
 %else
+%{__rm} -rf $RPM_BUILD_ROOT/%{APP_DIR}/plugins/graphs
 %endif
 
 %{__rm} -rf $RPM_BUILD_ROOT/%{APP_DIR}/src/themes/BurningParrot/composer.json
@@ -886,10 +882,6 @@ if [ "$1" -eq "1" ]; then
     if ! grep -q "^%{app_group}:" /etc/group 2> /dev/null ; then
         /usr/sbin/groupadd -r %{app_group} 2> /dev/null || :
     fi
-    # dummy
-    if ! grep -q "^%{dummy_group}:" /etc/group 2> /dev/null ; then
-        /usr/sbin/groupadd -r %{dummy_group} 2> /dev/null || :
-    fi
     # ftpadmin
     if ! grep -q "^%{ftpadmin_group}:" /etc/group 2> /dev/null ; then
         /usr/sbin/groupadd -r %{ftpadmin_group} 2> /dev/null || :
@@ -918,12 +910,6 @@ if [ "$1" -eq "1" ]; then
         /usr/sbin/usermod -c 'FTP User'    -d '/var/lib/tuleap/ftp'    -g %{ftp_group} %{ftp_user}
     else
         /usr/sbin/useradd -c 'FTP User' -M -d '/var/lib/tuleap/ftp' -r -g %{ftp_group} %{ftp_user}
-    fi
-    # dummy
-    if id %{dummy_user} >/dev/null 2>&1; then
-        /usr/sbin/usermod -c 'Dummy Tuleap User'    -d '/var/lib/tuleap/dumps'    -g %{dummy_group} %{dummy_user}
-    else
-        /usr/sbin/useradd -c 'Dummy Tuleap User' -M -d '/var/lib/tuleap/dumps' -r -g %{dummy_group} %{dummy_user}
     fi
 else
     true
@@ -1457,6 +1443,10 @@ fi
 %endif
 
 %if %{with experimental}
+
+%files plugin-graphs
+%defattr(-,root,root,-)
+%{APP_DIR}/plugins/graphs
 
 %endif
 

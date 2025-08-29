@@ -20,8 +20,11 @@
 <template>
     <div class="tlp-modal-body">
         <service-id v-bind:value="service.id" />
-        <hidden-service-shortname v-if="service.short_name" v-bind:value="service.short_name" />
-        <read-only-service-icon v-bind:value="service.icon_name" />
+        <hidden-service-shortname
+            v-if="service.short_name"
+            v-bind:short_name="service.short_name"
+        />
+        <read-only-service-icon v-bind:icon_name="service.icon_name" />
         <div class="tlp-property">
             <label class="tlp-label">{{ $gettext("Label") }}</label>
             <span>{{ service.label }}</span>
@@ -33,14 +36,9 @@
             v-bind:value="service.is_used"
             v-bind:disabled-reason="service.is_disabled_reason"
         />
-        <hidden-service-is-active v-bind:value="service.is_active" />
-        <read-only-service-rank v-if="is_summary_service" v-bind:value="service.rank" />
-        <service-rank
-            v-else
-            id="project-service-edit-modal-rank"
-            v-bind:minimal_rank="minimal_rank"
-            v-bind:value="service.rank"
-        />
+        <hidden-service-is-active v-bind:is_active="service.is_active" />
+        <read-only-service-rank v-if="is_summary_service" v-bind:rank="service.rank" />
+        <service-rank v-else id="project-service-edit-modal-rank" v-bind:value="service.rank" />
         <service-link
             id="project-service-edit-modal-link"
             v-bind:value="service.link"
@@ -53,7 +51,9 @@
         </div>
     </div>
 </template>
-<script>
+<script setup lang="ts">
+import { computed } from "vue";
+import type { Service } from "../../type";
 import ServiceId from "./ServiceId.vue";
 import ServiceLink from "./ServiceLink.vue";
 import ServiceIsUsed from "./ServiceIsUsed.vue";
@@ -62,21 +62,14 @@ import HiddenServiceShortname from "./HiddenServiceShortname.vue";
 import HiddenServiceIsActive from "./HiddenServiceIsActive.vue";
 import ReadOnlyServiceRank from "./ReadOnlyServiceRank.vue";
 import ReadOnlyServiceIcon from "./ReadOnlyServiceIcon.vue";
-import { system_service_mixin } from "./system-service-mixin.js";
-import { service_mixin } from "./service-mixin.js";
+import { ADMIN_SERVICE_SHORTNAME, SUMMARY_SERVICE_SHORTNAME } from "../../constants";
 
-export default {
-    name: "ReadOnlySystemService",
-    components: {
-        HiddenServiceIsActive,
-        HiddenServiceShortname,
-        ServiceLink,
-        ServiceId,
-        ServiceIsUsed,
-        ServiceRank,
-        ReadOnlyServiceRank,
-        ReadOnlyServiceIcon,
-    },
-    mixins: [service_mixin, system_service_mixin],
-};
+const props = defineProps<{
+    service: Service;
+}>();
+
+const is_summary_service = computed(() => props.service.short_name === SUMMARY_SERVICE_SHORTNAME);
+const can_update_is_used = computed(
+    () => props.service.short_name !== ADMIN_SERVICE_SHORTNAME || !props.service.is_used,
+);
 </script>

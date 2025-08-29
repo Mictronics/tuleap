@@ -21,11 +21,13 @@
 
 use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\Option\Option;
+use Tuleap\Tracker\FormElement\Field\ListField;
+use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindDecoratorDao;
+use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindDefaultValueDao;
+use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindVisitable;
 use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BoundDecoratorEditor;
 use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BoundDecoratorSaver;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindVisitable;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindDefaultValueDao;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindDecoratorDao;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
 use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
 use Tuleap\Tracker\REST\FieldValueRepresentation;
 
@@ -55,7 +57,7 @@ abstract class Tracker_FormElement_Field_List_Bind implements //phpcs:ignore PSR
      */
     protected $decorators;
 
-    /** @var Tracker_FormElement_Field */
+    /** @var TrackerField */
     protected $field;
 
     public function __construct(public DatabaseUUIDV7Factory $uuid_factory, $field, $default_values, $decorators)
@@ -362,7 +364,7 @@ abstract class Tracker_FormElement_Field_List_Bind implements //phpcs:ignore PSR
     /**
      * Get the field
      *
-     * @return Tracker_FormElement_Field_List
+     * @return ListField
      */
     public function getField()
     {
@@ -705,7 +707,7 @@ abstract class Tracker_FormElement_Field_List_Bind implements //phpcs:ignore PSR
 
     abstract public function getFullRESTValue(Tracker_FormElement_Field_List_Value $value);
 
-    abstract public function getFieldDataFromRESTObject(array $rest_data, Tracker_FormElement_Field_List $field);
+    abstract public function getFieldDataFromRESTObject(array $rest_data, ListField $field);
 
     public function getFieldDataFromRESTValue($value): int
     {
@@ -725,7 +727,7 @@ abstract class Tracker_FormElement_Field_List_Bind implements //phpcs:ignore PSR
 
         if (
             is_array($criteria_value)
-            && in_array(Tracker_FormElement_Field_List::NONE_VALUE, $criteria_value)
+            && in_array(ListField::NONE_VALUE, $criteria_value)
         ) {
             return true;
         }

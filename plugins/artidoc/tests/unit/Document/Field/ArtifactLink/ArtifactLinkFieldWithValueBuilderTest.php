@@ -26,7 +26,6 @@ use PFUser;
 use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
 use Tracker_ArtifactFactory;
 use Tracker_ArtifactLinkInfo;
-use Tracker_FormElement_Field_List;
 use Tracker_FormElement_Field_List_Bind_StaticValue;
 use Tuleap\Artidoc\Document\Field\ConfiguredField;
 use Tuleap\Artidoc\Domain\Document\Section\Field\DisplayType;
@@ -44,6 +43,7 @@ use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeIsChildPresenter;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenter;
 use Tuleap\Tracker\FormElement\Field\String\StringField;
+use Tuleap\Tracker\FormElement\Field\ListField;
 use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
@@ -54,7 +54,7 @@ use Tuleap\Tracker\Test\Builders\Fields\ArtifactLinkFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticValueBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\StaticBindDecoratorBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\SelectboxFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\StringFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Test\Stub\FormElement\Field\ArtifactLink\Type\RetrieveTypeFromShortnameStub;
@@ -92,7 +92,7 @@ final class ArtifactLinkFieldWithValueBuilderTest extends TestCase
         $title_field  = StringFieldBuilder::aStringField(854)->inTracker($tracker)->build();
         $open_value   = ListStaticValueBuilder::aStaticValue('Open')->withId(12)->build();
         $closed_value = ListStaticValueBuilder::aStaticValue('Closed')->withId(13)->build();
-        $status_field = ListStaticBindBuilder::aStaticBind(ListFieldBuilder::aListField(855)->inTracker($tracker)->build())
+        $status_field = ListStaticBindBuilder::aStaticBind(SelectboxFieldBuilder::aSelectboxField(855)->inTracker($tracker)->build())
             ->withBuildStaticValues([$open_value, $closed_value])
             ->withDecorators([
                 StaticBindDecoratorBuilder::withColor(ColorName::NEON_GREEN)->withValueId($open_value->getId())->build(),
@@ -213,7 +213,7 @@ final class ArtifactLinkFieldWithValueBuilderTest extends TestCase
         PFUser $user,
         StringField $title_field,
         ?string $title,
-        Tracker_FormElement_Field_List $status_field,
+        ListField $status_field,
         ?Tracker_FormElement_Field_List_Bind_StaticValue $status_value,
     ): Artifact {
         $changeset = ChangesetTestBuilder::aChangeset(853)->build();

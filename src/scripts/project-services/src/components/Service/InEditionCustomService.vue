@@ -27,9 +27,8 @@
         />
         <icon-selector
             id="project-service-edit-modal-icon"
-            v-bind:value="service.icon_name"
+            v-bind:icon_name="service.icon_name"
             v-on:input="onEditIcon"
-            v-bind:allowed_icons="allowed_icons"
         />
         <service-is-used
             id="project-service-edit-modal-enabled"
@@ -37,13 +36,9 @@
             v-bind:disabled-reason="service.is_disabled_reason"
         />
         <slot name="is_active">
-            <hidden-service-is-active v-bind:value="service.is_active" />
+            <hidden-service-is-active v-bind:is_active="service.is_active" />
         </slot>
-        <service-rank
-            id="project-service-edit-modal-rank"
-            v-bind:minimal_rank="minimal_rank"
-            v-bind:value="service.rank"
-        />
+        <service-rank id="project-service-edit-modal-rank" v-bind:value="service.rank" />
         <service-link id="project-service-edit-modal-link" v-bind:value="service.link" />
         <service-description
             id="project-service-edit-modal-description"
@@ -110,7 +105,6 @@ import ServiceDescription from "./ServiceDescription.vue";
 import ServiceIsUsed from "./ServiceIsUsed.vue";
 import ServiceRank from "./ServiceRank.vue";
 import HiddenServiceIsActive from "./HiddenServiceIsActive.vue";
-import { service_mixin } from "./service-mixin.js";
 
 export default {
     name: "InEditionCustomService",
@@ -125,16 +119,16 @@ export default {
         ServiceLabel,
         IconSelector,
     },
-    mixins: [service_mixin],
     props: {
-        allowed_icons: {
+        service_prop: {
             type: Object,
             required: true,
         },
     },
     data() {
         return {
-            has_used_iframe: this.service.is_in_iframe,
+            service: this.service_prop,
+            has_used_iframe: this.service_prop.is_in_iframe,
             is_new_tab_warning_shown: false,
             is_iframe_deprecation_warning_shown: false,
         };

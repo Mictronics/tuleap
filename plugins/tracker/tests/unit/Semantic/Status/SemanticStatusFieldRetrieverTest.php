@@ -31,12 +31,12 @@ use Tuleap\Tracker\Test\Stub\Semantic\Status\SearchStatusFieldStub;
 final class SemanticStatusFieldRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
 {
     private const TRACKER_ID = 77;
-    private ?\Tracker_FormElement_Field_Selectbox $field;
+    private ?\Tuleap\Tracker\FormElement\Field\List\SelectboxField $field;
 
     #[\Override]
     protected function setUp(): void
     {
-        $this->field = new \Tracker_FormElement_Field_Selectbox(
+        $this->field = new \Tuleap\Tracker\FormElement\Field\List\SelectboxField(
             848,
             self::TRACKER_ID,
             1,
@@ -51,7 +51,7 @@ final class SemanticStatusFieldRetrieverTest extends \Tuleap\Test\PHPUnit\TestCa
         );
     }
 
-    public function getStatusField(): ?\Tracker_FormElement_Field_List
+    public function getStatusField(): ?\Tuleap\Tracker\FormElement\Field\ListField
     {
         $tracker = TrackerTestBuilder::aTracker()->build();
 

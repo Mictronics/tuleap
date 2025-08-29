@@ -20,7 +20,7 @@
 
 <template>
     <button
-        v-on:click="$emit('click')"
+        v-on:click="emit('click')"
         class="tlp-button-small tlp-button-primary tlp-button-outline"
         v-bind:disabled="disabled"
         data-test-type="button"
@@ -31,7 +31,7 @@
             data-test-type="spinner"
         ></i>
         <i v-else class="fa-solid fa-fw tlp-button-icon" v-bind:class="icon_class"></i>
-        <slot />
+        <slot></slot>
     </button>
 </template>
 
@@ -42,6 +42,8 @@ const props = withDefaults(defineProps<{ icon: string; loading?: boolean; disabl
     loading: false,
     disabled: false,
 });
+
+const emit = defineEmits<{ (e: "click"): void }>();
 
 const icon_class = computed(() => `fa-${props.icon}`);
 </script>

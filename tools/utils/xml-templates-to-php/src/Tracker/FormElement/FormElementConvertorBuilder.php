@@ -38,7 +38,7 @@ class FormElementConvertorBuilder
             'int'      => \Tuleap\Tracker\FormElement\Field\Integer\XML\XMLIntegerField::class,
             'date'     => \Tuleap\Tracker\FormElement\Field\Date\XML\XMLDateField::class,
             'sb'       => \Tuleap\Tracker\FormElement\Field\ListFields\XML\XMLSelectBoxField::class,
-            'file'     => \Tuleap\Tracker\FormElement\Field\File\XML\XMLFileField::class,
+            'file'     => \Tuleap\Tracker\FormElement\Field\Files\XML\XMLFileField::class,
             'lud'      => \Tuleap\Tracker\FormElement\Field\LastUpdateDate\XML\XMLLastUpdateDateField::class,
             'subon'    => \Tuleap\Tracker\FormElement\Field\SubmittedOn\XML\XMLSubmittedOnField::class,
             'subby'    => \Tuleap\Tracker\FormElement\Field\SubmittedBy\XML\XMLSubmittedByField::class,
@@ -46,7 +46,7 @@ class FormElementConvertorBuilder
             'art_link' => \Tuleap\Tracker\FormElement\Field\ArtifactLink\XML\XMLArtifactLinkField::class,
             'cross'    => \Tuleap\Tracker\FormElement\Field\CrossReference\XML\XMLCrossReferenceField::class,
             'burndown' => \Tuleap\Tracker\FormElement\Field\Burndown\XML\XMLBurndownField::class,
-            'luby'     => \Tuleap\Tracker\FormElement\Field\LastModifiedBy\XML\XMLLastModifiedByField::class,
+            'luby'     => \Tuleap\Tracker\FormElement\Field\LastUpdateBy\XML\XMLLastModifiedByField::class,
             'column'   => \Tuleap\Tracker\FormElement\Container\Column\XML\XMLColumn::class,
             'fieldset' => \Tuleap\Tracker\FormElement\Container\Fieldset\XML\XMLFieldset::class,
         ];

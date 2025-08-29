@@ -105,6 +105,8 @@ import { BreadcrumbPrivacy } from "@tuleap/vue3-breadcrumb-privacy";
 import { useNamespacedState, useState } from "vuex-composition-helpers";
 import type { ConfigurationState } from "../../store/configuration";
 import { ref } from "vue";
+import { strictInject } from "@tuleap/vue-strict-inject";
+import { PROJECT_ID, PROJECT_PUBLIC_NAME, USER_IS_ADMIN } from "../../configuration-keys";
 
 const {
     current_folder_ascendant_hierarchy,
@@ -125,44 +127,21 @@ const {
     "currently_previewed_item",
     "current_folder",
 ]);
-
-const {
-    project_url,
-    privacy,
-    project_flags,
-    project_id,
-    project_public_name,
-    user_is_admin,
-    project_icon,
-} = useNamespacedState<
-    Pick<
-        ConfigurationState,
-        | "project_url"
-        | "privacy"
-        | "project_flags"
-        | "project_id"
-        | "project_public_name"
-        | "user_is_admin"
-        | "project_icon"
-    >
->("configuration", [
-    "project_url",
-    "privacy",
-    "project_flags",
-    "project_id",
-    "project_public_name",
-    "user_is_admin",
-    "project_icon",
-]);
+const project_id = strictInject(PROJECT_ID);
+const project_public_name = strictInject(PROJECT_PUBLIC_NAME);
+const user_is_admin = strictInject(USER_IS_ADMIN);
+const { project_url, privacy, project_flags, project_icon } = useNamespacedState<
+    Pick<ConfigurationState, "project_url" | "privacy" | "project_flags" | "project_icon">
+>("configuration", ["project_url", "privacy", "project_flags", "project_icon"]);
 
 const max_nb_to_display = ref(5);
 
 function documentAdministrationUrl(): string {
-    return "/plugins/docman/?group_id=" + encodeURIComponent(project_id.value) + "&action=admin";
+    return "/plugins/docman/?group_id=" + encodeURIComponent(project_id) + "&action=admin";
 }
 
 function getBreadcrumbClass(): string {
-    if (user_is_admin.value) {
+    if (user_is_admin) {
         return "breadcrumb-switchable breadcrumb-item";
     }
 

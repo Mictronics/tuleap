@@ -21,32 +21,32 @@ namespace Tuleap\Tracker\Report\Query\Advanced\QueryBuilder;
 
 use BaseLanguageFactory;
 use ParagonIE\EasyDB\EasyDB;
-use Tracker_FormElement_Field;
-use Tracker_FormElement_Field_Burndown;
-use Tracker_FormElement_Field_Checkbox;
-use Tracker_FormElement_Field_CrossReferences;
-use Tracker_FormElement_Field_Date;
-use Tracker_FormElement_Field_File;
-use Tracker_FormElement_Field_LastModifiedBy;
-use Tracker_FormElement_Field_LastUpdateDate;
-use Tracker_FormElement_Field_List;
-use Tracker_FormElement_Field_MultiSelectbox;
-use Tracker_FormElement_Field_OpenList;
-use Tracker_FormElement_Field_PermissionsOnArtifact;
-use Tracker_FormElement_Field_Radiobutton;
-use Tracker_FormElement_Field_Selectbox;
-use Tracker_FormElement_Field_SubmittedBy;
 use Tracker_FormElement_FieldVisitor;
 use Tuleap\Tracker\FormElement\Field\ArtifactId\ArtifactIdField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
+use Tuleap\Tracker\FormElement\Field\Burndown\BurndownField;
 use Tuleap\Tracker\FormElement\Field\Computed\ComputedField;
+use Tuleap\Tracker\FormElement\Field\CrossReferences\CrossReferencesField;
+use Tuleap\Tracker\FormElement\Field\Date\DateField;
+use Tuleap\Tracker\FormElement\Field\Files\FilesField;
 use Tuleap\Tracker\FormElement\Field\Float\FloatField;
 use Tuleap\Tracker\FormElement\Field\Integer\IntegerField;
+use Tuleap\Tracker\FormElement\Field\LastUpdateBy\LastUpdateByField;
+use Tuleap\Tracker\FormElement\Field\LastUpdateDate\LastUpdateDateField;
+use Tuleap\Tracker\FormElement\Field\List\CheckboxField;
+use Tuleap\Tracker\FormElement\Field\List\MultiSelectboxField;
+use Tuleap\Tracker\FormElement\Field\List\OpenListField;
+use Tuleap\Tracker\FormElement\Field\List\RadioButtonField;
+use Tuleap\Tracker\FormElement\Field\List\SelectboxField;
+use Tuleap\Tracker\FormElement\Field\ListField;
+use Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField;
 use Tuleap\Tracker\FormElement\Field\PerTrackerArtifactId\PerTrackerArtifactIdField;
 use Tuleap\Tracker\FormElement\Field\Priority\PriorityField;
 use Tuleap\Tracker\FormElement\Field\String\StringField;
+use Tuleap\Tracker\FormElement\Field\SubmittedBy\SubmittedByField;
 use Tuleap\Tracker\FormElement\Field\SubmittedOn\SubmittedOnField;
 use Tuleap\Tracker\FormElement\Field\Text\TextField;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
 use Tuleap\Tracker\FormElement\TrackerFormElementExternalField;
 use Tuleap\Tracker\Report\Query\Advanced\CollectionOfListValuesExtractor;
 use Tuleap\Tracker\Report\Query\Advanced\FieldFromWhereBuilder;
@@ -64,7 +64,7 @@ final class EqualFieldComparisonVisitor implements
     }
 
     /** @return FieldFromWhereBuilder */
-    public function getFromWhereBuilder(Tracker_FormElement_Field $field)
+    public function getFromWhereBuilder(TrackerField $field)
     {
         return $field->accept($this);
     }
@@ -74,7 +74,7 @@ final class EqualFieldComparisonVisitor implements
         return null;
     }
 
-    public function visitDate(Tracker_FormElement_Field_Date $field)
+    public function visitDate(DateField $field)
     {
         return new DateTimeFieldFromWhereBuilder(
             new FromWhereComparisonFieldBuilder(),
@@ -84,7 +84,7 @@ final class EqualFieldComparisonVisitor implements
         );
     }
 
-    public function visitFile(Tracker_FormElement_Field_File $field)
+    public function visitFile(FilesField $field)
     {
         return new EqualComparison\ForFile();
     }
@@ -103,12 +103,12 @@ final class EqualFieldComparisonVisitor implements
         );
     }
 
-    public function visitOpenList(Tracker_FormElement_Field_OpenList $field)
+    public function visitOpenList(OpenListField $field)
     {
         return null;
     }
 
-    public function visitPermissionsOnArtifact(Tracker_FormElement_Field_PermissionsOnArtifact $field)
+    public function visitPermissionsOnArtifact(PermissionsOnArtifactField $field)
     {
         return null;
     }
@@ -126,27 +126,27 @@ final class EqualFieldComparisonVisitor implements
         );
     }
 
-    public function visitRadiobutton(Tracker_FormElement_Field_Radiobutton $field)
+    public function visitRadiobutton(RadioButtonField $field)
     {
         return $this->visitList($field);
     }
 
-    public function visitCheckbox(Tracker_FormElement_Field_Checkbox $field)
+    public function visitCheckbox(CheckboxField $field)
     {
         return $this->visitList($field);
     }
 
-    public function visitMultiSelectbox(Tracker_FormElement_Field_MultiSelectbox $field)
+    public function visitMultiSelectbox(MultiSelectboxField $field)
     {
         return $this->visitList($field);
     }
 
-    public function visitSelectbox(Tracker_FormElement_Field_Selectbox $field)
+    public function visitSelectbox(SelectboxField $field)
     {
         return $this->visitList($field);
     }
 
-    private function visitList(Tracker_FormElement_Field_List $field)
+    private function visitList(ListField $field)
     {
         $static_bind_builder  = new EqualComparison\ForListBindStatic(
             new FromWhereEmptyComparisonListFieldBuilder(),
@@ -176,7 +176,7 @@ final class EqualFieldComparisonVisitor implements
         return $bind_builder->getFromWhereBuilder($field);
     }
 
-    public function visitSubmittedBy(Tracker_FormElement_Field_SubmittedBy $field)
+    public function visitSubmittedBy(SubmittedByField $field)
     {
         return new ListReadOnlyFieldFromWhereBuilder(
             new CollectionOfListValuesExtractor(),
@@ -187,7 +187,7 @@ final class EqualFieldComparisonVisitor implements
         );
     }
 
-    public function visitLastModifiedBy(Tracker_FormElement_Field_LastModifiedBy $field)
+    public function visitLastModifiedBy(LastUpdateByField $field)
     {
         return new ListReadOnlyFieldFromWhereBuilder(
             new CollectionOfListValuesExtractor(),
@@ -208,17 +208,17 @@ final class EqualFieldComparisonVisitor implements
         return null;
     }
 
-    public function visitCrossReferences(Tracker_FormElement_Field_CrossReferences $field)
+    public function visitCrossReferences(CrossReferencesField $field)
     {
         return null;
     }
 
-    public function visitBurndown(Tracker_FormElement_Field_Burndown $field)
+    public function visitBurndown(BurndownField $field)
     {
         return null;
     }
 
-    public function visitLastUpdateDate(Tracker_FormElement_Field_LastUpdateDate $field)
+    public function visitLastUpdateDate(LastUpdateDateField $field)
     {
         return new DateTimeReadOnlyFieldFromWhereBuilder(
             new FromWhereComparisonFieldReadOnlyBuilder(),

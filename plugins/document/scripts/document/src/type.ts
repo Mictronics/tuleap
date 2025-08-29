@@ -141,7 +141,7 @@ export interface Item extends MinimalItem {
     description: string;
     post_processed_description: string;
     owner: User;
-    last_update_date: Date | string | number;
+    last_update_date: string;
     creation_date: string;
     user_can_write: boolean;
     user_can_delete: boolean;
@@ -279,6 +279,7 @@ export interface Embedded extends Item, ApprovableDocument {
 
 export interface OtherTypeItem extends Item {
     other_type_properties: OtherTypeProperties | null;
+    status: string;
 }
 
 export interface Wiki extends Item, ApprovableDocument {
@@ -308,6 +309,7 @@ export interface User {
     has_avatar: boolean;
     avatar_url: string;
     user_url: string;
+    is_anonymous: boolean;
 }
 
 export interface Permissions {

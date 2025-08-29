@@ -22,20 +22,23 @@
     <h2>
         Baseline #{{ baseline.id }} - {{ baseline.name }}
         <span class="baseline-label-author tlp-text-muted">
-            <span v-translate>Created by</span>
+            {{ $gettext("Created by") }}
             <user-badge v-bind:user="author" class="baseline-label-author-badge" />
-            <span v-translate>on</span>
+            {{ $gettext("on") }}
             {{ humanized_snapshot_date }}
         </span>
     </h2>
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
+import { useState } from "vuex-composition-helpers";
+import { useGettext } from "vue3-gettext";
 import UserBadge from "./UserBadge.vue";
 import DateUtils from "../../support/date-utils";
 import type { Baseline, User } from "../../type";
-import { useState } from "vuex-composition-helpers";
-import { computed } from "vue";
+
+const { $gettext } = useGettext();
 
 const { users_by_id } = useState<{ users_by_id: Record<number, User> }>(["users_by_id"]);
 

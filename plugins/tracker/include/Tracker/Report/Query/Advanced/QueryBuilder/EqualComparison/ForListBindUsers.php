@@ -19,8 +19,8 @@
 
 namespace Tuleap\Tracker\Report\Query\Advanced\QueryBuilder\EqualComparison;
 
-use Tracker_FormElement_Field;
-use Tracker_FormElement_Field_List;
+use Tuleap\Tracker\FormElement\Field\ListField;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
 use Tuleap\Tracker\Report\Query\Advanced\CollectionOfListValuesExtractor;
 use Tuleap\Tracker\Report\Query\Advanced\FieldFromWhereBuilder;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\Comparison;
@@ -39,7 +39,7 @@ final class ForListBindUsers implements FieldFromWhereBuilder, ListBindUsersFrom
     ) {
     }
 
-    public function getFromWhere(Comparison $comparison, Tracker_FormElement_Field $field): IProvideParametrizedFromAndWhereSQLFragments
+    public function getFromWhere(Comparison $comparison, TrackerField $field): IProvideParametrizedFromAndWhereSQLFragments
     {
         $parameter_collection = new QueryListFieldPresenter($comparison, $field);
 
@@ -70,7 +70,7 @@ final class ForListBindUsers implements FieldFromWhereBuilder, ListBindUsersFrom
         $condition = "($parameter_collection->changeset_value_alias.changeset_id IS NULL OR $parameter_collection->changeset_value_list_alias.bindvalue_id = ?)";
 
         $parameter_collection->setCondition($condition);
-        $parameter_collection->setParameters([Tracker_FormElement_Field_List::NONE_VALUE]);
+        $parameter_collection->setParameters([ListField::NONE_VALUE]);
 
         return $this->empty_comparison_builder->getFromWhere($parameter_collection);
     }

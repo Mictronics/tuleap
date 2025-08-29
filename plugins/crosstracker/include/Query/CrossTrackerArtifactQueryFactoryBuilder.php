@@ -78,7 +78,7 @@ use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\Semantic\AssignedT
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\Semantic\Description\DescriptionResultBuilder;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\Semantic\Status\StatusResultBuilder;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\Semantic\Title\TitleResultBuilder;
-use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\Special\LinkType\ForwardLinkTypeResultBuilder;
+use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\Special\LinkType\LinkTypeResultBuilder;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\Special\PrettyTitle\PrettyTitleResultBuilder;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\Special\ProjectName\ProjectNameResultBuilder;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\Special\TrackerName\TrackerNameResultBuilder;
@@ -96,7 +96,7 @@ use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Metadata\Semantic\AssignedT
 use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Metadata\Semantic\Description\DescriptionSelectFromBuilder;
 use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Metadata\Semantic\Status\StatusSelectFromBuilder;
 use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Metadata\Semantic\Title\TitleSelectFromBuilder;
-use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Metadata\Special\LinkType\ForwardLinkTypeSelectFromBuilder;
+use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Metadata\Special\LinkType\BuildLinkTypeSelectFrom;
 use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Metadata\Special\PrettyTitle\PrettyTitleSelectFromBuilder;
 use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Metadata\Special\ProjectName\ProjectNameSelectFromBuilder;
 use Tuleap\CrossTracker\Query\Advanced\SelectBuilderVisitor;
@@ -107,6 +107,7 @@ use Tuleap\Instrument\Prometheus\Prometheus;
 use Tuleap\Markdown\CommonMarkInterpreter;
 use Tuleap\Tracker\Admin\ArtifactLinksUsageDao;
 use Tuleap\Tracker\Artifact\ChangesetValue\Text\TextValueInterpreter;
+use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\SystemTypePresenterBuilder;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
 use Tuleap\Tracker\FormElement\Field\ListFields\OpenListValueDao;
@@ -232,6 +233,7 @@ final class CrossTrackerArtifactQueryFactoryBuilder
                 new TypePresenterFactory(
                     new TypeDao(),
                     new ArtifactLinksUsageDao(),
+                    new SystemTypePresenterBuilder(EventManager::instance())
                 ),
             )
         );
@@ -299,7 +301,7 @@ final class CrossTrackerArtifactQueryFactoryBuilder
         );
     }
 
-    public function getArtifactFactory(): CrossTrackerArtifactQueryFactory
+    public function getArtifactFactory(BuildLinkTypeSelectFrom $link_type_builder,): CrossTrackerArtifactQueryFactory
     {
         $tuleap_db                 = DBFactory::getMainTuleapDBConnection()->getDB();
         $form_element_factory      = Tracker_FormElementFactory::instance();
@@ -325,7 +327,7 @@ final class CrossTrackerArtifactQueryFactoryBuilder
                 new AssignedToSelectFromBuilder(),
                 new ProjectNameSelectFromBuilder(),
                 new PrettyTitleSelectFromBuilder(),
-                new ForwardLinkTypeSelectFromBuilder()
+                $link_type_builder
             ),
         );
         $purifier                  = Codendi_HTMLPurifier::instance();
@@ -358,7 +360,7 @@ final class CrossTrackerArtifactQueryFactoryBuilder
                 new ProjectNameResultBuilder(),
                 new TrackerNameResultBuilder(),
                 new PrettyTitleResultBuilder($tracker_artifact_factory, $semantic_title_retriever),
-                new ForwardLinkTypeResultBuilder(),
+                new LinkTypeResultBuilder(),
                 new ArtifactResultBuilder(
                     $tracker_artifact_factory,
                     new TrackersListAllowedByPlugins(

@@ -24,7 +24,6 @@ namespace Tuleap\Tracker\FormElement;
 
 use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
 use PHPUnit\Framework\MockObject\MockObject;
-use Tracker_FormElement_Field_List;
 use Tracker_FormElement_Field_List_Bind;
 use Tracker_FormElement_Field_List_Bind_Static;
 use Tracker_FormElement_Field_List_Bind_Users;
@@ -33,9 +32,10 @@ use Tracker_FormElement_Field_List_BindValue;
 use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindDefaultValueDao;
+use Tuleap\Tracker\FormElement\Field\ListField;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListUserValueBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\OpenListFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\SelectboxFieldBuilder;
 
 #[DisableReturnValueGenerationForTestDoubles]
 final class Tracker_FormElement_Field_List_BindTest extends TestCase //phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
@@ -43,12 +43,12 @@ final class Tracker_FormElement_Field_List_BindTest extends TestCase //phpcs:ign
     private Tracker_FormElement_Field_List_BindValue&MockObject $value_2;
     private Tracker_FormElement_Field_List_BindValue&MockObject $value_1;
     private Tracker_FormElement_Field_List_Bind&MockObject $bind;
-    private Tracker_FormElement_Field_List $field;
+    private ListField $field;
 
     protected function setUp(): void
     {
         $decorator   = new Tracker_FormElement_Field_List_BindDecorator(101, 1, 0, 0, 0, 'inca-silver');
-        $this->field = ListFieldBuilder::aListField(42)->build();
+        $this->field = SelectboxFieldBuilder::aSelectboxField(42)->build();
         $this->bind  = $this->getMockBuilder(Tracker_FormElement_Field_List_Bind_Static::class)
             ->setConstructorArgs([new DatabaseUUIDV7Factory(), $this->field, '', [], [], $decorator])
             ->onlyMethods(['getAllValues', 'getAllVisibleValues'])

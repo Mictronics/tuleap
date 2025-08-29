@@ -23,7 +23,7 @@ declare(strict_types=1);
 namespace Tuleap\Tracker\Artifact\ChangesetValue;
 
 use Tuleap\Tracker\Artifact\Artifact;
-use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
+use Tuleap\Tracker\FormElement\Field\Files\CreatedFileURLMapping;
 
 /**
  * I save a changeset value for a field, but I ignore required fields and permissions. This is used for import of
@@ -36,7 +36,7 @@ use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
 final class ChangesetValueSaverIgnoringPermissions implements SaveChangesetValue
 {
     public function saveNewChangesetForField(
-        \Tracker_FormElement_Field $field,
+        \Tuleap\Tracker\FormElement\Field\TrackerField $field,
         Artifact $artifact,
         ?\Tracker_Artifact_Changeset $previous_changeset,
         array $fields_data,
@@ -73,7 +73,7 @@ final class ChangesetValueSaverIgnoringPermissions implements SaveChangesetValue
         );
     }
 
-    private function isFieldSubmitted(\Tracker_FormElement_Field $field, array $fields_data): bool
+    private function isFieldSubmitted(\Tuleap\Tracker\FormElement\Field\TrackerField $field, array $fields_data): bool
     {
         return isset($fields_data[$field->getId()]);
     }

@@ -18,18 +18,22 @@
  */
 
 import { vite } from "@tuleap/build-system-configurator";
-import * as path from "path";
-import vue from "@vitejs/plugin-vue2";
+import * as path from "node:path";
+import vue from "@vitejs/plugin-vue";
 import POGettextPlugin from "@tuleap/po-gettext-plugin";
 import { viteExternalsPlugin } from "vite-plugin-externals";
 
 export default vite.defineAppConfig(
     {
-        plugin_name: "tracker-creation",
+        plugin_name: "trackers",
         sub_app_name: path.basename(__dirname),
     },
     {
-        plugins: [POGettextPlugin.vite(), vue(), viteExternalsPlugin({ tlp: "tlp" })],
+        plugins: [
+            POGettextPlugin.vite(),
+            vue(),
+            viteExternalsPlugin({ tlp: "tlp", jquery: "jQuery" }),
+        ],
         build: {
             rollupOptions: {
                 input: {
@@ -45,9 +49,6 @@ export default vite.defineAppConfig(
                     "tracker-creation-style": path.resolve(__dirname, "themes/main.scss"),
                 },
             },
-        },
-        resolve: {
-            dedupe: ["vue"],
         },
     },
 );

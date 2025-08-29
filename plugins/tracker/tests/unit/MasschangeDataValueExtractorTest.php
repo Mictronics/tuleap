@@ -23,10 +23,10 @@ declare(strict_types=1);
 namespace Tuleap\Tracker;
 
 use PHPUnit\Framework\Attributes\DataProvider;
-use Tracker_FormElement_Field_List;
-use Tracker_FormElement_Field_PermissionsOnArtifact;
 use Tracker_FormElementFactory;
 use Tuleap\GlobalLanguageMock;
+use Tuleap\Tracker\FormElement\Field\ListField;
+use Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField;
 use Tuleap\Tracker\FormElement\Field\Text\TextField;
 use Tuleap\Tracker\Masschange\MasschangeDataValueExtractor;
 
@@ -62,7 +62,7 @@ final class MasschangeDataValueExtractorTest extends \Tuleap\Test\PHPUnit\TestCa
 
     public function testReturnsFieldWithNewValueRemovingUnchangedValueForMultiSelectboxField(): void
     {
-        $field = $this->createStub(Tracker_FormElement_Field_List::class);
+        $field = $this->createStub(ListField::class);
 
         $form_element_factory = $this->createStub(Tracker_FormElementFactory::class);
         $form_element_factory->method('getFieldById')->willReturn($field);
@@ -93,22 +93,22 @@ final class MasschangeDataValueExtractorTest extends \Tuleap\Test\PHPUnit\TestCa
                 false,
             ],
             'List field with an update' => [
-                Tracker_FormElement_Field_List::class,
+                ListField::class,
                 ['Value02'],
                 true,
             ],
             'List field without an update' => [
-                Tracker_FormElement_Field_List::class,
+                ListField::class,
                 ['-1'],
                 false,
             ],
             'Permissions on artifact field with an update' => [
-                Tracker_FormElement_Field_PermissionsOnArtifact::class,
+                PermissionsOnArtifactField::class,
                 ['do_mass_update' => '1', 'use_artifact_permissions' => '1'],
                 true,
             ],
             'Permissions on artifact field without an update' => [
-                Tracker_FormElement_Field_PermissionsOnArtifact::class,
+                PermissionsOnArtifactField::class,
                 ['use_artifact_permissions' => '1'],
                 false,
             ],

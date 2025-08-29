@@ -28,8 +28,6 @@ use PFUser;
 use SimpleXMLElement;
 use TemplateRendererFactory;
 use Tracker_Artifact_Changeset;
-use Tracker_FormElement_Field;
-use Tracker_FormElement_Field_List;
 use Tracker_FormElement_Field_List_Bind_Static;
 use Tracker_FormElementFactory;
 use TrackerManager;
@@ -37,6 +35,8 @@ use Tuleap\DB\DBFactory;
 use Tuleap\DB\DBTransactionExecutorWithConnection;
 use Tuleap\Layout\IncludeAssets;
 use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\FormElement\Field\ListField;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
 use Tuleap\Tracker\REST\SemanticStatusRepresentation;
 use Tuleap\Tracker\Semantic\Status\Done\SemanticDoneDao;
 use Tuleap\Tracker\Semantic\Status\Open\AdminPresenterBuilder;
@@ -50,7 +50,7 @@ class TrackerSemanticStatus extends TrackerSemantic
     public const OPEN   = 'Open';
     public const CLOSED = 'Closed';
 
-    private ?Tracker_FormElement_Field_List $list_field;
+    private ?ListField $list_field;
 
     /**
      * @var array
@@ -61,10 +61,10 @@ class TrackerSemanticStatus extends TrackerSemantic
      * Constructor
      *
      * @param Tracker $tracker The tracker
-     * @param Tracker_FormElement_Field_List $list_field The field
+     * @param ListField $list_field The field
      * @param array $open_values The values with the meaning "Open"
      */
-    public function __construct(Tracker $tracker, ?Tracker_FormElement_Field_List $list_field = null, $open_values = [])
+    public function __construct(Tracker $tracker, ?ListField $list_field = null, $open_values = [])
     {
         parent::__construct($tracker);
         $this->list_field  = $list_field;
@@ -115,7 +115,7 @@ class TrackerSemanticStatus extends TrackerSemantic
         }
     }
 
-    public function getField(): ?Tracker_FormElement_Field_List
+    public function getField(): ?ListField
     {
         return $this->list_field;
     }
@@ -198,7 +198,7 @@ class TrackerSemanticStatus extends TrackerSemantic
     {
         $labels = [];
 
-        if (! $this->list_field instanceof Tracker_FormElement_Field_List) {
+        if (! $this->list_field instanceof ListField) {
             return $labels;
         }
         $field_values = $this->list_field->getAllValues();
@@ -439,11 +439,11 @@ class TrackerSemanticStatus extends TrackerSemantic
     /**
      * Is the field used in semantics?
      *
-     * @param Tracker_FormElement_Field the field to test if it is used in semantics or not
+     * @param TrackerField the field to test if it is used in semantics or not
      *
      * @return bool returns true if the field is used in semantics, false otherwise
      */
-    public function isUsedInSemantics(Tracker_FormElement_Field $field)
+    public function isUsedInSemantics(TrackerField $field)
     {
         return $this->getFieldId() == $field->getId();
     }

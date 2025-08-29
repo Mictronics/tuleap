@@ -21,8 +21,8 @@
 namespace Tuleap\JWT\REST;
 
 use Psr\Http\Message\ResponseInterface;
-use REST_TestDataBuilder;
-use RestBase;
+use Tuleap\REST\RESTTestDataBuilder;
+use Tuleap\REST\RestBase;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 #[\PHPUnit\Framework\Attributes\Group('TokenTests')]
@@ -39,7 +39,7 @@ class JWTTest extends RestBase
     {
         $response = $this->getResponse(
             $this->request_factory->createRequest('GET', 'jwt/'),
-            REST_TestDataBuilder::TEST_BOT_USER_NAME
+            RESTTestDataBuilder::TEST_BOT_USER_NAME
         );
 
         $this->assertGETJWT($response);

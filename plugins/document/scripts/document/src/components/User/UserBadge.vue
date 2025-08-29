@@ -34,6 +34,10 @@
 <script setup lang="ts">
 import UserName from "./UserName.vue";
 import type { User } from "../../type";
+import type { RestUser } from "../../api/rest-querier";
+import { useGettext } from "vue3-gettext";
 
-defineProps<{ user: User }>();
+const { $gettext } = useGettext();
+
+defineProps<{ user: User | RestUser }>();
 </script>

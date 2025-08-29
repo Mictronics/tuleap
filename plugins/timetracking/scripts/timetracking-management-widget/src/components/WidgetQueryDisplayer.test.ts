@@ -23,8 +23,8 @@ import { shallowMount } from "@vue/test-utils";
 import WidgetQueryDisplayer from "./WidgetQueryDisplayer.vue";
 import { getGlobalTestOptions } from "../../tests/global-options-for-tests";
 import type { User } from "@tuleap/core-rest-api-types";
-import { injected_query, RetrieveQueryStub } from "../../tests/stubs/RetrieveQueryStub";
-import { RETRIEVE_QUERY } from "../injection-symbols";
+import { QueryStub } from "../../tests/stubs/QueryStub";
+import type { Query } from "../type";
 
 const mireillelabeille: User = {
     id: 101,
@@ -42,14 +42,17 @@ const bellelacoccinelle: User = {
 
 describe("Given a timetracking management widget query displayer", () => {
     let users_list: User[] = [];
+    let query: Query;
 
     function getWidgetQueryDisplayerInstance(): VueWrapper {
+        query = QueryStub.withDefaults(users_list);
+
         return shallowMount(WidgetQueryDisplayer, {
+            props: {
+                query,
+            },
             global: {
                 ...getGlobalTestOptions(),
-                provide: {
-                    [RETRIEVE_QUERY.valueOf()]: RetrieveQueryStub.withDefaults(users_list),
-                },
             },
         });
     }
@@ -60,7 +63,7 @@ describe("Given a timetracking management widget query displayer", () => {
 
             const start_date = wrapper.find("[data-test=start-date]");
 
-            expect(start_date.text()).equals(injected_query.getQuery().start_date);
+            expect(start_date.text()).equals(query.start_date);
         });
 
         it("Then it should display the end date", () => {
@@ -68,7 +71,7 @@ describe("Given a timetracking management widget query displayer", () => {
 
             const end_date = wrapper.find("[data-test=end-date]");
 
-            expect(end_date.text()).equals(injected_query.getQuery().end_date);
+            expect(end_date.text()).equals(query.end_date);
         });
 
         it("When some users are selected, then it should display their avatar", () => {

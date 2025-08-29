@@ -24,9 +24,9 @@ namespace Tuleap\Tracker\Action;
 
 final class UserListFieldVerifier implements VerifyIsUserListField
 {
-    public function isUserListField(\Tracker_FormElement_Field $field): bool
+    public function isUserListField(\Tuleap\Tracker\FormElement\Field\TrackerField $field): bool
     {
-        if (! $field instanceof \Tracker_FormElement_Field_List) {
+        if (! $field instanceof \Tuleap\Tracker\FormElement\Field\ListField) {
             return false;
         }
 

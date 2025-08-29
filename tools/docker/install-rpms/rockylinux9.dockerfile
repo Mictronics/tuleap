@@ -4,7 +4,7 @@ FROM rockylinux/rockylinux:9.6@sha256:7620071ad66949c3aef9fd313151f0cfee46b75485
 # To test AlmaLinux
 #FROM almalinux:9
 
-ENV container docker
+ENV container=docker
 
 STOPSIGNAL SIGRTMIN+3
 
@@ -28,7 +28,7 @@ RUN rm -f /lib/systemd/system/multi-user.target.wants/*;\
     rm -rf /var/cache/yum
 
 COPY tuleap-local.repo /etc/yum.repos.d/
-COPY install.el9.sh /install.sh
+COPY install.sh /install.sh
 COPY run.sh /run.sh
 COPY sql-mode.cnf /etc/my.cnf.d/sql-mode.cnf
 

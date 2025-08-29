@@ -22,16 +22,18 @@ declare(strict_types=1);
 
 namespace Tuleap\CrossTracker\REST\v1;
 
+use Psl\Json;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\ResponseInterface;
-use REST_TestDataBuilder;
-use RestBase;
-use function Psl\Json\decode;
+use Tuleap\CrossTracker\TestBase;
+use Tuleap\REST\RESTTestDataBuilder;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
-final class CrossTrackerWidgetTest extends RestBase
+final class CrossTrackerWidgetTest extends TestBase
 {
     private const UUID_PATTERN = '/^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/';
 
+    #[\Override]
     public function setUp(): void
     {
         parent::setUp();
@@ -41,7 +43,7 @@ final class CrossTrackerWidgetTest extends RestBase
 
     public function testGetId(): void
     {
-        $response = $this->getResponse($this->request_factory->createRequest('GET', 'crosstracker_widget/1'));
+        $response = $this->getResponse($this->request_factory->createRequest('GET', 'crosstracker_widget/3'));
         self::assertSame(200, $response->getStatusCode());
         $this->assertGetIdWidget($response);
     }
@@ -49,8 +51,8 @@ final class CrossTrackerWidgetTest extends RestBase
     public function testGetIdForReadOnlyUser(): void
     {
         $response = $this->getResponse(
-            $this->request_factory->createRequest('GET', 'crosstracker_widget/1'),
-            REST_TestDataBuilder::TEST_BOT_USER_NAME
+            $this->request_factory->createRequest('GET', 'crosstracker_widget/3'),
+            RESTTestDataBuilder::TEST_BOT_USER_NAME
         );
 
         self::assertSame(200, $response->getStatusCode());
@@ -59,9 +61,10 @@ final class CrossTrackerWidgetTest extends RestBase
 
     private function assertGetIdWidget(ResponseInterface $response): void
     {
-        $json_response = decode($response->getBody()->getContents());
+        $json_response = Json\decode($response->getBody()->getContents());
         self::assertIsArray($json_response);
         self::assertArrayHasKey('queries', $json_response);
+        /** @var list<array{tql_query: string, title: string, description: string, id: string}> $queries */
         $queries = $json_response['queries'];
         self::assertCount(1, $queries);
         self::assertSame('', $queries[0]['tql_query']);
@@ -74,25 +77,25 @@ final class CrossTrackerWidgetTest extends RestBase
     {
         $response = $this->getResponse($this->request_factory->createRequest('GET', 'crosstracker_widget/100'));
 
-        self::assertEquals(404, $response->getStatusCode());
+        self::assertSame(404, $response->getStatusCode());
     }
 
     public function testYouCantAccessPersonalWidgetOfAnOtherUser(): void
     {
-        $response = $this->getResponseForNonProjectMember($this->request_factory->createRequest('GET', 'crosstracker_widget/2'));
+        $response = $this->getResponseForNonProjectMember($this->request_factory->createRequest('GET', 'crosstracker_widget/4'));
 
-        self::assertEquals(404, $response->getStatusCode());
+        self::assertSame(404, $response->getStatusCode());
     }
 
     public function testYouCantAccessProjectWidgetOfProjectYouCantSee(): void
     {
-        $response = $this->getResponseForNonProjectMember($this->request_factory->createRequest('GET', 'crosstracker_widget/3'));
+        $response = $this->getResponseForNonProjectMember($this->request_factory->createRequest('GET', 'crosstracker_widget/' . self::WIDGET_ID));
 
-        self::assertEquals(404, $response->getStatusCode());
+        self::assertSame(404, $response->getStatusCode());
     }
 
-    private function getResponseForNonProjectMember($request): ResponseInterface
+    private function getResponseForNonProjectMember(RequestInterface $request): ResponseInterface
     {
-        return $this->getResponse($request, REST_TestDataBuilder::TEST_USER_4_NAME);
+        return $this->getResponse($request, RESTTestDataBuilder::TEST_USER_4_NAME);
     }
 }

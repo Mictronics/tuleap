@@ -63,12 +63,42 @@ describe(`Taskboard`, function () {
             cy.wait("@getChildrenCards");
             cy.contains("[data-test=child-card]", "Golden Wrench");
 
-            const on_going_column = this.taskboard_columns.find(
-                (column: ColumnDefinition) => column.label === "On Going",
-            );
             const quality_sunshine_swimlane = this.taskboard_swimlanes.find(
                 (swimlane: Card) => swimlane.label === "Quality Sunshine",
             );
+            const elastic_notorious_swimlane = this.taskboard_swimlanes.find(
+                (swimlane: Card) => swimlane.label === "Elastic Notorious",
+            );
+            const todo_column = this.taskboard_columns.find(
+                (column: ColumnDefinition) => column.label === "Todo",
+            );
+            const on_going_column = this.taskboard_columns.find(
+                (column: ColumnDefinition) => column.label === "On Going",
+            );
+            const review_column = this.taskboard_columns.find(
+                (column: ColumnDefinition) => column.label === "Review",
+            );
+            const done_column = this.taskboard_columns.find(
+                (column: ColumnDefinition) => column.label === "Done",
+            );
+            cy.log("Solo cards are displayed in the column corresponding to their status");
+            cy.get(
+                `[data-column-id=${done_column.id}][data-swimlane-id=${elastic_notorious_swimlane.id}]`,
+            ).within(() => {
+                cy.get("[data-test=card-with-remaining-effort]").contains("Elastic Notorious");
+            });
+
+            cy.log(
+                "Cards with children have their child displayed in the status of the child, and parent card is in the left column",
+            );
+            cy.get(
+                `[data-column-id=${todo_column.id}][data-swimlane-id=${quality_sunshine_swimlane.id}]`,
+            ).within(() => {
+                cy.get("[data-test=child-card]").contains("Golden Wrench");
+                cy.get("[data-test=child-card]").contains("Vital Emerald");
+            });
+            cy.get("[data-test=taskboard-cell-swimlane-header]").contains("Quality Sunshine");
+
             cy.get(
                 `[data-column-id=${on_going_column.id}][data-swimlane-id=${quality_sunshine_swimlane.id}]`,
             ).within(() => {
@@ -80,6 +110,20 @@ describe(`Taskboard`, function () {
                         cy.get("[data-test=label-editor]").type("Discarded Epsilon{enter}");
                     });
 
+                cy.get("[data-test=child-card]").contains("Discarded Epsilon");
+            });
+            cy.log("Move the column to the right");
+            cy.get(
+                `[data-column-id=${on_going_column.id}][data-swimlane-id=${quality_sunshine_swimlane.id}]`,
+            ).within(() => {
+                cy.log("And move it with keyboard shortcut");
+                cy.get("[data-test=child-card]").first().focus().type("{shift}l");
+            });
+
+            cy.log("Card is present in review column");
+            cy.get(
+                `[data-column-id=${review_column.id}][data-swimlane-id=${quality_sunshine_swimlane.id}]`,
+            ).within(() => {
                 cy.get("[data-test=child-card]").contains("Discarded Epsilon");
             });
         });
@@ -107,6 +151,39 @@ describe(`Taskboard`, function () {
                         .type("Lonesome Galaxy{enter}");
                 },
             );
+        });
+
+        it(`edits the remaining effort of a card`, function () {
+            cy.projectMemberSession();
+            cy.visit(`/taskboard/taskboard-project/${this.release_id}`);
+            cy.getContains("[data-test=card-with-remaining-effort]", "Lonesome Galaxy")
+                .then((card) => {
+                    cy.wrap(card).find("[data-test=card-edit-button]").click();
+                    return cy.wrap(card).find("[data-test=edit-remaining-effort-card]").click();
+                })
+                .then(($remaining_effort_wrapper) => {
+                    const remaining_effort_input = $remaining_effort_wrapper.find(
+                        "[data-test=edit-remaining-effort]",
+                    );
+                    expect(remaining_effort_input.val()).to.equal("5");
+                    cy.wrap(remaining_effort_input).clear().type("2");
+                    cy.get('[data-test="save"]').click();
+                });
+
+            // Edit back the remaining effort for repeatability
+            cy.getContains("[data-test=card-with-remaining-effort]", "Lonesome Galaxy")
+                .then((card) => {
+                    cy.wrap(card).find("[data-test=card-edit-button]").click();
+                    return cy.wrap(card).find("[data-test=edit-remaining-effort-card]").click();
+                })
+                .then(($remaining_effort_wrapper) => {
+                    const remaining_effort_input = $remaining_effort_wrapper.find(
+                        "[data-test=edit-remaining-effort]",
+                    );
+                    expect(remaining_effort_input.val()).to.equal("2");
+                    cy.wrap(remaining_effort_input).clear().type("5");
+                    cy.get('[data-test="save"]').click();
+                });
         });
 
         it(`hide/show the swimlanes and cards that are "Done"`, function () {

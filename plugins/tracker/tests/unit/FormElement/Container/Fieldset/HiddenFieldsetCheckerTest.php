@@ -24,12 +24,11 @@ namespace Tuleap\Tracker\FormElement\Container\Fieldset;
 
 use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
 use PHPUnit\Framework\MockObject\MockObject;
-use Tracker_FormElement_Container_Fieldset;
-use Tracker_FormElement_Field;
 use Tuleap\ForgeConfigSandbox;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\FormElement\Container\FieldsExtractor;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\FieldsetContainerBuilder;
 use Tuleap\Tracker\Workflow\PostAction\HiddenFieldsets\HiddenFieldsetsDetector;
@@ -42,7 +41,7 @@ final class HiddenFieldsetCheckerTest extends TestCase
     private HiddenFieldsetChecker $checker;
     private HiddenFieldsetsDetector&MockObject $detector;
     private FieldsExtractor&MockObject $fields_extractor;
-    private Tracker_FormElement_Container_Fieldset $fieldset;
+    private FieldsetContainer $fieldset;
     private Artifact $artifact;
 
     protected function setUp(): void
@@ -64,7 +63,7 @@ final class HiddenFieldsetCheckerTest extends TestCase
         $this->detector->expects($this->once())->method('isFieldsetHidden')
             ->with($this->artifact, $this->fieldset)->willReturn(true);
 
-        $field = $this->createMock(Tracker_FormElement_Field::class);
+        $field = $this->createMock(TrackerField::class);
         $field->method('isRequired')->willReturn(false);
         $field->method('isUsedInFieldDependency')->willReturn(false);
 
@@ -79,7 +78,7 @@ final class HiddenFieldsetCheckerTest extends TestCase
         $this->detector->expects($this->once())->method('isFieldsetHidden')
             ->with($this->artifact, $this->fieldset)->willReturn(true);
 
-        $field = $this->createMock(Tracker_FormElement_Field::class);
+        $field = $this->createMock(TrackerField::class);
         $field->method('isRequired')->willReturn(true);
         $field->method('isUsedInFieldDependency')->willReturn(false);
 
@@ -102,7 +101,7 @@ final class HiddenFieldsetCheckerTest extends TestCase
         $this->detector->expects($this->once())->method('isFieldsetHidden')
             ->with($this->artifact, $this->fieldset)->willReturn(true);
 
-        $field = $this->createMock(Tracker_FormElement_Field::class);
+        $field = $this->createMock(TrackerField::class);
         $field->method('isUsedInFieldDependency')->willReturn(true);
         $field->method('isRequired')->willReturn(false);
 

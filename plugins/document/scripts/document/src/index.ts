@@ -39,6 +39,18 @@ import {
 } from "./injection-keys";
 import type { ConfigurationState } from "./store/configuration";
 import type { SearchCriterion, SearchListOption } from "./type";
+import { getRelativeDateUserPreferenceOrThrow } from "@tuleap/tlp-relative-date";
+import {
+    EMBEDDED_ARE_ALLOWED,
+    IS_STATUS_PROPERTY_USED,
+    PROJECT_ID,
+    PROJECT_NAME,
+    PROJECT_PUBLIC_NAME,
+    ROOT_ID,
+    USER_CAN_CREATE_WIKI,
+    USER_ID,
+    USER_IS_ADMIN,
+} from "./configuration-keys";
 
 interface MustacheCriterion {
     readonly name: string;
@@ -108,7 +120,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
     const csrf_token_name = getAttributeOrThrow(vue_mount_point, "data-csrf-token-name");
     const csrf_token = getAttributeOrThrow(vue_mount_point, "data-csrf-token");
-    const relative_dates_display = getAttributeOrThrow(
+    const relative_dates_display = getRelativeDateUserPreferenceOrThrow(
         vue_mount_point,
         "data-relative-dates-display",
     );
@@ -151,15 +163,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     const configuration_state: ConfigurationState = {
-        user_id,
-        project_id,
-        root_id,
-        project_name,
-        project_public_name,
-        user_is_admin,
-        user_can_create_wiki,
-        embedded_are_allowed,
-        is_status_property_used,
         is_obsolescence_date_property_used,
         project_url,
         date_time_format,
@@ -202,6 +205,15 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
     app.provide(NEW_ITEMS_ALTERNATIVES, create_new_item_alternatives);
     app.provide(OTHER_ITEM_TYPES, other_item_types);
+    app.provide(USER_ID, user_id)
+        .provide(PROJECT_ID, project_id)
+        .provide(ROOT_ID, root_id)
+        .provide(PROJECT_NAME, project_name)
+        .provide(PROJECT_PUBLIC_NAME, project_public_name)
+        .provide(USER_IS_ADMIN, user_is_admin)
+        .provide(USER_CAN_CREATE_WIKI, user_can_create_wiki)
+        .provide(EMBEDDED_ARE_ALLOWED, embedded_are_allowed)
+        .provide(IS_STATUS_PROPERTY_USED, is_status_property_used);
     app.use(VueDOMPurifyHTML);
 
     app.mount(vue_mount_point);

@@ -23,8 +23,8 @@
             <div class="tlp-pane-container">
                 <div class="tlp-pane-header">
                     <h1 class="tlp-pane-title">
-                        <i class="fa fa-tlp-baseline"></i>
-                        <span v-translate>your baselines</span>
+                        <i class="fa fa-tlp-baseline tlp-pane-title-icon"></i>
+                        {{ $gettext("your baselines") }}
                         <span
                             v-if="baselines !== null"
                             class="tlp-badge-secondary tlp-badge-outline tlp-badge-rounded tlp-tooltip tlp-tooltip-right baselines-count"
@@ -46,7 +46,7 @@
                             v-if="is_admin"
                         >
                             <i class="fa fa-plus tlp-button-icon"></i>
-                            <translate>New baseline</translate>
+                            {{ $gettext("New baseline") }}
                         </button>
                     </div>
                     <baselines-list v-bind:project_id="project_id" />
@@ -58,8 +58,8 @@
             <div class="tlp-pane-container">
                 <div class="tlp-pane-header">
                     <h1 class="tlp-pane-title">
-                        <i class="fa fa-tlp-baseline-comparison"></i>
-                        <span v-translate>Comparisons</span>
+                        <i class="fa fa-tlp-baseline-comparison tlp-pane-title-icon"></i>
+                        {{ $gettext("Comparisons") }}
                         <span
                             v-if="comparisons !== null"
                             class="tlp-badge-secondary tlp-badge-outline tlp-badge-rounded tlp-tooltip tlp-tooltip-right comparisons-count"
@@ -80,9 +80,8 @@
                             v-bind:disabled="are_baselines_loading || !are_baselines_available"
                             v-on:click="showNewComparisonModal()"
                             v-if="is_admin"
-                            v-translate
                         >
-                            Compare baselines
+                            {{ $gettext("Compare baselines") }}
                         </button>
                     </div>
                     <comparisons-list v-bind:project_id="project_id" />
@@ -109,6 +108,7 @@ export default {
     props: {
         project_id: { mandatory: true, type: Number },
     },
+    emits: ["title"],
 
     data() {
         return {

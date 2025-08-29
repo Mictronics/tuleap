@@ -27,10 +27,10 @@ use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
 use PHPUnit\Framework\MockObject\MockObject;
 use ProjectUGroup;
 use TestHelper;
-use Tracker_FormElement_Field;
 use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\Test\PHPUnit\TestCase;
-use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
+use Tuleap\Tracker\Test\Builders\Fields\SelectboxFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use UserHelper;
 
@@ -59,7 +59,7 @@ final class BindListUserValueGetterTest extends TestCase
         $ugroups       = ['group_members'];
         $bindvalue_ids = [];
 
-        $field = $this->createMock(Tracker_FormElement_Field::class);
+        $field = $this->createMock(TrackerField::class);
         $field->method('getTracker')->willReturn(null);
 
         $this->default_dao->method('getDa')->willReturn(TestHelper::emptyDa());
@@ -73,7 +73,7 @@ final class BindListUserValueGetterTest extends TestCase
         $bindvalue_ids = [];
 
         $tracker = TrackerTestBuilder::aTracker()->withId(1)->build();
-        $field   = ListFieldBuilder::aListField(3541)->inTracker($tracker)->build();
+        $field   = SelectboxFieldBuilder::aSelectboxField(3541)->inTracker($tracker)->build();
 
         $this->user_helper->expects($this->once())->method('getDisplayNameSQLOrder')->willReturn('user.user_name');
 
@@ -101,7 +101,7 @@ final class BindListUserValueGetterTest extends TestCase
         $bindvalue_ids = [];
 
         $tracker = TrackerTestBuilder::aTracker()->withId(1)->build();
-        $field   = ListFieldBuilder::aListField(354)->inTracker($tracker)->build();
+        $field   = SelectboxFieldBuilder::aSelectboxField(354)->inTracker($tracker)->build();
 
         $this->user_helper->expects($this->once())->method('getDisplayNameSQLOrder')->willReturn('user.user_name');
 
@@ -129,7 +129,7 @@ final class BindListUserValueGetterTest extends TestCase
         $bindvalue_ids = [];
 
         $tracker = TrackerTestBuilder::aTracker()->withId(1)->build();
-        $field   = ListFieldBuilder::aListField(354)->inTracker($tracker)->build();
+        $field   = SelectboxFieldBuilder::aSelectboxField(354)->inTracker($tracker)->build();
 
         $this->user_helper->expects($this->once())->method('getDisplayNameSQLOrder')->willReturn('user.user_name');
 
@@ -149,7 +149,7 @@ final class BindListUserValueGetterTest extends TestCase
         $bindvalue_ids = [];
 
         $tracker = TrackerTestBuilder::aTracker()->withId(1)->build();
-        $field   = ListFieldBuilder::aListField(652)->inTracker($tracker)->build();
+        $field   = SelectboxFieldBuilder::aSelectboxField(652)->inTracker($tracker)->build();
 
         $this->user_helper->expects($this->exactly(2))->method('getDisplayNameSQLOrder')->willReturn('user.user_name');
         $this->user_helper->method('getDisplayNameSQLQuery')->willReturn('');
@@ -175,7 +175,7 @@ final class BindListUserValueGetterTest extends TestCase
         $bindvalue_ids = [];
 
         $tracker = TrackerTestBuilder::aTracker()->withId(1)->build();
-        $field   = ListFieldBuilder::aListField(654)->inTracker($tracker)->build();
+        $field   = SelectboxFieldBuilder::aSelectboxField(654)->inTracker($tracker)->build();
 
         $this->user_helper->expects($this->once())->method('getDisplayNameSQLQuery')->willReturn('user.user_name');
         $this->user_helper->method('getDisplayNameSQLOrder')->willReturn('');
@@ -201,7 +201,7 @@ final class BindListUserValueGetterTest extends TestCase
         $bindvalue_ids = [];
 
         $tracker = TrackerTestBuilder::aTracker()->withId(1)->build();
-        $field   = ListFieldBuilder::aListField(354)->inTracker($tracker)->build();
+        $field   = SelectboxFieldBuilder::aSelectboxField(354)->inTracker($tracker)->build();
 
         $this->user_helper->expects($this->once())->method('getDisplayNameSQLOrder')->willReturn('user.user_name');
 
@@ -229,7 +229,7 @@ final class BindListUserValueGetterTest extends TestCase
         $bindvalue_ids = [];
 
         $tracker = TrackerTestBuilder::aTracker()->withId(1)->build();
-        $field   = ListFieldBuilder::aListField(354)->inTracker($tracker)->build();
+        $field   = SelectboxFieldBuilder::aSelectboxField(354)->inTracker($tracker)->build();
 
         $this->user_helper->expects($this->once())->method('getDisplayNameSQLOrder')->willReturn('user.user_name');
 
@@ -256,7 +256,7 @@ final class BindListUserValueGetterTest extends TestCase
         $ugroups = ['ugroup_109'];
 
         $tracker = TrackerTestBuilder::aTracker()->withId(1)->build();
-        $field   = ListFieldBuilder::aListField(654)->inTracker($tracker)->build();
+        $field   = SelectboxFieldBuilder::aSelectboxField(654)->inTracker($tracker)->build();
 
         $this->user_helper->expects($this->exactly(2))->method('getDisplayNameSQLOrder')->willReturn('user.user_name');
         $this->user_helper->method('getDisplayNameSQLQuery')->willReturn('');

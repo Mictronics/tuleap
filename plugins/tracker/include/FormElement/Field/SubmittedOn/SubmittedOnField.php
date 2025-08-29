@@ -29,7 +29,6 @@ use Tracker_Artifact_ChangesetValue_Date;
 use Tracker_ArtifactDao;
 use Tracker_ArtifactFactory;
 use Tracker_FormElement_DateFormatter;
-use Tracker_FormElement_Field_Date;
 use Tracker_FormElement_Field_ReadOnly;
 use Tracker_FormElement_FieldVisitor;
 use Tracker_FormElementFactory;
@@ -37,10 +36,12 @@ use Tracker_Report_Criteria;
 use Tuleap;
 use Tuleap\Option\Option;
 use Tuleap\Tracker\Artifact\Artifact;
-use Tuleap\Tracker\FormElement\Field\File\CreatedFileURLMapping;
+use Tuleap\Tracker\FormElement\Field\Date\DateField;
+use Tuleap\Tracker\FormElement\Field\Files\CreatedFileURLMapping;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
 use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
 
-class SubmittedOnField extends Tracker_FormElement_Field_Date implements Tracker_FormElement_Field_ReadOnly
+class SubmittedOnField extends DateField implements Tracker_FormElement_Field_ReadOnly
 {
     public array $default_properties = [];
 
@@ -188,7 +189,7 @@ class SubmittedOnField extends Tracker_FormElement_Field_Date implements Tracker
     }
 
     /**
-     * @see Tracker_FormElement_Field::hasChanges()
+     * @see TrackerField::hasChanges()
      */
     #[Override]
     public function hasChanges(Artifact $artifact, Tracker_Artifact_ChangesetValue $old_value, $new_value)

@@ -34,6 +34,10 @@ export type ImageProperties = {
     readonly title: string;
 };
 
+export type EmojiProperties = {
+    readonly emoji: string;
+};
+
 export type Extents = {
     from: number;
     to: number;

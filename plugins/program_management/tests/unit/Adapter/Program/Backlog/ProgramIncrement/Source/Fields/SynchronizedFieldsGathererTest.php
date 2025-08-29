@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace Tuleap\ProgramManagement\Adapter\Program\Backlog\ProgramIncrement\Source\Fields;
 
 use PHPUnit\Framework\MockObject\Stub;
-use Tracker_FormElement_Field_Date;
 use Tuleap\ProgramManagement\Domain\Program\Admin\Configuration\ConfigurationErrorsCollector;
 use Tuleap\ProgramManagement\Domain\Program\Backlog\ProgramIncrement\Source\Fields\DurationFieldReference;
 use Tuleap\ProgramManagement\Domain\Program\Backlog\ProgramIncrement\Source\Fields\EndDateFieldReference;
@@ -37,6 +36,7 @@ use Tuleap\ProgramManagement\Tests\Stub\RetrieveFullArtifactLinkFieldStub;
 use Tuleap\ProgramManagement\Tests\Stub\RetrieveFullTrackerStub;
 use Tuleap\ProgramManagement\Tests\Stub\VerifyIsTeamStub;
 use Tuleap\Test\Builders\ProjectTestBuilder;
+use Tuleap\Tracker\FormElement\Field\Date\DateField;
 use Tuleap\Tracker\FormElement\Field\Text\TextField;
 use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
 use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatusFactory;
@@ -48,7 +48,7 @@ use Tuleap\Tracker\Semantic\Timeframe\TimeframeWithEndDate;
 use Tuleap\Tracker\Test\Builders\Fields\ArtifactLinkFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\DateFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\IntegerFieldBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\SelectboxFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\StringFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\TextFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
@@ -162,7 +162,7 @@ final class SynchronizedFieldsGathererTest extends \Tuleap\Test\PHPUnit\TestCase
     {
         $status_semantic = new TrackerSemanticStatus(
             $this->tracker,
-            ListFieldBuilder::aListField(525)
+            SelectboxFieldBuilder::aSelectboxField(525)
                 ->inTracker($this->tracker)
                 ->withLabel('Kettle')
                 ->build()
@@ -265,7 +265,7 @@ final class SynchronizedFieldsGathererTest extends \Tuleap\Test\PHPUnit\TestCase
             ->build();
     }
 
-    private function getDateField(int $id, string $label): Tracker_FormElement_Field_Date
+    private function getDateField(int $id, string $label): DateField
     {
         return DateFieldBuilder::aDateField($id)
             ->inTracker($this->tracker)

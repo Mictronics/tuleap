@@ -17,6 +17,7 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import type { Mock } from "vitest";
 import { describe, expect, it, vi } from "vitest";
 import type { VueWrapper } from "@vue/test-utils";
 import { shallowMount } from "@vue/test-utils";
@@ -25,16 +26,18 @@ import { getGlobalTestOptions } from "../../tests/global-options-for-tests";
 import { PredefinedTimePeriodsVueStub } from "../../tests/stubs/PredefinedTimePeriodsVueStub";
 import { LazyboxVueStub } from "../../tests/stubs/LazyboxVueStub";
 import type { User } from "@tuleap/core-rest-api-types";
-import type { Query } from "../query/QueryRetriever";
-import { RetrieveQueryStub } from "../../tests/stubs/RetrieveQueryStub";
-import { RETRIEVE_QUERY, USER_LOCALE_KEY } from "../injection-symbols";
+import { QueryStub } from "../../tests/stubs/QueryStub";
+import { USER_LOCALE_KEY } from "../injection-symbols";
+import type { Query } from "../type";
 
-vi.mock("tlp", () => ({
-    datePicker: (): { setDate(): void } => ({
-        setDate: (): void => {
-            // Do nothing
-        },
-    }),
+vi.mock("@tuleap/tlp-date-picker", () => ({
+    datePicker(): { setDate(): void } {
+        return {
+            setDate(): void {
+                // Do nothing
+            },
+        };
+    },
 }));
 
 const mireillelabeille: User = {
@@ -56,12 +59,23 @@ const new_end_date = "2024-06-12";
 
 describe("Given a timetracking management widget query editor", () => {
     let users_list: User[] = [];
-    let query_retriever: Query;
+    let is_query_being_saved = false;
+    let query: Query;
+    let save: Mock;
+    let close: Mock;
 
     function getWidgetQueryEditorInstance(): VueWrapper {
-        query_retriever = RetrieveQueryStub.withDefaults(users_list);
+        query = QueryStub.withDefaults(users_list);
+        save = vi.fn();
+        close = vi.fn();
 
         return shallowMount(WidgetQueryEditor, {
+            props: {
+                query,
+                save,
+                close,
+                is_query_being_saved,
+            },
             global: {
                 ...getGlobalTestOptions(),
                 stubs: {
@@ -69,7 +83,6 @@ describe("Given a timetracking management widget query editor", () => {
                     "tuleap-lazybox": LazyboxVueStub,
                 },
                 provide: {
-                    [RETRIEVE_QUERY.valueOf()]: query_retriever,
                     [USER_LOCALE_KEY.valueOf()]: "en_US",
                 },
             },
@@ -83,16 +96,17 @@ describe("Given a timetracking management widget query editor", () => {
         const start_date_input = wrapper.find<HTMLInputElement>("[data-test=start-date-input]");
         const end_date_input = wrapper.find<HTMLInputElement>("[data-test=end-date-input]");
 
-        const setQuery = vi.spyOn(query_retriever, "setQuery");
-
         start_date_input.setValue(new_start_date);
         end_date_input.setValue(new_end_date);
-        wrapper.find("[data-test=search-button]").trigger("click");
+        wrapper.find("[data-test=save-button]").trigger("click");
 
-        const close_edit_mode_event = wrapper.emitted("closeEditMode");
-
-        expect(setQuery).toHaveBeenCalledWith(new_start_date, new_end_date, "", users_list);
-        expect(close_edit_mode_event).toBeDefined();
+        expect(save).toHaveBeenCalledWith({
+            start_date: new_start_date,
+            end_date: new_end_date,
+            predefined_time_period: "",
+            users_list,
+        });
+        expect(close).not.toHaveBeenCalled();
     });
 
     it("When the cancel button is clicked, setQuery should not be called and the edition mode is closed", () => {
@@ -100,11 +114,8 @@ describe("Given a timetracking management widget query editor", () => {
 
         wrapper.find("[data-test=cancel-button]").trigger("click");
 
-        const setQuery = vi.spyOn(query_retriever, "setQuery");
-        const close_edit_mode_event = wrapper.emitted("closeEditMode");
-
-        expect(setQuery).toBeCalledTimes(0);
-        expect(close_edit_mode_event).toBeDefined();
+        expect(save).not.toHaveBeenCalled();
+        expect(close).toHaveBeenCalled();
     });
 
     it("When start date is selected manually, then the selected predefined time period should be cleared", async () => {
@@ -150,5 +161,13 @@ describe("Given a timetracking management widget query editor", () => {
         const lazybox_stub = wrapper.findComponent(LazyboxVueStub);
 
         expect(lazybox_stub.vm.getInitialSelection()).toStrictEqual([]);
+    });
+
+    it(`When the query is being saved, then save button is disabled`, () => {
+        is_query_being_saved = true;
+        const wrapper = getWidgetQueryEditorInstance();
+
+        expect(wrapper.find("[data-test=save-button]").attributes("disabled")).toBeDefined();
+        expect(wrapper.find("[data-test=cancel-button]").attributes("disabled")).toBeDefined();
     });
 });

@@ -20,13 +20,16 @@
 <template>
     <div class="tlp-modal-body">
         <service-id v-bind:value="service.id" />
-        <hidden-service-shortname v-if="service.short_name" v-bind:value="service.short_name" />
+        <hidden-service-shortname
+            v-if="service.short_name"
+            v-bind:short_name="service.short_name"
+        />
         <service-label
             id="project-service-edit-modal-label"
             v-bind:value="service.label"
             v-on:input="onEditServiceLabel"
         />
-        <read-only-service-icon v-bind:value="service.icon_name" />
+        <read-only-service-icon v-bind:icon_name="service.icon_name" />
         <service-is-used
             v-if="can_update_is_used"
             id="project-service-edit-modal-enabled"
@@ -37,17 +40,12 @@
             id="project-service-edit-modal-active"
             v-bind:value="service.is_active"
         />
-        <div class="tlp-property" v-if="service.shortname">
+        <div class="tlp-property" v-if="service.short_name">
             <label class="tlp-label">{{ $gettext("Short name") }}</label>
             <span>{{ service.short_name }}</span>
         </div>
-        <read-only-service-rank v-if="is_summary_service" v-bind:value="service.rank" />
-        <service-rank
-            v-else
-            id="project-service-edit-modal-rank"
-            v-bind:minimal_rank="minimal_rank"
-            v-bind:value="service.rank"
-        />
+        <read-only-service-rank v-if="is_summary_service" v-bind:rank="service.rank" />
+        <service-rank v-else id="project-service-edit-modal-rank" v-bind:value="service.rank" />
         <service-link id="project-service-edit-modal-link" v-bind:value="service.link" />
         <service-description
             id="project-service-edit-modal-description"
@@ -55,7 +53,10 @@
         />
     </div>
 </template>
-<script>
+<script setup lang="ts">
+import { ref, computed } from "vue";
+import type { Service } from "../../type";
+import { useGettext } from "vue3-gettext";
 import ServiceId from "./ServiceId.vue";
 import HiddenServiceShortname from "./HiddenServiceShortname.vue";
 import ServiceLabel from "./ServiceLabel.vue";
@@ -66,28 +67,22 @@ import ServiceLink from "./ServiceLink.vue";
 import ServiceDescription from "./ServiceDescription.vue";
 import ReadOnlyServiceRank from "./ReadOnlyServiceRank.vue";
 import ReadOnlyServiceIcon from "./ReadOnlyServiceIcon.vue";
-import { system_service_mixin } from "./system-service-mixin.js";
-import { service_mixin } from "./service-mixin.js";
+import { ADMIN_SERVICE_SHORTNAME, SUMMARY_SERVICE_SHORTNAME } from "../../constants";
 
-export default {
-    name: "EditableSystemService",
-    components: {
-        ServiceId,
-        HiddenServiceShortname,
-        ServiceLabel,
-        ServiceIsUsed,
-        ServiceIsActive,
-        ServiceRank,
-        ReadOnlyServiceRank,
-        ServiceLink,
-        ServiceDescription,
-        ReadOnlyServiceIcon,
-    },
-    mixins: [service_mixin, system_service_mixin],
-    methods: {
-        onEditServiceLabel(new_label) {
-            this.service.label = new_label;
-        },
-    },
-};
+const { $gettext } = useGettext();
+
+const props = defineProps<{
+    service_prop: Service;
+}>();
+
+const service = ref(props.service_prop);
+
+const is_summary_service = computed(() => service.value.short_name === SUMMARY_SERVICE_SHORTNAME);
+const can_update_is_used = computed(
+    () => service.value.short_name !== ADMIN_SERVICE_SHORTNAME || !service.value.is_used,
+);
+
+function onEditServiceLabel(new_label: string): void {
+    service.value.label = new_label;
+}
 </script>

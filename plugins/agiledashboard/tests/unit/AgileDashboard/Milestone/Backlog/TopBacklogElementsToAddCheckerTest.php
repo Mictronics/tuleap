@@ -84,8 +84,6 @@ final class TopBacklogElementsToAddCheckerTest extends TestCase
             $this->user,
             $added_artifact_ids
         );
-
-        self::expectNotToPerformAssertions();
     }
 
     public function testItThrowsAnExceptionIfNoRootPlanning(): void
@@ -94,7 +92,7 @@ final class TopBacklogElementsToAddCheckerTest extends TestCase
             ->with($this->user, 101)
             ->willReturn(false);
 
-        self::expectException(NoRootPlanningException::class);
+        $this->expectException(NoRootPlanningException::class);
 
         $this->checker->checkAddedIdsBelongToTheProjectTopBacklogTrackers(
             $this->project,
@@ -111,7 +109,7 @@ final class TopBacklogElementsToAddCheckerTest extends TestCase
 
         $this->artifact_201->setTracker(TrackerTestBuilder::aTracker()->withId(999)->build());
 
-        self::expectException(ProvidedAddedIdIsNotInPartOfTopBacklogException::class);
+        $this->expectException(ProvidedAddedIdIsNotInPartOfTopBacklogException::class);
 
         $added_artifact_ids = [201, 202];
 

@@ -23,15 +23,15 @@ declare(strict_types=1);
 namespace Tuleap\Tracker\Action;
 
 use Psr\Log\NullLogger;
-use Tracker_FormElement_Field_Burndown;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\EventDispatcherStub;
 use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\FormElement\Field\Burndown\BurndownField;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\ExternalFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\IntegerFieldBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\SelectboxFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\StringFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Test\Stub\RetrieveUsedFieldsStub;
@@ -61,10 +61,10 @@ final class DryRunDuckTypingFieldCollectorTest extends TestCase
     private \Tuleap\Tracker\Tracker $destination_tracker;
     private Artifact $artifact;
     private \PFUser $user;
-    /** @var list<\Tracker_FormElement_Field> */
+    /** @var list<\Tuleap\Tracker\FormElement\Field\TrackerField> */
     private array $all_fields;
-    private \Tracker_FormElement_Field_Selectbox|\Tracker_FormElement_Field_MultiSelectbox $source_list_field;
-    private \Tracker_FormElement_Field_Selectbox|\Tracker_FormElement_Field_MultiSelectbox $destination_list_field;
+    private \Tuleap\Tracker\FormElement\Field\List\SelectboxField|\Tuleap\Tracker\FormElement\Field\List\MultiSelectboxField $source_list_field;
+    private \Tuleap\Tracker\FormElement\Field\List\SelectboxField|\Tuleap\Tracker\FormElement\Field\List\MultiSelectboxField $destination_list_field;
     private EventDispatcherStub $event_dispatcher;
     private VerifyFieldCanBeEasilyMigratedStub $verify_easily_migrated;
     private VerifyIsStaticListFieldStub $verify_static_list;
@@ -92,11 +92,11 @@ final class DryRunDuckTypingFieldCollectorTest extends TestCase
 
         $this->all_fields = [];
 
-        $this->source_list_field      = ListFieldBuilder::aListField(101)
+        $this->source_list_field      = SelectboxFieldBuilder::aSelectboxField(101)
             ->withName('field_name')
             ->inTracker($this->source_tracker)
             ->build();
-        $this->destination_list_field = ListFieldBuilder::aListField(102)
+        $this->destination_list_field = SelectboxFieldBuilder::aSelectboxField(102)
             ->withName('field_name')
             ->inTracker($this->destination_tracker)
             ->build();
@@ -186,7 +186,7 @@ final class DryRunDuckTypingFieldCollectorTest extends TestCase
 
     public function testFieldWillNotBeMigratedWhenUserCanNotUpdateField(): void
     {
-        $source_open_list = $this->createStub(\Tracker_FormElement_Field_OpenList::class);
+        $source_open_list = $this->createStub(\Tuleap\Tracker\FormElement\Field\List\OpenListField::class);
         $source_open_list->method('getId')->willReturn(12);
         $source_open_list->method('getTrackerId')->willReturn(self::SOURCE_TRACKER_ID);
         $source_open_list->method('getLabel')->willReturn('string_field');
@@ -213,7 +213,7 @@ final class DryRunDuckTypingFieldCollectorTest extends TestCase
 
     public function testFieldWillBeMigratedForReadOnlyField(): void
     {
-        $source_burndown = $this->createStub(\Tracker_FormElement_Field_Burndown::class);
+        $source_burndown = $this->createStub(\Tuleap\Tracker\FormElement\Field\Burndown\BurndownField::class);
         $source_burndown->method('getLabel')->willReturn('string_field');
         $source_burndown->method('getName')->willReturn('string_field');
         $source_burndown->method('userCanUpdate')->willReturn(false);
@@ -221,7 +221,7 @@ final class DryRunDuckTypingFieldCollectorTest extends TestCase
         $source_burndown->method('getTrackerId')->willReturn(self::SOURCE_TRACKER_ID);
         $this->all_fields = [
             $source_burndown,
-            new Tracker_FormElement_Field_Burndown(
+            new BurndownField(
                 102,
                 self::DESTINATION_TRACKER_ID,
                 null,
@@ -430,7 +430,7 @@ final class DryRunDuckTypingFieldCollectorTest extends TestCase
 
     public function testPermissionsFieldWillNotBeMigratedDestinationFieldIsNotCompatible(): void
     {
-        $source_permissions_field = $this->createStub(\Tracker_FormElement_Field_PermissionsOnArtifact::class);
+        $source_permissions_field = $this->createStub(\Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField::class);
         $source_permissions_field->method('getLabel')->willReturn('permissions');
         $source_permissions_field->method('getName')->willReturn('permissions');
         $source_permissions_field->method('getId')->willReturn(12);
@@ -438,7 +438,7 @@ final class DryRunDuckTypingFieldCollectorTest extends TestCase
 
         $this->all_fields = [
             $source_permissions_field,
-            ListFieldBuilder::aListField(1)
+            SelectboxFieldBuilder::aSelectboxField(1)
                 ->withName('permissions')
                 ->inTracker($this->destination_tracker)
                 ->build(),
@@ -453,13 +453,13 @@ final class DryRunDuckTypingFieldCollectorTest extends TestCase
 
     public function testPermissionsFieldWillNotBeMigratedIfThereIsNoPermissionToMigrate(): void
     {
-        $source_permissions_field = $this->createStub(\Tracker_FormElement_Field_PermissionsOnArtifact::class);
+        $source_permissions_field = $this->createStub(\Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField::class);
         $source_permissions_field->method('getLabel')->willReturn('permissions');
         $source_permissions_field->method('getName')->willReturn('permissions');
         $source_permissions_field->method('getId')->willReturn(12);
         $source_permissions_field->method('getTrackerId')->willReturn(self::SOURCE_TRACKER_ID);
 
-        $destination_permissions_field = $this->createStub(\Tracker_FormElement_Field_PermissionsOnArtifact::class);
+        $destination_permissions_field = $this->createStub(\Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField::class);
         $destination_permissions_field->method('getLabel')->willReturn('permissions');
         $destination_permissions_field->method('getName')->willReturn('permissions');
         $destination_permissions_field->method('userCanUpdate')->willReturn(true);
@@ -478,13 +478,13 @@ final class DryRunDuckTypingFieldCollectorTest extends TestCase
 
     public function testPermissionsFieldWillBePartiallyMigratedWhenDestinationFieldDoesNotContainAllSourceValues(): void
     {
-        $source_permissions_field = $this->createStub(\Tracker_FormElement_Field_PermissionsOnArtifact::class);
+        $source_permissions_field = $this->createStub(\Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField::class);
         $source_permissions_field->method('getLabel')->willReturn('permissions');
         $source_permissions_field->method('getName')->willReturn('permissions');
         $source_permissions_field->method('getId')->willReturn(12);
         $source_permissions_field->method('getTrackerId')->willReturn(self::SOURCE_TRACKER_ID);
 
-        $destination_permissions_field = $this->createStub(\Tracker_FormElement_Field_PermissionsOnArtifact::class);
+        $destination_permissions_field = $this->createStub(\Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField::class);
         $destination_permissions_field->method('getLabel')->willReturn('permissions');
         $destination_permissions_field->method('getName')->willReturn('permissions');
         $destination_permissions_field->method('userCanUpdate')->willReturn(true);
@@ -506,13 +506,13 @@ final class DryRunDuckTypingFieldCollectorTest extends TestCase
 
     public function testPermissionsFieldWillBeFullyMigratedWhenAllValuesAreAvailableInDestinationField(): void
     {
-        $source_permissions_field = $this->createStub(\Tracker_FormElement_Field_PermissionsOnArtifact::class);
+        $source_permissions_field = $this->createStub(\Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField::class);
         $source_permissions_field->method('getLabel')->willReturn('permissions');
         $source_permissions_field->method('getName')->willReturn('permissions');
         $source_permissions_field->method('getId')->willReturn(12);
         $source_permissions_field->method('getTrackerId')->willReturn(self::SOURCE_TRACKER_ID);
 
-        $destination_permissions_field = $this->createStub(\Tracker_FormElement_Field_PermissionsOnArtifact::class);
+        $destination_permissions_field = $this->createStub(\Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField::class);
         $destination_permissions_field->method('getLabel')->willReturn('permissions');
         $destination_permissions_field->method('getName')->willReturn('permissions');
         $destination_permissions_field->method('userCanUpdate')->willReturn(true);
@@ -535,14 +535,14 @@ final class DryRunDuckTypingFieldCollectorTest extends TestCase
 
     public function testOpenListFieldWillNotBeMigratedDestinationFieldIsNotCompatible(): void
     {
-        $source_open_list_field = $this->createStub(\Tracker_FormElement_Field_OpenList::class);
+        $source_open_list_field = $this->createStub(\Tuleap\Tracker\FormElement\Field\List\OpenListField::class);
         $source_open_list_field->method('getLabel')->willReturn('open_list');
         $source_open_list_field->method('getName')->willReturn('open_list');
         $source_open_list_field->method('getId')->willReturn(12);
         $source_open_list_field->method('getTrackerId')->willReturn(self::SOURCE_TRACKER_ID);
         $this->all_fields = [
             $source_open_list_field,
-            ListFieldBuilder::aListField(1)
+            SelectboxFieldBuilder::aSelectboxField(1)
                 ->withName('open_list')
                 ->inTracker($this->destination_tracker)
                 ->build(),
@@ -557,13 +557,13 @@ final class DryRunDuckTypingFieldCollectorTest extends TestCase
 
     public function testOpenListCanBeMigrated(): void
     {
-        $source_open_list_field = $this->createStub(\Tracker_FormElement_Field_OpenList::class);
+        $source_open_list_field = $this->createStub(\Tuleap\Tracker\FormElement\Field\List\OpenListField::class);
         $source_open_list_field->method('getLabel')->willReturn('open_list');
         $source_open_list_field->method('getName')->willReturn('open_list');
         $source_open_list_field->method('getId')->willReturn(12);
         $source_open_list_field->method('getTrackerId')->willReturn(self::SOURCE_TRACKER_ID);
 
-        $destination_open_list_field = $this->createStub(\Tracker_FormElement_Field_OpenList::class);
+        $destination_open_list_field = $this->createStub(\Tuleap\Tracker\FormElement\Field\List\OpenListField::class);
         $destination_open_list_field->method('getLabel')->willReturn('open_list');
         $destination_open_list_field->method('getName')->willReturn('open_list');
         $destination_open_list_field->method('userCanUpdate')->willReturn(true);

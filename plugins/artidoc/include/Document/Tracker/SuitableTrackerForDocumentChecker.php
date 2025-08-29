@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Tuleap\Artidoc\Document\Tracker;
 
+use Override;
 use Tuleap\Artidoc\Domain\Document\Artidoc;
 use Tuleap\NeverThrow\Err;
 use Tuleap\NeverThrow\Ok;
@@ -39,6 +40,7 @@ final readonly class SuitableTrackerForDocumentChecker implements CheckTrackerIs
     ) {
     }
 
+    #[Override]
     public function checkTrackerIsSuitableForDocument(\Tuleap\Tracker\Tracker $tracker, Artidoc $document, \PFUser $user): Ok|Err
     {
         if ($tracker->isDeleted()) {
@@ -71,14 +73,14 @@ final readonly class SuitableTrackerForDocumentChecker implements CheckTrackerIs
 
     private function areTitleAndDescriptionFieldTheOnlyRequiredFields(
         \Tuleap\Tracker\Tracker $tracker,
-        \Tracker_FormElement_Field $field_title,
-        \Tracker_FormElement_Field $description_field,
+        \Tuleap\Tracker\FormElement\Field\TrackerField $field_title,
+        \Tuleap\Tracker\FormElement\Field\TrackerField $description_field,
     ): bool {
         $title_field_id       = $field_title->getId();
         $description_field_id = $description_field->getId();
         $tracker_fields       = $this->form_element_factory->getUsedFields($tracker);
         foreach ($tracker_fields as $field) {
-            \assert($field instanceof \Tracker_FormElement_Field);
+            \assert($field instanceof \Tuleap\Tracker\FormElement\Field\TrackerField);
             if ($field->getId() === $title_field_id) {
                 continue;
             }

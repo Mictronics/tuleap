@@ -27,6 +27,7 @@ import * as tlp_modal from "@tuleap/tlp-modal";
 import { TYPE_FILE, TYPE_FOLDER } from "../../../../constants";
 import * as get_office_file from "../../../../helpers/office/get-empty-office-file";
 import { getGlobalTestOptions } from "../../../../helpers/global-options-for-test";
+import { IS_STATUS_PROPERTY_USED, PROJECT_ID } from "../../../../configuration-keys";
 
 vi.useFakeTimers();
 
@@ -96,8 +97,6 @@ describe("NewItemModal", () => {
                             },
                             configuration: {
                                 state: {
-                                    project_id: 102,
-                                    is_status_property_used: true,
                                     is_obsolescence_date_property_used: true,
                                 },
                                 namespaced: true,
@@ -107,6 +106,10 @@ describe("NewItemModal", () => {
                             current_folder,
                         },
                     }),
+                    provide: {
+                        [PROJECT_ID.valueOf()]: 102,
+                        [IS_STATUS_PROPERTY_USED.valueOf()]: true,
+                    },
                 },
             });
         };

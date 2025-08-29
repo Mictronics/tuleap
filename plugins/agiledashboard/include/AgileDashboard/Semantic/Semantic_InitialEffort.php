@@ -23,6 +23,7 @@
 
 use Tuleap\AgileDashboard\Semantic\InitialEffortSemanticAdminPresenterBuilder;
 use Tuleap\AgileDashboard\Semantic\SemanticInitialEffortPossibleFieldRetriever;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
 use Tuleap\Tracker\Semantic\TrackerSemantic;
 use Tuleap\Tracker\Semantic\TrackerSemanticManager;
 use Tuleap\Tracker\Tracker;
@@ -32,7 +33,7 @@ class AgileDashBoard_Semantic_InitialEffort extends TrackerSemantic // phpcs:ign
     public const NAME = 'initial_effort';
 
     /**
-     * @var Tracker_FormElement_Field
+     * @var TrackerField
      */
     protected $initial_effort_field;
 
@@ -42,9 +43,9 @@ class AgileDashBoard_Semantic_InitialEffort extends TrackerSemantic // phpcs:ign
      * Constructor
      *
      * @param Tracker                   $tracker              The tracker
-     * @param Tracker_FormElement_Field $initial_effort_field The field
+     * @param TrackerField $initial_effort_field The field
      */
-    public function __construct(Tracker $tracker, ?Tracker_FormElement_Field $initial_effort_field = null)
+    public function __construct(Tracker $tracker, ?TrackerField $initial_effort_field = null)
     {
         parent::__construct($tracker);
         $this->initial_effort_field = $initial_effort_field;
@@ -55,6 +56,7 @@ class AgileDashBoard_Semantic_InitialEffort extends TrackerSemantic // phpcs:ign
      *
      * @return string
      */
+    #[Override]
     public function getShortName()
     {
         return self::NAME;
@@ -65,6 +67,7 @@ class AgileDashBoard_Semantic_InitialEffort extends TrackerSemantic // phpcs:ign
      *
      * @return string
      */
+    #[Override]
     public function getLabel()
     {
         return dgettext('tuleap-agiledashboard', 'Initial Effort');
@@ -75,6 +78,7 @@ class AgileDashBoard_Semantic_InitialEffort extends TrackerSemantic // phpcs:ign
      *
      * @return string
      */
+    #[Override]
     public function getDescription()
     {
         return dgettext('tuleap-agiledashboard', 'Define the initial effort of an artifact.');
@@ -97,13 +101,14 @@ class AgileDashBoard_Semantic_InitialEffort extends TrackerSemantic // phpcs:ign
     /**
      * The (numeric) field used for initial_effort semantic
      *
-     * @return Tracker_FormElement_Field The (numeric) field used for initial_effort semantic, or null if no field
+     * @return TrackerField The (numeric) field used for initial_effort semantic, or null if no field
      */
     public function getField()
     {
         return $this->initial_effort_field;
     }
 
+    #[Override]
     public function fetchForSemanticsHomepage(): string
     {
         $html = dgettext('tuleap-agiledashboard', 'This is used in the Backlog if enabled.');
@@ -129,6 +134,7 @@ class AgileDashBoard_Semantic_InitialEffort extends TrackerSemantic // phpcs:ign
         return $html;
     }
 
+    #[Override]
     public function displayAdmin(TrackerSemanticManager $semantic_manager, TrackerManager $tracker_manager, Codendi_Request $request, PFUser $current_user): void
     {
         $this->tracker->displayAdminItemHeaderBurningParrot(
@@ -158,6 +164,7 @@ class AgileDashBoard_Semantic_InitialEffort extends TrackerSemantic // phpcs:ign
      *
      * @return void
      */
+    #[Override]
     public function process(TrackerSemanticManager $semantic_manager, TrackerManager $tracker_manager, Codendi_Request $request, PFUser $current_user)
     {
         if ($request->exist('update')) {
@@ -210,6 +217,7 @@ class AgileDashBoard_Semantic_InitialEffort extends TrackerSemantic // phpcs:ign
      *
      * @return bool true if success, false otherwise
      */
+    #[Override]
     public function save()
     {
         $dao = new AgileDashboard_Semantic_Dao_InitialEffortDao();
@@ -241,7 +249,7 @@ class AgileDashBoard_Semantic_InitialEffort extends TrackerSemantic // phpcs:ign
     }
 
     /**
-     * @return Tracker_FormElement_Field | null
+     * @return TrackerField | null
      */
     private static function getFieldFromTracker(Tracker $tracker)
     {
@@ -268,6 +276,7 @@ class AgileDashBoard_Semantic_InitialEffort extends TrackerSemantic // phpcs:ign
      *
      * @return void
      */
+    #[Override]
     public function exportToXml(SimpleXMLElement $root, $xml_mapping)
     {
         if ($this->getFieldId() && in_array($this->getFieldId(), $xml_mapping)) {
@@ -284,10 +293,11 @@ class AgileDashBoard_Semantic_InitialEffort extends TrackerSemantic // phpcs:ign
     /**
      * Is the field used in semantics?
      *
-     * @param Tracker_FormElement_Field the field to test if it is used in semantics or not
+     * @param TrackerField the field to test if it is used in semantics or not
      * @return bool returns true if the field is used in semantics, false otherwise
      */
-    public function isUsedInSemantics(Tracker_FormElement_Field $field)
+    #[Override]
+    public function isUsedInSemantics(TrackerField $field)
     {
         return $this->getFieldId() == $field->getId();
     }

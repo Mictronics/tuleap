@@ -19,6 +19,9 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use Tuleap\Tracker\FormElement\Field\List\OpenListField;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
+
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
 final class Tracker_FormElement_Field_List_OpenValue extends Tracker_FormElement_Field_List_Value
 {
@@ -52,10 +55,10 @@ final class Tracker_FormElement_Field_List_OpenValue extends Tracker_FormElement
         return $this->getLabel();
     }
 
-    public function getFullRESTValue(Tracker_FormElement_Field $field)
+    public function getFullRESTValue(TrackerField $field)
     {
-        if (! $field instanceof Tracker_FormElement_Field_OpenList) {
-            throw new InvalidArgumentException('Expected ' . Tracker_FormElement_Field_OpenList::class . ', got ' . $field::class);
+        if (! $field instanceof OpenListField) {
+            throw new InvalidArgumentException('Expected ' . OpenListField::class . ', got ' . $field::class);
         }
         return [
             'id'    => $this->getJsonId(),

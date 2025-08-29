@@ -34,13 +34,13 @@
                 </div>
                 <div class="breadcrumb-item" v-bind:class="{ 'breadcrumb-switchable': is_admin }">
                     <router-link v-bind:to="{ name: 'IndexPage' }" class="breadcrumb-link">
-                        <translate>Baselines</translate>
+                        {{ $gettext("Baselines") }}
                     </router-link>
                     <div class="breadcrumb-switch-menu-container" v-if="is_admin">
                         <nav class="breadcrumb-switch-menu">
                             <span class="breadcrumb-dropdown-item">
                                 <a class="breadcrumb-dropdown-link" v-bind:href="admin_url">
-                                    <translate>Administration</translate>
+                                    {{ $gettext("Administration") }}
                                 </a>
                             </span>
                         </nav>
@@ -53,7 +53,7 @@
                 </div>
             </nav>
         </div>
-        <h1 class="baseline-title-header" v-translate>Baselines</h1>
+        <h1 class="baseline-title-header">{{ $gettext("Baselines") }}</h1>
 
         <main class="tlp-framed-vertically">
             <div class="tlp-framed-horizontally">
@@ -70,7 +70,8 @@
 import { mapState } from "vuex";
 import NotificationAlert from "./NotificationAlert.vue";
 import BaselineModal from "./layout/BaselineModal.vue";
-import { BreadcrumbPrivacy } from "@tuleap/vue-breadcrumb-privacy";
+import { BreadcrumbPrivacy } from "@tuleap/vue3-breadcrumb-privacy";
+import { useRoute } from "vue-router";
 
 export default {
     name: "App",
@@ -109,6 +110,10 @@ export default {
             type: String,
         },
     },
+    setup() {
+        const route = useRoute();
+        return { route };
+    },
     data() {
         return {
             current_page_title: null,
@@ -117,7 +122,7 @@ export default {
     computed: {
         ...mapState("dialog_interface", ["notification"]),
         is_current_page_root() {
-            return this.$route.name === "IndexPage";
+            return this.route.name === "IndexPage";
         },
     },
     methods: {

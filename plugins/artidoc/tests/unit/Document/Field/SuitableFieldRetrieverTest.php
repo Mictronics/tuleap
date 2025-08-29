@@ -24,10 +24,7 @@ namespace Tuleap\Artidoc\Document\Field;
 
 use PFUser;
 use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
-use Tracker_FormElement_Field_Date;
-use Tracker_FormElement_Field_List;
 use Tracker_FormElement_Field_List_Bind_Null;
-use Tracker_FormElement_Field_PermissionsOnArtifact;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldIsDescriptionSemanticFault;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldIsTitleSemanticFault;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldNotFoundFault;
@@ -40,9 +37,14 @@ use Tuleap\NeverThrow\Result;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\TestManagement\Step\Definition\Field\StepsDefinition;
+use Tuleap\TestManagement\Step\Execution\Field\StepsExecution;
 use Tuleap\TestManagement\Test\Builders\StepsDefinitionFieldBuilder;
+use Tuleap\TestManagement\Test\Builders\StepsExecutionFieldBuilder;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
+use Tuleap\Tracker\FormElement\Field\Date\DateField;
+use Tuleap\Tracker\FormElement\Field\ListField;
 use Tuleap\Tracker\FormElement\Field\NumericField;
+use Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField;
 use Tuleap\Tracker\FormElement\Field\Text\TextField;
 use Tuleap\Tracker\Semantic\Title\RetrieveSemanticTitleField;
 use Tuleap\Tracker\Test\Builders\Fields\ArtifactIdFieldBuilder;
@@ -57,10 +59,11 @@ use Tuleap\Tracker\Test\Builders\Fields\LastUpdateDateFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListUserBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListUserGroupBindBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\MultiSelectboxFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\PermissionsOnArtifactFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\PerTrackerArtifactIdFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\PriorityFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\SelectboxFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\StringFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\SubmittedByFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\SubmittedOnFieldBuilder;
@@ -92,7 +95,7 @@ final class SuitableFieldRetrieverTest extends TestCase
     }
 
     /**
-     * @return Ok<TextField> | Ok<Tracker_FormElement_Field_List> | Ok<ArtifactLinkField> | OK<NumericField> | Ok<Tracker_FormElement_Field_Date> | OK<Tracker_FormElement_Field_PermissionsOnArtifact> | Ok<StepsDefinition> | Err<Fault>
+     * @return Ok<TextField> | Ok<ListField> | Ok<ArtifactLinkField> | OK<NumericField> | Ok<DateField> | OK<PermissionsOnArtifactField> | Ok<StepsDefinition> | Ok<StepsExecution> | Err<Fault>
      */
     private function retrieve(): Ok|Err
     {
@@ -182,8 +185,7 @@ final class SuitableFieldRetrieverTest extends TestCase
     public function testItAllowsListFieldBoundToUserGroups(): void
     {
         $list_field            = ListUserGroupBindBuilder::aUserGroupBind(
-            ListFieldBuilder::aListField(self::FIELD_ID)
-                ->withMultipleValues()
+            MultiSelectboxFieldBuilder::aMultiSelectboxField(self::FIELD_ID)
                 ->inTracker($this->tracker)
                 ->withReadPermission($this->user, true)
                 ->build(),
@@ -198,8 +200,7 @@ final class SuitableFieldRetrieverTest extends TestCase
     public function testItAllowsListFieldBoundToStaticValues(): void
     {
         $list_field            = ListStaticBindBuilder::aStaticBind(
-            ListFieldBuilder::aListField(self::FIELD_ID)
-                ->withMultipleValues()
+            MultiSelectboxFieldBuilder::aMultiSelectboxField(self::FIELD_ID)
                 ->inTracker($this->tracker)
                 ->withReadPermission($this->user, true)
                 ->build(),
@@ -214,7 +215,7 @@ final class SuitableFieldRetrieverTest extends TestCase
     public function testItAllowsListFieldBoundToUsers(): void
     {
         $list_field            = ListUserBindBuilder::aUserBind(
-            ListFieldBuilder::aListField(self::FIELD_ID)
+            SelectboxFieldBuilder::aSelectboxField(self::FIELD_ID)
                 ->inTracker($this->tracker)
                 ->withReadPermission($this->user, true)
                 ->build(),
@@ -228,7 +229,7 @@ final class SuitableFieldRetrieverTest extends TestCase
 
     public function testItDoesNotAllowListFieldWithNullBind(): void
     {
-        $list_field = ListFieldBuilder::aListField(self::FIELD_ID)
+        $list_field = SelectboxFieldBuilder::aSelectboxField(self::FIELD_ID)
             ->inTracker($this->tracker)
             ->withReadPermission($this->user, true)
             ->build();
@@ -241,7 +242,7 @@ final class SuitableFieldRetrieverTest extends TestCase
 
     public function testItDoesNotAllowListFieldWithoutBind(): void
     {
-        $list_field = $this->createMock(Tracker_FormElement_Field_List::class);
+        $list_field = $this->createMock(ListField::class);
         $list_field->method('getId')->willReturn(self::FIELD_ID);
         $list_field->method('userCanRead')->with($this->user)->willReturn(true);
         $list_field->method('getBind')->willReturn(null);
@@ -434,16 +435,29 @@ final class SuitableFieldRetrieverTest extends TestCase
         self::assertSame($permissions_field, $result->value);
     }
 
-    public function testItAllowsStepDefinitionField(): void
+    public function testItAllowsStepsDefinitionField(): void
     {
-        $step_definition_field = StepsDefinitionFieldBuilder::aStepsDefinitionField(self::FIELD_ID)
+        $steps_definition_field = StepsDefinitionFieldBuilder::aStepsDefinitionField(self::FIELD_ID)
             ->inTracker($this->tracker)
             ->withReadPermission($this->user, true)
             ->build();
-        $this->field_retriever = RetrieveUsedFieldsStub::withFields($step_definition_field);
+        $this->field_retriever  = RetrieveUsedFieldsStub::withFields($steps_definition_field);
 
         $result = $this->retrieve();
         self::assertTrue(Result::isOk($result));
-        self::assertSame($step_definition_field, $result->value);
+        self::assertSame($steps_definition_field, $result->value);
+    }
+
+    public function testItAllowsStepsExecutionField(): void
+    {
+        $steps_execution_field = StepsExecutionFieldBuilder::aStepsExecutionField(self::FIELD_ID)
+            ->inTracker($this->tracker)
+            ->withReadPermission($this->user, true)
+            ->build();
+        $this->field_retriever = RetrieveUsedFieldsStub::withFields($steps_execution_field);
+
+        $result = $this->retrieve();
+        self::assertTrue(Result::isOk($result));
+        self::assertSame($steps_execution_field, $result->value);
     }
 }

@@ -26,7 +26,6 @@ use Codendi_HTMLPurifier;
 use PFUser;
 use PHPUnit\Framework\Attributes\TestWith;
 use Tracker_Artifact_Changeset;
-use Tracker_FormElement_Field_File;
 use Tuleap\Artidoc\Adapter\Document\ArtidocDocument;
 use Tuleap\Artidoc\Adapter\Document\Section\RequiredSectionInformationCollector;
 use Tuleap\Artidoc\Document\Field\ArtifactLink\ArtifactLinkFieldWithValueBuilder;
@@ -39,7 +38,8 @@ use Tuleap\Artidoc\Document\Field\List\UserGroupListWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\List\UserListFieldWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\Numeric\NumericFieldWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\Permissions\PermissionsOnArtifactFieldWithValueBuilder;
-use Tuleap\Artidoc\Document\Field\StepDefinition\StepsDefinitionFieldWithValueBuilder;
+use Tuleap\Artidoc\Document\Field\StepsDefinition\StepsDefinitionFieldWithValueBuilder;
+use Tuleap\Artidoc\Document\Field\StepsExecution\StepsExecutionFieldWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\User\UserFieldWithValueBuilder;
 use Tuleap\Artidoc\Domain\Document\ArtidocWithContext;
 use Tuleap\Artidoc\Domain\Document\Section\PaginatedRetrievedSections;
@@ -66,6 +66,7 @@ use Tuleap\Test\Stubs\User\Avatar\ProvideUserAvatarUrlStub;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Artifact\ChangesetValue\Text\TextValueInterpreter;
 use Tuleap\Tracker\Artifact\UploadDataAttributesForRichTextEditorBuilder;
+use Tuleap\Tracker\FormElement\Field\Files\FilesField;
 use Tuleap\Tracker\FormElement\Field\String\StringField;
 use Tuleap\Tracker\FormElement\Field\Text\TextField;
 use Tuleap\Tracker\REST\Artifact\ArtifactFieldValueFileFullRepresentation;
@@ -120,6 +121,7 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
         $provide_user_avatar_url         = ProvideUserAvatarUrlStub::build();
         $provide_default_user_avatar_url = ProvideDefaultUserAvatarUrlStub::build();
         $purifier                        = Codendi_HTMLPurifier::instance();
+        $text_value_interpreter          = new TextValueInterpreter($purifier, CommonMarkInterpreter::build($purifier));
         $transformer                     = new RetrievedSectionsToRepresentationTransformer(
             new SectionRepresentationBuilder(
                 new ArtifactSectionRepresentationBuilder(
@@ -151,7 +153,8 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
                         ),
                         new DateFieldWithValueBuilder($this->user),
                         new PermissionsOnArtifactFieldWithValueBuilder(),
-                        new StepsDefinitionFieldWithValueBuilder(new TextValueInterpreter($purifier, CommonMarkInterpreter::build($purifier))),
+                        new StepsDefinitionFieldWithValueBuilder($text_value_interpreter),
+                        new StepsExecutionFieldWithValueBuilder($text_value_interpreter),
                     )
                 ),
             ),
@@ -243,7 +246,7 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
             ->build();
         $this->retrieve_description_field->withDescriptionField($description_field);
 
-        $file = $this->createMock(Tracker_FormElement_Field_File::class);
+        $file = $this->createMock(FilesField::class);
         $file->method('getId')->willReturn(600);
         $file->method('getLabel')->willReturn('Attachments');
         $this->file_upload_provider = GetFileUploadDataStub::withField($file);
@@ -312,7 +315,7 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
             ->build();
         $this->retrieve_description_field->withDescriptionField($description_field);
 
-        $file = $this->createMock(Tracker_FormElement_Field_File::class);
+        $file = $this->createMock(FilesField::class);
         $file->method('getId')->willReturn(600);
         $file->method('getLabel')->willReturn('Attachments');
         $this->file_upload_provider = GetFileUploadDataStub::withField($file);
@@ -357,7 +360,7 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
             ->build();
         $this->retrieve_description_field->withDescriptionField($description_field);
 
-        $file = $this->createMock(Tracker_FormElement_Field_File::class);
+        $file = $this->createMock(FilesField::class);
         $file->method('getId')->willReturn(600);
         $file->method('getLabel')->willReturn('Attachments');
         $this->file_upload_provider = GetFileUploadDataStub::withField($file);
@@ -402,7 +405,7 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
             ->build();
         $this->retrieve_description_field->withDescriptionField($description_field);
 
-        $file = $this->createMock(Tracker_FormElement_Field_File::class);
+        $file = $this->createMock(FilesField::class);
         $file->method('getId')->willReturn(600);
         $file->method('getLabel')->willReturn('Attachments');
         $this->file_upload_provider = GetFileUploadDataStub::withField($file);
@@ -463,7 +466,7 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
             ->build();
         $this->retrieve_description_field->withDescriptionField($description_field);
 
-        $file = $this->createMock(Tracker_FormElement_Field_File::class);
+        $file = $this->createMock(FilesField::class);
         $file->method('getId')->willReturn(600);
         $file->method('getLabel')->willReturn('Attachments');
         $this->file_upload_provider = GetFileUploadDataStub::withField($file);
@@ -765,7 +768,7 @@ final class RetrievedSectionsToRepresentationTransformerTest extends TestCase
         self::assertCount(0, $result->value->sections);
     }
 
-    private function getFileValue(Tracker_FormElement_Field_File $field, Artifact $artifact): ArtifactFieldValueFileFullRepresentation
+    private function getFileValue(FilesField $field, Artifact $artifact): ArtifactFieldValueFileFullRepresentation
     {
         return ArtifactFieldValueFileFullRepresentation::fromValues($field, [
             new FileInfoRepresentation(

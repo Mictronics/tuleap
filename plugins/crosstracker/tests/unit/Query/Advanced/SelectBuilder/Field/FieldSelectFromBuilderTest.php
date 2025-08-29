@@ -31,20 +31,20 @@ use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Field\StaticList\StaticList
 use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Field\Text\TextSelectFromBuilder;
 use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Field\UGroupList\UGroupListSelectFromBuilder;
 use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Field\UserList\UserListSelectFromBuilder;
-use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\IProvideParametrizedSelectAndFromSQLFragments;
+use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\IProvideParametrizedSelectAndFromAndWhereSQLFragments;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Permission\FieldPermissionType;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\Field;
 use Tuleap\Tracker\Test\Builders\Fields\ArtifactLinkFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\DateFieldBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\FileFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\FilesFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\FloatFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\IntegerFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListUserBindBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListUserGroupBindBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\SelectboxFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\TextFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Test\Stub\Permission\RetrieveUserPermissionOnFieldsStub;
@@ -72,7 +72,7 @@ final class FieldSelectFromBuilderTest extends TestCase
 
     private function getSelectFrom(
         RetrieveUsedFieldsStub $fields_retriever,
-    ): IProvideParametrizedSelectAndFromSQLFragments {
+    ): IProvideParametrizedSelectAndFromAndWhereSQLFragments {
         $tuleap_db = $this->createStub(EasyDB::class);
         $tuleap_db->method('escapeIdentifier');
         $builder = new FieldSelectFromBuilder(
@@ -105,7 +105,7 @@ final class FieldSelectFromBuilderTest extends TestCase
                     ->withName(self::FIELD_NAME)
                     ->inTracker($this->first_tracker)
                     ->build(),
-                FileFieldBuilder::aFileField(self::SECOND_FIELD_ID)
+                FilesFieldBuilder::aFileField(self::SECOND_FIELD_ID)
                     ->withName(self::FIELD_NAME)
                     ->inTracker($this->second_tracker)
                     ->withReadPermission($this->user, true)
@@ -185,14 +185,14 @@ final class FieldSelectFromBuilderTest extends TestCase
     {
         $fields_retriever = RetrieveUsedFieldsStub::withFields(
             ListStaticBindBuilder::aStaticBind(
-                ListFieldBuilder::aListField(self::FIRST_FIELD_ID)
+                SelectboxFieldBuilder::aSelectboxField(self::FIRST_FIELD_ID)
                     ->withName(self::FIELD_NAME)
                     ->inTracker($this->first_tracker)
                     ->withReadPermission($this->user, true)
                     ->build()
             )->build()->getField(),
             ListStaticBindBuilder::aStaticBind(
-                ListFieldBuilder::aListField(self::SECOND_FIELD_ID)
+                SelectboxFieldBuilder::aSelectboxField(self::SECOND_FIELD_ID)
                     ->withName(self::FIELD_NAME)
                     ->inTracker($this->second_tracker)
                     ->withReadPermission($this->user, true)
@@ -210,14 +210,14 @@ final class FieldSelectFromBuilderTest extends TestCase
     {
         $fields_retriever = RetrieveUsedFieldsStub::withFields(
             ListUserGroupBindBuilder::aUserGroupBind(
-                ListFieldBuilder::aListField(self::FIRST_FIELD_ID)
+                SelectboxFieldBuilder::aSelectboxField(self::FIRST_FIELD_ID)
                     ->withName(self::FIELD_NAME)
                     ->inTracker($this->first_tracker)
                     ->withReadPermission($this->user, true)
                     ->build()
             )->build()->getField(),
             ListUserGroupBindBuilder::aUserGroupBind(
-                ListFieldBuilder::aListField(self::SECOND_FIELD_ID)
+                SelectboxFieldBuilder::aSelectboxField(self::SECOND_FIELD_ID)
                     ->withName(self::FIELD_NAME)
                     ->inTracker($this->second_tracker)
                     ->withReadPermission($this->user, true)
@@ -235,14 +235,14 @@ final class FieldSelectFromBuilderTest extends TestCase
     {
         $fields_retriever = RetrieveUsedFieldsStub::withFields(
             ListUserBindBuilder::aUserBind(
-                ListFieldBuilder::aListField(self::FIRST_FIELD_ID)
+                SelectboxFieldBuilder::aSelectboxField(self::FIRST_FIELD_ID)
                     ->withName(self::FIELD_NAME)
                     ->inTracker($this->first_tracker)
                     ->withReadPermission($this->user, true)
                     ->build()
             )->build()->getField(),
             ListUserBindBuilder::aUserBind(
-                ListFieldBuilder::aListField(self::SECOND_FIELD_ID)
+                SelectboxFieldBuilder::aSelectboxField(self::SECOND_FIELD_ID)
                     ->withName(self::FIELD_NAME)
                     ->inTracker($this->second_tracker)
                     ->withReadPermission($this->user, true)
@@ -260,13 +260,13 @@ final class FieldSelectFromBuilderTest extends TestCase
     {
         $fields_retriever = RetrieveUsedFieldsStub::withFields(
             ListUserBindBuilder::aUserBind(
-                ListFieldBuilder::aListField(self::FIRST_FIELD_ID)
+                SelectboxFieldBuilder::aSelectboxField(self::FIRST_FIELD_ID)
                     ->withName(self::FIELD_NAME)
                     ->withReadPermission($this->user, true)
                     ->build()
             )->build()->getField(),
             ListUserBindBuilder::aUserBind(
-                ListFieldBuilder::aListField(self::SECOND_FIELD_ID)
+                SelectboxFieldBuilder::aSelectboxField(self::SECOND_FIELD_ID)
                     ->withName(self::FIELD_NAME)
                     ->withReadPermission($this->user, true)
                     ->build()

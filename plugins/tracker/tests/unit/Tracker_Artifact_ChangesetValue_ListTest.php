@@ -26,23 +26,23 @@ namespace Tuleap\Tracker;
 use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
 use Tracker_Artifact_Changeset;
 use Tracker_Artifact_ChangesetValue_List;
-use Tracker_FormElement_Field_List;
 use Tracker_FormElement_Field_List_BindValue;
 use Tuleap\Test\PHPUnit\TestCase;
+use Tuleap\Tracker\FormElement\Field\ListField;
 use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticValueBuilder;
-use Tuleap\Tracker\Test\Builders\Fields\ListFieldBuilder;
+use Tuleap\Tracker\Test\Builders\Fields\SelectboxFieldBuilder;
 
 #[DisableReturnValueGenerationForTestDoubles]
 final class Tracker_Artifact_ChangesetValue_ListTest extends TestCase // phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
 {
-    private Tracker_FormElement_Field_List $field;
+    private ListField $field;
     private Tracker_Artifact_Changeset $changeset;
 
     protected function setUp(): void
     {
         $this->changeset = ChangesetTestBuilder::aChangeset(12)->build();
-        $this->field     = ListFieldBuilder::aListField(852)->build();
+        $this->field     = SelectboxFieldBuilder::aSelectboxField(852)->build();
     }
 
     public function testNoDiff(): void

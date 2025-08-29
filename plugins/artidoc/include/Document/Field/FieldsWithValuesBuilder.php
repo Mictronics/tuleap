@@ -29,26 +29,29 @@ use Tracker_Artifact_ChangesetValue_List;
 use Tracker_Artifact_ChangesetValue_Numeric;
 use Tracker_Artifact_ChangesetValue_PermissionsOnArtifact;
 use Tracker_Artifact_ChangesetValue_Text;
-use Tracker_FormElement_Field_Date;
-use Tracker_FormElement_Field_LastModifiedBy;
-use Tracker_FormElement_Field_List;
-use Tracker_FormElement_Field_PermissionsOnArtifact;
-use Tracker_FormElement_Field_SubmittedBy;
 use Tuleap\Artidoc\Document\Field\ArtifactLink\ArtifactLinkFieldWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\Date\DateFieldWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\List\ListFieldWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\Numeric\NumericFieldWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\Permissions\PermissionsOnArtifactFieldWithValueBuilder;
-use Tuleap\Artidoc\Document\Field\StepDefinition\StepsDefinitionFieldWithValueBuilder;
+use Tuleap\Artidoc\Document\Field\StepsDefinition\StepsDefinitionFieldWithValueBuilder;
+use Tuleap\Artidoc\Document\Field\StepsExecution\StepsExecutionFieldWithValueBuilder;
 use Tuleap\Artidoc\Document\Field\User\UserFieldWithValueBuilder;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldWithValue\FieldWithValue;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldWithValue\TextFieldWithValue;
 use Tuleap\TestManagement\Step\Definition\Field\StepsDefinition;
 use Tuleap\TestManagement\Step\Definition\Field\StepsDefinitionChangesetValue;
+use Tuleap\TestManagement\Step\Execution\Field\StepsExecution;
+use Tuleap\TestManagement\Step\Execution\Field\StepsExecutionChangesetValue;
 use Tuleap\Tracker\Artifact\Changeset\ArtifactLink\ArtifactLinkChangesetValue;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
-use Tuleap\Tracker\FormElement\Field\Text\TextField;
+use Tuleap\Tracker\FormElement\Field\Date\DateField;
+use Tuleap\Tracker\FormElement\Field\LastUpdateBy\LastUpdateByField;
+use Tuleap\Tracker\FormElement\Field\ListField;
 use Tuleap\Tracker\FormElement\Field\NumericField;
+use Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField;
+use Tuleap\Tracker\FormElement\Field\SubmittedBy\SubmittedByField;
+use Tuleap\Tracker\FormElement\Field\Text\TextField;
 
 final readonly class FieldsWithValuesBuilder implements GetFieldsWithValues
 {
@@ -61,6 +64,7 @@ final readonly class FieldsWithValuesBuilder implements GetFieldsWithValues
         private DateFieldWithValueBuilder $date_field_with_value_builder,
         private PermissionsOnArtifactFieldWithValueBuilder $permissions_on_artifact_field_with_value_builder,
         private StepsDefinitionFieldWithValueBuilder $step_definition_field_with_value_builder,
+        private StepsExecutionFieldWithValueBuilder $steps_execution_field_with_value_builder,
     ) {
     }
 
@@ -100,13 +104,13 @@ final readonly class FieldsWithValuesBuilder implements GetFieldsWithValues
         }
 
         if (
-            $configured_field->field instanceof Tracker_FormElement_Field_LastModifiedBy
-            || $configured_field->field instanceof Tracker_FormElement_Field_SubmittedBy
+            $configured_field->field instanceof LastUpdateByField
+            || $configured_field->field instanceof SubmittedByField
         ) {
             return [...$fields, $this->user_field_with_value_builder->buildUserFieldWithValue($configured_field, $changeset)];
         }
 
-        if ($configured_field->field instanceof Tracker_FormElement_Field_List) {
+        if ($configured_field->field instanceof ListField) {
             assert($changeset_value === null || $changeset_value instanceof Tracker_Artifact_ChangesetValue_List);
             return [...$fields, $this->list_field_with_value_builder->buildListFieldWithValue($configured_field, $changeset_value)];
         }
@@ -121,12 +125,12 @@ final readonly class FieldsWithValuesBuilder implements GetFieldsWithValues
             return [...$fields, $this->numeric_field_with_value_builder->buildNumericFieldWithValue($configured_field, $changeset->getArtifact(), $changeset_value)];
         }
 
-        if ($configured_field->field instanceof Tracker_FormElement_Field_Date) {
+        if ($configured_field->field instanceof DateField) {
             assert($changeset_value === null || $changeset_value instanceof Tracker_Artifact_ChangesetValue_Date);
             return [...$fields, $this->date_field_with_value_builder->buildDateFieldWithValue($configured_field, $changeset, $changeset_value)];
         }
 
-        if ($configured_field->field instanceof Tracker_FormElement_Field_PermissionsOnArtifact) {
+        if ($configured_field->field instanceof PermissionsOnArtifactField) {
             assert($changeset_value === null || $changeset_value instanceof Tracker_Artifact_ChangesetValue_PermissionsOnArtifact);
             return [...$fields, $this->permissions_on_artifact_field_with_value_builder->buildPermissionsOnArtifactFieldWithValue($configured_field, $changeset_value)];
         }
@@ -134,6 +138,11 @@ final readonly class FieldsWithValuesBuilder implements GetFieldsWithValues
         if ($configured_field->field instanceof StepsDefinition) {
             assert($changeset_value === null || $changeset_value instanceof StepsDefinitionChangesetValue);
             return [...$fields, $this->step_definition_field_with_value_builder->buildStepsDefinitionFieldWithValue($configured_field, $changeset_value)];
+        }
+
+        if ($configured_field->field instanceof StepsExecution) {
+            assert($changeset_value === null || $changeset_value instanceof StepsExecutionChangesetValue);
+            return [...$fields, $this->steps_execution_field_with_value_builder->buildStepsExecutionFieldWithValue($configured_field, $changeset_value)];
         }
 
         return $fields;

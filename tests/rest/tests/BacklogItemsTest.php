@@ -18,6 +18,8 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/
  */
 
+use Tuleap\REST\RESTTestDataBuilder;
+use Tuleap\REST\RestBase;
 
 /**
  * @group BacklogItemsTest
@@ -55,7 +57,7 @@ class BacklogItemsTest extends RestBase  //phpcs:ignore PSR1.Classes.ClassDeclar
     {
         $response = $this->getResponse(
             $this->request_factory->createRequest('OPTIONS', 'backlog_items/' . $this->stories_ids[0]),
-            REST_TestDataBuilder::TEST_BOT_USER_NAME
+            RESTTestDataBuilder::TEST_BOT_USER_NAME
         );
 
         self::assertEqualsCanonicalizing(['OPTIONS', 'GET'], explode(', ', $response->getHeaderLine('Allow')));
@@ -72,7 +74,7 @@ class BacklogItemsTest extends RestBase  //phpcs:ignore PSR1.Classes.ClassDeclar
     {
         $response = $this->getResponse(
             $this->request_factory->createRequest('GET', 'backlog_items/' . $this->stories_ids[0]),
-            REST_TestDataBuilder::TEST_BOT_USER_NAME
+            RESTTestDataBuilder::TEST_BOT_USER_NAME
         );
 
         $this->assertGET($response);
@@ -96,7 +98,7 @@ class BacklogItemsTest extends RestBase  //phpcs:ignore PSR1.Classes.ClassDeclar
     {
         $response = $this->getResponse(
             $this->request_factory->createRequest('OPTIONS', 'backlog_items/' . $this->stories_ids[0] . '/children'),
-            REST_TestDataBuilder::TEST_BOT_USER_NAME
+            RESTTestDataBuilder::TEST_BOT_USER_NAME
         );
 
         self::assertEqualsCanonicalizing(['OPTIONS', 'GET', 'PATCH'], explode(', ', $response->getHeaderLine('Allow')));
@@ -117,7 +119,7 @@ class BacklogItemsTest extends RestBase  //phpcs:ignore PSR1.Classes.ClassDeclar
     {
         $response = $this->getResponse(
             $this->request_factory->createRequest('GET', 'backlog_items/' . $this->stories_ids[0] . '/children'),
-            REST_TestDataBuilder::TEST_BOT_USER_NAME
+            RESTTestDataBuilder::TEST_BOT_USER_NAME
         );
 
         $backlog_items = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
@@ -125,7 +127,7 @@ class BacklogItemsTest extends RestBase  //phpcs:ignore PSR1.Classes.ClassDeclar
 
         $response = $this->getResponse(
             $this->request_factory->createRequest('GET', 'backlog_items/' . $this->stories_ids[1] . '/children'),
-            REST_TestDataBuilder::TEST_BOT_USER_NAME
+            RESTTestDataBuilder::TEST_BOT_USER_NAME
         );
 
         $this->assertGETChildren($response);
@@ -147,7 +149,7 @@ class BacklogItemsTest extends RestBase  //phpcs:ignore PSR1.Classes.ClassDeclar
         $uri      = 'backlog_items/' . $this->stories_ids[1] . '/children';
         $response = $this->getResponse(
             $this->request_factory->createRequest('GET', $uri),
-            REST_TestDataBuilder::TEST_BOT_USER_NAME
+            RESTTestDataBuilder::TEST_BOT_USER_NAME
         );
 
         $backlog_items = json_decode($response->getBody()->getContents(), true, 512, JSON_THROW_ON_ERROR);
@@ -170,7 +172,7 @@ class BacklogItemsTest extends RestBase  //phpcs:ignore PSR1.Classes.ClassDeclar
         $response = $this->getResponse(
             $this->request_factory->createRequest('PATCH', $uri)
                 ->withBody($this->stream_factory->createStream($patch_body)),
-            REST_TestDataBuilder::TEST_BOT_USER_NAME
+            RESTTestDataBuilder::TEST_BOT_USER_NAME
         );
 
         $this->assertEquals(403, $response->getStatusCode());
