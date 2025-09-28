@@ -20,7 +20,6 @@
 
 namespace Tuleap\SVN\Events;
 
-use Backend;
 use EventManager;
 use Project;
 use ProjectManager;
@@ -29,7 +28,7 @@ use SystemEvent;
 use Tuleap\SVN\AccessControl\AccessFileHistoryDao;
 use Tuleap\SVN\AccessControl\AccessFileHistoryFactory;
 use Tuleap\SVN\Repository\Destructor;
-use Tuleap\SVNCore\ApacheConfGenerator;
+use Tuleap\SVN\Apache\ApacheConfGenerator;
 use Tuleap\SVN\Dao;
 use Tuleap\SVN\Repository\RepositoryManager;
 use Tuleap\SVN\SvnAdmin;
@@ -38,6 +37,7 @@ class SystemEvent_SVN_RESTORE_REPOSITORY extends SystemEvent //phpcs:ignore
 {
     public const NAME = 'SystemEvent_SVN_RESTORE_REPOSITORY';
 
+    #[\Override]
     public function process()
     {
         $parameters = $this->getParametersAsArray();
@@ -71,6 +71,7 @@ class SystemEvent_SVN_RESTORE_REPOSITORY extends SystemEvent //phpcs:ignore
         return true;
     }
 
+    #[\Override]
     public function verbalizeParameters($with_link)
     {
         $project_id    = $this->getRequiredParameter(0);
@@ -86,6 +87,7 @@ class SystemEvent_SVN_RESTORE_REPOSITORY extends SystemEvent //phpcs:ignore
         return $repository_manager->getByIdAndProject($repository_id, $project);
     }
 
+    #[\Override]
     protected function getProject($project_id)
     {
         $project_manager = ProjectManager::instance();
@@ -98,7 +100,7 @@ class SystemEvent_SVN_RESTORE_REPOSITORY extends SystemEvent //phpcs:ignore
         return new RepositoryManager(
             new Dao(),
             ProjectManager::instance(),
-            new SvnAdmin(new System_Command(), \SvnPlugin::getLogger(), Backend::instanceSVN()),
+            new SvnAdmin(new System_Command(), \SvnPlugin::getLogger(), \Tuleap\SVN\BackendSVN::instance()),
             \SvnPlugin::getLogger(),
             new System_Command(),
             new Destructor(
@@ -106,7 +108,7 @@ class SystemEvent_SVN_RESTORE_REPOSITORY extends SystemEvent //phpcs:ignore
                 \SvnPlugin::getLogger()
             ),
             EventManager::instance(),
-            Backend::instanceSVN(),
+            \Tuleap\SVN\BackendSVN::instance(),
             new AccessFileHistoryFactory(new AccessFileHistoryDao()),
         );
     }

@@ -44,14 +44,8 @@ use Tuleap\Project\Admin\Navigation\NavigationDropdownQuickLinksCollector;
 use Tuleap\Project\Admin\PermissionsPerGroup\PermissionPerGroupPaneCollector;
 use Tuleap\Project\Admin\PermissionsPerGroup\PermissionPerGroupUGroupFormatter;
 use Tuleap\Project\Admin\ProjectUGroup\UserAndProjectUGroupRelationshipEvent;
-use Tuleap\Project\Admin\ProjectUGroup\UserBecomesForumAdmin;
-use Tuleap\Project\Admin\ProjectUGroup\UserBecomesNewsAdministrator;
-use Tuleap\Project\Admin\ProjectUGroup\UserBecomesNewsWriter;
 use Tuleap\Project\Admin\ProjectUGroup\UserBecomesProjectAdmin;
 use Tuleap\Project\Admin\ProjectUGroup\UserBecomesWikiAdmin;
-use Tuleap\Project\Admin\ProjectUGroup\UserIsNoLongerForumAdmin;
-use Tuleap\Project\Admin\ProjectUGroup\UserIsNoLongerNewsAdministrator;
-use Tuleap\Project\Admin\ProjectUGroup\UserIsNoLongerNewsWriter;
 use Tuleap\Project\Admin\ProjectUGroup\UserIsNoLongerProjectAdmin;
 use Tuleap\Project\Admin\ProjectUGroup\UserIsNoLongerWikiAdmin;
 use Tuleap\Project\DelegatedUserAccessForProject;
@@ -125,12 +119,6 @@ class MediaWikiPlugin extends Plugin implements PluginWithService //phpcs:ignore
         $this->addHook(UserIsNoLongerProjectAdmin::NAME, 'updateUserGroupMappingFromUserAndProjectUGroupRelationshipEvent');
         $this->addHook(UserBecomesWikiAdmin::NAME, 'updateUserGroupMappingFromUserAndProjectUGroupRelationshipEvent');
         $this->addHook(UserIsNoLongerWikiAdmin::NAME, 'updateUserGroupMappingFromUserAndProjectUGroupRelationshipEvent');
-        $this->addHook(UserBecomesForumAdmin::NAME, 'updateUserGroupMappingFromUserAndProjectUGroupRelationshipEvent');
-        $this->addHook(UserIsNoLongerForumAdmin::NAME, 'updateUserGroupMappingFromUserAndProjectUGroupRelationshipEvent');
-        $this->addHook(UserBecomesNewsWriter::NAME, 'updateUserGroupMappingFromUserAndProjectUGroupRelationshipEvent');
-        $this->addHook(UserIsNoLongerNewsWriter::NAME, 'updateUserGroupMappingFromUserAndProjectUGroupRelationshipEvent');
-        $this->addHook(UserBecomesNewsAdministrator::NAME, 'updateUserGroupMappingFromUserAndProjectUGroupRelationshipEvent');
-        $this->addHook(UserIsNoLongerNewsAdministrator::NAME, 'updateUserGroupMappingFromUserAndProjectUGroupRelationshipEvent');
         $this->addHook(ExportXmlProject::NAME);
 
         $this->addHook(PermissionPerGroupPaneCollector::NAME);
@@ -148,11 +136,13 @@ class MediaWikiPlugin extends Plugin implements PluginWithService //phpcs:ignore
         $params['plugins_permission'][MediawikiAdminAllProjects::ID] = new MediawikiAdminAllProjects();
     }
 
+    #[\Override]
     public function getDependencies(): array
     {
         return ['mediawiki_standalone'];
     }
 
+    #[\Override]
     public function getServiceShortname(): string
     {
         return self::SERVICE_SHORTNAME;
@@ -344,6 +334,7 @@ class MediaWikiPlugin extends Plugin implements PluginWithService //phpcs:ignore
         echo $this->getPluginInfo()->getpropVal('answer');
     }
 
+    #[\Override]
     public function &getPluginInfo()
     {
         if (! is_a($this->pluginInfo, 'MediaWikiPluginInfo')) {
@@ -559,6 +550,7 @@ class MediaWikiPlugin extends Plugin implements PluginWithService //phpcs:ignore
         return new MediawikiManager($this->getDao());
     }
 
+    #[\Override]
     #[\Tuleap\Plugin\ListeningToEventClass]
     public function serviceClassnamesCollector(ServiceClassnamesCollector $event): void
     {
@@ -569,6 +561,7 @@ class MediaWikiPlugin extends Plugin implements PluginWithService //phpcs:ignore
      * @see Event::SERVICE_IS_USED
      * @param array{shortname: string, is_used: bool, group_id: int|string} $params
      */
+    #[\Override]
     public function serviceIsUsed(array $params): void
     {
         if ($params['shortname'] == 'plugin_mediawiki' && $params['is_used']) {
@@ -579,16 +572,19 @@ class MediaWikiPlugin extends Plugin implements PluginWithService //phpcs:ignore
         }
     }
 
+    #[\Override]
     public function projectServiceBeforeActivation(ProjectServiceBeforeActivation $event): void
     {
         // nothing to do for mediawiki
     }
 
+    #[\Override]
     public function serviceDisabledCollector(ServiceDisabledCollector $event): void
     {
         // nothing to do for mediawiki
     }
 
+    #[\Override]
     public function addMissingService(AddMissingService $event): void
     {
         // nothing to do for mediawiki
@@ -824,7 +820,7 @@ class MediaWikiPlugin extends Plugin implements PluginWithService //phpcs:ignore
                 $this->getCentralDatabaseNameProperty()
             ),
             ProjectManager::instance(),
-            Backend::instance('System'),
+            Backend::instance(),
             $this->getDao(),
             new MediawikiDataDir()
         );
@@ -888,6 +884,7 @@ class MediaWikiPlugin extends Plugin implements PluginWithService //phpcs:ignore
         }
     }
 
+    #[\Override]
     public function serviceEnableForXmlImportRetriever(\Tuleap\Project\XML\ServiceEnableForXmlImportRetriever $event): void
     {
     }

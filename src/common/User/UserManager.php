@@ -33,6 +33,8 @@ use Tuleap\User\ForgeUserGroupPermission\RESTReadOnlyAdmin\RestReadOnlyAdminPerm
 use Tuleap\User\ICreateAccount;
 use Tuleap\User\InvalidSessionException;
 use Tuleap\User\LogUser;
+use Tuleap\User\Password\PasswordExpirationChecker;
+use Tuleap\User\Password\PasswordExpiredException;
 use Tuleap\User\ProvideAnonymousUser;
 use Tuleap\User\ProvideCurrentUser;
 use Tuleap\User\ProvideCurrentUserWithLoggedInInformation;
@@ -122,6 +124,7 @@ class UserManager implements ProvideCurrentUser, ProvideCurrentUserWithLoggedInI
         $this->_userdao = $dao;
     }
 
+    #[\Override]
     public function getUserAnonymous(): PFUser
     {
         $anonymous_user = $this->getUserById(0);
@@ -133,6 +136,7 @@ class UserManager implements ProvideCurrentUser, ProvideCurrentUserWithLoggedInI
      * @param int the user_id of the user to find
      * @return PFUser|null if the user is not found
      */
+    #[\Override]
     public function getUserById($user_id)
     {
         if (! isset($this->_users[$user_id])) {
@@ -189,6 +193,7 @@ class UserManager implements ProvideCurrentUser, ProvideCurrentUserWithLoggedInI
     /**
      * @param string $user_name the user_name of the user to find
      */
+    #[\Override]
     public function getUserByUserName(string $user_name): ?PFUser
     {
         if (! isset($this->_userid_bynames[$user_name])) {
@@ -214,6 +219,7 @@ class UserManager implements ProvideCurrentUser, ProvideCurrentUserWithLoggedInI
         return $this->getUserInstanceFromRow($row);
     }
 
+    #[\Override]
     public function getUserInstanceFromRow($row): PFUser
     {
         if (isset($row['user_id']) && $row['user_id'] < self::SPECIAL_USERS_LIMIT) {
@@ -345,6 +351,7 @@ class UserManager implements ProvideCurrentUser, ProvideCurrentUserWithLoggedInI
         return new PaginatedUserCollection($users, $this->getDao()->foundRows());
     }
 
+    #[\Override]
     public function getUserByEmail(string $email): ?PFUser
     {
         return $this->getUserCollectionByEmails([$email])->getUserByEmail($email);
@@ -484,11 +491,13 @@ class UserManager implements ProvideCurrentUser, ProvideCurrentUserWithLoggedInI
      *                             else it will check from the user cookies
      * @return PFUser the user currently logged in (who made the request)
      */
+    #[\Override]
     public function getCurrentUser($session_hash = false): PFUser
     {
         return $this->getCurrentUserWithLoggedInInformation($session_hash)->user;
     }
 
+    #[\Override]
     public function getCurrentUserWithLoggedInInformation(string|false $session_hash = false): \Tuleap\User\CurrentUserWithLoggedInInformation
     {
         if ($this->current_user === null || $session_hash !== false) {
@@ -593,10 +602,11 @@ class UserManager implements ProvideCurrentUser, ProvideCurrentUserWithLoggedInI
     /**
      * @return PFUser Registered user or anonymous if the authentication failed
      */
+    #[\Override]
     public function login(string $name, ConcealedString $pwd): PFUser
     {
         try {
-            $password_expiration_checker = new User_PasswordExpirationChecker();
+            $password_expiration_checker = new PasswordExpirationChecker();
             $password_handler            = PasswordHandlerFactory::getPasswordHandler();
             $login_manager               = new User_LoginManager(
                 EventManager::instance(),
@@ -630,7 +640,7 @@ class UserManager implements ProvideCurrentUser, ProvideCurrentUserWithLoggedInI
             return $user;
         } catch (User_InvalidPasswordException $exception) {
             $GLOBALS['Response']->addFeedback(Feedback::ERROR, $exception->getMessage());
-        } catch (User_PasswordExpiredException $exception) {
+        } catch (PasswordExpiredException $exception) {
             $GLOBALS['Response']->addFeedback(Feedback::ERROR, $exception->getMessage());
             $GLOBALS['Response']->redirect(DisplaySecurityController::URL);
         } catch (User_StatusSuspendedException $exception) {
@@ -774,6 +784,7 @@ class UserManager implements ProvideCurrentUser, ProvideCurrentUserWithLoggedInI
      *
      * @return PFUser Registered user or anonymous if nothing match
      */
+    #[\Override]
     public function forceLogin(string $name): PFUser
     {
         if (! IS_SCRIPT) {
@@ -843,11 +854,6 @@ class UserManager implements ProvideCurrentUser, ProvideCurrentUserWithLoggedInI
     private function getSessionLifetime()
     {
         return ForgeConfig::get('sys_session_lifetime');
-    }
-
-    protected function _getPasswordLifetime() // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
-    {
-        return ForgeConfig::get('sys_password_lifetime');
     }
 
     /**
@@ -942,6 +948,7 @@ class UserManager implements ProvideCurrentUser, ProvideCurrentUserWithLoggedInI
     /**
      * Create new account
      */
+    #[\Override]
     public function createAccount(PFUser $user): ?PFUser
     {
         $dao          = $this->getDao();
@@ -1050,11 +1057,13 @@ class UserManager implements ProvideCurrentUser, ProvideCurrentUserWithLoggedInI
         $dao->removeConfirmHash($confirm_hash);
     }
 
+    #[\Override]
     public function switchPasswordlessOnly(PFUser $user, bool $passwordless_only): void
     {
         $this->getDao()->switchPasswordlessOnlyAuth((int) $user->getId(), $passwordless_only);
     }
 
+    #[\Override]
     public function isPasswordlessOnly(PFUser $user): bool
     {
         return $this->getDao()->isPasswordlessOnlyAuth((int) $user->getId());

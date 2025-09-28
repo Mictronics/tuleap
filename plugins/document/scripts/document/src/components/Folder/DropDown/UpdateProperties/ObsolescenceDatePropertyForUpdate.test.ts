@@ -18,19 +18,15 @@
  *
  */
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { VueWrapper } from "@vue/test-utils";
 import { shallowMount } from "@vue/test-utils";
 import ObsolescenceDatePropertyForUpdate from "./ObsolescenceDatePropertyForUpdate.vue";
 import moment from "moment/moment";
 import DateFlatPicker from "../PropertiesForCreateOrUpdate/DateFlatPicker.vue";
 import { getGlobalTestOptions } from "../../../../helpers/global-options-for-test";
-import type { ConfigurationState } from "../../../../store/configuration";
 import { nextTick } from "vue";
-
-vi.mock("tlp", () => {
-    return { datePicker: vi.fn() };
-});
+import { IS_OBSOLESCENCE_DATE_PROPERTY_USED } from "../../../../configuration-keys";
 
 function checkSelectedDateIsCorrect(
     wrapper: VueWrapper<InstanceType<typeof ObsolescenceDatePropertyForUpdate>>,
@@ -59,16 +55,11 @@ describe("ObsolescenceDatePropertyForUpdate", () => {
         return shallowMount(ObsolescenceDatePropertyForUpdate, {
             props: { value: "" },
             global: {
-                ...getGlobalTestOptions({
-                    modules: {
-                        configuration: {
-                            state: {
-                                is_obsolescence_date_property_used,
-                            } as unknown as ConfigurationState,
-                            namespaced: true,
-                        },
-                    },
-                }),
+                ...getGlobalTestOptions({}),
+                provide: {
+                    [IS_OBSOLESCENCE_DATE_PROPERTY_USED.valueOf()]:
+                        is_obsolescence_date_property_used,
+                },
             },
         });
     }

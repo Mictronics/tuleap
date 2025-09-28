@@ -49,6 +49,12 @@ msgstr ""
 msgid "Be careful"
 msgstr ""
 
+#, php-format
+msgid ""
+"Be careful, \"%s\" does not match the case sensitivity. Its rule has been "
+"disabled."
+msgstr ""
+
 msgid ""
 "Below is a typical command you would use to checkout the source code of this "
 "project."
@@ -83,6 +89,18 @@ msgstr ""
 
 msgid "Core"
 msgstr ""
+
+msgid "Could not commit repository initial layout"
+msgstr "Não foi possível comitar o layout inicial do repositório"
+
+msgid "Could not create/initialize SVN repository"
+msgstr "Não foi possível criar/inicializar o repositório SVN"
+
+msgid "Could not the access file of the SVN repository"
+msgstr "Não foi possível obter o arquivo de acesso do repositório SVN"
+
+msgid "Could not update hooks of the SVN repository"
+msgstr "Não foi possível atualizar os hooks do repositório SVN"
 
 msgid "Create a new SVN repository"
 msgstr ""
@@ -183,6 +201,13 @@ msgid "Immutable tags configuration"
 msgstr ""
 
 msgid "Immutable tags paths"
+msgstr ""
+
+msgid "Initial layout creation"
+msgstr "Criação do layout inicial"
+
+#, php-format
+msgid "Invalid line \"%s\""
 msgstr ""
 
 msgid ""
@@ -397,6 +422,10 @@ msgid ""
 "tune or even redefine the access permissions below to suit your needs."
 msgstr ""
 
+#, php-format
+msgid "The directory %s is not valid"
+msgstr "O diretório %s não é válido"
+
 msgid "The given path is not valid"
 msgstr ""
 
@@ -447,6 +476,9 @@ msgid ""
 msgstr ""
 
 msgid "This limit will apply on all files on all svn plugin repositories."
+msgstr ""
+
+msgid "This version is empty"
 msgstr ""
 
 msgid "Top project"
@@ -521,6 +553,10 @@ msgstr[0] ""
 msgstr[1] ""
 
 msgid "User doesn't have permission to create a repository"
+msgstr ""
+
+#, php-format
+msgid "User group \"%s\" is empty or does not exist"
 msgstr ""
 
 msgid "User, group, email"

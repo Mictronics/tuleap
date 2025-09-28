@@ -18,9 +18,9 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-class SystemEvent_GIT_PROJECTS_UPDATE extends SystemEvent
+class SystemEvent_GIT_PROJECTS_UPDATE extends SystemEvent //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
-    public const NAME = 'GIT_PROJECTS_UPDATE';
+    public const string NAME = 'GIT_PROJECTS_UPDATE';
 
     /** @var \Psr\Log\LoggerInterface */
     private $logger;
@@ -46,6 +46,7 @@ class SystemEvent_GIT_PROJECTS_UPDATE extends SystemEvent
         return array_map('intval', $this->getParametersAsArray());
     }
 
+    #[\Override]
     public function process()
     {
         foreach ($this->getProjectIdsFromParameters() as $project_id) {
@@ -59,6 +60,7 @@ class SystemEvent_GIT_PROJECTS_UPDATE extends SystemEvent
         $this->done();
     }
 
+    #[\Override]
     public function verbalizeParameters($with_link)
     {
         return implode(', ', $this->getParametersAsArray());

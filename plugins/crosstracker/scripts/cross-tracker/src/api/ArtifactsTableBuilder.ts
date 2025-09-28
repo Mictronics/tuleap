@@ -17,6 +17,7 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import { v4 as uuidv4 } from "uuid";
 import type { Result } from "neverthrow";
 import { err, ok } from "neverthrow";
 import { Fault } from "@tuleap/fault";
@@ -26,6 +27,7 @@ import type {
     ArtifactSelectable,
     ArtifactSelectableRepresentation,
     DateSelectableRepresentation,
+    LinkTypeSelectableRepresentation,
     NumericSelectableRepresentation,
     PrettyTitleSelectableRepresentation,
     ProjectSelectableRepresentation,
@@ -35,14 +37,16 @@ import type {
     StaticListSelectableRepresentation,
     TextSelectableRepresentation,
     TrackerSelectableRepresentation,
+    UnknownSelectableRepresentation,
     UserGroupListSelectableRepresentation,
     UserListSelectableRepresentation,
     UserSelectableRepresentation,
 } from "./cross-tracker-rest-api-types";
 import {
-    LINK_TYPE_SELECTABLE_TYPE,
+    UNKNOWN_SELECTABLE_TYPE,
     ARTIFACT_SELECTABLE_TYPE,
     DATE_SELECTABLE_TYPE,
+    LINK_TYPE_SELECTABLE_TYPE,
     NUMERIC_SELECTABLE_TYPE,
     PRETTY_TITLE_SELECTABLE_TYPE,
     PROJECT_SELECTABLE_TYPE,
@@ -53,9 +57,17 @@ import {
     USER_LIST_SELECTABLE_TYPE,
     USER_SELECTABLE_TYPE,
 } from "./cross-tracker-rest-api-types";
-import type { ArtifactRow, ArtifactsTable, Cell, UserCellValue } from "../domain/ArtifactsTable";
+import type {
+    ArtifactLinkDirection,
+    ArtifactRow,
+    ArtifactsTable,
+    Cell,
+    UserCellValue,
+} from "../domain/ArtifactsTable";
 import {
+    UNKNOWN_CELL,
     DATE_CELL,
+    LINK_TYPE_CELL,
     NUMERIC_CELL,
     PRETTY_TITLE_CELL,
     PROJECT_CELL,
@@ -70,6 +82,7 @@ import {
 export type ArtifactsTableBuilder = {
     mapQueryContentToArtifactsTable(
         query_content: SelectableQueryContentRepresentation,
+        direction: ArtifactLinkDirection,
     ): ArtifactsTable;
 };
 
@@ -131,6 +144,16 @@ const isPrettyTitleSelectableRepresentation = (
 const isArtifactSelectableRepresentation = (
     representation: SelectableRepresentation,
 ): representation is ArtifactSelectableRepresentation => "uri" in representation;
+
+const isLinkTypeSelectableRepresentation = (
+    representation: SelectableRepresentation,
+): representation is LinkTypeSelectableRepresentation =>
+    "direction" in representation && typeof representation.direction === `string`;
+
+const isUnknownTypeSelectableRepresentation = (
+    representation: SelectableRepresentation,
+): representation is UnknownSelectableRepresentation =>
+    "value" in representation && typeof representation.value === `string`;
 
 /**
  * Throw instead of returning an err, because the format of the Selected representation
@@ -273,9 +296,20 @@ function buildCell(selectable: Selectable, artifact: ArtifactRepresentation): Re
                 ...artifact_value,
             });
         case LINK_TYPE_SELECTABLE_TYPE:
+            if (!isLinkTypeSelectableRepresentation(artifact_value)) {
+                throw Error(getErrorMessageToWarnTuleapDevs(selectable));
+            }
             return ok({
-                type: TEXT_CELL,
-                value: "",
+                type: LINK_TYPE_CELL,
+                ...artifact_value,
+            });
+        case UNKNOWN_SELECTABLE_TYPE:
+            if (!isUnknownTypeSelectableRepresentation(artifact_value)) {
+                throw Error(getErrorMessageToWarnTuleapDevs(selectable));
+            }
+            return ok({
+                type: UNKNOWN_CELL,
+                ...artifact_value,
             });
         default:
             return err(Fault.fromMessage(`Selectable type is not supported`));
@@ -284,7 +318,10 @@ function buildCell(selectable: Selectable, artifact: ArtifactRepresentation): Re
 
 export const ArtifactsTableBuilder = (): ArtifactsTableBuilder => {
     return {
-        mapQueryContentToArtifactsTable(query_content): ArtifactsTable {
+        mapQueryContentToArtifactsTable(
+            query_content,
+            direction: ArtifactLinkDirection,
+        ): ArtifactsTable {
             const initial_table: ArtifactsTable = {
                 columns: new Set(),
                 rows: [],
@@ -304,11 +341,13 @@ export const ArtifactsTableBuilder = (): ArtifactsTableBuilder => {
                     );
 
                     const row: ArtifactRow = {
+                        uuid: uuidv4(),
                         id: artifact_id,
                         expected_number_of_forward_links: number_of_forward_link,
                         expected_number_of_reverse_links: number_of_reverse_link,
                         uri: artifact_uri,
                         cells: new Map<string, Cell>(),
+                        direction,
                     };
                     for (const selectable of query_content.selected) {
                         // Filter out unsupported selectable

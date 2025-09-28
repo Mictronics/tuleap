@@ -126,7 +126,7 @@ final class UpdateArtifactActionTest extends TestCase
 
         $this->forward_links_retriever     = RetrieveForwardLinksStub::withLinks(new CollectionOfForwardLinks([
             ForwardLinkProxy::buildFromData(1, ArtifactLinkField::TYPE_IS_CHILD),
-            ForwardLinkProxy::buildFromData(2, ArtifactLinkField::NO_TYPE),
+            ForwardLinkProxy::buildFromData(2, ArtifactLinkField::DEFAULT_LINK_TYPE),
         ]));
         $this->artifact_retriever          = RetrieveViewableArtifactStub::withNoArtifact();
         $this->project_dashboard_retriever = $this->createStub(ProjectDashboardRetriever::class);
@@ -396,7 +396,7 @@ final class UpdateArtifactActionTest extends TestCase
                 645 => psl_json_encode([
                     'field_id' => 645,
                     'all_links' => [
-                        ['id' => 529, 'direction' => 'reverse', 'type' => ArtifactLinkField::NO_TYPE],
+                        ['id' => 529, 'direction' => 'reverse', 'type' => ArtifactLinkField::DEFAULT_LINK_TYPE],
                     ],
                 ]),
             ])
@@ -421,7 +421,7 @@ final class UpdateArtifactActionTest extends TestCase
                 899 => psl_json_encode([
                     'field_id' => 899,
                     'all_links' => [
-                        ['id' => 404, 'direction' => 'reverse', 'type' => ArtifactLinkField::NO_TYPE],
+                        ['id' => 404, 'direction' => 'reverse', 'type' => ArtifactLinkField::DEFAULT_LINK_TYPE],
                     ],
                 ]),
             ])
@@ -501,7 +501,7 @@ final class UpdateArtifactActionTest extends TestCase
             ->withParam('my-dashboard-id', '123')
             ->build();
         $redirect_uri  = $this->getRedirectUrl();
-        $this->assertEquals('/my/?tracker=' . self::TRACKER_ID . '&dashboard_id=123', $redirect_uri->toUrl());
+        $this->assertEquals('/my/?tracker=' . self::TRACKER_ID . '&my-dashboard-id=123', $redirect_uri->toUrl());
     }
 
     public function testItReturnsOnProjectDashboardWhenDashboardIdIsProvided(): void
@@ -512,7 +512,7 @@ final class UpdateArtifactActionTest extends TestCase
             ->withParam('project-dashboard-id', '456')
             ->build();
         $redirect_uri  = $this->getRedirectUrl();
-        $this->assertEquals('/projects/myproject/?tracker=' . self::TRACKER_ID . '&dashboard_id=456', $redirect_uri->toUrl());
+        $this->assertEquals('/projects/myproject/?tracker=' . self::TRACKER_ID . '&project-dashboard-id=456', $redirect_uri->toUrl());
     }
 
     private function assertURIHasArgument(string $url, string $argument, string $argument_value): void

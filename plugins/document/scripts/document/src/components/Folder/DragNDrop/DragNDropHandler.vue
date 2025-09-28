@@ -43,17 +43,17 @@ import emitter from "../../../helpers/emitter";
 import { sprintf } from "sprintf-js";
 import { buildFakeItem } from "../../../helpers/item-builder";
 import type { FakeItem, ItemFile, Reason, RootState } from "../../../type";
-import {
-    useNamespacedGetters,
-    useNamespacedState,
-    useState,
-    useStore,
-} from "vuex-composition-helpers";
-import type { ConfigurationGetters } from "../../../store/configuration/getters";
-import type { ConfigurationState } from "../../../store/configuration";
+import { useState, useStore } from "vuex-composition-helpers";
 import { useGettext } from "vue3-gettext";
 import { strictInject } from "@tuleap/vue-strict-inject";
-import { USER_ID } from "../../../configuration-keys";
+import {
+    IS_CHANGELOG_PROPOSED_AFTER_DND,
+    IS_FILENAME_PATTERN_ENFORCED,
+    MAX_FILES_DRAGNDROP,
+    MAX_SIZE_UPLOAD,
+    USER_CAN_DRAGNDROP,
+    USER_ID,
+} from "../../../configuration-keys";
 
 const MAX_FILES_ERROR = "max_files";
 const CREATION_ERROR = "creation_error";
@@ -77,35 +77,18 @@ const dragover_error_reason = ref<string>("");
 const fake_item_list = ref<Array<FakeItem>>([]);
 
 const user_id = strictInject(USER_ID);
+const max_files_dragndrop = strictInject(MAX_FILES_DRAGNDROP);
+const user_can_dragndrop = strictInject(USER_CAN_DRAGNDROP);
+const max_size_upload = strictInject(MAX_SIZE_UPLOAD);
+const is_changelog_proposed_after_dnd = strictInject(IS_CHANGELOG_PROPOSED_AFTER_DND);
+const is_filename_pattern_enforced = strictInject(IS_FILENAME_PATTERN_ENFORCED);
 
-const { user_can_dragndrop } = useNamespacedGetters<
-    Pick<ConfigurationGetters, "user_can_dragndrop">
->("configuration", ["user_can_dragndrop"]);
 const { current_folder, folder_content } = useState<
     Pick<RootState, "current_folder" | "folder_content">
 >(["current_folder", "folder_content"]);
-const {
-    max_files_dragndrop,
-    max_size_upload,
-    is_changelog_proposed_after_dnd,
-    is_filename_pattern_enforced,
-} = useNamespacedState<
-    Pick<
-        ConfigurationState,
-        | "max_files_dragndrop"
-        | "max_size_upload"
-        | "is_changelog_proposed_after_dnd"
-        | "is_filename_pattern_enforced"
-    >
->("configuration", [
-    "max_files_dragndrop",
-    "max_size_upload",
-    "is_changelog_proposed_after_dnd",
-    "is_filename_pattern_enforced",
-]);
 
 const user_can_dragndrop_in_current_folder = computed(
-    () => user_can_dragndrop.value && current_folder.value && current_folder.value.user_can_write,
+    () => user_can_dragndrop && current_folder.value && current_folder.value.user_can_write,
 );
 const error_modal_name = computed(() => {
     if (!error_modal_shown.value) {
@@ -215,17 +198,17 @@ async function ondrop(event: DragEvent): Promise<void> {
 
     const files = event.dataTransfer.files;
 
-    if (files.length > max_files_dragndrop.value) {
+    if (files.length > max_files_dragndrop) {
         error_modal_shown.value = MAX_FILES_ERROR;
         return;
     }
 
-    if (is_filename_pattern_enforced.value && files.length > 1) {
+    if (is_filename_pattern_enforced && files.length > 1) {
         error_modal_shown.value = FILENAME_PATTERN_IS_SET_ERROR;
         return;
     }
 
-    if (is_filename_pattern_enforced.value && files.length === 1) {
+    if (is_filename_pattern_enforced && files.length === 1) {
         emitter.emit("show-file-creation-modal", {
             detail: {
                 parent: dropzone_item,
@@ -244,7 +227,7 @@ async function ondrop(event: DragEvent): Promise<void> {
             return;
         }
 
-        if (file.size > max_size_upload.value) {
+        if (file.size > max_size_upload) {
             error_modal_shown.value = MAX_SIZE_ERROR;
             return;
         }
@@ -383,7 +366,7 @@ async function uploadNewFileVersion(event: DragEvent, dropzone_item: ItemFile): 
         return;
     }
 
-    if (file.size > max_size_upload.value) {
+    if (file.size > max_size_upload) {
         error_modal_shown.value = MAX_SIZE_ERROR;
         return;
     }
@@ -413,13 +396,13 @@ function isDroppedItemAFile(file): boolean {
 
 function isDropPossibleAccordingFilenamePattern(): boolean {
     return (
-        (is_filename_pattern_enforced.value && number_of_dragged_files.value === 1) ||
-        !is_filename_pattern_enforced.value
+        (is_filename_pattern_enforced && number_of_dragged_files.value === 1) ||
+        !is_filename_pattern_enforced
     );
 }
 
 function getDragErrorReason(): string {
-    if (is_filename_pattern_enforced.value && number_of_dragged_files.value > 1) {
+    if (is_filename_pattern_enforced && number_of_dragged_files.value > 1) {
         return $gettext(
             "When a filename pattern is set, you are not allowed to drag 'n drop more than 1 file at once.",
         );

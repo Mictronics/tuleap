@@ -62,6 +62,7 @@ use Tuleap\AgileDashboard\FormElement\MessageFetcher;
 use Tuleap\AgileDashboard\Masschange\AdditionalMasschangeActionProcessor;
 use Tuleap\AgileDashboard\Milestone\AllBreadCrumbsForMilestoneBuilder;
 use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItem;
+use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemCollectionFactory;
 use Tuleap\AgileDashboard\Milestone\MilestoneDao;
 use Tuleap\AgileDashboard\Milestone\MilestoneReportCriterionDao;
 use Tuleap\AgileDashboard\Milestone\Sidebar\MilestonesInSidebarDao;
@@ -73,6 +74,7 @@ use Tuleap\AgileDashboard\Planning\XML\ProvideCurrentUserForXMLImport;
 use Tuleap\AgileDashboard\RemainingEffortValueRetriever;
 use Tuleap\AgileDashboard\Semantic\XML\SemanticsExporter;
 use Tuleap\AgileDashboard\SplitModalPresenter;
+use Tuleap\AgileDashboard\Tracker\HierarchyChecker;
 use Tuleap\AgileDashboard\Tracker\TrackerHierarchyUpdateChecker;
 use Tuleap\AgileDashboard\Tracker\TrackersCannotBeLinkedWithHierarchyException;
 use Tuleap\AgileDashboard\Workflow\AddToTopBacklog;
@@ -83,6 +85,7 @@ use Tuleap\AgileDashboard\Workflow\PostAction\Update\Internal\AddToTopBacklogVal
 use Tuleap\AgileDashboard\Workflow\PostAction\Update\Internal\AddToTopBacklogValueUpdater;
 use Tuleap\AgileDashboard\Workflow\REST\v1\AddToTopBacklogJsonParser;
 use Tuleap\AgileDashboard\Workflow\REST\v1\AddToTopBacklogRepresentation;
+use Tuleap\AgileDashboard\XML\AgileDashboardXMLExporter;
 use Tuleap\Cardwall\Agiledashboard\CardwallPaneInfo;
 use Tuleap\Cardwall\Cardwall\CardwallUseStandardJavascriptEvent;
 use Tuleap\Config\ConfigClassProvider;
@@ -195,11 +198,11 @@ require_once 'constants.php';
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, PluginWithService
 {
-    public const PLUGIN_SHORTNAME = 'plugin_agiledashboard';
+    public const string PLUGIN_SHORTNAME = 'plugin_agiledashboard';
 
-    public const AGILEDASHBOARD_EVENT_REST_RESOURCES = 'agiledashboard_event_rest_resources';
+    public const string AGILEDASHBOARD_EVENT_REST_RESOURCES = 'agiledashboard_event_rest_resources';
 
-    public const USER_PREF_DISPLAY_SPLIT_MODAL = 'should_display_agiledashboard_split_modal';
+    public const string USER_PREF_DISPLAY_SPLIT_MODAL = 'should_display_agiledashboard_split_modal';
 
     /** @var AgileDashboard_SequenceIdManager */
     private $sequence_id_manager;
@@ -370,7 +373,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
             $project_id
         );
 
-        AgileDashboard_XMLExporter::build()->export(
+        AgileDashboardXMLExporter::build()->export(
             $event->getProject(),
             $xml_content,
             $plannings
@@ -388,7 +391,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
             $project_id
         );
 
-        AgileDashboard_XMLExporter::build()->exportFull(
+        AgileDashboardXMLExporter::build()->exportFull(
             $event->getProject(),
             $xml_content,
             $plannings
@@ -600,7 +603,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
     #[ListeningToEventClass]
     public function generalSettingsEvent(GeneralSettingsEvent $event): void
     {
-        $hierarchyChecker = new AgileDashboard_HierarchyChecker(
+        $hierarchyChecker = new HierarchyChecker(
             $this->getPlanningFactory(),
             $this->getTrackerFactory()
         );
@@ -639,7 +642,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
 
     public function tracker_event_project_creation_trackers_required($params) // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
-        $hierarchyChecker           = new AgileDashboard_HierarchyChecker(
+        $hierarchyChecker           = new HierarchyChecker(
             $this->getPlanningFactory(),
             $this->getTrackerFactory()
         );
@@ -1376,10 +1379,10 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
     private function getBacklogItemCollectionFactory(
         Planning_MilestoneFactory $milestone_factory,
         AgileDashboard_Milestone_Backlog_IBuildBacklogItemAndBacklogItemCollection $presenter_builder,
-    ): AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactory {
+    ): BacklogItemCollectionFactory {
         $form_element_factory = Tracker_FormElementFactory::instance();
 
-        return new AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactory(
+        return new BacklogItemCollectionFactory(
             new BacklogItemDao(),
             $this->getArtifactFactory(),
             $milestone_factory,

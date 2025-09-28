@@ -34,7 +34,7 @@ use UserManager;
 
 class AccessControl extends Pane
 {
-    public const NAME = 'access_control';
+    public const string NAME = 'access_control';
     /**
      * @var Project
      */
@@ -104,6 +104,7 @@ class AccessControl extends Pane
     /**
      * @return string
      */
+    #[\Override]
     public function content()
     {
         $project_id = $this->project->getID();

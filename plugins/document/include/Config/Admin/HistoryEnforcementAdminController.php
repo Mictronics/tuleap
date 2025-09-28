@@ -33,7 +33,7 @@ use Tuleap\Request\ForbiddenException;
 
 class HistoryEnforcementAdminController implements DispatchableWithRequest
 {
-    public const URL = \DocmanPlugin::ADMIN_BASE_URL . '/history-enforcement';
+    public const string URL = \DocmanPlugin::ADMIN_BASE_URL . '/history-enforcement';
 
 
     public function __construct(
@@ -52,6 +52,7 @@ class HistoryEnforcementAdminController implements DispatchableWithRequest
         );
     }
 
+    #[\Override]
     public function process(HTTPRequest $request, BaseLayout $layout, array $variables): void
     {
         if (! $request->getCurrentUser()->isSuperUser()) {

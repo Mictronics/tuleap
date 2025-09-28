@@ -19,7 +19,7 @@
 
 <template>
     <div class="tlp-modal-body">
-        <service-id v-bind:value="service.id" />
+        <service-id v-bind:id="service.id" />
         <hidden-service-shortname
             v-if="service.short_name"
             v-bind:short_name="service.short_name"
@@ -33,15 +33,15 @@
         <service-is-used
             v-if="can_update_is_used"
             id="project-service-edit-modal-enabled"
-            v-bind:value="service.is_used"
-            v-bind:disabled-reason="service.is_disabled_reason"
+            v-bind:is_used="service.is_used"
+            v-bind:is_disabled_reason="service.is_disabled_reason"
         />
         <hidden-service-is-active v-bind:is_active="service.is_active" />
         <read-only-service-rank v-if="is_summary_service" v-bind:rank="service.rank" />
-        <service-rank v-else id="project-service-edit-modal-rank" v-bind:value="service.rank" />
+        <service-rank v-else id="project-service-edit-modal-rank" v-bind:rank="service.rank" />
         <service-link
             id="project-service-edit-modal-link"
-            v-bind:value="service.link"
+            v-bind:link="service.link"
             v-bind:disabled="!service.is_link_customizable"
         />
         <div class="tlp-property">

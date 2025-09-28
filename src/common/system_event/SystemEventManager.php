@@ -28,12 +28,7 @@ use Tuleap\SVNCore\Event\UpdateProjectAccessFileSystemEvent;
 use Tuleap\SystemEvent\SystemEventInstrumentation;
 use Tuleap\SystemEvent\SystemEventUserActiveStatusChange;
 
-/**
-* Manager of system events
-*
-* Base class to manage system events
-*/
-class SystemEventManager
+class SystemEventManager // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 {
     public $dao;
     public $followers_dao;
@@ -83,7 +78,7 @@ class SystemEventManager
         throw new Exception('Cannot clone singleton');
     }
 
-    protected static $_instance;
+    protected static $_instance; // phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
     /**
      * SystemEventManager is singleton
@@ -114,12 +109,12 @@ class SystemEventManager
         return new SystemEventManager($dao, $followers_dao);
     }
 
-    public function _getEventManager()
+    public function _getEventManager() // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
     {
         return EventManager::instance();
     }
 
-    public function _getDao()
+    public function _getDao() // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
     {
         if (! $this->dao) {
             $this->dao = new SystemEventDao(CodendiDataAccess::instance());
@@ -127,17 +122,12 @@ class SystemEventManager
         return $this->dao;
     }
 
-    public function _getFollowersDao()
+    public function _getFollowersDao() // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
     {
         if (! $this->followers_dao) {
             $this->followers_dao = new SystemEventsFollowersDao(CodendiDataAccess::instance());
         }
         return $this->followers_dao;
-    }
-
-    public function _getBackend()
-    {
-        return Backend::instance('Backend');
     }
 
     /*
@@ -147,12 +137,7 @@ class SystemEventManager
     {
         if ($event instanceof ProjectStatusUpdate) {
             match ($event->status) {
-                Project::STATUS_ACTIVE => $this->createEvent(
-                    SystemEvent::TYPE_PROJECT_ACTIVE,
-                    $event->project->getID(),
-                    SystemEvent::PRIORITY_LOW
-                ),
-                Project::STATUS_SUSPENDED => null, // Nothing to do
+                Project::STATUS_ACTIVE, Project::STATUS_SUSPENDED => null, // Nothing to do
                 Project::STATUS_DELETED => $this->createEvent(
                     SystemEvent::TYPE_PROJECT_DELETE,
                     $event->project->getID(),
@@ -345,8 +330,6 @@ class SystemEventManager
         switch ($type) {
             case SystemEvent::TYPE_MASSMAIL:
                 return \Tuleap\SystemEvent\Massmail::class;
-            case SystemEvent::TYPE_PROJECT_ACTIVE:
-                return \Tuleap\SystemEvent\SystemEventProjectActive::class;
             case SystemEvent::TYPE_USER_ACTIVE_STATUS_CHANGE:
                 return SystemEventUserActiveStatusChange::class;
             case SystemEvent::TYPE_SVN_UPDATE_PROJECT_ACCESS_FILES:

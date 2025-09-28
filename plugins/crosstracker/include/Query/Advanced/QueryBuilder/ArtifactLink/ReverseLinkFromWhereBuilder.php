@@ -38,7 +38,7 @@ use Tuleap\Tracker\Report\Query\ParametrizedFromWhere;
  */
 final class ReverseLinkFromWhereBuilder implements LinkConditionVisitor
 {
-    private const INVALID_ARTIFACT_ID = -1;
+    private const int INVALID_ARTIFACT_ID = -1;
 
     public function __construct(private readonly RetrieveViewableArtifact $artifact_factory)
     {
@@ -100,6 +100,7 @@ final class ReverseLinkFromWhereBuilder implements LinkConditionVisitor
         ];
     }
 
+    #[\Override]
     public function visitLinkArtifactCondition(LinkArtifactCondition $condition, $parameters)
     {
         $suffix = $parameters->suffix;
@@ -134,6 +135,7 @@ final class ReverseLinkFromWhereBuilder implements LinkConditionVisitor
         ];
     }
 
+    #[\Override]
     public function visitLinkTrackerEqualCondition(LinkTrackerEqualCondition $condition, $parameters)
     {
         $suffix = $parameters->suffix;
@@ -167,6 +169,7 @@ final class ReverseLinkFromWhereBuilder implements LinkConditionVisitor
         ];
     }
 
+    #[\Override]
     public function visitLinkTrackerNotEqualCondition(LinkTrackerNotEqualCondition $condition, $parameters)
     {
         $suffix = $parameters->suffix;

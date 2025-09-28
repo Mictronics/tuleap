@@ -22,7 +22,6 @@ namespace Tuleap\AgileDashboard\REST\v1;
 
 use AgileDashboard_Milestone_Backlog_BacklogFactory;
 use AgileDashboard_Milestone_Backlog_BacklogItemBuilder;
-use AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactory;
 use BacklogItemReference;
 use EventManager;
 use Luracast\Restler\RestException;
@@ -44,6 +43,7 @@ use TransitionFactory;
 use Tuleap\AgileDashboard\BacklogItem\AgileDashboard_BacklogItem_PaginatedBacklogItemsRepresentationsBuilder;
 use Tuleap\AgileDashboard\BacklogItemDao;
 use Tuleap\AgileDashboard\ExplicitBacklog\ArtifactsInExplicitBacklogDao;
+use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemCollectionFactory;
 use Tuleap\AgileDashboard\Milestone\ParentTrackerRetriever;
 use Tuleap\AgileDashboard\Milestone\Request\MalformedQueryParameterException;
 use Tuleap\AgileDashboard\Milestone\Request\SiblingMilestoneRequest;
@@ -95,6 +95,7 @@ use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
 use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindDecoratorRetriever;
 use Tuleap\Tracker\FormElement\Field\Text\TextValueValidator;
+use Tuleap\Tracker\Permission\SubmissionPermissionVerifier;
 use Tuleap\Tracker\REST\Helpers\ArtifactsRankOrderer;
 use Tuleap\Tracker\REST\Helpers\IdsFromBodyAreNotUniqueException;
 use Tuleap\Tracker\REST\Helpers\OrderIdOutOfBoundException;
@@ -124,7 +125,7 @@ class MilestoneResource extends AuthenticatedResource
      * 'version'   => API version
      * 'milestone' => Milestone on which cardwall is requested
      */
-    public const AGILEDASHBOARD_EVENT_REST_GET_CARDWALL = 'agiledashboard_event_rest_get_cardwall';
+    public const string AGILEDASHBOARD_EVENT_REST_GET_CARDWALL = 'agiledashboard_event_rest_get_cardwall';
 
     /**
      * RESt call for burndown GET
@@ -135,8 +136,8 @@ class MilestoneResource extends AuthenticatedResource
      * 'milestone' => Milestone on which burndown is requested
      * 'burndown'  => OUT the \Tuleap\Tracker\REST\Artifact\BurndownRepresentation
      */
-    public const AGILEDASHBOARD_EVENT_REST_GET_BURNDOWN = 'agiledashboard_event_rest_get_burndown';
-    public const MAX_LIMIT                              = 100;
+    public const string AGILEDASHBOARD_EVENT_REST_GET_BURNDOWN = 'agiledashboard_event_rest_get_burndown';
+    public const int MAX_LIMIT                                 = 100;
 
     /** @var Planning_MilestoneFactory */
     private $milestone_factory;
@@ -146,9 +147,7 @@ class MilestoneResource extends AuthenticatedResource
 
     /** @var MilestoneContentUpdater */
     private $milestone_content_updater;
-
-    /** @var AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactory */
-    private $backlog_item_collection_factory;
+    private BacklogItemCollectionFactory $backlog_item_collection_factory;
 
     /** @var EventManager */
     private $event_manager;
@@ -194,7 +193,7 @@ class MilestoneResource extends AuthenticatedResource
             new \Tuleap\Tracker\Artifact\Dao\ArtifactDao(),
         );
 
-        $this->backlog_item_collection_factory = new AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactory(
+        $this->backlog_item_collection_factory = new BacklogItemCollectionFactory(
             new BacklogItemDao(),
             $this->tracker_artifact_factory,
             $this->milestone_factory,
@@ -1264,13 +1263,14 @@ class MilestoneResource extends AuthenticatedResource
         Header::allowOptionsGet();
     }
 
-    private function getBacklogItemRepresentationFactory()
+    private function getBacklogItemRepresentationFactory(): BacklogItemRepresentationFactory
     {
         $color_builder = new BackgroundColorBuilder(new BindDecoratorRetriever());
         return new BacklogItemRepresentationFactory(
             $color_builder,
             UserManager::instance(),
-            new ProjectBackgroundConfiguration(new ProjectBackgroundDao())
+            new ProjectBackgroundConfiguration(new ProjectBackgroundDao()),
+            SubmissionPermissionVerifier::instance(),
         );
     }
 

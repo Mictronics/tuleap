@@ -24,5 +24,8 @@ namespace Tuleap\Timetracking\REST\v1\TimetrackingManagement;
 
 interface SearchQueryByWidgetId
 {
+    /**
+     * @return null|array{id: int, start_date: int|null, end_date: int|null, predefined_time_period: string|null}
+     */
     public function searchQueryById(int $id): ?array;
 }

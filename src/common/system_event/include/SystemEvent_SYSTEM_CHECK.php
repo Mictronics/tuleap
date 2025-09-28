@@ -23,11 +23,7 @@ use Tuleap\Http\Client\FilteredOutboundHTTPResponseAlerter;
 use Tuleap\Queue\NbBackendWorkersConfigValidator;
 use Tuleap\Queue\WorkerAvailability;
 
-/**
-* System Event classes
-*
-*/
-class SystemEvent_SYSTEM_CHECK extends SystemEvent
+class SystemEvent_SYSTEM_CHECK extends SystemEvent // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
 {
     /**
      * Verbalize the parameters so they are readable and much user friendly in
@@ -38,6 +34,7 @@ class SystemEvent_SYSTEM_CHECK extends SystemEvent
      *
      * @return string
      */
+    #[\Override]
     public function verbalizeParameters($with_link)
     {
         return '-';
@@ -46,13 +43,11 @@ class SystemEvent_SYSTEM_CHECK extends SystemEvent
     /**
      * Process stored event
      */
+    #[\Override]
     public function process()
     {
-        $backendSystem = Backend::instance('System');
-        \assert($backendSystem instanceof BackendSystem);
-        $backendAliases = Backend::instance('Aliases');
-        \assert($backendAliases instanceof BackendAliases);
-        $backendSVN = Backend::instanceSVN();
+        $backendSystem  = BackendSystem::instance();
+        $backendAliases = BackendAliases::instance();
 
         //TODO:
         // Private project: if codeaxadm is not member of the project: check access to SVN (incl. ViewVC), Web...
@@ -63,15 +58,6 @@ class SystemEvent_SYSTEM_CHECK extends SystemEvent
         $backendAliases->setNeedUpdateMailAliases();
 
         $errors = [];
-
-        $project_manager = ProjectManager::instance();
-        foreach ($project_manager->getProjectsByStatus(Project::STATUS_ACTIVE) as $project) {
-            try {
-                $backendSVN->systemCheck($project);
-            } catch (Exception $exception) {
-                $errors[] = $exception->getMessage();
-            }
-        }
 
         $backend_logger = BackendLogger::getDefaultLogger();
         $logger         = new SystemCheckLogger($backend_logger, 'system_check');

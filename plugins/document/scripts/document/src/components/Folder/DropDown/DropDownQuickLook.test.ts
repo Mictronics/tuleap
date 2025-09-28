@@ -23,6 +23,11 @@ import { shallowMount } from "@vue/test-utils";
 import DropDownQuickLook from "./DropDownQuickLook.vue";
 import type { Folder, Item, ItemFile, OtherTypeItem } from "../../../type";
 import { getGlobalTestOptions } from "../../../helpers/global-options-for-test";
+import {
+    FORBID_WRITERS_TO_DELETE,
+    FORBID_WRITERS_TO_UPDATE,
+    IS_DELETION_ALLOWED,
+} from "../../../configuration-keys";
 
 describe("DropDownQuickLook", () => {
     function createWrapper(
@@ -34,18 +39,12 @@ describe("DropDownQuickLook", () => {
         return shallowMount(DropDownQuickLook, {
             props: { item },
             global: {
-                ...getGlobalTestOptions({
-                    modules: {
-                        configuration: {
-                            namespaced: true,
-                            state: {
-                                forbid_writers_to_update,
-                                forbid_writers_to_delete,
-                                is_deletion_allowed,
-                            },
-                        },
-                    },
-                }),
+                ...getGlobalTestOptions({}),
+                provide: {
+                    [IS_DELETION_ALLOWED.valueOf()]: is_deletion_allowed,
+                    [FORBID_WRITERS_TO_UPDATE.valueOf()]: forbid_writers_to_update,
+                    [FORBID_WRITERS_TO_DELETE.valueOf()]: forbid_writers_to_delete,
+                },
             },
         });
     }

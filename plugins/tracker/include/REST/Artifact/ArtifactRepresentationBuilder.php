@@ -29,7 +29,7 @@ use Tracker_FormElementFactory;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\FormElement\Field\AlphaNumericField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
-use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenter;
+use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\LinkDirection;
 use Tuleap\Tracker\FormElement\Field\TrackerField;
 use Tuleap\Tracker\REST\Artifact\Changeset\ChangesetRepresentation;
 use Tuleap\Tracker\REST\Artifact\Changeset\ChangesetRepresentationBuilder;
@@ -37,15 +37,19 @@ use Tuleap\Tracker\REST\Artifact\Changeset\ChangesetRepresentationCollection;
 use Tuleap\Tracker\REST\MinimalTrackerRepresentation;
 use Tuleap\Tracker\REST\TrackerRepresentation;
 use Tuleap\User\Avatar\ProvideUserAvatarUrl;
+use Tuleap\User\ProvideAnonymousUser;
+use Tuleap\User\RetrieveUserById;
 
 class ArtifactRepresentationBuilder
 {
     public function __construct(
-        private Tracker_FormElementFactory $formelement_factory,
-        private Tracker_ArtifactFactory $artifact_factory,
-        private TypeDao $nature_dao,
-        private ChangesetRepresentationBuilder $changeset_representation_builder,
-        private ProvideUserAvatarUrl $provide_user_avatar_url,
+        private readonly Tracker_FormElementFactory $formelement_factory,
+        private readonly Tracker_ArtifactFactory $artifact_factory,
+        private readonly TypeDao $nature_dao,
+        private readonly ChangesetRepresentationBuilder $changeset_representation_builder,
+        private readonly ProvideUserAvatarUrl $provide_user_avatar_url,
+        private readonly RetrieveUserById $retrieve_user_by_id,
+        private readonly ProvideAnonymousUser $provide_anonymous_user,
     ) {
     }
 
@@ -59,6 +63,8 @@ class ArtifactRepresentationBuilder
             $tracker_representation,
             $status_value_representation,
             $this->provide_user_avatar_url,
+            $this->retrieve_user_by_id,
+            $this->provide_anonymous_user,
         );
     }
 
@@ -72,6 +78,8 @@ class ArtifactRepresentationBuilder
             $tracker_representation,
             $status_value_representation,
             $this->provide_user_avatar_url,
+            $this->retrieve_user_by_id,
+            $this->provide_anonymous_user,
         );
     }
 
@@ -85,6 +93,8 @@ class ArtifactRepresentationBuilder
             $tracker_representation,
             $status_value_representation,
             $this->provide_user_avatar_url,
+            $this->retrieve_user_by_id,
+            $this->provide_anonymous_user,
         );
     }
 
@@ -100,6 +110,8 @@ class ArtifactRepresentationBuilder
             $tracker_representation,
             $status_value_representation,
             $this->provide_user_avatar_url,
+            $this->retrieve_user_by_id,
+            $this->provide_anonymous_user,
         );
     }
 
@@ -210,7 +222,7 @@ class ArtifactRepresentationBuilder
         $offset,
         $limit,
     ) {
-        if ($direction === TypePresenter::REVERSE_LABEL) {
+        if ($direction === LinkDirection::REVERSE->value) {
             $linked_artifacts_ids = $this->nature_dao->getReverseLinkedArtifactIds(
                 $artifact_id->getId(),
                 $nature,

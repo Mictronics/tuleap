@@ -34,7 +34,7 @@ final readonly class ArtifactLinkValue
      * @param Option<ArtifactLinkStatusValue> $status
      */
     public function __construct(
-        public string $link_label,
+        public ArtifactLinkType $link_type,
         public string $tracker_shortname,
         public ColorName $tracker_color,
         public ArtifactLinkProject $project,

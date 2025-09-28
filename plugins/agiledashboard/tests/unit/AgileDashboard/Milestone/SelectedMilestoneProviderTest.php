@@ -39,13 +39,14 @@ use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class SelectedMilestoneProviderTest extends TestCase
 {
-    public const FIELD_NAME = AgileDashboard_Milestone_MilestoneReportCriterionProvider::FIELD_NAME;
-    public const ANY        = AgileDashboard_Milestone_MilestoneReportCriterionProvider::ANY;
+    public const string FIELD_NAME = AgileDashboard_Milestone_MilestoneReportCriterionProvider::FIELD_NAME;
+    public const string ANY        = AgileDashboard_Milestone_MilestoneReportCriterionProvider::ANY;
 
     private Planning_MilestoneFactory&MockObject $milestone_factory;
     private Project $project;
     private PFUser $user;
 
+    #[\Override]
     protected function setUp(): void
     {
         $artifact_id   = 123;

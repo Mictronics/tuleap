@@ -48,9 +48,11 @@ use Tuleap\CrossTracker\Query\Advanced\ResultBuilderVisitor;
 use Tuleap\CrossTracker\Query\Advanced\SelectBuilderVisitor;
 use Tuleap\CrossTracker\REST\v1\Representation\CrossTrackerQueryContentRepresentation;
 use Tuleap\CrossTracker\REST\v1\Representation\CrossTrackerSelectedRepresentation;
+use Tuleap\CrossTracker\Widget\RetrieveCrossTrackerWidget;
 use Tuleap\Option\Option;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Artifact\RetrieveArtifact;
+use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\LinkDirection;
 use Tuleap\Tracker\Permission\ArtifactPermissionType;
 use Tuleap\Tracker\Permission\RetrieveUserPermissionOnArtifacts;
 use Tuleap\Tracker\Permission\RetrieveUserPermissionOnTrackers;
@@ -80,11 +82,11 @@ final readonly class CrossTrackerArtifactQueryFactory
 {
     #[ConfigKey('Configure the maximum quantity of tracker a cross tracker search expert query can use (default to 0 for no limit)')]
     #[ConfigKeyInt(0)]
-    public const MAX_TRACKER_FROM = 'crosstracker_maximum_tracker_get_from';
+    public const string MAX_TRACKER_FROM = 'crosstracker_maximum_tracker_get_from';
 
     #[ConfigKey('Configure the maximum quantity of column a cross tracker search expert query can select (default to 0 for no limit)')]
     #[ConfigKeyInt(0)]
-    public const MAX_SELECT = 'crosstracker_maximum_selected_columns';
+    public const string MAX_SELECT = 'crosstracker_maximum_selected_columns';
 
     public function __construct(
         private ExpertQueryValidator $expert_query_validator,
@@ -124,10 +126,12 @@ final readonly class CrossTrackerArtifactQueryFactory
      * @throws SyntaxError
      */
     public function getArtifactsMatchingQuery(
+        RetrieveCrossTrackerWidget $cross_tracker_retriever,
         CrossTrackerQuery $query,
         PFUser $current_user,
         int $limit,
         int $offset,
+        Option $direction,
     ): CrossTrackerQueryContentRepresentation {
         if ($query->getQuery() === '') {
             throw new ExpertQueryIsEmptyException();
@@ -135,7 +139,7 @@ final readonly class CrossTrackerArtifactQueryFactory
 
         $parsed_query = ParsedCrossTrackerQuery::fromCrossTrackerQuery($query, $this->parser);
 
-        $trackers = $this->query_trackers_retriever->getQueryTrackers($parsed_query, $current_user, ForgeConfig::getInt(self::MAX_TRACKER_FROM));
+        $trackers = $this->query_trackers_retriever->getQueryTrackers($cross_tracker_retriever, $parsed_query, $current_user, ForgeConfig::getInt(self::MAX_TRACKER_FROM));
         $this->instrumentation->updateTrackerCount(count($trackers));
 
         $this->validateExpertQuery($parsed_query, $current_user, $trackers);
@@ -153,6 +157,7 @@ final readonly class CrossTrackerArtifactQueryFactory
             $limit,
             $offset,
             Option::nothing(\Psl\Type\int()),
+            $direction,
         );
     }
 
@@ -191,7 +196,8 @@ final readonly class CrossTrackerArtifactQueryFactory
             ),
             $limit,
             $offset,
-            Option::fromValue($source_artifact_id)
+            Option::fromValue($source_artifact_id),
+            Option::fromValue(LinkDirection::FORWARD->value),
         );
     }
 
@@ -230,7 +236,8 @@ final readonly class CrossTrackerArtifactQueryFactory
             ),
             $limit,
             $offset,
-            Option::fromValue($target_artifact_id)
+            Option::fromValue($target_artifact_id),
+            Option::fromValue(LinkDirection::REVERSE->value),
         );
     }
 
@@ -241,7 +248,6 @@ final readonly class CrossTrackerArtifactQueryFactory
      * @throws MissingFromException
      * @throws OrderByIsInvalidException
      * @throws SearchablesAreInvalidException
-     * @throws SearchablesDoNotExistException
      * @throws SelectLimitExceededException
      * @throws SelectablesAreInvalidException
      * @throws SelectablesDoNotExistException
@@ -256,6 +262,7 @@ final readonly class CrossTrackerArtifactQueryFactory
         int $limit,
         int $offset,
         Option $artifact_id_for_links,
+        Option $direction,
     ): CrossTrackerQueryContentRepresentation {
         $trackers = $this->trackers_permissions->retrieveUserPermissionOnTrackers(
             $current_user,
@@ -269,18 +276,19 @@ final readonly class CrossTrackerArtifactQueryFactory
                     [],
                     $current_user,
                     [],
+                    $direction,
                 ),
                 0
             );
         }
         $this->instrumentation->updateTrackerCount(count($trackers));
 
-        $this->validateExpertQuery($query, $current_user, $trackers);
+        $this->validateArtifactLinks($query, $current_user, $trackers);
         if ($query->parsed_query->getOrderBy() !== null) {
             $this->instrumentation->updateOrderByUsage();
         }
 
-        return $this->retrieveQueryContentRepresentation($query, $trackers, $current_user, $additional_from_where, $limit, $offset, $artifact_id_for_links);
+        return $this->retrieveQueryContentRepresentation($query, $trackers, $current_user, $additional_from_where, $limit, $offset, $artifact_id_for_links, $direction);
     }
 
     /**
@@ -295,6 +303,7 @@ final readonly class CrossTrackerArtifactQueryFactory
         int $limit,
         int $offset,
         Option $target_artifact_id_for_reverse_links,
+        Option $direction,
     ): CrossTrackerQueryContentRepresentation {
         $additional_from_order = $this->order_builder->buildFromOrder($query->parsed_query->getOrderBy(), $trackers, $current_user);
         $tracker_ids           = $this->getTrackersId($trackers);
@@ -302,14 +311,13 @@ final readonly class CrossTrackerArtifactQueryFactory
             $additional_from_where,
             $additional_from_order,
             $tracker_ids,
-            $limit,
-            $offset
         );
+        $total_size            = count($artifact_ids);
         $artifact_ids          = array_map(
             static fn(Artifact $artifact) => $artifact->getId(),
             $this->permission_on_artifacts_retriever->retrieveUserPermissionOnArtifacts(
                 $current_user,
-                $this->getArtifacts($artifact_ids),
+                $this->getArtifacts(array_slice($artifact_ids, $offset, $limit)),
                 ArtifactPermissionType::PERMISSION_VIEW,
             )->allowed,
         );
@@ -317,11 +325,6 @@ final readonly class CrossTrackerArtifactQueryFactory
         if ($artifact_ids === []) {
             return new CrossTrackerQueryContentRepresentation([], [], 0);
         }
-
-        $total_size = $this->expert_query_dao->countArtifactsMatchingQuery(
-            $additional_from_where,
-            $tracker_ids,
-        );
 
         $this->instrumentation->updateSelectCount(count($query->parsed_query->getSelect()));
         $select_from_fragments = $this->select_builder->buildSelectFrom($query->parsed_query->getSelect(), $trackers, $current_user, $target_artifact_id_for_reverse_links, $artifact_ids);
@@ -331,7 +334,7 @@ final readonly class CrossTrackerArtifactQueryFactory
             array_values($artifact_ids),
         );
 
-        $results = $this->result_builder->buildResult([new Metadata('artifact'), ...$query->parsed_query->getSelect()], $trackers, $current_user, $select_results);
+        $results = $this->result_builder->buildResult([new Metadata('artifact'), ...$query->parsed_query->getSelect()], $trackers, $current_user, $select_results, $direction);
 
         return $this->buildQueryContentRepresentation($results, $total_size);
     }
@@ -357,6 +360,30 @@ final readonly class CrossTrackerArtifactQueryFactory
         $this->expert_query_validator->validateExpertQuery(
             $expert_query,
             new InvalidSearchablesCollectionBuilder($this->term_collector, $trackers, $current_user),
+            new InvalidSelectablesCollectionBuilder($this->selectables_collector, $trackers, $current_user),
+            new InvalidOrderByBuilder($this->field_checker, $this->metadata_checker, $trackers, $current_user),
+        );
+    }
+
+    /**
+     * @param Tracker[] $trackers
+     * @throws LimitSizeIsExceededException
+     * @throws OrderByIsInvalidException
+     * @throws SearchablesAreInvalidException
+     * @throws SelectLimitExceededException
+     * @throws SelectablesAreInvalidException
+     * @throws SelectablesDoNotExistException
+     * @throws SelectablesMustBeUniqueException
+     * @throws SyntaxError
+     */
+    private function validateArtifactLinks(
+        CrossTrackerQuery $query,
+        PFUser $current_user,
+        array $trackers,
+    ): void {
+        $expert_query = $query->getQuery();
+        $this->expert_query_validator->validateLinks(
+            $expert_query,
             new InvalidSelectablesCollectionBuilder($this->selectables_collector, $trackers, $current_user),
             new InvalidOrderByBuilder($this->field_checker, $this->metadata_checker, $trackers, $current_user),
         );

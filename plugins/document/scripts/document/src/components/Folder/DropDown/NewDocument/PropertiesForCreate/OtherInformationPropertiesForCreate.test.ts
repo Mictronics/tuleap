@@ -24,15 +24,11 @@ import OtherInformationPropertiesForCreate from "./OtherInformationPropertiesFor
 import { TYPE_FILE } from "../../../../../constants";
 import type { ItemFile, Property } from "../../../../../type";
 import { getGlobalTestOptions } from "../../../../../helpers/global-options-for-test";
-import type { ConfigurationState } from "../../../../../store/configuration";
 import type { PropertiesState } from "../../../../../store/properties/module";
-import { PROJECT_ID } from "../../../../../configuration-keys";
+import { IS_OBSOLESCENCE_DATE_PROPERTY_USED, PROJECT } from "../../../../../configuration-keys";
+import { ProjectBuilder } from "../../../../../../tests/builders/ProjectBuilder";
 
 vi.mock("../../../../../helpers/emitter");
-
-vi.mock("tlp", () => {
-    return { datePicker: vi.fn() };
-});
 
 describe("OtherInformationPropertiesForCreate", () => {
     let load_properties: vi.Mock;
@@ -61,12 +57,6 @@ describe("OtherInformationPropertiesForCreate", () => {
             global: {
                 ...getGlobalTestOptions({
                     modules: {
-                        configuration: {
-                            state: {
-                                is_obsolescence_date_property_used,
-                            } as unknown as ConfigurationState,
-                            namespaced: true,
-                        },
                         properties: {
                             state: {
                                 has_loaded_properties,
@@ -79,7 +69,9 @@ describe("OtherInformationPropertiesForCreate", () => {
                     },
                 }),
                 provide: {
-                    [PROJECT_ID.valueOf()]: 101,
+                    [PROJECT.valueOf()]: new ProjectBuilder(101).build(),
+                    [IS_OBSOLESCENCE_DATE_PROPERTY_USED.valueOf()]:
+                        is_obsolescence_date_property_used,
                 },
             },
         });

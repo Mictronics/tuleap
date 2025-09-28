@@ -38,6 +38,7 @@ use Tuleap\Jenkins\JenkinsCSRFCrumbRetriever;
 use Tuleap\Layout\IncludeAssets;
 use Tuleap\SVN\AccessControl\AccessFileHistoryDao;
 use Tuleap\SVN\AccessControl\AccessFileHistoryFactory;
+use Tuleap\SVN\BackendSVN;
 use Tuleap\SVN\Dao as SvnDao;
 use Tuleap\SVN\Hooks\PostCommit;
 use Tuleap\SVN\Repository\Destructor;
@@ -69,6 +70,7 @@ class hudson_svnPlugin extends Plugin //phpcs:ignore PSR1.Classes.ClassDeclarati
     /**
      * @see Plugin::getDependencies()
      */
+    #[\Override]
     public function getDependencies()
     {
         return ['svn', 'hudson'];
@@ -77,6 +79,7 @@ class hudson_svnPlugin extends Plugin //phpcs:ignore PSR1.Classes.ClassDeclarati
     /**
      * @return HudsonSvnPluginInfo
      */
+    #[\Override]
     public function getPluginInfo()
     {
         if (! $this->pluginInfo) {
@@ -151,7 +154,7 @@ class hudson_svnPlugin extends Plugin //phpcs:ignore PSR1.Classes.ClassDeclarati
             $this->getSystemCommand(),
             $this->getDestructor(),
             EventManager::instance(),
-            Backend::instanceSVN(),
+            BackendSVN::instance(),
             $this->getAccessFileHistoryFactory()
         );
     }
@@ -179,7 +182,7 @@ class hudson_svnPlugin extends Plugin //phpcs:ignore PSR1.Classes.ClassDeclarati
 
     private function getSvnAdmin()
     {
-        return new SvnAdmin($this->getSystemCommand(), SvnPlugin::getLogger(), Backend::instance(Backend::SVN));
+        return new SvnAdmin($this->getSystemCommand(), SvnPlugin::getLogger(), BackendSVN::instance());
     }
 
     private function getProjectManager()

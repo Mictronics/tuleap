@@ -53,6 +53,9 @@ dependencies:
   neverthrow:
     specifier: 6.0.0
     version: 6.0.0
+  uuid:
+    specifier: ^8.3.2
+    version: 8.3.2
   vue:
     specifier: ^3.5.13
     version: 3.5.13
@@ -63,8 +66,8 @@ dependencies:
     specifier: 2.4.0
     version: 2.4.0(vue@3.5.13)
   xlsx:
-    specifier: git+https://tuleap.net/plugins/git/tuleap/deps/sheetjs.git#a0bed2a97dcb1e3b76049be91abf3747f333c975
-    version: tuleap.net/plugins/git/tuleap/deps/sheetjs/a0bed2a97dcb1e3b76049be91abf3747f333c975
+    specifier: git+https://tuleap.net/plugins/git/tuleap/deps/sheetjs.git#8a7cfd47bde8258c0d91df6a737bf0136699cdf8
+    version: tuleap.net/plugins/git/tuleap/deps/sheetjs/8a7cfd47bde8258c0d91df6a737bf0136699cdf8
 
 devDependencies:
   '@tuleap/build-system-configurator':
@@ -82,6 +85,9 @@ devDependencies:
   '@tuleap/po-gettext-plugin':
     specifier: workspace:*
     version: link:../../../../lib/frontend/po-gettext-plugin
+  '@types/uuid':
+    specifier: ^9.0.8
+    version: 9.0.8
   '@vitejs/plugin-vue':
     specifier: 4.2.3
     version: 4.2.3(vue@3.5.13)
@@ -173,6 +179,10 @@ packages:
     requiresBuild: true
     dev: false
     optional: true
+
+  /@types/uuid@9.0.8:
+    resolution: {integrity: sha512-jg+97EGIcY9AGHJJRaaPVgetKDsrTgbRjQ5Msgjh/DQKEFl0DtyRr/VCOyD1T2R1MNeWPK/u7JoGhlDZnKBAfA==}
+    dev: true
 
   /@vitejs/plugin-vue@4.2.3(vue@3.5.13):
     resolution: {integrity: sha512-R6JDUfiZbJA9cMiguQ7jxALsgiprjBeHL5ikpXfJCH62pPHtI+JdJ5xWj6Ev73yXSlYl86+blXn1kZHQ7uElxw==}
@@ -689,6 +699,11 @@ packages:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
     dev: false
 
+  /uuid@8.3.2:
+    resolution: {integrity: sha512-+NYs2QeMWy+GWFOEm9xnn6HCDp0l7QBD7ml8zLUmJ+93Q5NF0NocErnwkTkXVFNiX3/fpC6afS8Dhb/gz7R7eg==}
+    hasBin: true
+    dev: false
+
   /vue-component-type-helpers@2.2.8:
     resolution: {integrity: sha512-4bjIsC284coDO9om4HPA62M7wfsTvcmZyzdfR0aUlFXqq4tXxM1APyXpNVxPC8QazKw9OhmZNHBVDA6ODaZsrA==}
     dev: true
@@ -744,10 +759,10 @@ packages:
     engines: {node: '>= 6'}
     dev: false
 
-  tuleap.net/plugins/git/tuleap/deps/sheetjs/a0bed2a97dcb1e3b76049be91abf3747f333c975:
-    resolution: {commit: a0bed2a97dcb1e3b76049be91abf3747f333c975, repo: https://tuleap.net/plugins/git/tuleap/deps/sheetjs.git, type: git}
+  tuleap.net/plugins/git/tuleap/deps/sheetjs/8a7cfd47bde8258c0d91df6a737bf0136699cdf8:
+    resolution: {commit: 8a7cfd47bde8258c0d91df6a737bf0136699cdf8, repo: https://tuleap.net/plugins/git/tuleap/deps/sheetjs.git, type: git}
     name: xlsx
-    version: 0.20.2
+    version: 0.20.3
     engines: {node: '>=0.8'}
     hasBin: true
     dev: false

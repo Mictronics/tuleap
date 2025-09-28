@@ -50,6 +50,7 @@ use Tuleap\Project\DescriptionFieldsFactory;
 use Tuleap\Project\Event\ProjectXMLImportPreChecksEvent;
 use Tuleap\Project\ImportFromArchive;
 use Tuleap\Project\ProjectCreationData;
+use Tuleap\Project\ProjectXMLExporter;
 use Tuleap\Project\Registration\Template\Upload\CheckArchiveContent;
 use Tuleap\Project\Service\ProjectDefinedService;
 use Tuleap\Project\Service\ServiceDao;
@@ -274,6 +275,7 @@ class ProjectXMLImporter implements ImportFromArchive //phpcs:ignore PSR1.Classe
         return $project;
     }
 
+    #[\Override]
     public function importFromArchive(
         ImportConfig $configuration,
         int $project_id,

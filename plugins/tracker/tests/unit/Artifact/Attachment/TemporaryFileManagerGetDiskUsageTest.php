@@ -25,7 +25,6 @@ namespace Tuleap\Tracker\Artifact\Attachment;
 
 use ForgeConfig;
 use PFUser;
-use System_Command;
 use Tracker_Artifact_Attachment_TemporaryFileManager;
 use Tracker_Artifact_Attachment_TemporaryFileManagerDao;
 use Tuleap\ForgeConfigSandbox;
@@ -42,6 +41,7 @@ final class TemporaryFileManagerGetDiskUsageTest extends TestCase
     private string $cache_dir;
     private PFUser $user;
 
+    #[\Override]
     public function setUp(): void
     {
         $this->cache_dir = trim(`mktemp -d -p /var/tmp cache_dir_XXXXXX`);
@@ -55,12 +55,12 @@ final class TemporaryFileManagerGetDiskUsageTest extends TestCase
         $this->file_manager = new Tracker_Artifact_Attachment_TemporaryFileManager(
             RetrieveUserByIdStub::withUser($this->user),
             $dao,
-            new System_Command(),
             3,
             new DBTransactionExecutorPassthrough(),
         );
     }
 
+    #[\Override]
     public function tearDown(): void
     {
         exec('rm -rf ' . escapeshellarg($this->cache_dir));

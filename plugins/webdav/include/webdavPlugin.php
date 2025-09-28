@@ -33,6 +33,7 @@ use Tuleap\User\AccessKey\AccessKeyVerifier;
 use Tuleap\User\AccessKey\Scope\AccessKeyScopeBuilderCollector;
 use Tuleap\User\AccessKey\Scope\AccessKeyScopeDAO;
 use Tuleap\User\AccessKey\Scope\AccessKeyScopeRetriever;
+use Tuleap\User\Password\PasswordExpirationChecker;
 use Tuleap\WebDAV\Authentication\AccessKey\WebDAVAccessKeyScope;
 use Tuleap\Webdav\Authentication\HeadersSender;
 use Tuleap\WebDAV\ServerBuilder;
@@ -53,6 +54,7 @@ class WebDAVPlugin extends Plugin implements PluginWithConfigKeys
         $this->setScope(Plugin::SCOPE_PROJECT);
     }
 
+    #[\Override]
     public function getPluginInfo(): PluginInfo
     {
         if (! $this->pluginInfo) {
@@ -67,11 +69,13 @@ class WebDAVPlugin extends Plugin implements PluginWithConfigKeys
         return $this->pluginInfo;
     }
 
+    #[\Override]
     public function getDependencies()
     {
         return ['docman'];
     }
 
+    #[\Override]
     public function getConfigKeys(ConfigClassProvider $event): void
     {
         $event->addConfigClass(WebDAVUtils::class);
@@ -150,7 +154,7 @@ class WebDAVPlugin extends Plugin implements PluginWithConfigKeys
                 new UserDao(),
                 $user_manager,
                 new \Tuleap\User\PasswordVerifier($password_handler),
-                new User_PasswordExpirationChecker(),
+                new PasswordExpirationChecker(),
                 $password_handler
             ),
             new HeadersSender(),

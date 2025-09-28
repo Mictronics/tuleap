@@ -62,9 +62,9 @@ final class GitXMLExporterTest extends TestCase
     use GlobalLanguageMock;
     use ForgeConfigSandbox;
 
-    private const REPOSITORY_ID        = 101;
-    private const EMPTY_REPOSITORY_ID  = 102;
-    private const FORKED_REPOSITORY_IP = 103;
+    private const int REPOSITORY_ID        = 101;
+    private const int EMPTY_REPOSITORY_ID  = 102;
+    private const int FORKED_REPOSITORY_IP = 103;
 
     private UserManager&MockObject $user_manager;
     private Git_LogDao&MockObject $git_log_dao;
@@ -73,6 +73,7 @@ final class GitXMLExporterTest extends TestCase
     private ZipArchive $zip;
     private GitPermissionsManager&MockObject $permission_manager;
 
+    #[\Override]
     protected function setUp(): void
     {
         $export_folder = $this->getTmpDir();
@@ -164,6 +165,7 @@ final class GitXMLExporterTest extends TestCase
         ForgeConfig::set('tmp_dir', $export_folder);
     }
 
+    #[\Override]
     protected function tearDown(): void
     {
         try {

@@ -89,6 +89,7 @@ final class StepDefinitionRepresentation implements \JsonSerializable
         $this->step_type                   = $step_type;
     }
 
+    #[\Override]
     public function jsonSerialize(): array
     {
         $json_representation = [

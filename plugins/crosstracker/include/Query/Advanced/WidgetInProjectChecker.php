@@ -22,18 +22,23 @@ declare(strict_types=1);
 
 namespace Tuleap\CrossTracker\Query\Advanced;
 
-use Tuleap\CrossTracker\Widget\SearchCrossTrackerWidget;
+use Tuleap\CrossTracker\Widget\ProjectCrossTrackerWidget;
+use Tuleap\CrossTracker\Widget\RetrieveCrossTrackerWidget;
+use Tuleap\CrossTracker\Widget\UserCrossTrackerWidget;
 
 final readonly class WidgetInProjectChecker
 {
-    public function __construct(private SearchCrossTrackerWidget $widget_retriever)
+    public function __construct(private RetrieveCrossTrackerWidget $cross_tracker_widget_retriever)
     {
     }
 
     public function isWidgetInProjectDashboard(int $widget_id): bool
     {
-        $row = $this->widget_retriever->searchCrossTrackerWidgetDashboardById($widget_id);
+        $widget_option = $this->cross_tracker_widget_retriever->retrieveWidgetById($widget_id);
 
-        return $row !== null && $row['dashboard_type'] === 'project';
+        return $widget_option->match(
+            fn(ProjectCrossTrackerWidget|UserCrossTrackerWidget $widget) => $widget instanceof ProjectCrossTrackerWidget,
+            fn() => false
+        );
     }
 }

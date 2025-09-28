@@ -48,25 +48,21 @@
 import ObsolescenceDatePropertyForCreate from "./ObsolescenceDatePropertyForCreate.vue";
 import CustomProperty from "../../PropertiesForCreateOrUpdate/CustomProperties/CustomProperty.vue";
 import { useNamespacedActions, useNamespacedState } from "vuex-composition-helpers";
-import type { ConfigurationState } from "../../../../../store/configuration";
 import type { PropertiesState } from "../../../../../store/properties/module";
 import { computed, onMounted } from "vue";
 import type { PropertiesActions } from "../../../../../store/properties/properties-actions";
 import type { Item } from "../../../../../type";
 import { strictInject } from "@tuleap/vue-strict-inject";
-import { PROJECT_ID } from "../../../../../configuration-keys";
+import { IS_OBSOLESCENCE_DATE_PROPERTY_USED, PROJECT } from "../../../../../configuration-keys";
 
 const props = defineProps<{ currentlyUpdatedItem: Item; value: string }>();
 
-const project_id = strictInject(PROJECT_ID);
+const project = strictInject(PROJECT);
+const is_obsolescence_date_property_used = strictInject(IS_OBSOLESCENCE_DATE_PROPERTY_USED);
 
 const { loadProjectProperties } = useNamespacedActions<PropertiesActions>("properties", [
     "loadProjectProperties",
 ]);
-
-const { is_obsolescence_date_property_used } = useNamespacedState<
-    Pick<ConfigurationState, "is_obsolescence_date_property_used">
->("configuration", ["is_obsolescence_date_property_used"]);
 
 const { has_loaded_properties } = useNamespacedState<
     Pick<PropertiesState, "has_loaded_properties">
@@ -74,13 +70,13 @@ const { has_loaded_properties } = useNamespacedState<
 
 onMounted((): void => {
     if (!has_loaded_properties.value) {
-        loadProjectProperties(project_id);
+        loadProjectProperties(project.id);
     }
 });
 
 const has_properties_to_create = computed((): boolean => {
     return (
-        is_obsolescence_date_property_used.value ||
+        is_obsolescence_date_property_used ||
         (props.currentlyUpdatedItem.properties && props.currentlyUpdatedItem.properties.length > 0)
     );
 });

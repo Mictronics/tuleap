@@ -34,6 +34,7 @@ use Tuleap\CrossTracker\REST\v1\Representation\CrossTrackerQueryContentRepresent
 use Tuleap\CrossTracker\REST\v1\Representation\CrossTrackerQueryRepresentation;
 use Tuleap\CrossTracker\REST\v1\Representation\CrossTrackerWidgetRepresentation;
 use Tuleap\CrossTracker\Widget\CrossTrackerWidgetDao;
+use Tuleap\CrossTracker\Widget\CrossTrackerWidgetRetriever;
 use Tuleap\Option\Option;
 use Tuleap\REST\AuthenticatedResource;
 use Tuleap\REST\Header;
@@ -57,8 +58,8 @@ use UserManager;
 
 final class CrossTrackerWidgetResource extends AuthenticatedResource
 {
-    public const  ROUTE     = 'crosstracker_widget';
-    public const  MAX_LIMIT = 50;
+    public const  string ROUTE  = 'crosstracker_widget';
+    public const  int MAX_LIMIT = 50;
 
     private readonly ProvideCurrentUser $current_user_provider;
     private readonly CrossTrackerArtifactQueryFactoryBuilder $factory_builder;
@@ -160,7 +161,7 @@ final class CrossTrackerWidgetResource extends AuthenticatedResource
             $this->getUserIsAllowedToSeeWidgetChecker()->checkUserIsAllowedToSeeWidget($current_user, $id);
 
             $artifacts = $this->factory_builder->getInstrumentation()->updateQueryDuration(
-                fn(): CrossTrackerQueryContentRepresentation => $this->factory_builder->getArtifactFactory(new ForwardLinkTypeSelectFromBuilder())->getForwardLinks(
+                fn(): CrossTrackerQueryContentRepresentation => $this->factory_builder->getArtifactFactory(new ForwardLinkTypeSelectFromBuilder(), new CrossTrackerWidgetRetriever($this->getWidgetDao()))->getForwardLinks(
                     CrossTrackerQueryFactory::fromTqlQueryAndWidgetId($tql_query, Option::fromValue($id)),
                     $source_artifact_id,
                     $current_user,
@@ -232,7 +233,7 @@ final class CrossTrackerWidgetResource extends AuthenticatedResource
             $this->getUserIsAllowedToSeeWidgetChecker()->checkUserIsAllowedToSeeWidget($current_user, $id);
 
             $artifacts = $this->factory_builder->getInstrumentation()->updateQueryDuration(
-                fn(): CrossTrackerQueryContentRepresentation => $this->factory_builder->getArtifactFactory(new ReverseLinkTypeSelectFromBuilder())->getReverseLinks(
+                fn(): CrossTrackerQueryContentRepresentation => $this->factory_builder->getArtifactFactory(new ReverseLinkTypeSelectFromBuilder(), new CrossTrackerWidgetRetriever($this->getWidgetDao()))->getReverseLinks(
                     CrossTrackerQueryFactory::fromTqlQueryAndWidgetId($tql_query, Option::fromValue($id)),
                     $target_artifact_id,
                     $current_user,
@@ -275,9 +276,9 @@ final class CrossTrackerWidgetResource extends AuthenticatedResource
     private function getUserIsAllowedToSeeWidgetChecker(): UserIsAllowedToSeeWidgetChecker
     {
         return new UserIsAllowedToSeeWidgetChecker(
-            $this->getWidgetDao(),
             ProjectManager::instance(),
             new URLVerification(),
+            new CrossTrackerWidgetRetriever($this->getWidgetDao()),
         );
     }
 }

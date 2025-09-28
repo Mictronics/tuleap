@@ -21,9 +21,9 @@
 /**
  * Description of SystemEvent_GIT_REPO_DELETE
  */
-class SystemEvent_GIT_REPO_RESTORE extends SystemEvent
+class SystemEvent_GIT_REPO_RESTORE extends SystemEvent //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
-    public const NAME = 'GIT_REPO_RESTORE';
+    public const string NAME = 'GIT_REPO_RESTORE';
 
     /** @var GitRepositoryFactory */
     private $repository_factory;
@@ -34,6 +34,7 @@ class SystemEvent_GIT_REPO_RESTORE extends SystemEvent
         $this->repository_factory = $repository_factory;
     }
 
+    #[\Override]
     public function process()
     {
         $parameters    = $this->getParametersAsArray();
@@ -69,6 +70,7 @@ class SystemEvent_GIT_REPO_RESTORE extends SystemEvent
         $this->done();
     }
 
+    #[\Override]
     public function verbalizeParameters($with_link)
     {
         $repository = $this->getRepositoryFromParameters();

@@ -31,7 +31,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 final class RepositoriesWithObjectsOverTheLimitCommand extends Command
 {
-    public const NAME = 'git:repositories-with-object-over-the-size-limit';
+    public const string NAME = 'git:repositories-with-object-over-the-size-limit';
 
     /**
      * @var \GitRepositoryFactory
@@ -51,12 +51,14 @@ final class RepositoriesWithObjectsOverTheLimitCommand extends Command
         $this->repository_objects_size_retriever = $repository_objects_size_retriever;
     }
 
+    #[\Override]
     protected function configure(): void
     {
         $this->setDescription('Search for repositories active in the last 2 months with objects over the size limit')
             ->addOption('format', null, InputOption::VALUE_REQUIRED, 'The output format (txt or json)', 'txt');
     }
 
+    #[\Override]
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         switch ($format = $input->getOption('format')) {

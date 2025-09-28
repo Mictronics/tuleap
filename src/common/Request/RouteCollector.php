@@ -128,7 +128,6 @@ use Tuleap\Markdown\CommonMarkInterpreter;
 use Tuleap\Markdown\CommonMarkInterpreterController;
 use Tuleap\Markdown\EnhancedCodeBlockExtension;
 use Tuleap\News\NewsDao;
-use Tuleap\News\PermissionsPerGroup;
 use Tuleap\OAuth2ServerCore\OAuth2ServerRoutes;
 use Tuleap\Password\Administration\PasswordPolicyDisplayController;
 use Tuleap\Password\Administration\PasswordPolicyUpdateController;
@@ -721,28 +720,26 @@ class RouteCollector
         );
     }
 
-    public static function getUsersNameAvatar()
+    public static function getAvatarController(): AvatarController
     {
         $storage             = new AvatarHashDao();
         $compute_avatar_hash = new ComputeAvatarHash();
+        $response_factory    = HTTPFactoryBuilder::responseFactory();
+
+        $current_user_middleware = new RESTCurrentUserMiddleware(\Tuleap\REST\UserManager::build(), new BasicAuthentication());
 
         return new AvatarController(
+            new SapiEmitter(),
+            new BinaryFileResponseBuilder($response_factory, HTTPFactoryBuilder::streamFactory()),
+            $response_factory,
+            $current_user_middleware,
+            \UserManager::instance(),
             new AvatarGenerator($storage, $compute_avatar_hash),
             $storage,
             $compute_avatar_hash,
-        );
-    }
-
-    public static function getUsersNameAvatarHash()
-    {
-        $storage             = new AvatarHashDao();
-        $compute_avatar_hash = new ComputeAvatarHash();
-
-        return new AvatarController(
-            new AvatarGenerator($storage, $compute_avatar_hash),
-            $storage,
-            $compute_avatar_hash,
-            ['expires' => 'never'],
+            new SessionWriteCloseMiddleware(),
+            new TuleapRESTCORSMiddleware(),
+            $current_user_middleware,
         );
     }
 
@@ -828,11 +825,6 @@ class RouteCollector
     public static function getRssLatestNews()
     {
         return new LatestNewsController(new NewsDao(), Codendi_HTMLPurifier::instance());
-    }
-
-    public static function getNewsPermissionsPerGroup(): DispatchableWithRequest
-    {
-        return new PermissionsPerGroup();
     }
 
     public static function getProjectAdminMembersController(): DispatchableWithRequest
@@ -922,8 +914,8 @@ class RouteCollector
             AdministrationLayoutHelper::buildSelf(),
             new ServicesPresenterBuilder(ServiceManager::instance(), EventManager::instance()),
             TemplateRendererFactory::build()->getRenderer(__DIR__ . '/../../templates/project/admin/services/'),
-            new JavascriptViteAsset($assets, 'src/index-project-admin.js'),
-            new JavascriptViteAsset($assets, 'src/index-site-admin.js'),
+            new JavascriptViteAsset($assets, 'src/main-project-admin.ts'),
+            new JavascriptViteAsset($assets, 'src/main-site-admin.ts'),
         );
     }
 
@@ -1678,8 +1670,8 @@ class RouteCollector
 
         $r->addGroup('/users', function (FastRoute\RouteCollector $r) {
             $r->get('/{name}[/]', [self::class, 'getUsersName']);
-            $r->get('/{name}/avatar.png', [self::class, 'getUsersNameAvatar']);
-            $r->get('/{name}/avatar-{hash}.png', [self::class, 'getUsersNameAvatarHash']);
+            $r->get('/{name}/avatar.png', [self::class, 'getAvatarController']);
+            $r->get('/{name}/avatar-{hash}.png', [self::class, 'getAvatarController']);
         });
 
         $r->post('/join-private-project-mail/', [self::class, 'postJoinPrivateProjectMail']);
@@ -1697,8 +1689,6 @@ class RouteCollector
 
         $r->get('/export/rss_sfprojects.php', [self::class, 'getRssLatestProjects']);
         $r->get('/export/rss_sfnews.php', [self::class, 'getRssLatestNews']);
-
-        $r->get('/news/permissions-per-group', [self::class, 'getNewsPermissionsPerGroup']);
 
         $r->post('/csp-violation', [self::class, 'getCSPViolationReportToController']);
 

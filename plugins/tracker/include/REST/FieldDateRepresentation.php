@@ -19,6 +19,7 @@
  */
 
 use Tuleap\Tracker\FormElement\Field\Date\DateField;
+use Tuleap\Tracker\FormElement\TrackerFormElement;
 use Tuleap\Tracker\REST\FormElement\PermissionsForGroupsRepresentation;
 
 /**
@@ -40,8 +41,9 @@ class Tracker_REST_FormElement_FieldDateRepresentation extends Tracker_REST_Form
         $this->is_time_displayed = $is_time_displayed;
     }
 
+    #[\Override]
     public static function build(
-        Tracker_FormElement $form_element,
+        TrackerFormElement $form_element,
         string $type,
         array $permissions,
         ?PermissionsForGroupsRepresentation $permissions_for_groups,

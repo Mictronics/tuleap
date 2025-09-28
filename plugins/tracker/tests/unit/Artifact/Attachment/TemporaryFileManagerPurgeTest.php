@@ -26,7 +26,6 @@ namespace Tuleap\Tracker\Artifact\Attachment;
 use ForgeConfig;
 use PFUser;
 use PHPUnit\Framework\MockObject\MockObject;
-use System_Command;
 use TestHelper;
 use Tracker_Artifact_Attachment_TemporaryFileManager;
 use Tracker_Artifact_Attachment_TemporaryFileManagerDao;
@@ -45,6 +44,7 @@ final class TemporaryFileManagerPurgeTest extends TestCase
     private string $cache_dir;
     private Tracker_Artifact_Attachment_TemporaryFileManagerDao&MockObject $dao;
 
+    #[\Override]
     public function setUp(): void
     {
         $this->cache_dir = trim(`mktemp -d -p /var/tmp cache_dir_XXXXXX`);
@@ -56,7 +56,6 @@ final class TemporaryFileManagerPurgeTest extends TestCase
         $this->file_manager = new Tracker_Artifact_Attachment_TemporaryFileManager(
             RetrieveUserByIdStub::withUser(new PFUser(['user_id' => 101, 'language_id' => 'en_US'])),
             $this->dao,
-            new System_Command(),
             3,
             new DBTransactionExecutorPassthrough(),
         );
@@ -66,6 +65,7 @@ final class TemporaryFileManagerPurgeTest extends TestCase
         touch($this->file_to_delete);
     }
 
+    #[\Override]
     public function tearDown(): void
     {
         exec('rm -rf ' . escapeshellarg($this->cache_dir));

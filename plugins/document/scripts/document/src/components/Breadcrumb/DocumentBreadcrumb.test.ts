@@ -23,8 +23,8 @@ import type { VueWrapper } from "@vue/test-utils";
 import { RouterLinkStub, shallowMount } from "@vue/test-utils";
 import type { Embedded, Folder, Item, RootState } from "../../type";
 import { getGlobalTestOptions } from "../../helpers/global-options-for-test";
-import type { ConfigurationState } from "../../store/configuration";
-import { PROJECT_ID, PROJECT_PUBLIC_NAME, USER_IS_ADMIN } from "../../configuration-keys";
+import { PROJECT, USER_IS_ADMIN } from "../../configuration-keys";
+import { ProjectBuilder } from "../../../tests/builders/ProjectBuilder";
 
 describe("DocumentBreadcrumb", () => {
     function createWrapper(
@@ -37,17 +37,6 @@ describe("DocumentBreadcrumb", () => {
         return shallowMount(DocumentBreadcrumb, {
             global: {
                 ...getGlobalTestOptions({
-                    modules: {
-                        configuration: {
-                            state: {
-                                project_icon,
-                                project_url: " /project",
-                                privacy: "private",
-                                project_flags: [],
-                            } as unknown as ConfigurationState,
-                            namespaced: true,
-                        },
-                    },
                     state: {
                         current_folder_ascendant_hierarchy,
                         is_loading_ascendant_hierarchy,
@@ -59,8 +48,11 @@ describe("DocumentBreadcrumb", () => {
                     RouterLink: RouterLinkStub,
                 },
                 provide: {
-                    [PROJECT_ID.valueOf()]: 101,
-                    [PROJECT_PUBLIC_NAME.valueOf()]: "My project",
+                    [PROJECT.valueOf()]: new ProjectBuilder(101)
+                        .withPublicName("My project")
+                        .withUrl("/project")
+                        .withIcon(project_icon)
+                        .build(),
                     [USER_IS_ADMIN.valueOf()]: user_is_admin,
                 },
             },

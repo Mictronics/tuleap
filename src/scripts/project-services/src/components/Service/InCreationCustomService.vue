@@ -21,7 +21,7 @@
     <div class="tlp-modal-body">
         <service-label
             id="project-service-add-modal-label"
-            v-bind:value="service.label"
+            v-bind:label="service.label"
             v-on:input="onEditServiceLabel"
         />
         <icon-selector
@@ -31,23 +31,27 @@
         />
         <service-is-used
             id="project-service-add-modal-enabled"
-            v-bind:value="service.is_used"
-            v-bind:disabled-reason="service.is_disabled_reason"
+            v-bind:is_used="service.is_used"
+            v-bind:is_disabled_reason="service.is_disabled_reason"
         />
         <slot name="is_active">
             <hidden-service-is-active v-bind:is_active="service.is_active" />
         </slot>
-        <service-rank id="project-service-add-modal-rank" v-bind:value="service.rank" />
-        <service-link id="project-service-add-modal-link" v-bind:value="service.link" />
+        <service-rank id="project-service-add-modal-rank" v-bind:rank="service.rank" />
+        <service-link
+            id="project-service-add-modal-link"
+            v-bind:link="service.link"
+            v-bind:disabled="false"
+        />
         <slot name="shortname" />
         <service-description
             id="project-service-add-modal-description"
-            v-bind:value="service.description"
+            v-bind:description="service.description"
         />
 
         <service-open-in-new-tab
             id="project-service-add-modal-new-tab"
-            v-bind:value="service.is_in_new_tab"
+            v-bind:is_in_new_tab="service.is_in_new_tab"
             v-on:input="onNewTabChange"
         />
     </div>
@@ -70,15 +74,15 @@ const props = defineProps<{
 
 const service = ref(props.service_prop);
 
-function onEditServiceLabel(new_label: string) {
+function onEditServiceLabel(new_label: string): void {
     service.value.label = new_label;
 }
 
-function onEditIcon(new_icon: string) {
+function onEditIcon(new_icon: string): void {
     service.value.icon_name = new_icon;
 }
 
-function onNewTabChange(new_tab: boolean) {
+function onNewTabChange(new_tab: boolean): void {
     service.value.is_in_new_tab = new_tab;
 }
 </script>

@@ -41,8 +41,11 @@ use Tuleap\CrossTracker\REST\v1\Representation\CrossTrackerQueryPostRepresentati
 use Tuleap\CrossTracker\REST\v1\Representation\CrossTrackerQueryPutRepresentation;
 use Tuleap\CrossTracker\REST\v1\Representation\CrossTrackerQueryRepresentation;
 use Tuleap\CrossTracker\Widget\CrossTrackerWidgetDao;
+use Tuleap\CrossTracker\Widget\CrossTrackerWidgetRetriever;
+use Tuleap\CrossTracker\Widget\RetrieveCrossTrackerWidget;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\DBTransactionExecutorWithConnection;
+use Tuleap\Option\Option;
 use Tuleap\REST\AuthenticatedResource;
 use Tuleap\REST\Header;
 use Tuleap\REST\I18NRestException;
@@ -62,21 +65,24 @@ use Tuleap\Tracker\Report\Query\Advanced\SelectLimitExceededException;
 use Tuleap\User\ProvideCurrentUser;
 use URLVerification;
 use UserManager;
+use function Psl\Type\string;
 
 final class CrossTrackerQueryResource extends AuthenticatedResource
 {
-    public const  ROUTE     = 'crosstracker_query';
-    public const  MAX_LIMIT = 50;
+    public const  string ROUTE  = 'crosstracker_query';
+    public const  int MAX_LIMIT = 50;
 
     private readonly ProvideCurrentUser $current_user_provider;
     private readonly CrossTrackerArtifactQueryFactoryBuilder $factory_builder;
     private readonly \CuyZ\Valinor\Mapper\TreeMapper $object_mapper;
+    private readonly RetrieveCrossTrackerWidget $retrieve_cross_tracker_widget;
 
     public function __construct()
     {
-        $this->current_user_provider = UserManager::instance();
-        $this->factory_builder       = new CrossTrackerArtifactQueryFactoryBuilder();
-        $this->object_mapper         = \Tuleap\Mapper\ValinorMapperBuilderFactory::mapperBuilder()->allowUndefinedValues()->mapper();
+        $this->current_user_provider         = UserManager::instance();
+        $this->factory_builder               = new CrossTrackerArtifactQueryFactoryBuilder();
+        $this->object_mapper                 = \Tuleap\Mapper\ValinorMapperBuilderFactory::mapperBuilder()->allowUndefinedValues()->mapper();
+        $this->retrieve_cross_tracker_widget = new CrossTrackerWidgetRetriever($this->getWidgetDao());
     }
 
     /**
@@ -134,11 +140,13 @@ final class CrossTrackerQueryResource extends AuthenticatedResource
             );
 
             $artifacts = $this->factory_builder->getInstrumentation()->updateQueryDuration(
-                fn(): CrossTrackerQueryContentRepresentation => $this->factory_builder->getArtifactFactory(new WithoutLinkTypeSelectFromBuilder())->getArtifactsMatchingQuery(
+                fn(): CrossTrackerQueryContentRepresentation => $this->factory_builder->getArtifactFactory(new WithoutLinkTypeSelectFromBuilder(), $this->retrieve_cross_tracker_widget)->getArtifactsMatchingQuery(
+                    $this->retrieve_cross_tracker_widget,
                     CrossTrackerQueryFactory::fromTqlQueryAndWidgetId($query_representation->tql_query, $query_representation->widget_id),
                     $current_user,
                     $limit,
                     $offset,
+                    Option::nothing(string()),
                 )
             );
 
@@ -195,7 +203,7 @@ final class CrossTrackerQueryResource extends AuthenticatedResource
             $query        = $this->getQuery($id, $current_user);
 
             $artifacts = $this->factory_builder->getInstrumentation()->updateQueryDuration(
-                fn() => $this->factory_builder->getArtifactFactory(new WithoutLinkTypeSelectFromBuilder())->getArtifactsMatchingQuery($query, $current_user, $limit, $offset)
+                fn() => $this->factory_builder->getArtifactFactory(new WithoutLinkTypeSelectFromBuilder(), $this->retrieve_cross_tracker_widget)->getArtifactsMatchingQuery($this->retrieve_cross_tracker_widget, $query, $current_user, $limit, $offset, Option::nothing(string()))
             );
 
             assert($artifacts instanceof CrossTrackerQueryContentRepresentation);
@@ -362,7 +370,7 @@ final class CrossTrackerQueryResource extends AuthenticatedResource
      */
     private function getQuery(string $id, PFUser $current_user): CrossTrackerQuery
     {
-        $factory = new CrossTrackerQueryFactory(new CrossTrackerQueryDao());
+        $factory = new CrossTrackerQueryFactory($this->getQueryDao());
         $query   = $factory->getById($id);
         $query->getWidgetId()->apply(
             function (int $widget_id) use ($current_user): void {
@@ -386,9 +394,9 @@ final class CrossTrackerQueryResource extends AuthenticatedResource
     private function getUserIsAllowedToSeeWidgetChecker(): UserIsAllowedToSeeWidgetChecker
     {
         return new UserIsAllowedToSeeWidgetChecker(
-            $this->getWidgetDao(),
             ProjectManager::instance(),
             new URLVerification(),
+            $this->retrieve_cross_tracker_widget
         );
     }
 }

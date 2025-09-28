@@ -20,7 +20,10 @@
 
 <template>
     <aside class="aside" v-bind:class="is_expanded ? 'is-aside-expanded' : 'is-aside-collapsed'">
-        <div class="tlp-framed sidebar-contents">
+        <div
+            class="tlp-framed sidebar-contents"
+            v-bind:class="{ 'sidebar-contents-with-tabs': are_versions_displayed }"
+        >
             <button
                 class="tlp-button-mini tlp-button-primary tlp-button-outline sidebar-button"
                 v-on:click="toggle"
@@ -29,7 +32,12 @@
                 <i v-bind:class="icon" role="img"></i>
             </button>
             <div class="sidebar-contents-container">
-                <table-of-contents />
+                <document-sidebar-header
+                    v-on:switch-sidebar-tab="switchTab"
+                    v-bind:current_tab="current_tab"
+                />
+                <table-of-contents v-if="current_tab === TOC_TAB" />
+                <list-of-versions v-if="current_tab === VERSIONS_TAB" />
             </div>
         </div>
     </aside>
@@ -37,10 +45,26 @@
 
 <script setup lang="ts">
 import TableOfContents from "./toc/TableOfContents.vue";
-import { computed, ref } from "vue";
+import { computed, ref, watch } from "vue";
 import { useGettext } from "vue3-gettext";
+import DocumentSidebarHeader from "@/components/sidebar/DocumentSidebarHeader.vue";
+import { strictInject } from "@tuleap/vue-strict-inject";
+import { ARE_VERSIONS_DISPLAYED } from "@/can-user-display-versions-injection-key";
+import type { SidebarTab } from "@/components/sidebar/document-sidebar";
+import { VERSIONS_TAB, TOC_TAB } from "@/components/sidebar/document-sidebar";
+import ListOfVersions from "@/components/sidebar/versions/ListOfVersions.vue";
+
+const are_versions_displayed = strictInject(ARE_VERSIONS_DISPLAYED);
 
 const { $gettext } = useGettext();
+
+const current_tab = ref<SidebarTab>(TOC_TAB);
+
+watch(are_versions_displayed, (are_versions_displayed) => {
+    if (!are_versions_displayed) {
+        current_tab.value = TOC_TAB;
+    }
+});
 
 const is_expanded = ref(true);
 
@@ -53,6 +77,10 @@ const title = computed(() =>
 
 function toggle(): void {
     is_expanded.value = !is_expanded.value;
+}
+
+function switchTab(tab: SidebarTab): void {
+    current_tab.value = tab;
 }
 </script>
 
@@ -114,6 +142,10 @@ $button-width: var(--artidoc-sidebar-button-width);
     position: sticky;
     top: calc(var(--artidoc-sticky-top-position) + var(--artidoc-sidebar-title-vertical-margin));
     padding: 0;
+}
+
+.sidebar-contents-with-tabs {
+    top: var(--artidoc-sticky-top-position);
 }
 
 .is-aside-collapsed > .sidebar-contents {

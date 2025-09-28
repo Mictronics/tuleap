@@ -43,20 +43,15 @@
     </div>
 </template>
 
-<script>
-import { inject } from "vue";
-import { useOverviewWidgetStore } from "../../store/index";
+<script setup lang="ts">
+import { strictInject } from "@tuleap/vue-strict-inject";
+import type { OverviewReportTracker } from "@tuleap/plugin-timetracking-rest-api-types";
+import { REPORT_ID } from "../../injection-symbols";
+import { useOverviewWidgetStore } from "../../store";
 
-export default {
-    name: "TimeTrackingOverviewTrackerList",
-    setup: () => {
-        const overview_store = useOverviewWidgetStore(inject("report_id"))();
-        return { overview_store };
-    },
-    methods: {
-        removeTracker(tracker) {
-            this.overview_store.removeSelectedTracker(tracker);
-        },
-    },
-};
+const overview_store = useOverviewWidgetStore(strictInject(REPORT_ID))();
+
+function removeTracker(tracker: OverviewReportTracker): void {
+    overview_store.removeSelectedTracker(tracker);
+}
 </script>

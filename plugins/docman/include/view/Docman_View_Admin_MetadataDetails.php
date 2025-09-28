@@ -23,15 +23,17 @@
 
 use Tuleap\Docman\View\DocmanViewURLBuilder;
 
-class Docman_View_Admin_MetadataDetails extends \Tuleap\Docman\View\Admin\AdminView
+class Docman_View_Admin_MetadataDetails extends \Tuleap\Docman\View\Admin\AdminView //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
-    public const IDENTIFIER = 'admin_md_details';
+    public const string IDENTIFIER = 'admin_md_details';
 
+    #[\Override]
     protected function getIdentifier(): string
     {
         return self::IDENTIFIER;
     }
 
+    #[\Override]
     protected function getTitle(array $params): string
     {
         return sprintf(
@@ -40,6 +42,7 @@ class Docman_View_Admin_MetadataDetails extends \Tuleap\Docman\View\Admin\AdminV
         );
     }
 
+    #[\Override]
     protected function includeJavascript(\Tuleap\Layout\IncludeAssets $include_assets): void
     {
         $GLOBALS['Response']->addJavascriptAsset(
@@ -47,6 +50,7 @@ class Docman_View_Admin_MetadataDetails extends \Tuleap\Docman\View\Admin\AdminV
         );
     }
 
+    #[\Override]
     protected function displayContent(\TemplateRenderer $renderer, array $params): void
     {
         $metadata = $params['md'];

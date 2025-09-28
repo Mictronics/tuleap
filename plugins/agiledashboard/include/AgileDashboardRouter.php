@@ -20,13 +20,14 @@
 
 use Tuleap\AgileDashboard\AdminController;
 use Tuleap\AgileDashboard\AgileDashboard\Milestone\Sidebar\MilestonesInSidebarXmlImport;
-use Tuleap\AgileDashboard\ConfigurationManager;
+use Tuleap\AgileDashboard\XML\AgileDashboardXMLImporter;
 use Tuleap\AgileDashboard\AgileDashboard_XMLController;
 use Tuleap\AgileDashboard\AgileDashboardServiceHomepageUrlBuilder;
 use Tuleap\AgileDashboard\Artifact\PlannedArtifactDao;
 use Tuleap\AgileDashboard\BaseController;
 use Tuleap\AgileDashboard\BreadCrumbDropdown\AdministrationCrumbBuilder;
 use Tuleap\AgileDashboard\BreadCrumbDropdown\AgileDashboardCrumbBuilder;
+use Tuleap\AgileDashboard\ConfigurationManager;
 use Tuleap\AgileDashboard\ExplicitBacklog\ArtifactsInExplicitBacklogDao;
 use Tuleap\AgileDashboard\ExplicitBacklog\ExplicitBacklogDao;
 use Tuleap\AgileDashboard\ExplicitBacklog\UnplannedArtifactsAdder;
@@ -34,17 +35,18 @@ use Tuleap\AgileDashboard\ExplicitBacklog\XMLImporter;
 use Tuleap\AgileDashboard\FormElement\Burnup\CountElementsModeChecker;
 use Tuleap\AgileDashboard\FormElement\BurnupCacheGenerator;
 use Tuleap\AgileDashboard\FormElement\FormElementController;
-use Tuleap\AgileDashboard\Milestone\Sidebar\MilestonesInSidebarDao;
-use Tuleap\AgileDashboard\Planning\MilestoneControllerFactory;
 use Tuleap\AgileDashboard\Milestone\Backlog\TopBacklogElementsToAddChecker;
+use Tuleap\AgileDashboard\Milestone\Sidebar\MilestonesInSidebarDao;
 use Tuleap\AgileDashboard\PermissionsPerGroup\AgileDashboardJSONPermissionsRetriever;
 use Tuleap\AgileDashboard\Planning\Admin\PlanningEditionPresenterBuilder;
 use Tuleap\AgileDashboard\Planning\Admin\UpdateRequestValidator;
 use Tuleap\AgileDashboard\Planning\BacklogTrackersUpdateChecker;
+use Tuleap\AgileDashboard\Planning\MilestoneControllerFactory;
 use Tuleap\AgileDashboard\Planning\PlanningUpdater;
 use Tuleap\AgileDashboard\Planning\RootPlanning\UpdateIsAllowedChecker;
 use Tuleap\AgileDashboard\Planning\ScrumPlanningFilter;
 use Tuleap\AgileDashboard\Scrum\ScrumPresenterBuilder;
+use Tuleap\AgileDashboard\XML\AgileDashboardXMLExporter;
 use Tuleap\DB\DBTransactionExecutor;
 use Tuleap\Layout\BreadCrumbDropdown\BreadCrumbCollection;
 use Tuleap\Project\XML\Import\ExternalFieldsExtractor;
@@ -57,10 +59,10 @@ use Tuleap\Project\XML\Import\ExternalFieldsExtractor;
  *
  * TODO: Layout management should be extracted and moved to controllers or views.
  */
-class AgileDashboardRouter
+class AgileDashboardRouter //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 {
-    private const PANE_KANBAN = 'kanban';
-    private const PANE_CHARTS = 'charts';
+    private const string PANE_KANBAN = 'kanban';
+    private const string PANE_CHARTS = 'charts';
     /**
      * @var Service|null
      */
@@ -85,7 +87,7 @@ class AgileDashboardRouter
         private readonly EventManager $event_manager,
         private readonly PlanningUpdater $planning_updater,
         private readonly Planning_RequestValidator $planning_request_validator,
-        private readonly AgileDashboard_XMLExporter $agile_dashboard_exporter,
+        private readonly AgileDashboardXMLExporter $agile_dashboard_exporter,
         private readonly UpdateIsAllowedChecker $root_planning_update_checker,
         private readonly PlanningEditionPresenterBuilder $planning_edition_presenter_builder,
         private readonly UpdateRequestValidator $update_request_validator,
@@ -113,7 +115,7 @@ class AgileDashboardRouter
             $this->planning_factory,
             $xml_rng_validator,
             $this->agile_dashboard_exporter,
-            new AgileDashboard_XMLImporter(),
+            new AgileDashboardXMLImporter(),
             $this->planning_request_validator,
             new XMLImporter(
                 new ExplicitBacklogDao(),

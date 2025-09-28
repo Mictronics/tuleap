@@ -23,17 +23,19 @@
  *
  */
 
-class Docman_View_Admin_MetadataImport extends \Tuleap\Docman\View\Admin\AdminView
+class Docman_View_Admin_MetadataImport extends \Tuleap\Docman\View\Admin\AdminView //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
-    public const IDENTIFIER = 'admin_import_metadata_check';
+    public const string IDENTIFIER = 'admin_import_metadata_check';
     public $srcGo;
     public $dstGo;
 
+    #[\Override]
     protected function getIdentifier(): string
     {
         return self::IDENTIFIER;
     }
 
+    #[\Override]
     protected function getTitle(array $params): string
     {
         $pm          = ProjectManager::instance();
@@ -46,11 +48,13 @@ class Docman_View_Admin_MetadataImport extends \Tuleap\Docman\View\Admin\AdminVi
         );
     }
 
+    #[\Override]
     protected function isBurningParrotCompatiblePage(): bool
     {
         return false;
     }
 
+    #[\Override]
     protected function displayContent(\TemplateRenderer $renderer, array $params): void
     {
         $html = '';

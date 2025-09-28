@@ -23,38 +23,36 @@ declare(strict_types=1);
 
 namespace Tuleap\REST;
 
+use Tuleap\REST\Tests\PlatformAccessControl;
+
 trait ForgeAccessSandbox
 {
-    private string $site_access;
+    private PlatformAccessControl $site_access;
 
     #[\PHPUnit\Framework\Attributes\Before]
     public function backupSiteAccess(): void
     {
-        $this->site_access = TuleapConfig::instance()->getAccess();
+        $this->site_access = new PlatformAccessControl();
     }
 
     #[\PHPUnit\Framework\Attributes\After]
     public function restoreSiteAccess(): void
     {
-        match ($this->site_access) {
-            TuleapConfig::ANONYMOUS => TuleapConfig::instance()->setForgeToAnonymous(),
-            TuleapConfig::REGULAR => TuleapConfig::instance()->setForgeToRegular(),
-            TuleapConfig::RESTRICTED => TuleapConfig::instance()->setForgeToRestricted(),
-        };
+        $this->site_access->dispose();
     }
 
     public function setForgeToAnonymous(): void
     {
-        TuleapConfig::instance()->setForgeToAnonymous();
+        $this->site_access->setForgeToAnonymous();
     }
 
     public function setForgeToRestricted(): void
     {
-        TuleapConfig::instance()->setForgeToRestricted();
+        $this->site_access->setForgeToRestricted();
     }
 
     public function setForgeToRegular(): void
     {
-        TuleapConfig::instance()->setForgeToRegular();
+        $this->site_access->setForgeToRegular();
     }
 }

@@ -19,9 +19,6 @@
   -->
 
 <template>
-    <h1 class="tlp-pane-title">
-        {{ $gettext("Table of contents") }}
-    </h1>
     <ul ref="list" data-is-container="true">
         <li
             data-test="section-in-toc"
@@ -345,16 +342,9 @@ onUnmounted(() => {
     }
 }
 
-h1 {
-    display: flex;
-    align-items: center;
-    height: var(--artidoc-sidebar-title-height);
-    margin: var(--artidoc-sidebar-title-vertical-margin) var(--tlp-medium-spacing);
-}
-
 ul {
     height: var(--artidoc-sidebar-content-height);
-    padding: 0 0 var(--tlp-medium-spacing);
+    padding: var(--tlp-medium-spacing) 0;
     overflow: hidden auto;
     list-style-position: inside;
     color: var(--tlp-dimmed-color);

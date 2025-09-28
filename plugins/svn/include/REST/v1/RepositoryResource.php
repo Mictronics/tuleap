@@ -70,7 +70,7 @@ use Tuleap\SVN\Repository\Settings\SettingsBuilder;
 use Tuleap\SVN\Repository\SvnRepository;
 use Tuleap\SVN\SvnAdmin;
 use Tuleap\SVN\SvnPermissionManager;
-use Tuleap\SVNCore\Repository;
+use Tuleap\SVN\Repository;
 use Tuleap\User\Avatar\AvatarHashDao;
 use Tuleap\User\Avatar\ComputeAvatarHash;
 use Tuleap\User\Avatar\UserAvatarUrlProvider;
@@ -148,7 +148,7 @@ class RepositoryResource extends AuthenticatedResource
         $dao                        = new Dao();
         $logger                     = \SvnPlugin::getLogger();
         $system_command             = new \System_Command();
-        $backend_svn                = \Backend::instanceSVN();
+        $backend_svn                = \Tuleap\SVN\BackendSVN::instance();
         $project_history_dao        = new ProjectHistoryDao();
         $this->system_event_manager = \SystemEventManager::instance();
         $this->project_manager      = \ProjectManager::instance();
@@ -194,7 +194,7 @@ class RepositoryResource extends AuthenticatedResource
             $access_file_history_factory,
             $project_history_dao,
             $project_history_formatter,
-            \Tuleap\SVNCore\SVNAccessFileDefaultBlockGenerator::instance(),
+            \Tuleap\SVN\SVNAccessFileDefaultBlockGenerator::instance(),
             new \Tuleap\SVN\Repository\DefaultPermissionsDao(),
         );
 

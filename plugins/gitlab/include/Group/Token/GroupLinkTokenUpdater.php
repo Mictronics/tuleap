@@ -33,11 +33,12 @@ final class GroupLinkTokenUpdater implements UpdateGroupLinkToken
     {
     }
 
+    #[\Override]
     public function updateToken(GroupLink $group_link, ConcealedString $token): void
     {
         $encrypted_secret = SymmetricCrypto::encrypt(
             $token,
-            $this->key_factory->getEncryptionKey()
+            $this->key_factory->getLegacy2025EncryptionKey()
         );
         $this->group_api_token_DAO->updateGitlabTokenOfGroupLink($group_link, $encrypted_secret);
     }

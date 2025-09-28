@@ -30,7 +30,7 @@ use Tuleap\NeverThrow\Ok;
 use Tuleap\NeverThrow\Result;
 use Tuleap\SVN\Logs\LastAccessDao;
 use Tuleap\SVN\Repository\Exception\CannotFindRepositoryException;
-use Tuleap\SVNCore\Repository;
+use Tuleap\SVN\Repository;
 use Tuleap\SVN\Repository\RepositoryManager;
 
 final class SystemEvent_SVN_IMPORT_CORE_REPOSITORY extends \SystemEvent // phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
@@ -49,7 +49,7 @@ final class SystemEvent_SVN_IMPORT_CORE_REPOSITORY extends \SystemEvent // phpcs
      */
     private $project_manager;
     /**
-     * @var \BackendSVN
+     * @var \Tuleap\SVN\BackendSVN
      */
     private $backend_svn;
     /**
@@ -63,7 +63,7 @@ final class SystemEvent_SVN_IMPORT_CORE_REPOSITORY extends \SystemEvent // phpcs
 
     public static function getDependencies(
         \ProjectManager $project_manager,
-        \BackendSVN $backend_svn,
+        \Tuleap\SVN\BackendSVN $backend_svn,
         RepositoryManager $repository_manager,
         LastAccessDao $last_access_dao,
     ): array {
@@ -77,7 +77,7 @@ final class SystemEvent_SVN_IMPORT_CORE_REPOSITORY extends \SystemEvent // phpcs
 
     public function injectDependencies(
         \ProjectManager $project_manager,
-        \BackendSVN $backend_svn,
+        \Tuleap\SVN\BackendSVN $backend_svn,
         RepositoryManager $repository_manager,
         LastAccessDao $last_access_dao,
     ): void {
@@ -91,6 +91,7 @@ final class SystemEvent_SVN_IMPORT_CORE_REPOSITORY extends \SystemEvent // phpcs
      * @throws \BackendSVNFileForSimlinkAlreadyExistsException
      * @throws \Tuleap\SVN\Repository\Exception\CannotFindRepositoryException
      */
+    #[\Override]
     public function process(): bool
     {
         return $this->getProjectFromParameters()
@@ -147,6 +148,7 @@ final class SystemEvent_SVN_IMPORT_CORE_REPOSITORY extends \SystemEvent // phpcs
             );
     }
 
+    #[\Override]
     public function verbalizeParameters($with_link): string
     {
         return $this->getProjectFromParameters()->match(

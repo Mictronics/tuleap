@@ -679,14 +679,6 @@ msgstr "나쁨"
 msgid "Banner"
 msgstr "배너"
 
-#, php-format
-msgid ""
-"Be careful, \"%s\" does not match the case sensitivity. Its rule has been "
-"disabled."
-msgstr ""
-"\"%s\"는 대소문자 구분이 일치하지 않으므로 주의하십시오. 해당 규칙이 비활성"
-"화 되었습니다."
-
 msgid "Before you start, you need to know a few things:"
 msgstr "시작하기 전에 몇 가지 사항을 알아야 합니다."
 
@@ -938,18 +930,6 @@ msgstr "액세스 키 복사"
 msgid "Copyright (c) %1$s, %2$s Team, 2001-%3$d. All Rights Reserved"
 msgstr "Copyright (c) %1$s, %2$s 팀, 2001-%3$d. All Rights Reserved"
 
-msgid "Could not commit repository initial layout"
-msgstr "리포지토리 초기 레이아웃을 커밋할 수 없습니다."
-
-msgid "Could not create/initialize SVN repository"
-msgstr "SVN 리포지토리를 생성/초기화 할 수 없습니다."
-
-msgid "Could not the access file of the SVN repository"
-msgstr "SVN 리포지토리의 파일을 액세스할 수 없습니다."
-
-msgid "Could not update hooks of the SVN repository"
-msgstr "SVN 리포지토리의 후크를 업데이트할 수 없습니다."
-
 msgid "Create"
 msgstr "생성하기"
 
@@ -1177,9 +1157,6 @@ msgstr "화면 밀도"
 msgid "Display platform statistics on home page."
 msgstr "홈페이지에 플랫폼 통계를 표시합니다."
 
-msgid "Display site news on home page."
-msgstr "홈페이지에 사이트 뉴스를 표시합니다."
-
 msgid "Displays the 30 last updated or created items in the project."
 msgstr ""
 "프로젝트에서 마지막으로 업데이트되거나 작성된 30개의 항목을 표시합니다."
@@ -1265,12 +1242,6 @@ msgstr "이메일이 이미 인증되었습니다."
 msgid "Email me a recovery link"
 msgstr "복구 링크를 이메일로 보내기"
 
-msgid "Email not sent"
-msgstr "이메일이 전송되지 않음"
-
-msgid "Email sent"
-msgstr "이메일 전송됨"
-
 msgid "Email was not updated"
 msgstr "이메일이 업데이트되지 않았습니다."
 
@@ -1327,9 +1298,6 @@ msgstr "오류"
 
 msgid "Error - choose a forum first"
 msgstr "오류 - 포럼을 먼저 선택하세요."
-
-msgid "Error - this news item was not found"
-msgstr "오류 - 이 뉴스 항목을 찾을 수 없습니다."
 
 #, php-format
 msgid "Error Adding Forum '%1$s'."
@@ -1445,9 +1413,6 @@ msgstr "포럼은 현재 모니터링 중입니다."
 
 msgid "Forum is restricted"
 msgstr "포럼이 제한되어 있습니다."
-
-msgid "Forums"
-msgstr "포럼"
 
 msgid ""
 "Forums and News services are deprecated. They will be completely removed in "
@@ -1646,9 +1611,6 @@ msgstr "비활성화된 서비스를 사용하도록 설정할 수 없습니다.
 msgid "Inherited?"
 msgstr "상속?"
 
-msgid "Initial layout creation"
-msgstr "초기 레이아웃 생성"
-
 msgid "Internal error: Could not update password"
 msgstr "내부 오류: 암호를 업데이트할 수 없습니다."
 
@@ -1670,10 +1632,6 @@ msgstr "잘못된 확인 해시"
 #, php-format
 msgid "Invalid group name: %s. Please use only alphanumerical characters."
 msgstr "그룹 이름 %s이(가) 잘못되었습니다. 영숫자만 사용하십시오."
-
-#, php-format
-msgid "Invalid line \"%s\""
-msgstr "줄 “%s”이(가) 잘못되었습니다."
 
 msgid "Invalid project was passed in."
 msgstr "잘못된 프로젝트가 전달되었습니다."
@@ -2086,15 +2044,6 @@ msgstr ""
 msgid "New user"
 msgstr "신규 사용자"
 
-msgid "News"
-msgstr "뉴스"
-
-msgid "News approval"
-msgstr "뉴스 승인"
-
-msgid "News {{ user_group_name }} can see"
-msgstr "{{ user_group_name }}이(가) 볼 수 있는 뉴스"
-
 msgid "Next Messages"
 msgstr "다음 메시지"
 
@@ -2148,9 +2097,6 @@ msgstr "일치하는 레이블이 없습니다."
 msgid "No need to register, you are already logged in."
 msgstr "이미 로그인되어 있어 등록할 필요가 없습니다."
 
-msgid "No one monitoring"
-msgstr "아무도 모니터링하지 않고 있습니다."
-
 msgid "No project ID has been provided for the template"
 msgstr "템플릿에 대한 프로젝트 ID가 제공되지 않았습니다."
 
@@ -2177,9 +2123,6 @@ msgstr "모두 제외"
 
 msgid "None"
 msgstr ""
-
-msgid "Not Found"
-msgstr "찾을 수 없습니다."
 
 msgid "Not a member yet?"
 msgstr "아직 멤버가 아니신가요?"
@@ -2452,9 +2395,6 @@ msgstr "댓글 작성"
 msgid "Post a followup to this message"
 msgstr "이 메시지에 대한 후속 댓글 남기기"
 
-msgid "Posted By"
-msgstr "게시자"
-
 msgid "Posting Failed"
 msgstr "게시 실패"
 
@@ -2510,9 +2450,6 @@ msgstr "프로젝트 #%d은(는) 비활성화 상태입니다."
 
 msgid "Project (read only)"
 msgstr "프로젝트 (읽기 전용)"
-
-msgid "Project Latest News"
-msgstr "프로젝트 최신 뉴스"
 
 msgid "Project Name"
 msgstr "프로젝트 이름"
@@ -2738,9 +2675,6 @@ msgstr "RSS"
 
 msgid "Rank"
 msgstr "순위"
-
-msgid "Read and respond to this message at"
-msgstr "다음에서 이 메시지를 읽고 응답하십시오."
 
 msgid "Read only access to information about projects"
 msgstr "프로젝트에 정보에 대한 읽기 전용 액세스"
@@ -3052,9 +2986,6 @@ msgstr "보낸 초대장"
 msgid "Service is not allowed in project."
 msgstr "프로젝트에서 서비스가 허용되지 않습니다."
 
-msgid "Service news is disabled for this project."
-msgstr "이 프로젝트에서 서비스 뉴스가 비활성되었습니다."
-
 msgid "Service not found in database"
 msgstr "데이터베이스에서 서비스를 찾을 수 없습니다."
 
@@ -3132,12 +3063,6 @@ msgstr "사이트 콘텐츠 맞춤설정"
 
 msgid "Site homepage"
 msgstr "사이트 홈페이지"
-
-msgid "Site news"
-msgstr "사이트 뉴스"
-
-msgid "Site news approval"
-msgstr "사이트 뉴스 승인"
 
 #, php-format
 msgid "Skip invalid key %1$s"
@@ -3222,9 +3147,6 @@ msgstr ""
 
 msgid "Successfully updated."
 msgstr "성공적으로 업데이트되었습니다."
-
-msgid "Summary"
-msgstr "요약"
 
 msgid "Suspended"
 msgstr "중지됨"
@@ -3351,10 +3273,6 @@ msgstr "대시보드 “%s”은(는) 존재하지 않습니다."
 
 msgid "The default Administration project cannot be deleted."
 msgstr "기본 관리 프로젝트는 삭제할 수 없습니다."
-
-#, php-format
-msgid "The directory %s is not valid"
-msgstr "디렉터리 %s은(는) 유효하지 않습니다."
 
 msgid "The display preference has been forced for each user successfully."
 msgstr "디스플레이 기본 설정이 모든 사용자에게 성공적으로 강제 적용되었습니다."
@@ -4016,10 +3934,6 @@ msgstr "사용자 이메일 주소"
 msgid "User group"
 msgstr "사용자 그룹"
 
-#, php-format
-msgid "User group \"%s\" is empty or does not exist"
-msgstr "사용자 그룹 “%s”이(가) 비어 있거나 존재하지 않습니다."
-
 msgid "User group already exists in this project. Please choose another name."
 msgstr "이 프로젝트에 사용자 그룹이 이미 있습니다. 다른 이름을 선택해주세요."
 
@@ -4379,22 +4293,6 @@ msgstr ""
 
 #, php-format
 msgid ""
-"You are receiving this email because you elected to monitor this forum or "
-"this thread.\n"
-"To stop monitoring this forum, login and visit:\n"
-" %1$s .\n"
-"To change thread monitoring settings, visit:\n"
-" %2$s."
-msgstr ""
-"이 포럼 또는 이 스레드를 모니터링하도록 선택했기 때문에 이 이메일이 전송되었"
-"습니다.\n"
-"이 포럼 모니터링을 중지하려면 로그인 후 다음을 방문하십시오.\n"
-" %1$s .\n"
-"스레드 모니터링 설정을 변경하려면 다음을 방문하십시오.\n"
-" %2$s."
-
-#, php-format
-msgid ""
 "You are trying to send %1$s invitation, but the maximum is %2$s per day."
 msgid_plural ""
 "You are trying to send %1$s invitations, but the maximum is %2$s per day."
@@ -4666,14 +4564,6 @@ msgstr "png 이미지를 보내야 합니다."
 msgid "You should send an image with height smaller than 100px"
 msgstr "높이가 100px보다 작은 이미지를 보내야 합니다."
 
-msgid ""
-"You still have <code>$sys_display_homepage_news</code> variable defined in "
-"local.inc. It's now stored in DB, you should remove it from the file to "
-"avoid confusion."
-msgstr ""
-"local.inc에 정의된 변수 <code>$sys_display_homepage_news</code>가 여전히 존재"
-"합니다. 이제 DB에 저장되었으므로 혼동을 피하기 위해 파일에서 제거해야 합니다."
-
 msgid "You will not receive any more emails from this forum."
 msgstr "이 포럼에서 더 이상 이메일을 받지 않습니다."
 
@@ -4748,6 +4638,14 @@ msgid ""
 "you can directly log in."
 msgstr ""
 "초대 링크가 유효하지 않습니다. 이미 사용하셨을 경우, 로그인할 수 있습니다."
+
+msgid "Your password has expired."
+msgstr ""
+
+#, php-format
+msgid "Your password will expire in %d day."
+msgid_plural "Your password will expire in %d days."
+msgstr[0] ""
 
 msgid "Your place was saved"
 msgstr "장소가 저장되었습니다."
@@ -4844,9 +4742,6 @@ msgstr ""
 
 msgid "pending"
 msgstr "보류중"
-
-msgid "people monitoring"
-msgstr "모니터링 중인 사람"
 
 msgid "permissions"
 msgstr "권한"

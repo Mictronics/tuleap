@@ -87,6 +87,7 @@ use Tuleap\SVN\Admin\MailHeaderManager;
 use Tuleap\SVN\Admin\MailNotificationDao;
 use Tuleap\SVN\Admin\MailNotificationManager;
 use Tuleap\SVN\Admin\RestoreController;
+use Tuleap\SVN\BackendSVN;
 use Tuleap\SVN\Commit\FileSizeValidator;
 use Tuleap\SVN\Commit\Svnlook;
 use Tuleap\SVN\Dao;
@@ -144,14 +145,15 @@ use Tuleap\SVN\ViewVC\ViewVCProxy;
 use Tuleap\SVN\XMLImporter;
 use Tuleap\SVN\XMLSvnExporter;
 use Tuleap\SVNCore\AccessControl\SVNProjectAccessRouteDefinition;
-use Tuleap\SVNCore\ApacheConfGenerator;
+use Tuleap\SVN\Apache\ApacheConfGenerator;
 use Tuleap\SVNCore\Cache\ParameterDao;
 use Tuleap\SVNCore\Cache\ParameterRetriever;
 use Tuleap\SVNCore\Cache\ParameterSaver;
 use Tuleap\SVNCore\Event\UpdateProjectAccessFilesEvent;
 use Tuleap\SVNCore\GetAllRepositories;
-use Tuleap\SVNCore\SVNAccessFileReader;
+use Tuleap\SVN\SVNAccessFileReader;
 use Tuleap\SVNCore\SvnCoreAccess;
+use Tuleap\SystemEvent\RootPostEventsActionsEvent;
 
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 class SvnPlugin extends Plugin implements PluginWithConfigKeys, PluginWithService
@@ -211,14 +213,15 @@ class SvnPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         return new XMLSvnExporter(
             $this->getRepositoryManager(),
             $project,
-            new SvnAdmin(new System_Command(), self::getLogger(), Backend::instance(Backend::SVN)),
+            new SvnAdmin(new System_Command(), self::getLogger(), BackendSVN::instance()),
             new XML_SimpleXMLCDATAFactory(),
             $this->getMailNotificationManager(),
             self::getLogger(),
-            new SVNAccessFileReader(\Tuleap\SVNCore\SVNAccessFileDefaultBlockGenerator::instance())
+            new SVNAccessFileReader(\Tuleap\SVN\SVNAccessFileDefaultBlockGenerator::instance())
         );
     }
 
+    #[\Override]
     public function getPluginInfo(): \PluginInfo
     {
         if (! $this->pluginInfo) {
@@ -234,6 +237,7 @@ class SvnPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         return $this->pluginInfo;
     }
 
+    #[\Override]
     public function getServiceShortname(): string
     {
         return self::SERVICE_SHORTNAME;
@@ -271,10 +275,14 @@ class SvnPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
             function (): SVNCheckRepositoriesWithDuplicatedAccessFileSections {
                 return new SVNCheckRepositoriesWithDuplicatedAccessFileSections(
                     $this->getRepositoryManager(),
-                    new SVNAccessFileReader(\Tuleap\SVNCore\SVNAccessFileDefaultBlockGenerator::instance()),
+                    new SVNAccessFileReader(\Tuleap\SVN\SVNAccessFileDefaultBlockGenerator::instance()),
                     new DuplicateSectionDetector(),
                 );
             }
+        );
+        $commands_collector->addCommand(
+            \Tuleap\SVN\Apache\RefreshApacheConfCommand::NAME,
+            static fn (): \Tuleap\SVN\Apache\RefreshApacheConfCommand => new \Tuleap\SVN\Apache\RefreshApacheConfCommand(ApacheConfGenerator::build()),
         );
     }
 
@@ -362,7 +370,7 @@ class SvnPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
                     ProjectManager::instance(),
                     $this->getApacheConfGenerator(),
                     $this->getRepositoryDeleter(),
-                    new SvnAdmin(new System_Command(), self::getLogger(), Backend::instance(Backend::SVN)),
+                    new SvnAdmin(new System_Command(), self::getLogger(), BackendSVN::instance()),
                 ];
                 break;
             case SystemEvent_SVN_IMPORT_CORE_REPOSITORY::class:
@@ -388,7 +396,7 @@ class SvnPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
             $this->repository_manager = new RepositoryManager(
                 new Dao(),
                 ProjectManager::instance(),
-                new SvnAdmin(new System_Command(), self::getLogger(), Backend::instanceSVN()),
+                new SvnAdmin(new System_Command(), self::getLogger(), \Tuleap\SVN\BackendSVN::instance()),
                 self::getLogger(),
                 new System_Command(),
                 new Destructor(
@@ -396,7 +404,7 @@ class SvnPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
                     self::getLogger()
                 ),
                 EventManager::instance(),
-                Backend::instanceSVN(),
+                \Tuleap\SVN\BackendSVN::instance(),
                 $this->getAccessFileHistoryFactory()
             );
         }
@@ -428,7 +436,7 @@ class SvnPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
                 $this->getAccessFileHistoryFactory(),
                 $this->getProjectHistoryDao(),
                 $this->getProjectHistoryFormatter(),
-                \Tuleap\SVNCore\SVNAccessFileDefaultBlockGenerator::instance(),
+                \Tuleap\SVN\SVNAccessFileDefaultBlockGenerator::instance(),
                 new \Tuleap\SVN\Repository\DefaultPermissionsDao(),
             );
         }
@@ -505,6 +513,7 @@ class SvnPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         }
     }
 
+    #[\Override]
     #[ListeningToEventClass]
     public function serviceClassnamesCollector(ServiceClassnamesCollector $event): void
     {
@@ -514,21 +523,25 @@ class SvnPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
     /**
      * @param array{shortname: string, is_used: bool, group_id: int|string} $params
      */
+    #[\Override]
     public function serviceIsUsed(array $params): void
     {
         // nothing to do for svn
     }
 
+    #[\Override]
     public function projectServiceBeforeActivation(ProjectServiceBeforeActivation $event): void
     {
         // nothing to do for svn
     }
 
+    #[\Override]
     public function serviceDisabledCollector(ServiceDisabledCollector $event): void
     {
         // nothing to do for svn
     }
 
+    #[\Override]
     public function addMissingService(AddMissingService $event): void
     {
         // nothing to do for svn
@@ -726,7 +739,7 @@ class SvnPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
 
     private function getBackendSVN(): BackendSVN
     {
-        return Backend::instanceSVN();
+        return \Tuleap\SVN\BackendSVN::instance();
     }
 
     #[ListeningToEventClass]
@@ -1238,6 +1251,7 @@ class SvnPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         (new \Tuleap\SVN\Repository\SvnCoreAccess($this->getRepositoryManager()))->process($svn_core_access);
     }
 
+    #[\Override]
     public function getConfigKeys(ConfigClassProvider $config_keys): void
     {
         $config_keys->addConfigClass(FileSizeValidator::class);
@@ -1257,10 +1271,13 @@ class SvnPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
     #[ListeningToEventName(Event::PROCCESS_SYSTEM_CHECK)]
     public function processSystemCheck(array $params): void
     {
+        $backend_svn = $this->getBackendSVN();
+        $backend_svn->systemCheck();
+
         (new \Tuleap\SVN\Hooks\RestoreMissingHooks(
             new MissingHooksPathsFromFileSystemRetriever(self::getLogger(), $this->getRepositoryManager()),
             $params['logger'],
-            $this->getBackendSVN(),
+            $backend_svn,
         ))->restoreAllMissingHooks();
     }
 
@@ -1272,6 +1289,7 @@ class SvnPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         }
     }
 
+    #[\Override]
     public function serviceEnableForXmlImportRetriever(ServiceEnableForXmlImportRetriever $event): void
     {
     }
@@ -1285,6 +1303,15 @@ class SvnPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
             $event->addError(
                 dgettext('tuleap-svn', 'Archive should not contain svn data.'),
             );
+        }
+    }
+
+    #[ListeningToEventClass]
+    public function rootPostEventsActionsEvent(RootPostEventsActionsEvent $event): void
+    {
+        // Update SVN root definition for Apache once everything else is processed
+        if (\Tuleap\SVN\BackendSVN::instance()->getSVNApacheConfNeedUpdate()) {
+            ApacheConfGenerator::build()->generate();
         }
     }
 }

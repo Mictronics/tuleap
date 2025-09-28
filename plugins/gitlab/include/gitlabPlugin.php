@@ -171,9 +171,9 @@ require_once __DIR__ . '/../../tracker/include/trackerPlugin.php';
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
 class gitlabPlugin extends Plugin
 {
-    public const  SERVICE_NAME         = 'gitlab';
-    public const  LOG_IDENTIFIER       = 'gitlab_syslog';
-    private const POST_PUSH_LOG_PREFIX = '|  |  |_ ';
+    public const  string SERVICE_NAME         = 'gitlab';
+    public const  string LOG_IDENTIFIER       = 'gitlab_syslog';
+    private const string POST_PUSH_LOG_PREFIX = '|  |  |_ ';
 
     public function __construct(?int $id)
     {
@@ -182,6 +182,7 @@ class gitlabPlugin extends Plugin
         bindtextdomain('tuleap-gitlab', __DIR__ . '/../site-content');
     }
 
+    #[\Override]
     public function getPluginInfo(): PluginInfo
     {
         if (! $this->pluginInfo) {
@@ -190,6 +191,7 @@ class gitlabPlugin extends Plugin
         return $this->pluginInfo;
     }
 
+    #[\Override]
     public function getDependencies(): array
     {
         return ['git', 'tracker'];

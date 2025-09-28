@@ -37,6 +37,7 @@ final class Tracker_FileInfoTest extends \Tuleap\Test\PHPUnit\TestCase // phpcs:
     private Tracker_FileInfo $file_info_2;
     private string $thumbnails_dir;
 
+    #[\Override]
     protected function setUp(): void
     {
         $field_id                = 123;
@@ -60,6 +61,7 @@ final class Tracker_FileInfoTest extends \Tuleap\Test\PHPUnit\TestCase // phpcs:
         $this->file_info_2 = new Tracker_FileInfo($id, $this->field, $submitted_by, $description, $filename, $filesize, $filetype);
     }
 
+    #[\Override]
     protected function tearDown(): void
     {
         Backend::clearInstances();
@@ -130,7 +132,7 @@ final class Tracker_FileInfoTest extends \Tuleap\Test\PHPUnit\TestCase // phpcs:
     public function testItCreatesThumbnailForPng(): void
     {
         $backend = $this->createMock(Backend::class);
-        Backend::setInstance(Backend::BACKEND, $backend);
+        Backend::setInstance(Backend::class, $backend);
         $backend->method('changeOwnerGroupMode');
 
         copy($this->fixture_data_dir . '/logo.png', $this->working_directory . '/66');
@@ -156,7 +158,7 @@ final class Tracker_FileInfoTest extends \Tuleap\Test\PHPUnit\TestCase // phpcs:
     public function testItCreatesThumbnailForGif(): void
     {
         $backend = $this->createMock(Backend::class);
-        Backend::setInstance(Backend::BACKEND, $backend);
+        Backend::setInstance(Backend::class, $backend);
         $backend->method('changeOwnerGroupMode');
 
         copy($this->fixture_data_dir . '/logo.gif', $this->working_directory . '/111');
@@ -183,7 +185,7 @@ final class Tracker_FileInfoTest extends \Tuleap\Test\PHPUnit\TestCase // phpcs:
     public function testItCreatesThumbnailForJpeg(): void
     {
         $backend = $this->createMock(Backend::class);
-        Backend::setInstance(Backend::BACKEND, $backend);
+        Backend::setInstance(Backend::class, $backend);
         $backend->method('changeOwnerGroupMode');
 
         copy($this->fixture_data_dir . '/logo.jpg', $this->working_directory . '/421');
@@ -210,7 +212,7 @@ final class Tracker_FileInfoTest extends \Tuleap\Test\PHPUnit\TestCase // phpcs:
     public function testItEnsuresFilesIsOwnedByHttpUser(): void
     {
         $backend = $this->createMock(Backend::class);
-        Backend::setInstance(Backend::BACKEND, $backend);
+        Backend::setInstance(Backend::class, $backend);
 
         copy($this->fixture_data_dir . '/logo.jpg', $this->working_directory . '/421');
 

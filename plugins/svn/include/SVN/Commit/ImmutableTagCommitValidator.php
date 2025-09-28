@@ -27,7 +27,7 @@ use Psr\Log\LoggerInterface;
 use SVN_CommitToTagDeniedException;
 use Tuleap\SVN\Admin\ImmutableTag;
 use Tuleap\SVN\Admin\ImmutableTagFactory;
-use Tuleap\SVNCore\Repository;
+use Tuleap\SVN\Repository;
 
 final class ImmutableTagCommitValidator implements PathValidator
 {
@@ -53,6 +53,7 @@ final class ImmutableTagCommitValidator implements PathValidator
     /**
      * @throws SVN_CommitToTagDeniedException
      */
+    #[\Override]
     public function assertPathIsValid(Repository $repository, string $transaction, string $path): void
     {
         $this->assertCommitIsNotDoneInImmutableTag($repository, $path);

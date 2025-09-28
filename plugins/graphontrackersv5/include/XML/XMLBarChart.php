@@ -28,7 +28,7 @@ use Tuleap\Tracker\FormElement\XML\XMLReference;
 
 final class XMLBarChart extends XMLChart
 {
-    private const TYPE = 'bar';
+    private const string TYPE = 'bar';
 
     /**
      * @readonly
@@ -59,6 +59,7 @@ final class XMLBarChart extends XMLChart
         return $new;
     }
 
+    #[\Override]
     public function export(SimpleXMLElement $renderers, XMLFormElementFlattenedCollection $form_elements): SimpleXMLElement
     {
         $renderer_xml = parent::export($renderers, $form_elements);

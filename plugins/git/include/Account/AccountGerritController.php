@@ -36,7 +36,7 @@ use Tuleap\User\Account\UserPreferencesHeader;
 
 final class AccountGerritController implements DispatchableWithRequest, DispatchableWithBurningParrot
 {
-    public const URL = '/plugins/git/account/gerrit';
+    public const string URL = '/plugins/git/account/gerrit';
 
     /**
      * @var EventDispatcherInterface
@@ -61,6 +61,7 @@ final class AccountGerritController implements DispatchableWithRequest, Dispatch
     /**
      * @inheritDoc
      */
+    #[\Override]
     public function process(HTTPRequest $request, BaseLayout $layout, array $variables)
     {
         $user = $request->getCurrentUser();

@@ -20,37 +20,7 @@
 import type { RootState } from "../type";
 
 export const state: RootState = {
-    configuration: {
-        is_obsolescence_date_property_used: false,
-        max_files_dragndrop: 0,
-        max_size_upload: 0,
-        warning_threshold: 0,
-        max_archive_size: 0,
-        project_url: "",
-        date_time_format: "",
-        privacy: {
-            are_restricted_users_allowed: false,
-            project_is_private: false,
-            project_is_public_incl_restricted: false,
-            project_is_public: false,
-            project_is_private_incl_restricted: false,
-            explanation_text: "",
-            privacy_title: "",
-        },
-        project_flags: [],
-        is_changelog_proposed_after_dnd: false,
-        is_deletion_allowed: false,
-        user_locale: "",
-        relative_dates_display: "absolute_first-relative_tooltip",
-        project_icon: "",
-        criteria: [],
-        columns: [],
-        forbid_writers_to_update: false,
-        forbid_writers_to_delete: false,
-        filename_pattern: "",
-        is_filename_pattern_enforced: false,
-        can_user_switch_to_old_ui: false,
-    },
+    configuration: {},
     error: {
         has_document_permission_error: false,
         has_document_loading_error: false,

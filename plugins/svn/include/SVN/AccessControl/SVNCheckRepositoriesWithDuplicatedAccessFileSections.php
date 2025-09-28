@@ -30,8 +30,8 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Tuleap\SVN\Repository\RepositoryManager;
-use Tuleap\SVNCore\Repository;
-use Tuleap\SVNCore\SVNAccessFileReader;
+use Tuleap\SVN\Repository;
+use Tuleap\SVN\SVNAccessFileReader;
 
 final class SVNCheckRepositoriesWithDuplicatedAccessFileSections extends Command
 {
@@ -45,12 +45,14 @@ final class SVNCheckRepositoriesWithDuplicatedAccessFileSections extends Command
         parent::__construct(self::NAME);
     }
 
+    #[\Override]
     protected function configure(): void
     {
         $this->setDescription('List SVN multi repository access files with duplicated sections.')
             ->addOption('format', null, InputOption::VALUE_REQUIRED, 'The output format (txt or json)', 'txt');
     }
 
+    #[\Override]
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         match ($format = $input->getOption('format')) {

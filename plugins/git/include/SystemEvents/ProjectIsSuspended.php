@@ -27,7 +27,7 @@ use SystemEvent;
 
 class ProjectIsSuspended extends SystemEvent
 {
-    public const NAME = 'GIT_PROJECT_IS_SUSPENDED';
+    public const string NAME = 'GIT_PROJECT_IS_SUSPENDED';
 
     /** @var Git_GitoliteDriver */
     private $gitolite_driver;
@@ -43,6 +43,7 @@ class ProjectIsSuspended extends SystemEvent
         $this->project_manager = $project_manager;
     }
 
+    #[\Override]
     public function process()
     {
         $project_id = $this->getProjectIdFromParameters();
@@ -71,6 +72,7 @@ class ProjectIsSuspended extends SystemEvent
         return $parameters[0];
     }
 
+    #[\Override]
     public function verbalizeParameters($with_link)
     {
         $project_id = $this->getProjectIdFromParameters();

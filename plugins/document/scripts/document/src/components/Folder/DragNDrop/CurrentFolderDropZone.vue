@@ -44,11 +44,12 @@
 
 <script setup lang="ts">
 import prettyKibibytes from "pretty-kibibytes";
-import { useGetters, useNamespacedState } from "vuex-composition-helpers";
-import type { ConfigurationState } from "../../../store/configuration";
+import { useGetters } from "vuex-composition-helpers";
 import type { RootGetter } from "../../../store/getters";
 import { computed } from "vue";
 import { useGettext } from "vue3-gettext";
+import { strictInject } from "@tuleap/vue-strict-inject";
+import { MAX_FILES_DRAGNDROP, MAX_SIZE_UPLOAD } from "../../../configuration-keys";
 
 const props = defineProps({
     user_can_dragndrop_in_current_folder: { type: Boolean, required: true },
@@ -56,9 +57,8 @@ const props = defineProps({
     error_reason: { type: String, required: true },
 });
 
-const { max_files_dragndrop, max_size_upload } = useNamespacedState<
-    Pick<ConfigurationState, "max_files_dragndrop" | "max_size_upload">
->("configuration", ["max_files_dragndrop", "max_size_upload"]);
+const max_files_dragndrop = strictInject(MAX_FILES_DRAGNDROP);
+const max_size_upload = strictInject(MAX_SIZE_UPLOAD);
 
 const { current_folder_title } = useGetters<Pick<RootGetter, "current_folder_title">>([
     "current_folder_title",
@@ -71,12 +71,12 @@ const success_message = computed((): string => {
         $ngettext(
             "Drop one file to upload it to %{folder}s (max size is %{size}s).",
             "Drop up to %{nb_files}s files to upload them to %{folder}s (max size is %{size}s).",
-            max_files_dragndrop.value,
+            max_files_dragndrop,
         ),
         {
-            nb_files: max_files_dragndrop.value,
+            nb_files: max_files_dragndrop,
             folder: current_folder_title.value,
-            size: prettyKibibytes(max_size_upload.value),
+            size: prettyKibibytes(max_size_upload),
         },
     );
 });

@@ -18,10 +18,10 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/
  */
 
-class Git_RemoteServer_Gerrit_ReplicationSSHKey implements IHaveAnSSHKey
+class Git_RemoteServer_Gerrit_ReplicationSSHKey implements IHaveAnSSHKey //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
-    public const KEYNAME_PREFIX = 'gerrit_';
-    public const KEYNAME_SUFFIX = '@0.pub';
+    public const string KEYNAME_PREFIX = 'gerrit_';
+    public const string KEYNAME_SUFFIX = '@0.pub';
 
     /** @var string */
     private $value = null;
@@ -69,6 +69,7 @@ class Git_RemoteServer_Gerrit_ReplicationSSHKey implements IHaveAnSSHKey
      * SSH key of replication
      * @return array
      */
+    #[\Override]
     public function getAuthorizedKeysArray()
     {
         if ($this->value) {
@@ -80,6 +81,7 @@ class Git_RemoteServer_Gerrit_ReplicationSSHKey implements IHaveAnSSHKey
     /**
      * Fake username for replication
      */
+    #[\Override]
     public function getUserName(): string
     {
         return Rule_UserName::RESERVED_PREFIX . self::KEYNAME_PREFIX . $this->getGerritHostId();

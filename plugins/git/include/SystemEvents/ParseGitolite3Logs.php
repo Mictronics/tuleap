@@ -26,7 +26,7 @@ use Tuleap\Git\Gitolite\Gitolite3LogParser;
 
 class ParseGitolite3Logs extends SystemEvent
 {
-    public const NAME = 'GIT_PARSE_GITOLITE3_LOGS';
+    public const string NAME = 'GIT_PARSE_GITOLITE3_LOGS';
 
     /** @var Gitolite3LogParser */
     private $gitolite_parser;
@@ -36,6 +36,7 @@ class ParseGitolite3Logs extends SystemEvent
         $this->gitolite_parser = $gitolite_parser;
     }
 
+    #[\Override]
     public function process()
     {
         $this->gitolite_parser->parseCurrentAndPreviousMonthLogs(GITOLITE3_LOGS_PATH);
@@ -44,6 +45,7 @@ class ParseGitolite3Logs extends SystemEvent
         return true;
     }
 
+    #[\Override]
     public function verbalizeParameters($with_link)
     {
         return '-';

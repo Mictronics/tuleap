@@ -25,6 +25,7 @@ require_once __DIR__ . '/../../tracker/include/trackerPlugin.php';
 use Tuleap\AgileDashboard\Milestone\Pane\PaneInfoCollector;
 use Tuleap\AgileDashboard\REST\v1\Milestone\MilestoneRepresentationBuilder;
 use Tuleap\AgileDashboard\REST\v1\MilestoneResource;
+use Tuleap\AgileDashboard\XML\AgileDashboardXMLExporter;
 use Tuleap\Cardwall\Agiledashboard\CardwallPaneInfo;
 use Tuleap\Cardwall\AllowedFieldRetriever;
 use Tuleap\Cardwall\Cardwall\CardwallUseStandardJavascriptEvent;
@@ -85,9 +86,10 @@ class cardwallPlugin extends Plugin //phpcs:ignore PSR1.Classes.ClassDeclaration
         return $this->config_factory;
     }
 
-    public const RENDERER_TYPE = 'plugin_cardwall';
+    public const string RENDERER_TYPE = 'plugin_cardwall';
 
 
+    #[\Override]
     public function getHooksAndCallbacks()
     {
         if (defined('TRACKER_BASE_URL')) {
@@ -124,6 +126,7 @@ class cardwallPlugin extends Plugin //phpcs:ignore PSR1.Classes.ClassDeclaration
     /**
      * @see Plugin::getDependencies()
      */
+    #[\Override]
     public function getDependencies()
     {
         return ['tracker'];
@@ -146,9 +149,9 @@ class cardwallPlugin extends Plugin //phpcs:ignore PSR1.Classes.ClassDeclaration
         $this->getCardwallXmlExporter($project_id)->export($xml_content);
     }
 
-    private function getAgileDashboardExporter(): AgileDashboard_XMLExporter
+    private function getAgileDashboardExporter(): AgileDashboardXMLExporter
     {
-        return AgileDashboard_XMLExporter::build();
+        return AgileDashboardXMLExporter::build();
     }
 
     private function getCardwallXmlExporter($group_id): CardwallConfigXmlExport
@@ -280,6 +283,7 @@ class cardwallPlugin extends Plugin //phpcs:ignore PSR1.Classes.ClassDeclaration
         }
     }
 
+    #[\Override]
     public function getPluginInfo(): \PluginInfo
     {
         if (! $this->pluginInfo) {

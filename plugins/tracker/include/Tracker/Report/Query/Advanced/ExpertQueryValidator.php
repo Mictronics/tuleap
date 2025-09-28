@@ -59,6 +59,44 @@ final readonly class ExpertQueryValidator
         $this->size_validator->checkSizeOfTree($condition);
 
         $this->checkSearchables($condition, $invalid_searchables_collection_builder);
+
+        $this->validate($query, $invalid_selectables_collection_builder, $invalid_order_by_builder);
+    }
+
+    /**
+     * @throws LimitSizeIsExceededException
+     * @throws OrderByIsInvalidException
+     * @throws SearchablesAreInvalidException
+     * @throws SelectLimitExceededException
+     * @throws SelectablesAreInvalidException
+     * @throws SelectablesDoNotExistException
+     * @throws SelectablesMustBeUniqueException
+     * @throws SyntaxError
+     */
+    public function validateLinks(
+        string $expert_query,
+        IBuildInvalidSelectablesCollection $invalid_selectables_collection_builder,
+        IBuildInvalidOrderBy $invalid_order_by_builder,
+    ): void {
+        $query     = $this->parser->parse($expert_query);
+        $condition = $query->getCondition();
+        $this->size_validator->checkSizeOfTree($condition);
+
+        $this->validate($query, $invalid_selectables_collection_builder, $invalid_order_by_builder);
+    }
+
+    /**
+     * @throws OrderByIsInvalidException
+     * @throws SelectLimitExceededException
+     * @throws SelectablesAreInvalidException
+     * @throws SelectablesDoNotExistException
+     * @throws SelectablesMustBeUniqueException
+     */
+    private function validate(
+        Query $query,
+        IBuildInvalidSelectablesCollection $invalid_selectables_collection_builder,
+        IBuildInvalidOrderBy $invalid_order_by_builder,
+    ): void {
         $this->checkSelectables($query->getSelect(), $invalid_selectables_collection_builder);
         $this->checkOrderBy($query->getOrderBy(), $invalid_order_by_builder);
     }

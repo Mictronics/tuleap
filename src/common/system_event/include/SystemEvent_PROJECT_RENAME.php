@@ -28,6 +28,7 @@ require_once __DIR__ . '/../../../www/project/admin/project_admin_utils.php';
 //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 class SystemEvent_PROJECT_RENAME extends SystemEvent
 {
+    #[\Override]
     public function setLog(string $log): void
     {
         if (! isset($this->log) || $this->log == '') {
@@ -46,6 +47,7 @@ class SystemEvent_PROJECT_RENAME extends SystemEvent
      *
      * @return string
      */
+    #[\Override]
     public function verbalizeParameters($with_link)
     {
         $txt                       = '';
@@ -59,6 +61,7 @@ class SystemEvent_PROJECT_RENAME extends SystemEvent
      *
      * @return bool
      */
+    #[\Override]
     public function process()
     {
         list($group_id, $new_name) = $this->getParametersAsArray();
@@ -67,7 +70,7 @@ class SystemEvent_PROJECT_RENAME extends SystemEvent
 
         if (($project = $this->getProject($group_id))) {
             // Rename system home/groups
-            $backendSystem = $this->getBackend('System');
+            $backendSystem = $this->getBackendSystem();
 
             // Rename system FRS
             if (! $backendSystem->renameFileReleasedDirectory($project, $new_name)) {
@@ -100,6 +103,11 @@ class SystemEvent_PROJECT_RENAME extends SystemEvent
         }
 
         return (bool) $renameState;
+    }
+
+    protected function getBackendSystem(): BackendSystem
+    {
+        return BackendSystem::instance();
     }
 
     /**

@@ -23,7 +23,7 @@ namespace Tuleap\SVN\Events;
 use Project;
 use ProjectManager;
 use SystemEvent;
-use Tuleap\SVNCore\ApacheConfGenerator;
+use Tuleap\SVN\Apache\ApacheConfGenerator;
 use Tuleap\SVN\Repository\RepositoryDeleter;
 use Tuleap\SVN\Repository\RepositoryManager;
 use Tuleap\SVN\SvnAdmin;
@@ -70,6 +70,7 @@ class SystemEvent_SVN_DELETE_REPOSITORY extends SystemEvent //phpcs:ignore
         $this->svn_admin          = $svn_admin;
     }
 
+    #[\Override]
     public function process()
     {
         $parameters = $this->getParametersAsArray();
@@ -103,6 +104,7 @@ class SystemEvent_SVN_DELETE_REPOSITORY extends SystemEvent //phpcs:ignore
         return true;
     }
 
+    #[\Override]
     public function verbalizeParameters($with_link)
     {
         $project_id    = $this->getRequiredParameter(0);
@@ -117,6 +119,7 @@ class SystemEvent_SVN_DELETE_REPOSITORY extends SystemEvent //phpcs:ignore
         return $this->repository_manager->getByIdAndProject($repository_id, $project);
     }
 
+    #[\Override]
     protected function getProject($project_id)
     {
         return $this->project_manager->getProject($project_id);
