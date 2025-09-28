@@ -29,7 +29,7 @@ use Tuleap\Tracker\Report\Renderer\XML\XMLRenderer;
 
 final class XMLCardwallRenderer extends XMLRenderer
 {
-    private const TYPE = 'plugin_cardwall';
+    private const string TYPE = 'plugin_cardwall';
 
     /**
      * @readonly
@@ -46,6 +46,7 @@ final class XMLCardwallRenderer extends XMLRenderer
         return $new;
     }
 
+    #[\Override]
     public function export(SimpleXMLElement $renderers, XMLFormElementFlattenedCollection $form_elements): SimpleXMLElement
     {
         $renderer_xml = parent::export($renderers, $form_elements);

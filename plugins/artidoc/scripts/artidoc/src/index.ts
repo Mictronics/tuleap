@@ -68,7 +68,6 @@ import { HEADINGS_BUTTON_STATE } from "@/headings-button-state-injection-key";
 import { getHeadingsButtonState } from "@/toolbar/HeadingsButtonState";
 import { watchUpdateSectionsLevels } from "@/sections/levels/SectionsNumbersWatcher";
 import { getSectionsNumberer } from "@/sections/levels/SectionsNumberer";
-import { ARE_FIELDS_ENABLED } from "@/are-fields-enabled";
 import type { Tracker } from "@/configuration/AllowedTrackersCollection";
 import {
     ALLOWED_TRACKERS,
@@ -83,6 +82,10 @@ import {
     AVAILABLE_FIELDS,
     buildAvailableFieldsCollection,
 } from "@/configuration/AvailableFieldsCollection";
+import {
+    ARE_VERSIONS_DISPLAYED,
+    CAN_USER_DISPLAY_VERSIONS,
+} from "@/can-user-display-versions-injection-key";
 
 document.addEventListener("DOMContentLoaded", async () => {
     const vue_mount_point = document.getElementById("artidoc-mountpoint");
@@ -103,6 +106,9 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     const can_user_edit_document = Boolean(
         getAttributeOrThrow(vue_mount_point, "data-can-user-edit-document"),
+    );
+    const can_user_display_versions = Boolean(
+        getAttributeOrThrow(vue_mount_point, "data-can-user-display-versions"),
     );
     const saved_tracker = Option.fromNullable<Tracker>(
         JSON.parse(getAttributeOrThrow(vue_mount_point, "data-selected-tracker")),
@@ -143,6 +149,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         .provide(FILE_UPLOADS_COLLECTION, file_uploads_collection)
         .provide(NOTIFICATION_COLLECTION, buildNotificationsCollection())
         .provide(CAN_USER_EDIT_DOCUMENT, can_user_edit_document)
+        .provide(CAN_USER_DISPLAY_VERSIONS, can_user_display_versions)
+        .provide(ARE_VERSIONS_DISPLAYED, ref(false))
         .provide(OPEN_CONFIGURATION_MODAL_BUS, useOpenConfigurationModalBusStore())
         .provide(OPEN_ADD_EXISTING_SECTION_MODAL_BUS, useOpenAddExistingSectionModalBus())
         .provide(REMOVE_FREETEXT_SECTION_MODAL, useRemoveFreetextSectionModal())
@@ -151,10 +159,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         .provide(
             UPLOAD_MAX_SIZE,
             Number.parseInt(getAttributeOrThrow(vue_mount_point, "data-upload-max-size"), 10),
-        )
-        .provide(
-            ARE_FIELDS_ENABLED,
-            vue_mount_point.getAttribute("data-are-fields-enabled") === "1",
         )
         .provide(ALLOWED_TRACKERS, allowed_trackers)
         .provide(SELECTED_TRACKER, selected_tracker)

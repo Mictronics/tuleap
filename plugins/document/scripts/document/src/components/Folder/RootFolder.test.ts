@@ -23,11 +23,8 @@ import type { VueWrapper } from "@vue/test-utils";
 import { shallowMount } from "@vue/test-utils";
 import RootFolder from "./RootFolder.vue";
 import { getGlobalTestOptions } from "../../helpers/global-options-for-test";
-import { PROJECT_ID } from "../../configuration-keys";
-
-vi.mock("tlp", () => {
-    return { datePicker: vi.fn() };
-});
+import { PROJECT } from "../../configuration-keys";
+import { ProjectBuilder } from "../../../tests/builders/ProjectBuilder";
 
 describe("RootFolder", () => {
     let load_root_folder: vi.Mock;
@@ -53,7 +50,7 @@ describe("RootFolder", () => {
                     },
                 }),
                 provide: {
-                    [PROJECT_ID.valueOf()]: 101,
+                    [PROJECT.valueOf()]: new ProjectBuilder(101).build(),
                 },
             },
         });

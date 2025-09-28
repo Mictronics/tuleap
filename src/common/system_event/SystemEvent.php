@@ -19,11 +19,7 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/**
- * System Event class
- *
- */
-abstract class SystemEvent
+abstract class SystemEvent // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 {
     protected $id;
     protected $type;
@@ -39,7 +35,6 @@ abstract class SystemEvent
     // Define event types
     public const TYPE_SYSTEM_CHECK                    = 'SYSTEM_CHECK';
     public const TYPE_EDIT_SSH_KEYS                   = 'EDIT_SSH_KEYS';
-    public const TYPE_PROJECT_ACTIVE                  = 'PROJECT_ACTIVE';
     public const TYPE_PROJECT_DELETE                  = 'PROJECT_DELETE';
     public const TYPE_PROJECT_RENAME                  = 'PROJECT_RENAME';
     public const TYPE_UGROUP_MODIFY                   = 'UGROUP_MODIFY';
@@ -277,7 +272,7 @@ abstract class SystemEvent
      * Checks if the given value represents integer
      * is_int() won't work on string containing integers...
      */
-    public function int_ok($val)
+    public function int_ok($val) // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
         return ((string) $val) === ((string) (int) $val);
     }
@@ -465,18 +460,6 @@ End Date:     {$this->getEndDate()}
 ');
             $m->send();
         }
-    }
-
-    /**
-     * Wrapper for Backend
-     *
-     * @param String $type Backend type
-     *
-     * @return Backend
-     */
-    protected function getBackend($type)
-    {
-        return Backend::instance($type);
     }
 
     /**

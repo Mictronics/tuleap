@@ -38,6 +38,7 @@ use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
 use Tuleap\Tracker\FormElement\Field\ListFields\OpenListValueDao;
 use Tuleap\Tracker\FormElement\Field\TrackerField;
+use Tuleap\Tracker\FormElement\TrackerFormElement;
 use Tuleap\Tracker\Masschange\MasschangeDataValueExtractor;
 use Tuleap\Tracker\Masschange\MasschangeUpdater;
 use Tuleap\Tracker\Report\AdditionalCriteria\CommentCriterionPresenter;
@@ -246,7 +247,7 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
         return new Tracker_Report_CriteriaDao();
     }
 
-    private function getCriteriaValueForFormElement(Tracker_FormElement $form_element, $raw_value)
+    private function getCriteriaValueForFormElement(TrackerFormElement $form_element, $raw_value)
     {
         $form_element_factory = $this->getFormElementFactory();
         $zero_float_pattern   = '/^0{1,}(\.0*)?$/';
@@ -973,7 +974,7 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
                     if (! $active) {
                         $href = 'href="' . $hp->purify('?' . http_build_query($parameters)) . '"';
                     }
-                    $html .= '<li id="tracker_report_renderer_' . $r->id . '"
+                    $html .= '<li id="tracker_report_renderer_' . $r->id . '" data-test="report-renderer"
                                   class="' . $active . '
                                             tracker_report_renderer_tab
                                             tracker_report_renderer_tab_' . $r->getType() . '">
@@ -1167,6 +1168,7 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
     }
 
     protected $tracker;
+    #[\Override]
     public function getTracker(): Tracker
     {
         if (! $this->tracker) {
@@ -1332,6 +1334,7 @@ class Tracker_Report implements Tracker_Dispatchable_Interface // phpcs:ignore P
         return $rrf->createInSession($this, $name, $description, $type);
     }
 
+    #[\Override]
     public function process(Tracker_IDisplayTrackerLayout $layout, $request, $current_user)
     {
         if ($this->isObsolete()) {

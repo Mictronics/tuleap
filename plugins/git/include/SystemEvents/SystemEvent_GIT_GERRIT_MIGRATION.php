@@ -22,7 +22,7 @@ use Tuleap\Notification\Notification;
 
 class SystemEvent_GIT_GERRIT_MIGRATION extends SystemEvent // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
-    public const NAME = 'GIT_GERRIT_MIGRATION';
+    public const string NAME = 'GIT_GERRIT_MIGRATION';
 
     /** @var GitDao */
     private $dao;
@@ -48,6 +48,7 @@ class SystemEvent_GIT_GERRIT_MIGRATION extends SystemEvent // phpcs:ignore PSR1.
     /** @var MailBuilder */
     private $mail_builder;
 
+    #[\Override]
     public function process()
     {
         $repo_id          = (int) $this->getParameter(0);
@@ -115,6 +116,7 @@ class SystemEvent_GIT_GERRIT_MIGRATION extends SystemEvent // phpcs:ignore PSR1.
     /**
      * @return string a human readable representation of parameters
      */
+    #[\Override]
     public function verbalizeParameters($with_link)
     {
         $txt = '';

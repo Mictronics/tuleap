@@ -21,6 +21,8 @@
 declare(strict_types=1);
 
 use Laminas\HttpHandlerRunner\Emitter\SapiStreamEmitter;
+use Tuleap\Admin\SiteAdministrationAddOption;
+use Tuleap\Admin\SiteAdministrationPluginOption;
 use Tuleap\Artidoc\Adapter\Document\ArtidocDocument;
 use Tuleap\Artidoc\Adapter\Document\ArtidocRetriever;
 use Tuleap\Artidoc\Adapter\Document\ArtidocWithContextDecorator;
@@ -41,6 +43,10 @@ use Tuleap\Artidoc\Document\Field\SuitableFieldRetriever;
 use Tuleap\Artidoc\Document\Tracker\SuitableTrackerForDocumentChecker;
 use Tuleap\Artidoc\Document\Tracker\SuitableTrackersForDocumentRetriever;
 use Tuleap\Artidoc\REST\ResourcesInjector;
+use Tuleap\Artidoc\SiteAdmin\ArtidocAdminSettings;
+use Tuleap\Artidoc\SiteAdmin\ArtidocAdminSettingsController;
+use Tuleap\Artidoc\SiteAdmin\ArtidocAdminSettingsPresenter;
+use Tuleap\Artidoc\SiteAdmin\ArtidocSaveAdminSettingsController;
 use Tuleap\Artidoc\Upload\Section\File\FileToUpload;
 use Tuleap\Artidoc\Upload\Section\File\FileUploadCleaner;
 use Tuleap\Artidoc\Upload\Section\File\OngoingUploadDao;
@@ -52,6 +58,7 @@ use Tuleap\Artidoc\Upload\Section\File\Tus\FileUploadCanceler;
 use Tuleap\Artidoc\Upload\Section\File\Tus\FileUploadFinisher;
 use Tuleap\Artidoc\Upload\Section\File\UploadedFileWithArtidocRetriever;
 use Tuleap\Config\ConfigClassProvider;
+use Tuleap\Config\GetConfigKeys;
 use Tuleap\Config\PluginWithConfigKeys;
 use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\DB\DBFactory;
@@ -139,9 +146,29 @@ class ArtidocPlugin extends Plugin implements PluginWithConfigKeys
         return ['tracker', 'docman'];
     }
 
+    #[\Tuleap\Plugin\ListeningToEventClass]
+    public function siteAdministrationAddOption(SiteAdministrationAddOption $site_administration_add_option): void
+    {
+        $site_administration_add_option->addPluginOption(
+            SiteAdministrationPluginOption::build(
+                dgettext('tuleap-artidoc', 'Artidoc'),
+                ArtidocAdminSettingsController::ADMIN_SETTINGS_URL
+            )
+        );
+    }
+
     #[ListeningToEventClass]
     public function collectRoutesEvent(CollectRoutesEvent $event): void
     {
+        $event->getRouteCollector()->get(
+            ArtidocAdminSettingsController::ADMIN_SETTINGS_URL,
+            $this->getRouteHandler('routeGetAdminSettings'),
+        );
+        $event->getRouteCollector()->post(
+            ArtidocAdminSettingsController::ADMIN_SETTINGS_URL,
+            $this->getRouteHandler('routePostAdminSettings'),
+        );
+
         $event->getRouteCollector()->addGroup('/artidoc', function (FastRoute\RouteCollector $r) {
             $r->get('/{id:\w+}[/]', $this->getRouteHandler('routeController'));
         });
@@ -156,6 +183,43 @@ class ArtidocPlugin extends Plugin implements PluginWithConfigKeys
             ArtidocAttachmentController::ROUTE_PREFIX . '/{id:[0-9A-Fa-f]{8}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{4}-[0-9A-Fa-f]{12}}[-{filename:.*}]',
             $this->getRouteHandler('routeAttachmentController'),
         );
+    }
+
+    public function routeGetAdminSettings(): ArtidocAdminSettingsController
+    {
+        return new ArtidocAdminSettingsController(
+            new \Tuleap\Admin\AdminPageRenderer(),
+            UserManager::instance(),
+            new ArtidocAdminSettingsPresenter(
+                (bool) ForgeConfig::getFeatureFlag(ArtidocAdminSettings::FEATURE_FLAG_VERSIONS),
+                \Tuleap\CSRFSynchronizerTokenPresenter::fromToken(self::buildCSRFTokenAdmin()),
+            ),
+        );
+    }
+
+    private static function buildCSRFTokenAdmin(): CSRFSynchronizerToken
+    {
+        return new CSRFSynchronizerToken(ArtidocAdminSettingsController::ADMIN_SETTINGS_URL);
+    }
+
+    public function routePostAdminSettings(): ArtidocSaveAdminSettingsController
+    {
+        $config_keys = EventManager::instance()->dispatch(new GetConfigKeys());
+        assert($config_keys instanceof GetConfigKeys);
+
+        return new ArtidocSaveAdminSettingsController(
+            self::buildCSRFTokenAdmin(),
+            new \Tuleap\Config\ConfigSet($config_keys, new \Tuleap\Config\ConfigDao()),
+            new \Tuleap\Http\Response\RedirectWithFeedbackFactory(\Tuleap\Http\HTTPFactoryBuilder::responseFactory(), new \Tuleap\Layout\Feedback\FeedbackSerializer(new FeedbackDao())),
+            new \Laminas\HttpHandlerRunner\Emitter\SapiEmitter(),
+            new \Tuleap\Admin\RejectNonSiteAdministratorMiddleware(UserManager::instance()),
+        );
+    }
+
+    #[\Override]
+    public function getConfigKeys(ConfigClassProvider $event): void
+    {
+        $event->addConfigClass(ArtidocAdminSettings::class);
     }
 
     #[ListeningToEventClass]
@@ -444,12 +508,6 @@ class ArtidocPlugin extends Plugin implements PluginWithConfigKeys
         if ($event->type === ArtidocDocument::TYPE) {
             $event->flagAsSupported();
         }
-    }
-
-    #[Override]
-    public function getConfigKeys(ConfigClassProvider $event): void
-    {
-        $event->addConfigClass(ArtidocController::class);
     }
 
     #[\Tuleap\Plugin\ListeningToEventClass]

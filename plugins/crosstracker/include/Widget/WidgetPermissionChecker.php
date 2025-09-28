@@ -22,27 +22,32 @@ namespace Tuleap\CrossTracker\Widget;
 
 use PFUser;
 use ProjectManager;
-use Tuleap\Dashboard\Project\ProjectDashboardController;
-use Tuleap\Dashboard\User\UserDashboardController;
 
 final readonly class WidgetPermissionChecker
 {
     public function __construct(
-        private SearchCrossTrackerWidget $cross_tracker_dao,
         private ProjectManager $project_manager,
+        private RetrieveCrossTrackerWidget $cross_tracker_widget_retriever,
     ) {
     }
 
     public function isUserWidgetAdmin(PFUser $user, int $widget_id): bool
     {
-        $widget = $this->cross_tracker_dao->searchCrossTrackerWidgetDashboardById($widget_id);
+        return $this->cross_tracker_widget_retriever->retrieveWidgetById($widget_id)
+            ->match(
+                fn (ProjectCrossTrackerWidget|UserCrossTrackerWidget $widget) => $this->hasWidgetAdminRights($widget, $user),
+                fn (): bool => false
+            );
+    }
 
-        if (isset($widget['dashboard_type']) && $widget['dashboard_type'] === UserDashboardController::DASHBOARD_TYPE) {
-            return $widget['user_id'] === (int) $user->getId();
+    private function hasWidgetAdminRights(ProjectCrossTrackerWidget|UserCrossTrackerWidget $widget, PFUser $user): bool
+    {
+        if ($widget instanceof UserCrossTrackerWidget) {
+            return $widget->getUserId() === (int) $user->getId();
         }
 
-        if (isset($widget['dashboard_type']) && $widget['dashboard_type'] === ProjectDashboardController::DASHBOARD_TYPE) {
-            $project = $this->project_manager->getProject($widget['project_id']);
+        if ($widget instanceof ProjectCrossTrackerWidget) {
+            $project = $this->project_manager->getProject($widget->getProjectId());
             return $user->isAdmin($project->getID());
         }
 

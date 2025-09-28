@@ -41,6 +41,7 @@ final class FeatureAdditionProcessor implements AddFeature
     ) {
     }
 
+    #[\Override]
     public function add(FeatureAddition $feature_addition): void
     {
         $program_increment_id = $feature_addition->program_increment->getId();
@@ -57,7 +58,7 @@ final class FeatureAdditionProcessor implements AddFeature
                 $program_increment_artifact,
                 [$feature_addition->feature->id],
                 [],
-                \Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField::NO_TYPE
+                \Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField::DEFAULT_LINK_TYPE
             );
         } catch (
             \Tracker_NoArtifactLinkFieldException

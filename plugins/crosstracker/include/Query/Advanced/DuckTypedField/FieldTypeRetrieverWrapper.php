@@ -22,27 +22,28 @@ declare(strict_types=1);
 
 namespace Tuleap\CrossTracker\Query\Advanced\DuckTypedField;
 
-use Tracker_FormElement;
 use Tracker_FormElement_Field_List_Bind_Static;
 use Tracker_FormElement_Field_List_Bind_Ugroups;
 use Tracker_FormElement_Field_List_Bind_Users;
 use Tuleap\Tracker\FormElement\Field\Date\DateField;
 use Tuleap\Tracker\FormElement\Field\ListField;
 use Tuleap\Tracker\FormElement\RetrieveFieldType;
+use Tuleap\Tracker\FormElement\TrackerFormElement;
 
 final readonly class FieldTypeRetrieverWrapper implements RetrieveFieldType
 {
-    public const FIELD_DATETIME_TYPE       = 'datetime';
-    public const FIELD_STATIC_LIST_TYPE    = 'static_list';
-    public const FIELD_UGROUP_LIST_TYPE    = 'ugroup_list';
-    public const FIELD_USER_LIST_TYPE      = 'user_list';
-    public const string UNKNOWN_FIELD_TYPE = 'unknown';
+    public const string FIELD_DATETIME_TYPE    = 'datetime';
+    public const string FIELD_STATIC_LIST_TYPE = 'static_list';
+    public const string FIELD_UGROUP_LIST_TYPE = 'ugroup_list';
+    public const string FIELD_USER_LIST_TYPE   = 'user_list';
+    public const string UNKNOWN_FIELD_TYPE     = 'unknown';
 
     public function __construct(private RetrieveFieldType $wrapper)
     {
     }
 
-    public function getType(Tracker_FormElement $form_element): string
+    #[\Override]
+    public function getType(TrackerFormElement $form_element): string
     {
         if ($form_element instanceof DateField && $form_element->isTimeDisplayed()) {
             return self::FIELD_DATETIME_TYPE;

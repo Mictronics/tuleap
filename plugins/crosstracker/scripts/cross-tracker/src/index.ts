@@ -21,7 +21,7 @@ import "../themes/cross-tracker.scss";
 import { createApp } from "vue";
 import { getPOFileFromLocaleWithoutExtension, initVueGettext } from "@tuleap/vue3-gettext-init";
 import { createGettext } from "vue3-gettext";
-import { getLocaleOrThrow, getTimezoneOrThrow, IntlFormatter } from "@tuleap/date-helper";
+import { getLocaleWithDefault, getTimezoneOrThrow, IntlFormatter } from "@tuleap/date-helper";
 import CrossTrackerWidget from "./CrossTrackerWidget.vue";
 import {
     DATE_FORMATTER,
@@ -58,8 +58,9 @@ import { ArtifactLinksRetriever } from "./api/ArtifactLinksRetriever";
 import { ArrowRedrawTriggerer } from "./ArrowRedrawTriggerer";
 
 document.addEventListener("DOMContentLoaded", async () => {
-    const locale = getLocaleOrThrow(document);
+    const locale = getLocaleWithDefault(document);
     const gettext_plugin = await initVueGettext(
+        /** @ts-expect-error vue3-gettext-init is tested with Vue 3.4, but here we use Vue 3.5 */
         createGettext,
         (locale) => import(`../po/${getPOFileFromLocaleWithoutExtension(locale)}.po`),
     );
@@ -98,6 +99,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const artifacts_table_builder = ArtifactsTableBuilder();
 
         createApp(CrossTrackerWidget)
+            /** @ts-expect-error vue3-gettext-init is tested with Vue 3.4, but here we use Vue 3.5 */
             .use(gettext_plugin)
             .use(VueDOMPurifyHTML)
             .provide(DATE_FORMATTER, date_formatter)

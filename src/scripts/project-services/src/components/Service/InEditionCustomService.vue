@@ -19,10 +19,10 @@
 
 <template>
     <div class="tlp-modal-body">
-        <service-id v-bind:value="service.id" />
+        <service-id v-bind:id="service.id" />
         <service-label
             id="project-service-edit-modal-label"
-            v-bind:value="service.label"
+            v-bind:label="service.label"
             v-on:input="onEditServiceLabel"
         />
         <icon-selector
@@ -32,22 +32,26 @@
         />
         <service-is-used
             id="project-service-edit-modal-enabled"
-            v-bind:value="service.is_used"
-            v-bind:disabled-reason="service.is_disabled_reason"
+            v-bind:is_used="service.is_used"
+            v-bind:is_disabled_reason="service.is_disabled_reason"
         />
         <slot name="is_active">
             <hidden-service-is-active v-bind:is_active="service.is_active" />
         </slot>
-        <service-rank id="project-service-edit-modal-rank" v-bind:value="service.rank" />
-        <service-link id="project-service-edit-modal-link" v-bind:value="service.link" />
+        <service-rank id="project-service-edit-modal-rank" v-bind:rank="service.rank" />
+        <service-link
+            id="project-service-edit-modal-link"
+            v-bind:link="service.link"
+            v-bind:disabled="false"
+        />
         <service-description
             id="project-service-edit-modal-description"
-            v-bind:value="service.description"
+            v-bind:description="service.description"
         />
 
         <service-open-in-new-tab
             id="project-service-edit-modal-new-tab"
-            v-bind:value="service.is_in_new_tab"
+            v-bind:is_in_new_tab="service.is_in_new_tab"
             v-on:input="onNewTabChange"
         />
 
@@ -95,7 +99,9 @@
         </div>
     </div>
 </template>
-<script>
+<script setup lang="ts">
+import { ref, watch, nextTick, computed } from "vue";
+import type { Service } from "../../type";
 import ServiceId from "./ServiceId.vue";
 import ServiceOpenInNewTab from "./ServiceOpenInNewTab.vue";
 import IconSelector from "./IconSelector.vue";
@@ -106,67 +112,50 @@ import ServiceIsUsed from "./ServiceIsUsed.vue";
 import ServiceRank from "./ServiceRank.vue";
 import HiddenServiceIsActive from "./HiddenServiceIsActive.vue";
 
-export default {
-    name: "InEditionCustomService",
-    components: {
-        ServiceId,
-        ServiceOpenInNewTab,
-        HiddenServiceIsActive,
-        ServiceRank,
-        ServiceIsUsed,
-        ServiceDescription,
-        ServiceLink,
-        ServiceLabel,
-        IconSelector,
-    },
-    props: {
-        service_prop: {
-            type: Object,
-            required: true,
-        },
-    },
-    data() {
-        return {
-            service: this.service_prop,
-            has_used_iframe: this.service_prop.is_in_iframe,
-            is_new_tab_warning_shown: false,
-            is_iframe_deprecation_warning_shown: false,
-        };
-    },
-    watch: {
-        "service.is_in_iframe"(new_value) {
-            this.is_iframe_deprecation_warning_shown = !new_value;
-            if (new_value === false) {
-                this.scrollWarningsIntoView();
-            }
-        },
-    },
-    methods: {
-        onEditServiceLabel(new_label) {
-            this.service.label = new_label;
-        },
-        onEditIcon(new_icon) {
-            this.service.icon_name = new_icon;
-        },
-        onNewTabChange(new_tab) {
-            this.service.is_in_new_tab = new_tab;
-            if (this.service.is_in_iframe === true && new_tab === true) {
-                this.service.is_in_iframe = false;
-                this.is_new_tab_warning_shown = true;
-                this.scrollWarningsIntoView();
-            } else {
-                this.is_new_tab_warning_shown = false;
-            }
-        },
-        async scrollWarningsIntoView() {
-            await this.$nextTick();
-            if (
-                typeof this.$refs.warnings !== "undefined" &&
-                typeof this.$refs.warnings.scrollIntoView !== "undefined"
-            ) {
-                this.$refs.warnings.scrollIntoView(false);
-            }
-        },
-    },
-};
+const props = defineProps<{
+    service_prop: Service;
+}>();
+
+const service = ref(props.service_prop);
+const is_new_tab_warning_shown = ref(false);
+const is_iframe_deprecation_warning_shown = ref(false);
+const warnings = ref<HTMLElement | null>(null);
+
+const has_used_iframe = computed(() => props.service_prop.is_in_iframe);
+
+watch(has_used_iframe, (new_value: boolean) => {
+    is_iframe_deprecation_warning_shown.value = !new_value;
+    if (!new_value) {
+        scrollWarningsIntoView();
+    }
+});
+
+function onEditServiceLabel(new_label: string): void {
+    service.value.label = new_label;
+}
+
+function onEditIcon(new_icon: string): void {
+    service.value.icon_name = new_icon;
+}
+
+function onNewTabChange(is_in_new_tab: boolean): void {
+    service.value.is_in_new_tab = is_in_new_tab;
+    if (service.value.is_in_iframe === true && is_in_new_tab) {
+        service.value.is_in_iframe = false;
+        is_new_tab_warning_shown.value = true;
+        scrollWarningsIntoView();
+    } else {
+        is_new_tab_warning_shown.value = false;
+    }
+}
+
+async function scrollWarningsIntoView(): Promise<void> {
+    await nextTick();
+    if (
+        typeof warnings.value !== "undefined" &&
+        typeof warnings.value?.scrollIntoView !== "undefined"
+    ) {
+        warnings.value.scrollIntoView(false);
+    }
+}
 </script>

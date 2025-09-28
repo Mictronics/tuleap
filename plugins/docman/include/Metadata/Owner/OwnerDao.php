@@ -27,11 +27,12 @@ use Tuleap\DB\DataAccessObject;
 
 final class OwnerDao extends DataAccessObject implements OwnerData
 {
-    private const LIMIT_OF_AUTOCOMPLETE = 15;
+    private const int LIMIT_OF_AUTOCOMPLETE = 15;
 
     /**
      * @psalm-return null|array{array{user_id: string,user_name: string, realname: string, has_custom_avatar: bool}}
      */
+    #[\Override]
     public function getDocumentOwnerOfProjectForAutocomplete(Project $project, string $name_to_search): ?array
     {
         $name = $this->getDB()->escapeLikeValue($name_to_search);

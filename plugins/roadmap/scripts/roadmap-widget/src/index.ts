@@ -30,6 +30,8 @@ import type { TimeScale } from "./type";
 import { Settings } from "luxon";
 import "./style/widget-roadmap.scss";
 import type { VueGettextProvider } from "./helpers/vue-gettext-provider";
+import { getAttributeOrThrow } from "@tuleap/dom";
+import { DASHBOARD_ID } from "./injection-symbols";
 
 document.addEventListener("DOMContentLoaded", async () => {
     const timezone = document.body.dataset.userTimezone;
@@ -47,12 +49,26 @@ document.addEventListener("DOMContentLoaded", async () => {
             continue;
         }
 
-        const roadmap_id = Number(vue_mount_point.dataset.roadmapId);
-        if (!roadmap_id) {
-            continue;
-        }
+        const dashboard_id = Number.parseInt(
+            getAttributeOrThrow(vue_mount_point, "data-dashboard-id"),
+            10,
+        );
+        const roadmap_id = Number.parseInt(
+            getAttributeOrThrow(vue_mount_point, "data-roadmap-id"),
+            10,
+        );
+
+        const should_load_lvl1_iterations = getAttributeOrThrow(
+            vue_mount_point,
+            "data-should-load-lvl1-iterations",
+        );
+        const should_load_lvl2_iterations = getAttributeOrThrow(
+            vue_mount_point,
+            "data-should-load-lvl2-iterations",
+        );
 
         const gettext_plugin = await initVueGettext(
+            /** @ts-expect-error vue3-gettext-init is tested with Vue 3.4, but here we use Vue 3.5 */
             createGettext,
             (locale) => import(`../po/${getPOFileFromLocaleWithoutExtension(locale)}.po`),
         );
@@ -67,8 +83,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const initial_root_state: RootState = {
             gettext_provider,
             locale_bcp47: toBCP47(document.body.dataset.userLocale || "en_US"),
-            should_load_lvl1_iterations: Boolean(vue_mount_point.dataset.shouldLoadLvl1Iterations),
-            should_load_lvl2_iterations: Boolean(vue_mount_point.dataset.shouldLoadLvl2Iterations),
+            should_load_lvl1_iterations: Boolean(should_load_lvl1_iterations),
+            should_load_lvl2_iterations: Boolean(should_load_lvl2_iterations),
         } as RootState;
 
         const default_timescale: TimeScale = ((
@@ -90,8 +106,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             visible_natures,
         })
             .use(VueDOMPurifyHTML)
+            /** @ts-expect-error vue3-gettext-init is tested with Vue 3.4, but here we use Vue 3.5 */
             .use(gettext_plugin)
             .use(createInitializedStore(initial_root_state, default_timescale))
+            .provide(DASHBOARD_ID, dashboard_id)
             .mount(vue_mount_point);
     }
 });

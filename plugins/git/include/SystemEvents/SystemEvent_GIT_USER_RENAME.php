@@ -21,9 +21,9 @@
 use Tuleap\Git\Gitolite\SSHKey\Dumper;
 use Tuleap\Git\Gitolite\SSHKey\InvalidKeysCollector;
 
-class SystemEvent_GIT_USER_RENAME extends SystemEvent
+class SystemEvent_GIT_USER_RENAME extends SystemEvent //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
-    public const NAME = 'GIT_USER_RENAME';
+    public const string NAME = 'GIT_USER_RENAME';
 
     /** @var Git_Gitolite_SSHKeyDumper*/
     private $ssh_key_dumper;
@@ -31,6 +31,7 @@ class SystemEvent_GIT_USER_RENAME extends SystemEvent
     /** @var UserManager */
     private $user_manager;
 
+    #[\Override]
     public function process()
     {
         $old_user_name = $this->getParameter(0);
@@ -52,6 +53,7 @@ class SystemEvent_GIT_USER_RENAME extends SystemEvent
     /**
      * @return string a human readable representation of parameters
      */
+    #[\Override]
     public function verbalizeParameters($with_link)
     {
         return $this->parameters;

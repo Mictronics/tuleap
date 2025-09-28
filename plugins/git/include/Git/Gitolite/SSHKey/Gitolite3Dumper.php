@@ -27,8 +27,8 @@ use System_Command_CommandException;
 
 class Gitolite3Dumper implements Dumper
 {
-    public const GITOLITE_SHELL = '/usr/share/gitolite3/gitolite-shell';
-    public const AUTH_OPTIONS   = 'no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty';
+    public const string GITOLITE_SHELL = '/usr/share/gitolite3/gitolite-shell';
+    public const string AUTH_OPTIONS   = 'no-port-forwarding,no-X11-forwarding,no-agent-forwarding,no-pty';
 
     /**
      * @var AuthorizedKeysFileCreator
@@ -54,6 +54,7 @@ class Gitolite3Dumper implements Dumper
         $this->logger                       = $logger;
     }
 
+    #[\Override]
     public function dumpSSHKeys(IHaveAnSSHKey $user, InvalidKeysCollector $invalid_keys_collector): bool
     {
         try {
@@ -66,6 +67,7 @@ class Gitolite3Dumper implements Dumper
         return true;
     }
 
+    #[\Override]
     public function removeAllExistingKeysForUserName(string $user_name): void
     {
         $this->dumpKeys(new InvalidKeysCollector());

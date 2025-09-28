@@ -69,6 +69,7 @@ use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Field\Numeric\NumericResult
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Field\StaticList\StaticListResultBuilder;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Field\Text\TextResultBuilder;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Field\UGroupList\UGroupListResultBuilder;
+use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Field\Unknown\UnknownTypeResultBuilder;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Field\UserList\UserListResultBuilder;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\AlwaysThereField\ArtifactId\ArtifactIdResultBuilder;
 use Tuleap\CrossTracker\Query\Advanced\ResultBuilder\Metadata\ArtifactResultBuilder;
@@ -101,7 +102,7 @@ use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Metadata\Special\PrettyTitl
 use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Metadata\Special\ProjectName\ProjectNameSelectFromBuilder;
 use Tuleap\CrossTracker\Query\Advanced\SelectBuilderVisitor;
 use Tuleap\CrossTracker\Query\Advanced\WidgetInProjectChecker;
-use Tuleap\CrossTracker\Widget\CrossTrackerWidgetDao;
+use Tuleap\CrossTracker\Widget\RetrieveCrossTrackerWidget;
 use Tuleap\DB\DBFactory;
 use Tuleap\Instrument\Prometheus\Prometheus;
 use Tuleap\Markdown\CommonMarkInterpreter;
@@ -244,16 +245,15 @@ final class CrossTrackerArtifactQueryFactoryBuilder
         return new ParserCacheProxy(new Parser());
     }
 
-    private function getFromBuilderVisitor(): FromBuilderVisitor
+    private function getFromBuilderVisitor(RetrieveCrossTrackerWidget $cross_tracker_widget_retriever): FromBuilderVisitor
     {
         $event_manager = EventManager::instance();
-        $widget_dao    = new CrossTrackerWidgetDao();
         return new FromBuilderVisitor(
-            new FromTrackerBuilderVisitor($widget_dao),
+            new FromTrackerBuilderVisitor($cross_tracker_widget_retriever),
             new FromProjectBuilderVisitor(
-                $widget_dao,
                 ProjectManager::instance(),
                 $event_manager,
+                $cross_tracker_widget_retriever
             ),
         );
     }
@@ -301,7 +301,7 @@ final class CrossTrackerArtifactQueryFactoryBuilder
         );
     }
 
-    public function getArtifactFactory(BuildLinkTypeSelectFrom $link_type_builder,): CrossTrackerArtifactQueryFactory
+    public function getArtifactFactory(BuildLinkTypeSelectFrom $link_type_builder, RetrieveCrossTrackerWidget $retriever): CrossTrackerArtifactQueryFactory
     {
         $tuleap_db                 = DBFactory::getMainTuleapDBConnection()->getDB();
         $form_element_factory      = Tracker_FormElementFactory::instance();
@@ -338,6 +338,7 @@ final class CrossTrackerArtifactQueryFactoryBuilder
         $user_helper               = UserHelper::instance();
         $tracker_factory           = TrackerFactory::instance();
         $semantic_title_retriever  = CachedSemanticTitleFieldRetriever::instance();
+        $event_manager             = EventManager::instance();
         $result_builder_visitor    = new ResultBuilderVisitor(
             new FieldResultBuilder(
                 $retrieve_field_type,
@@ -347,7 +348,8 @@ final class CrossTrackerArtifactQueryFactoryBuilder
                 new StaticListResultBuilder(),
                 new UGroupListResultBuilder($tracker_artifact_factory, $user_group_manager),
                 new UserListResultBuilder($user_manager, $user_manager, $user_manager, $user_helper),
-                $field_retriever
+                new UnknownTypeResultBuilder(),
+                $field_retriever,
             ),
             new MetadataResultBuilder(
                 new TitleResultBuilder($tracker_artifact_factory, $text_value_interpreter, $semantic_title_retriever),
@@ -360,11 +362,11 @@ final class CrossTrackerArtifactQueryFactoryBuilder
                 new ProjectNameResultBuilder(),
                 new TrackerNameResultBuilder(),
                 new PrettyTitleResultBuilder($tracker_artifact_factory, $semantic_title_retriever),
-                new LinkTypeResultBuilder(),
+                new LinkTypeResultBuilder(new SystemTypePresenterBuilder($event_manager)),
                 new ArtifactResultBuilder(
                     $tracker_artifact_factory,
                     new TrackersListAllowedByPlugins(
-                        EventManager::instance(),
+                        $event_manager,
                         $tracker_factory
                     )
                 ),
@@ -399,7 +401,7 @@ final class CrossTrackerArtifactQueryFactoryBuilder
         );
         $field_checker             = $this->getDuckTypedFieldChecker();
         $metadata_checker          = $this->getMetadataChecker();
-        $query_trackers_retriever  = $this->getQueryTrackersRetriever();
+        $query_trackers_retriever  = $this->getQueryTrackersRetriever($retriever);
 
         return new CrossTrackerArtifactQueryFactory(
             $this->getQueryValidator(),
@@ -427,16 +429,14 @@ final class CrossTrackerArtifactQueryFactoryBuilder
         );
     }
 
-    public function getQueryTrackersRetriever(): QueryTrackersRetriever
+    public function getQueryTrackersRetriever(RetrieveCrossTrackerWidget $retriever): QueryTrackersRetriever
     {
-        $widget_dao = new CrossTrackerWidgetDao();
         return new QueryTrackersRetriever(
             $this->getQueryValidator(),
-            $this->getFromBuilderVisitor(),
+            $this->getFromBuilderVisitor($retriever),
             TrackersPermissionsRetriever::build(),
             new CrossTrackerTQLQueryDao(),
-            new WidgetInProjectChecker($widget_dao),
-            $widget_dao,
+            new WidgetInProjectChecker($retriever),
             ProjectManager::instance(),
             EventManager::instance(),
             new TrackersListAllowedByPlugins(

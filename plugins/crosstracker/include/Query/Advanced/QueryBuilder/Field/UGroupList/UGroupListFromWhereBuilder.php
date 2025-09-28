@@ -46,7 +46,7 @@ use Tuleap\Tracker\Report\Query\IProvideParametrizedFromAndWhereSQLFragments;
  */
 final readonly class UGroupListFromWhereBuilder implements ValueWrapperVisitor
 {
-    private const OPENLIST_FROM = <<<EOSQL
+    private const string OPENLIST_FROM = <<<EOSQL
         LEFT JOIN tracker_field_list_bind_ugroups_value AS tflbuv1 ON (
             tflbuv1.id = tcvol.bindvalue_id
         )
@@ -54,7 +54,7 @@ final readonly class UGroupListFromWhereBuilder implements ValueWrapperVisitor
             tflbuv1.ugroup_id = ugroup1.ugroup_id
         )
         EOSQL;
-    private const LIST_FROM     = <<<EOSQL
+    private const string LIST_FROM     = <<<EOSQL
         LEFT JOIN tracker_field_list_bind_ugroups_value AS tflbuv2 ON (
             tflbuv2.id = tcvl.bindvalue_id
         )
@@ -95,6 +95,7 @@ final readonly class UGroupListFromWhereBuilder implements ValueWrapperVisitor
         return "FA_$suffix";
     }
 
+    #[\Override]
     public function visitSimpleValueWrapper(SimpleValueWrapper $value_wrapper, $parameters)
     {
         $comparison   = $parameters->comparison;
@@ -167,6 +168,7 @@ final readonly class UGroupListFromWhereBuilder implements ValueWrapperVisitor
         );
     }
 
+    #[\Override]
     public function visitInValueWrapper(InValueWrapper $collection_of_value_wrappers, $parameters)
     {
         $comparison   = $parameters->comparison;
@@ -229,21 +231,25 @@ final readonly class UGroupListFromWhereBuilder implements ValueWrapperVisitor
         );
     }
 
+    #[\Override]
     public function visitStatusOpenValueWrapper(StatusOpenValueWrapper $value_wrapper, $parameters)
     {
         throw new LogicException('Comparison to status open should have been flagged as invalid for UGroup List fields');
     }
 
+    #[\Override]
     public function visitCurrentDateTimeValueWrapper(CurrentDateTimeValueWrapper $value_wrapper, $parameters)
     {
         throw new LogicException('Comparison to current date time should have been flagged as invalid for UGroup List fields');
     }
 
+    #[\Override]
     public function visitBetweenValueWrapper(BetweenValueWrapper $value_wrapper, $parameters)
     {
         throw new LogicException('Comparison with Between() should have been flagged as invalid for UGroup List fields');
     }
 
+    #[\Override]
     public function visitCurrentUserValueWrapper(CurrentUserValueWrapper $value_wrapper, $parameters)
     {
         throw new LogicException('Comparison to current user should have been flagged as invalid for UGroup List fields');

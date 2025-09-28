@@ -28,12 +28,12 @@ use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
 use PHPUnit\Framework\MockObject\MockObject;
 use Project;
 use ProjectUGroup;
-use Tracker_FormElement;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\UGroupRetrieverStub;
 use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\FormElement\TrackerFormElement;
 use Tuleap\Tracker\PermissionsFunctionsWrapper;
 use Tuleap\Tracker\Test\Builders\Fields\IntegerFieldBuilder;
 use Tuleap\Tracker\Tracker;
@@ -48,6 +48,7 @@ final class PermissionsForGroupsBuilderTest extends TestCase
     private PermissionsFunctionsWrapper&MockObject $permissions_functions;
     private Project $project;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->tracker_admin_user = UserTestBuilder::buildWithDefaults();
@@ -134,7 +135,7 @@ final class PermissionsForGroupsBuilderTest extends TestCase
                                 'id' => ProjectUGroup::ANONYMOUS,
                             ],
                             'permissions' => [
-                                Tracker_FormElement::PERMISSION_READ => 1,
+                                TrackerFormElement::PERMISSION_READ => 1,
                             ],
                         ],
                     ],
@@ -174,7 +175,7 @@ final class PermissionsForGroupsBuilderTest extends TestCase
                                 'id' => ProjectUGroup::ANONYMOUS,
                             ],
                             'permissions' => [
-                                Tracker_FormElement::PERMISSION_SUBMIT => 1,
+                                TrackerFormElement::PERMISSION_SUBMIT => 1,
                             ],
                         ],
                     ],
@@ -214,7 +215,7 @@ final class PermissionsForGroupsBuilderTest extends TestCase
                                 'id' => ProjectUGroup::ANONYMOUS,
                             ],
                             'permissions' => [
-                                Tracker_FormElement::PERMISSION_UPDATE => 1,
+                                TrackerFormElement::PERMISSION_UPDATE => 1,
                             ],
                         ],
                     ],
@@ -252,7 +253,7 @@ final class PermissionsForGroupsBuilderTest extends TestCase
                                 'id' => ProjectUGroup::ANONYMOUS,
                             ],
                             'permissions' => [
-                                Tracker_FormElement::PERMISSION_UPDATE => 1,
+                                TrackerFormElement::PERMISSION_UPDATE => 1,
                             ],
                         ],
                     ],
@@ -293,7 +294,7 @@ final class PermissionsForGroupsBuilderTest extends TestCase
                                 'id' => ProjectUGroup::ANONYMOUS,
                             ],
                             'permissions' => [
-                                Tracker_FormElement::PERMISSION_UPDATE => 1,
+                                TrackerFormElement::PERMISSION_UPDATE => 1,
                             ],
                         ],
                     ],
@@ -346,7 +347,7 @@ final class PermissionsForGroupsBuilderTest extends TestCase
                                 'id' => ProjectUGroup::ANONYMOUS,
                             ],
                             'permissions' => [
-                                Tracker_FormElement::PERMISSION_READ => 1,
+                                TrackerFormElement::PERMISSION_READ => 1,
                             ],
                         ],
                         [
@@ -354,8 +355,8 @@ final class PermissionsForGroupsBuilderTest extends TestCase
                                 'id' => ProjectUGroup::PROJECT_MEMBERS,
                             ],
                             'permissions' => [
-                                Tracker_FormElement::PERMISSION_SUBMIT => 1,
-                                Tracker_FormElement::PERMISSION_UPDATE => 1,
+                                TrackerFormElement::PERMISSION_SUBMIT => 1,
+                                TrackerFormElement::PERMISSION_UPDATE => 1,
                             ],
                         ],
                         [
@@ -363,8 +364,8 @@ final class PermissionsForGroupsBuilderTest extends TestCase
                                 'id' => $developers_id,
                             ],
                             'permissions' => [
-                                Tracker_FormElement::PERMISSION_SUBMIT => 1,
-                                Tracker_FormElement::PERMISSION_UPDATE => 1,
+                                TrackerFormElement::PERMISSION_SUBMIT => 1,
+                                TrackerFormElement::PERMISSION_UPDATE => 1,
                             ],
                         ],
                     ],

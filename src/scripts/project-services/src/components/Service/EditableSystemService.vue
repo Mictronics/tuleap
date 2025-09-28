@@ -19,37 +19,41 @@
 
 <template>
     <div class="tlp-modal-body">
-        <service-id v-bind:value="service.id" />
+        <service-id v-bind:id="service.id" />
         <hidden-service-shortname
             v-if="service.short_name"
             v-bind:short_name="service.short_name"
         />
         <service-label
             id="project-service-edit-modal-label"
-            v-bind:value="service.label"
+            v-bind:label="service.label"
             v-on:input="onEditServiceLabel"
         />
         <read-only-service-icon v-bind:icon_name="service.icon_name" />
         <service-is-used
             v-if="can_update_is_used"
             id="project-service-edit-modal-enabled"
-            v-bind:value="service.is_used"
-            v-bind:disabled-reason="service.is_disabled_reason"
+            v-bind:is_used="service.is_used"
+            v-bind:is_disabled_reason="service.is_disabled_reason"
         />
         <service-is-active
             id="project-service-edit-modal-active"
-            v-bind:value="service.is_active"
+            v-bind:is_active="service.is_active"
         />
         <div class="tlp-property" v-if="service.short_name">
             <label class="tlp-label">{{ $gettext("Short name") }}</label>
             <span>{{ service.short_name }}</span>
         </div>
         <read-only-service-rank v-if="is_summary_service" v-bind:rank="service.rank" />
-        <service-rank v-else id="project-service-edit-modal-rank" v-bind:value="service.rank" />
-        <service-link id="project-service-edit-modal-link" v-bind:value="service.link" />
+        <service-rank v-else id="project-service-edit-modal-rank" v-bind:rank="service.rank" />
+        <service-link
+            id="project-service-edit-modal-link"
+            v-bind:link="service.link"
+            v-bind:disabled="false"
+        />
         <service-description
             id="project-service-edit-modal-description"
-            v-bind:value="service.description"
+            v-bind:description="service.description"
         />
     </div>
 </template>

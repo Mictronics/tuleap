@@ -46,7 +46,6 @@ body.viewvc-epel {
 }
 
 #svn-repository-help {
-    display: none;
     margin: 16px 16px 0;
 
     .svn-intro-command {
@@ -297,4 +296,8 @@ body.viewvc-epel {
     width: 22px;
     height: 22px;
     margin: 0 3px 0 0;
+}
+
+.svn-repository-help-hidden {
+    display: none;
 }

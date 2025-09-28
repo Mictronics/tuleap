@@ -22,6 +22,7 @@ declare(strict_types=1);
 
 namespace Tuleap\CrossTracker\Query;
 
+use Override;
 use PFUser;
 use Psr\EventDispatcher\EventDispatcherInterface;
 use Tuleap\CrossTracker\Query\Advanced\FromBuilderVisitor;
@@ -30,7 +31,7 @@ use Tuleap\CrossTracker\Query\Advanced\InvalidFromProjectCollectorVisitor;
 use Tuleap\CrossTracker\Query\Advanced\InvalidFromTrackerCollectorVisitor;
 use Tuleap\CrossTracker\Query\Advanced\QueryBuilder\CrossTrackerTQLQueryDao;
 use Tuleap\CrossTracker\Query\Advanced\WidgetInProjectChecker;
-use Tuleap\CrossTracker\Widget\SearchCrossTrackerWidget;
+use Tuleap\CrossTracker\Widget\RetrieveCrossTrackerWidget;
 use Tuleap\Project\ProjectByIDFactory;
 use Tuleap\Tracker\Permission\RetrieveUserPermissionOnTrackers;
 use Tuleap\Tracker\Permission\TrackerPermissionType;
@@ -48,16 +49,16 @@ final readonly class QueryTrackersRetriever implements RetrieveQueryTrackers
         private RetrieveUserPermissionOnTrackers $trackers_permissions,
         private CrossTrackerTQLQueryDao $tql_query_dao,
         private WidgetInProjectChecker $in_project_checker,
-        private SearchCrossTrackerWidget $widget_retriever,
         private ProjectByIDFactory $project_factory,
         private EventDispatcherInterface $event_dispatcher,
         private TrackersListAllowedByPlugins $trackers_list_allowed_by_plugins,
     ) {
     }
 
-    public function getQueryTrackers(ParsedCrossTrackerQuery $query, PFUser $current_user, int $limit): array
+    #[Override]
+    public function getQueryTrackers(RetrieveCrossTrackerWidget $retriever, ParsedCrossTrackerQuery $query, PFUser $current_user, int $limit): array
     {
-        return $this->retrieveForQuery($query, $current_user, $limit);
+        return $this->retrieveForQuery($retriever, $query, $current_user, $limit);
     }
 
     /**
@@ -66,7 +67,7 @@ final readonly class QueryTrackersRetriever implements RetrieveQueryTrackers
      * @throws FromIsInvalidException
      * @throws MissingFromException
      */
-    private function retrieveForQuery(ParsedCrossTrackerQuery $query, PFUser $current_user, int $limit): array
+    private function retrieveForQuery(RetrieveCrossTrackerWidget $retriever, ParsedCrossTrackerQuery $query, PFUser $current_user, int $limit): array
     {
         $this->expert_query_validator->validateFromQuery(
             $query->parsed_query,
@@ -74,9 +75,9 @@ final readonly class QueryTrackersRetriever implements RetrieveQueryTrackers
                 new InvalidFromTrackerCollectorVisitor($this->in_project_checker),
                 new InvalidFromProjectCollectorVisitor(
                     $this->in_project_checker,
-                    $this->widget_retriever,
                     $this->project_factory,
                     $this->event_dispatcher,
+                    $retriever
                 ),
                 $query->getWidgetId(),
             ),

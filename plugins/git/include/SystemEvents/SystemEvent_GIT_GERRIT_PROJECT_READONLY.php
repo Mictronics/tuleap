@@ -22,9 +22,9 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-class SystemEvent_GIT_GERRIT_PROJECT_READONLY extends SystemEvent
+class SystemEvent_GIT_GERRIT_PROJECT_READONLY extends SystemEvent //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
-    public const NAME = 'GIT_GERRIT_PROJECT_READONLY';
+    public const string NAME = 'GIT_GERRIT_PROJECT_READONLY';
 
     /**
      * @var GitRepositoryFactory
@@ -51,6 +51,7 @@ class SystemEvent_GIT_GERRIT_PROJECT_READONLY extends SystemEvent
         $this->driver_factory     = $driver_factory;
     }
 
+    #[\Override]
     public function process()
     {
         $parameters = $this->getParametersAsArray();
@@ -106,6 +107,7 @@ class SystemEvent_GIT_GERRIT_PROJECT_READONLY extends SystemEvent
         return true;
     }
 
+    #[\Override]
     public function verbalizeParameters($with_link)
     {
         return $this->parameters;

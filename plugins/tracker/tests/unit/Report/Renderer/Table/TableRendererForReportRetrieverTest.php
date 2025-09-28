@@ -22,6 +22,8 @@ declare(strict_types=1);
 
 namespace Tuleap\Tracker\Report\Renderer\Table;
 
+use HTTPRequest;
+use Override;
 use PFUser;
 use Tracker_Report;
 use Tracker_Report_Renderer;
@@ -55,66 +57,79 @@ final class TableRendererForReportRetrieverTest extends TestCase
                 //override construct
             }
 
+            #[\Override]
             public function getIcon()
             {
                 // TODO: Implement getIcon() method.
             }
 
+            #[\Override]
             public function delete()
             {
                 // TODO: Implement delete() method.
             }
 
-            public function fetch($matching_ids, $request, $report_can_be_modified, PFUser $user)
+            #[Override]
+            public function fetch(array $matching_ids, HTTPRequest $request, bool $report_can_be_modified, PFUser $user): string
             {
                 // TODO: Implement fetch() method.
             }
 
+            #[\Override]
             public function processRequest(TrackerManager $tracker_manager, $request, PFUser $current_user)
             {
                 // TODO: Implement processRequest() method.
             }
 
+            #[\Override]
             public function fetchWidget(PFUser $user, Widget $widget): string
             {
                 // TODO: Implement fetchWidget() method.
             }
 
+            #[\Override]
             public function getType()
             {
                 return 'whatever';
             }
 
+            #[\Override]
             public function initiateSession()
             {
                 // TODO: Implement initiateSession() method.
             }
 
+            #[\Override]
             public function update()
             {
                 // TODO: Implement update() method.
             }
 
+            #[\Override]
             public function afterSaveObject(Tracker_Report_Renderer $renderer)
             {
                 // TODO: Implement afterSaveObject() method.
             }
 
+            #[\Override]
             public function create()
             {
                 // TODO: Implement create() method.
             }
 
+            #[\Override]
             public function duplicate($from_report_id, $field_mapping, MappingRegistry $mapping_registry): void
             {
                 // TODO: Implement duplicate() method.
             }
 
+            #[\Override]
             public function getJavascriptDependencies()
             {
                 // TODO: Implement getJavascriptDependencies() method.
             }
 
+            #[\Override]
             public function getStylesheetDependencies(): CssAssetCollection
             {
                 return new CssAssetCollection([]);

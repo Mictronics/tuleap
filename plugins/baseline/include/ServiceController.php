@@ -24,6 +24,7 @@ declare(strict_types=1);
 namespace Tuleap\Baseline;
 
 use HTTPRequest;
+use Override;
 use Project;
 use TemplateRenderer;
 use Tuleap\Baseline\Adapter\ProjectProxy;
@@ -45,7 +46,7 @@ use Tuleap\Request\NotFoundException;
 
 class ServiceController implements DispatchableWithRequest, DispatchableWithBurningParrot, DispatchableWithProject
 {
-    public const PROJECT_NAME_VARIABLE_NAME = 'project_name';
+    public const string PROJECT_NAME_VARIABLE_NAME = 'project_name';
 
     public function __construct(
         private \ProjectManager $project_manager,
@@ -56,7 +57,7 @@ class ServiceController implements DispatchableWithRequest, DispatchableWithBurn
     ) {
     }
 
-    private function includeJavascriptFiles(BaseLayout $layout)
+    private function includeJavascriptFiles(BaseLayout $layout): void
     {
         $layout->includeFooterJavascriptFile($this->getAssets()->getFileURL('baseline.js'));
     }
@@ -86,6 +87,7 @@ class ServiceController implements DispatchableWithRequest, DispatchableWithBurn
      * @throws ForbiddenException
      * @return void
      */
+    #[Override]
     public function process(HTTPRequest $request, BaseLayout $layout, array $variables)
     {
         \Tuleap\Project\ServiceInstrumentation::increment(\baselinePlugin::NAME);
@@ -154,6 +156,7 @@ class ServiceController implements DispatchableWithRequest, DispatchableWithBurn
      *
      * @throws NotFoundException
      */
+    #[Override]
     public function getProject(array $variables): Project
     {
         return $this->getProjectByName($variables[self::PROJECT_NAME_VARIABLE_NAME]);

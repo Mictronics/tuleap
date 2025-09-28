@@ -67,17 +67,12 @@ final class DryRunDuckTypingFieldCollector implements CollectDryRunTypingField
     ) {
     }
 
+    #[\Override]
     public function collect(\Tuleap\Tracker\Tracker $source_tracker, \Tuleap\Tracker\Tracker $destination_tracker, Artifact $artifact, \PFUser $user, LoggerInterface $logger): DuckTypedMoveFieldCollection
     {
         foreach ($this->retrieve_used_fields->getUsedFields($source_tracker) as $source_field) {
             $destination_field = $this->retrieve_used_fields->getUsedFieldByName($destination_tracker->getId(), $source_field->getName());
             if ($destination_field === null) {
-                $this->addFieldToNotMigrateableList($source_field);
-                continue;
-            }
-
-            if ($destination_field->isUpdateable() && ! $destination_field->userCanUpdate($user)) {
-                $logger->debug(sprintf('User #%d (%s) can not update field #%d (%s) of project #%d', $user->getId(), $user->getUserName(), $destination_field->getId(), $destination_field->getName(), $destination_tracker->getGroupId()));
                 $this->addFieldToNotMigrateableList($source_field);
                 continue;
             }

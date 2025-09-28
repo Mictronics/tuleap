@@ -24,15 +24,17 @@ declare(strict_types=1);
 namespace Tuleap\SVN\Repository;
 
 use Tuleap\DB\DataAccessObject;
-use Tuleap\SVNCore\Repository;
+use Tuleap\SVN\Repository;
 
 final class DefaultPermissionsDao extends DataAccessObject implements DefaultPermissions
 {
+    #[\Override]
     public function enableUseDefaultPermissions(Repository $repository): void
     {
         $this->getDB()->update('plugin_svn_repositories', ['has_default_permissions' => 1], ['id' => $repository->getId()]);
     }
 
+    #[\Override]
     public function disableUseDefaultPermissions(Repository $repository): void
     {
         $this->getDB()->update('plugin_svn_repositories', ['has_default_permissions' => 0], ['id' => $repository->getId()]);

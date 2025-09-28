@@ -37,19 +37,34 @@ import {
     OTHER_ITEM_TYPES,
     SHOULD_DISPLAY_SOURCE_COLUMN_FOR_VERSIONS,
 } from "./injection-keys";
-import type { ConfigurationState } from "./store/configuration";
 import type { SearchCriterion, SearchListOption } from "./type";
 import { getRelativeDateUserPreferenceOrThrow } from "@tuleap/tlp-relative-date";
 import {
+    CAN_USER_SWITCH_TO_OLD_UI,
+    DATE_TIME_FORMAT,
     EMBEDDED_ARE_ALLOWED,
+    FILENAME_PATTERN,
+    FORBID_WRITERS_TO_DELETE,
+    FORBID_WRITERS_TO_UPDATE,
+    IS_CHANGELOG_PROPOSED_AFTER_DND,
+    IS_DELETION_ALLOWED,
+    IS_FILENAME_PATTERN_ENFORCED,
+    IS_OBSOLESCENCE_DATE_PROPERTY_USED,
     IS_STATUS_PROPERTY_USED,
-    PROJECT_ID,
-    PROJECT_NAME,
-    PROJECT_PUBLIC_NAME,
+    MAX_ARCHIVE_SIZE,
+    MAX_FILES_DRAGNDROP,
+    MAX_SIZE_UPLOAD,
+    PROJECT,
+    RELATIVE_DATES_DISPLAY,
     ROOT_ID,
+    SEARCH_COLUMNS,
+    SEARCH_CRITERIA,
     USER_CAN_CREATE_WIKI,
+    USER_CAN_DRAGNDROP,
     USER_ID,
     USER_IS_ADMIN,
+    USER_LOCALE,
+    WARNING_THRESHOLD,
 } from "./configuration-keys";
 
 interface MustacheCriterion {
@@ -124,7 +139,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         vue_mount_point,
         "data-relative-dates-display",
     );
-    const privacy = JSON.parse(getAttributeOrThrow(vue_mount_point, "data-privacy"));
+    const project_privacy = JSON.parse(getAttributeOrThrow(vue_mount_point, "data-privacy"));
     const project_flags = JSON.parse(getAttributeOrThrow(vue_mount_point, "data-project-flags"));
     const project_icon = getAttributeOrThrow(vue_mount_point, "data-project-icon");
     const filename_pattern = getAttributeOrThrow(vue_mount_point, "data-filename-pattern");
@@ -143,10 +158,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         type: criterion.type === "string" ? "text" : criterion.type,
     });
 
-    const criteria = JSON.parse(getAttributeOrThrow(vue_mount_point, "data-criteria")).map(
+    const search_criteria = JSON.parse(getAttributeOrThrow(vue_mount_point, "data-criteria")).map(
         consider_string_criteria_as_text,
     );
-    const columns = JSON.parse(getAttributeOrThrow(vue_mount_point, "data-columns"));
+    const search_columns = JSON.parse(getAttributeOrThrow(vue_mount_point, "data-columns"));
     const create_new_item_alternatives = JSON.parse(
         getAttributeOrThrow(vue_mount_point, "data-create-new-item-alternatives"),
     );
@@ -162,31 +177,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         csrf_token,
     });
 
-    const configuration_state: ConfigurationState = {
-        is_obsolescence_date_property_used,
-        project_url,
-        date_time_format,
-        max_files_dragndrop,
-        max_size_upload,
-        warning_threshold,
-        max_archive_size,
-        is_deletion_allowed,
-        is_changelog_proposed_after_dnd,
-        privacy,
-        project_flags,
-        relative_dates_display,
-        project_icon,
-        user_locale,
-        criteria,
-        columns,
-        forbid_writers_to_update,
-        forbid_writers_to_delete,
-        filename_pattern,
-        is_filename_pattern_enforced,
-        can_user_switch_to_old_ui,
-    };
-
-    const store = createInitializedStore(configuration_state);
+    const store = createInitializedStore();
     app.use(store);
     const gettext = await initVueGettext(
         createGettext,
@@ -197,7 +188,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     app.use(pinia);
 
     app.use(gettext);
-    app.use(createInitializedRouter(store, project_name, gettext.$gettext));
+    app.use(
+        createInitializedRouter(store, project_name, gettext.$gettext, root_id, search_criteria),
+    );
 
     app.provide(
         SHOULD_DISPLAY_SOURCE_COLUMN_FOR_VERSIONS,
@@ -206,14 +199,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     app.provide(NEW_ITEMS_ALTERNATIVES, create_new_item_alternatives);
     app.provide(OTHER_ITEM_TYPES, other_item_types);
     app.provide(USER_ID, user_id)
-        .provide(PROJECT_ID, project_id)
+        .provide(PROJECT, {
+            id: project_id,
+            name: project_name,
+            public_name: project_public_name,
+            url: project_url,
+            privacy: project_privacy,
+            flags: project_flags,
+            icon: project_icon,
+        })
         .provide(ROOT_ID, root_id)
-        .provide(PROJECT_NAME, project_name)
-        .provide(PROJECT_PUBLIC_NAME, project_public_name)
         .provide(USER_IS_ADMIN, user_is_admin)
         .provide(USER_CAN_CREATE_WIKI, user_can_create_wiki)
         .provide(EMBEDDED_ARE_ALLOWED, embedded_are_allowed)
-        .provide(IS_STATUS_PROPERTY_USED, is_status_property_used);
+        .provide(IS_STATUS_PROPERTY_USED, is_status_property_used)
+        .provide(IS_OBSOLESCENCE_DATE_PROPERTY_USED, is_obsolescence_date_property_used)
+        .provide(MAX_FILES_DRAGNDROP, max_files_dragndrop)
+        .provide(USER_CAN_DRAGNDROP, max_files_dragndrop > 0)
+        .provide(MAX_SIZE_UPLOAD, max_size_upload)
+        .provide(WARNING_THRESHOLD, warning_threshold)
+        .provide(MAX_ARCHIVE_SIZE, max_archive_size)
+        .provide(DATE_TIME_FORMAT, date_time_format)
+        .provide(IS_CHANGELOG_PROPOSED_AFTER_DND, is_changelog_proposed_after_dnd)
+        .provide(IS_DELETION_ALLOWED, is_deletion_allowed)
+        .provide(USER_LOCALE, user_locale)
+        .provide(RELATIVE_DATES_DISPLAY, relative_dates_display)
+        .provide(SEARCH_CRITERIA, search_criteria)
+        .provide(SEARCH_COLUMNS, search_columns)
+        .provide(FORBID_WRITERS_TO_UPDATE, forbid_writers_to_update)
+        .provide(FORBID_WRITERS_TO_DELETE, forbid_writers_to_delete)
+        .provide(FILENAME_PATTERN, filename_pattern)
+        .provide(IS_FILENAME_PATTERN_ENFORCED, is_filename_pattern_enforced)
+        .provide(CAN_USER_SWITCH_TO_OLD_UI, can_user_switch_to_old_ui);
     app.use(VueDOMPurifyHTML);
 
     app.mount(vue_mount_point);

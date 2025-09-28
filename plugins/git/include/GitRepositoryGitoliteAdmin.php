@@ -21,11 +21,11 @@
 /**
  * Special object to manage interactions with gitolite admin repository
  */
-class GitRepositoryGitoliteAdmin extends GitRepository
+class GitRepositoryGitoliteAdmin extends GitRepository //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 {
-    public const ID       = '-2';
-    public const NAME     = 'gitolite-admin.git';
-    public const USERNAME = 'id_rsa_gl-adm';
+    public const string ID       = '-2';
+    public const string NAME     = 'gitolite-admin.git';
+    public const string USERNAME = 'id_rsa_gl-adm';
 
     public function __construct()
     {
@@ -34,11 +34,13 @@ class GitRepositoryGitoliteAdmin extends GitRepository
         $this->setPath(self::NAME);
     }
 
+    #[\Override]
     public function getPathWithoutLazyLoading()
     {
         return self::NAME;
     }
 
+    #[\Override]
     public function getBackendType()
     {
         return GitDao::BACKEND_GITOLITE;

@@ -34,7 +34,6 @@ use Tuleap\SVN\Notifications\NotificationsEmailsBuilder;
 use Tuleap\SVN\Repository\Exception\CannotCreateRepositoryException;
 use Tuleap\SVN\Repository\Exception\RepositoryNameIsInvalidException;
 use Tuleap\SVN\Repository\SvnRepository;
-use Tuleap\SVNCore\Repository;
 use Tuleap\SVN\Repository\RepositoryCreator;
 use Tuleap\SVN\Repository\RepositoryManager;
 use Tuleap\SVN\Repository\RuleName;
@@ -43,7 +42,7 @@ class XMLRepositoryImporter
 {
     public const SERVICE_NAME = 'svn';
     /**
-     * @var \BackendSVN
+     * @var \Tuleap\SVN\BackendSVN
      */
     private $backend_svn;
 
@@ -91,7 +90,7 @@ class XMLRepositoryImporter
         SimpleXMLElement $xml_repo,
         $extraction_path,
         RepositoryCreator $repository_creator,
-        \BackendSVN $backend_svn,
+        \Tuleap\SVN\BackendSVN $backend_svn,
         AccessFileHistoryCreator $access_file_history_creator,
         RepositoryManager $repository_manager,
         \UserManager $user_manager,

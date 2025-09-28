@@ -60,6 +60,7 @@ use Tuleap\Tracker\Creation\JiraImporter\Import\JiraImporterExternalPluginsEvent
 use Tuleap\Tracker\REST\v1\Event\GetTrackersWithCriteria;
 use Tuleap\Tracker\Tracker;
 use Tuleap\Tracker\XML\Importer\ImportXMLProjectTrackerDone;
+use Tuleap\User\Password\PasswordExpiredException;
 
 require_once __DIR__ . '/../../tracker/include/trackerPlugin.php';
 require_once 'constants.php';
@@ -75,6 +76,7 @@ class timetrackingPlugin extends PluginWithLegacyInternalRouting implements Plug
         bindtextdomain('tuleap-timetracking', __DIR__ . '/../site-content');
     }
 
+    #[\Override]
     public function getPluginInfo()
     {
         if (! is_a($this->pluginInfo, TimetrackingPluginInfo::class)) {
@@ -84,6 +86,7 @@ class timetrackingPlugin extends PluginWithLegacyInternalRouting implements Plug
         return $this->pluginInfo;
     }
 
+    #[\Override]
     public function getDependencies()
     {
         return ['tracker'];
@@ -121,6 +124,7 @@ class timetrackingPlugin extends PluginWithLegacyInternalRouting implements Plug
         ];
     }
 
+    #[\Override]
     public function process(): void
     {
         $router = new Router(
@@ -264,7 +268,7 @@ class timetrackingPlugin extends PluginWithLegacyInternalRouting implements Plug
 
     /**
      * @throws Rest_Exception_InvalidTokenException
-     * @throws User_PasswordExpiredException
+     * @throws PasswordExpiredException
      * @throws User_StatusInvalidException
      * @throws \Luracast\Restler\RestException
      */
@@ -448,6 +452,7 @@ class timetrackingPlugin extends PluginWithLegacyInternalRouting implements Plug
         }
     }
 
+    #[\Override]
     public function getConfigKeys(\Tuleap\Config\ConfigClassProvider $event): void
     {
         $event->addConfigClass(FeatureFlagTimetrackingManagementWidget::class);

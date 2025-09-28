@@ -26,6 +26,7 @@ use Tuleap\NeverThrow\Err;
 use Tuleap\NeverThrow\Fault;
 use Tuleap\NeverThrow\Ok;
 use Tuleap\NeverThrow\Result;
+use Tuleap\Timetracking\Widget\Management\GetWidgetInformation;
 
 final readonly class PermissionChecker implements CheckPermission
 {
@@ -36,6 +37,7 @@ final readonly class PermissionChecker implements CheckPermission
     /**
      * @return Ok<true>|Err<Fault>
      */
+    #[\Override]
     public function checkThatCurrentUserCanUpdateTheQuery(int $query_id, \PFUser $current_user): Ok|Err
     {
         $widget_information = $this->dao->getWidgetInformationFromQuery($query_id);

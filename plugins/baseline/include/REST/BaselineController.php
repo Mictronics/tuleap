@@ -35,10 +35,11 @@ use Tuleap\Baseline\REST\Exception\ForbiddenRestException;
 use Tuleap\Baseline\REST\Exception\NotFoundRestException;
 use Tuleap\Baseline\Domain\TransientBaseline;
 use Tuleap\REST\I18NRestException;
+use Tuleap\User\Password\PasswordExpiredException;
 
 class BaselineController
 {
-    public const DATE_TIME_FORMAT = DateTime::ATOM;
+    public const string DATE_TIME_FORMAT = DateTime::ATOM;
 
     /** @var CurrentUserProvider */
     private $current_user_provider;
@@ -64,7 +65,7 @@ class BaselineController
      * @throws ForbiddenRestException 403
      * @throws \Luracast\Restler\RestException
      * @throws \Rest_Exception_InvalidTokenException
-     * @throws \User_PasswordExpiredException
+     * @throws PasswordExpiredException
      * @throws \User_StatusDeletedException
      * @throws \User_StatusInvalidException
      * @throws \User_StatusPendingException

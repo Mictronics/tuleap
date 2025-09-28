@@ -21,7 +21,7 @@
 namespace Tuleap\HudsonSvn\Job;
 
 use Tuleap\HudsonSvn\BuildParams;
-use Tuleap\SVNCore\Repository;
+use Tuleap\SVN\Repository;
 use Tuleap\SVN\Commit\CommitInfo;
 use Jenkins_Client;
 use Jenkins_ClientUnableToLaunchBuildException;
@@ -29,7 +29,7 @@ use Psr\Log\LoggerInterface;
 
 class Launcher
 {
-    public const ROOT_DIRECTORY = '/';
+    public const string ROOT_DIRECTORY = '/';
 
     /**
      * @var LoggerInterface

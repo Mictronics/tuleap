@@ -61,6 +61,7 @@ final class JiraRunnerTest extends TestCase
     private PFUser $anonymous_user;
     private JiraUserOnTuleapCache $jira_user_on_tuleap_cache;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->logger                    = new TestLogger();
@@ -131,7 +132,7 @@ final class JiraRunnerTest extends TestCase
         );
 
         $this->user_manager->method('forceLogin')->with('Whalter White')->willReturn($user);
-        $this->key_factory->expects($this->once())->method('getEncryptionKey')->willReturn($encryption_key);
+        $this->key_factory->expects($this->once())->method('getLegacy2025EncryptionKey')->willReturn($encryption_key);
 
         $tracker = TrackerTestBuilder::aTracker()->build();
         $this->creator->expects($this->once())->method('createFromJira')
@@ -192,7 +193,7 @@ final class JiraRunnerTest extends TestCase
 
         $this->user_manager->method('forceLogin')->with('Whalter White')->willReturn($user);
 
-        $this->key_factory->expects($this->once())->method('getEncryptionKey')
+        $this->key_factory->expects($this->once())->method('getLegacy2025EncryptionKey')
             ->willThrowException(new CannotPerformIOOperationException(''));
 
         $this->error_notifier->expects($this->once())->method('warnUserAboutError')
@@ -223,7 +224,7 @@ final class JiraRunnerTest extends TestCase
 
         $this->user_manager->method('forceLogin')->with('Whalter White')->willReturn($user);
 
-        $this->key_factory->expects($this->once())->method('getEncryptionKey')->willReturn($encryption_key);
+        $this->key_factory->expects($this->once())->method('getLegacy2025EncryptionKey')->willReturn($encryption_key);
 
         $this->error_notifier->expects($this->once())->method('warnUserAboutError')
             ->with($import, 'Unable to access to the token to do the import.');
@@ -260,7 +261,7 @@ final class JiraRunnerTest extends TestCase
 
         $this->user_manager->method('forceLogin')->with('Whalter_White')->willReturn($user);
 
-        $this->key_factory->expects($this->once())->method('getEncryptionKey')->willReturn($encryption_key);
+        $this->key_factory->expects($this->once())->method('getLegacy2025EncryptionKey')->willReturn($encryption_key);
 
         $this->creator->expects($this->once())->method('createFromJira')
             ->willThrowException(JiraConnectionException::credentialsValuesAreInvalid());
@@ -299,7 +300,7 @@ final class JiraRunnerTest extends TestCase
 
         $this->user_manager->method('forceLogin')->with('Whalter_White')->willReturn($user);
 
-        $this->key_factory->expects($this->once())->method('getEncryptionKey')->willReturn($encryption_key);
+        $this->key_factory->expects($this->once())->method('getLegacy2025EncryptionKey')->willReturn($encryption_key);
 
         $this->creator->expects($this->once())->method('createFromJira')
             ->willThrowException(new ParseExceptionWithErrors('', [], []));

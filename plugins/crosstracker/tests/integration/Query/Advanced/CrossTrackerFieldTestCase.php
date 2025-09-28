@@ -31,6 +31,7 @@ use Tuleap\CrossTracker\Query\Advanced\SelectBuilder\Metadata\Special\LinkType\W
 use Tuleap\CrossTracker\Query\CrossTrackerArtifactQueryFactoryBuilder;
 use Tuleap\CrossTracker\Query\CrossTrackerQuery;
 use Tuleap\CrossTracker\REST\v1\Representation\CrossTrackerQueryContentRepresentation;
+use Tuleap\CrossTracker\Widget\CrossTrackerWidgetRetriever;
 use Tuleap\CrossTracker\Widget\CrossTrackerSearchWidget;
 use Tuleap\CrossTracker\Widget\CrossTrackerWidgetDao;
 use Tuleap\Dashboard\Project\ProjectDashboardDao;
@@ -38,6 +39,7 @@ use Tuleap\Dashboard\Widget\DashboardWidgetDao;
 use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\UUID;
+use Tuleap\Option\Option;
 use Tuleap\TemporaryTestDirectory;
 use Tuleap\Test\PHPUnit\TestIntegrationTestCase;
 use Tuleap\Tracker\Report\Query\Advanced\SearchablesAreInvalidException;
@@ -46,6 +48,7 @@ use Tuleap\Widget\WidgetFactory;
 use User_ForgeUserGroupPermissionsDao;
 use User_ForgeUserGroupPermissionsManager;
 use UserManager;
+use function Psl\Type\string;
 
 abstract class CrossTrackerFieldTestCase extends TestIntegrationTestCase
 {
@@ -103,9 +106,13 @@ abstract class CrossTrackerFieldTestCase extends TestIntegrationTestCase
      */
     final protected function getMatchingArtifactIds(CrossTrackerQuery $query, PFUser $user): array
     {
-        $result = (new CrossTrackerArtifactQueryFactoryBuilder())
-            ->getArtifactFactory(new WithoutLinkTypeSelectFromBuilder())
-            ->getArtifactsMatchingQuery($query, $user, 10, 0);
+        $cross_tracker_widget_retriever = new CrossTrackerWidgetRetriever(new CrossTrackerWidgetDao());
+        $result                         = (new CrossTrackerArtifactQueryFactoryBuilder())
+            ->getArtifactFactory(
+                new WithoutLinkTypeSelectFromBuilder(),
+                $cross_tracker_widget_retriever
+            )
+            ->getArtifactsMatchingQuery($cross_tracker_widget_retriever, $query, $user, 10, 0, Option::nothing(string()));
         return array_values(array_map(static function (array $artifact): int {
             if (! isset($artifact['@id']) || ! ($artifact['@id'] instanceof NumericResultRepresentation)) {
                 throw new LogicException('Query result should contains @id column');
@@ -117,9 +124,10 @@ abstract class CrossTrackerFieldTestCase extends TestIntegrationTestCase
 
     final protected function getQueryResults(CrossTrackerQuery $query, PFUser $user): CrossTrackerQueryContentRepresentation
     {
-        $result = (new CrossTrackerArtifactQueryFactoryBuilder())
-            ->getArtifactFactory(new WithoutLinkTypeSelectFromBuilder())
-            ->getArtifactsMatchingQuery($query, $user, 10, 0);
+        $cross_tracker_widget_retriever = new CrossTrackerWidgetRetriever(new CrossTrackerWidgetDao());
+        $result                         = (new CrossTrackerArtifactQueryFactoryBuilder())
+            ->getArtifactFactory(new WithoutLinkTypeSelectFromBuilder(), $cross_tracker_widget_retriever)
+            ->getArtifactsMatchingQuery($cross_tracker_widget_retriever, $query, $user, 10, 0, Option::nothing(string()));
         assert($result instanceof CrossTrackerQueryContentRepresentation);
         return $result;
     }

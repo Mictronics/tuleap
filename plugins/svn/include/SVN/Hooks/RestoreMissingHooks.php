@@ -25,14 +25,14 @@ namespace Tuleap\SVN\Hooks;
 use Psr\Log\LoggerInterface;
 use Tuleap\NeverThrow\Fault;
 use Tuleap\NeverThrow\Result;
-use Tuleap\SVNCore\Repository;
+use Tuleap\SVN\Repository;
 
 final class RestoreMissingHooks
 {
     public function __construct(
         private readonly MissingHooksPathsRetriever $missing_hooks_paths_retriever,
         private readonly LoggerInterface $logger,
-        private readonly \BackendSVN $backend_svn,
+        private readonly \Tuleap\SVN\BackendSVN $backend_svn,
     ) {
     }
 

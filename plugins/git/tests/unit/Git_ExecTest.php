@@ -30,18 +30,18 @@ use System_Command;
 use Tuleap\TemporaryTestDirectory;
 use Tuleap\Test\PHPUnit\TestCase;
 
-//phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
-final class Git_ExecTest extends TestCase
+final class Git_ExecTest extends TestCase //phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
 {
     use TemporaryTestDirectory;
 
-    private const NULL_SHA1 = '0000000000000000000000000000000000000000';
+    private const string NULL_SHA1 = '0000000000000000000000000000000000000000';
 
     private string $fixture_dir;
     private Git_Exec $git_exec;
     private string $symlink_repo;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->symlink_repo = $this->getTmpDir() . '/tuleap-git-exec-test_' . random_int(0, 99999999);
@@ -54,6 +54,7 @@ final class Git_ExecTest extends TestCase
         $this->git_exec->setLocalCommiter('test', 'test@example.com');
     }
 
+    #[\Override]
     protected function tearDown(): void
     {
         system("rm -rf $this->fixture_dir");

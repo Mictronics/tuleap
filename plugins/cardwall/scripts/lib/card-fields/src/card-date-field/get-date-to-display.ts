@@ -18,11 +18,11 @@
  */
 
 import type { DateCardField } from "./type";
-import { getLocaleOrThrow, getTimezoneOrThrow, IntlFormatter } from "@tuleap/date-helper";
+import { getLocaleWithDefault, getTimezoneOrThrow, IntlFormatter } from "@tuleap/date-helper";
 
 export function getDateToDisplay(card_field: DateCardField): string {
     const formatter = IntlFormatter(
-        getLocaleOrThrow(document),
+        getLocaleWithDefault(document),
         getTimezoneOrThrow(document),
         card_field.type === "lud" || card_field.type === "subon" || card_field.is_time_displayed
             ? "date-with-time"

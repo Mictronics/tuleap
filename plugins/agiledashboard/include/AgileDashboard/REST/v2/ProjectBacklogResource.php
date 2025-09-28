@@ -22,7 +22,6 @@ namespace Tuleap\AgileDashboard\REST\v2;
 
 use AgileDashboard_Milestone_Backlog_BacklogFactory;
 use AgileDashboard_Milestone_Backlog_BacklogItemBuilder;
-use AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactory;
 use Luracast\Restler\RestException;
 use PFUser;
 use Planning_MilestoneFactory;
@@ -35,12 +34,14 @@ use Tracker_ArtifactFactory;
 use Tracker_FormElementFactory;
 use Tuleap\AgileDashboard\BacklogItemDao;
 use Tuleap\AgileDashboard\ExplicitBacklog\ArtifactsInExplicitBacklogDao;
+use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemCollectionFactory;
 use Tuleap\AgileDashboard\Milestone\ParentTrackerRetriever;
 use Tuleap\AgileDashboard\RemainingEffortValueRetriever;
 use Tuleap\Project\ProjectBackground\ProjectBackgroundConfiguration;
 use Tuleap\Project\ProjectBackground\ProjectBackgroundDao;
 use Tuleap\REST\Header;
 use Tuleap\Tracker\Artifact\Dao\PriorityDao;
+use Tuleap\Tracker\Permission\SubmissionPermissionVerifier;
 use Tuleap\Tracker\Semantic\Status\CachedSemanticStatusFieldRetriever;
 use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
 
@@ -49,16 +50,14 @@ use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
  */
 class ProjectBacklogResource
 {
-    public const MAX_LIMIT = 50;
+    public const int MAX_LIMIT = 50;
 
     /** @var Planning_MilestoneFactory */
     private $milestone_factory;
 
     /** @var AgileDashboard_Milestone_Backlog_BacklogFactory */
     private $backlog_factory;
-
-    /** @var \AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactory */
-    private $backlog_item_collection_factory;
+    private BacklogItemCollectionFactory $backlog_item_collection_factory;
 
     /** @var \PlanningFactory */
     private $planning_factory;
@@ -87,7 +86,7 @@ class ProjectBacklogResource
             new \Tuleap\Tracker\Artifact\Dao\ArtifactDao(),
         );
 
-        $this->backlog_item_collection_factory = new AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactory(
+        $this->backlog_item_collection_factory = new BacklogItemCollectionFactory(
             new BacklogItemDao(),
             $tracker_artifact_factory,
             $this->milestone_factory,
@@ -124,7 +123,10 @@ class ProjectBacklogResource
         }
 
         $backlog_item_representations        = [];
-        $backlog_item_representation_factory = new BacklogItemRepresentationFactory(new ProjectBackgroundConfiguration(new ProjectBackgroundDao()));
+        $backlog_item_representation_factory = new BacklogItemRepresentationFactory(
+            new ProjectBackgroundConfiguration(new ProjectBackgroundDao()),
+            SubmissionPermissionVerifier::instance(),
+        );
 
         foreach ($backlog_items as $backlog_item) {
             $backlog_item_representations[] = $backlog_item_representation_factory->createBacklogItemRepresentation($backlog_item);

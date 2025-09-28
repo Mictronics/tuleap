@@ -152,7 +152,7 @@ class CreateArtifactAction
         $this->artifact_linker->linkArtifact(
             $source_artifact,
             new CollectionOfForwardLinks([
-                ForwardLinkProxy::buildFromData($new_artifact->getId(), $artifact_link_type ?: ArtifactLinkField::NO_TYPE),
+                ForwardLinkProxy::buildFromData($new_artifact->getId(), $artifact_link_type ?: ArtifactLinkField::DEFAULT_LINK_TYPE),
             ]),
             $current_user,
         );
@@ -285,9 +285,9 @@ class CreateArtifactAction
             $redirect_params['aid'] = $artifact_id;
         }
         if ($my_dashboard_id !== false) {
-            $redirect_params['dashboard_id'] = $my_dashboard_id;
+            $redirect_params['my-dashboard-id'] = $my_dashboard_id;
         }if ($project_dashboard_id !== false) {
-            $redirect_params['dashboard_id'] = $project_dashboard_id;
+            $redirect_params['project-dashboard-id'] = $project_dashboard_id;
         }
         return array_filter($redirect_params);
     }

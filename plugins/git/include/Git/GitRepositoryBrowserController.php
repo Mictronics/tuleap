@@ -49,7 +49,7 @@ final readonly class GitRepositoryBrowserController implements DispatchableWithR
 {
     #[ConfigKey('Allow anonymous users to browse git repositories (useful to protect from bot scrapping)')]
     #[ConfigKeyLegacyBool(true)]
-    public const CONFIG_IS_ANONYMOUS_GIT_BROWSING_ALLOWED = 'git_anonymous_browsing_allowed';
+    public const string CONFIG_IS_ANONYMOUS_GIT_BROWSING_ALLOWED = 'git_anonymous_browsing_allowed';
 
     public function __construct(
         private \GitRepositoryFactory $repository_factory,
@@ -66,6 +66,7 @@ final readonly class GitRepositoryBrowserController implements DispatchableWithR
      *
      * @throws NotFoundException
      */
+    #[\Override]
     public function getProject(array $variables): Project
     {
         $project = $this->project_manager->getProjectByCaseInsensitiveUnixName($variables['project_name']);
@@ -84,6 +85,7 @@ final readonly class GitRepositoryBrowserController implements DispatchableWithR
      * @throws ForbiddenException
      * @return void
      */
+    #[\Override]
     public function process(HTTPRequest $request, BaseLayout $layout, array $variables)
     {
         $project = $this->getProject($variables);

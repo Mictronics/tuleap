@@ -22,10 +22,10 @@
 use Tuleap\Git\Gitolite\SSHKey\Dumper;
 use Tuleap\Git\Gitolite\SSHKey\InvalidKeysCollector;
 
-class Git_Gitolite_SSHKeyDumper implements Dumper
+class Git_Gitolite_SSHKeyDumper implements Dumper //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
-    public const KEYDIR       = 'keydir';
-    public const FIRST_KEY_ID = 0;
+    public const string KEYDIR    = 'keydir';
+    public const int FIRST_KEY_ID = 0;
 
     private $admin_path;
     private $git_exec;
@@ -59,6 +59,7 @@ class Git_Gitolite_SSHKeyDumper implements Dumper
     /**
      * Dump ssh keys into gitolite conf
      */
+    #[\Override]
     public function dumpSSHKeys(IHaveAnSSHKey $user, InvalidKeysCollector $invalid_keys_collector): bool
     {
         $this->dumpSSHKeysWithoutCommit($user);
@@ -103,6 +104,7 @@ class Git_Gitolite_SSHKeyDumper implements Dumper
     /**
      * Remove all pub SSH keys previously associated to a user
      */
+    #[\Override]
     public function removeAllExistingKeysForUserName(string $user_name): void
     {
         $this->removeUserExistingKeysFromAGivenKeyId($user_name, self::FIRST_KEY_ID);

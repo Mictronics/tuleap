@@ -34,7 +34,7 @@ final class SelectOptionsBuilder
     }
 
     /**
-     * @param array<int, \Tracker_FormElement> $to_exclude
+     * @param array<int, \Tuleap\Tracker\FormElement\TrackerFormElement> $to_exclude
      */
     public function build(\Tuleap\Tracker\Tracker $tracker, \PFUser $user, array $to_exclude): SelectOptionsRoot
     {
@@ -46,8 +46,8 @@ final class SelectOptionsBuilder
     }
 
     /**
-     * @param \Tracker_FormElement[] $form_elements
-     * @param array<int, \Tracker_FormElement> $to_exclude
+     * @param \Tuleap\Tracker\FormElement\TrackerFormElement[] $form_elements
+     * @param array<int, \Tuleap\Tracker\FormElement\TrackerFormElement> $to_exclude
      *
      * @return array{0: SelectOption[], 1: SelectOptgroup[]}
      */
@@ -67,7 +67,7 @@ final class SelectOptionsBuilder
 
             if ($element instanceof \Tuleap\Tracker\FormElement\Field\TrackerField && $element->canBeDisplayedInTooltip()) {
                 $options[] = new SelectOption($element->getLabel(), (string) $element->getId());
-            } elseif ($element instanceof \Tracker_FormElement_Container) {
+            } elseif ($element instanceof \Tuleap\Tracker\FormElement\Container\TrackerFormElementContainer) {
                 [$container_options, $container_optgroups] = $this->extractOptionsAndOptgroups(
                     $element->getFormElements(),
                     $user,

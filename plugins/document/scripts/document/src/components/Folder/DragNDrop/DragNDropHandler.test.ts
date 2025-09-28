@@ -26,7 +26,14 @@ import DragNDropHandler from "./DragNDropHandler.vue";
 import emitter from "../../../helpers/emitter";
 import { getGlobalTestOptions } from "../../../helpers/global-options-for-test";
 import { buildFakeItem } from "../../../helpers/item-builder";
-import { USER_ID } from "../../../configuration-keys";
+import {
+    IS_CHANGELOG_PROPOSED_AFTER_DND,
+    IS_FILENAME_PATTERN_ENFORCED,
+    MAX_FILES_DRAGNDROP,
+    MAX_SIZE_UPLOAD,
+    USER_CAN_DRAGNDROP,
+    USER_ID,
+} from "../../../configuration-keys";
 
 vi.mock("../../../helpers/emitter");
 
@@ -61,24 +68,10 @@ describe("DragNDropHandler", () => {
         max_size_upload = 1000000000,
         folder_content = [],
         user_can_dragndrop = true,
-    ): VueWrapper<DragNDropHandler> {
+    ): VueWrapper<InstanceType<typeof DragNDropHandler>> {
         const wrapper = shallowMount(DragNDropHandler, {
             global: {
                 ...getGlobalTestOptions({
-                    modules: {
-                        configuration: {
-                            state: {
-                                is_changelog_proposed_after_dnd,
-                                is_filename_pattern_enforced,
-                                max_files_dragndrop: 2,
-                                max_size_upload,
-                            },
-                            getters: {
-                                user_can_dragndrop: () => user_can_dragndrop,
-                            },
-                            namespaced: true,
-                        },
-                    },
                     state: {
                         folder_content,
                         current_folder,
@@ -90,6 +83,11 @@ describe("DragNDropHandler", () => {
                 }),
                 provide: {
                     [USER_ID.valueOf()]: CURRENT_USER_ID,
+                    [MAX_FILES_DRAGNDROP.valueOf()]: 2,
+                    [USER_CAN_DRAGNDROP.valueOf()]: user_can_dragndrop,
+                    [MAX_SIZE_UPLOAD.valueOf()]: max_size_upload,
+                    [IS_CHANGELOG_PROPOSED_AFTER_DND.valueOf()]: is_changelog_proposed_after_dnd,
+                    [IS_FILENAME_PATTERN_ENFORCED.valueOf()]: is_filename_pattern_enforced,
                 },
             },
         });

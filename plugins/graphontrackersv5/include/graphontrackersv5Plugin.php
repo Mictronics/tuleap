@@ -50,7 +50,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 
 final class GraphOnTrackersV5Plugin extends Plugin //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 {
-    public const RENDERER_TYPE = 'plugin_graphontrackersv5';
+    public const string RENDERER_TYPE = 'plugin_graphontrackersv5';
 
     public $report_id;
     public $chunksz;
@@ -74,6 +74,7 @@ final class GraphOnTrackersV5Plugin extends Plugin //phpcs:ignore PSR1.Classes.C
         $this->allowedForProject = [];
     }
 
+    #[\Override]
     public function getDependencies(): array
     {
         return ['tracker'];
@@ -205,6 +206,7 @@ final class GraphOnTrackersV5Plugin extends Plugin //phpcs:ignore PSR1.Classes.C
     /**
      * function to get plugin info
      */
+    #[\Override]
     public function getPluginInfo(): PluginInfo
     {
         if ($this->pluginInfo === null) {
@@ -221,6 +223,7 @@ final class GraphOnTrackersV5Plugin extends Plugin //phpcs:ignore PSR1.Classes.C
     /**
      * Return true if current project has the right to use this plugin.
      */
+    #[\Override]
     public function isAllowed($group_id): bool
     {
         $request  = HTTPRequest::instance();

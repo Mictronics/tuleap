@@ -88,6 +88,20 @@ reason = "No exploitation path in the Tuleap context for this prototype pollutio
 id = "GHSA-v6h2-p8h4-qcjw" # CVE-2025-5889
 reason = "Fixed in v2.0.2 but advisory range does not take it into account."
 
+# Restler
+[[IgnoredVulns]]
+id = "GHSA-rvmg-xc29-rvxf" # CVE-2017-15363
+reason = "Code is not accessible in Tuleap context."
+
+# xlsx
+[[IgnoredVulns]]
+id = "GHSA-4r6h-8v6p-xvw6" # CVE-2023-30533
+reason = "Fixed in 0.19.3 but scanner is not correctly resolving our current version (0.20.2)"
+
+[[IgnoredVulns]]
+id = "GHSA-5pgg-2g8v-p4x9" # CVE-2024-22363
+reason = "Fixed in 0.20.2 but scanner is not correctly resolving our current version (0.20.2)"
+
 ### TO BE FIXED
 
 # wasmtime
@@ -97,28 +111,8 @@ id = "RUSTSEC-2024-0384"
 reason = "Not used in production, see https://github.com/bytecodealliance/wasmtime/issues/9591"
 ignoreUntil = 2025-10-12
 
-# go stdlib
+# Go standard library
 [[IgnoredVulns]]
-id = "GO-2025-3749" # CVE-2025-22874
-reason = "No impact in our situation, we do not use ExtKeyUsageAny."
-ignoreUntil = 2025-09-10
-
-[[IgnoredVulns]]
-id = "GO-2025-3750" # CVE-2025-0913
-reason = "No impact in our situation, none of the affected code runs on Windows."
-ignoreUntil = 2025-09-10
-
-[[IgnoredVulns]]
-id = "GO-2025-3751" # CVE-2025-4673
-reason = "No impact in our situation, we never set Proxy-Authorization or Proxy-Authenticate headers."
-ignoreUntil = 2025-09-10
-
-[[IgnoredVulns]]
-id = "GO-2025-3849" # CVE-2025-47907
-reason = "No impact in our situation, we do not rely on database/sql."
-ignoreUntil = 2025-09-10
-
-[[IgnoredVulns]]
-id = "GO-2025-3829" # CVE-2025-54410
-reason = "No security impact for Tuleap, no container is started from the impacted code."
-ignoreUntil = 2025-09-12
+id = "GO-2025-3955" # CVE-2025-47910
+reason = "No security impact for Tuleap, we do not use AddInsecureBypassPattern in http.CrossOriginProtection."
+ignoreUntil = 2025-10-22

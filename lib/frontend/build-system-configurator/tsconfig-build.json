@@ -7,5 +7,11 @@
         "esModuleInterop": true,
         "allowJs": true
     },
-    "include": ["src/main.ts", "src/webpack/webpack.d.ts", "src/jest/*.js"]
+    "include": [
+        "src/main.ts",
+        "src/webpack/webpack.d.ts",
+        "src/jest/babel-jest-process.ts",
+        "src/jest/babel.config.ts",
+        "src/jest/*.js"
+    ]
 }

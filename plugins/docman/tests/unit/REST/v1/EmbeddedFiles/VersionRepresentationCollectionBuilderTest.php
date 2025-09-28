@@ -33,12 +33,13 @@ use Tuleap\Test\Stubs\User\Avatar\ProvideUserAvatarUrlStub;
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class VersionRepresentationCollectionBuilderTest extends TestCase
 {
-    private const PROJECT_ID = 10;
+    private const int PROJECT_ID = 10;
 
     private VersionDao|\PHPUnit\Framework\MockObject\MockObject $docman_version_dao;
     private VersionRepresentationCollectionBuilder $builder;
     private \PHPUnit\Framework\MockObject\MockObject|\Docman_ApprovalTableFileFactory $factory;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->docman_version_dao = $this->createMock(VersionDao::class);
@@ -58,6 +59,7 @@ final class VersionRepresentationCollectionBuilderTest extends TestCase
         \UserHelper::setInstance($user_helper);
     }
 
+    #[\Override]
     protected function tearDown(): void
     {
         \UserHelper::clearInstance();

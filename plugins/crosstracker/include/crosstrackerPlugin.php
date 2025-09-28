@@ -28,6 +28,7 @@ use Tuleap\CrossTracker\Widget\CrossTrackerSearchWidget;
 use Tuleap\CrossTracker\Widget\CrossTrackerSearchXmlWidgetForProjectTemplate;
 use Tuleap\CrossTracker\Widget\CrossTrackerWidgetCreator;
 use Tuleap\CrossTracker\Widget\CrossTrackerWidgetDao;
+use Tuleap\CrossTracker\Widget\CrossTrackerWidgetRetriever;
 use Tuleap\CrossTracker\Widget\WidgetCrossTrackerWidgetXMLExporter;
 use Tuleap\CrossTracker\Widget\WidgetCrossTrackerXMLImporter;
 use Tuleap\CrossTracker\Widget\WidgetInheritanceHandler;
@@ -62,11 +63,13 @@ class crosstrackerPlugin extends Plugin
         bindtextdomain('tuleap-crosstracker', __DIR__ . '/../site-content');
     }
 
+    #[\Override]
     public function getDependencies(): array
     {
         return ['tracker'];
     }
 
+    #[\Override]
     public function getPluginInfo(): PluginInfo
     {
         if (! $this->pluginInfo) {
@@ -97,9 +100,10 @@ class crosstrackerPlugin extends Plugin
     public function widgetInstance(GetWidget $get_widget_event): void
     {
         if ($get_widget_event->getName() === CrossTrackerSearchWidget::NAME) {
-            $widget_dao = new CrossTrackerWidgetDao();
-            $query_dao  = new CrossTrackerQueryDao();
-            $executor   = new DBTransactionExecutorWithConnection(DBFactory::getMainTuleapDBConnection());
+            $widget_dao                     = new CrossTrackerWidgetDao();
+            $query_dao                      = new CrossTrackerQueryDao();
+            $executor                       = new DBTransactionExecutorWithConnection(DBFactory::getMainTuleapDBConnection());
+            $cross_tracker_widget_retriever = new CrossTrackerWidgetRetriever($widget_dao);
 
             $get_widget_event->setWidget(
                 new CrossTrackerSearchWidget(
@@ -108,8 +112,7 @@ class crosstrackerPlugin extends Plugin
                         $widget_dao,
                         $this->getBackendLogger()
                     ),
-                    new WidgetPermissionChecker($widget_dao, ProjectManager::instance()),
-                    $widget_dao,
+                    new WidgetPermissionChecker(ProjectManager::instance(), $cross_tracker_widget_retriever),
                     new WidgetCrossTrackerWidgetXMLExporter(new CrossTrackerQueryFactory(new CrossTrackerQueryDao())),
                     new CrossTrackerWidgetCreator(
                         $widget_dao,
@@ -119,7 +122,8 @@ class crosstrackerPlugin extends Plugin
                             $query_dao
                         ),
                         $executor
-                    )
+                    ),
+                    $cross_tracker_widget_retriever
                 )
             );
         }

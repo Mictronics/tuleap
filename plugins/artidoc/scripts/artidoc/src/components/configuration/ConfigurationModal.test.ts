@@ -27,7 +27,6 @@ import {
     OPEN_CONFIGURATION_MODAL_BUS,
     useOpenConfigurationModalBusStore,
 } from "@/stores/useOpenConfigurationModalBusStore";
-import { ARE_FIELDS_ENABLED } from "@/are-fields-enabled";
 import { TITLE } from "@/title-injection-key";
 import { SECTIONS_STATES_COLLECTION } from "@/sections/states/sections-states-collection-injection-key";
 import { SectionsStatesCollectionStub } from "@/sections/stubs/SectionsStatesCollectionStub";
@@ -53,6 +52,7 @@ import TrackerSelection from "@/components/configuration/TrackerSelection.vue";
 import { Option } from "@tuleap/option";
 import * as configuration_saver from "@/configuration/TrackerConfigurationSaver";
 import { SaveTrackerConfigurationStub } from "@/configuration/stubs/SaveTrackerConfigurationStub";
+import { CAN_USER_DISPLAY_VERSIONS } from "@/can-user-display-versions-injection-key";
 
 describe("ConfigurationModal", () => {
     const epic_tracker = TrackerStub.build(12, "Epic");
@@ -71,7 +71,6 @@ describe("ConfigurationModal", () => {
                     ]),
                     [SELECTED_TRACKER.valueOf()]: selected_tracker,
                     [OPEN_CONFIGURATION_MODAL_BUS.valueOf()]: bus,
-                    [ARE_FIELDS_ENABLED.valueOf()]: true,
                     [TITLE.valueOf()]: "My artidoc",
                     [SECTIONS_STATES_COLLECTION.valueOf()]: SectionsStatesCollectionStub.build(),
                     [DOCUMENT_ID.valueOf()]: 10,
@@ -80,6 +79,7 @@ describe("ConfigurationModal", () => {
                         selected_tracker,
                         selected_fields,
                     ),
+                    [CAN_USER_DISPLAY_VERSIONS.valueOf()]: true,
                 },
             },
         });

@@ -20,9 +20,9 @@
 
 use Tuleap\Git\PostInitGitRepositoryWithDataEvent;
 
-class SystemEvent_GIT_REPO_FORK extends SystemEvent
+class SystemEvent_GIT_REPO_FORK extends SystemEvent //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
-    public const NAME =  'GIT_REPO_FORK';
+    public const string NAME =  'GIT_REPO_FORK';
 
     /** @var GitRepositoryFactory */
     private $repository_factory;
@@ -52,6 +52,7 @@ class SystemEvent_GIT_REPO_FORK extends SystemEvent
         return $this->repository_factory->getRepositoryById($this->getNewRepositoryIdFromParameters());
     }
 
+    #[\Override]
     public function process()
     {
         $old_repository = $this->getOldRepositoryFromParameters();
@@ -68,6 +69,7 @@ class SystemEvent_GIT_REPO_FORK extends SystemEvent
         $this->done();
     }
 
+    #[\Override]
     public function verbalizeParameters($with_link)
     {
         $old_repository = $this->getOldRepositoryFromParameters();

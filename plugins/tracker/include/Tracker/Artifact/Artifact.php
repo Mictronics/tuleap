@@ -64,7 +64,6 @@ use Tracker_ArtifactFactory;
 use Tracker_ArtifactNotificationSubscriber;
 use Tracker_Dispatchable_Interface;
 use Tracker_Exception;
-use Tracker_FormElement;
 use Tracker_FormElementFactory;
 use Tracker_HierarchyFactory;
 use Tracker_IDisplayTrackerLayout;
@@ -153,6 +152,7 @@ use Tuleap\Tracker\FormElement\Field\Files\CreatedFileURLMapping;
 use Tuleap\Tracker\FormElement\Field\Files\FilesField;
 use Tuleap\Tracker\FormElement\Field\Text\TextValueValidator;
 use Tuleap\Tracker\FormElement\Field\TrackerField;
+use Tuleap\Tracker\FormElement\TrackerFormElement;
 use Tuleap\Tracker\Notifications\UnsubscribersNotificationDAO;
 use Tuleap\Tracker\Permission\TrackersPermissionsRetriever;
 use Tuleap\Tracker\REST\Artifact\ChangesetValue\ArtifactLink\NewArtifactLinkChangesetValueBuilder;
@@ -463,7 +463,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
         return $output;
     }
 
-    /** @param Tracker_FormElement[] $toplevel_form_elements */
+    /** @param TrackerFormElement[] $toplevel_form_elements */
     private function prepareElementsForDisplay($toplevel_form_elements)
     {
         foreach ($toplevel_form_elements as $formElement) {
@@ -642,7 +642,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
     {
         $hp = Codendi_HTMLPurifier::instance();
 
-        return '<span class="' . $hp->purify($this->getTracker()->getColor()->value) . ' xref-in-title">' .
+        return '<span class="' . $hp->purify($this->getTracker()->getColor()->value) . ' xref-in-title" data-test="xref-in-title">' .
                $hp->purify($this->getXRef()) . "\n" .
                '</span>' .
                $hp->purify($this->getTitle());
@@ -859,6 +859,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
      *
      * @return void
      */
+    #[\Override]
     public function process(Tracker_IDisplayTrackerLayout $layout, $request, $current_user)
     {
         switch ($request->get('func')) {
@@ -1215,6 +1216,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
      *
      * @return string html
      */
+    #[\Override]
     public function fetchXRefLink()
     {
         return '<a class="cross-reference" href="/goto?' . http_build_query(
@@ -1374,6 +1376,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
      *
      * @return Tracker The tracker this artifact belongs to
      */
+    #[\Override]
     public function getTracker()
     {
         if (! isset($this->tracker)) {
@@ -1696,6 +1699,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
      *
      * @psalm-mutation-free
      */
+    #[\Override]
     public function getId()
     {
         return (int) $this->id;
@@ -1825,7 +1829,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
     public function linkArtifact(
         int $linked_artifact_id,
         PFUser $current_user,
-        string $artifact_link_type = ArtifactLinkField::NO_TYPE,
+        string $artifact_link_type = ArtifactLinkField::DEFAULT_LINK_TYPE,
     ): bool {
         $validator = $this->getFieldValidator();
 
@@ -1856,7 +1860,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
 
         $links = [];
         foreach ($linked_artifact_ids as $linked_artifact_id) {
-            $links[] = ForwardLinkProxy::buildFromData((int) $linked_artifact_id, ArtifactLinkField::NO_TYPE);
+            $links[] = ForwardLinkProxy::buildFromData((int) $linked_artifact_id, ArtifactLinkField::DEFAULT_LINK_TYPE);
         }
         $forward_links = new CollectionOfForwardLinks($links);
 

@@ -31,7 +31,7 @@ class Controller_Snapshot extends ControllerBase // @codingStandardsIgnoreLine
 {
     #[ConfigKey('Allow anonymous users to download snapshot archives of public Git repositories')]
     #[ConfigKeyLegacyBool(true)]
-    public const IS_ANONYMOUS_SNAPSHOT_DOWNLOAD_ALLOWED = 'git_anonymous_snapshot_download_allowed';
+    public const string IS_ANONYMOUS_SNAPSHOT_DOWNLOAD_ALLOWED = 'git_anonymous_snapshot_download_allowed';
 
     /**
      * archive
@@ -57,6 +57,7 @@ class Controller_Snapshot extends ControllerBase // @codingStandardsIgnoreLine
      * @access protected
      * @return string template filename
      */
+    #[\Override]
     protected function GetTemplate() // @codingStandardsIgnoreLine
     {
     }
@@ -70,6 +71,7 @@ class Controller_Snapshot extends ControllerBase // @codingStandardsIgnoreLine
      * @param bool $local true if caller wants the localized action name
      * @return string action name
      */
+    #[\Override]
     public function GetName($local = false) // @codingStandardsIgnoreLine
     {
         if ($local) {
@@ -85,6 +87,7 @@ class Controller_Snapshot extends ControllerBase // @codingStandardsIgnoreLine
      *
      * @access protected
      */
+    #[\Override]
     protected function ReadQuery() // @codingStandardsIgnoreLine
     {
         if (isset($_GET['h'])) {
@@ -110,6 +113,7 @@ class Controller_Snapshot extends ControllerBase // @codingStandardsIgnoreLine
      *
      * @access protected
      */
+    #[\Override]
     protected function LoadHeaders() // @codingStandardsIgnoreLine
     {
         $this->archive = new Archive($this->project, null, $this->params['format'], (isset($this->params['path']) ? $this->params['path'] : ''), (isset($this->params['prefix']) ? $this->params['prefix'] : ''));
@@ -142,6 +146,7 @@ class Controller_Snapshot extends ControllerBase // @codingStandardsIgnoreLine
      *
      * @access protected
      */
+    #[\Override]
     protected function LoadData() // @codingStandardsIgnoreLine
     {
         $commit = null;
@@ -166,6 +171,7 @@ class Controller_Snapshot extends ControllerBase // @codingStandardsIgnoreLine
      *
      * @access public
      */
+    #[\Override]
     public function Render() // @codingStandardsIgnoreLine
     {
         $this->LoadData();

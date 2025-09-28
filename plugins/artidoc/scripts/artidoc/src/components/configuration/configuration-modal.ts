@@ -19,10 +19,14 @@
 
 import type { StrictInjectionKey } from "@tuleap/vue-strict-inject/src/strict-inject";
 
-export type ConfigurationTab = "tracker-selection-tab" | "readonly-fields-selection-tab";
+export const TRACKER_SELECTION_TAB = "tracker-selection-tab";
+export const READONLY_FIELDS_SELECTION_TAB = "readonly-fields-selection-tab";
+export const EXPERIMENTAL_FEATURES_TAB = "experimental-features-tab";
 
-export const TRACKER_SELECTION_TAB: ConfigurationTab = "tracker-selection-tab";
-export const READONLY_FIELDS_SELECTION_TAB: ConfigurationTab = "readonly-fields-selection-tab";
+export type ConfigurationTab =
+    | typeof TRACKER_SELECTION_TAB
+    | typeof READONLY_FIELDS_SELECTION_TAB
+    | typeof EXPERIMENTAL_FEATURES_TAB;
 
 export const CLOSE_CONFIGURATION_MODAL: StrictInjectionKey<(is_success: boolean) => void> = Symbol(
     "close-configuration-modal",

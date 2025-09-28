@@ -22,7 +22,7 @@ import type { VueWrapper } from "@vue/test-utils";
 import { shallowMount } from "@vue/test-utils";
 import CurrentFolderDropZone from "./CurrentFolderDropZone.vue";
 import { getGlobalTestOptions } from "../../../helpers/global-options-for-test";
-import type { ConfigurationState } from "../../../store/configuration";
+import { MAX_FILES_DRAGNDROP, MAX_SIZE_UPLOAD } from "../../../configuration-keys";
 
 describe("CurrentFolderDropZone", () => {
     let current_folder_drop_zone_factory: (props: Record<string, unknown>) => VueWrapper;
@@ -35,19 +35,14 @@ describe("CurrentFolderDropZone", () => {
                 props: { ...props },
                 global: {
                     ...getGlobalTestOptions({
-                        modules: {
-                            configuration: {
-                                state: {
-                                    max_files_dragndrop: 10,
-                                    max_size_upload: 10000,
-                                } as unknown as ConfigurationState,
-                                namespaced: true,
-                            },
-                        },
                         getters: {
                             current_folder_title: () => "My folder title",
                         },
                     }),
+                    provide: {
+                        [MAX_FILES_DRAGNDROP.valueOf()]: 10,
+                        [MAX_SIZE_UPLOAD.valueOf()]: 10000,
+                    },
                 },
             });
         };

@@ -20,10 +20,10 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-class Docman_NotificationsManager_Subscribers extends Docman_NotificationsManager
+class Docman_NotificationsManager_Subscribers extends Docman_NotificationsManager //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
-    public const MESSAGE_ADDED   = 'added'; // X has been added to monitoring list
-    public const MESSAGE_REMOVED = 'removed'; // X has been removed from monitoring list
+    public const string MESSAGE_ADDED   = 'added'; // X has been added to monitoring list
+    public const string MESSAGE_REMOVED = 'removed'; // X has been removed from monitoring list
 
     /**
      * Trigger notification message build for a list of users monitoring a given docman item.
@@ -33,6 +33,7 @@ class Docman_NotificationsManager_Subscribers extends Docman_NotificationsManage
      *
      * @return void
      */
+    #[\Override]
     public function somethingHappen($event, $params)
     {
         $um    = $this->_getUserManager();
@@ -59,7 +60,8 @@ class Docman_NotificationsManager_Subscribers extends Docman_NotificationsManage
     *
     * @return void
     */
-    public function _buildMessage($event, $params, $user)
+    #[\Override]
+    public function _buildMessage($event, $params, $user) //phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
     {
         $type = '';
         switch ($event) {
@@ -104,7 +106,8 @@ class Docman_NotificationsManager_Subscribers extends Docman_NotificationsManage
     *
     * @return String
     */
-    public function _getMessageForUser($user, $message_type, $params)
+    #[\Override]
+    public function _getMessageForUser($user, $message_type, $params) //phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
     {
         $msg       = '';
         $separator = "\n\n--------------------------------------------------------------------\n";
@@ -136,6 +139,7 @@ class Docman_NotificationsManager_Subscribers extends Docman_NotificationsManage
         return $msg;
     }
 
+    #[\Override]
     protected function getMessageLink($type, $params)
     {
         switch ($type) {

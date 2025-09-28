@@ -19,9 +19,9 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-class SystemEvent_GIT_REGENERATE_GITOLITE_CONFIG extends SystemEvent
+class SystemEvent_GIT_REGENERATE_GITOLITE_CONFIG extends SystemEvent //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
-    public const NAME = 'GIT_REGENERATE_GITOLITE_CONFIG';
+    public const string NAME = 'GIT_REGENERATE_GITOLITE_CONFIG';
 
     /** @var Git_GitoliteDriver */
     private $gitolite_driver;
@@ -37,6 +37,7 @@ class SystemEvent_GIT_REGENERATE_GITOLITE_CONFIG extends SystemEvent
         $this->project_manager = $project_manager;
     }
 
+    #[\Override]
     public function process()
     {
         $project_id = $this->getProjectIdFromParameters();
@@ -65,6 +66,7 @@ class SystemEvent_GIT_REGENERATE_GITOLITE_CONFIG extends SystemEvent
         return $parameters[0];
     }
 
+    #[\Override]
     public function verbalizeParameters($with_link)
     {
         $project_id = $this->getProjectIdFromParameters();

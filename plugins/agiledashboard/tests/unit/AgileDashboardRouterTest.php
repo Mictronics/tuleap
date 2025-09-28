@@ -30,6 +30,7 @@ use Tuleap\AgileDashboard\Planning\MilestoneControllerFactory;
 use Tuleap\AgileDashboard\Planning\BacklogTrackersUpdateChecker;
 use Tuleap\AgileDashboard\Planning\PlanningUpdater;
 use Tuleap\AgileDashboard\Scrum\ScrumPresenterBuilder;
+use Tuleap\AgileDashboard\XML\AgileDashboardXMLExporter;
 use Tuleap\DB\DBTransactionExecutor;
 use Tuleap\Test\Stubs\EventDispatcherStub;
 
@@ -41,6 +42,7 @@ final class AgileDashboardRouterTest extends \Tuleap\Test\PHPUnit\TestCase //php
     private Planning_Controller|\PHPUnit\Framework\MockObject\MockObject $planning_controller;
     private Planning_MilestoneFactory|\PHPUnit\Framework\MockObject\MockObject $planning_milestone_factory;
 
+    #[\Override]
     protected function setUp(): void
     {
         parent::setUp();
@@ -77,7 +79,7 @@ final class AgileDashboardRouterTest extends \Tuleap\Test\PHPUnit\TestCase //php
                     $this->createMock(EventManager::class),
                     $this->createMock(PlanningUpdater::class),
                     $this->createMock(Planning_RequestValidator::class),
-                    $this->createMock(AgileDashboard_XMLExporter::class),
+                    $this->createMock(AgileDashboardXMLExporter::class),
                     $this->createMock(\Tuleap\AgileDashboard\Planning\RootPlanning\UpdateIsAllowedChecker::class),
                     $this->createMock(\Tuleap\AgileDashboard\Planning\Admin\PlanningEditionPresenterBuilder::class),
                     new \Tuleap\AgileDashboard\Planning\Admin\UpdateRequestValidator(),

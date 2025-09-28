@@ -716,14 +716,6 @@ msgstr "Mauvaise"
 msgid "Banner"
 msgstr "Bannière"
 
-#, php-format
-msgid ""
-"Be careful, \"%s\" does not match the case sensitivity. Its rule has been "
-"disabled."
-msgstr ""
-"Attention, \"%s\" ne respecte pas la sensibilité à la casse. Sa règle a été "
-"désactivée."
-
 msgid "Before you start, you need to know a few things:"
 msgstr "Avant de commencer, quelques choses à savoir :"
 
@@ -987,18 +979,6 @@ msgstr "Copier la clé d'accès"
 msgid "Copyright (c) %1$s, %2$s Team, 2001-%3$d. All Rights Reserved"
 msgstr "Copyright (c) %1$s, Equipe %2$s, 2001-%3$d. Tous droits réservés"
 
-msgid "Could not commit repository initial layout"
-msgstr "Impossible de commiter la structure initiale du dépôt"
-
-msgid "Could not create/initialize SVN repository"
-msgstr "Impossible de créer/initialiser le dépôt SVN"
-
-msgid "Could not the access file of the SVN repository"
-msgstr "Impossible d'accèder au fichier de contrôle d'accès du dépôt SVN"
-
-msgid "Could not update hooks of the SVN repository"
-msgstr "Impossible de mettre à jour les hooks du dépôt SVN"
-
 msgid "Create"
 msgstr "Créer"
 
@@ -1233,9 +1213,6 @@ msgstr "Densité d'affichage"
 msgid "Display platform statistics on home page."
 msgstr "Afficher les statistiques de la plateforme sur la page d'accueil."
 
-msgid "Display site news on home page."
-msgstr "Afficher les news du site sur la page d'accueil."
-
 msgid "Displays the 30 last updated or created items in the project."
 msgstr "Affiche les 30 derniers éléments modifiés ou créés dans le projet."
 
@@ -1321,12 +1298,6 @@ msgstr "L'email est déjà validé"
 msgid "Email me a recovery link"
 msgstr "Envoyez moi un lien de récupération"
 
-msgid "Email not sent"
-msgstr "E-mail pas envoyé"
-
-msgid "Email sent"
-msgstr "E-mail envoyé"
-
 msgid "Email was not updated"
 msgstr "L'adresse de courriel n'a pas été mise à jour"
 
@@ -1386,9 +1357,6 @@ msgstr "Erreur"
 
 msgid "Error - choose a forum first"
 msgstr "Erreur - Veuillez d'abord choisir un forum"
-
-msgid "Error - this news item was not found"
-msgstr "Erreur - cette annonce est introuvable"
 
 #, php-format
 msgid "Error Adding Forum '%1$s'."
@@ -1506,9 +1474,6 @@ msgstr "La surveillance du forum est maintenant activée"
 
 msgid "Forum is restricted"
 msgstr "Forum restreint"
-
-msgid "Forums"
-msgstr "Forums"
 
 msgid ""
 "Forums and News services are deprecated. They will be completely removed in "
@@ -1719,9 +1684,6 @@ msgstr "Un service indisponible ne peut pas être activé."
 msgid "Inherited?"
 msgstr "Hérité?"
 
-msgid "Initial layout creation"
-msgstr "Création de la structure initiale"
-
 msgid "Internal error: Could not update password"
 msgstr "Erreur interne : le mot de passe n'a pas été mis à jour"
 
@@ -1745,10 +1707,6 @@ msgid "Invalid group name: %s. Please use only alphanumerical characters."
 msgstr ""
 "Le nom du groupe %s est invalide. Merci d'utiliser uniquement des caractères "
 "alphanumériques."
-
-#, php-format
-msgid "Invalid line \"%s\""
-msgstr "La ligne \"%s\" est invalide"
 
 msgid "Invalid project was passed in."
 msgstr "Projet invalide passé en paramètre."
@@ -2171,15 +2129,6 @@ msgstr "Créer une référence système"
 msgid "New user"
 msgstr "Nouvel utilisateur"
 
-msgid "News"
-msgstr "Annonces"
-
-msgid "News approval"
-msgstr "Approbation des annonces"
-
-msgid "News {{ user_group_name }} can see"
-msgstr "Annonces que {{ user_group_name }} peuvent voir"
-
 msgid "Next Messages"
 msgstr "Messages suivants"
 
@@ -2233,9 +2182,6 @@ msgstr "Il n'y a aucun label correspondant"
 msgid "No need to register, you are already logged in."
 msgstr "Pas besoin de vous enregistrer, vous êtes déjà connecté."
 
-msgid "No one monitoring"
-msgstr "Forum non surveillé"
-
 msgid "No project ID has been provided for the template"
 msgstr "Aucun ID de projet a été fourni pour servir de modèle"
 
@@ -2263,9 +2209,6 @@ msgstr "Personne"
 
 msgid "None"
 msgstr "Aucun"
-
-msgid "Not Found"
-msgstr "Introuvable"
 
 msgid "Not a member yet?"
 msgstr "Pas encore membre ?"
@@ -2559,9 +2502,6 @@ msgstr "Poster un commentaire"
 msgid "Post a followup to this message"
 msgstr "Poster une réponse dans cette discussion"
 
-msgid "Posted By"
-msgstr "Posté par"
-
 msgid "Posting Failed"
 msgstr "L'envoi du message a échoué"
 
@@ -2617,9 +2557,6 @@ msgstr "Le project #%d n'est pas actif."
 
 msgid "Project (read only)"
 msgstr "Projet (lecture seule)"
-
-msgid "Project Latest News"
-msgstr "Dernières annonces du projet"
 
 msgid "Project Name"
 msgstr "Nom du projet"
@@ -2851,9 +2788,6 @@ msgstr "RSS"
 
 msgid "Rank"
 msgstr "Rang"
-
-msgid "Read and respond to this message at"
-msgstr "Pour lire et répondre à ce message aller sur"
 
 msgid "Read only access to information about projects"
 msgstr "Accès en lecture seule aux informations concernant les projets"
@@ -3168,9 +3102,6 @@ msgstr "Invitation envoyée"
 msgid "Service is not allowed in project."
 msgstr "Le service n'est pas autorisé dans le projet."
 
-msgid "Service news is disabled for this project."
-msgstr "Le service annonces est désactivé pour ce projet."
-
 msgid "Service not found in database"
 msgstr "Le service n'existe pas dans la base de données"
 
@@ -3250,12 +3181,6 @@ msgstr "Personnalisations du site content"
 
 msgid "Site homepage"
 msgstr "Page d'accueil"
-
-msgid "Site news"
-msgstr "News du site"
-
-msgid "Site news approval"
-msgstr "Approbation annonces site"
 
 #, php-format
 msgid "Skip invalid key %1$s"
@@ -3342,9 +3267,6 @@ msgstr ""
 
 msgid "Successfully updated."
 msgstr "Mis à jour avec succès."
-
-msgid "Summary"
-msgstr "Résumé"
 
 msgid "Suspended"
 msgstr "Suspendu"
@@ -3478,10 +3400,6 @@ msgstr "Le tableau de bord \"%s\" n’existe pas."
 
 msgid "The default Administration project cannot be deleted."
 msgstr "Le projet par défaut Administration ne peut pas être supprimé."
-
-#, php-format
-msgid "The directory %s is not valid"
-msgstr "Le répertoire %s n'est valide"
 
 msgid "The display preference has been forced for each user successfully."
 msgstr ""
@@ -4169,10 +4087,6 @@ msgstr "Adresse e-mail de l'utilisateur"
 msgid "User group"
 msgstr "Groupe d'utilisateurs"
 
-#, php-format
-msgid "User group \"%s\" is empty or does not exist"
-msgstr "Le groupe \"%s\" est vide ou n'existe pas"
-
 msgid "User group already exists in this project. Please choose another name."
 msgstr ""
 "Le groupe utilisateur existe déjà dans ce projet. Merci de choisir un autre "
@@ -4576,23 +4490,6 @@ msgstr ""
 
 #, php-format
 msgid ""
-"You are receiving this email because you elected to monitor this forum or "
-"this thread.\n"
-"To stop monitoring this forum, login and visit:\n"
-" %1$s .\n"
-"To change thread monitoring settings, visit:\n"
-" %2$s."
-msgstr ""
-"Vous recevez ce courrier électronique car vous avez choisi de surveiller ce "
-"forum ou ce fil de discussion. \n"
-"Pour arrêter la surveillance, connectez-vous et aller sur :\n"
-" %1$s .\n"
-"Pour modifier les paramètres de surveillance des fils de discussion, aller "
-"sur :\n"
-" %2$s."
-
-#, php-format
-msgid ""
 "You are trying to send %1$s invitation, but the maximum is %2$s per day."
 msgid_plural ""
 "You are trying to send %1$s invitations, but the maximum is %2$s per day."
@@ -4907,15 +4804,6 @@ msgstr "Merci d'uploader une image au format png"
 msgid "You should send an image with height smaller than 100px"
 msgstr "L'image excède les 100px de hauteur"
 
-msgid ""
-"You still have <code>$sys_display_homepage_news</code> variable defined in "
-"local.inc. It's now stored in DB, you should remove it from the file to "
-"avoid confusion."
-msgstr ""
-"La variable <code>$sys_display_homepage_news</code> est toujours définie "
-"dans local.inc. La valeur est désormais stockée en base de données, vous "
-"devriez supprimer l'entrée dans local.inc pour éviter la confusion."
-
 msgid "You will not receive any more emails from this forum."
 msgstr ""
 "Vous ne recevrez plus de courrier électronique en provenance de ce forum."
@@ -4998,6 +4886,15 @@ msgid ""
 msgstr ""
 "Votre lien d'invitation n'est pas valide. Peut-être que vous l'avez déjà "
 "utilisé, dans ce cas vous pouvez directement vous connecter."
+
+msgid "Your password has expired."
+msgstr "Votre mot de passe est expiré."
+
+#, php-format
+msgid "Your password will expire in %d day."
+msgid_plural "Your password will expire in %d days."
+msgstr[0] "Votre mot de passe sera expiré dans %d jour."
+msgstr[1] "Votre mot de passe sera expiré dans %d jours."
 
 msgid "Your place was saved"
 msgstr "Position dans le forum sauvegardée"
@@ -5098,9 +4995,6 @@ msgstr ""
 
 msgid "pending"
 msgstr "en attente"
-
-msgid "people monitoring"
-msgstr "forum sous surveillance"
 
 msgid "permissions"
 msgstr "permissions"

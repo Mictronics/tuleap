@@ -41,10 +41,11 @@ final class AuthorRetrieverTest extends TestCase
     private \Git_Exec $git_exec;
     private \UserManager|\PHPUnit\Framework\MockObject\Stub $user_manager;
 
-    private const COMMIT_MESSAGE = 'Lorem ipsum dolor sit amet';
-    private const AUTHOR_NAME    = 'test';
+    private const string COMMIT_MESSAGE = 'Lorem ipsum dolor sit amet';
+    private const string AUTHOR_NAME    = 'test';
     private AuthorRetriever $author_retriever;
 
+    #[\Override]
     protected function setUp(): void
     {
         $this->git_folder = $this->getTmpDir();

@@ -17,7 +17,10 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { TrackerResponseWithProject } from "@tuleap/plugin-tracker-rest-api-types";
+import type {
+    LinkTypeRepresentation,
+    TrackerResponseWithProject,
+} from "@tuleap/plugin-tracker-rest-api-types";
 import type { ColorName } from "@tuleap/core-constants";
 
 export type TrackerReference = Pick<TrackerResponseWithProject, "id" | "label" | "project">;
@@ -62,8 +65,13 @@ export const TRACKER_SELECTABLE_TYPE = "tracker";
 export const PRETTY_TITLE_SELECTABLE_TYPE = "pretty_title";
 export const ARTIFACT_SELECTABLE_TYPE = "artifact";
 export const LINK_TYPE_SELECTABLE_TYPE = "link_type";
+export const UNKNOWN_SELECTABLE_TYPE = "unknown";
 
 type UnsupportedSelectableRepresentation = Record<string, unknown>;
+
+export type UnknownSelectableRepresentation = {
+    readonly value: "";
+};
 
 export type DateSelectableRepresentation = {
     readonly value: string | null;
@@ -124,10 +132,7 @@ export type ArtifactSelectableRepresentation = {
     readonly number_of_reverse_link: number;
 };
 
-export type LinkTypeSelectableRepresentation = {
-    readonly value: string;
-};
-
+export type LinkTypeSelectableRepresentation = Pick<LinkTypeRepresentation, "direction" | "label">;
 export type SelectableRepresentation =
     | DateSelectableRepresentation
     | NumericSelectableRepresentation
@@ -141,6 +146,7 @@ export type SelectableRepresentation =
     | PrettyTitleSelectableRepresentation
     | ArtifactSelectableRepresentation
     | LinkTypeSelectableRepresentation
+    | UnknownSelectableRepresentation
     | UnsupportedSelectableRepresentation;
 
 export type ArtifactRepresentation = Record<string, SelectableRepresentation>;

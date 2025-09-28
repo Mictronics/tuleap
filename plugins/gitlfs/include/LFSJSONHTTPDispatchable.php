@@ -31,7 +31,7 @@ use Tuleap\Request\NotFoundException;
 
 class LFSJSONHTTPDispatchable implements DispatchableWithRequestNoAuthz
 {
-    private const GIT_LFS_MIME_TYPE = 'application/vnd.git-lfs+json';
+    private const string GIT_LFS_MIME_TYPE = 'application/vnd.git-lfs+json';
 
     /**
      * @var DispatchableWithRequestNoAuthz
@@ -43,6 +43,7 @@ class LFSJSONHTTPDispatchable implements DispatchableWithRequestNoAuthz
         $this->dispatchable_with_request = $dispatchable_with_request;
     }
 
+    #[\Override]
     public function process(HTTPRequest $request, BaseLayout $layout, array $variables): void
     {
         if (! $this->doesRequestAcceptGitLFSResponse($request)) {

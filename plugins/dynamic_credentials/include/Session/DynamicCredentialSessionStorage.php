@@ -24,13 +24,15 @@ namespace Tuleap\DynamicCredentials\Session;
 
 final class DynamicCredentialSessionStorage implements DynamicCredentialIdentifierStorage
 {
-    private const STORAGE_IDENTIFIER = 'dynamic_credential_storage';
+    private const string STORAGE_IDENTIFIER = 'dynamic_credential_storage';
 
+    #[\Override]
     public function setIdentifier(string $identifier): void
     {
         $_SESSION[self::STORAGE_IDENTIFIER] = $identifier;
     }
 
+    #[\Override]
     public function getIdentifier(): ?string
     {
         return $_SESSION[self::STORAGE_IDENTIFIER] ?? null;

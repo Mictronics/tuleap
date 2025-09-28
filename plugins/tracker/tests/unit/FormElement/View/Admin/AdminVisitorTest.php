@@ -22,10 +22,6 @@ declare(strict_types=1);
 namespace Tuleap\Tracker\FormElement\View\Admin;
 
 use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
-use Tracker_FormElement_Container_Column;
-use Tracker_FormElement_StaticField_LineBreak;
-use Tracker_FormElement_StaticField_RichText;
-use Tracker_FormElement_StaticField_Separator;
 use Tracker_FormElement_View_Admin_Container;
 use Tracker_FormElement_View_Admin_Field;
 use Tracker_FormElement_View_Admin_Field_ArtifactId;
@@ -42,6 +38,7 @@ use Tracker_FormElement_View_Admin_StaticField_LineBreak;
 use Tracker_FormElement_View_Admin_StaticField_Separator;
 use Tracker_FormElement_View_Admin_Visitor;
 use Tuleap\Test\PHPUnit\TestCase;
+use Tuleap\Tracker\FormElement\Container\Column\ColumnContainer;
 use Tuleap\Tracker\FormElement\Field\ArtifactId\ArtifactIdField;
 use Tuleap\Tracker\FormElement\Field\CrossReferences\CrossReferencesField;
 use Tuleap\Tracker\FormElement\Field\LastUpdateDate\LastUpdateDateField;
@@ -52,6 +49,9 @@ use Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifact
 use Tuleap\Tracker\FormElement\Field\String\StringField;
 use Tuleap\Tracker\FormElement\Field\SubmittedBy\SubmittedByField;
 use Tuleap\Tracker\FormElement\Field\SubmittedOn\SubmittedOnField;
+use Tuleap\Tracker\FormElement\StaticField\LineBreak\LineBreakStaticField;
+use Tuleap\Tracker\FormElement\StaticField\RichText\RichTextStaticField;
+use Tuleap\Tracker\FormElement\StaticField\Separator\SeparatorStaticField;
 
 #[DisableReturnValueGenerationForTestDoubles]
 final class AdminVisitorTest extends TestCase
@@ -67,7 +67,7 @@ final class AdminVisitorTest extends TestCase
     public function testVisitAColumnShouldFallbackOnContainer(): void
     {
         $visitor     = new Tracker_FormElement_View_Admin_Visitor([]);
-        $formElement = new Tracker_FormElement_Container_Column(null, null, null, null, null, null, null, null, null, null, null, null);
+        $formElement = new ColumnContainer(null, null, null, null, null, null, null, null, null, null, null, null);
         $formElement->accept($visitor);
         self::assertInstanceOf(Tracker_FormElement_View_Admin_Container::class, $visitor->getAdmin());
     }
@@ -83,7 +83,7 @@ final class AdminVisitorTest extends TestCase
     public function testVisitARichTextShouldFallbackStaticField(): void
     {
         $visitor     = new Tracker_FormElement_View_Admin_Visitor([]);
-        $formElement = new Tracker_FormElement_StaticField_RichText(null, null, null, null, null, null, null, null, null, null, null, null);
+        $formElement = new RichTextStaticField(null, null, null, null, null, null, null, null, null, null, null, null);
         $formElement->accept($visitor);
         self::assertInstanceOf(Tracker_FormElement_View_Admin_StaticField::class, $visitor->getAdmin());
     }
@@ -155,7 +155,7 @@ final class AdminVisitorTest extends TestCase
     public function testVisitLineBreak(): void
     {
         $visitor     = new Tracker_FormElement_View_Admin_Visitor([]);
-        $formElement = new Tracker_FormElement_StaticField_LineBreak(null, null, null, null, null, null, null, null, null, null, null, null);
+        $formElement = new LineBreakStaticField(null, null, null, null, null, null, null, null, null, null, null, null);
         $formElement->accept($visitor);
         self::assertInstanceOf(Tracker_FormElement_View_Admin_StaticField_LineBreak::class, $visitor->getAdmin());
     }
@@ -163,7 +163,7 @@ final class AdminVisitorTest extends TestCase
     public function testVisitSeparator(): void
     {
         $visitor     = new Tracker_FormElement_View_Admin_Visitor([]);
-        $formElement = new Tracker_FormElement_StaticField_Separator(null, null, null, null, null, null, null, null, null, null, null, null);
+        $formElement = new SeparatorStaticField(null, null, null, null, null, null, null, null, null, null, null, null);
         $formElement->accept($visitor);
         self::assertInstanceOf(Tracker_FormElement_View_Admin_StaticField_Separator::class, $visitor->getAdmin());
     }

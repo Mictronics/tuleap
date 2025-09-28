@@ -28,6 +28,7 @@ import {
     STATIC_LIST_SELECTABLE_TYPE,
     TEXT_SELECTABLE_TYPE,
     TRACKER_SELECTABLE_TYPE,
+    UNKNOWN_SELECTABLE_TYPE,
     USER_GROUP_LIST_SELECTABLE_TYPE,
     USER_LIST_SELECTABLE_TYPE,
     USER_SELECTABLE_TYPE,
@@ -35,12 +36,17 @@ import {
 import { ArtifactsTableBuilder } from "./ArtifactsTableBuilder";
 import {
     DATE_CELL,
+    FORWARD_DIRECTION,
+    LINK_TYPE_CELL,
+    NO_DIRECTION,
     NUMERIC_CELL,
     PRETTY_TITLE_CELL,
     PROJECT_CELL,
+    REVERSE_DIRECTION,
     STATIC_LIST_CELL,
     TEXT_CELL,
     TRACKER_CELL,
+    UNKNOWN_CELL,
     USER_CELL,
     USER_GROUP_LIST_CELL,
     USER_LIST_CELL,
@@ -95,6 +101,7 @@ describe(`ArtifactsTableBuilder`, () => {
                         }),
                     ],
                 ),
+                NO_DIRECTION,
             );
 
             expect(table.columns).toHaveLength(3);
@@ -154,6 +161,7 @@ describe(`ArtifactsTableBuilder`, () => {
                         }),
                     ],
                 ),
+                NO_DIRECTION,
             );
 
             expect(table.columns.has(date_column)).toBe(true);
@@ -199,6 +207,7 @@ describe(`ArtifactsTableBuilder`, () => {
                         ArtifactRepresentationStub.build({ [numeric_column]: { value: null } }),
                     ],
                 ),
+                NO_DIRECTION,
             );
 
             expect(table.columns.has(numeric_column)).toBe(true);
@@ -235,6 +244,7 @@ describe(`ArtifactsTableBuilder`, () => {
                         ArtifactRepresentationStub.build({ [text_column]: { value: "" } }),
                     ],
                 ),
+                NO_DIRECTION,
             );
 
             expect(table.columns.has(text_column)).toBe(true);
@@ -253,6 +263,37 @@ describe(`ArtifactsTableBuilder`, () => {
             expect(text_value_second_row.value).toBe("");
         });
 
+        it(`builds a table with "unknown" selectables`, () => {
+            const unknown_column = "details";
+
+            const table = ArtifactsTableBuilder().mapQueryContentToArtifactsTable(
+                SelectableQueryContentRepresentationStub.build(
+                    [{ type: UNKNOWN_SELECTABLE_TYPE, name: unknown_column }],
+                    [
+                        ArtifactRepresentationStub.build({
+                            [unknown_column]: { value: "" },
+                        }),
+                        ArtifactRepresentationStub.build({ [unknown_column]: { value: "" } }),
+                    ],
+                ),
+                NO_DIRECTION,
+            );
+
+            expect(table.columns.has(unknown_column)).toBe(true);
+            expect(table.rows).toHaveLength(2);
+            const [first_row, second_row] = table.rows;
+            const unknown_value_first_row = first_row.cells.get(unknown_column);
+            if (unknown_value_first_row?.type !== UNKNOWN_CELL) {
+                throw Error("Expected to find first unknown value");
+            }
+            expect(unknown_value_first_row.value).toBe("");
+
+            const unknown_value_second_row = second_row.cells.get(unknown_column);
+            if (unknown_value_second_row?.type !== UNKNOWN_CELL) {
+                throw Error("Expected to find second unknown value");
+            }
+            expect(unknown_value_second_row.value).toBe("");
+        });
         it(`builds a table with "user" selectables`, () => {
             const first_user = {
                 display_name: "Paula Muhammed (pmuhammed)",
@@ -277,6 +318,7 @@ describe(`ArtifactsTableBuilder`, () => {
                         ArtifactRepresentationStub.build({ [user_column]: second_user }),
                     ],
                 ),
+                NO_DIRECTION,
             );
 
             expect(table.columns.has(user_column)).toBe(true);
@@ -320,6 +362,7 @@ describe(`ArtifactsTableBuilder`, () => {
                         }),
                     ],
                 ),
+                NO_DIRECTION,
             );
 
             expect(table.columns.has(list_column)).toBe(true);
@@ -388,6 +431,7 @@ describe(`ArtifactsTableBuilder`, () => {
                         ArtifactRepresentationStub.build({ [list_column]: { value: [] } }),
                     ],
                 ),
+                NO_DIRECTION,
             );
 
             expect(table.columns.has(list_column)).toBe(true);
@@ -446,6 +490,7 @@ describe(`ArtifactsTableBuilder`, () => {
                         }),
                     ],
                 ),
+                NO_DIRECTION,
             );
 
             expect(table.columns.has(list_column)).toBe(true);
@@ -486,6 +531,7 @@ describe(`ArtifactsTableBuilder`, () => {
                         ArtifactRepresentationStub.build({ [project_column]: second_project }),
                     ],
                 ),
+                NO_DIRECTION,
             );
 
             expect(table.columns.has(project_column)).toBe(true);
@@ -519,6 +565,7 @@ describe(`ArtifactsTableBuilder`, () => {
                         ArtifactRepresentationStub.build({ [tracker_column]: second_tracker }),
                     ],
                 ),
+                NO_DIRECTION,
             );
 
             expect(table.columns.has(tracker_column)).toBe(true);
@@ -562,6 +609,7 @@ describe(`ArtifactsTableBuilder`, () => {
                         ArtifactRepresentationStub.build({ [title_column]: second_title }),
                     ],
                 ),
+                NO_DIRECTION,
             );
 
             expect(table.columns.has(title_column)).toBe(true);
@@ -588,15 +636,46 @@ describe(`ArtifactsTableBuilder`, () => {
 
         it(`builds a table with "link_type" selectables`, () => {
             const link_type_column = LINK_TYPE_COLUMN_NAME;
+            const link_type_value_reverse = "Is Child Of";
+            const link_type_value_forward = "Is Parent Of";
 
             const table = ArtifactsTableBuilder().mapQueryContentToArtifactsTable(
                 SelectableQueryContentRepresentationStub.build(
                     [{ type: LINK_TYPE_SELECTABLE_TYPE, name: link_type_column }],
-                    [ArtifactRepresentationStub.build({ [link_type_column]: { name: "" } })],
+                    [
+                        ArtifactRepresentationStub.build({
+                            [link_type_column]: {
+                                shortname: "_is_child",
+                                direction: REVERSE_DIRECTION,
+                                label: link_type_value_reverse,
+                            },
+                        }),
+                        ArtifactRepresentationStub.build({
+                            [link_type_column]: {
+                                shortname: "_is_child",
+                                direction: FORWARD_DIRECTION,
+                                label: link_type_value_forward,
+                            },
+                        }),
+                    ],
                 ),
+                NO_DIRECTION,
             );
 
             expect(table.columns.has(link_type_column)).toBe(true);
+            expect(table.rows).toHaveLength(2);
+            const [first_row, second_row] = table.rows;
+            const link_value_first_row = first_row.cells.get(link_type_column);
+            if (link_value_first_row?.type !== LINK_TYPE_CELL) {
+                throw Error("Expected to find first link value");
+            }
+            expect(link_value_first_row.label).toBe(link_type_value_reverse);
+
+            const link_value_second_row = second_row.cells.get(link_type_column);
+            if (link_value_second_row?.type !== LINK_TYPE_CELL) {
+                throw Error("Expected to find second link value");
+            }
+            expect(link_value_second_row.label).toBe(link_type_value_forward);
         });
 
         it(`given a query content representation with an unsupported selectable type,
@@ -607,6 +686,7 @@ describe(`ArtifactsTableBuilder`, () => {
                     [{ type: "unsupported", name: "wacken" }],
                     [ArtifactRepresentationStub.build({ wacken: { value: "frightfulness" } })],
                 ),
+                NO_DIRECTION,
             );
             expect(table.columns).toHaveLength(1);
             expect(table.columns.has(ARTIFACT_COLUMN_NAME)).toBe(true);
@@ -627,6 +707,8 @@ describe(`ArtifactsTableBuilder`, () => {
             yield [PROJECT_SELECTABLE_TYPE, { value: 12 }];
             yield [TRACKER_SELECTABLE_TYPE, { value: 12 }];
             yield [PRETTY_TITLE_SELECTABLE_TYPE, { value: 12 }];
+            yield [LINK_TYPE_SELECTABLE_TYPE, { value: 12 }];
+            yield [UNKNOWN_SELECTABLE_TYPE, { value: 12 }];
         }
 
         it.each([...generateBrokenSelectedValues()])(
@@ -638,26 +720,33 @@ describe(`ArtifactsTableBuilder`, () => {
                             [{ type: selected_type, name: "makeress" }],
                             [ArtifactRepresentationStub.build({ makeress: representation })],
                         ),
+                        NO_DIRECTION,
                     ),
                 ).toThrow();
             },
         );
 
         it(`allows an empty query so that we can show an empty state screen`, () => {
-            const table = ArtifactsTableBuilder().mapQueryContentToArtifactsTable({
-                selected: [],
-                artifacts: [],
-            });
+            const table = ArtifactsTableBuilder().mapQueryContentToArtifactsTable(
+                {
+                    selected: [],
+                    artifacts: [],
+                },
+                NO_DIRECTION,
+            );
             expect(table.columns).toHaveLength(0);
             expect(table.rows).toHaveLength(0);
         });
 
         it(`when the artifact value does not match the @artifact representation, it will throw an error`, () => {
             expect(() =>
-                ArtifactsTableBuilder().mapQueryContentToArtifactsTable({
-                    selected: [{ type: ARTIFACT_SELECTABLE_TYPE, name: ARTIFACT_COLUMN_NAME }],
-                    artifacts: [{ [ARTIFACT_COLUMN_NAME]: { uri_is_missing: true } }],
-                }),
+                ArtifactsTableBuilder().mapQueryContentToArtifactsTable(
+                    {
+                        selected: [{ type: ARTIFACT_SELECTABLE_TYPE, name: ARTIFACT_COLUMN_NAME }],
+                        artifacts: [{ [ARTIFACT_COLUMN_NAME]: { uri_is_missing: true } }],
+                    },
+                    NO_DIRECTION,
+                ),
             ).toThrow();
         });
     });

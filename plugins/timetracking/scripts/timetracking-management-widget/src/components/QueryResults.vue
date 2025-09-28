@@ -18,12 +18,19 @@
   -->
 
 <template>
+    <user-details-modal
+        v-if="details_user_times"
+        v-bind:user_times="details_user_times"
+        v-bind:widget_id="widget_id"
+        v-bind:query="query"
+        ref="modal"
+    />
     <table class="tlp-table">
         <thead>
             <tr>
-                <th>{{ $gettext("Users") }}</th>
-                <th>{{ $gettext("Time") }}</th>
-                <th></th>
+                <th class="users">{{ $gettext("Users") }}</th>
+                <th class="tlp-table-cell-numeric">{{ $gettext("Time") }}</th>
+                <th class="tlp-table-cell-actions"></th>
             </tr>
         </thead>
         <query-results-no-users v-if="nb_users === 0" />
@@ -36,6 +43,7 @@
                 />
                 <template v-else>
                     <query-results-empty-state v-if="nb_results === 0" />
+                    <query-results-rows v-else v-bind:results="results" />
                 </template>
             </template>
         </template>
@@ -44,16 +52,19 @@
 
 <script setup lang="ts">
 import { useGettext } from "vue3-gettext";
-import type { QueryResults } from "../type";
-import { onMounted, ref } from "vue";
+import type { Query, QueryResults, UserTimes } from "../type";
+import { onMounted, useTemplateRef, provide, ref, computed, nextTick } from "vue";
 import QueryResultsNoUsers from "./QueryResultsNoUsers.vue";
 import QueryResultsLoadingState from "./QueryResultsLoadingState.vue";
 import QueryResultsErrorState from "./QueryResultsErrorState.vue";
 import QueryResultsEmptyState from "./QueryResultsEmptyState.vue";
 import { getTimes } from "../api/rest-querier";
+import QueryResultsRows from "./QueryResultsRows.vue";
+import UserDetailsModal from "./UserDetailsModal.vue";
+import { OPEN_MODAL_DETAILS } from "../injection-symbols";
 
 const props = defineProps<{
-    nb_users: number;
+    query: Query;
     widget_id: number;
 }>();
 
@@ -61,16 +72,27 @@ const { $gettext } = useGettext();
 
 const is_loading = ref(true);
 const error_message = ref("");
-const nb_results = ref(0);
+const results = ref<QueryResults>([]);
+const nb_results = computed(() => results.value.length);
+const nb_users = computed(() => props.query.users_list.length);
+
+const details_user_times = ref<UserTimes | null>(null);
+const modal = useTemplateRef<InstanceType<typeof UserDetailsModal>>("modal");
+provide(OPEN_MODAL_DETAILS, (times: UserTimes): void => {
+    details_user_times.value = times;
+
+    // on the first open, we need to defer the opening of the modal because the component is not yet mounted, due to the v-if
+    nextTick(() => modal.value?.show());
+});
 
 onMounted(() => {
-    if (props.nb_users === 0) {
+    if (nb_users.value === 0) {
         return;
     }
 
     getTimes(props.widget_id).match(
-        (results: QueryResults) => {
-            nb_results.value = results.length;
+        (res: QueryResults) => {
+            results.value = res;
             is_loading.value = false;
         },
         (fault) => {
@@ -94,5 +116,10 @@ onMounted(() => {
 <style lang="scss" scoped>
 table {
     margin: 0 0 var(--tlp-medium-spacing);
+}
+
+.users,
+.tlp-table-cell-actions {
+    width: 50%;
 }
 </style>

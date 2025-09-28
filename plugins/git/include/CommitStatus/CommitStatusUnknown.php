@@ -22,7 +22,7 @@ namespace Tuleap\Git\CommitStatus;
 
 final class CommitStatusUnknown implements CommitStatus
 {
-    public const NAME = 'unknown';
+    public const string NAME = 'unknown';
 
     private $date;
 
@@ -34,6 +34,7 @@ final class CommitStatusUnknown implements CommitStatus
     /**
      * @return string
      */
+    #[\Override]
     public function getStatusName()
     {
         return self::NAME;
@@ -42,6 +43,7 @@ final class CommitStatusUnknown implements CommitStatus
     /**
      * @return \DateTimeImmutable
      */
+    #[\Override]
     public function getDate()
     {
         return $this->date;

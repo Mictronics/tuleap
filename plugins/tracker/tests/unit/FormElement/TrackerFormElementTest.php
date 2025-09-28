@@ -25,8 +25,6 @@ namespace Tuleap\Tracker\FormElement;
 use ForgeConfig;
 use HTTPRequest;
 use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
-use Tracker_FormElement;
-use Tracker_FormElement_StaticField_Separator;
 use Tracker_FormElementFactory;
 use TrackerManager;
 use Tuleap\ForgeConfigSandbox;
@@ -39,6 +37,7 @@ use Tuleap\Test\Builders\TestLayout;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\CSRF\CSRFSessionKeyStorageStub;
 use Tuleap\Test\Stubs\CSRF\CSRFSigningKeyStorageStub;
+use Tuleap\Tracker\FormElement\StaticField\Separator\SeparatorStaticField;
 use Tuleap\Tracker\Test\Builders\Fields\SelectboxFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Tracker;
@@ -51,11 +50,13 @@ final class TrackerFormElementTest extends TestCase
     use ForgeConfigSandbox;
     use TemporaryTestDirectory;
 
+    #[\Override]
     protected function setUp(): void
     {
         ForgeConfig::set('codendi_cache_dir', $this->getTmpDir());
     }
 
+    #[\Override]
     protected function tearDown(): void
     {
         unset($GLOBALS['HTML']);
@@ -86,9 +87,9 @@ final class TrackerFormElementTest extends TestCase
         self::assertEquals(0, $element->getOriginalFieldId());
     }
 
-    protected function givenAFormElementWithIdAndOriginalField(?int $id, ?Tracker_FormElement $original_field): Tracker_FormElement_StaticField_Separator
+    protected function givenAFormElementWithIdAndOriginalField(?int $id, ?TrackerFormElement $original_field): SeparatorStaticField
     {
-        return new Tracker_FormElement_StaticField_Separator(
+        return new SeparatorStaticField(
             $id,
             null,
             null,
@@ -125,7 +126,7 @@ final class TrackerFormElementTest extends TestCase
         self::assertMatchesRegularExpression('%</form>%', $content);
     }
 
-    private function whenIDisplayAdminFormElement(Tracker_FormElement $form_element): string
+    private function whenIDisplayAdminFormElement(TrackerFormElement $form_element): string
     {
         $GLOBALS['HTML'] = new TestLayout(new LayoutInspector());
 

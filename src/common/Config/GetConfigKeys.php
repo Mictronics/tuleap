@@ -40,7 +40,6 @@ use Tuleap\Instrument\Prometheus\Prometheus;
 use Tuleap\InviteBuddy\InvitationPurger;
 use Tuleap\InviteBuddy\InviteBuddyConfiguration;
 use Tuleap\Layout\BaseLayout;
-use Tuleap\Layout\HomePage\NewsCollectionBuilder;
 use Tuleap\Layout\HomePage\StatisticsCollectionBuilder;
 use Tuleap\Log\LogToGraylog2;
 use Tuleap\Mail\Transport\MailTransportBuilder;
@@ -54,6 +53,7 @@ use Tuleap\Request\RequestInstrumentation;
 use Tuleap\ServerHostname;
 use Tuleap\System\ServiceControl;
 use Tuleap\SystemEvent\Massmail;
+use Tuleap\User\Password\PasswordExpirationChecker;
 use Tuleap\User\UserSuspensionManager;
 use Tuleap\Widget\MyProjects;
 use User_UserStatusManager;
@@ -62,7 +62,7 @@ final class GetConfigKeys implements Dispatchable, ConfigClassProvider, KeyMetad
 {
     public const NAME = 'getConfigKeys';
 
-    public const CORE_CLASSES_WITH_CONFIG_KEYS = [
+    public const array CORE_CLASSES_WITH_CONFIG_KEYS = [
         ConfigurationVariables::class,
         ConfigurationVariablesLocalIncDist::class,
         ProjectManager::class,
@@ -70,7 +70,6 @@ final class GetConfigKeys implements Dispatchable, ConfigClassProvider, KeyMetad
         ForgeAccess::class,
         ProjectVisibilityConfigManager::class,
         Prometheus::class,
-        NewsCollectionBuilder::class,
         StatisticsCollectionBuilder::class,
         DefaultProjectVisibilityRetriever::class,
         ServiceControl::class,
@@ -101,6 +100,7 @@ final class GetConfigKeys implements Dispatchable, ConfigClassProvider, KeyMetad
         CookieManager::class,
         DeprecatedForum::class,
         ClientFactory::class,
+        PasswordExpirationChecker::class,
     ];
 
     /**
@@ -123,6 +123,7 @@ final class GetConfigKeys implements Dispatchable, ConfigClassProvider, KeyMetad
      *
      * @param class-string $class_name
      */
+    #[\Override]
     public function addConfigClass(string $class_name): void
     {
         $this->annotated_classes[] = $class_name;
@@ -131,6 +132,7 @@ final class GetConfigKeys implements Dispatchable, ConfigClassProvider, KeyMetad
     /**
      * @return string[]
      */
+    #[\Override]
     public function getKeysThatCanBeModifiedWithConfigSet(): array
     {
         $this->initWhiteList();
@@ -157,6 +159,7 @@ final class GetConfigKeys implements Dispatchable, ConfigClassProvider, KeyMetad
     /**
      * @throws UnknownConfigKeyException
      */
+    #[\Override]
     public function getKeyMetadata(string $key): ConfigKeyMetadata
     {
         $this->initWhiteList();

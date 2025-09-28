@@ -22,7 +22,6 @@ namespace Tuleap\AgileDashboard\REST\v1;
 
 use AgileDashboard_Milestone_Backlog_BacklogFactory;
 use AgileDashboard_Milestone_Backlog_BacklogItemBuilder;
-use AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactory;
 use AgileDashboard_Milestone_MilestoneReportCriterionOptionsProvider;
 use Luracast\Restler\RestException;
 use PFUser;
@@ -39,6 +38,7 @@ use Tuleap\AgileDashboard\BacklogItemDao;
 use Tuleap\AgileDashboard\ExplicitBacklog\ArtifactsInExplicitBacklogDao;
 use Tuleap\AgileDashboard\ExplicitBacklog\ExplicitBacklogDao;
 use Tuleap\AgileDashboard\ExplicitBacklog\UnplannedArtifactsAdder;
+use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemCollectionFactory;
 use Tuleap\AgileDashboard\Milestone\Backlog\NoRootPlanningException;
 use Tuleap\AgileDashboard\Milestone\Backlog\ProvidedAddedIdIsNotInPartOfTopBacklogException;
 use Tuleap\AgileDashboard\Milestone\Backlog\TopBacklogElementsToAddChecker;
@@ -59,6 +59,7 @@ use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkUpdater;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkUpdaterDataFormater;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ItemListedTwiceException;
 use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindDecoratorRetriever;
+use Tuleap\Tracker\Permission\SubmissionPermissionVerifier;
 use Tuleap\Tracker\REST\Helpers\ArtifactsRankOrderer;
 use Tuleap\Tracker\REST\Helpers\IdsFromBodyAreNotUniqueException;
 use Tuleap\Tracker\REST\Helpers\OrderRepresentation;
@@ -71,8 +72,8 @@ use UserManager;
  */
 class ProjectBacklogResource
 {
-    public const MAX_LIMIT              = 100;
-    public const TOP_BACKLOG_IDENTIFIER = AgileDashboard_Milestone_MilestoneReportCriterionOptionsProvider::TOP_BACKLOG_IDENTIFIER;
+    public const int MAX_LIMIT                 = 100;
+    public const string TOP_BACKLOG_IDENTIFIER = AgileDashboard_Milestone_MilestoneReportCriterionOptionsProvider::TOP_BACKLOG_IDENTIFIER;
 
     /** @var Planning_MilestoneFactory */
     private $milestone_factory;
@@ -112,7 +113,7 @@ class ProjectBacklogResource
             new \Tuleap\Tracker\Artifact\Dao\ArtifactDao(),
         );
 
-        $backlog_item_collection_factory = new AgileDashboard_Milestone_Backlog_BacklogItemCollectionFactory(
+        $backlog_item_collection_factory = new BacklogItemCollectionFactory(
             new BacklogItemDao(),
             $tracker_artifact_factory,
             $this->milestone_factory,
@@ -155,7 +156,8 @@ class ProjectBacklogResource
         $item_factory  = new BacklogItemRepresentationFactory(
             $color_builder,
             $user_manager,
-            new ProjectBackgroundConfiguration(new ProjectBackgroundDao())
+            new ProjectBackgroundConfiguration(new ProjectBackgroundDao()),
+            SubmissionPermissionVerifier::instance(),
         );
 
         $this->paginated_backlog_item_representation_builder = new AgileDashboard_BacklogItem_PaginatedBacklogItemsRepresentationsBuilder(

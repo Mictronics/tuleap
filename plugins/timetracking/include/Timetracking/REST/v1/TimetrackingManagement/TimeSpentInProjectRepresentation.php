@@ -23,13 +23,19 @@ declare(strict_types=1);
 namespace Tuleap\Timetracking\REST\v1\TimetrackingManagement;
 
 use Tuleap\Project\REST\MinimalProjectRepresentation;
+use Tuleap\Timetracking\Widget\Management\TimeSpentInProject;
 
 /**
  * @psalm-immutable
  */
 final class TimeSpentInProjectRepresentation
 {
-    public function __construct(public MinimalProjectRepresentation $project, public int $minutes)
+    private function __construct(public MinimalProjectRepresentation $project, public int $minutes)
     {
+    }
+
+    public static function fromTimeSpentInProject(TimeSpentInProject $time): self
+    {
+        return new self(new MinimalProjectRepresentation($time->project), $time->minutes);
     }
 }

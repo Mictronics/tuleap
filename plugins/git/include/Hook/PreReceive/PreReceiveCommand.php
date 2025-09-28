@@ -37,9 +37,9 @@ final class PreReceiveCommand extends Command
 {
     #[FeatureFlagConfigKey('Feature flag to ignore specific git repositories by the git:pre-receive command')]
     #[ConfigKeyString('')]
-    public const FEATURE_FLAG_KEY = 'pre_receive_ignored_repos_ids';
+    public const string FEATURE_FLAG_KEY = 'pre_receive_ignored_repos_ids';
 
-    public const NAME = 'git:pre-receive';
+    public const string NAME = 'git:pre-receive';
 
     public function __construct(
         private PreReceiveAction $action,
@@ -47,6 +47,7 @@ final class PreReceiveCommand extends Command
         parent::__construct(self::NAME);
     }
 
+    #[\Override]
     protected function configure(): void
     {
         $this->setDescription('This command calls an external module to decide whether or not the revisions passed on STDIN should be accepted.')
@@ -58,6 +59,7 @@ final class PreReceiveCommand extends Command
             ->setHidden(true);
     }
 
+    #[\Override]
     public function execute(InputInterface $input, OutputInterface $output): int
     {
         $repository_path = (string) $input->getArgument('repository_path');

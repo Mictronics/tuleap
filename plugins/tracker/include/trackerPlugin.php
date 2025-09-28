@@ -220,6 +220,7 @@ use Tuleap\Tracker\FormElement\FieldCalculator;
 use Tuleap\Tracker\FormElement\FieldSpecificProperties\ArtifactLinkFieldSpecificPropertiesDAO;
 use Tuleap\Tracker\FormElement\SystemEvent\SystemEvent_BURNDOWN_DAILY;
 use Tuleap\Tracker\FormElement\SystemEvent\SystemEvent_BURNDOWN_GENERATE;
+use Tuleap\Tracker\FormElement\TrackerFormElement;
 use Tuleap\Tracker\Hierarchy\HierarchyHistoryEntry;
 use Tuleap\Tracker\Import\Spotter;
 use Tuleap\Tracker\Legacy\Inheritor;
@@ -422,6 +423,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         $this->addHook(\Tuleap\Search\IdentifyAllItemsToIndexEvent::NAME);
     }
 
+    #[\Override]
     public function getHooksAndCallbacks()
     {
         if (defined('AGILEDASHBOARD_BASE_DIR')) {
@@ -447,6 +449,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         return parent::getHooksAndCallbacks();
     }
 
+    #[\Override]
     public function getPluginInfo()
     {
         if (! $this->pluginInfo instanceof \trackerPluginInfo) {
@@ -463,7 +466,6 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         $file_manager = new Tracker_Artifact_Attachment_TemporaryFileManager(
             $this->getUserManager(),
             new Tracker_Artifact_Attachment_TemporaryFileManagerDao(),
-            new System_Command(),
             ForgeConfig::get('sys_file_deletion_delay'),
             new \Tuleap\DB\DBTransactionExecutorWithConnection(\Tuleap\DB\DBFactory::getMainTuleapDBConnection())
         );
@@ -685,11 +687,13 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         }
     }
 
+    #[\Override]
     public function getServiceShortname(): string
     {
         return self::SERVICE_SHORTNAME;
     }
 
+    #[\Override]
     #[ListeningToEventClass]
     public function serviceClassnamesCollector(ServiceClassnamesCollector $event): void
     {
@@ -700,21 +704,25 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
      * @param array{shortname: string, is_used: bool, group_id: int|string} $params
      * @see Event::SERVICE_IS_USED
      */
+    #[\Override]
     public function serviceIsUsed(array $params): void
     {
         // nothing to do for trackers
     }
 
+    #[\Override]
     public function projectServiceBeforeActivation(ProjectServiceBeforeActivation $event): void
     {
         // nothing to do for trackers
     }
 
+    #[\Override]
     public function serviceDisabledCollector(ServiceDisabledCollector $event): void
     {
         // nothing to do for trackers
     }
 
+    #[\Override]
     public function addMissingService(AddMissingService $event): void
     {
         // nothing to do for trackers
@@ -1209,7 +1217,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             'tracker_date_reminder_edit',
             'tracker_date_reminder_delete',
             'tracker_date_reminder_sent',
-            Tracker_FormElement::PROJECT_HISTORY_UPDATE,
+            TrackerFormElement::PROJECT_HISTORY_UPDATE,
             ArtifactDeletor::PROJECT_HISTORY_ARTIFACT_DELETED,
             MarkTrackerAsDeletedController::PROJECT_HISTORY_TRACKER_DELETION_KEY,
             HierarchyHistoryEntry::HierarchyUpdate->value,
@@ -2600,6 +2608,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         }
     }
 
+    #[\Override]
     public function serviceEnableForXmlImportRetriever(ServiceEnableForXmlImportRetriever $event): void
     {
         $event->addServiceIfPluginIsNotRestricted($this, $this->getServiceShortname());
@@ -2630,6 +2639,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         );
     }
 
+    #[\Override]
     public function getConfigKeys(ConfigClassProvider $event): void
     {
         $event->addConfigClass(ArtifactLinkField::class);

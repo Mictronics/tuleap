@@ -19,6 +19,7 @@
  */
 
 use Tuleap\Tracker\FormElement\Field\List\OpenListField;
+use Tuleap\Tracker\FormElement\TrackerFormElement;
 use Tuleap\Tracker\REST\FormElement\PermissionsForGroupsRepresentation;
 
 /**
@@ -40,8 +41,9 @@ class Tracker_REST_FormElement_FieldOpenListRepresentation extends Tracker_REST_
         $this->hint = $hint;
     }
 
+    #[\Override]
     public static function build(
-        Tracker_FormElement $form_element,
+        TrackerFormElement $form_element,
         string $type,
         array $permissions,
         ?PermissionsForGroupsRepresentation $permissions_for_groups,

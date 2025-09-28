@@ -38,8 +38,8 @@ use TemplateRendererFactory;
 
 class Hooks extends Pane
 {
-    public const ID            = 'hooks';
-    public const CSRF_TOKEN_ID = 'GIT-WEBHOOK-SETTINGS';
+    public const string ID            = 'hooks';
+    public const string CSRF_TOKEN_ID = 'GIT-WEBHOOK-SETTINGS';
 
     /**
      * Allow plugins to add additional hooks setup for git
@@ -51,7 +51,7 @@ class Hooks extends Pane
      *   'create_buttons'       => (Output) Array of CreateWebhookButtonPresenter
      *   'additional_html_bits' => (Output) Array of html string
      */
-    public const ADDITIONAL_WEBHOOKS = 'plugin_git_settings_additional_webhooks';
+    public const string ADDITIONAL_WEBHOOKS = 'plugin_git_settings_additional_webhooks';
 
     /**
      * @var WebhookFactory
@@ -77,6 +77,7 @@ class Hooks extends Pane
     /**
      * @see GitViews_RepoManagement_Pane::getIdentifier()
      */
+    #[\Override]
     public function getIdentifier()
     {
         return self::ID;
@@ -85,6 +86,7 @@ class Hooks extends Pane
     /**
      * @see GitViews_RepoManagement_Pane::getTitle()
      */
+    #[\Override]
     public function getTitle()
     {
         return dgettext('tuleap-git', 'Webhooks');
@@ -93,6 +95,7 @@ class Hooks extends Pane
     /**
      * @see GitViews_RepoManagement_Pane::getContent()
      */
+    #[\Override]
     public function getContent()
     {
         $description            = dgettext('tuleap-git', 'You can define several generic webhooks.');

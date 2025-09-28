@@ -31,8 +31,11 @@ export const USER_GROUP_LIST_CELL = "list_user_group";
 export const PROJECT_CELL = "project";
 export const TRACKER_CELL = "tracker";
 export const PRETTY_TITLE_CELL = "pretty_title";
+export const LINK_TYPE_CELL = "link_type";
+export const UNKNOWN_CELL = "unknown";
 export const FORWARD_DIRECTION = "forward";
 export const REVERSE_DIRECTION = "reverse";
+export const NO_DIRECTION = "no-direction";
 
 type DateCell = {
     readonly type: typeof DATE_CELL;
@@ -100,6 +103,17 @@ export type PrettyTitleCell = {
     readonly title: string;
 };
 
+export type LinkTypeCell = {
+    readonly type: typeof LINK_TYPE_CELL;
+    readonly label: string;
+    readonly direction: ArtifactLinkDirection;
+};
+
+export type UnknownCell = {
+    readonly type: typeof UNKNOWN_CELL;
+    readonly value: "";
+};
+
 export type Cell =
     | DateCell
     | NumericCell
@@ -110,14 +124,18 @@ export type Cell =
     | UserGroupListCell
     | ProjectCell
     | TrackerCell
-    | PrettyTitleCell;
+    | PrettyTitleCell
+    | UnknownCell
+    | LinkTypeCell;
 
 export type ArtifactRow = {
+    readonly uuid: string;
     readonly id: number;
     readonly uri: string;
     readonly cells: Map<ColumnName, Cell>;
     readonly expected_number_of_forward_links: number;
     readonly expected_number_of_reverse_links: number;
+    readonly direction: ArtifactLinkDirection;
 };
 
 export type ArtifactsTable = {
@@ -125,4 +143,7 @@ export type ArtifactsTable = {
     readonly rows: ReadonlyArray<ArtifactRow>;
 };
 
-export type ArtifactLinkDirection = typeof FORWARD_DIRECTION | typeof REVERSE_DIRECTION;
+export type ArtifactLinkDirection =
+    | typeof FORWARD_DIRECTION
+    | typeof REVERSE_DIRECTION
+    | typeof NO_DIRECTION;

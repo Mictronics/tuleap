@@ -51,6 +51,7 @@ final class MilestoneParentLinkerTest extends TestCase
     private PFUser $user;
     private AgileDashboard_Milestone_Backlog_Backlog&MockObject $backlog;
 
+    #[\Override]
     protected function setUp(): void
     {
         $milestone_factory             = $this->createMock(Planning_MilestoneFactory::class);
@@ -161,7 +162,7 @@ final class MilestoneParentLinkerTest extends TestCase
         $this->milestone->method('getParent')->willReturn($parent_milestone);
 
         $this->artifact_linker->expects($this->once())->method('linkArtifact')->with($parent_milestone_artifact, new CollectionOfForwardLinks([
-            ForwardLinkProxy::buildFromData(101, ArtifactLinkField::NO_TYPE),
+            ForwardLinkProxy::buildFromData(101, ArtifactLinkField::DEFAULT_LINK_TYPE),
         ]), $this->user);
 
         $this->milestone_parent_linker->linkToMilestoneParent(
@@ -192,7 +193,7 @@ final class MilestoneParentLinkerTest extends TestCase
         $this->milestone->method('getParent')->willReturn($parent_milestone);
 
         $this->artifact_linker->expects($this->once())->method('linkArtifact')->with($parent_milestone_artifact, new CollectionOfForwardLinks([
-            ForwardLinkProxy::buildFromData(101, ArtifactLinkField::NO_TYPE),
+            ForwardLinkProxy::buildFromData(101, ArtifactLinkField::DEFAULT_LINK_TYPE),
         ]), $this->user);
 
         $this->milestone_parent_linker->linkToMilestoneParent(

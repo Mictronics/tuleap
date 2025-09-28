@@ -14,7 +14,7 @@ module.exports = {
     extends: [
         "eslint:recommended",
         "plugin:you-dont-need-lodash-underscore/all",
-        "plugin:vue/vue3-recommended",
+        "plugin:vue/recommended",
         "plugin:import/typescript",
         "plugin:@typescript-eslint/recommended",
         "plugin:prettier/recommended",
@@ -29,14 +29,14 @@ module.exports = {
     env: {
         es6: true,
         browser: true,
-        "vue/setup-compiler-macros": true,
     },
     reportUnusedDisableDirectives: true,
     rules: {
         // Possible Errors
         "no-template-curly-in-string": "error",
         // Best Practices
-        "no-unused-vars": "off",
+        "no-unused-vars": "off", // Replaced by @typescript-eslint/no-unused-vars
+        "@typescript-eslint/no-unused-vars": ["error", { caughtErrorsIgnorePattern: "^_" }],
         "array-callback-return": "warn",
         "consistent-return": "warn",
         curly: "error",
@@ -115,15 +115,7 @@ module.exports = {
         "@typescript-eslint/camelcase": "off",
         "@typescript-eslint/naming-convention": [
             "error",
-            {
-                selector: "typeLike",
-                format: ["PascalCase"],
-                filter: {
-                    // you can expand this regex to add more allowed names
-                    regex: "^(?:_Unused)$",
-                    match: false,
-                },
-            },
+            { selector: "typeLike", format: ["PascalCase"] },
         ],
         "@typescript-eslint/class-literal-property-style": "error",
         "@typescript-eslint/consistent-type-assertions": ["error", { assertionStyle: "never" }],
@@ -131,7 +123,6 @@ module.exports = {
         "@typescript-eslint/explicit-function-return-type": "error",
         "@typescript-eslint/no-explicit-any": "error",
         "@typescript-eslint/no-non-null-assertion": "error",
-        "@typescript-eslint/no-unused-vars": "error",
         "@typescript-eslint/no-use-before-define": [
             "error",
             { functions: false, typedefs: false, classes: false },
@@ -233,6 +224,7 @@ module.exports = {
             },
             rules: {
                 "no-console": "off",
+                "@typescript-eslint/no-require-imports": "off", // Jest configuration files require CommonJS. Webpack configuration files can be migrated though.
             },
         },
         {
@@ -262,9 +254,7 @@ module.exports = {
                 "plugins/document/**/*.vue",
                 "plugins/pullrequest/scripts/create-pullrequest-button/**/*.vue",
                 "plugins/testmanagement/scripts/step-definition-field/**/*.vue",
-                "plugins/timetracking/scripts/timetracking-overview-widget/**/*.vue",
                 "plugins/tracker/scripts/workflow-transitions/**/*.vue",
-                "src/scripts/project-services/src/**/*.vue",
             ],
             rules: {
                 "@typescript-eslint/explicit-function-return-type": "off",

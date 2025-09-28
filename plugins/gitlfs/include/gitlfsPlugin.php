@@ -64,15 +64,15 @@ require_once __DIR__ . '/../vendor/autoload.php';
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 class gitlfsPlugin extends \Plugin implements PluginWithConfigKeys
 {
-    public const SERVICE_SHORTNAME = 'tuleap-gitlfs';
+    public const string SERVICE_SHORTNAME = 'tuleap-gitlfs';
 
-    public const SERVICE_LABEL = 'Git LFS';
+    public const string SERVICE_LABEL = 'Git LFS';
 
     #[ConfigKey('Toggle site admin ability to configure `git_lfs_max_file_size`')]
-    public const DISPLAY_CONFIG_KEY = 'git_lfs_display_config';
+    public const string DISPLAY_CONFIG_KEY = 'git_lfs_display_config';
 
     #[ConfigKey('Max size for individual git lfs files (in bytes). Default 536870912 (512MiB).')]
-    public const MAX_FILE_SIZE_KEY = 'git_lfs_max_file_size';
+    public const string MAX_FILE_SIZE_KEY = 'git_lfs_max_file_size';
 
     public function __construct($id)
     {
@@ -81,6 +81,7 @@ class gitlfsPlugin extends \Plugin implements PluginWithConfigKeys
         bindtextdomain('tuleap-gitlfs', __DIR__ . '/../site-content');
     }
 
+    #[\Override]
     public function getPluginInfo()
     {
         if (! $this->pluginInfo) {
@@ -90,11 +91,13 @@ class gitlfsPlugin extends \Plugin implements PluginWithConfigKeys
         return $this->pluginInfo;
     }
 
+    #[\Override]
     public function getDependencies()
     {
         return ['git'];
     }
 
+    #[\Override]
     public function getHooksAndCallbacks()
     {
         $this->addHook(CollectRoutesEvent::NAME);
@@ -465,6 +468,7 @@ class gitlfsPlugin extends \Plugin implements PluginWithConfigKeys
         }
     }
 
+    #[\Override]
     public function getConfigKeys(ConfigClassProvider $event): void
     {
         $event->addConfigClass(self::class);

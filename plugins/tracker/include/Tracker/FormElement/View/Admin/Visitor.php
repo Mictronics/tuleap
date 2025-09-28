@@ -18,6 +18,7 @@
  */
 
 use Tuleap\JSONHeader;
+use Tuleap\Tracker\FormElement\Container\TrackerFormElementContainer;
 use Tuleap\Tracker\FormElement\Field\ArtifactId\ArtifactIdField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkFieldAdmin;
@@ -44,6 +45,10 @@ use Tuleap\Tracker\FormElement\Field\SubmittedBy\SubmittedByField;
 use Tuleap\Tracker\FormElement\Field\SubmittedOn\SubmittedOnField;
 use Tuleap\Tracker\FormElement\Field\Text\TextField;
 use Tuleap\Tracker\FormElement\Field\TrackerField;
+use Tuleap\Tracker\FormElement\StaticField\LineBreak\LineBreakStaticField;
+use Tuleap\Tracker\FormElement\StaticField\Separator\SeparatorStaticField;
+use Tuleap\Tracker\FormElement\StaticField\TrackerStaticField;
+use Tuleap\Tracker\FormElement\TrackerFormElement;
 use Tuleap\Tracker\FormElement\TrackerFormElementExternalField;
 use Tuleap\Tracker\FormElement\View\Admin\Field\Computed;
 
@@ -61,7 +66,7 @@ class Tracker_FormElement_View_Admin_Visitor implements Tracker_FormElement_Visi
     protected $adminElement = null;
 
     /**
-     * @var Tracker_FormElement
+     * @var TrackerFormElement
      */
     protected $element = null;
 
@@ -78,19 +83,20 @@ class Tracker_FormElement_View_Admin_Visitor implements Tracker_FormElement_Visi
     /**
      * Inspect the element
      *
-     * @param Tracker_FormElement $element
+     * @param TrackerFormElement $element
      */
+    #[\Override]
     public function visit(/*Tracker_FormElement*/ $element)
     {
         $this->element = $element;
 
-        if ($element instanceof Tracker_FormElement_Container) {
+        if ($element instanceof TrackerFormElementContainer) {
             $this->visitContainer($element);
-        } elseif ($element instanceof Tracker_FormElement_StaticField_LineBreak) {
+        } elseif ($element instanceof LineBreakStaticField) {
             $this->visitLineBreak($element);
-        } elseif ($element instanceof Tracker_FormElement_StaticField_Separator) {
+        } elseif ($element instanceof SeparatorStaticField) {
             $this->visitSeparator($element);
-        } elseif ($element instanceof Tracker_FormElement_StaticField) {
+        } elseif ($element instanceof TrackerStaticField) {
             $this->visitStaticField($element);
         } elseif ($element instanceof Tracker_FormElement_Shared) {
             $this->visitShared($element);
@@ -99,6 +105,7 @@ class Tracker_FormElement_View_Admin_Visitor implements Tracker_FormElement_Visi
         }
     }
 
+    #[\Override]
     public function visitArtifactLink(ArtifactLinkField $field)
     {
         $this->element      = $field;
@@ -109,41 +116,49 @@ class Tracker_FormElement_View_Admin_Visitor implements Tracker_FormElement_Visi
         );
     }
 
+    #[\Override]
     public function visitDate(DateField $field)
     {
         $this->visitField($field);
     }
 
+    #[\Override]
     public function visitFile(FilesField $field)
     {
         $this->visitField($field);
     }
 
+    #[\Override]
     public function visitFloat(FloatField $field)
     {
         $this->visitField($field);
     }
 
+    #[\Override]
     public function visitInteger(IntegerField $field)
     {
         $this->visitField($field);
     }
 
+    #[\Override]
     public function visitOpenList(OpenListField $field)
     {
         $this->visitList($field);
     }
 
+    #[\Override]
     public function visitString(StringField $field)
     {
         $this->visitField($field);
     }
 
+    #[\Override]
     public function visitText(TextField $field)
     {
         $this->visitField($field);
     }
 
+    #[\Override]
     public function visitComputed(ComputedField $element)
     {
         $this->element      = $element;
@@ -156,35 +171,41 @@ class Tracker_FormElement_View_Admin_Visitor implements Tracker_FormElement_Visi
         $this->adminElement = new Tracker_FormElement_View_Admin_Field($element, $this->allUsedElements);
     }
 
+    #[\Override]
     public function visitArtifactId(ArtifactIdField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_ArtifactId($element, $this->allUsedElements);
     }
 
+    #[\Override]
     public function visitPerTrackerArtifactId(PerTrackerArtifactIdField $element)
     {
         $this->visitArtifactId($element);
     }
 
+    #[\Override]
     public function visitCrossReferences(CrossReferencesField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_CrossReferences($element, $this->allUsedElements);
     }
 
+    #[\Override]
     public function visitBurndown(BurndownField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_Burndown($element, $this->allUsedElements);
     }
 
+    #[\Override]
     public function visitLastUpdateDate(LastUpdateDateField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_LastUpdateDate($element, $this->allUsedElements);
     }
 
+    #[\Override]
     public function visitPermissionsOnArtifact(PermissionsOnArtifactField $element)
     {
         $this->element      = $element;
@@ -197,64 +218,71 @@ class Tracker_FormElement_View_Admin_Visitor implements Tracker_FormElement_Visi
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_List($element, $this->allUsedElements);
     }
 
+    #[\Override]
     public function visitSelectbox(SelectboxField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_Selectbox($element, $this->allUsedElements);
     }
 
+    #[\Override]
     public function visitSubmittedBy(SubmittedByField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_SubmittedBy($element, $this->allUsedElements);
     }
 
+    #[\Override]
     public function visitLastModifiedBy(LastUpdateByField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_LastModifiedBy($element, $this->allUsedElements);
     }
 
+    #[\Override]
     public function visitSubmittedOn(SubmittedOnField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_SubmittedOn($element, $this->allUsedElements);
     }
 
+    #[\Override]
     public function visitMultiSelectbox(MultiSelectboxField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_MultiSelectbox($element, $this->allUsedElements);
     }
 
+    #[\Override]
     public function visitCheckbox(CheckboxField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_Checkbox($element, $this->allUsedElements);
     }
 
+    #[\Override]
     public function visitRadiobutton(RadioButtonField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Field_Radiobutton($element, $this->allUsedElements);
     }
 
-    private function visitContainer(Tracker_FormElement_Container $element)
+    private function visitContainer(TrackerFormElementContainer $element)
     {
         $this->adminElement = new Tracker_FormElement_View_Admin_Container($element, $this->allUsedElements);
     }
 
-    private function visitStaticField(Tracker_FormElement_StaticField $element)
+    private function visitStaticField(TrackerStaticField $element)
     {
         $this->adminElement = new Tracker_FormElement_View_Admin_StaticField($element, $this->allUsedElements);
     }
 
-    private function visitLineBreak(Tracker_FormElement_StaticField_LineBreak $element)
+    private function visitLineBreak(LineBreakStaticField $element)
     {
         $this->adminElement = new Tracker_FormElement_View_Admin_StaticField_LineBreak($element, $this->allUsedElements);
     }
 
-    private function visitSeparator(Tracker_FormElement_StaticField_Separator $element)
+    private function visitSeparator(SeparatorStaticField $element)
     {
         $this->adminElement = new Tracker_FormElement_View_Admin_StaticField_Separator($element, $this->allUsedElements);
     }
@@ -264,12 +292,14 @@ class Tracker_FormElement_View_Admin_Visitor implements Tracker_FormElement_Visi
         $this->adminElement = new Tracker_FormElement_View_Admin_Shared($element, $this->allUsedElements);
     }
 
+    #[\Override]
     public function visitPriority(PriorityField $element)
     {
         $this->element      = $element;
         $this->adminElement = new Tracker_FormElement_View_Admin_Priority($element, $this->allUsedElements);
     }
 
+    #[\Override]
     public function visitExternalField(TrackerFormElementExternalField $element)
     {
         $this->element      = $element;

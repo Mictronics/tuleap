@@ -33,8 +33,8 @@ namespace Tuleap\Git\GitPHP;
  */
 abstract class Controller_DiffBase extends ControllerBase // @codingStandardsIgnoreLine
 {
-    public const DIFF_UNIFIED    = 1;
-    public const DIFF_SIDEBYSIDE = 2;
+    public const int DIFF_UNIFIED    = 1;
+    public const int DIFF_SIDEBYSIDE = 2;
 
     /**
      * ReadQuery
@@ -43,6 +43,7 @@ abstract class Controller_DiffBase extends ControllerBase // @codingStandardsIgn
      *
      * @access protected
      */
+    #[\Override]
     protected function ReadQuery() // @codingStandardsIgnoreLine
     {
         if (! isset($this->params['plain']) || $this->params['plain'] != true) {
@@ -85,6 +86,7 @@ abstract class Controller_DiffBase extends ControllerBase // @codingStandardsIgn
      *
      * @access protected
      */
+    #[\Override]
     protected function LoadHeaders() // @codingStandardsIgnoreLine
     {
         if (isset($this->params['plain']) && ($this->params['plain'] === true)) {

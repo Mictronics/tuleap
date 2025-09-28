@@ -27,8 +27,9 @@ namespace Tuleap\Gitlab\Reference;
  */
 final class GitlabReferenceValueWithoutSeparatorSplitValuesBuilder implements GitlabReferenceSplitValuesBuilder
 {
-    private const SEPARATOR = '/';
+    private const string SEPARATOR = '/';
 
+    #[\Override]
     public function splitRepositoryNameAndReferencedItemId(string $value, int $project_id): GitlabReferenceSplittedValues
     {
         $last_separator = strrpos($value, self::SEPARATOR);

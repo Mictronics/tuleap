@@ -38,23 +38,25 @@ use function Psl\Json\encode;
 
 class CrossTrackerSearchWidget extends Widget
 {
-    public const NAME = 'crosstrackersearch';
+    public const string NAME = 'crosstrackersearch';
 
     public function __construct(
         private readonly WidgetInheritanceHandler $inheritance_handler,
         private readonly WidgetPermissionChecker $permission_checker,
-        private readonly SearchCrossTrackerWidget $search_cross_tracker_widget,
         private readonly WidgetCrossTrackerWidgetXMLExporter $widget_XML_exporter,
         private readonly CrossTrackerWidgetCreator $cross_tracker_widget_creator,
+        private readonly CrossTrackerWidgetRetriever $cross_tracker_widget_retriever,
     ) {
         parent::__construct(self::NAME);
     }
 
+    #[\Override]
     public function loadContent($id): void
     {
         $this->content_id = $id;
     }
 
+    #[\Override]
     public function getContent(): string
     {
         $renderer = TemplateRendererFactory::build()->getRenderer(
@@ -66,52 +68,61 @@ class CrossTrackerSearchWidget extends Widget
 
         $is_admin = $this->permission_checker->isUserWidgetAdmin($user, $this->content_id);
 
-        $row = $this->search_cross_tracker_widget->searchCrossTrackerWidgetDashboardById($this->content_id);
-        if ($row === null) {
-            throw new LogicException(sprintf('Widget #%d could not be found.', $this->content_id));
-        }
-
-        return $renderer->renderToString(
-            'cross-tracker-search-widget',
-            [
-                'widget_json_data' => encode(new CrossTrackerSearchWidgetPresenter(
-                    $this->content_id,
-                    $is_admin,
-                    $user,
-                    $row['dashboard_type'],
-                    $this->getTitleAttributeValue(),
-                    $this->getTitle(),
-                    $row['dashboard_id']
-                )),
-            ]
-        );
+        return $this->cross_tracker_widget_retriever->retrieveWidgetById($this->content_id)
+            ->match(
+                function (ProjectCrossTrackerWidget|UserCrossTrackerWidget $widget) use ($renderer, $is_admin, $user): string {
+                    return $renderer->renderToString(
+                        'cross-tracker-search-widget',
+                        [
+                            'widget_json_data' => encode(new CrossTrackerSearchWidgetPresenter(
+                                $this->content_id,
+                                $is_admin,
+                                $user,
+                                $widget->getDashboardType(),
+                                $this->getTitleAttributeValue(),
+                                $this->getTitle(),
+                                $widget->getDashboardId()
+                            )),
+                        ]
+                    );
+                },
+                function (): never {
+                    throw new LogicException(sprintf('Widget #%d could not be found.', $this->content_id));
+                }
+            );
     }
 
+    #[\Override]
     public function getDescription(): string
     {
         return dgettext('tuleap-crosstracker', 'Search into multiple trackers and multiple projects.');
     }
 
+    #[\Override]
     public function getIcon(): string
     {
         return 'fa-list-ul';
     }
 
+    #[\Override]
     public function getTitle(): string
     {
         return dgettext('tuleap-crosstracker', 'Cross trackers search');
     }
 
+    #[\Override]
     public function getCategory(): string
     {
         return dgettext('tuleap-tracker', 'Trackers');
     }
 
+    #[\Override]
     public function isUnique(): bool
     {
         return false;
     }
 
+    #[\Override]
     public function create(Codendi_Request $request): int|false
     {
             return $this->cross_tracker_widget_creator->createWithQueries($request)->match(
@@ -120,11 +131,13 @@ class CrossTrackerSearchWidget extends Widget
             );
     }
 
+    #[\Override]
     public function destroy($id): void
     {
         $this->getWidgetDao()->deleteWidget($id);
     }
 
+    #[\Override]
     public function cloneContent(
         Project $template_project,
         Project $new_project,
@@ -136,6 +149,7 @@ class CrossTrackerSearchWidget extends Widget
         return $this->inheritance_handler->handle($id);
     }
 
+    #[\Override]
     public function getJavascriptAssets(): array
     {
         return [
@@ -144,6 +158,7 @@ class CrossTrackerSearchWidget extends Widget
         ];
     }
 
+    #[\Override]
     public function getStylesheetDependencies(): CssAssetCollection
     {
         return new CssAssetCollection([
@@ -164,16 +179,19 @@ class CrossTrackerSearchWidget extends Widget
         return new CrossTrackerWidgetDao();
     }
 
+    #[\Override]
     public function isManagingItsOwnSection(): bool
     {
         return true;
     }
 
+    #[\Override]
     public function hasCustomTitle(): bool
     {
         return true;
     }
 
+    #[\Override]
     public function getPurifiedCustomTitle(): string
     {
         $renderer = TemplateRendererFactory::build()->getRenderer(
@@ -186,6 +204,7 @@ class CrossTrackerSearchWidget extends Widget
         );
     }
 
+    #[\Override]
     public function exportAsXML(): ?SimpleXMLElement
     {
         return $this->widget_XML_exporter->generateXML($this->content_id)->match(

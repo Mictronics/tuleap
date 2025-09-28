@@ -28,7 +28,7 @@ use Tuleap\Tracker\FormElement\XML\XMLReference;
 
 final class XMLPieChart extends XMLChart
 {
-    private const TYPE = 'pie';
+    private const string TYPE = 'pie';
 
     /**
      * @readonly
@@ -45,6 +45,7 @@ final class XMLPieChart extends XMLChart
         return $new;
     }
 
+    #[\Override]
     public function export(SimpleXMLElement $renderers, XMLFormElementFlattenedCollection $form_elements): SimpleXMLElement
     {
         $renderer_xml = parent::export($renderers, $form_elements);

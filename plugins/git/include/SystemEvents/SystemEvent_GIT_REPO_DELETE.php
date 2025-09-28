@@ -25,9 +25,9 @@ use Tuleap\Git\Notifications\UsersToNotifyDao;
 /**
  * Description of SystemEvent_GIT_REPO_DELETE
  */
-class SystemEvent_GIT_REPO_DELETE extends SystemEvent
+class SystemEvent_GIT_REPO_DELETE extends SystemEvent //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
 {
-    public const NAME = 'GIT_REPO_DELETE';
+    public const string NAME = 'GIT_REPO_DELETE';
 
     /** @var EventManager */
     private $event_manager;
@@ -58,6 +58,7 @@ class SystemEvent_GIT_REPO_DELETE extends SystemEvent
         $this->event_manager         = $event_manager;
     }
 
+    #[\Override]
     public function process()
     {
         $parameters = $this->getParametersAsArray();
@@ -110,6 +111,7 @@ class SystemEvent_GIT_REPO_DELETE extends SystemEvent
         return true;
     }
 
+    #[\Override]
     public function verbalizeParameters($with_link)
     {
         return $this->parameters;

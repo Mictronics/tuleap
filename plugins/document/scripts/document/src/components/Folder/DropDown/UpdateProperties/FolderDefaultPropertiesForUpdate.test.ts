@@ -26,11 +26,8 @@ import { TYPE_FOLDER } from "../../../../constants";
 import type { Folder, Property, ListValue } from "../../../../type";
 import type { PropertiesState } from "../../../../store/properties/module";
 import emitter from "../../../../helpers/emitter";
-import { IS_STATUS_PROPERTY_USED, PROJECT_ID } from "../../../../configuration-keys";
-
-vi.mock("tlp", () => {
-    return { datePicker: vi.fn() };
-});
+import { IS_STATUS_PROPERTY_USED, PROJECT } from "../../../../configuration-keys";
+import { ProjectBuilder } from "../../../../../tests/builders/ProjectBuilder";
 
 describe("FolderDefaultPropertiesForUpdate", () => {
     let load_properties: vi.Mock;
@@ -67,7 +64,7 @@ describe("FolderDefaultPropertiesForUpdate", () => {
                     },
                 }),
                 provide: {
-                    [PROJECT_ID.valueOf()]: 101,
+                    [PROJECT.valueOf()]: new ProjectBuilder(101).build(),
                     [IS_STATUS_PROPERTY_USED.valueOf()]: is_status_property_used,
                 },
             },

@@ -36,7 +36,6 @@ use Widget_MyAdmin;
 use Widget_MyArtifacts;
 use Widget_MyBookmarks;
 use Widget_MyImageViewer;
-use Widget_MyMonitoredForums;
 use Widget_MyMonitoredFp;
 use Widget_MyRss;
 use Widget_MySystemEvent;
@@ -73,6 +72,7 @@ class WidgetFactory implements IBuildInstanceOfWidgets
         $this->event_manager                    = $event_manager;
     }
 
+    #[\Override]
     public function getInstanceByWidgetName(string $widget_name): ?\Widget
     {
         $widget             = null;
@@ -85,9 +85,6 @@ class WidgetFactory implements IBuildInstanceOfWidgets
                 break;
             case 'mybookmarks':
                 $widget = new Widget_MyBookmarks();
-                break;
-            case 'mymonitoredforums':
-                $widget = new Widget_MyMonitoredForums();
                 break;
             case 'mymonitoredfp':
                 $widget = new Widget_MyMonitoredFp();
@@ -132,9 +129,6 @@ class WidgetFactory implements IBuildInstanceOfWidgets
                 break;
             case 'projectlatestfilereleases':
                 $widget = new Widget_ProjectLatestFileReleases();
-                break;
-            case 'projectlatestnews':
-                $widget = new Widget_ProjectLatestNews();
                 break;
             case 'projectpublicareas':
                 $widget = new Widget_ProjectPublicAreas();
