@@ -22,8 +22,6 @@ declare(strict_types=1);
 
 namespace Tuleap\AgileDashboard\REST\v1;
 
-use AgileDashboard_Milestone_Backlog_BacklogFactory;
-use AgileDashboard_Milestone_Backlog_BacklogItemBuilder;
 use AgileDashboard_Milestone_Backlog_IBacklogItemCollection;
 use Planning_MilestoneFactory;
 use PlanningFactory;
@@ -31,7 +29,9 @@ use Tracker_ArtifactFactory;
 use Tracker_FormElementFactory;
 use Tuleap\AgileDashboard\BacklogItemDao;
 use Tuleap\AgileDashboard\ExplicitBacklog\ArtifactsInExplicitBacklogDao;
+use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemBuilder;
 use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemCollectionFactory;
+use Tuleap\AgileDashboard\Milestone\Backlog\MilestoneBacklogFactory;
 use Tuleap\AgileDashboard\RemainingEffortValueRetriever;
 use Tuleap\Tracker\Artifact\Dao\PriorityDao;
 use Tuleap\Tracker\Semantic\Status\CachedSemanticStatusFieldRetriever;
@@ -40,7 +40,7 @@ use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
 class ContentForMiletoneProvider
 {
     public function __construct(
-        private readonly AgileDashboard_Milestone_Backlog_BacklogFactory $backlog_factory,
+        private readonly MilestoneBacklogFactory $backlog_factory,
         private readonly BacklogItemCollectionFactory $backlog_item_collection_factory,
     ) {
     }
@@ -51,7 +51,7 @@ class ContentForMiletoneProvider
         $tracker_artifact_factory = Tracker_ArtifactFactory::instance();
 
         return new self(
-            new AgileDashboard_Milestone_Backlog_BacklogFactory(
+            new MilestoneBacklogFactory(
                 new BacklogItemDao(),
                 $tracker_artifact_factory,
                 $planning_factory,
@@ -62,7 +62,7 @@ class ContentForMiletoneProvider
                 $tracker_artifact_factory,
                 $milestone_factory,
                 $planning_factory,
-                new AgileDashboard_Milestone_Backlog_BacklogItemBuilder(),
+                new BacklogItemBuilder(),
                 new RemainingEffortValueRetriever(
                     Tracker_FormElementFactory::instance()
                 ),

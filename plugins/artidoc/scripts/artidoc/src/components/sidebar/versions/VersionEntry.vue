@@ -19,8 +19,11 @@
   -->
 
 <template>
-    <div>
-        {{ title }}
+    <section>
+        <h1 v-bind:class="{ 'version-with-title': version.title.isValue() }">
+            <span>{{ title }}</span>
+            <version-toggle v-if="toggle_state" v-bind:toggle_state="toggle_state" />
+        </h1>
         <div class="metadata">
             <tlp-relative-date
                 v-bind:date="version.created_on.toISOString()"
@@ -37,13 +40,13 @@
                     ><img
                         loading="lazy"
                         v-bind:src="version.created_by.avatar_url"
-                        data-test="user-list-item-avatar"
                         v-bind:alt="$gettext('User avatar')"
                 /></span>
                 {{ version.created_by.display_name }}
             </span>
         </div>
-    </div>
+        <version-description v-bind:version="version" />
+    </section>
 </template>
 
 <script setup lang="ts">
@@ -55,8 +58,11 @@ import { USER_PREFERENCES } from "@/user-preferences-injection-key";
 import { IntlFormatter } from "@tuleap/date-helper";
 import { relativeDatePlacement, relativeDatePreference } from "@tuleap/tlp-relative-date";
 import { strictInject } from "@tuleap/vue-strict-inject";
+import VersionDescription from "@/components/sidebar/versions/VersionDescription.vue";
+import VersionToggle from "@/components/sidebar/versions/VersionToggle.vue";
+import type { ToggleState } from "@/components/sidebar/versions/toggle-state";
 
-const props = defineProps<{ version: Version }>();
+const props = defineProps<{ version: Version; toggle_state?: ToggleState }>();
 
 const { $gettext } = useGettext();
 
@@ -78,11 +84,30 @@ const formatted_date = computed((): string =>
     formatter.format(props.version.created_on.toISOString()),
 );
 
-const title = computed(() => props.version.title ?? formatted_date.value);
+const title = computed(() => props.version.title.unwrapOr(formatted_date.value));
 </script>
 
 <style scoped lang="scss">
+section {
+    width: calc(100% - var(--tlp-medium-spacing));
+}
+
+h1 {
+    margin: 0;
+    color: inherit;
+    font-size: inherit;
+    font-weight: normal;
+}
+
+.version-with-title {
+    font-weight: 500;
+}
+
 .metadata {
     font-size: 0.75rem;
+
+    &:not(:last-child) {
+        margin: 0 0 var(--tlp-small-spacing);
+    }
 }
 </style>

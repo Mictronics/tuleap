@@ -29,11 +29,9 @@ import {
     putWikiProperties,
 } from "../../api/properties-rest-querier";
 import { getCustomProperties } from "../../helpers/properties-helpers/custom-properties-helper";
-import { getItem, getItemWithSize } from "../../api/rest-querier";
-import { formatCustomPropertiesForFolderUpdate } from "../../helpers/properties-helpers/update-data-transformatter-helper";
+import { getItem } from "../../api/rest-querier";
 import type { ActionContext } from "vuex";
-import type { FolderStatus, Folder, FolderProperties, Item, RootState } from "../../type";
-import type { PropertiesState } from "./module";
+import type { FolderStatus, Folder, Item, RootState } from "../../type";
 import {
     isEmbedded,
     isFile,
@@ -48,12 +46,10 @@ import emitter from "../../helpers/emitter";
 export interface PropertiesActions {
     readonly loadProjectProperties: typeof loadProjectProperties;
     readonly updateProperties: typeof updateProperties;
-    readonly updateFolderProperties: typeof updateFolderProperties;
-    readonly getFolderProperties: typeof getFolderProperties;
 }
 
 export const loadProjectProperties = async (
-    context: ActionContext<PropertiesState, RootState>,
+    context: ActionContext<RootState, RootState>,
     project_id: number,
 ): Promise<void> => {
     try {
@@ -65,14 +61,15 @@ export const loadProjectProperties = async (
     }
 };
 
-interface UpdatePropertiesPayload {
+export interface UpdatePropertiesPayload {
     item: Item;
     item_to_update: Item;
     current_folder: Folder;
+    is_status_property_used: boolean;
 }
 
 export const updateProperties = async (
-    context: ActionContext<PropertiesState, RootState>,
+    context: ActionContext<RootState, RootState>,
     payload: UpdatePropertiesPayload,
 ): Promise<void> => {
     const item_to_update = payload.item_to_update;
@@ -144,11 +141,8 @@ export const updateProperties = async (
                 custom_properties,
             );
         } else if (isFolder(item_to_update)) {
-            const is_status_property_used: boolean =
-                context.rootState.configuration.is_status_property_used;
-
             let recursion = "none";
-            if (is_status_property_used) {
+            if (payload.is_status_property_used) {
                 recursion = item_to_update.status.recursion;
             }
             const status: FolderStatus = {
@@ -183,43 +177,5 @@ export const updateProperties = async (
     } catch (exception) {
         await context.dispatch("error/handleErrorsForModal", exception, { root: true });
         throw exception;
-    }
-};
-
-interface UpdateFolderPropertiesPayload {
-    item: Folder;
-    item_to_update: Folder;
-    current_folder: Folder;
-    properties_to_update: Array<string>;
-    recursion_option: string;
-}
-
-export const updateFolderProperties = async (
-    context: ActionContext<PropertiesState, RootState>,
-    payload: UpdateFolderPropertiesPayload,
-): Promise<void> => {
-    const updated_item = formatCustomPropertiesForFolderUpdate(
-        payload.item_to_update,
-        payload.properties_to_update,
-        payload.recursion_option,
-    );
-    const update_payload: UpdatePropertiesPayload = {
-        item: payload.item,
-        item_to_update: updated_item,
-        current_folder: payload.current_folder,
-    };
-    await updateProperties(context, update_payload);
-};
-
-export const getFolderProperties = async (
-    context: ActionContext<PropertiesState, RootState>,
-    folder_item: Folder,
-): Promise<FolderProperties | null> => {
-    try {
-        const folder = await getItemWithSize(folder_item.id);
-        return folder.folder_properties;
-    } catch (exception) {
-        await context.dispatch("error/handleGlobalModalError", exception);
-        return null;
     }
 };

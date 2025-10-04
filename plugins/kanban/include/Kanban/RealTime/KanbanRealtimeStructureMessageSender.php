@@ -17,7 +17,9 @@
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
+
 declare(strict_types=1);
+
 namespace Tuleap\Kanban\RealTime;
 
 use TrackerFactory;
@@ -30,7 +32,7 @@ use Tuleap\RealTimeMercure\MercureClient;
 
 class KanbanRealtimeStructureMessageSender
 {
-    public const HTTP_CLIENT_UUID = 'HTTP_X_CLIENT_UUID';
+    public const string HTTP_CLIENT_UUID = 'HTTP_X_CLIENT_UUID';
     public function __construct(
         private readonly TrackerFactory $tracker_factory,
         private readonly KanbanStructureRealTimeMercure $structure_realtime_kanban,

@@ -35,9 +35,14 @@
     />
 </template>
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref } from "vue";
+import { onBeforeUnmount, onMounted, ref, provide } from "vue";
 import { strictInject } from "@tuleap/vue-strict-inject";
-import { EMITTER, IS_USER_ADMIN, WIDGET_TITLE_UPDATER } from "./injection-symbols";
+import {
+    EMITTER,
+    IS_USER_ADMIN,
+    TABLE_DATA_STORE,
+    WIDGET_TITLE_UPDATER,
+} from "./injection-symbols";
 import type {
     CreatedQueryEvent,
     EditedQueryEvent,
@@ -63,10 +68,12 @@ import ReadQuery from "./components/ReadQuery.vue";
 import FeedbackMessage from "./components/feedback/FeedbackMessage.vue";
 import EditQuery from "./components/query/edition/EditQuery.vue";
 import type { Query } from "./type";
+import { TableDataStore } from "./domain/TableDataStore";
 
 const is_user_admin = strictInject(IS_USER_ADMIN);
 const emitter = strictInject(EMITTER);
 const widget_title_updater = strictInject(WIDGET_TITLE_UPDATER);
+const table_data_store = TableDataStore(emitter);
 
 const widget_pane = ref(QUERY_ACTIVE_PANE);
 const selected_query = ref<Query>();
@@ -77,6 +84,8 @@ const query_to_edit = ref<Query>({
     title: "",
     tql_query: "",
 });
+
+provide(TABLE_DATA_STORE, table_data_store);
 
 function displayActiveQuery(): void {
     widget_pane.value = QUERY_ACTIVE_PANE;
@@ -90,6 +99,7 @@ onMounted(() => {
     emitter.on(NEW_QUERY_CREATED_EVENT, setCurrentlySelectedQuery);
     emitter.on(QUERY_EDITED_EVENT, setCurrentlySelectedQuery);
     widget_title_updater.listenToUpdateTitle();
+    table_data_store.listen();
 });
 
 onBeforeUnmount(() => {
@@ -101,6 +111,7 @@ onBeforeUnmount(() => {
     emitter.off(QUERY_EDITED_EVENT, setCurrentlySelectedQuery);
     emitter.all.clear();
     widget_title_updater.removeListener();
+    table_data_store.removeListeners();
 });
 
 function setCurrentlySelectedQuery(

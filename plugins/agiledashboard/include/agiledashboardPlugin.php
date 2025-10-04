@@ -62,7 +62,10 @@ use Tuleap\AgileDashboard\FormElement\MessageFetcher;
 use Tuleap\AgileDashboard\Masschange\AdditionalMasschangeActionProcessor;
 use Tuleap\AgileDashboard\Milestone\AllBreadCrumbsForMilestoneBuilder;
 use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItem;
+use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemBuilder;
 use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemCollectionFactory;
+use Tuleap\AgileDashboard\Milestone\Backlog\IBuildBacklogItemAndBacklogItemCollection;
+use Tuleap\AgileDashboard\Milestone\Backlog\MilestoneBacklogFactory;
 use Tuleap\AgileDashboard\Milestone\MilestoneDao;
 use Tuleap\AgileDashboard\Milestone\MilestoneReportCriterionDao;
 use Tuleap\AgileDashboard\Milestone\Sidebar\MilestonesInSidebarDao;
@@ -71,6 +74,7 @@ use Tuleap\AgileDashboard\Planning\BacklogHistoryEntry;
 use Tuleap\AgileDashboard\Planning\PlanningDao;
 use Tuleap\AgileDashboard\Planning\PlanningTrackerBacklogChecker;
 use Tuleap\AgileDashboard\Planning\XML\ProvideCurrentUserForXMLImport;
+use Tuleap\AgileDashboard\Priority\SequenceIdManager;
 use Tuleap\AgileDashboard\RemainingEffortValueRetriever;
 use Tuleap\AgileDashboard\Semantic\XML\SemanticsExporter;
 use Tuleap\AgileDashboard\SplitModalPresenter;
@@ -204,7 +208,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
 
     public const string USER_PREF_DISPLAY_SPLIT_MODAL = 'should_display_agiledashboard_split_modal';
 
-    /** @var AgileDashboard_SequenceIdManager */
+    /** @var SequenceIdManager */
     private $sequence_id_manager;
 
     /**
@@ -542,7 +546,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
                 $this->getBacklogFactory(),
                 $this->getBacklogItemCollectionFactory(
                     $this->getMilestoneFactory(),
-                    new AgileDashboard_Milestone_Backlog_BacklogItemBuilder()
+                    new BacklogItemBuilder()
                 ),
                 $this->getPlanningFactory(),
                 new ExplicitBacklogDao(),
@@ -815,7 +819,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
 
     private function getBacklogFactory()
     {
-        return new AgileDashboard_Milestone_Backlog_BacklogFactory(
+        return new MilestoneBacklogFactory(
             new BacklogItemDao(),
             $this->getArtifactFactory(),
             PlanningFactory::build(),
@@ -995,11 +999,11 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
     private function getSequenceIdManager()
     {
         if (! $this->sequence_id_manager) {
-            $this->sequence_id_manager = new AgileDashboard_SequenceIdManager(
+            $this->sequence_id_manager = new SequenceIdManager(
                 $this->getBacklogFactory(),
                 $this->getBacklogItemCollectionFactory(
                     $this->getMilestoneFactory(),
-                    new AgileDashboard_Milestone_Backlog_BacklogItemBuilder()
+                    new BacklogItemBuilder()
                 )
             );
         }
@@ -1061,7 +1065,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
         $backlog_factory                 = $this->getBacklogFactory();
         $backlog_item_collection_factory = $this->getBacklogItemCollectionFactory(
             $milestone_factory,
-            new AgileDashboard_Milestone_Backlog_BacklogItemBuilder()
+            new BacklogItemBuilder()
         );
 
         $user         = $event->getUser();
@@ -1378,7 +1382,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
 
     private function getBacklogItemCollectionFactory(
         Planning_MilestoneFactory $milestone_factory,
-        AgileDashboard_Milestone_Backlog_IBuildBacklogItemAndBacklogItemCollection $presenter_builder,
+        IBuildBacklogItemAndBacklogItemCollection $presenter_builder,
     ): BacklogItemCollectionFactory {
         $form_element_factory = Tracker_FormElementFactory::instance();
 

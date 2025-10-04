@@ -26,7 +26,8 @@ export default vite.defineAppConfig(
         build: {
             rollupOptions: {
                 input: {
-                    register: path.resolve(__dirname, "src/index.ts"),
+                    "main-anonymous": path.resolve(__dirname, "src/main-anonymous.ts"),
+                    "main-site-admin": path.resolve(__dirname, "src/main-site-admin.ts"),
                 },
             },
         },

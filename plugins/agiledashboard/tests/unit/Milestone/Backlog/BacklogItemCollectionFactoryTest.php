@@ -22,10 +22,8 @@ declare(strict_types=1);
 
 namespace Tuleap\AgileDashboard\Milestone\Backlog;
 
-use AgileDashboard_Milestone_Backlog_Backlog;
 use AgileDashboard_Milestone_Backlog_BacklogItemCollection;
 use AgileDashboard_Milestone_Backlog_DescendantItemsCollection;
-use AgileDashboard_Milestone_Backlog_IBuildBacklogItemAndBacklogItemCollection;
 use Override;
 use PHPUnit\Framework\MockObject\MockObject;
 use Planning_Milestone;
@@ -33,7 +31,6 @@ use Planning_MilestoneFactory;
 use PlanningFactory;
 use Tracker_ArtifactFactory;
 use Tuleap\AgileDashboard\BacklogItemDao;
-use Tuleap\AgileDashboard\BacklogItemPresenter;
 use Tuleap\AgileDashboard\ExplicitBacklog\ArtifactsInExplicitBacklogDao;
 use Tuleap\AgileDashboard\RemainingEffortValueRetriever;
 use Tuleap\AgileDashboard\Test\Builders\PlanningBuilder;
@@ -57,7 +54,7 @@ final class BacklogItemCollectionFactoryTest extends TestCase
     private Tracker_ArtifactFactory&MockObject $artifact_factory;
     private Planning_MilestoneFactory&MockObject $milestone_factory;
     private PlanningFactory&MockObject $planning_factory;
-    private AgileDashboard_Milestone_Backlog_IBuildBacklogItemAndBacklogItemCollection&MockObject $backlog_item_builder;
+    private IBuildBacklogItemAndBacklogItemCollection&MockObject $backlog_item_builder;
     private RemainingEffortValueRetriever&MockObject $remaining_effort_value_retriever;
     private ArtifactsInExplicitBacklogDao&MockObject $artifacts_in_explicit_backlog_dao;
     private BacklogItemDao&MockObject $dao;
@@ -70,7 +67,7 @@ final class BacklogItemCollectionFactoryTest extends TestCase
         $this->milestone_factory                 = $this->createMock(Planning_MilestoneFactory::class);
         $this->planning_factory                  = $this->createMock(PlanningFactory::class);
         $this->backlog_item_builder              = $this->createMock(
-            AgileDashboard_Milestone_Backlog_IBuildBacklogItemAndBacklogItemCollection::class
+            IBuildBacklogItemAndBacklogItemCollection::class
         );
         $this->remaining_effort_value_retriever  = $this->createMock(RemainingEffortValueRetriever::class);
         $this->artifacts_in_explicit_backlog_dao = $this->createMock(ArtifactsInExplicitBacklogDao::class);
@@ -105,7 +102,7 @@ final class BacklogItemCollectionFactoryTest extends TestCase
         $milestone = $this->createMock(Planning_Milestone::class);
         $milestone->method('getArtifactId')->willReturn(42);
 
-        $backlog                     = $this->createMock(AgileDashboard_Milestone_Backlog_Backlog::class);
+        $backlog                     = $this->createMock(MilestoneBacklog::class);
         $descendant_items_collection = new AgileDashboard_Milestone_Backlog_DescendantItemsCollection();
 
         $artifact = ArtifactTestBuilder::anArtifact(10)
@@ -173,7 +170,7 @@ final class BacklogItemCollectionFactoryTest extends TestCase
         $milestone = $this->createMock(Planning_Milestone::class);
         $milestone->method('getArtifactId')->willReturn(42);
 
-        $backlog                     = $this->createMock(AgileDashboard_Milestone_Backlog_Backlog::class);
+        $backlog                     = $this->createMock(MilestoneBacklog::class);
         $descendant_items_collection = new AgileDashboard_Milestone_Backlog_DescendantItemsCollection();
 
         $artifact = ArtifactTestBuilder::anArtifact(10)->build();
@@ -240,7 +237,7 @@ final class BacklogItemCollectionFactoryTest extends TestCase
         $milestone = $this->createMock(Planning_Milestone::class);
         $milestone->method('getArtifactId')->willReturn(42);
 
-        $backlog = $this->createMock(AgileDashboard_Milestone_Backlog_Backlog::class);
+        $backlog = $this->createMock(MilestoneBacklog::class);
 
         $open_unplanned_collection = new AgileDashboard_Milestone_Backlog_DescendantItemsCollection();
         $open_unplanned_collection->push(ArtifactTestBuilder::anArtifact(8)->build());
@@ -290,7 +287,7 @@ final class BacklogItemCollectionFactoryTest extends TestCase
         $milestone = $this->createMock(Planning_Milestone::class);
         $milestone->method('getArtifactId')->willReturn(42);
 
-        $backlog = $this->createMock(AgileDashboard_Milestone_Backlog_Backlog::class);
+        $backlog = $this->createMock(MilestoneBacklog::class);
 
         $this->milestone_factory->method('getSubMilestoneIds')->willReturn($all_possible_artifacts);
 
@@ -345,7 +342,7 @@ final class BacklogItemCollectionFactoryTest extends TestCase
         $milestone = $this->createMock(Planning_Milestone::class);
         $milestone->method('getArtifactId')->willReturn(42);
 
-        $backlog = $this->createMock(AgileDashboard_Milestone_Backlog_Backlog::class);
+        $backlog = $this->createMock(MilestoneBacklog::class);
 
         $this->milestone_factory->method('getSubMilestoneIds')->willReturn($all_possible_artifacts);
 
@@ -441,7 +438,7 @@ final class BacklogItemCollectionFactoryTest extends TestCase
         $milestone = $this->createMock(Planning_Milestone::class);
         $milestone->method('getArtifactId')->willReturn(1);
 
-        $backlog = $this->createMock(AgileDashboard_Milestone_Backlog_Backlog::class);
+        $backlog = $this->createMock(MilestoneBacklog::class);
 
         $backlog_item_collection = new AgileDashboard_Milestone_Backlog_BacklogItemCollection();
 

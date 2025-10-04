@@ -69,7 +69,6 @@ use Tuleap\Config\ConfigurationVariables;
 use Tuleap\Config\FeatureFlagController;
 use Tuleap\ContentSecurityPolicy\CSPViolationReportToController;
 use Tuleap\CookieManager;
-use Tuleap\Core\RSS\News\LatestNewsController;
 use Tuleap\Core\RSS\Project\LatestProjectController;
 use Tuleap\Core\RSS\Project\LatestProjectDao;
 use Tuleap\CSRF\CSRFSessionKeyCookieStorage;
@@ -114,6 +113,7 @@ use Tuleap\InviteBuddy\InviteBuddyConfiguration;
 use Tuleap\InviteBuddy\PrefixTokenInvitation;
 use Tuleap\InviteBuddy\ProjectMemberAccordingToInvitationAdder;
 use Tuleap\Language\LocaleSwitcher;
+use Tuleap\Layout\CssAssetWithoutVariantDeclinaisons;
 use Tuleap\Layout\Feedback\FeedbackSerializer;
 use Tuleap\Layout\IncludeAssets;
 use Tuleap\Layout\IncludeCoreAssets;
@@ -127,7 +127,6 @@ use Tuleap\Markdown\CodeBlockFeatures;
 use Tuleap\Markdown\CommonMarkInterpreter;
 use Tuleap\Markdown\CommonMarkInterpreterController;
 use Tuleap\Markdown\EnhancedCodeBlockExtension;
-use Tuleap\News\NewsDao;
 use Tuleap\OAuth2ServerCore\OAuth2ServerRoutes;
 use Tuleap\Password\Administration\PasswordPolicyDisplayController;
 use Tuleap\Password\Administration\PasswordPolicyUpdateController;
@@ -822,11 +821,6 @@ class RouteCollector
         return new LatestProjectController(new LatestProjectDao(), \ProjectManager::instance(), Codendi_HTMLPurifier::instance());
     }
 
-    public static function getRssLatestNews()
-    {
-        return new LatestNewsController(new NewsDao(), Codendi_HTMLPurifier::instance());
-    }
-
     public static function getProjectAdminMembersController(): DispatchableWithRequest
     {
         return ProjectMembersController::buildSelf();
@@ -950,13 +944,15 @@ class RouteCollector
 
     public static function getGetPlatformBannerAdministration(): DispatchableWithRequest
     {
+        $assets = new IncludeAssets(
+            __DIR__ . '/../../scripts/platform-admin-banner/frontend-assets',
+            '/assets/core/platform-admin-banner'
+        );
         return new PlatformBannerAdministrationController(
             new AdminPageRenderer(),
             new JavascriptAsset(new \Tuleap\Layout\IncludeCoreAssets(), 'ckeditor.js'),
-            new JavascriptAsset(
-                new IncludeAssets(__DIR__ . '/../../scripts/platform-admin-banner/frontend-assets', '/assets/core/platform-admin-banner'),
-                'platform-admin-banner.js'
-            ),
+            new JavascriptAsset($assets, 'platform-admin-banner.js'),
+            new CssAssetWithoutVariantDeclinaisons($assets, 'platform-admin-banner-styles'),
             new \Tuleap\Platform\Banner\BannerRetriever(new \Tuleap\Platform\Banner\BannerDao())
         );
     }
@@ -1688,7 +1684,6 @@ class RouteCollector
         });
 
         $r->get('/export/rss_sfprojects.php', [self::class, 'getRssLatestProjects']);
-        $r->get('/export/rss_sfnews.php', [self::class, 'getRssLatestNews']);
 
         $r->post('/csp-violation', [self::class, 'getCSPViolationReportToController']);
 
