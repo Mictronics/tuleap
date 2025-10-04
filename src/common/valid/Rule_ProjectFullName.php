@@ -26,7 +26,7 @@
  *
  * This extends the user name validation
  */
-class Rule_ProjectFullName extends \Rule_UserName // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
+class Rule_ProjectFullName extends \Rule_UserName // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotPascalCase
 {
     /**
      * Check validity
@@ -40,16 +40,5 @@ class Rule_ProjectFullName extends \Rule_UserName // phpcs:ignore PSR1.Classes.C
     {
         $val = \trim($val);
         return ! $this->lessThanMin($val) && ! $this->greaterThanMax($val, 40);
-    }
-
-    /**
-     * Error message
-     *
-     * @return string
-     */
-    #[\Override]
-    public function getErrorMessage($key = '')
-    {
-        return $this->error;
     }
 }

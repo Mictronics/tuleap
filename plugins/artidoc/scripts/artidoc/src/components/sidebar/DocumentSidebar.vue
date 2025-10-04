@@ -37,7 +37,7 @@
                     v-bind:current_tab="current_tab"
                 />
                 <table-of-contents v-if="current_tab === TOC_TAB" />
-                <list-of-versions v-if="current_tab === VERSIONS_TAB" />
+                <artidoc-versions v-if="current_tab === VERSIONS_TAB" />
             </div>
         </div>
     </aside>
@@ -52,7 +52,8 @@ import { strictInject } from "@tuleap/vue-strict-inject";
 import { ARE_VERSIONS_DISPLAYED } from "@/can-user-display-versions-injection-key";
 import type { SidebarTab } from "@/components/sidebar/document-sidebar";
 import { VERSIONS_TAB, TOC_TAB } from "@/components/sidebar/document-sidebar";
-import ListOfVersions from "@/components/sidebar/versions/ListOfVersions.vue";
+import ArtidocVersions from "@/components/sidebar/versions/ArtidocVersions.vue";
+import { REGISTER_VERSIONS_SHORTCUT_HANDLER } from "@/register-shortcut-handler-injection-keys";
 
 const are_versions_displayed = strictInject(ARE_VERSIONS_DISPLAYED);
 
@@ -82,6 +83,11 @@ function toggle(): void {
 function switchTab(tab: SidebarTab): void {
     current_tab.value = tab;
 }
+
+strictInject(REGISTER_VERSIONS_SHORTCUT_HANDLER)(() => {
+    are_versions_displayed.value = true;
+    switchTab(VERSIONS_TAB);
+});
 </script>
 
 <style scoped lang="scss">

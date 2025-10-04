@@ -25,12 +25,12 @@ use SystemEvent;
 use Tuleap\Mediawiki\Migration\MoveToCentralDbDao;
 use Exception;
 
-// @codingStandardsIgnoreLine
+// phpcs:ignore
 class SystemEvent_MEDIAWIKI_TO_CENTRAL_DB extends SystemEvent
 {
-    public const NAME = 'MEDIAWIKI_TO_CENTRAL_DB';
+    public const string NAME = 'MEDIAWIKI_TO_CENTRAL_DB';
 
-    public const ALL = 'all';
+    public const string ALL = 'all';
 
     /** @var MoveToCentralDbDao */
     private $move_to_central_db;

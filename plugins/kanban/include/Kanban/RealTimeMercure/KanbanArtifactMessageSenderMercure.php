@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
+
 declare(strict_types=1);
 
 namespace Tuleap\Kanban\RealTimeMercure;
@@ -27,11 +28,11 @@ use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
 
 class KanbanArtifactMessageSenderMercure
 {
-    public const EVENT_NAME_ARTIFACT_CREATED = 'kanban_item:create';
-    public const EVENT_NAME_ARTIFACT_UPDATED = 'kanban_item:update';
-    public const EVENT_NAME_ARTIFACT_MOVED   = 'kanban_item:move';
+    public const string EVENT_NAME_ARTIFACT_CREATED = 'kanban_item:create';
+    public const string EVENT_NAME_ARTIFACT_UPDATED = 'kanban_item:update';
+    public const string EVENT_NAME_ARTIFACT_MOVED   = 'kanban_item:move';
 
-    public const KANBAN_TOPIC = 'Kanban/';
+    public const string KANBAN_TOPIC = 'Kanban/';
 
     public function __construct(
         private readonly RealTimeMercureArtifactMessageSender $artifact_message_sender,

@@ -20,8 +20,6 @@
 
 namespace Tuleap\AgileDashboard\REST\v1;
 
-use AgileDashboard_Milestone_Backlog_BacklogFactory;
-use AgileDashboard_Milestone_Backlog_BacklogItemBuilder;
 use BacklogItemReference;
 use EventManager;
 use Luracast\Restler\RestException;
@@ -43,7 +41,9 @@ use TransitionFactory;
 use Tuleap\AgileDashboard\BacklogItem\AgileDashboard_BacklogItem_PaginatedBacklogItemsRepresentationsBuilder;
 use Tuleap\AgileDashboard\BacklogItemDao;
 use Tuleap\AgileDashboard\ExplicitBacklog\ArtifactsInExplicitBacklogDao;
+use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemBuilder;
 use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemCollectionFactory;
+use Tuleap\AgileDashboard\Milestone\Backlog\MilestoneBacklogFactory;
 use Tuleap\AgileDashboard\Milestone\ParentTrackerRetriever;
 use Tuleap\AgileDashboard\Milestone\Request\MalformedQueryParameterException;
 use Tuleap\AgileDashboard\Milestone\Request\SiblingMilestoneRequest;
@@ -155,7 +155,7 @@ class MilestoneResource extends AuthenticatedResource
     /** @var ArtifactLinkUpdater */
     private $artifactlink_updater;
 
-    /** @var AgileDashboard_Milestone_Backlog_BacklogFactory */
+    /** @var MilestoneBacklogFactory */
     private $backlog_factory;
 
     /** @var Tracker_ArtifactFactory */
@@ -186,7 +186,7 @@ class MilestoneResource extends AuthenticatedResource
 
         $this->milestone_factory = Planning_MilestoneFactory::build();
 
-        $this->backlog_factory = new AgileDashboard_Milestone_Backlog_BacklogFactory(
+        $this->backlog_factory = new MilestoneBacklogFactory(
             new BacklogItemDao(),
             $this->tracker_artifact_factory,
             $planning_factory,
@@ -198,7 +198,7 @@ class MilestoneResource extends AuthenticatedResource
             $this->tracker_artifact_factory,
             $this->milestone_factory,
             $planning_factory,
-            new AgileDashboard_Milestone_Backlog_BacklogItemBuilder(),
+            new BacklogItemBuilder(),
             new RemainingEffortValueRetriever(Tracker_FormElementFactory::instance()),
             new ArtifactsInExplicitBacklogDao(),
             new PriorityDao(),

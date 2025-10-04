@@ -29,9 +29,9 @@ use Tuleap\LDAP\User\LdapLoginFromTuleapUserIdProvider;
 use Tuleap\User\DataIncompatibleWithUsernameGenerationException;
 use Tuleap\User\UserNameNormalizer;
 
-class LDAP_UserManager implements LdapLoginFromTuleapUserIdProvider //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+class LDAP_UserManager implements LdapLoginFromTuleapUserIdProvider //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 {
-    public const EVENT_UPDATE_LOGIN = 'PLUGIN_LDAP_UPDATE_LOGIN';
+    public const string EVENT_UPDATE_LOGIN = 'PLUGIN_LDAP_UPDATE_LOGIN';
 
     /**
      * @var array<string, LDAPResult|false>

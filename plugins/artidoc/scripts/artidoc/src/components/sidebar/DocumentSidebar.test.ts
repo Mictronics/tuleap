@@ -26,10 +26,12 @@ import { shallowMount } from "@vue/test-utils";
 import { createGettext } from "vue3-gettext";
 import { ARE_VERSIONS_DISPLAYED } from "@/can-user-display-versions-injection-key";
 import TableOfContents from "@/components/sidebar/toc/TableOfContents.vue";
-import ListOfVersions from "@/components/sidebar/versions/ListOfVersions.vue";
+import ArtidocVersions from "@/components/sidebar/versions/ArtidocVersions.vue";
 import DocumentSidebarHeader from "@/components/sidebar/DocumentSidebarHeader.vue";
 import { TOC_TAB, VERSIONS_TAB } from "@/components/sidebar/document-sidebar";
 import process from "node:process";
+import { REGISTER_VERSIONS_SHORTCUT_HANDLER } from "@/register-shortcut-handler-injection-keys";
+import { noop } from "@/helpers/noop";
 
 describe("DocumentSidebar", () => {
     function getWrapper(are_versions_displayed: Ref<boolean>): VueWrapper {
@@ -38,6 +40,7 @@ describe("DocumentSidebar", () => {
                 plugins: [createGettext({ silent: true })],
                 provide: {
                     [ARE_VERSIONS_DISPLAYED.valueOf()]: are_versions_displayed,
+                    [REGISTER_VERSIONS_SHORTCUT_HANDLER.valueOf()]: noop,
                 },
             },
         });
@@ -49,7 +52,7 @@ describe("DocumentSidebar", () => {
 
         expect(wrapper.findComponent(DocumentSidebarHeader).props("current_tab")).toBe(TOC_TAB);
         expect(wrapper.findComponent(TableOfContents).exists()).toBe(true);
-        expect(wrapper.findComponent(ListOfVersions).exists()).toBe(false);
+        expect(wrapper.findComponent(ArtidocVersions).exists()).toBe(false);
     });
 
     it("when user click on Versions tab, then it is displayed", async () => {
@@ -65,7 +68,7 @@ describe("DocumentSidebar", () => {
             VERSIONS_TAB,
         );
         expect(wrapper.findComponent(TableOfContents).exists()).toBe(false);
-        expect(wrapper.findComponent(ListOfVersions).exists()).toBe(true);
+        expect(wrapper.findComponent(ArtidocVersions).exists()).toBe(true);
     });
 
     it("when user click on Versions tab, then click on TOC tab, then the latter is displayed", async () => {
@@ -80,7 +83,7 @@ describe("DocumentSidebar", () => {
 
         expect(wrapper.findComponent(DocumentSidebarHeader).props("current_tab")).toBe(TOC_TAB);
         expect(wrapper.findComponent(TableOfContents).exists()).toBe(true);
-        expect(wrapper.findComponent(ListOfVersions).exists()).toBe(false);
+        expect(wrapper.findComponent(ArtidocVersions).exists()).toBe(false);
     });
 
     it("when user click on Versions tab, then decides to not display at all the versions in the configuration, then the TOC is displayed", async () => {
@@ -97,6 +100,6 @@ describe("DocumentSidebar", () => {
 
         expect(wrapper.findComponent(DocumentSidebarHeader).props("current_tab")).toBe(TOC_TAB);
         expect(wrapper.findComponent(TableOfContents).exists()).toBe(true);
-        expect(wrapper.findComponent(ListOfVersions).exists()).toBe(false);
+        expect(wrapper.findComponent(ArtidocVersions).exists()).toBe(false);
     });
 });
