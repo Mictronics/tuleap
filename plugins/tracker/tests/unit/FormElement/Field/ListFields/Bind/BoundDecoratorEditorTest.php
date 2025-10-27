@@ -25,13 +25,15 @@ namespace Tuleap\Tracker\FormElement\Field\ListFields\Bind;
 use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
 use PHPUnit\Framework\MockObject\MockObject;
 use Tuleap\Test\PHPUnit\TestCase;
-use Tuleap\Tracker\FormElement\Field\ListField;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindDecoratorDao;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BoundDecoratorEditor;
+use Tuleap\Tracker\FormElement\Field\List\ListField;
 use Tuleap\Tracker\Test\Builders\Fields\SelectboxFieldBuilder;
 
 #[DisableReturnValueGenerationForTestDoubles]
 final class BoundDecoratorEditorTest extends TestCase
 {
-    private const FIELD_ID = 101;
+    private const int FIELD_ID = 101;
 
     private ListField $field;
     private BoundDecoratorEditor $bound_decorator_editor;

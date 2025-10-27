@@ -40,8 +40,8 @@ use TrackerFactory;
 use Tuleap\AgileDashboard\BacklogItemDao;
 use Tuleap\AgileDashboard\ExplicitBacklog\ArtifactsInExplicitBacklogDao;
 use Tuleap\AgileDashboard\ExplicitBacklog\ExplicitBacklogDao;
-use Tuleap\AgileDashboard\FormElement\Burnup\CountElementsModeChecker;
-use Tuleap\AgileDashboard\FormElement\Burnup\ProjectsCountModeDao;
+use Tuleap\AgileDashboard\FormElement\Burnup\Count\CountElementsModeChecker;
+use Tuleap\AgileDashboard\FormElement\Burnup\Count\ProjectsCountModeDao;
 use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemBuilder;
 use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemCollectionFactory;
 use Tuleap\AgileDashboard\Milestone\Backlog\MilestoneBacklogFactory;
@@ -59,8 +59,8 @@ use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
 
 class ProjectMilestonesPresenterBuilder
 {
-    private const COUNT_ELEMENTS_MODE = 'count';
-    private const EFFORT_MODE         = 'effort';
+    private const string COUNT_ELEMENTS_MODE = 'count';
+    private const string EFFORT_MODE         = 'effort';
 
     /**
      * @var HTTPRequest

@@ -29,6 +29,7 @@ use Docman_PermissionsManager;
 use EventManager;
 use Luracast\Restler\RestException;
 use ProjectManager;
+use Tracker_ArtifactFactory;
 use Tuleap\Artidoc\Adapter\Document\ArtidocDocument;
 use Tuleap\Artidoc\Adapter\Document\ArtidocRetriever;
 use Tuleap\Artidoc\Adapter\Document\ArtidocWithContextDecorator;
@@ -38,6 +39,7 @@ use Tuleap\Artidoc\Adapter\Document\Section\Identifier\UUIDSectionIdentifierFact
 use Tuleap\Artidoc\Adapter\Document\Section\ReorderSectionsDao;
 use Tuleap\Artidoc\Adapter\Document\Section\RequiredSectionInformationCollector;
 use Tuleap\Artidoc\Adapter\Document\Section\RetrieveArtidocSectionDao;
+use Tuleap\Artidoc\Adapter\Document\Section\Versions\ChangesetBeforeAGivenOneRetriever;
 use Tuleap\Artidoc\ArtidocWithContextRetrieverBuilder;
 use Tuleap\Artidoc\Document\ArtidocDao;
 use Tuleap\Artidoc\Document\ConfigurationSaver;
@@ -78,6 +80,7 @@ use Tuleap\Artidoc\Domain\Document\Order\SectionOrder;
 use Tuleap\Artidoc\Domain\Document\Order\SectionOrderBuilder;
 use Tuleap\Artidoc\Domain\Document\Order\UnableToReorderSectionOutsideOfDocumentFault;
 use Tuleap\Artidoc\Domain\Document\Order\UnknownSectionToMoveFault;
+use Tuleap\Artidoc\Domain\Document\PartiallyReadableDocumentFault;
 use Tuleap\Artidoc\Domain\Document\RetrieveArtidocWithContext;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldDoesNotBelongToTrackerFault;
 use Tuleap\Artidoc\Domain\Document\Section\Field\FieldIsDescriptionSemanticFault;
@@ -92,9 +95,14 @@ use Tuleap\Artidoc\Domain\Document\Section\Freetext\Identifier\FreetextIdentifie
 use Tuleap\Artidoc\Domain\Document\Section\Identifier\SectionIdentifierFactory;
 use Tuleap\Artidoc\Domain\Document\Section\PaginatedRetrievedSections;
 use Tuleap\Artidoc\Domain\Document\Section\PaginatedRetrievedSectionsRetriever;
+use Tuleap\Artidoc\Domain\Document\UserCannotReadDocumentFault;
 use Tuleap\Artidoc\Domain\Document\UserCannotWriteDocumentFault;
 use Tuleap\Artidoc\REST\v1\ArtifactSection\ArtifactSectionRepresentationBuilder;
+use Tuleap\Artidoc\REST\v1\ArtifactSection\ArtifactVersionRepresentation;
+use Tuleap\Artidoc\REST\v1\ArtifactSection\ArtifactVersionRepresentationBuilder;
 use Tuleap\Artidoc\REST\v1\ArtifactSection\RequiredArtifactInformationBuilder;
+use Tuleap\Artidoc\REST\v1\Versions\GETArtidocVersionsHandler;
+use Tuleap\Artidoc\REST\v1\Versions\PaginatedArtidocVersionRepresentationsCollection;
 use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\DBTransactionExecutorWithConnection;
@@ -108,6 +116,7 @@ use Tuleap\Docman\Upload\Document\DocumentOngoingUploadDAO;
 use Tuleap\Docman\Upload\Document\DocumentOngoingUploadRetriever;
 use Tuleap\Markdown\CommonMarkInterpreter;
 use Tuleap\NeverThrow\Fault;
+use Tuleap\Option\Option;
 use Tuleap\REST\AuthenticatedResource;
 use Tuleap\REST\Header;
 use Tuleap\REST\I18NRestException;
@@ -118,6 +127,7 @@ use Tuleap\Tracker\Artifact\FileUploadDataProvider;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\SystemTypePresenterBuilder;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
+use Tuleap\Tracker\Permission\TrackersPermissionsRetriever;
 use Tuleap\Tracker\Semantic\Description\CachedSemanticDescriptionFieldRetriever;
 use Tuleap\Tracker\Semantic\Status\CachedSemanticStatusRetriever;
 use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
@@ -234,12 +244,17 @@ final class ArtidocResource extends AuthenticatedResource
     {
         $this->checkAccess();
 
-        $user = UserManager::instance()->getCurrentUser();
+        $user                = UserManager::instance()->getCurrentUser();
+        $before_changeset_id = Option::nothing(\Psl\Type\int());
 
         return $this->getPaginatedRetrievedSectionsRetriever($user)
-            ->retrievePaginatedRetrievedSections($id, $limit, $offset)
+            ->retrievePaginatedRetrievedSections($id, $before_changeset_id, $limit, $offset)
             ->andThen(fn (PaginatedRetrievedSections $retrieved_sections) =>
-                $this->getRepresentationTransformer($retrieved_sections->artidoc, $user)->getRepresentation($retrieved_sections, $user))->match(
+                $this->getRepresentationTransformer($retrieved_sections->artidoc, $user)->getRepresentation(
+                    $retrieved_sections,
+                    $user,
+                    $before_changeset_id
+                ))->match(
                     function (PaginatedArtidocSectionRepresentationCollection $collection) use ($limit, $offset) {
                         Header::sendPaginationHeaders($limit, $offset, $collection->total, self::MAX_LIMIT);
                         return $collection->sections;
@@ -450,6 +465,64 @@ final class ArtidocResource extends AuthenticatedResource
             );
     }
 
+    /**
+     * @url OPTIONS {id}/versions
+     */
+    public function optionsGetVersions(int $id): void
+    {
+        Header::allowOptionsGet();
+    }
+
+    /**
+     * Get an artidoc's versions
+     *
+     * Get the versions of a given artidoc document
+     *
+     * @url    GET {id}/versions
+     * @access hybrid
+     * @hide This route exists for a prototyping purpose only.
+     *
+     * @param int $id Id of the document
+     * @param int $limit Number of elements retrieve {@from path}{@min 1}{@max 50}
+     * @param int $offset Position of the first element to retrieve {@from path}{@min 0}
+     *
+     * @return ArtifactVersionRepresentation[]
+     *
+     * @status 200
+     * @throws RestException
+     */
+    public function getVersions(int $id, int $limit = self::MAX_LIMIT, int $offset = 0): array
+    {
+        $this->checkAccess();
+
+        $user_manager = UserManager::instance();
+        $user         = $user_manager->getCurrentUser();
+
+        $handler = new GETArtidocVersionsHandler(
+            $this->getArtidocWithContextRetriever($user),
+            new RetrieveArtidocSectionDao($this->getSectionIdentifierFactory(), $this->getFreetextIdentifierFactory()),
+            Tracker_ArtifactFactory::instance(),
+            TrackersPermissionsRetriever::build(),
+            new ArtifactVersionRepresentationBuilder(
+                new UserAvatarUrlProvider(new AvatarHashDao(), new ComputeAvatarHash()),
+                $user_manager,
+            ),
+        );
+
+        return $handler->handle($user, $id, $limit, $offset)->match(
+            function (PaginatedArtidocVersionRepresentationsCollection $collection) {
+                Header::sendPaginationHeaders($collection->limit, $collection->offset, $collection->total, self::MAX_LIMIT);
+                return $collection->versions;
+            },
+            function (Fault $fault): never {
+                match ($fault::class) {
+                    UserCannotReadDocumentFault::class, PartiallyReadableDocumentFault::class => throw new RestException(404, 'Could not find the document'),
+                    default => throw new RestException(500, (string) $fault),
+                };
+            },
+        );
+    }
+
     private function getPaginatedRetrievedSectionsRetriever(\PFUser $user): PaginatedRetrievedSectionsRetriever
     {
         return new PaginatedRetrievedSectionsRetriever(
@@ -518,6 +591,7 @@ final class ArtidocResource extends AuthenticatedResource
                     \Tracker_ArtifactFactory::instance(),
                     CachedSemanticDescriptionFieldRetriever::instance(),
                     CachedSemanticTitleFieldRetriever::instance(),
+                    new ChangesetBeforeAGivenOneRetriever()
                 )
             ),
         );

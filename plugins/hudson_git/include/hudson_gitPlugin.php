@@ -70,9 +70,10 @@ use Tuleap\HudsonGit\Plugin\PluginInfo;
 use Tuleap\HudsonGit\REST\ResourcesInjector;
 use Tuleap\Jenkins\JenkinsCSRFCrumbRetriever;
 use Tuleap\Layout\IncludeAssets;
+use Tuleap\Plugin\ListeningToEventName;
 use Tuleap\Request\CollectRoutesEvent;
 
-//phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotPascalCase
+//phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 class hudson_gitPlugin extends Plugin
 {
     public const string DISPLAY_HUDSON_ADDITION_INFO = 'display_hudson_addition_info';
@@ -85,7 +86,6 @@ class hudson_gitPlugin extends Plugin
         bindtextdomain('tuleap-hudson_git', __DIR__ . '/../site-content');
 
         $this->addHook(CollectRoutesEvent::NAME);
-        $this->addHook('cssfile', 'cssFile');
 
         if (defined('GIT_BASE_URL')) {
             $this->addHook(Hooks::ADDITIONAL_WEBHOOKS);
@@ -100,7 +100,8 @@ class hudson_gitPlugin extends Plugin
         }
     }
 
-    public function cssFile($params)
+    #[ListeningToEventName('cssfile')]
+    public function cssFile($params): void
     {
         $git_plugin = PluginManager::instance()->getPluginByName('git');
         if (! $git_plugin instanceof GitPlugin) {
@@ -221,7 +222,7 @@ class hudson_gitPlugin extends Plugin
             new JenkinsServerAdder(
                 new JenkinsServerDao(),
                 new Valid_HTTPURI(),
-                (new \Tuleap\Cryptography\KeyFactory())->getLegacy2025EncryptionKey()
+                (new \Tuleap\Cryptography\KeyFactoryFromFileSystem())->getLegacy2025EncryptionKey()
             ),
             new CSRFSynchronizerToken(URLBuilder::buildAddUrl())
         );
@@ -310,7 +311,7 @@ class hudson_gitPlugin extends Plugin
             $http_client     = HttpClientFactory::createClient(new CookiePlugin(new CookieJar()));
             $request_factory = HTTPFactoryBuilder::requestFactory();
             $stream_factory  = HTTPFactoryBuilder::streamFactory();
-            $encryption_key  = (new \Tuleap\Cryptography\KeyFactory())->getLegacy2025EncryptionKey();
+            $encryption_key  = (new \Tuleap\Cryptography\KeyFactoryFromFileSystem())->getLegacy2025EncryptionKey();
             $controller      = new Hook\HookTriggerController(
                 new Hook\HookDao(),
                 new Hook\JenkinsClient(
@@ -364,7 +365,7 @@ class hudson_gitPlugin extends Plugin
             new Hook\HookDao(),
             $this->getCSRF(),
             new Valid_HTTPURI(),
-            (new \Tuleap\Cryptography\KeyFactory())->getLegacy2025EncryptionKey()
+            (new \Tuleap\Cryptography\KeyFactoryFromFileSystem())->getLegacy2025EncryptionKey()
         );
     }
 
@@ -412,7 +413,7 @@ class hudson_gitPlugin extends Plugin
             new JenkinsServerAdder(
                 new JenkinsServerDao(),
                 new Valid_HTTPURI(),
-                (new \Tuleap\Cryptography\KeyFactory())->getLegacy2025EncryptionKey()
+                (new \Tuleap\Cryptography\KeyFactoryFromFileSystem())->getLegacy2025EncryptionKey()
             ),
             $event->getLogger()
         );
@@ -433,7 +434,7 @@ class hudson_gitPlugin extends Plugin
         $xml_importer = new XMLExporter(
             self::getJenkinsServerFactory(),
             $event->getLogger(),
-            (new \Tuleap\Cryptography\KeyFactory())->getLegacy2025EncryptionKey()
+            (new \Tuleap\Cryptography\KeyFactoryFromFileSystem())->getLegacy2025EncryptionKey()
         );
 
         $xml_importer->export(

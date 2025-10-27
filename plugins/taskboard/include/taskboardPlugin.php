@@ -24,8 +24,11 @@ use Tuleap\AgileDashboard\BacklogItemDao;
 use Tuleap\AgileDashboard\Event\GetAdditionalScrumAdminSection;
 use Tuleap\AgileDashboard\Milestone\Backlog\MilestoneBacklogFactory;
 use Tuleap\AgileDashboard\Milestone\HeaderOptionsProvider;
+use Tuleap\AgileDashboard\Milestone\Pane\AgileDashboardPane;
+use Tuleap\AgileDashboard\Milestone\Pane\AgileDashboardPaneInfoIdentifier;
 use Tuleap\AgileDashboard\Milestone\Pane\PaneInfoCollector;
 use Tuleap\AgileDashboard\Milestone\Pane\Planning\PlanningV2PaneInfo;
+use Tuleap\AgileDashboard\Milestone\Pane\Planning\SubmilestoneFinder;
 use Tuleap\AgileDashboard\Planning\AllowedAdditionalPanesToDisplayCollector;
 use Tuleap\AgileDashboard\Planning\HeaderOptionsForPlanningProvider;
 use Tuleap\AgileDashboard\Planning\PlanningDao;
@@ -61,7 +64,7 @@ require_once __DIR__ . '/../vendor/autoload.php';
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 class taskboardPlugin extends Plugin
 {
-    public const NAME = 'taskboard';
+    public const string NAME = 'taskboard';
 
     public function __construct($id)
     {
@@ -153,10 +156,10 @@ class taskboardPlugin extends Plugin
                     $planning_factory,
                     new \Tuleap\Tracker\Artifact\Dao\ArtifactDao(),
                 ),
-                new AgileDashboard_PaneInfoIdentifier(),
+                new AgileDashboardPaneInfoIdentifier(),
                 $tracker_new_dropdown_link_presenter_builder,
                 new HeaderOptionsForPlanningProvider(
-                    new AgileDashboard_Milestone_Pane_Planning_SubmilestoneFinder(
+                    new SubmilestoneFinder(
                         \Tracker_HierarchyFactory::instance(),
                         $planning_factory,
                     ),
@@ -195,7 +198,7 @@ class taskboardPlugin extends Plugin
         if ($collector->getActivePaneContext() && strpos($_SERVER['REQUEST_URI'], '/taskboard/') === 0) {
             $pane_info->setActive(true);
             $collector->setActivePaneBuilder(
-                static function () use ($pane_info): AgileDashboard_Pane {
+                static function () use ($pane_info): AgileDashboardPane {
                     return new TaskboardPane($pane_info);
                 }
             );

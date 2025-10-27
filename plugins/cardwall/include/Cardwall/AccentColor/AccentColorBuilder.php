@@ -25,8 +25,8 @@ use Tracker_FormElementFactory;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Artifact\Exception\NoChangesetException;
 use Tuleap\Tracker\Artifact\Exception\NoChangesetValueException;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindDecoratorRetriever;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\NoBindDecoratorException;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindDecoratorRetriever;
+use Tuleap\Tracker\FormElement\Field\List\Bind\NoBindDecoratorException;
 use Tuleap\Tracker\Tracker;
 
 class AccentColorBuilder
@@ -60,7 +60,7 @@ class AccentColorBuilder
         if (! $selectbox) {
             return $no_color;
         }
-        \assert($selectbox instanceof \Tuleap\Tracker\FormElement\Field\ListField);
+        \assert($selectbox instanceof \Tuleap\Tracker\FormElement\Field\List\ListField);
 
         if (! $selectbox->userCanRead($current_user)) {
             return $no_color;

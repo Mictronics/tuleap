@@ -30,7 +30,7 @@
             <div class="tlp-form-element" data-test-type="input-error-message">
                 <label class="tlp-label" for="name">
                     {{ $gettext("Name") }}
-                    <i class="fa fa-asterisk"></i>
+                    <i class="fa-solid fa-asterisk"></i>
                 </label>
                 <input
                     ref="name-input"
@@ -46,12 +46,12 @@
             <div class="tlp-form-element">
                 <label class="tlp-label baseline-modal-milestone-label">
                     {{ $gettext("Milestone") }}
-                    <i class="fa fa-asterisk"></i>
+                    <i class="fa-solid fa-asterisk"></i>
                     <span
                         class="tlp-tooltip tlp-tooltip-right"
                         v-bind:data-tlp-tooltip="milestone_tooltip"
                     >
-                        <i class="fa fa-question-circle baseline-tooltip-icon"></i>
+                        <i class="fa-solid fa-circle-question baseline-tooltip-icon"></i>
                     </span>
                 </label>
                 <milestones-select-skeleton v-if="is_loading" />
@@ -76,7 +76,7 @@
                         class="tlp-tooltip tlp-tooltip-right"
                         v-bind:data-tlp-tooltip="snapshot_date_tooltip"
                     >
-                        <i class="fa fa-question-circle baseline-tooltip-icon-optional"></i>
+                        <i class="fa-solid fa-circle-question baseline-tooltip-icon-optional"></i>
                     </span>
                 </label>
                 <div class="tlp-form-element tlp-form-element-prepend">
@@ -124,15 +124,17 @@
 </template>
 
 <script>
-import { getOpenMilestones, createBaseline } from "../../api/rest-querier";
+import { createBaseline, getOpenMilestones } from "../../api/rest-querier";
 import MilestonesSelect from "./MilestonesSelect.vue";
 import MilestonesSelectSkeleton from "./MilestonesSelectSkeleton.vue";
-import { datePicker as createDatePicker } from "@tuleap/tlp-date-picker";
+import { createDatePicker } from "@tuleap/tlp-date-picker";
 
 export default {
     name: "NewBaselineModal",
 
     components: { MilestonesSelect, MilestonesSelectSkeleton },
+
+    inject: ["locale"],
 
     props: {
         project_id: { mandatory: true, type: Number },
@@ -210,7 +212,7 @@ export default {
         },
 
         createDatePicker() {
-            createDatePicker(this.$refs.snapshot_date, {
+            createDatePicker(this.$refs.snapshot_date, this.locale, {
                 maxDate: "today",
                 onValueUpdate: (_, date) => {
                     this.snapshot_date = date;

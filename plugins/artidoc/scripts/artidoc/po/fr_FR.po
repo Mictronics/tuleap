@@ -91,6 +91,9 @@ msgstr "Bloqué"
 msgid "Cancel"
 msgstr "Annuler"
 
+msgid "Change display of versions"
+msgstr "Changer l'affichage des versions"
+
 msgid "Change section heading level"
 msgstr "Changer le niveau de titre d'une section"
 
@@ -137,6 +140,9 @@ msgstr "Affichage"
 
 msgid "Display automatic versions"
 msgstr "Afficher les versions automatiques"
+
+msgid "Display this version"
+msgstr "Afficher cette version"
 
 msgid ""
 "Do you want to continue to force save your modification, or discard it and "
@@ -465,6 +471,9 @@ msgstr "Avatar de l'utilisateur"
 msgid "Versions"
 msgstr "Versions"
 
+msgid "Versions based on fake data"
+msgstr "Versions basées sur des données simulées"
+
 msgid ""
 "You can now select your fields or go back to the document and create new "
 "sections, they will be stored as artifacts in the selected tracker."
@@ -516,6 +525,13 @@ msgid ""
 msgstr ""
 "Vous devriez recharger la page afin de retrouver un état correct (cependant "
 "vous allez perdre vos modifications)."
+
+msgid ""
+"You will be able to display \"%{ title }\" a read-only version (not yet "
+"implemented)."
+msgstr ""
+"Vous serez capable d'afficher la version \"%{ title }\" en lecture seule (en "
+"cours de développement)."
 
 msgid "Your artidoc is currently set up on \"%{ tracker_name }\""
 msgstr "Votre artidoc est actuellement configuré sur \"%{ tracker_name }\""

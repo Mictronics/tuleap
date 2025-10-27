@@ -39,7 +39,7 @@ use Tuleap\Taskboard\Column\FieldValuesToColumnMapping\Freestyle\FreestyleMapped
 use Tuleap\Taskboard\Column\FieldValuesToColumnMapping\Freestyle\FreestyleMappingDao;
 use Tuleap\Taskboard\Column\FieldValuesToColumnMapping\MappedFieldRetriever;
 use Tuleap\Taskboard\REST\v1\Columns\ColumnsGetter;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindDecoratorRetriever;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindDecoratorRetriever;
 use Tuleap\User\Avatar\AvatarHashDao;
 use Tuleap\User\Avatar\ComputeAvatarHash;
 use Tuleap\User\Avatar\UserAvatarUrlProvider;
@@ -47,7 +47,7 @@ use UserManager;
 
 class TaskboardResource extends AuthenticatedResource
 {
-    private const MAX_LIMIT = 100;
+    private const int MAX_LIMIT = 100;
 
     /**
      * @var UserManager

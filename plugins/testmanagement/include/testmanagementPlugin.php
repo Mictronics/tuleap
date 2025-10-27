@@ -22,7 +22,6 @@ use FastRoute\RouteCollector;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Tuleap\Config\ConfigClassProvider;
 use Tuleap\CrossTracker\Query\RetrievedQueryTrackerIds;
-use Tuleap\Cryptography\KeyFactory;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\DBTransactionExecutorWithConnection;
 use Tuleap\Event\Events\ImportValidateChangesetExternalField;
@@ -129,10 +128,10 @@ use Tuleap\User\Avatar\UserAvatarUrlProvider;
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../../tracker/include/trackerPlugin.php';
 
-class testmanagementPlugin extends Plugin implements PluginWithService, \Tuleap\Config\PluginWithConfigKeys //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotPascalCase
+class testmanagementPlugin extends Plugin implements PluginWithService, \Tuleap\Config\PluginWithConfigKeys //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 {
-    public const NAME              = 'testmanagement';
-    public const SERVICE_SHORTNAME = 'plugin_testmanagement';
+    public const string NAME              = 'testmanagement';
+    public const string SERVICE_SHORTNAME = 'plugin_testmanagement';
 
     public function __construct(?int $id)
     {
@@ -468,7 +467,7 @@ class testmanagementPlugin extends Plugin implements PluginWithService, \Tuleap\
         $campaign_retriver = new CampaignRetriever(
             Tracker_ArtifactFactory::instance(),
             new CampaignDao(),
-            new KeyFactory(),
+            new \Tuleap\Cryptography\KeyFactoryFromFileSystem(),
         );
         return new \Tuleap\TestManagement\RealTime\MercureJWTController(
             $campaign_retriver,
@@ -488,7 +487,7 @@ class testmanagementPlugin extends Plugin implements PluginWithService, \Tuleap\
             new CampaignRetriever(
                 Tracker_ArtifactFactory::instance(),
                 new CampaignDao(),
-                new KeyFactory()
+                new \Tuleap\Cryptography\KeyFactoryFromFileSystem()
             ),
             new StatusUpdater(
                 new StatusValueRetriever(
@@ -505,7 +504,7 @@ class testmanagementPlugin extends Plugin implements PluginWithService, \Tuleap\
             new CampaignRetriever(
                 Tracker_ArtifactFactory::instance(),
                 new CampaignDao(),
-                new KeyFactory()
+                new \Tuleap\Cryptography\KeyFactoryFromFileSystem()
             ),
             new StatusUpdater(
                 new StatusValueRetriever(

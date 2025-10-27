@@ -21,7 +21,7 @@
         <div class="tlp-form-element project-timetracking-writing-mode-selected-date">
             <label for="timetracking-start-date" class="tlp-label">
                 {{ $gettext("From") }}
-                <i class="fa fa-asterisk"></i>
+                <i class="fa-solid fa-asterisk"></i>
             </label>
             <div class="tlp-form-element tlp-form-element-prepend">
                 <span class="tlp-prepend">
@@ -40,7 +40,7 @@
         <div class="tlp-form-element project-timetracking-writing-mode-selected-date">
             <label for="timetracking-end-date" class="tlp-label">
                 {{ $gettext("To") }}
-                <i class="fa fa-asterisk"></i>
+                <i class="fa-solid fa-asterisk"></i>
             </label>
             <div class="tlp-form-element tlp-form-element-prepend">
                 <span class="tlp-prepend">
@@ -63,9 +63,11 @@
 import { onMounted, ref } from "vue";
 import { useGettext } from "vue3-gettext";
 import { strictInject } from "@tuleap/vue-strict-inject";
-import { datePicker } from "@tuleap/tlp-date-picker";
-import { REPORT_ID } from "../../injection-symbols";
+import { createDatePicker } from "@tuleap/tlp-date-picker";
+import { REPORT_ID, USER_LOCALE } from "../../injection-symbols";
 import { useProjectTimetrackingWidgetStore } from "../../store";
+
+const user_locale = strictInject(USER_LOCALE);
 
 const { $gettext } = useGettext();
 
@@ -76,7 +78,7 @@ const end_date = ref<HTMLInputElement>();
 
 onMounted(() => {
     if (start_date.value) {
-        datePicker(start_date.value, {
+        createDatePicker(start_date.value, user_locale, {
             onClose(long_date, short_date) {
                 project_timetracking_store.setStartDate(short_date);
             },
@@ -84,7 +86,7 @@ onMounted(() => {
     }
 
     if (end_date.value) {
-        datePicker(end_date.value, {
+        createDatePicker(end_date.value, user_locale, {
             onClose(long_date, short_date) {
                 project_timetracking_store.setEndDate(short_date);
             },

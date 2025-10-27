@@ -23,7 +23,7 @@
         <div class="tracker-workflow-transition-modal-action-details-element tlp-form-element">
             <label v-bind:for="field_id_input_id" class="tlp-label">
                 {{ $gettext("Choose a field") }}
-                <i class="fa fa-asterisk"></i>
+                <i class="fa-solid fa-asterisk"></i>
             </label>
             <select
                 v-bind:id="field_id_input_id"
@@ -63,13 +63,12 @@
         <div class="tracker-workflow-transition-modal-action-details-element tlp-form-element">
             <label v-bind:for="value_input_id" class="tlp-label">
                 {{ $gettext("New value") }}
-                <i class="fa fa-asterisk"></i>
+                <i class="fa-solid fa-asterisk"></i>
             </label>
             <component
                 v-bind:is="value_input_component"
                 v-bind:id="value_input_id"
-                v-on:input="updateValue"
-                v-on:change="updateValue"
+                v-on:new-input-value="updateValue"
                 v-bind:disabled="is_modal_save_running"
                 v-bind:input_value="value"
             />
@@ -168,10 +167,10 @@ export default {
                 new_field: field[0],
             });
         },
-        updateValue(event) {
+        updateValue(value) {
             this.$store.commit("transitionModal/updateSetValuePostActionValue", {
                 post_action: this.post_action,
-                value: event,
+                value: value,
             });
         },
     },

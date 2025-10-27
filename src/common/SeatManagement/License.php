@@ -22,23 +22,60 @@ declare(strict_types=1);
 
 namespace Tuleap\SeatManagement;
 
+use DateTimeImmutable;
+use Tuleap\Option\Option;
+
 /**
  * @psalm-immutable
  */
 final readonly class License
 {
+    /**
+     * @param Option<DateTimeImmutable> $expiration_date
+     */
     private function __construct(
         public bool $is_enterprise_edition,
+        public DateTimeImmutable $start_date,
+        public Option $expiration_date,
+        public array $restrictions,
+        public bool $has_valid_signature,
+        public LicenseKind $license_kind,
     ) {
     }
 
-    public static function buildEnterpriseEdition(): self
+    public static function buildEnterpriseEdition(LicenseContent $license_content): self
     {
-        return new self(true);
+        return new self(
+            true,
+            $license_content->nbf,
+            Option::fromNullable($license_content->exp),
+            $license_content->restrictions,
+            true,
+            $license_content->license_information !== null
+                ? LicenseKind::fromKind($license_content->license_information->kind)
+                : LicenseKind::default(),
+        );
+    }
+
+    public static function buildInfiniteEnterpriseEdition(): self
+    {
+        return new self(
+            true,
+            new DateTimeImmutable(),
+            Option::nothing(DateTimeImmutable::class),
+            [],
+            true,
+            LicenseKind::default(),
+        );
+    }
+
+    public static function buildInvalidEnterpriseEdition(): self
+    {
+        return new self(true, new DateTimeImmutable(), Option::nothing(DateTimeImmutable::class), [], false, LicenseKind::default());
     }
 
     public static function buildCommunityEdition(): self
     {
-        return new self(false);
+        return new self(false, new DateTimeImmutable(), Option::nothing(DateTimeImmutable::class), [], true, LicenseKind::default());
     }
 }

@@ -29,7 +29,7 @@
         <div class="tlp-modal-body">
             <div class="provider-admin-modal-name-container">
                 <div class="tlp-form-element provider-admin-modal-name">
-                    <label class="tlp-label" for="name-{{ getId }}">{{ name }} <i class="fa fa-asterisk"></i></label>
+                    <label class="tlp-label" for="name-{{ getId }}">{{ name }} <i class="fa-solid fa-asterisk"></i></label>
                     <input
                         type="text"
                         class="tlp-input provider-name"
@@ -59,6 +59,7 @@
                         class="tlp-select provider-color-selector"
                         id="color-{{ getId }}"
                         name="color"
+                        data-default="{{# dgettext }}tuleap-openidconnectclient | Default {{/ dgettext }}"
                     >
                         <option value=""></option>
                         {{# colors_presenters }}
@@ -70,7 +71,7 @@
             <div class="tlp-form-element">
                 <div class="tlp-form-element" id="tenant_id_container">
                     <label class="tlp-label" for="tenant_id">
-                        {{# dgettext }} tuleap-openidconnectclient | Tenant ID {{/ dgettext }} <i class="fa fa-asterisk"></i>
+                        {{# dgettext }} tuleap-openidconnectclient | Tenant ID {{/ dgettext }} <i class="fa-solid fa-asterisk"></i>
                     </label>
                     <input
                             type="text"
@@ -85,7 +86,7 @@
             <div class="tlp-form-element">
                 <div class="tlp-form-element">
                     <label class="tlp-label" for="tenant_setup_identifier_{{ getId }}">
-                        {{# dgettext }} tuleap-openidconnectclient | Authentication allowed for {{/ dgettext }} <i class="fa fa-asterisk"></i>
+                        {{# dgettext }} tuleap-openidconnectclient | Authentication allowed for {{/ dgettext }} <i class="fa-solid fa-asterisk"></i>
                     </label>
                     <select
                             class="tlp-select"
@@ -116,14 +117,14 @@
 
             <div class="tlp-property">
                 <p class="tlp-text-info">
-                    <i class="fa fa-info-circle"></i> {{ client_help }} <br/>
+                    <i class="fa-solid fa-circle-info"></i> {{ client_help }} <br/>
                     <b>{{ getCallbackUrl }}</b>
                 </p>
             </div>
 
             <div class="tlp-form-element">
                 <label class="tlp-label" for="client_id-{{ getId }}">
-                    {{ client_id }} <i class="fa fa-asterisk"></i>
+                    {{ client_id }} <i class="fa-solid fa-asterisk"></i>
                 </label>
                 <input
                     type="text"
@@ -137,7 +138,7 @@
 
             <div class="tlp-form-element">
                 <label class="tlp-label" for="client_secret-{{ getId }}">
-                    {{ client_secret }} <i class="fa fa-asterisk"></i>
+                    {{ client_secret }} <i class="fa-solid fa-asterisk"></i>
                 </label>
                 <input
                     type="text"

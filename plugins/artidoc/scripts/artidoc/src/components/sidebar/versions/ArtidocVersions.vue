@@ -19,50 +19,69 @@
   -->
 
 <template>
-    <div class="tlp-alert-info" v-if="should_display_under_construction_message">
-        <p>{{ $gettext("This feature of artidoc is under construction.") }}</p>
-        <p>{{ $gettext("Data is fake in order to gather feedback about the feature.") }}</p>
-        <button type="button" class="tlp-button-small tlp-button-primary" v-on:click="gotit()">
-            {{ $gettext("Ok, got it") }}
-        </button>
-    </div>
-    <div class="tlp-alert-danger" v-if="error">
-        {{ error }}
-    </div>
-    <list-of-versions-skeleton v-if="is_loading_versions" />
-    <section v-if="!error && !is_loading_versions">
-        <div class="filter">
-            <select class="tlp-select" v-model="display">
-                <option v-bind:value="ALL_VERSIONS">{{ $gettext("All versions") }}</option>
-                <option v-bind:value="NAMED_VERSIONS">{{ $gettext("Named versions") }}</option>
-                <option v-bind:value="GROUP_BY_NAMED_VERSIONS">
-                    {{ $gettext("Group by named versions") }}
-                </option>
-            </select>
+    <section v-bind:class="{ 'use-fake-versions': use_fake_versions }">
+        <div class="tlp-alert-info" v-if="should_display_under_construction_message">
+            <p>{{ $gettext("This feature of artidoc is under construction.") }}</p>
+            <p>{{ $gettext("Data is fake in order to gather feedback about the feature.") }}</p>
+            <button type="button" class="tlp-button-small tlp-button-primary" v-on:click="gotit()">
+                {{ $gettext("Ok, got it") }}
+            </button>
         </div>
-        <flat-list-of-versions v-if="display === ALL_VERSIONS" v-bind:versions="versions" />
-        <flat-list-of-versions v-if="display === NAMED_VERSIONS" v-bind:versions="named_versions" />
-        <grouped-by-named-list-of-versions
-            v-if="display === GROUP_BY_NAMED_VERSIONS"
-            v-bind:grouped_versions="grouped_versions"
-        />
-        <button
-            class="tlp-button-mini tlp-button-primary load-more-versions"
-            v-on:click="more"
-            v-if="has_more_versions && !error"
-            v-bind:disabled="is_loading_more_versions"
-        >
-            <i
-                class="tlp-button-icon"
-                v-bind:class="
-                    is_loading_more_versions
-                        ? 'fa-solid fa-circle-notch fa-spin'
-                        : 'fa-solid fa-arrow-down'
-                "
-                aria-hidden="true"
-            ></i>
-            {{ $gettext("Load more versions") }}
-        </button>
+        <div class="tlp-alert-danger" v-if="error">
+            {{ error }}
+        </div>
+        <list-of-versions-skeleton v-if="is_loading_versions" />
+        <template v-if="!error && !is_loading_versions">
+            <div class="tlp-form-element tlp-form-element-prepend">
+                <span class="tlp-prepend">
+                    <i
+                        class="fa-solid fa-filter"
+                        role="img"
+                        v-bind:title="show_title"
+                        id="show-label"
+                    ></i>
+                </span>
+                <select class="tlp-select" v-model="display" aria-labelledby="show-label">
+                    <option v-bind:value="ALL_VERSIONS">{{ $gettext("All versions") }}</option>
+                    <option v-bind:value="NAMED_VERSIONS">{{ $gettext("Named versions") }}</option>
+                    <option v-bind:value="GROUP_BY_NAMED_VERSIONS">
+                        {{ $gettext("Group by named versions") }}
+                    </option>
+                </select>
+            </div>
+            <div class="tlp-form-element">
+                <label class="tlp-label tlp-checkbox">
+                    <input type="checkbox" v-model="use_fake_versions" />
+                    {{ $gettext("Versions based on fake data") }}
+                </label>
+            </div>
+            <flat-list-of-versions v-if="display === ALL_VERSIONS" v-bind:versions="versions" />
+            <flat-list-of-versions
+                v-if="display === NAMED_VERSIONS"
+                v-bind:versions="named_versions"
+            />
+            <grouped-by-named-list-of-versions
+                v-if="display === GROUP_BY_NAMED_VERSIONS"
+                v-bind:grouped_versions="grouped_versions"
+            />
+            <button
+                class="tlp-button-mini tlp-button-primary load-more-versions"
+                v-on:click="more"
+                v-if="has_more_versions && !error"
+                v-bind:disabled="is_loading_more_versions"
+            >
+                <i
+                    class="tlp-button-icon"
+                    v-bind:class="
+                        is_loading_more_versions
+                            ? 'fa-solid fa-circle-notch fa-spin'
+                            : 'fa-solid fa-arrow-down'
+                    "
+                    aria-hidden="true"
+                ></i>
+                {{ $gettext("Load more versions") }}
+            </button>
+        </template>
     </section>
 </template>
 
@@ -87,6 +106,7 @@ let next: ReadonlyArray<Version> = [];
 const has_more_versions = ref(true);
 const is_loading_more_versions = ref(false);
 const is_loading_versions = ref(true);
+const show_title = $gettext("Change display of versions");
 
 const ALL_VERSIONS = "all";
 const NAMED_VERSIONS = "named";
@@ -95,6 +115,7 @@ const GROUP_BY_NAMED_VERSIONS = "group";
 type Choices = typeof ALL_VERSIONS | typeof NAMED_VERSIONS | typeof GROUP_BY_NAMED_VERSIONS;
 
 const display = ref<Choices>(ALL_VERSIONS);
+const use_fake_versions = ref(true);
 
 const named_versions = computed(() => versions.value.filter((version) => version.title.isValue()));
 const grouped_versions = computed(() => groupVersionsByNamedVersion(versions.value));
@@ -149,8 +170,14 @@ section {
     }
 }
 
-.filter {
+.tlp-form-element {
     margin: var(--tlp-medium-spacing);
+}
+
+select {
+    order: 2;
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
 }
 
 .load-more-versions {

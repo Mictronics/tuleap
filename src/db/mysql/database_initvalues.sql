@@ -127,25 +127,6 @@ INSERT INTO `groups` SET \
   svn_preamble = '', \
   svn_commit_to_tag_denied ='0' ;
 
-INSERT INTO `groups` SET \
-  group_id = '46', \
-  group_name = 'Site News', \
-  access = 'private', \
-  status = 'A', \
-  unix_group_name = 'sitenews', \
-  http_domain = 'sitenews._DOMAIN_NAME_', \
-  short_description = 'Site News Private Project. All Site News should be posted from this project', \
-  svn_box = 'svn1', \
-  register_time = 940000000, \
-  rand_hash = '', \
-  type = '1', \
-  built_from_template = '100', \
-  svn_tracker = '0', \
-  svn_mandatory_ref = '0', \
-  svn_events_mailing_header = '', \
-  svn_preamble = '', \
-  svn_commit_to_tag_denied ='0' ;
-
 
 INSERT INTO `groups` SET \
   group_id = '100', \
@@ -176,9 +157,9 @@ INSERT INTO groups_notif_delegation_message SET \
 #
 # Make the 'admin' user part of the default Admin Project so that he
 # becomes a super user
-# flags after 'A' are: bug,forum,project,patch,support,file,wiki,svn,news
+# flags after 'A' are: bug,project,patch,support,file,wiki,svn
 
-INSERT INTO user_group VALUES (1, 101, 1, 'A', 2, 2, 2, 2, 2, 2, 2, 2, 2);
+INSERT INTO user_group VALUES (1, 101, 1, 'A', 2,  2, 2, 2, 2, 2, 2);
 
 #
 #  Default data for group_type
@@ -235,23 +216,13 @@ INSERT INTO trove_cat (trove_cat_id, version, parent, root_parent, shortname, fu
 -- Group 100 (templates)
 insert into service (service_id, group_id, label, description, short_name, link, is_active, is_used, scope, `rank`) VALUES (1, 100, 'service_summary_lbl_key', 'service_summary_desc_key', 'summary', '/projects/$projectname/', 1, 1, 'system', 10);
 insert into service (service_id, group_id, label, description, short_name, link, is_active, is_used, scope, `rank`) VALUES (2, 100, 'service_admin_lbl_key', 'service_admin_desc_key', 'admin', '/project/admin/?group_id=$group_id', 1, 1, 'system', 20);
-insert into service (service_id, group_id, label, description, short_name, link, is_active, is_used, scope, `rank`) VALUES (4, 100, 'service_forum_lbl_key', 'service_forum_desc_key', 'forum', '/forum/?group_id=$group_id', 0, 0, 'system', 40);
-insert into service (service_id, group_id, label, description, short_name, link, is_active, is_used, scope, `rank`) VALUES (12, 100, 'service_news_lbl_key', 'service_news_desc_key', 'news', '/news/?group_id=$group_id', 0, 0, 'system', 120);
 insert into service (service_id, group_id, label, description, short_name, link, is_active, is_used, scope, `rank`) VALUES (14, 100, 'service_file_lbl_key', 'service_file_desc_key', 'file', '/file/showfiles.php?group_id=$group_id', 1, 0, 'system', 140);
 insert into service (service_id, group_id, label, description, short_name, link, is_active, is_used, scope, `rank`) VALUES (17, 100, 'service_wiki_lbl_key', 'service_wiki_desc_key', 'wiki', '/wiki/?group_id=$group_id', 0, 0, 'system', 105);
 
 -- Group 1
 insert into service (service_id, group_id, label, description, short_name, link, is_active, is_used, scope, `rank`) VALUES (31, 1, 'service_summary_lbl_key', 'service_summary_desc_key', 'summary', '/projects/admin/', 1, 1, 'system', 10);
 insert into service (service_id, group_id, label, description, short_name, link, is_active, is_used, scope, `rank`) VALUES (32, 1, 'service_admin_lbl_key', 'service_admin_desc_key', 'admin', '/project/admin/?group_id=1', 1, 1, 'system', 20);
-insert into service (service_id, group_id, label, description, short_name, link, is_active, is_used, scope, `rank`) VALUES (34, 1, 'service_forum_lbl_key', 'service_forum_desc_key', 'forum', '/forum/?group_id=1', 0, 0, 'system', 40);
-insert into service (service_id, group_id, label, description, short_name, link, is_active, is_used, scope, `rank`) VALUES (38, 1, 'service_news_lbl_key', 'service_news_desc_key', 'news', '/news/?group_id=1', 0, 0, 'system', 120);
 insert into service (service_id, group_id, label, description, short_name, link, is_active, is_used, scope, `rank`) VALUES (40, 1, 'service_file_lbl_key', 'service_file_desc_key', 'file', '/file/showfiles.php?group_id=1', 1, 0, 'system', 140);
-
--- Group 46 - SiteNews
-insert into service (service_id, group_id, label, description, short_name, link, is_active, is_used, scope, `rank`) VALUES (51, 46, 'service_summary_lbl_key', 'service_summary_desc_key', 'summary', '/projects/sitenews/', 1, 1, 'system', 10);
-insert into service (service_id, group_id, label, description, short_name, link, is_active, is_used, scope, `rank`) VALUES (52, 46, 'service_admin_lbl_key', 'service_admin_desc_key', 'admin', '/project/admin/?group_id=46', 1, 1, 'system', 20);
-insert into service (service_id, group_id, label, description, short_name, link, is_active, is_used, scope, `rank`) VALUES (54, 46, 'service_forum_lbl_key', 'service_forum_desc_key', 'forum', '/forum/?group_id=46', 1, 1, 'system', 40);
-insert into service (service_id, group_id, label, description, short_name, link, is_active, is_used, scope, `rank`) VALUES (55, 46, 'service_news_lbl_key', 'service_news_desc_key', 'news', '/news/?group_id=46', 1, 1, 'system', 120);
 
 --
 --
@@ -276,9 +247,6 @@ INSERT INTO ugroup (ugroup_id, name, description, group_id) VALUES (4, "ugroup_p
 INSERT INTO ugroup (ugroup_id, name, description, group_id) VALUES (5, "ugroup_authenticated_users_name_key", "ugroup_authenticated_users_desc_key", 100);
 INSERT INTO ugroup (ugroup_id, name, description, group_id) VALUES (11, "ugroup_file_manager_admin_name_key", "ugroup_file_manager_admin_desc_key", 100);
 INSERT INTO ugroup (ugroup_id, name, description, group_id) VALUES (14, "ugroup_wiki_admin_name_key", "ugroup_wiki_admin_desc_key", 100);
-INSERT INTO ugroup (ugroup_id, name, description, group_id) VALUES (16, "ugroup_forum_admin_name_key", "ugroup_forum_admin_desc_key", 100);
-INSERT INTO ugroup (ugroup_id, name, description, group_id) VALUES (17, "ugroup_news_admin_name_key", "ugroup_news_admin_desc_key", 100);
-INSERT INTO ugroup (ugroup_id, name, description, group_id) VALUES (18, "ugroup_news_writer_name_key", "ugroup_news_writer_desc_key", 100);
 
 
 
@@ -322,8 +290,6 @@ INSERT INTO permissions_values (permission_type,ugroup_id) VALUES ('WIKIATTACHME
 INSERT INTO permissions_values (permission_type,ugroup_id,is_default) VALUES ('WIKIATTACHMENT_READ',2,1);
 INSERT INTO permissions_values (permission_type,ugroup_id) VALUES ('WIKIATTACHMENT_READ',3);
 INSERT INTO permissions_values (permission_type,ugroup_id) VALUES ('WIKIATTACHMENT_READ',4);
-
-INSERT INTO permissions_values (permission_type,ugroup_id,is_default) VALUES ('NEWS_READ',1,1);
 
 -- install and enable pluginsadministration
 INSERT INTO plugin (name, available) VALUES ('pluginsadministration', '1');
@@ -395,32 +361,6 @@ INSERT INTO reference SET \
     service_short_name='wiki', \
     nature='wiki_page';
 
-INSERT INTO reference SET \
-    id='12',        \
-    keyword='news', \
-    description='reference_news_desc_key', \
-    link='/forum/forum.php?forum_id=$1', \
-    scope='S', \
-    service_short_name='news', \
-    nature='news';
-
-INSERT INTO reference SET \
-    id='13',        \
-    keyword='forum', \
-    description='reference_forum_desc_key', \
-    link='/forum/forum.php?forum_id=$1', \
-    scope='S', \
-    service_short_name='forum', \
-    nature='forum';
-
-INSERT INTO reference SET \
-    id='14',        \
-    keyword='msg', \
-    description='reference_msg_desc_key', \
-    link='/forum/message.php?msg_id=$1', \
-    scope='S', \
-    service_short_name='forum', \
-    nature='forum_message';
 
 INSERT INTO reference SET \
     id='15',        \
@@ -506,26 +446,12 @@ INSERT INTO reference_group SET reference_id='15', group_id='1', is_active='1';
 INSERT INTO reference_group SET reference_id='16', group_id='1', is_active='1';
 INSERT INTO reference_group SET reference_id='70', group_id='1', is_active='1';
 
--- Sitenews project (group 46)
-INSERT INTO reference_group SET reference_id='12', group_id='46', is_active='1';
-INSERT INTO reference_group SET reference_id='13', group_id='46', is_active='1';
-INSERT INTO reference_group SET reference_id='14', group_id='46', is_active='1';
-
-
---
--- Add forums in Template project (group 100)
---
-INSERT INTO forum_group_list (group_id,forum_name,is_public,description) VALUES ('100','Open Discussion',1 ,'General Discussion');
-INSERT INTO forum_group_list (group_id,forum_name,is_public,description) VALUES ('100','Help',1 ,'Get Help');
-INSERT INTO forum_group_list (group_id,forum_name,is_public,description) VALUES ('100','Developers',0 ,'Project Developer Discussion');
-
 INSERT INTO system_events_followers (emails, types) VALUES ('admin', 'WARNING,ERROR');
 
 INSERT INTO forgeconfig (name, value) VALUES ('access_mode', 'anonymous');
 INSERT INTO forgeconfig (name, value) VALUES ('sys_project_approval', '0');
 INSERT INTO forgeconfig (name, value) VALUES ('sys_user_approval', '0');
 INSERT INTO forgeconfig (name, value) VALUES ('display_homepage_statistics', '1');
-INSERT INTO forgeconfig (name, value) VALUES ('display_homepage_news', '1');
 INSERT INTO forgeconfig (name, value) VALUES ('display_tuleap_review_link', '1');
 INSERT INTO forgeconfig (name, value) VALUES ('default_project_visibility', 'public');
 INSERT INTO forgeconfig (name, value) VALUES ('sys_suspend_inactive_accounts_notification_delay', '0');

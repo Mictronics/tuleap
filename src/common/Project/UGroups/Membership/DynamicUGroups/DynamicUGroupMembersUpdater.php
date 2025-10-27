@@ -32,14 +32,8 @@ use Tuleap\Project\Admin\ProjectUGroup\ApproveProjectAdministratorRemoval;
 use Tuleap\Project\Admin\ProjectUGroup\CannotAddRestrictedUserToProjectNotAllowingRestricted;
 use Tuleap\Project\Admin\ProjectUGroup\CannotRemoveLastProjectAdministratorException;
 use Tuleap\Project\Admin\ProjectUGroup\CannotRemoveUserMembershipToUserGroupException;
-use Tuleap\Project\Admin\ProjectUGroup\UserBecomesForumAdmin;
-use Tuleap\Project\Admin\ProjectUGroup\UserBecomesNewsAdministrator;
-use Tuleap\Project\Admin\ProjectUGroup\UserBecomesNewsWriter;
 use Tuleap\Project\Admin\ProjectUGroup\UserBecomesProjectAdmin;
 use Tuleap\Project\Admin\ProjectUGroup\UserBecomesWikiAdmin;
-use Tuleap\Project\Admin\ProjectUGroup\UserIsNoLongerForumAdmin;
-use Tuleap\Project\Admin\ProjectUGroup\UserIsNoLongerNewsAdministrator;
-use Tuleap\Project\Admin\ProjectUGroup\UserIsNoLongerNewsWriter;
 use Tuleap\Project\Admin\ProjectUGroup\UserIsNoLongerProjectAdmin;
 use Tuleap\Project\Admin\ProjectUGroup\UserIsNoLongerWikiAdmin;
 use Tuleap\Project\UserPermissionsDao;
@@ -74,15 +68,6 @@ class DynamicUGroupMembersUpdater
             case ProjectUGroup::WIKI_ADMIN:
                 $this->addWikiAdministrator($project, $user, $project_admin);
                 break;
-            case ProjectUGroup::FORUM_ADMIN:
-                $this->addForumAdministrator($project, $user, $project_admin);
-                break;
-            case ProjectUGroup::NEWS_WRITER:
-                $this->addNewsEditor($project, $user, $project_admin);
-                break;
-            case ProjectUGroup::NEWS_ADMIN:
-                $this->addNewsAdministrator($project, $user, $project_admin);
-                break;
         }
     }
 
@@ -97,15 +82,6 @@ class DynamicUGroupMembersUpdater
                 break;
             case ProjectUGroup::WIKI_ADMIN:
                 $this->removeWikiAdministrator($project, $user);
-                break;
-            case ProjectUGroup::FORUM_ADMIN:
-                $this->removeForumAdministrator($project, $user);
-                break;
-            case ProjectUGroup::NEWS_WRITER:
-                $this->removeNewsEditor($project, $user);
-                break;
-            case ProjectUGroup::NEWS_ADMIN:
-                $this->removeNewsAdministrator($project, $user);
                 break;
         }
     }
@@ -169,44 +145,5 @@ class DynamicUGroupMembersUpdater
         if (! $this->user_permissions_dao->isUserPartOfProjectMembers($project->getID(), $user->getId())) {
             $this->project_member_adder->addProjectMemberWithFeedback($user, $project, $project_admin);
         }
-    }
-
-    private function addForumAdministrator(Project $project, PFUser $user, PFUser $project_admin): void
-    {
-        $this->ensureUserIsProjectMember($project, $user, $project_admin);
-        $this->user_permissions_dao->addUserAsForumAdmin($project->getID(), $user->getId());
-        $this->event_manager->processEvent(new UserBecomesForumAdmin($project, $user));
-    }
-
-    private function removeForumAdministrator(Project $project, PFUser $user): void
-    {
-        $this->user_permissions_dao->removeUserFromForumAdmin($project->getID(), $user->getId());
-        $this->event_manager->processEvent(new UserIsNoLongerForumAdmin($project, $user));
-    }
-
-    private function addNewsEditor(Project $project, PFUser $user, PFUser $project_admin): void
-    {
-        $this->ensureUserIsProjectMember($project, $user, $project_admin);
-        $this->user_permissions_dao->addUserAsNewsEditor($project->getID(), $user->getId());
-        $this->event_manager->processEvent(new UserBecomesNewsWriter($project, $user));
-    }
-
-    private function removeNewsEditor(Project $project, PFUser $user): void
-    {
-        $this->user_permissions_dao->removeUserFromNewsEditor($project->getID(), $user->getId());
-        $this->event_manager->processEvent(new UserIsNoLongerNewsWriter($project, $user));
-    }
-
-    private function addNewsAdministrator(Project $project, PFUser $user, PFUser $project_admin): void
-    {
-        $this->ensureUserIsProjectMember($project, $user, $project_admin);
-        $this->user_permissions_dao->addUserAsNewsAdmin($project->getID(), $user->getId());
-        $this->event_manager->processEvent(new UserBecomesNewsAdministrator($project, $user));
-    }
-
-    private function removeNewsAdministrator(Project $project, PFUser $user): void
-    {
-        $this->user_permissions_dao->removeUserFromNewsAdmin($project->getID(), $user->getId());
-        $this->event_manager->processEvent(new UserIsNoLongerNewsAdministrator($project, $user));
     }
 }

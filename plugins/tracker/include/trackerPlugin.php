@@ -29,7 +29,6 @@ use Tuleap\BurningParrotCompatiblePageEvent;
 use Tuleap\CLI\CLICommandsCollector;
 use Tuleap\Config\ConfigClassProvider;
 use Tuleap\Config\PluginWithConfigKeys;
-use Tuleap\Cryptography\KeyFactory;
 use Tuleap\Dashboard\User\AtUserCreationDefaultWidgetsCreator;
 use Tuleap\Dashboard\Widget\DashboardWidgetDao;
 use Tuleap\DB\DBFactory;
@@ -324,17 +323,17 @@ require_once __DIR__ . '/constants.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../include/manual_autoload.php';
 
-// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotPascalCase
+// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithService
 {
-    public final const TRACKER_EVENT_INCLUDE_CSS_FILE = 'tracker_event_include_css_file';
+    public final const string TRACKER_EVENT_INCLUDE_CSS_FILE = 'tracker_event_include_css_file';
 
-    public const EMAILGATEWAY_TOKEN_ARTIFACT_UPDATE      = 'forge__artifacts';
-    public const EMAILGATEWAY_INSECURE_ARTIFACT_CREATION = 'forge__tracker';
-    public const EMAILGATEWAY_INSECURE_ARTIFACT_UPDATE   = 'forge__artifact';
-    public const SERVICE_SHORTNAME                       = 'plugin_tracker';
-    public const TRUNCATED_SERVICE_NAME                  = 'Trackers';
-    public const DELETED_TRACKERS_TEMPLATE_NAME          = 'deleted_trackers';
+    public const string EMAILGATEWAY_TOKEN_ARTIFACT_UPDATE      = 'forge__artifacts';
+    public const string EMAILGATEWAY_INSECURE_ARTIFACT_CREATION = 'forge__tracker';
+    public const string EMAILGATEWAY_INSECURE_ARTIFACT_UPDATE   = 'forge__artifact';
+    public const string SERVICE_SHORTNAME                       = 'plugin_tracker';
+    public const string TRUNCATED_SERVICE_NAME                  = 'Trackers';
+    public const string DELETED_TRACKERS_TEMPLATE_NAME          = 'deleted_trackers';
 
     public function __construct($id)
     {
@@ -343,7 +342,6 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         bindtextdomain('tuleap-tracker', __DIR__ . '/../site-content');
 
         $this->addHook('javascript_file');
-        $this->addHook('cssfile', 'cssFile');
         $this->addHook(NatureCollection::NAME);
         $this->addHook(Event::GET_ARTIFACT_REFERENCE_GROUP_ID, 'get_artifact_reference_group_id');
         $this->addHook(Event::SET_ARTIFACT_REFERENCE_GROUP_ID);
@@ -561,7 +559,8 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         return array_keys($output) === ['group_id'];
     }
 
-    public function cssFile()
+    #[ListeningToEventName('cssfile')]
+    public function cssFile(): void
     {
         $include_tracker_css_file = false;
         EventManager::instance()->processEvent(self::TRACKER_EVENT_INCLUDE_CSS_FILE, ['include_tracker_css_file' => &$include_tracker_css_file]);
@@ -2491,7 +2490,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             new DefaultTemplatesCollectionBuilder(\EventManager::instance()),
             new AsyncJiraScheduler(
                 $logger,
-                new KeyFactory(),
+                new \Tuleap\Cryptography\KeyFactoryFromFileSystem(),
                 new PendingJiraImportDao(),
                 $this->getJiraRunner($logger)
             )
@@ -2703,7 +2702,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         return new JiraRunner(
             $logger,
             new QueueFactory($logger),
-            new KeyFactory(),
+            new \Tuleap\Cryptography\KeyFactoryFromFileSystem(),
             FromJiraTrackerCreator::build($jira_user_on_tuleap_cache),
             new PendingJiraImportDao(),
             $this->getJiraSuccessImportNotifier(),

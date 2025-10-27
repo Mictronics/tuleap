@@ -56,6 +56,7 @@ class BurningParrotCompatiblePageDetector
             || $this->isManagingLabels()
             || $this->isInProjectAdmin()
             || $this->isInContact()
+            || $this->isInFrs()
             || $this->isInHelp()
             || $this->isInBurningParrotCompatiblePage()
             || $this->isSoftwareMap()
@@ -73,13 +74,8 @@ class BurningParrotCompatiblePageDetector
             return false;
         }
 
-        return strpos($_SERVER['REQUEST_URI'], '/project/admin/editgroupinfo.php') === 0
-            || strpos($_SERVER['REQUEST_URI'], '/project/admin/ugroup.php') === 0
-            || strpos($_SERVER['REQUEST_URI'], '/project/admin/editugroup.php') === 0
-            || strpos($_SERVER['REQUEST_URI'], '/project/admin/editugroup.php') === 0
-            || strpos($_SERVER['REQUEST_URI'], '/project/admin/reference.php?view=creation') === 0
-            || strpos($_SERVER['REQUEST_URI'], '/project/admin/reference.php?view=edit') === 0
-            || strpos($_SERVER['REQUEST_URI'], '/project/admin/permission_per_group.php') === 0;
+        return strpos($_SERVER['REQUEST_URI'], '/project/admin/') === 0
+            || strpos($_SERVER['REQUEST_URI'], '/project/stats/source_code_access.php') === 0;
     }
 
     private function isInCoreServicesSiteAdmin(PFUser $current_user)
@@ -128,6 +124,26 @@ class BurningParrotCompatiblePageDetector
     private function isTos(): bool
     {
         return strpos($_SERVER['REQUEST_URI'], '/tos/') === 0;
+    }
+
+    private function isInFrs(): bool
+    {
+        if (! isset($_SERVER['REQUEST_URI'])) {
+            return false;
+        }
+
+        $query_string = [];
+        if (isset($_SERVER['QUERY_STRING'])) {
+            parse_str($_SERVER['QUERY_STRING'], $query_string);
+        }
+
+        return strpos($_SERVER['REQUEST_URI'], '/file/admin/manageprocessors.php') === 0
+            || strpos($_SERVER['REQUEST_URI'], '/file/admin/editproc.php') === 0
+            || (
+                strpos($_SERVER['REQUEST_URI'], '/file/admin/') === 0 &&
+                isset($query_string['action']) &&
+                $query_string['action'] === 'edit-permissions'
+            );
     }
 
     private function isInBurningParrotCompatiblePage()

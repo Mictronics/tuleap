@@ -20,7 +20,7 @@
 
 namespace Tuleap\AgileDashboard\REST\v1\Artifact;
 
-use Tuleap\AgileDashboard\FormElement\Burnup\CountElementsInfo;
+use Tuleap\AgileDashboard\FormElement\Burnup\Count\CountElementsInfo;
 use Tuleap\REST\JsonCast;
 
 final class BurnupCountElementsPointRepresentation

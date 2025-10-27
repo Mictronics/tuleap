@@ -42,19 +42,19 @@ use Tuleap\SeatManagement\CachedLicenseBuilder;
 
 final class LogToGraylog2
 {
-    public const CONFIG_LOGGER_GRAYLOG2 = 'graylog2';
+    public const string CONFIG_LOGGER_GRAYLOG2 = 'graylog2';
 
     #[ConfigKey('Graylog2 server fully qualified domain name')]
-    public const CONFIG_GRAYLOG2_SERVER = 'graylog2_server';
+    public const string CONFIG_GRAYLOG2_SERVER = 'graylog2_server';
 
     #[ConfigKey('Graylog2 port')]
-    public const CONFIG_GRAYLOG2_PORT = 'graylog2_port';
+    public const string CONFIG_GRAYLOG2_PORT = 'graylog2_port';
 
     #[ConfigKey('Toggle usage of TLS to communicate with Graylog2 server')]
-    public const CONFIG_GRAYLOG2_SSL = 'graylog2_ssl';
+    public const string CONFIG_GRAYLOG2_SSL = 'graylog2_ssl';
 
     #[ConfigKey('Toggle debug mode of communication between Tuleap and Graylog2 server')]
-    public const CONFIG_GRAYLOG2_DEBUG = 'graylog2_debug';
+    public const string CONFIG_GRAYLOG2_DEBUG = 'graylog2_debug';
 
     public function configure(Logger $logger, int|Level $level): LoggerInterface
     {
@@ -73,7 +73,7 @@ final class LogToGraylog2
 
         $logger->pushProcessor(new IntrospectionProcessor());
         $logger->pushProcessor(new IncludeBacktraceProcessor());
-        $logger->pushProcessor(new TuleapIdentifierProcessor(VersionPresenter::fromFlavorFinder(new FlavorFinderFromLicense(CachedLicenseBuilder::instance()))));
+        $logger->pushProcessor(new TuleapIdentifierProcessor(VersionPresenter::fromFlavorFinder(new FlavorFinderFromLicense(CachedLicenseBuilder::instance($logger)))));
 
         return $logger;
     }

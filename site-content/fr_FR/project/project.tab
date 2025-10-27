@@ -34,8 +34,6 @@ project_admin_editservice	service_admin_lbl_key	Admin
 project_admin_editservice	service_admin_desc_key	Administration du projet
 project_admin_editservice	service_homepage_lbl_key	Site Web
 project_admin_editservice	service_homepage_desc_key	Site Web du projet
-project_admin_editservice	service_forum_lbl_key	Forums
-project_admin_editservice	service_forum_desc_key	Forums du projet
 project_admin_editservice	service_bugs_lbl_key	Bugs
 project_admin_editservice	service_bugs_desc_key	Gestionnaire de bugs
 project_admin_editservice	service_support_lbl_key	Support
@@ -48,8 +46,6 @@ project_admin_editservice	service_task_lbl_key	Tâches
 project_admin_editservice	service_task_desc_key	Gestionnaire de tâches
 project_admin_editservice	service_doc_lbl_key	Documentation
 project_admin_editservice	service_doc_desc_key	Gestion de document
-project_admin_editservice	service_news_lbl_key	Annonces
-project_admin_editservice	service_news_desc_key	Annonces du projet
 project_admin_editservice	service_file_lbl_key	Fichiers
 project_admin_editservice	service_file_desc_key	Publication de fichiers
 project_admin_editservice	service_tracker_lbl_key	Tracker v3
@@ -74,7 +70,6 @@ project_admin_grouptrove	changed_trove	Modifier la catégorisation du projet
 # Script: SF/www/project/admin/history.php
 #
 project_admin_history	proj_history	Historique du projet
-project_admin_history	proj_change_log_msg	<p>Ce journal montre qui a opéré des changements dans la configuration du projet et quand.
 #
 #-----------------------------------------------
 # Script: SF/www/project/admin/index.php
@@ -101,7 +96,7 @@ project_admin_index	no_tracker_found	Aucun tracker n'est accessible
 project_admin_index	admin	Administration
 project_admin_index	member_request_delegation_title	Délégation des demandes d'accès au projet
 project_admin_index	member_request_delegation_desc_private_group	Lorsqu'un utilisateur n'a pas accès à votre projet privé, il peut vous envoyer une demande afin d'être ajouté aux membres de projet.
-project_admin_index	member_request_delegation_desc_selected_group	La demande est envoyée au groupe d'utilisateurs suivant :
+project_admin_index	member_request_delegation_desc_selected_group	La demande est envoyée au groupe d'utilisateurs suivant
 project_admin_index	member_request_delegation_desc_restricted_user	Lorsqu'un utilisateur n'a pas accès à votre projet, du fait qu'il soit soit restreint aux projects dont il est membre, il peut vous envoyer une demande afin d'être ajouté aux membres de projet.
 project_admin_index	member_request_delegation_ugroups_error	Groupe d'utilisateur invalid
 project_admin_index	member_request_delegation_ugroups_all_invalid	Les groupes d'utilisateurs ne peuvent pas etre ajoutés, ils ne contiennent aucun admin du projet ou sont vides
@@ -120,7 +115,6 @@ project_admin_index	show_projects	Projets créés à partir de ce modèle
 #-----------------------------------------------
 # Script: SF/www/project/admin/permissions.php
 #
-project_admin_permissions	news_access	Lecture d'annonce
 project_admin_permissions	pack_download	Téléchargement de paquet
 project_admin_permissions	rel_download	Téléchargement de version
 project_admin_permissions	doc_access	Accès à un document
@@ -173,9 +167,6 @@ project_reference	reference_wiki_desc_key	Page Wiki
 project_reference	reference_wikiversion_desc_key	Version Wiki
 project_reference	reference_file_desc_key	Fichier
 project_reference	reference_doc_desc_key	Document
-project_reference	reference_news_desc_key	Annonce
-project_reference	reference_forum_desc_key	Forum
-project_reference	reference_msg_desc_key	Message de forum
 project_reference	reference_bug_desc_key	Bug
 project_reference	reference_task_desc_key	Tache
 project_reference	reference_sr_desc_key	Demande de support
@@ -187,9 +178,6 @@ project_reference	reference_document_nature_key	Document
 project_reference	reference_svn_revision_nature_key	Révision Subversion
 project_reference	reference_file_nature_key	Fichier
 project_reference	reference_release_nature_key	Version
-project_reference	reference_forum_nature_key	Forum
-project_reference	reference_forum_message_nature_key	Message de forum
-project_reference	reference_news_nature_key	Annonce
 project_reference	reference_wiki_page_nature_key	Page Wiki
 project_reference	reference_other_nature_key	Autre
 #
@@ -210,9 +198,6 @@ project_admin_utils	event_placeholder	Choisir un évènement…
 project_admin_utils	val	Valeur
 project_admin_utils	date	Date
 project_admin_utils	access	Changement d'Accès
-project_admin_utils	no_g_change	Aucun changement correspondant au filtre, n'a été effectué sur ce projet
-project_admin_utils	previous	Précédent
-project_admin_utils	next	Suivant
 project_admin_utils	permission_request	Mettre à jour les groupes et le message
 project_admin_utils	selected_ugroups_title	Le(s) groupe(s) d'utilisateurs notifié(s) lors de la délégation des demandes d'accès:
 project_admin_utils	notif_message_title	Message de notification par défaut:
@@ -287,10 +272,7 @@ project_admin_utils	event_ug	Groupe d'utilisateur
 project_admin_utils	event_project	Projet
 project_admin_utils	event_others	Autres
 project_admin_utils	search_user	Chercher par nom d'utilisateur :
-project_admin_utils	export_history	Exporter l'historique du projet
 project_admin_utils	toggle_search	Basculer l'affichage de la recherche
-project_admin_utils	history_search_title	Chercher dans l'historique du projet
-project_admin_utils	choose_event	--Choisissez un evènement--
 project_admin_utils	verify_start_date	Vérifiez la date de début
 project_admin_utils	verify_end_date	Vérifiez la date de fin
 project_admin_utils	verify_dates	La date de début doit être inférieure à la date de fin
@@ -382,8 +364,6 @@ project_admin_userperms	perm_fail_for	Erreur de permissions pour $1
 project_admin_userperms	perm_upd	Permissions mises à jour
 project_admin_userperms	user_name	Nom d'utilisateur
 project_admin_userperms	bug_track	Tracker de bugs
-project_admin_userperms	forums	Forums
-project_admin_userperms	news	Annonces
 project_admin_userperms	svn	SVN
 project_admin_userperms	task_man	Tracker de tâches
 project_admin_userperms	patch_man	Tracker de corrections
@@ -618,12 +598,6 @@ project_ugroup	ugroup_file_manager_admin_name_key	admins_gestionnaire_fichier
 project_ugroup	ugroup_document_tech_name_key	techs_document
 project_ugroup	ugroup_document_admin_name_key	admins_document
 project_ugroup	ugroup_wiki_admin_name_key	admins_wiki
-project_ugroup	ugroup_forum_admin_name_key	forum_moderator
-project_ugroup	ugroup_forum_admin_desc_key	Modérateurs de forum
-project_ugroup	ugroup_news_writer_name_key	Rédacteurs d'annonces
-project_ugroup	ugroup_news_writer_desc_key	Rédacteurs d'annonces
-project_ugroup	ugroup_news_admin_name_key	Administrateurs d'annonces
-project_ugroup	ugroup_news_admin_desc_key	Administrateurs d'annonces
 project_ugroup	ugroup_tracker_admins_name_key	admins_tracker
 #project_ugroup	ugroup_tracker_techs_name_key	techs_tracker
 project_ugroup	ugroup_nobody_name_key	personne
@@ -638,9 +612,6 @@ project_ugroup	ugroup_file_manager_admins	Administrateurs du gestionnaire de fic
 project_ugroup	ugroup_document_techs	Techniciens du gestionnaire de documents
 project_ugroup	ugroup_document_admins	Administrateurs du gestionnaire de documents
 project_ugroup	ugroup_wiki_admins	Administrateurs du wiki
-project_ugroup	ugroup_forum_admins	Modérateurs de forum
-project_ugroup	ugroup_news_writers	Rédacteurs d'annonces
-project_ugroup	ugroup_news_admins	Administrateurs d'annonces
 #-----------------------------------------------
 # Script: /www/project/Project.class.php
 #

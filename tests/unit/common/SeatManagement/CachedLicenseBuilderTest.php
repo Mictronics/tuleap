@@ -31,7 +31,7 @@ final class CachedLicenseBuilderTest extends TestCase
 {
     public function testItUsesCache(): void
     {
-        $license         = License::buildEnterpriseEdition();
+        $license         = License::buildInfiniteEnterpriseEdition();
         $license_builder = BuildLicenseStub::buildWithLicense($license);
 
         $cache = new CachedLicenseBuilder($license_builder);

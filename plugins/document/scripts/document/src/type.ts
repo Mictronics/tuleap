@@ -19,7 +19,6 @@
 
 import type { ErrorState } from "./store/error/module";
 import type { PermissionsState } from "./store/permissions/permissions-default-state";
-import type { PropertiesState } from "./store/properties/module";
 import type { Upload } from "tus-js-client";
 import type { RestUser } from "./api/rest-querier";
 import {
@@ -54,7 +53,6 @@ export interface State {
 export interface RootState extends State {
     error: ErrorState;
     permissions: PermissionsState;
-    properties: PropertiesState;
 }
 
 export type Direction = "BOTTOM" | "TOP" | "NEXT" | "PREVIOUS";
@@ -581,3 +579,7 @@ interface OtherItemType {
 }
 
 export type OtherItemTypeCollection = Record<string, OtherItemType>;
+
+export type EmbeddedFileDisplayPreference = "large" | "narrow";
+export const EMBEDDED_FILE_DISPLAY_LARGE: EmbeddedFileDisplayPreference = "large";
+export const EMBEDDED_FILE_DISPLAY_NARROW: EmbeddedFileDisplayPreference = "narrow";

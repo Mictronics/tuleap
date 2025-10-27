@@ -34,7 +34,7 @@ use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\EventDispatcherStub;
 use Tuleap\Tracker\Artifact\Changeset\NewChangeset;
 use Tuleap\Tracker\Artifact\RetrieveArtifact;
-use Tuleap\Tracker\FormElement\Field\ListFields\RetrieveUsedListField;
+use Tuleap\Tracker\FormElement\Field\List\RetrieveUsedListField;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetValueListTestBuilder;
@@ -50,7 +50,7 @@ final class MasschangeUpdaterTest extends TestCase
 {
     use GlobalResponseMock;
 
-    private const USER_ID = 963;
+    private const int USER_ID = 963;
     private Tracker_ArtifactDao&MockObject $artifact_dao;
     private RetrieveUsedListField $form_element_factory;
     private RetrieveArtifact $artifact_factory;

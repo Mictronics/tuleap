@@ -27,12 +27,14 @@ enum PullRequestApp: string
     case LEGACY_ANGULAR_APP = '';
     case OVERVIEW_APP       = 'overview';
     case HOMEPAGE_APP       = 'homepage';
+    case COMMITS_APP        = 'commits';
 
     public static function fromRequest(\HTTPRequest $request): self
     {
         return match ($request->get('tab')) {
             'overview' => self::OVERVIEW_APP,
             'homepage' => self::HOMEPAGE_APP,
+            'commits'  => self::COMMITS_APP,
             default    => self::LEGACY_ANGULAR_APP,
         };
     }

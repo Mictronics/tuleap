@@ -54,7 +54,7 @@
                 ref="target-caret-element"
             ></i>
         </button>
-        <a v-bind:href="artifact_url" class="link"
+        <a v-bind:href="artifact_url" class="link cross-reference"
             ><span v-bind:class="getCrossRefBadgeClass(props.cell)"
                 >{{ props.cell.tracker_name }} #{{ props.cell.artifact_id }}</span
             >{{ props.cell.title }}</a
@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, useTemplateRef, onMounted } from "vue";
+import { computed, ref, useTemplateRef, onMounted, onBeforeUnmount } from "vue";
 import { useGettext } from "vue3-gettext";
 import {
     type ArtifactLinkDirection,
@@ -82,12 +82,14 @@ import {
 } from "../../injection-symbols";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import { PROJECT_DASHBOARD } from "../../domain/DashboardType";
-import type { ArrowDataEntry } from "../../domain/ArrowDataStore";
+import type { ArrowDataEntry, ArrowDataStore } from "../../domain/ArrowDataStore";
+import { loadTooltips } from "@tuleap/tooltip";
+import type { TableDataStore } from "../../domain/TableDataStore";
 
 const dashboard_id = strictInject(DASHBOARD_ID);
 const dashboard_type = strictInject(DASHBOARD_TYPE);
-const table_data_store = strictInject(TABLE_DATA_STORE);
-const arrow_data_store = strictInject(ARROW_DATA_STORE);
+const table_data_store: TableDataStore = strictInject(TABLE_DATA_STORE);
+const arrow_data_store: ArrowDataStore = strictInject(ARROW_DATA_STORE);
 
 const { $gettext } = useGettext();
 
@@ -166,6 +168,11 @@ onMounted(() => {
     };
 
     arrow_data_store.addEntry(props.uuid, cell_element.value, caret_element.value);
+    loadTooltips(cell_element.value);
+});
+
+onBeforeUnmount(() => {
+    arrow_data_store.removeEntry(props.uuid);
 });
 </script>
 

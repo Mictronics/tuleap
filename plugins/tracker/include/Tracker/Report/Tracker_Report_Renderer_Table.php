@@ -51,8 +51,8 @@ use Tuleap\Tracker\Tracker;
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements Tracker_Report_Renderer_ArtifactLinkable
 {
-    public const EXPORT_LIGHT = 1;
-    public const EXPORT_FULL  = 0;
+    public const int EXPORT_LIGHT = 1;
+    public const int EXPORT_FULL  = 0;
 
     public $chunksz;
     public $multisort;
@@ -569,7 +569,7 @@ class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements T
         $my_items            = ['export' => ''];
         $my_items['export'] .= '<div class="btn-group">';
         $my_items['export'] .= '<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown">';
-        $my_items['export'] .= '<i class="fa fa-download"></i> ';
+        $my_items['export'] .= '<i class="fa-solid fa-download"></i> ';
         $my_items['export'] .= dgettext('tuleap-tracker', 'Export');
         $my_items['export'] .= ' <span class="caret"></span>';
         $my_items['export'] .= '</a>';
@@ -882,10 +882,10 @@ class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements T
         return $columns_sort;
     }
 
-    public const NO_EXTRACOLUMN         = 0;
-    public const EXTRACOLUMN_MASSCHANGE = 1;
-    public const EXTRACOLUMN_LINK       = 2;
-    public const EXTRACOLUMN_UNLINK     = 3;
+    public const int NO_EXTRACOLUMN         = 0;
+    public const int EXTRACOLUMN_MASSCHANGE = 1;
+    public const int EXTRACOLUMN_LINK       = 2;
+    public const int EXTRACOLUMN_UNLINK     = 3;
 
     private function fetchTHead($extracolumn = 1, $only_one_column = null, $with_sort_links = true, $use_data_from_db = false, $id_suffix = '', $store_in_session = true, $is_type_col = false)
     {
@@ -1046,7 +1046,7 @@ class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements T
                                 'tuleap-tracker',
                                 'The report was sorted against this column. This column can not be used to sort a report, the sort has been ignored. Please choose another column.'
                             );
-                            $html           .= '<i class="fa fa-exclamation-triangle" title="' . $warning_message . '"></i>';
+                            $html           .= '<i class="fa-solid fa-triangle-exclamation" title="' . $warning_message . '"></i>';
                         }
                         $html .= '</td>';
                     }
@@ -1603,7 +1603,7 @@ class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements T
             class="btn btn-mini dropdown-toggle"
             title="' . dgettext('tuleap-tracker', 'Toggle an aggregate function') . '"
             data-toggle="dropdown">';
-        $html      .= '<i class="fa fa-plus"></i> ';
+        $html      .= '<i class="fa-solid fa-plus"></i> ';
         $html      .= '<span class="caret"></span>';
         $html      .= '</a>';
         $html      .= '<ul class="dropdown-menu ' . ($is_first ? '' : 'pull-right') . '">';

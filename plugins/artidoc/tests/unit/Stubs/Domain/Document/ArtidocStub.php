@@ -20,7 +20,7 @@
 
 declare(strict_types=1);
 
-namespace unit\Artidoc\Stubs\Domain\Document;
+namespace Tuleap\Artidoc\Stubs\Domain\Document;
 
 use Tuleap\Artidoc\Domain\Document\Artidoc;
 
@@ -57,5 +57,11 @@ final class ArtidocStub implements Artidoc
     public function getProjectId(): int
     {
         return 101;
+    }
+
+    #[\Override]
+    public function getDescription(): string
+    {
+        return 'Description';
     }
 }

@@ -22,10 +22,15 @@ declare(strict_types=1);
 
 namespace Tuleap\SeatManagement;
 
+use Tuleap\NeverThrow\Err;
+use Tuleap\NeverThrow\Fault;
+use Tuleap\NeverThrow\Ok;
+
 interface CheckPublicKeyPresence
 {
     /**
      * @param non-empty-string $public_key_directory
+     * @return Ok<null>|Err<Fault>
      */
-    public function checkPresence(string $public_key_directory): bool;
+    public function checkPresence(string $public_key_directory): Ok|Err;
 }

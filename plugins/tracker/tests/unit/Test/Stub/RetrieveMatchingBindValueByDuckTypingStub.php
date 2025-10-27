@@ -22,7 +22,7 @@ declare(strict_types=1);
 
 namespace Tuleap\Tracker\Test\Stub;
 
-use Tuleap\Tracker\FormElement\Field\ListFields\RetrieveMatchingBindValueByDuckTyping;
+use Tuleap\Tracker\FormElement\Field\List\RetrieveMatchingBindValueByDuckTyping;
 
 final class RetrieveMatchingBindValueByDuckTypingStub implements RetrieveMatchingBindValueByDuckTyping
 {
@@ -43,7 +43,7 @@ final class RetrieveMatchingBindValueByDuckTypingStub implements RetrieveMatchin
     #[\Override]
     public function getMatchingBindValueByDuckTyping(
         \Tracker_FormElement_Field_List_BindValue $source_value,
-        \Tuleap\Tracker\FormElement\Field\ListField $destination_field,
+        \Tuleap\Tracker\FormElement\Field\List\ListField $destination_field,
     ): ?\Tracker_FormElement_Field_List_BindValue {
         return $this->bind_value;
     }

@@ -27,13 +27,13 @@ use Tracker_FormElementFactory;
 use TrackerFactory;
 use Tuleap\TestManagement\Config;
 use Tuleap\Tracker\Artifact\Artifact;
-use Tuleap\Tracker\FormElement\Field\ListField;
+use Tuleap\Tracker\FormElement\Field\List\ListField;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class InformationNeededToRetrieveTestStatusOfACampaignTest extends \Tuleap\Test\PHPUnit\TestCase
 {
-    private const CAMPAIGN_ID     = 683;
-    private const USER_UGROUP_IDS = ['123', 4];
+    private const int CAMPAIGN_ID       = 683;
+    private const array USER_UGROUP_IDS = ['123', 4];
 
     private Artifact&MockObject $campaign;
     private \Tuleap\Tracker\Tracker&MockObject $campaign_tracker;

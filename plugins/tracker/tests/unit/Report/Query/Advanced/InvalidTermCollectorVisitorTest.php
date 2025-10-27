@@ -32,7 +32,7 @@ use Tuleap\Tracker\Admin\ArtifactLinksUsageDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\SystemTypePresenterBuilder;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
-use Tuleap\Tracker\FormElement\Field\ListFields\OpenListValueDao;
+use Tuleap\Tracker\FormElement\Field\List\OpenListValueDao;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\AndExpression;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\AndOperand;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\BetweenComparison;
@@ -100,10 +100,10 @@ final class InvalidTermCollectorVisitorTest extends \Tuleap\Test\PHPUnit\TestCas
 {
     use LegacyTabTranslationsSupport;
 
-    private const UNSUPPORTED_FIELD_NAME = 'openlist';
-    private const FIELD_NAME             = 'lackwittedly';
-    private const STRING_FIELD_NAME      = 'string';
-    private const TRACKER_ID             = 101;
+    private const string UNSUPPORTED_FIELD_NAME = 'openlist';
+    private const string FIELD_NAME             = 'lackwittedly';
+    private const string STRING_FIELD_NAME      = 'string';
+    private const int TRACKER_ID                = 101;
     private \Tracker_FormElementFactory&MockObject $formelement_factory;
     private \PFUser $user;
     private \Tuleap\Tracker\Tracker $tracker;

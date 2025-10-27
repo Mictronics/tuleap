@@ -52,7 +52,7 @@ use Tuleap\Tracker\Artifact\XMLImport\TrackerImportConfig;
 use Tuleap\Tracker\Artifact\XMLImport\TrackerXmlImportConfig;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
 use Tuleap\Tracker\FormElement\Field\Files\CreatedFileURLMapping;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindStaticValueDao;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindStaticValueDao;
 use Tuleap\Tracker\FormElement\Field\String\StringField;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
@@ -68,8 +68,8 @@ use XMLImportHelper;
 #[DisableReturnValueGenerationForTestDoubles]
 final class XmlImportTest extends TestCase
 {
-    private const SUMMARY_FIELD_ID = 50;
-    private const TRACKER_ID       = 100;
+    private const int SUMMARY_FIELD_ID = 50;
+    private const int TRACKER_ID       = 100;
 
     private TrackerXmlImportConfig $import_config;
     private string $extraction_path;

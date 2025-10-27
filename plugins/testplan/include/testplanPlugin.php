@@ -24,7 +24,10 @@ use FastRoute\RouteCollector;
 use Tuleap\AgileDashboard\BacklogItemDao;
 use Tuleap\AgileDashboard\Milestone\Backlog\MilestoneBacklogFactory;
 use Tuleap\AgileDashboard\Milestone\HeaderOptionsProvider;
+use Tuleap\AgileDashboard\Milestone\Pane\AgileDashboardPane;
+use Tuleap\AgileDashboard\Milestone\Pane\AgileDashboardPaneInfoIdentifier;
 use Tuleap\AgileDashboard\Milestone\Pane\PaneInfoCollector;
+use Tuleap\AgileDashboard\Milestone\Pane\Planning\SubmilestoneFinder;
 use Tuleap\AgileDashboard\Planning\AllowedAdditionalPanesToDisplayCollector;
 use Tuleap\AgileDashboard\Planning\HeaderOptionsForPlanningProvider;
 use Tuleap\AgileDashboard\Planning\PlanningDao;
@@ -108,7 +111,7 @@ final class testplanPlugin extends Plugin
         if ($collector->getActivePaneContext() && strpos($_SERVER['REQUEST_URI'], TestPlanPaneInfo::URL) === 0) {
             $pane_info->setActive(true);
             $collector->setActivePaneBuilder(
-                static function () use ($pane_info): AgileDashboard_Pane {
+                static function () use ($pane_info): AgileDashboardPane {
                     return new TestPlanPane($pane_info);
                 }
             );
@@ -197,10 +200,10 @@ final class testplanPlugin extends Plugin
                         $planning_factory,
                         new \Tuleap\Tracker\Artifact\Dao\ArtifactDao(),
                     ),
-                    new AgileDashboard_PaneInfoIdentifier(),
+                    new AgileDashboardPaneInfoIdentifier(),
                     $tracker_new_dropdown_link_presenter_builder,
                     new HeaderOptionsForPlanningProvider(
-                        new AgileDashboard_Milestone_Pane_Planning_SubmilestoneFinder(
+                        new SubmilestoneFinder(
                             \Tracker_HierarchyFactory::instance(),
                             $planning_factory,
                         ),

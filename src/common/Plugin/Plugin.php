@@ -61,8 +61,8 @@ class Plugin implements \Tuleap\Plugin\IsProjectAllowedToUsePlugin //phpcs:ignor
 
     protected $filesystem_path = '';
 
-    public const SCOPE_SYSTEM  = 0;
-    public const SCOPE_PROJECT = 1;
+    public const int SCOPE_SYSTEM  = 0;
+    public const int SCOPE_PROJECT = 1;
 
     /**
      * @var array List of allowed projects
@@ -203,7 +203,7 @@ class Plugin implements \Tuleap\Plugin\IsProjectAllowedToUsePlugin //phpcs:ignor
             return;
         }
         $event_class   = new \ReflectionClass($type_class);
-        $name_constant = $event_class->getConstant(Dispatchable::HOOK_CONST_NAME);
+        $name_constant = $event_class->hasConstant(Dispatchable::HOOK_CONST_NAME) ? $event_class->getConstant(Dispatchable::HOOK_CONST_NAME) : false;
         if ($name_constant === false) {
             $this->listenToHook($event_class->name, $method->name);
         } else {

@@ -137,15 +137,6 @@ class UGroupListPresenterBuilder
             $this->injectDynamicUGroup($project, ProjectUGroup::WIKI_ADMIN, $ugroups);
         }
 
-        if ($project->usesForum()) {
-            $this->injectDynamicUGroup($project, ProjectUGroup::FORUM_ADMIN, $ugroups);
-        }
-
-        if ($project->usesNews()) {
-            $this->injectDynamicUGroup($project, ProjectUGroup::NEWS_WRITER, $ugroups);
-            $this->injectDynamicUGroup($project, ProjectUGroup::NEWS_ADMIN, $ugroups);
-        }
-
         return $ugroups;
     }
 

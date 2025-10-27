@@ -27,10 +27,10 @@ use RuntimeException;
 
 class ForgeUpgradeDb
 {
-    public const STATUS_ERROR   = 0;
-    public const STATUS_SUCCESS = 1;
-    public const STATUS_FAILURE = 2;
-    public const STATUS_SKIP    = 3;
+    public const int STATUS_ERROR   = 0;
+    public const int STATUS_SUCCESS = 1;
+    public const int STATUS_FAILURE = 2;
+    public const int STATUS_SKIP    = 3;
 
     private PDO $dbh;
 
@@ -94,11 +94,11 @@ class ForgeUpgradeDb
         return $result;
     }
 
-    public function getActivePlugins(): PDOStatement
+    public function getInstalledPlugins(): PDOStatement
     {
-        $result = $this->dbh->query('SELECT name FROM plugin WHERE available = 1');
+        $result = $this->dbh->query('SELECT name FROM plugin');
         if ($result === false) {
-            throw new RuntimeException('Impossible to get the list of active plugins');
+            throw new RuntimeException('Impossible to get the list of installed plugins');
         }
         return $result;
     }

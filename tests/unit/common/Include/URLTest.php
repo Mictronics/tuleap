@@ -24,15 +24,9 @@ class URLTest extends \Tuleap\Test\PHPUnit\TestCase //phpcs:ignore
     use \Tuleap\ForgeConfigSandbox;
 
     #[\Override]
-    protected function setUp(): void
-    {
-        ForgeConfig::set('sys_news_group', 46);
-    }
-
-    #[\Override]
     protected function tearDown(): void
     {
-        unset($_REQUEST['forum_id'], $_REQUEST['artifact_id']);
+        unset($_REQUEST['artifact_id']);
     }
 
     public function testProjectsSvnExist(): void
@@ -70,14 +64,10 @@ class URLTest extends \Tuleap\Test\PHPUnit\TestCase //phpcs:ignore
     public function testProjectsExist(): void
     {
         $url = $this->createPartialMock(\URL::class, [
-            'getForumDao',
-            'getNewsBytesDao',
             'getArtifactDao',
             'getProjectNameRule',
             'getProjectDao',
         ]);
-        $url->method('getForumDao');
-        $url->method('getNewsBytesDao');
         $url->method('getArtifactDao');
 
         $exists = $this->createMock(\DataAccessResult::class);
@@ -168,74 +158,6 @@ class URLTest extends \Tuleap\Test\PHPUnit\TestCase //phpcs:ignore
 
         $url->method('getProjectDao')->willReturn($dao);
         self::assertEquals(1, $url->getGroupIdFromURL('/viewvc.php/?roottype=svn&root=test.svn'));
-    }
-
-    public function testForumDontExist(): void
-    {
-        $url    = $this->createPartialMock(\URL::class, [
-            'getForumDao',
-        ]);
-        $dao    = $this->createMock(\ForumDao::class);
-        $exists = $this->createMock(\DataAccessResult::class);
-        $exists->method('getRow')->willReturn(false);
-        $dao->method('searchByGroupForumId')->willReturn($exists);
-
-        $url->method('getForumDao')->willReturn($dao);
-        self::assertNull($url->getGroupIdFromURL('/forum/forum.php?forum_id=dontexist'));
-    }
-
-    public function testForumExist(): void
-    {
-        $url    = $this->createPartialMock(\URL::class, [
-            'getForumDao',
-        ]);
-        $dao    = $this->createMock(\ForumDao::class);
-        $exists = $this->createMock(\DataAccessResult::class);
-        $exists->method('getRow')->willReturnOnConsecutiveCalls(['group_id' => '1'], false);
-        $exists1 = $this->createMock(\DataAccessResult::class);
-        $exists1->method('getRow')->willReturnOnConsecutiveCalls(['group_id' => '1'], false);
-        $dao->method('searchByGroupForumId')->willReturnOnConsecutiveCalls($exists, $exists1);
-        $_REQUEST['forum_id'] = 1;
-        $url->method('getForumDao')->willReturn($dao);
-        self::assertEquals(1, $url->getGroupIdFromURL('/forum/forum.php?forum_id=exist'));
-        self::assertNotEquals(1, $url->getGroupIdFromURL('/toto/forum/forum.php?forum_id=exist'));
-    }
-
-    public function testNewsBytesDontExist(): void
-    {
-        $url    = $this->createPartialMock(\URL::class, [
-            'getForumDao',
-        ]);
-        $dao    = $this->createMock(\ForumDao::class);
-        $exists = $this->createMock(\DataAccessResult::class);
-
-        $exists->method('getRow')->willReturn(['group_id' => '42'], false);
-        $dao->method('searchByGroupForumId')->willReturn($exists);
-        $_REQUEST['forum_id'] = 1;
-        $url->method('getForumDao')->willReturn($dao);
-        self::assertNotEquals(ForgeConfig::get('sys_news_group'), $url->getGroupIdFromURL('/forum/forum.php?forum_id=exist'));
-    }
-
-    public function testNewsBytesExist(): void
-    {
-        $url    = $this->createPartialMock(\URL::class, [
-            'getForumDao',
-            'getNewsBytesDao',
-        ]);
-        $dao    = $this->createMock(\ForumDao::class);
-        $exists = $this->createMock(\DataAccessResult::class);
-
-        $exists->method('getRow')->willReturnOnConsecutiveCalls(['group_id' => ForgeConfig::get('sys_news_group')], false);
-        $dao->method('searchByGroupForumId')->willReturn($exists);
-        $_REQUEST['forum_id'] = 1;
-        $url->method('getForumDao')->willReturn($dao);
-
-        $dao2    = $this->createMock(\NewsBytesDao::class);
-        $exists2 = $this->createMock(\DataAccessResult::class);
-        $exists2->method('getRow')->willReturnOnConsecutiveCalls(['group_id' => ForgeConfig::get('sys_news_group')], false);
-        $dao2->method('searchByForumId')->willReturn($exists2);
-        $url->method('getNewsBytesDao')->willReturn($dao2);
-        self::assertEquals($url->getGroupIdFromURL('/forum/forum.php?forum_id=exist'), ForgeConfig::get('sys_news_group'));
     }
 
     public function testArtifactDontExist(): void

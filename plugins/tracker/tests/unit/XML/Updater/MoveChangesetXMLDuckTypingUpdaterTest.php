@@ -34,7 +34,7 @@ use Tuleap\Tracker\Action\IsArtifactLinkFieldVerifier;
 use Tuleap\Tracker\Action\IsPermissionsOnArtifactFieldVerifier;
 use Tuleap\Tracker\Action\OpenListFieldVerifier;
 use Tuleap\Tracker\Action\UserGroupOpenListFieldVerifier;
-use Tuleap\Tracker\FormElement\Field\ListFields\FieldValueMatcher;
+use Tuleap\Tracker\FormElement\Field\List\FieldValueMatcher;
 use Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionDuckTypingMatcher;
 use Tuleap\Tracker\Test\Builders\Fields\ArtifactLinkFieldBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\DateFieldBuilder;
@@ -63,10 +63,10 @@ use XMLImportHelper;
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class MoveChangesetXMLDuckTypingUpdaterTest extends TestCase
 {
-    private const CURRENT_USER_ID               = 104;
-    private const SUBMITTER_USER_ID             = 101;
-    private const ARTIFACT_SUBMISSION_TIMESTAMP = 1686468600;
-    private const ARTIFACT_MOVE_TIMESTAMP       = 1686580073;
+    private const int CURRENT_USER_ID               = 104;
+    private const int SUBMITTER_USER_ID             = 101;
+    private const int ARTIFACT_SUBMISSION_TIMESTAMP = 1686468600;
+    private const int ARTIFACT_MOVE_TIMESTAMP       = 1686580073;
 
     private MoveChangesetXMLDuckTypingUpdater $updater;
     private \PFUser $current_user;

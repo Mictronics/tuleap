@@ -23,11 +23,9 @@ group	developers	Developers
 group	long_bugs	Bug Tracking
 group	long_scm	SCM Repository
 group	long_docman	DocManager: Project Documentation
-group	long_forum	Public Forums
 group	long_ftp	Anonymous FTP Space
 group	long_homepage	Project Home Page
 group	long_mail	Mailing Lists
-group	long_news	Latest News
 group	long_patch	Patch Manager
 group	long_pm	Task Manager
 group	long_support	Tech Support Manager
@@ -43,12 +41,10 @@ group	short_bugs	Bugs
 group	short_scm	SCM
 group	short_docman	Docs
 group	short_files	Files
-group	short_forum	Forums
 group	short_homepage	Home Page
 group	short_mail	Lists
 group	short_main	Main
 group	short_memberlist	Developers
-group	short_news	News
 group	short_patch	Patches
 group	short_pm	Tasks
 group	short_summary	Summary
@@ -61,7 +57,6 @@ menu	bookmark_page	Bookmark Page
 menu	change_my_theme	Change My Theme
 menu	compile_farm	Compile Farm
 menu	diary_notes	Diary &amp; Notes
-menu	discussion_forums	Discussion Forums
 menu	documentation	Site Docs
 menu	home	Home
 menu	login	Login

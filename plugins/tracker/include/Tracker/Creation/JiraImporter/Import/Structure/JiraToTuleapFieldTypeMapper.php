@@ -29,28 +29,28 @@ use Tuleap\Tracker\Creation\JiraImporter\FromJiraTrackerCreator;
 use Tuleap\Tracker\Creation\JiraImporter\Import\AlwaysThereFieldsExporter;
 use Tuleap\Tracker\Creation\JiraImporter\Import\ErrorCollector;
 use Tuleap\Tracker\FormElement\Field\Date\XML\XMLDateField;
-use Tuleap\Tracker\FormElement\Field\FloatingPointNumber\XML\XMLFloatField;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindStatic\XML\XMLBindStaticValue;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindUsers\XML\XMLBindUsersValue;
-use Tuleap\Tracker\FormElement\Field\ListFields\XML\XMLCheckBoxField;
-use Tuleap\Tracker\FormElement\Field\ListFields\XML\XMLListField;
-use Tuleap\Tracker\FormElement\Field\ListFields\XML\XMLMultiSelectBoxField;
-use Tuleap\Tracker\FormElement\Field\ListFields\XML\XMLOpenListField;
-use Tuleap\Tracker\FormElement\Field\ListFields\XML\XMLRadioButtonField;
-use Tuleap\Tracker\FormElement\Field\ListFields\XML\XMLSelectBoxField;
-use Tuleap\Tracker\FormElement\Field\StringField\XML\XMLStringField;
+use Tuleap\Tracker\FormElement\Field\Float\XML\XMLFloatField;
+use Tuleap\Tracker\FormElement\Field\List\Bind\Static\XML\XMLBindStaticValue;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindUsers\XML\XMLBindUsersValue;
+use Tuleap\Tracker\FormElement\Field\List\XML\XMLCheckBoxField;
+use Tuleap\Tracker\FormElement\Field\List\XML\XMLListField;
+use Tuleap\Tracker\FormElement\Field\List\XML\XMLMultiSelectBoxField;
+use Tuleap\Tracker\FormElement\Field\List\XML\XMLOpenListField;
+use Tuleap\Tracker\FormElement\Field\List\XML\XMLRadioButtonField;
+use Tuleap\Tracker\FormElement\Field\List\XML\XMLSelectBoxField;
+use Tuleap\Tracker\FormElement\Field\String\XML\XMLStringField;
 use Tuleap\Tracker\FormElement\Field\Text\XML\XMLTextField;
 use Tuleap\Tracker\XML\IDGenerator;
 use Tuleap\Tracker\XML\XMLTracker;
 
 class JiraToTuleapFieldTypeMapper
 {
-    public const JIRA_FIELD_VERSIONS               = 'versions';
-    public const JIRA_FIELD_FIXEDVERSIONS          = 'fixVersions';
-    public const JIRA_FIELD_COMPONENTS             = 'components';
-    public const JIRA_FIELD_CUSTOM_MULTIVERSION    = 'com.atlassian.jira.plugin.system.customfieldtypes:multiversion';
-    public const JIRA_FIELD_CUSTOM_VERSION         = 'com.atlassian.jira.plugin.system.customfieldtypes:version';
-    public const JIRA_FIELD_CUSTOM_MULTICHECKBOXES = 'com.atlassian.jira.plugin.system.customfieldtypes:multicheckboxes';
+    public const string JIRA_FIELD_VERSIONS               = 'versions';
+    public const string JIRA_FIELD_FIXEDVERSIONS          = 'fixVersions';
+    public const string JIRA_FIELD_COMPONENTS             = 'components';
+    public const string JIRA_FIELD_CUSTOM_MULTIVERSION    = 'com.atlassian.jira.plugin.system.customfieldtypes:multiversion';
+    public const string JIRA_FIELD_CUSTOM_VERSION         = 'com.atlassian.jira.plugin.system.customfieldtypes:version';
+    public const string JIRA_FIELD_CUSTOM_MULTICHECKBOXES = 'com.atlassian.jira.plugin.system.customfieldtypes:multicheckboxes';
 
     public function __construct(
         private ErrorCollector $error_collector,

@@ -16,13 +16,10 @@
 my_index	my_dashboard	My Dashboard
 my_index	account_maintenance	My Account
 my_index	title	Personal Page for $1
-my_index	message	Your personal page contains lists of bugs [<b>A</b>]ssigned to or  [<b>S</b>]ubmitted by you, tasks assigned with percentage completion, monitored forums and packages plus a list of groups that you are a member of.<P>
+my_index	message	Your personal page contains lists of bugs [<b>A</b>]ssigned to or  [<b>S</b>]ubmitted by you, tasks assigned with percentage completion, packages plus a list of groups that you are a member of.<P>
 my_index	err_artf	Failed to create ArtifactTypeFactory
 my_index	my_bugs	My Bugs
 my_index	my_srs	My Support Requests
-my_index	my_forums	Monitored Forums
-my_index	my_forums_msg	<b>You are not monitoring any forums</b><P>If you monitor forums, you will be sent new posts in the form of an email, with a link to the new message.<P>You can monitor forums by clicking on the appropriate menu item in the discussion forum itself.<BR>&nbsp;
-my_index	stop_forum	Stop monitoring this Forum?
 my_index	my_files	Monitored File Packages
 my_index	my_files_msg	<b>You are not monitoring any files</b><P>If you monitor files, you will be sent new release notices via email, with a link to the new file on our download server.<P>You can monitor files by visiting a project's &quot;Summary Page&quot; and clicking on the appropriate icon in the files section.<BR>&nbsp;
 my_index	stop_file	Stop Monitoring this Package?
@@ -47,9 +44,9 @@ my_index	no_info	Do not show any artifacts
 my_index	a_info	assigned to me [A]
 my_index	s_info	submitted by me [S]
 my_index	as_info	assigned to or submitted by me [AS]
-my_index	my_admin	Pending users, projects and news
+my_index	my_admin	Pending users and projects
 my_index	my_admin_non_super	Pending projects
-my_index	my_admin_description	List and give a quick access to pending users, projects and news.
+my_index	my_admin_description	List and give a quick access to pending users and projects.
 my_index	no_bug	No bug yet
 my_index	no_task	No task yet
 my_index	no_support	No support request yet
@@ -98,9 +95,3 @@ bookmark_delete	deleted	Bookmark deleted!
 # Script: SF/www/my/bookmark_edit.php
 #
 bookmark_edit	title	Edit Bookmark
-#
-#-----------------------------------------------
-# Script: SF/www/my/stop_monitor.php
-#
-my_monitored_forum	stop_monitoring	Monitoring has been turned off. You will not receive any more emails from this forum.
-my_monitored_forum	title	Stop monitoring a forum.

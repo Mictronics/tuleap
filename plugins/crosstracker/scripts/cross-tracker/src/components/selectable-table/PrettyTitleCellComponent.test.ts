@@ -17,7 +17,7 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { afterEach, beforeEach, describe, expect, it } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
 import { nextTick } from "vue";
 import type { VueWrapper } from "@vue/test-utils";
 import { shallowMount } from "@vue/test-utils";
@@ -36,10 +36,6 @@ import {
 import { PROJECT_DASHBOARD, USER_DASHBOARD } from "../../domain/DashboardType";
 import { TableDataStore } from "../../domain/TableDataStore";
 import { ArrowDataStore } from "../../domain/ArrowDataStore";
-import type { Emitter } from "mitt";
-import mitt from "mitt";
-import type { Events } from "../../helpers/widget-events";
-import { INSERTED_ROW_EVENT } from "../../helpers/widget-events";
 import { v4 as uuidv4 } from "uuid";
 
 describe("PrettyTitleCellComponent", () => {
@@ -50,7 +46,6 @@ describe("PrettyTitleCellComponent", () => {
     let reverse_links_count: number | undefined;
     let level: number;
     let dashboard_type: string;
-    let emitter: Emitter<Events>;
     let table_data_store: TableDataStore;
     let arrow_data_store: ArrowDataStore;
 
@@ -65,23 +60,17 @@ describe("PrettyTitleCellComponent", () => {
         direction = undefined;
         reverse_links_count = undefined;
         dashboard_type = PROJECT_DASHBOARD;
-        emitter = mitt<Events>();
-        table_data_store = TableDataStore(emitter);
-        table_data_store.listen();
-        emitter.emit(INSERTED_ROW_EVENT, {
-            row: { row_uuid: row_uuid } as ArtifactRow,
-            parent_row: { row_uuid: parent_uuid } as ArtifactRow,
-        });
-        emitter.emit(INSERTED_ROW_EVENT, {
+        table_data_store = TableDataStore();
+        table_data_store.addEntry({
             row: { row_uuid: parent_uuid } as ArtifactRow,
-            parent_row: null,
+            parent_row_uuid: null,
+        });
+        table_data_store.addEntry({
+            row: { row_uuid: row_uuid } as ArtifactRow,
+            parent_row_uuid: parent_uuid,
         });
         arrow_data_store = ArrowDataStore();
         arrow_data_store.addEntry(parent_uuid, {} as HTMLElement, {} as HTMLElement);
-    });
-
-    afterEach(() => {
-        table_data_store.removeListeners();
     });
 
     const getWrapper = (): VueWrapper<InstanceType<typeof PrettyTitleCellComponent>> => {
@@ -273,6 +262,21 @@ describe("PrettyTitleCellComponent", () => {
             await nextTick();
 
             expect(wrapper.findComponent(ArtifactLinkArrow).exists()).toBe(true);
+        });
+    });
+
+    describe("Mount and unmount", () => {
+        it("should register the element into the ArrowDataStore on Mount", () => {
+            expect(arrow_data_store.getByUUID(row_uuid)).toBeUndefined();
+            getWrapper();
+            expect(arrow_data_store.getByUUID(row_uuid)).not.toBeUndefined();
+        });
+        it("should remove the element from the ArrowDataStore on unMount", () => {
+            const wrapper = getWrapper();
+            expect(arrow_data_store.getByUUID(row_uuid)).not.toBeUndefined();
+
+            wrapper.unmount();
+            expect(arrow_data_store.getByUUID(row_uuid)).toBeUndefined();
         });
     });
 });

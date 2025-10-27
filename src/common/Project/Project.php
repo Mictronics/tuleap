@@ -30,43 +30,42 @@ class Project extends Group implements PFO_Project  // phpcs:ignore PSR1.Classes
     /**
      * The project is active
      */
-    public const STATUS_ACTIVE       = 'A';
-    public const STATUS_ACTIVE_LABEL = 'active';
+    public const string STATUS_ACTIVE       = 'A';
+    public const string STATUS_ACTIVE_LABEL = 'active';
 
     /**
      * The project is pending
      */
-    public const STATUS_PENDING       = 'P';
-    public const STATUS_PENDING_LABEL = 'pending';
+    public const string STATUS_PENDING       = 'P';
+    public const string STATUS_PENDING_LABEL = 'pending';
 
     /**
      * The project is suspended
      */
-    public const STATUS_SUSPENDED       = 'H';
-    public const STATUS_SUSPENDED_LABEL = 'suspended';
+    public const string STATUS_SUSPENDED       = 'H';
+    public const string STATUS_SUSPENDED_LABEL = 'suspended';
 
     /**
      * The project is deleted
      */
-    public const STATUS_DELETED       = 'D';
-    public const STATUS_DELETED_LABEL = 'deleted';
+    public const string STATUS_DELETED       = 'D';
+    public const string STATUS_DELETED_LABEL = 'deleted';
 
-    public const STATUS_CREATING_FROM_ARCHIVE = 'X';
+    public const string STATUS_CREATING_FROM_ARCHIVE = 'X';
 
     /**
      * The project is system
      */
-    public const STATUS_SYSTEM       = 's';
-    public const STATUS_SYSTEM_LABEL = 'system';
+    public const string STATUS_SYSTEM       = 's';
+    public const string STATUS_SYSTEM_LABEL = 'system';
 
-    public const SITE_NEWS_PROJECT_ID        = 46;
-    public const DEFAULT_TEMPLATE_PROJECT_ID = 100;
-    public const DEFAULT_ADMIN_PROJECT_ID    = 1;
+    public const int DEFAULT_TEMPLATE_PROJECT_ID = 100;
+    public const int DEFAULT_ADMIN_PROJECT_ID    = 1;
 
-    public const ACCESS_PRIVATE               = 'private';
-    public const ACCESS_PRIVATE_WO_RESTRICTED = 'private-wo-restr';
-    public const ACCESS_PUBLIC_UNRESTRICTED   = 'unrestricted';
-    public const ACCESS_PUBLIC                = 'public';
+    public const string ACCESS_PRIVATE               = 'private';
+    public const string ACCESS_PRIVATE_WO_RESTRICTED = 'private-wo-restr';
+    public const string ACCESS_PUBLIC_UNRESTRICTED   = 'unrestricted';
+    public const string ACCESS_PUBLIC                = 'public';
 
     private $project_data_array;
     private readonly \Tuleap\Project\Service\ServiceForProjectCollection $service_collection;
@@ -124,18 +123,6 @@ class Project extends Group implements PFO_Project  // phpcs:ignore PSR1.Classes
         return $this->usesService(Service::FILE);
     }
 
-    //whether or not this group has opted to use news
-    public function usesNews(): bool
-    {
-        return $this->usesService(Service::NEWS);
-    }
-
-    //whether or not this group has opted to use discussion forums
-    public function usesForum(): bool
-    {
-        return $this->usesService(Service::FORUM);
-    }
-
     //whether or not this group has opted to use wiki
     public function usesWiki(): bool
     {
@@ -164,11 +151,6 @@ class Project extends Group implements PFO_Project  // phpcs:ignore PSR1.Classes
     public function getWikiPage(): string
     {
         return $this->getServiceLink(Service::WIKI);
-    }
-
-    public function getForumPage(): string
-    {
-        return $this->getServiceLink(Service::FORUM);
     }
 
     public function isSVNMandatoryRef()

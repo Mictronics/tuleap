@@ -101,14 +101,14 @@ use Tuleap\REST\Header;
 use Tuleap\REST\I18NRestException;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkUpdater;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkUpdaterDataFormater;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindDecoratorRetriever;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindDecoratorRetriever;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeBuilder;
 use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
 use URLVerification;
 
 final class ProjectResource extends AuthenticatedResource
 {
-    private const MAX_LIMIT = 50;
+    private const int MAX_LIMIT = 50;
 
     private CreateTeam $team_creator;
     private \UserManager $user_manager;

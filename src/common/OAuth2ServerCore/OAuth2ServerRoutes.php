@@ -32,7 +32,6 @@ use Psr\Log\LoggerInterface;
 use Tuleap\Authentication\Scope\AggregateAuthenticationScopeBuilder;
 use Tuleap\Authentication\SplitToken\PrefixedSplitTokenSerializer;
 use Tuleap\Authentication\SplitToken\SplitTokenVerificationStringHasher;
-use Tuleap\Cryptography\KeyFactory;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\DBTransactionExecutorWithConnection;
 use Tuleap\Http\HTTPFactoryBuilder;
@@ -87,9 +86,9 @@ use UserManager;
 
 final class OAuth2ServerRoutes
 {
-    private const INSTRUMENTATION_NAME        = 'oauth2_server_core';
-    public const ID_TOKEN_EXPIRATION_DELAY    = 'PT2M';
-    public const SIGNING_KEY_EXPIRATION_DELAY = 'PT1H';
+    private const string INSTRUMENTATION_NAME        = 'oauth2_server_core';
+    public const string ID_TOKEN_EXPIRATION_DELAY    = 'PT2M';
+    public const string SIGNING_KEY_EXPIRATION_DELAY = 'PT1H';
 
     private function __construct()
     {
@@ -144,7 +143,7 @@ final class OAuth2ServerRoutes
         $stream_factory   = HTTPFactoryBuilder::streamFactory();
         return new JWKSDocumentEndpointController(
             new OpenIDConnectSigningKeyFactoryDBPersistent(
-                new KeyFactory(),
+                new \Tuleap\Cryptography\KeyFactoryFromFileSystem(),
                 new OpenIDConnectSigningKeyDAO(),
                 new DateInterval(self::SIGNING_KEY_EXPIRATION_DELAY),
                 new DateInterval(self::ID_TOKEN_EXPIRATION_DELAY),
@@ -197,7 +196,7 @@ final class OAuth2ServerRoutes
                 new OpenIDConnectTokenBuilder(
                     new JWTBuilderFactory(),
                     new OpenIDConnectSigningKeyFactoryDBPersistent(
-                        new KeyFactory(),
+                        new \Tuleap\Cryptography\KeyFactoryFromFileSystem(),
                         new OpenIDConnectSigningKeyDAO(),
                         new DateInterval(self::SIGNING_KEY_EXPIRATION_DELAY),
                         new DateInterval(self::ID_TOKEN_EXPIRATION_DELAY),

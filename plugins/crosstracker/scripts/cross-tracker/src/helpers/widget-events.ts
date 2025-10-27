@@ -20,7 +20,6 @@
 import type { Query } from "../type";
 import type { Fault } from "@tuleap/fault";
 import type { QuerySuggestion } from "../domain/SuggestedQueriesGetter";
-import type { ArtifactRow } from "../domain/ArtifactsTable";
 
 export const SWITCH_QUERY_EVENT = "switch-query";
 export const INITIALIZED_WITH_QUERY_EVENT = "initialized-with-query";
@@ -38,8 +37,8 @@ export const DISPLAY_QUERY_PREVIEW_EVENT = "display-query-preview";
 export const TOGGLE_QUERY_DETAILS_EVENT = "toggle-query-details";
 export const STARTING_XLSX_EXPORT_EVENT = "starting-xlsx-export-event";
 export const SELECTABLE_TABLE_RESIZED_EVENT = "selectable-table-resized-event";
-export const INSERTED_ROW_EVENT = "load-artifact-links-event";
-export const REMOVED_ROW_EVENT = "close-artifact-links-event";
+export const DISPLAY_XLSX_MODAL_EVENT = "display-xlsx-modal-event";
+export const HIDE_XLSX_MODAL_EVENT = "hide-xlsx-modal-event";
 
 export type Events = {
     [SWITCH_QUERY_EVENT]: SwitchQueryEvent;
@@ -58,8 +57,8 @@ export type Events = {
     [TOGGLE_QUERY_DETAILS_EVENT]: ToggleQueryDetailsEvent;
     [STARTING_XLSX_EXPORT_EVENT]: void;
     [SELECTABLE_TABLE_RESIZED_EVENT]: void;
-    [INSERTED_ROW_EVENT]: InsertedRowEvent;
-    [REMOVED_ROW_EVENT]: RemovedRowEvent;
+    [DISPLAY_XLSX_MODAL_EVENT]: void;
+    [HIDE_XLSX_MODAL_EVENT]: void;
 };
 
 export type ToggleQueryDetailsEvent = {
@@ -105,13 +104,4 @@ export type NotifySuccessEvent = {
 
 export type DisplayQueryPreviewEvent = {
     readonly query: QuerySuggestion;
-};
-
-export type InsertedRowEvent = {
-    readonly row: ArtifactRow;
-    readonly parent_row: ArtifactRow | null;
-};
-
-export type RemovedRowEvent = {
-    readonly row: ArtifactRow;
 };

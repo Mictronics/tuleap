@@ -28,66 +28,62 @@ import * as tlp_modal from "@tuleap/tlp-modal";
 import { getGlobalTestOptions } from "../../../../helpers/global-options-for-test";
 import type { Item } from "../../../../type";
 import { IS_STATUS_PROPERTY_USED } from "../../../../configuration-keys";
+import { getDocumentProperties } from "../../../../helpers/properties/document-properties";
 
 vi.mock("@tuleap/autocomplete-for-select2", () => {
     return { autocomplete_users_for_select2: vi.fn() };
 });
 
 describe("UpdatePropertiesModal", () => {
-    let factory: (item: Item, has_loaded_properties: boolean) => VueWrapper<UpdatePropertiesModal>;
+    function factory(item: Item): VueWrapper<InstanceType<typeof UpdatePropertiesModal>> {
+        return shallowMount(UpdatePropertiesModal, {
+            props: {
+                item,
+                document_properties: getDocumentProperties(),
+            },
+            global: {
+                ...getGlobalTestOptions({
+                    modules: {
+                        error: {
+                            state: {
+                                has_global_modal_error: false,
+                            },
+                            namespaced: true,
+                        },
+                    },
+                    state: {
+                        current_folder: {
+                            id: 42,
+                            title: "My current folder",
+                            properties: [
+                                {
+                                    short_name: "title",
+                                    name: "title",
+                                    list_value: "My current folder",
+                                    is_multiple_value_allowed: false,
+                                    type: "text",
+                                    is_required: false,
+                                },
+                                {
+                                    short_name: "custom property",
+                                    name: "custom",
+                                    value: "value",
+                                    is_multiple_value_allowed: false,
+                                    type: "text",
+                                    is_required: false,
+                                },
+                            ],
+                        },
+                    },
+                }),
+                provide: {
+                    [IS_STATUS_PROPERTY_USED.valueOf()]: true,
+                },
+            },
+        });
+    }
 
     beforeEach(() => {
-        factory = (item, has_loaded_properties): VueWrapper<UpdatePropertiesModal> => {
-            return shallowMount(UpdatePropertiesModal, {
-                props: { item },
-                global: {
-                    ...getGlobalTestOptions({
-                        modules: {
-                            configuration: {
-                                state: {
-                                    has_loaded_properties,
-                                },
-                                namespaced: true,
-                            },
-                            error: {
-                                state: {
-                                    has_global_modal_error: false,
-                                },
-                                namespaced: true,
-                            },
-                        },
-                        state: {
-                            current_folder: {
-                                id: 42,
-                                title: "My current folder",
-                                properties: [
-                                    {
-                                        short_name: "title",
-                                        name: "title",
-                                        list_value: "My current folder",
-                                        is_multiple_value_allowed: false,
-                                        type: "text",
-                                        is_required: false,
-                                    },
-                                    {
-                                        short_name: "custom property",
-                                        name: "custom",
-                                        value: "value",
-                                        is_multiple_value_allowed: false,
-                                        type: "text",
-                                        is_required: false,
-                                    },
-                                ],
-                            },
-                        },
-                    }),
-                    provide: {
-                        [IS_STATUS_PROPERTY_USED.valueOf()]: true,
-                    },
-                },
-            });
-        };
-
         vi.spyOn(tlp_modal, "createModal").mockReturnValue({
             addEventListener: () => {},
             show: () => {},
@@ -115,7 +111,7 @@ describe("UpdatePropertiesModal", () => {
             ],
         };
 
-        const wrapper = factory(item, true);
+        const wrapper = factory(item);
 
         expect(wrapper.vm.item_to_update.owner.id).toBe(101);
 
@@ -161,7 +157,7 @@ describe("UpdatePropertiesModal", () => {
             value: 103,
         };
 
-        const wrapper = factory(item, false);
+        const wrapper = factory(item);
 
         expect(wrapper.vm.formatted_item_properties).toEqual([properties_in_rest_format]);
     });
@@ -182,7 +178,7 @@ describe("UpdatePropertiesModal", () => {
             ],
         };
 
-        const wrapper = factory(item, true);
+        const wrapper = factory(item);
 
         expect(wrapper.vm.item_to_update.status).toBe("rejected");
 
@@ -207,7 +203,7 @@ describe("UpdatePropertiesModal", () => {
             ],
         };
 
-        const wrapper = factory(item, true);
+        const wrapper = factory(item);
 
         expect(wrapper.vm.item_to_update.title).toBe("A folder");
 
@@ -232,7 +228,7 @@ describe("UpdatePropertiesModal", () => {
             ],
         };
 
-        const wrapper = factory(item, true);
+        const wrapper = factory(item);
 
         expect(wrapper.vm.item_to_update.description).toBe("A custom description");
 
