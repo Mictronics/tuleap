@@ -34,8 +34,9 @@ use Symfony\Component\Console\Logger\ConsoleLogger;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
 use Symfony\Component\Process\Process;
-use Tuleap\BuildVersion\FlavorFinderFromFilePresence;
+use Tuleap\BuildVersion\FlavorFinderFromLicense;
 use Tuleap\BuildVersion\VersionPresenter;
+use Tuleap\SeatManagement\CachedLicenseBuilder;
 use TuleapCfg\Command\Docker\DataPersistence;
 use TuleapCfg\Command\Docker\PluginsInstallClosureBuilder;
 use TuleapCfg\Command\Docker\Postfix;
@@ -49,7 +50,7 @@ use TuleapCfg\Command\SetupMysql\DatabaseConfigurator;
 
 final class StartContainerCommand extends Command
 {
-    private const PERSISTENT_DATA = [
+    private const array PERSISTENT_DATA = [
         '/etc/pki/tls/private/localhost.key.pem',
         '/etc/pki/tls/certs/localhost.cert.pem',
         '/etc/tuleap',
@@ -58,9 +59,9 @@ final class StartContainerCommand extends Command
         '/var/lib/tuleap',
     ];
 
-    private const OPTION_NO_SUPERVISORD = 'no-supervisord';
-    private const OPTION_EXEC           = 'exec';
-    private const OPTION_DEBUG          = 'debug';
+    private const string OPTION_NO_SUPERVISORD = 'no-supervisord';
+    private const string OPTION_EXEC           = 'exec';
+    private const string OPTION_DEBUG          = 'debug';
 
     private DataPersistence $data_persistence;
 
@@ -92,7 +93,7 @@ final class StartContainerCommand extends Command
     #[\Override]
     protected function execute(InputInterface $input, OutputInterface $output): int
     {
-        $version_presenter = VersionPresenter::fromFlavorFinder(new FlavorFinderFromFilePresence());
+        $version_presenter = VersionPresenter::fromFlavorFinder(new FlavorFinderFromLicense(CachedLicenseBuilder::instance()));
         $output->writeln(sprintf('<info>Start init sequence for %s</info>', $version_presenter->getFullDescriptiveVersion()));
         try {
             $tuleap      = new Tuleap($this->process_factory, new DatabaseConfigurator(PasswordHandlerFactory::getPasswordHandler(), new ConnectionManager()));

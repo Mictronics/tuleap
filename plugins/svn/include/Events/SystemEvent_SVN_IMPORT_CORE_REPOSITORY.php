@@ -33,11 +33,11 @@ use Tuleap\SVN\Repository\Exception\CannotFindRepositoryException;
 use Tuleap\SVN\Repository;
 use Tuleap\SVN\Repository\RepositoryManager;
 
-final class SystemEvent_SVN_IMPORT_CORE_REPOSITORY extends \SystemEvent // phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
+final class SystemEvent_SVN_IMPORT_CORE_REPOSITORY extends \SystemEvent // phpcs:ignore Squiz.Classes.ValidClassName.NotPascalCase
 {
-    public const NAME = 'SystemEvent_SVN_IMPORT_CORE_REPOSITORY';
+    public const string NAME = 'SystemEvent_SVN_IMPORT_CORE_REPOSITORY';
 
-    private const HOOK_FILES = [
+    private const array HOOK_FILES = [
         'post-commit',
         'pre-commit',
         'post-revprop-change',

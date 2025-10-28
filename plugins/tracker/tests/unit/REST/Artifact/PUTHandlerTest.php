@@ -51,7 +51,7 @@ final class PUTHandlerTest extends TestCase
 {
     use GlobalResponseMock;
 
-    private const ARTIFACT_LINK_FIELD_ID = 179;
+    private const int ARTIFACT_LINK_FIELD_ID = 179;
     private CheckArtifactRestUpdateConditionsStub $check_artifact_rest_update_conditions;
     private CreateNewChangesetStub $changeset_creator;
     private RetrieveUsedArtifactLinkFieldsStub $link_field_retriever;
@@ -144,7 +144,7 @@ final class PUTHandlerTest extends TestCase
         $GLOBALS['Response']->method('getRawFeedback')->willReturn('Aaaah');
 
         $this->expectException(RestException::class);
-        $this->expectExceptionCode(500);
+        $this->expectExceptionCode(400);
         $this->handle();
     }
 

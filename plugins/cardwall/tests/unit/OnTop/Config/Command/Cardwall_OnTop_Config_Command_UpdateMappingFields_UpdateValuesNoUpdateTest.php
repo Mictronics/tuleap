@@ -28,11 +28,11 @@ use Cardwall_OnTop_Config_TrackerMappingStatus;
 use Cardwall_OnTop_Config_ValueMapping;
 use HTTPRequest;
 use TestHelper;
-use Tracker_FormElement_Field_List_Bind_StaticValue;
+use Tuleap\Tracker\FormElement\Field\List\Bind\Static\ListFieldStaticBindValue;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticValueBuilder;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
-final class Cardwall_OnTop_Config_Command_UpdateMappingFields_UpdateValuesNoUpdateTest extends Cardwall_OnTop_Config_Command_UpdateMappingFieldsTestBase // phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
+final class Cardwall_OnTop_Config_Command_UpdateMappingFields_UpdateValuesNoUpdateTest extends Cardwall_OnTop_Config_Command_UpdateMappingFieldsTestBase // phpcs:ignore Squiz.Classes.ValidClassName.NotPascalCase
 {
     #[\Override]
     protected function setUp(): void
@@ -133,7 +133,7 @@ final class Cardwall_OnTop_Config_Command_UpdateMappingFields_UpdateValuesNoUpda
         $this->command->execute($request);
     }
 
-    private function buildStaticListFieldValue(int $id): Tracker_FormElement_Field_List_Bind_StaticValue
+    private function buildStaticListFieldValue(int $id): ListFieldStaticBindValue
     {
         return ListStaticValueBuilder::aStaticValue('Label')->withId($id)->build();
     }

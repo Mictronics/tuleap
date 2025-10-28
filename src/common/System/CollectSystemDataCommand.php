@@ -28,17 +28,18 @@ use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Tuleap\BuildVersion\FlavorFinderFromFilePresence;
+use Tuleap\BuildVersion\FlavorFinderFromLicense;
 use Tuleap\BuildVersion\VersionPresenter;
 use Tuleap\Config\GetConfigKeys;
+use Tuleap\SeatManagement\CachedLicenseBuilder;
 use Tuleap\ServerHostname;
 use ZipArchive;
 
 final class CollectSystemDataCommand extends Command
 {
-    public const NAME = 'collect-system-data';
+    public const string NAME = 'collect-system-data';
 
-    private const KEYS_THAT_SHOULD_NOT_BE_DISCLOSED = [
+    private const array KEYS_THAT_SHOULD_NOT_BE_DISCLOSED = [
         'sys_dbpasswd',
         'sys_dbauth_passwd',
     ];
@@ -101,7 +102,7 @@ final class CollectSystemDataCommand extends Command
 
     private function gatherVersion(ZipArchive $archive, string $prefix): void
     {
-        $this->addCompressedString($archive, $prefix, VersionPresenter::fromFlavorFinder(new FlavorFinderFromFilePresence())->getFullDescriptiveVersion(), 'VERSION');
+        $this->addCompressedString($archive, $prefix, VersionPresenter::fromFlavorFinder(new FlavorFinderFromLicense(CachedLicenseBuilder::instance()))->getFullDescriptiveVersion(), 'VERSION');
     }
 
     private function gatherLogs(ZipArchive $archive, string $prefix): void

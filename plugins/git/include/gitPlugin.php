@@ -21,6 +21,7 @@
  */
 
 use Cocur\Slugify\Slugify;
+use Lcobucci\Clock\SystemClock;
 use Tuleap\Admin\AdminPageRenderer;
 use Tuleap\admin\PendingElements\PendingDocumentsRetriever;
 use Tuleap\admin\ProjectEdit\ProjectStatusUpdate;
@@ -175,6 +176,7 @@ use Tuleap\Layout\IncludeAssets;
 use Tuleap\Mail\MailFilter;
 use Tuleap\Mail\MailLogger;
 use Tuleap\Plugin\ListeningToEventClass;
+use Tuleap\Plugin\ListeningToEventName;
 use Tuleap\Project\Admin\Navigation\NavigationDropdownItemPresenter;
 use Tuleap\Project\Admin\Navigation\NavigationDropdownQuickLinksCollector;
 use Tuleap\Project\Admin\PermissionsPerGroup\PermissionPerGroupDisplayEvent;
@@ -230,7 +232,7 @@ use Tuleap\WebAssembly\WasmtimeCacheConfigurationBuilder;
 require_once 'constants.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
-class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithService //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
+class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithService //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotPascalCase
 {
     public const string LOG_IDENTIFIER = 'git_syslog';
 
@@ -264,7 +266,6 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
 
         $this->setScope(Plugin::SCOPE_PROJECT);
         $this->addHook(SiteAdministrationAddOption::NAME);
-        $this->addHook('cssfile', 'cssFile');
         $this->addHook('javascript_file', 'jsFile');
         $this->addHook(Event::JAVASCRIPT, 'javascript');
         $this->addHook(Event::GET_SYSTEM_EVENT_CLASS, 'getSystemEventClass');
@@ -502,7 +503,8 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         $event->addConfigClass(GitRepositoryBrowserController::class);
     }
 
-    public function cssFile($params)
+    #[ListeningToEventName('cssfile')]
+    public function cssFile($params): void
     {
         // Only show the stylesheet if we're actually in the Git pages.
         // This stops styles inadvertently clashing with the main site.
@@ -2479,7 +2481,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
                 new UserDao(),
                 \UserManager::instance(),
                 new PasswordVerifier($password_handler),
-                new PasswordExpirationChecker(),
+                new PasswordExpirationChecker(SystemClock::fromSystemTimezone()),
                 $password_handler
             ),
             new ReplicationHTTPUserAuthenticator(

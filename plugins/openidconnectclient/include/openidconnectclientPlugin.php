@@ -85,6 +85,7 @@ use Tuleap\OpenIDConnectClient\UserMapping\UserMappingDao;
 use Tuleap\OpenIDConnectClient\UserMapping\UserMappingManager;
 use Tuleap\OpenIDConnectClient\UserMapping\UserMappingUsage;
 use Tuleap\Plugin\ListeningToEventClass;
+use Tuleap\Plugin\ListeningToEventName;
 use Tuleap\Request\CollectRoutesEvent;
 use Tuleap\Request\DispatchableWithRequest;
 use Tuleap\Request\RequestTime;
@@ -108,10 +109,10 @@ require_once __DIR__ . '/../vendor/autoload.php';
 /**
  * @psalm-import-type AcceptableIssuerClaimValidator from IDTokenVerifier
  */
-// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 class openidconnectclientPlugin extends Plugin implements PluginWithConfigKeys
 {
-    public const SESSION_LINK_ID_KEY = 'tuleap_oidc_link_id';
+    public const string SESSION_LINK_ID_KEY = 'tuleap_oidc_link_id';
 
     public function __construct($id)
     {
@@ -123,7 +124,6 @@ class openidconnectclientPlugin extends Plugin implements PluginWithConfigKeys
         $this->addHook(BeforeUserRegistrationEvent::NAME);
         $this->addHook(AfterUserRegistrationEvent::NAME);
         $this->addHook('anonymous_access_to_script_allowed');
-        $this->addHook('cssfile');
         $this->addHook(SiteAdministrationAddOption::NAME);
         $this->addHook(Event::BURNING_PARROT_GET_STYLESHEETS);
         $this->addHook(Event::GET_LOGIN_URL);
@@ -152,7 +152,8 @@ class openidconnectclientPlugin extends Plugin implements PluginWithConfigKeys
         }
     }
 
-    public function cssfile()
+    #[ListeningToEventName('cssfile')]
+    public function cssfile(): void
     {
         if (strpos($_SERVER['REQUEST_URI'], '/plugins/openidconnectclient') === 0) {
             echo '<link rel="stylesheet" type="text/css" href="' . $this->getAssets()->getFileURL('fp-style.css') . '" />';

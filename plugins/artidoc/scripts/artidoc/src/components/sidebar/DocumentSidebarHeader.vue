@@ -79,10 +79,16 @@ h1 {
 }
 
 .tlp-tabs {
+    // 1px so that the border of the toolbar matches the inner box-shadow of the tlp-tabs
+    min-height: calc(var(--tlp-form-element-small-height) + 2 * var(--tlp-small-spacing) + 1px);
     margin: 0;
+    padding: 0;
+}
 
-    // force border to be aligned with the one of the toolbar.
-    border-bottom: 1px solid var(--tlp-neutral-normal-color);
-    box-shadow: none;
+button {
+    justify-content: center;
+    width: 50%;
+    padding: 0 var(--tlp-medium-spacing);
+    text-align: center; // when the button content wraps
 }
 </style>

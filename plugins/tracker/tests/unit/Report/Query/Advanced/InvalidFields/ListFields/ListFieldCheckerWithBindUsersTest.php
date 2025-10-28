@@ -27,8 +27,8 @@ use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\LegacyTabTranslationsSupport;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Test\Stubs\ProvideCurrentUserStub;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindParameters;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindVisitor;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindParameters;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindVisitor;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\Comparison;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\CurrentUserValueWrapper;
 use Tuleap\Tracker\Report\Query\Advanced\Grammar\EqualComparison;
@@ -45,8 +45,8 @@ final class ListFieldCheckerWithBindUsersTest extends TestCase
 {
     use LegacyTabTranslationsSupport;
 
-    private const FIELD_NAME = 'a_field';
-    private const USER_NAME  = 'admin';
+    private const string FIELD_NAME = 'a_field';
+    private const string USER_NAME  = 'admin';
     private Comparison $comparison;
 
     /**

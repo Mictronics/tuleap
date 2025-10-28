@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Tuleap\User;
 
-
 /**
  * This event is thrown after authentication of a user against the local User database.
  *
@@ -31,7 +30,7 @@ namespace Tuleap\User;
  */
 final class AfterLocalStandardLogin implements AfterLocalLogin
 {
-    public const NAME = 'afterLocalLogin';
+    public const string NAME = 'afterLocalLogin';
     /**
      * @var \PFUser
      * @psalm-readonly

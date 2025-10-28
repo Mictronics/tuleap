@@ -29,16 +29,16 @@ use Tracker_FormElement_Field_List_Bind_Ugroups;
 use Tracker_FormElement_Field_List_Bind_UgroupsValue;
 use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\Test\PHPUnit\TestCase;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindDefaultValueDao;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindUgroupsValueDao;
-use Tuleap\Tracker\FormElement\Field\ListField;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindDefaultValueDao;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindUgroupsValueDao;
+use Tuleap\Tracker\FormElement\Field\List\ListField;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListUserGroupValueBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\SelectboxFieldBuilder;
 use UGroupManager;
 use UserXMLExporter;
 
 #[DisableReturnValueGenerationForTestDoubles]
-final class Tracker_FormElement_Field_List_Bind_UgroupsTest extends TestCase //phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
+final class Tracker_FormElement_Field_List_Bind_UgroupsTest extends TestCase //phpcs:ignore Squiz.Classes.ValidClassName.NotPascalCase
 {
     private Tracker_FormElement_Field_List_Bind_UgroupsValue $customers_ugroup_value;
     private Tracker_FormElement_Field_List_Bind_UgroupsValue $project_members_ugroup_value;

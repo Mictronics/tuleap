@@ -18,14 +18,7 @@ include_account	account_notactive	Account '$1' not active. User not added.
 include_account	user_already_member	User is already a member
 include_account	user_not_exist	User does not exist
 include_account	welcome	$1 - Welcome to Project $2
-include_account	login_err	There cannot be any spaces in the login name.
-include_account	project_spaces	There cannot be any spaces in the short name.
-include_account	char_err	The name must start with a letter.
-include_account	illegal_char	Illegal character in name.
-include_account	name_too_short	Name is too short. It must be at least 3 characters.
-include_account	reserved	Name is reserved.
 include_account	reserved_dns	Name is reserved for DNS purposes.
-include_account	dns_error	Short name cannot contain underscore or dot.
 include_account	used_by_svn	This short name is not available: An SVN directory already exists with this name
 include_account	used_by_sys	This short name is not available: A home project already exists with this name
 #
@@ -82,7 +75,6 @@ include_html	unknown_value	*** unknown value ***
 #-----------------------------------------------
 # Script: SF/www/include/layout.php
 #
-include_layout	latest_news_rss	Latest News RSS
 include_layout	newest_releases_rss	Newest Releases RSS
 include_layout	newest_projects_rss	Newest Projects RSS
 include_layout	query_count	Query Count
@@ -100,7 +92,6 @@ include_menu	user_admin	User Admin
 include_menu	group_admin	Group Admin
 include_menu	pending_projects	Pending Projects
 include_menu	pending_users	Pending Users
-include_menu	site_news_approve	Site News Approval
 include_menu	mass_mail	Mass Mail
 include_menu	trove_cat_list	Trove Cat. List
 include_menu	trove_cat_add	Trove Cat. Add
@@ -158,9 +149,7 @@ include_project_home	project_description	Project Description
 include_project_home	project_classification	Project Classification
 include_project_home	homepage	Homepage
 include_project_home	proj_home	Project Homepage
-include_project_home	public_forums	Public Forums
 include_project_home	msg	<B>$1</B> messages in
-include_project_home	forums	<B>$1</B> forums
 include_project_home	bug_track	Bug Tracking
 include_project_home	open_bugs	open bugs
 include_project_home	supp_manager	Support Manager
@@ -186,7 +175,6 @@ include_project_home	trackers	Trackers
 include_project_home	no_arttypefact	Could Not Get ArtifactTypeFactory
 include_project_home	no_trackers_accessible	No Accessible Trackers Found
 include_project_home	anon_ftp_space	Anonymous FTP Space
-include_project_home	latest_news	Latest News
 include_project_home	start_monitoring	Monitor this package
 include_project_home	stop_monitoring	Stop monitoring this package
 include_project_home	latest_svn_commit	Latest SVN Commits

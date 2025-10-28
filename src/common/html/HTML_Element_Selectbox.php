@@ -24,7 +24,7 @@ require_once('HTML_Element_Option.php');
 /**
  * Define a html selectbox
  */
-//phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+//phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 class HTML_Element_Selectbox extends HTML_Element
 {
     /**
@@ -47,7 +47,7 @@ class HTML_Element_Selectbox extends HTML_Element
     public function renderValue()
     {
         $hp   = Codendi_HTMLPurifier::instance();
-        $html = '<select id="' . $this->id . '" data-test="selectbox" name="' .  $hp->purify($this->name, CODENDI_PURIFIER_CONVERT_HTML) . '" ';
+        $html = '<select id="' . $this->id . '" class="tlp-select tlp-select-adjusted" data-test="selectbox" name="' .  $hp->purify($this->name, CODENDI_PURIFIER_CONVERT_HTML) . '" ';
         if ($this->onchange) {
             $html .= 'onchange="' . $this->onchange . '" ';
         }

@@ -29,18 +29,18 @@ use Tuleap\Tracker\Test\Builders\Fields\DateFieldBuilder;
 use Tuleap\Tracker\Tracker;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
-final class Tracker_Workflow_Action_Rules_EditRulesTest extends \Tuleap\Test\PHPUnit\TestCase // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+final class Tracker_Workflow_Action_Rules_EditRulesTest extends \Tuleap\Test\PHPUnit\TestCase // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 {
     use \Tuleap\GlobalResponseMock;
     use \Tuleap\GlobalLanguageMock;
 
-    private const PARAMETER_ADD_RULE     = Tracker_Workflow_Action_Rules_EditRules::PARAMETER_ADD_RULE;
-    private const PARAMETER_UPDATE_RULES = Tracker_Workflow_Action_Rules_EditRules::PARAMETER_UPDATE_RULES;
-    private const PARAMETER_REMOVE_RULES = Tracker_Workflow_Action_Rules_EditRules::PARAMETER_REMOVE_RULES;
+    private const string PARAMETER_ADD_RULE     = Tracker_Workflow_Action_Rules_EditRules::PARAMETER_ADD_RULE;
+    private const string PARAMETER_UPDATE_RULES = Tracker_Workflow_Action_Rules_EditRules::PARAMETER_UPDATE_RULES;
+    private const string PARAMETER_REMOVE_RULES = Tracker_Workflow_Action_Rules_EditRules::PARAMETER_REMOVE_RULES;
 
-    private const PARAMETER_SOURCE_FIELD = Tracker_Workflow_Action_Rules_EditRules::PARAMETER_SOURCE_FIELD;
-    private const PARAMETER_TARGET_FIELD = Tracker_Workflow_Action_Rules_EditRules::PARAMETER_TARGET_FIELD;
-    private const PARAMETER_COMPARATOR   = Tracker_Workflow_Action_Rules_EditRules::PARAMETER_COMPARATOR;
+    private const string PARAMETER_SOURCE_FIELD = Tracker_Workflow_Action_Rules_EditRules::PARAMETER_SOURCE_FIELD;
+    private const string PARAMETER_TARGET_FIELD = Tracker_Workflow_Action_Rules_EditRules::PARAMETER_TARGET_FIELD;
+    private const string PARAMETER_COMPARATOR   = Tracker_Workflow_Action_Rules_EditRules::PARAMETER_COMPARATOR;
 
     private int $tracker_id = 42;
     private Tracker_Rule_Date_Factory&MockObject $date_factory;

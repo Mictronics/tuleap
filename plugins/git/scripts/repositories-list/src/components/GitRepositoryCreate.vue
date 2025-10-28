@@ -52,7 +52,7 @@
             <div class="tlp-form-element">
                 <label class="tlp-label" for="repository_name">
                     {{ $gettext("Repository name") }}
-                    <i class="fa fa-asterisk"></i>
+                    <i class="fa-solid fa-asterisk"></i>
                 </label>
                 <input
                     type="text"
@@ -67,7 +67,7 @@
                     data-test="create_repository_name"
                 />
                 <p class="tlp-text-info">
-                    <i class="fa fa-info-circle"></i>
+                    <i class="fa-solid fa-circle-info"></i>
                     {{
                         $gettext(
                             'Allowed characters: a-zA-Z0-9/_.- and max length is 255, no slashes at the beginning or the end, and repositories names must not finish with ".git".',
@@ -91,7 +91,7 @@
                 data-test="create_repository"
             >
                 <i
-                    class="fa fa-plus tlp-button-icon"
+                    class="fa-solid fa-plus tlp-button-icon"
                     v-bind:class="{ 'fa-spin fa-spinner': is_loading }"
                 ></i>
                 {{ $gettext("Add project repository") }}

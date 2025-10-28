@@ -17,13 +17,14 @@
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
+
 declare(strict_types=1);
 
 namespace Tuleap\HelpDropdown;
 
 class VersionNumberExtractor
 {
-    private const PATTERN = '/([0-9]+\.[0-9]+).*/';
+    private const string PATTERN = '/([0-9]+\.[0-9]+).*/';
 
     /**
      * @throws TuleapVersionNotExtractedException

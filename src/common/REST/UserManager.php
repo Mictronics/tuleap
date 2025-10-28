@@ -19,6 +19,7 @@
 
 namespace Tuleap\REST;
 
+use Lcobucci\Clock\SystemClock;
 use Luracast\Restler\Data\ApiMethodInfo;
 use Tuleap\Authentication\Scope\AggregateAuthenticationScopeBuilder;
 use Tuleap\Authentication\SplitToken\PrefixedSplitTokenSerializer;
@@ -74,13 +75,13 @@ class UserManager
      */
     private $access_key_verifier;
 
-    public const HTTP_TOKEN_HEADER     = 'X-Auth-Token';
-    public const PHP_HTTP_TOKEN_HEADER = 'HTTP_X_AUTH_TOKEN';
+    public const string HTTP_TOKEN_HEADER     = 'X-Auth-Token';
+    public const string PHP_HTTP_TOKEN_HEADER = 'HTTP_X_AUTH_TOKEN';
 
-    public const HTTP_USER_HEADER     = 'X-Auth-UserId';
-    public const PHP_HTTP_USER_HEADER = 'HTTP_X_AUTH_USERID';
+    public const string HTTP_USER_HEADER     = 'X-Auth-UserId';
+    public const string PHP_HTTP_USER_HEADER = 'HTTP_X_AUTH_USERID';
 
-    public const HTTP_ACCESS_KEY_HEADER = 'X-Auth-AccessKey';
+    public const string HTTP_ACCESS_KEY_HEADER = 'X-Auth-AccessKey';
 
     /**
      * @var BearerTokenHeaderParser
@@ -139,7 +140,7 @@ class UserManager
                 new \UserDao(),
                 $user_manager,
                 new PasswordVerifier($password_handler),
-                new PasswordExpirationChecker(),
+                new PasswordExpirationChecker(SystemClock::fromSystemTimezone()),
                 $password_handler
             ),
             new AccessKeyHeaderExtractor(new PrefixedSplitTokenSerializer(new PrefixAccessKey()), $_SERVER),
@@ -218,7 +219,7 @@ class UserManager
     {
         $current_user = $this->user_manager->getCurrentUser();
         if (! $current_user->isAnonymous()) {
-            $password_expiration_checker = new PasswordExpirationChecker();
+            $password_expiration_checker = new PasswordExpirationChecker(SystemClock::fromSystemTimezone());
             $password_expiration_checker->checkPasswordLifetime($current_user);
         }
         return $current_user;

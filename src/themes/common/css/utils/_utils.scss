@@ -18,7 +18,6 @@
  */
 
 @use "services";
-@use "forum";
 @use "frs";
 @use "protocheck";
 @use "system-events";
@@ -39,7 +38,6 @@
 @use "textbox";
 @use "login";
 @use "wiki";
-@use "news";
 @use "tree-node";
 @use "toolbar";
 @use "sortable";

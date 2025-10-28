@@ -23,12 +23,12 @@ use Tuleap\Tracker\Artifact\Dao\PriorityDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkFieldValueDao;
 
-// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 class Tracker_ArtifactDao extends DataAccessObject
 {
-    public const MAX_RETRY_CREATION = 10;
-    public const STATUS_OPEN        = 'open';
-    public const STATUS_CLOSED      = 'closed';
+    public const int MAX_RETRY_CREATION = 10;
+    public const string STATUS_OPEN     = 'open';
+    public const string STATUS_CLOSED   = 'closed';
 
     public function __construct()
     {

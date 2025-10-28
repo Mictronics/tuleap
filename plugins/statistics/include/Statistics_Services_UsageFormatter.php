@@ -18,6 +18,7 @@
  * along with Tuleap; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 require_once 'Statistics_Formatter.php';
 
 use Tuleap\StatisticsCore\FormatStatisticsServiceUsage;
@@ -33,8 +34,8 @@ class Statistics_Services_UsageFormatter implements FormatStatisticsServiceUsage
     /** @var Statistics_Formatter */
     private $stats_formatter;
 
-    public const GROUP_ID = 'group_id';
-    public const VALUES   = 'result';
+    public const string GROUP_ID = 'group_id';
+    public const string VALUES   = 'result';
 
     public function __construct(Statistics_Formatter $stats_formatter)
     {

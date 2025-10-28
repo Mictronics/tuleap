@@ -10,7 +10,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.5\n"
+"X-Generator: Poedit 3.0.1\n"
 
 msgid " New user"
 msgstr " Nouvel utilisateur"
@@ -68,10 +68,6 @@ msgid "%1$s invited you to register to %2$s."
 msgstr "%1$s vous invite à vous enregistrer sur %1$s."
 
 #, php-format
-msgid "%1$s message(s) deleted"
-msgstr "%1$s message(s) détruit(s)"
-
-#, php-format
 msgid "%1$s users will receive this email."
 msgstr "%1$s utilisateurs vont recevoir ce courrier électronique."
 
@@ -121,12 +117,6 @@ msgstr[0] "%d membre"
 msgstr[1] "%d membres"
 
 #, php-format
-msgid "%d message"
-msgid_plural "%d messages"
-msgstr[0] "%d message"
-msgstr[1] "%d messages"
-
-#, php-format
 msgid "%s (opens in a new tab)"
 msgstr "%s (s'ouvre dans un nouvel onglet)"
 
@@ -164,16 +154,16 @@ msgstr ""
 "projet."
 
 #, php-format
+msgid ""
+"%s is already reserved for another rename operation. Please check System "
+"Event Monitor"
+msgstr ""
+"%s est déjà réservé pour un autre renommage d'utilisateur. Merci de "
+"consulter les Événements Système."
+
+#, php-format
 msgid "%s new projects"
 msgstr "Annonces %s"
-
-#, php-format
-msgid "%s news"
-msgstr "Annonces site %s"
-
-#, php-format
-msgid "%s project news highlights"
-msgstr "Annonces phares des projets %s"
 
 msgid "(day/month/year)"
 msgstr "(jour/mois/année)"
@@ -206,25 +196,17 @@ msgstr "il y a 5 jours"
 
 #, php-format
 msgid ""
-"<A HREF=\"%1$s\"><u>Log in first</u></A><span class=\"highlight\"> to post "
-"messages</span>"
-msgstr ""
-"<A HREF=\"%1$s\"><u>Connectez-vous en premier</u></A><span "
-"class=\"highlight\"> pour poster un message</span>"
-
-#, php-format
-msgid ""
-"<h4><i class=\"fa fa-exclamation-triangle\"></i> Your local.inc file is "
-"outdated!</h4><p>It appears that your local.inc file contains definitions of "
-"variables that are unused and it may lead to confusion.</p><p>Please edit "
+"<h4><i class=\"fa-solid fa-triangle-exclamation\"></i> Your local.inc file "
+"is outdated!</h4><p>It appears that your local.inc file contains definitions "
+"of variables that are unused and it may lead to confusion.</p><p>Please edit "
 "<code>%1$s</code> and remove the following variables: <code>$sys_allow_anon</"
 "code> and <code>$sys_allow_restricted_users</code>.</p>"
 msgstr ""
-"<h4><i class=\"fa fa-exclamation-triangle\"></i> Votre fichier local.inc "
-"n'est pas à jour !</h4><p>Il semble que votre fichier local.inc contient des "
-"définitions de variables qui ne sont plus utilisées et pourrait entraîner "
-"des confusions.</p><p>Merci d'éditer <code>%1$s</code> et de supprimer les "
-"variables suivantes : <code>$sys_allow_anon</code> et "
+"<h4><i class=\"fa-solid fa-triangle-exclamation\"></i> Votre fichier "
+"local.inc n'est pas à jour !</h4><p>Il semble que votre fichier local.inc "
+"contient des définitions de variables qui ne sont plus utilisées et pourrait "
+"entraîner des confusions.</p><p>Merci d'éditer <code>%1$s</code> et de "
+"supprimer les variables suivantes : <code>$sys_allow_anon</code> et "
 "<code>$sys_allow_restricted_users</code>.</p>"
 
 msgid ""
@@ -262,9 +244,6 @@ msgstr ""
 "Veuillez consulter la <a href=\"/doc/fr/administration-guide/system-"
 "administration/filtering-outbound-requests.html\">documentation pour plus "
 "d'informations</a>.</p>"
-
-msgid "<strong>Monitor this thread</strong>"
-msgstr "<strong>Surveiller ce fil de discussion</strong>"
 
 msgid "A deleted project can not be restored."
 msgstr "Un projet détruit ne peut être restoré."
@@ -425,9 +404,6 @@ msgstr "Statut du compte utilisateur"
 msgid "Action required"
 msgstr "Action requise"
 
-msgid "Actions"
-msgstr "Actions"
-
 msgid "Activate"
 msgstr "Activer le compte"
 
@@ -440,17 +416,8 @@ msgstr "Actif"
 msgid "Active sessions browser statistics"
 msgstr "Statistiques navigateur sur les sessions actives"
 
-msgid "Add Forum"
-msgstr "Ajouter un forum"
-
 msgid "Add SSH key"
 msgstr "Ajouter une clef SSH"
-
-msgid "Add This Forum"
-msgstr "Ajouter ce forum"
-
-msgid "Add a Forum"
-msgstr "Ajouter un forum"
 
 msgid "Add a new service"
 msgstr "Ajouter un nouveau service"
@@ -661,6 +628,13 @@ msgstr "L'archive ne peut pas contenir de paquets FRS."
 msgid "Archive should not contain users."
 msgstr "L'archive ne peut pas contenir des utilisateurs."
 
+msgid ""
+"Are you sure that you want to force the reconnection for all (%s) users? "
+"This will force all users to login."
+msgstr ""
+"Êtes-vous sûr de vouloir obliger tous vos utilisateurs (%s) à se "
+"reconnecter ?"
+
 msgid "Are you sure you want to remove this passkey?"
 msgstr "Êtes-vous sûr de vouloir supprimer cette clé d'authentification ?"
 
@@ -671,15 +645,6 @@ msgstr ""
 "Comme notifié(e) il y a %1$s jours et sans aucune connexion de votre part "
 "depuis, votre compte est suspendu conformément aux règles de %2$s."
 
-msgid ""
-"As the Forum creator it is <u>strongly recommend</u> that you monitor this "
-"forum to be instantly notified via email of any new message posted to the "
-"Forum."
-msgstr ""
-"En tant que créateur de ce forum, il vous est <u>fortement recommandé</u> de "
-"le surveiller pour recevoir immédiatement par e-mail tout nouveau message "
-"posté sur ce forum."
-
 msgid "Ask to join"
 msgstr "Demander à rejoindre"
 
@@ -688,9 +653,6 @@ msgstr "Demander à rejoindre ce projet"
 
 msgid "Authenticated users (Registered + Restricted) label"
 msgstr "Label pour les utilisateurs authentifiés (enregistrés + retreints)"
-
-msgid "Author"
-msgstr "Auteur"
 
 msgid "Available?"
 msgstr "Disponible ?"
@@ -737,14 +699,8 @@ msgstr "Bleu"
 msgid "Bound to service"
 msgstr "Lié au service"
 
-msgid "Broken Thread"
-msgstr "Fil de discussion brisée"
-
 msgid "Built from template"
 msgstr "Créé à partir du modèle"
-
-msgid "By"
-msgstr "De"
 
 msgid "By %s"
 msgstr "Par %s"
@@ -859,12 +815,6 @@ msgstr "Le nom complet de la catégorie ne peut pas contenir '::'."
 msgid "Category short name cannot contain '::'."
 msgstr "Le nom court de la catégorie ne peut pas contenir '::'."
 
-msgid "Change Forum Status"
-msgstr "Changer le statut du forum"
-
-msgid "Change View"
-msgstr "Changer de format"
-
 msgid "Change avatar"
 msgstr "Changer l'avatar"
 
@@ -880,14 +830,6 @@ msgstr "Projets enfants"
 
 msgid "Choose a category…"
 msgstr "Choisissez une catégorie…"
-
-msgid "Choose a forum First"
-msgstr "Veuillez d'abord choisir un forum"
-
-msgid "Choose a forum and you can browse, search, and post messages."
-msgstr ""
-"Choisissez un forum et vous pourrez le parcourir, effectuer une recherche et "
-"poster un message."
 
 msgid "Choose a timezone"
 msgstr "Sélectionnez un fuseau horaire"
@@ -1124,6 +1066,9 @@ msgstr "Format par défaut pour les champs texte des trackers"
 msgid "Default license agreement"
 msgstr "Licence par défaut"
 
+msgid "Default message"
+msgstr "Message par défaut"
+
 msgid "Default project visibility"
 msgstr "Visibilité du projet par défaut"
 
@@ -1138,12 +1083,6 @@ msgstr "Supprimer"
 #, php-format
 msgid "Delete %s"
 msgstr "Supprimer %s"
-
-msgid "Delete Message"
-msgstr "Détruire un message"
-
-msgid "Delete a message"
-msgstr "Détruire un message"
 
 msgid "Delete binding"
 msgstr "Supprimer le lien"
@@ -1203,9 +1142,6 @@ msgstr "Restreindre pour tous les projets"
 
 msgid "Disallowing for all projects"
 msgstr "Restriction pour tous les projets"
-
-msgid "Discussion Forums"
-msgstr "Forums de discussions"
 
 msgid "Display density"
 msgstr "Densité d'affichage"
@@ -1342,9 +1278,6 @@ msgstr ""
 "Entrez les personnes à inviter sur %s. Nous leur enverrons un email "
 "d'invitation."
 
-msgid "Enter the Message ID"
-msgstr "Entrer l'identifiant (ID) du message"
-
 msgid ""
 "Enter your login name below to receive a link allowing you to change your "
 "password."
@@ -1354,25 +1287,6 @@ msgstr ""
 
 msgid "Error"
 msgstr "Erreur"
-
-msgid "Error - choose a forum first"
-msgstr "Erreur - Veuillez d'abord choisir un forum"
-
-#, php-format
-msgid "Error Adding Forum '%1$s'."
-msgstr "Erreur lors de l'ajout du forum '%1$s'."
-
-msgid "Error Updating Forum Info"
-msgstr "Erreur lors de la mise à jour des informations du forum"
-
-msgid "Error inserting into forum_monitoring"
-msgstr "Erreur lors de l'insertion dans forum_monitoring"
-
-msgid "Error inserting into forum_saved_place"
-msgstr "Erreur lors de l'insertion dans forum_saved_place"
-
-msgid "Error updating time in forum_saved_place"
-msgstr "Erreur lors de la mise de la date et de l'heure dans forum_saved_place"
 
 msgid "Error:"
 msgstr "Erreur :"
@@ -1385,9 +1299,6 @@ msgstr "Evénements en erreur"
 
 msgid "Events in warning"
 msgstr "Evénements en alerte"
-
-msgid "Existing Forums"
-msgstr "Forums existants"
 
 msgid ""
 "Expiration Date entry could not be parsed. It must be in YYYY-MM-DD format."
@@ -1407,6 +1318,9 @@ msgstr "Expire le"
 msgid "Export"
 msgstr "Exporter"
 
+msgid "Export CSV"
+msgstr "Export CSV"
+
 msgid "Export project structure"
 msgstr "Exporter la structure du projet"
 
@@ -1418,6 +1332,26 @@ msgstr "FRS"
 
 msgid "Fields"
 msgstr "Champs personnalisés"
+
+#, php-format
+msgid "File upload error (%d). No file was uploaded."
+msgstr "Erreur de chargement de fichier (%d). Aucun fichier chargé."
+
+#, php-format
+msgid ""
+"File upload error (%d). The uploaded file exceeds the maximum allowed file "
+"size."
+msgstr "Erreur de chargement de fichier (%d). Le fichier est trop gros."
+
+#, php-format
+msgid "File upload error (%d). The uploaded file was only partially uploaded."
+msgstr ""
+"Erreur de chargement de fichier (%d). Le fichier n'a été que partiellement "
+"chargé."
+
+#, php-format
+msgid "File upload error (%d). Unknown error code."
+msgstr "Erreur de chargement de fichier (%d). Code d'erreur inconnu."
 
 #, php-format
 msgid "File upload error (error code: %1$s)"
@@ -1438,9 +1372,6 @@ msgstr "Rempli"
 msgid "Filter by name"
 msgstr "Filtrer par nom"
 
-msgid "Flat"
-msgstr "A plat"
-
 msgid "Forbidden"
 msgstr "Interdit"
 
@@ -1449,42 +1380,6 @@ msgstr "Force la création du modèle de la référence"
 
 msgid "Force usage?"
 msgstr "Forcer l'utilisation ?"
-
-msgid "Forum"
-msgstr "Forum"
-
-#, php-format
-msgid "Forum '%1$s' Added."
-msgstr "Forum '%1$s' Ajouté."
-
-msgid "Forum Administration"
-msgstr "Administration des forums"
-
-msgid "Forum Info Updated Successfully"
-msgstr "Informations du forum mises à jour avec succès"
-
-msgid "Forum Name"
-msgstr "Nom du forum"
-
-msgid "Forum already monitored"
-msgstr "Forum déjà sous surveillance"
-
-msgid "Forum is now being monitored"
-msgstr "La surveillance du forum est maintenant activée"
-
-msgid "Forum is restricted"
-msgstr "Forum restreint"
-
-msgid ""
-"Forums and News services are deprecated. They will be completely removed in "
-"March 2025."
-msgstr ""
-"Les services Forums et News sont dépréciés. Ils seront complétement "
-"supprimés en Mars 2025."
-
-#, php-format
-msgid "Forums for '%1$s'"
-msgstr "Forums pour '%1$s'"
 
 msgid "Full name"
 msgstr "Nom Complet"
@@ -1555,10 +1450,6 @@ msgstr "Membres du groupe"
 msgid "Groups"
 msgstr "Groupes"
 
-msgid "HTML tags will display in your post as text"
-msgstr ""
-"Les balises HTML seront affichées sous forme de texte dans vos messages"
-
 msgid "Header background"
 msgstr "Image de fond de l'entête"
 
@@ -1612,9 +1503,6 @@ msgstr "Je suis d'accord"
 msgid "I decline"
 msgstr "Je refuse"
 
-msgid "INSERT FAILED"
-msgstr "L'insertion a échoué"
-
 msgid "Icon"
 msgstr "Icône"
 
@@ -1658,6 +1546,9 @@ msgstr ""
 "impérativement préservée, alors vous pouvez décocher cette option afin que "
 "les administrateurs projets ne puissent pas divulguer par mégarde des "
 "ressources confidentielles aux autres utilisateurs de la plateforme."
+
+msgid "Illegal character in name."
+msgstr "Caractère non autorisé dans le nom."
 
 msgid "Image"
 msgstr "Image"
@@ -1763,9 +1654,6 @@ msgstr "Inviter quelqu'un à rejoindre %s"
 
 msgid "Invited by"
 msgstr "Invitation envoyée par"
-
-msgid "Is Public?"
-msgstr "Est public ?"
 
 msgid "Is default?"
 msgstr "Par défaut ?"
@@ -1898,6 +1786,9 @@ msgstr "Nom de login"
 msgid "Login name"
 msgstr "Nom de login"
 
+msgid "Login name already exists."
+msgstr "Ce nom d'utilisateur existe déjà."
+
 msgid "Logout"
 msgstr "Se déconnecter"
 
@@ -1985,17 +1876,8 @@ msgstr "Gestion des membres"
 msgid "Message"
 msgstr "Message"
 
-msgid "Message Posted"
-msgstr "Message posté"
-
 msgid "Message from %s:"
 msgstr "Message de la part de %s :"
-
-msgid "Message is not in your group"
-msgstr "Ce message n'est pas de votre projet"
-
-msgid "Message not found"
-msgstr "Message introuvable"
 
 msgid "Message sent to administrator should not be empty."
 msgstr "Le message envoyé à l'administrateur ne doit pas être vide."
@@ -2009,39 +1891,14 @@ msgstr "Message..."
 msgid "Missing Information. PLEASE fill in all required information."
 msgstr "Information manquante. Veuillez saisir les informations demandées."
 
-msgid ""
-"Missing forum name or description, please press the \"Back\" button and "
-"complete this information"
-msgstr ""
-"Nom ou description du forum manquant, veuillez appuyez sur le bouton "
-"\"Retour\" de votre navigateur et compléter ces informations"
-
 msgid "Moderation"
 msgstr "Moderation"
-
-msgid "Monitor Forum"
-msgstr "Surveiller Forum"
-
-msgid "Monitor a forum"
-msgstr "Surveiller un forum"
-
-msgid "Monitor?"
-msgstr "Surveiller?"
-
-msgid "Monitoring has been turned off"
-msgstr "La surveillance du forum est arrêté"
 
 msgid "Month"
 msgstr "Mois"
 
 msgid "Must be project admin to add a project member"
 msgstr "Doit être administrateur de projet pour ajouter un membre de projet"
-
-msgid "Must choose a message first"
-msgstr "Veuillez d'abord choisir un message"
-
-msgid "Must include a message body and subject"
-msgstr "Veuillez remplir le sujet et le corps du message"
 
 msgid "My Dashboard"
 msgstr "Mon tableau de bord"
@@ -2052,9 +1909,15 @@ msgstr "Mon tableau de bord"
 msgid "Name"
 msgstr "Nom"
 
+msgid "Name is reserved."
+msgstr "Le nom est réservé."
+
 #, php-format
 msgid "Name is too long. It must be less than %s characters."
 msgstr "Le nom est trop long. Il doit comporter au plus %s caractères."
+
+msgid "Name is too short. It must be at least 3 characters."
+msgstr "Le nom est trop court. Il doit comporter au moins 3 caractères."
 
 msgid "Name of passkey can contain up to 250 characters maximum"
 msgstr ""
@@ -2078,9 +1941,6 @@ msgstr "Nb maximum de valeurs autorisées doit être à 1."
 
 msgid "Nb members"
 msgstr "Nb membres"
-
-msgid "Nested"
-msgstr "Hiérarchisé"
 
 msgid "Never"
 msgstr "Jamais"
@@ -2107,9 +1967,6 @@ msgstr ""
 msgid "New events"
 msgstr "Nouveaux événements"
 
-msgid "New messages will be highlighted when you return."
-msgstr "Les nouveaux messages seront mis en valeur lorsque vous reviendrez."
-
 msgid "New password"
 msgstr "Nouveau mot de passe"
 
@@ -2129,21 +1986,8 @@ msgstr "Créer une référence système"
 msgid "New user"
 msgstr "Nouvel utilisateur"
 
-msgid "Next Messages"
-msgstr "Messages suivants"
-
 msgid "No"
 msgstr "Non"
-
-msgid "No Comments"
-msgstr "Sans message"
-
-msgid "No Forums Found"
-msgstr "Forum introuvable"
-
-#, php-format
-msgid "No Messages in %1$s"
-msgstr "Aucun message dans %1$s"
 
 msgid "No activity yet"
 msgstr "Pas encore d'activité"
@@ -2156,16 +2000,6 @@ msgstr "Aucun projet enfant"
 
 msgid "No email for user account"
 msgstr "Pas d'adresse email pour ce compte"
-
-msgid "No followup ID present when trying to post to an existing thread."
-msgstr "Identifiant de fil de discussion manquant pour une réponse."
-
-msgid "No forum for this project"
-msgstr "Aucun forum pour ce projet"
-
-#, php-format
-msgid "No forums found for '%1$s'"
-msgstr "Aucun forum pour '%1$s'"
 
 msgid "No items can use labels in this project."
 msgstr "Aucun éléments dans ce projet ne peux utiliser les labels."
@@ -2247,9 +2081,6 @@ msgid ""
 msgstr ""
 "Une fois approuvé, vous recevrez un email de confirmation à <strong>%s</"
 "strong>"
-
-msgid "Once you add a forum, it cannot be modified or deleted!"
-msgstr "Une fois ajouté, un forum ne peut être ni modifié ni détruit !"
 
 msgid "Only project members can access its content."
 msgstr "Seuls les membres du projet peuvent accéder à son contenu."
@@ -2450,10 +2281,23 @@ msgstr "Merci de confirmer votre action."
 msgid "Please contact the administrators at:"
 msgstr "Veuillez contacter les administrateurs à :"
 
+msgid ""
+"Please contact your Tuleap Partner to renew or upgrade your subscription."
+msgstr ""
+"Merci de contacter votre Partenaire Tuleap pour renouveler ou mettre à "
+"niveau votre abonnement."
+
 msgid "Please explain why you are applying for registration on this site"
 msgstr ""
 "Veuillez expliquer la raison pour laquelle vous souhaitez créer un compte "
 "sur ce site"
+
+msgid ""
+"Please get in touch with your usual company contact or send an email to "
+"sales@enalean.com."
+msgstr ""
+"Merci de contacter votre interlocuteur habituel ou d'envoyer un email à "
+"sales@enalean.com."
 
 msgid ""
 "Please make sure the users who will be imported are already registered and "
@@ -2473,6 +2317,13 @@ msgid ""
 msgstr ""
 "Merci de noter le login <code>%1$s</code> et le mot de passe <code>%2$s</"
 "code>"
+
+msgid ""
+"Please renew or upgrade your contract on your client account or send an "
+"email to sales@enalean.com."
+msgstr ""
+"Merci de renouveler ou de mettre à niveau votre contrat dans votre compte "
+"client ou d'envoyer un email à sales@enalean.com."
 
 msgid "Please select a file to upload"
 msgstr "Veuillez sélectionner un fichier à téléverser"
@@ -2496,15 +2347,6 @@ msgstr "Veuillez utiliser un lien http:// ou https://"
 msgid "Plugins"
 msgstr "Plugins"
 
-msgid "Post Comment"
-msgstr "Poster un commentaire"
-
-msgid "Post a followup to this message"
-msgstr "Poster une réponse dans cette discussion"
-
-msgid "Posting Failed"
-msgstr "L'envoi du message a échoué"
-
 msgid "Predefined project references"
 msgstr "Références de projets prédéfinis"
 
@@ -2523,9 +2365,6 @@ msgstr "La prévisualisation a été envoyée"
 msgid "Preview:"
 msgstr "Aperçu :"
 
-msgid "Previous Messages"
-msgstr "Messages précédents"
-
 msgid "Previous successful login"
 msgstr "Connexion précédente"
 
@@ -2543,6 +2382,9 @@ msgstr "Privé incluant les utilisateurs restreints"
 
 msgid "Processors"
 msgstr "Processeurs"
+
+msgid "Processors list"
+msgstr "Liste des processeurs"
 
 msgid "Project"
 msgstr "Projet"
@@ -2768,11 +2610,17 @@ msgstr "Catégories de projet publics"
 msgid "Public?"
 msgstr "Public ?"
 
+msgid "Purge all current sessions"
+msgstr "Purger toutes les sessions en cours"
+
 msgid "Purple"
 msgstr "Violet"
 
 msgid "Purpose"
 msgstr "Motif"
+
+msgid "Quit this project?"
+msgstr "Quitter ce projet ?"
 
 msgid "REST"
 msgstr "REST"
@@ -3007,12 +2855,6 @@ msgstr "Les clés d'accès ont été supprimées avec succès"
 msgid "Save"
 msgstr "Enregistrer"
 
-msgid "Save Place"
-msgstr "Sauvegarder cette position"
-
-msgid "Save Your Place"
-msgstr "Sauvegarder cette position"
-
 msgid "Save categories"
 msgstr "Sauvegarder les catégories"
 
@@ -3039,9 +2881,6 @@ msgstr "Enregister"
 
 msgid "Save the link"
 msgstr "Enregister le lien"
-
-msgid "Save your place"
-msgstr "Sauvegarder cette position"
 
 msgid "Scope"
 msgstr "Portée"
@@ -3129,6 +2968,13 @@ msgstr "Description courte"
 msgid "Short description shouldn't exceed 255 characters."
 msgstr "La description courte ne doit pas dépasser 255 caractères."
 
+msgid "Short name already exists"
+msgstr "Ce nom court est déjà utilisé"
+
+msgid "Short name cannot contain underscore or dot."
+msgstr ""
+"Les noms de projet ne peuvent comporter de caractères soulignés ou de points."
+
 msgid "Short name must start with an alphanumeric character."
 msgstr ""
 "Le nom court doit obligatoirement commencer par un caractère alphanumérique."
@@ -3158,10 +3004,6 @@ msgid ""
 "project."
 msgstr ""
 "Si vous voulez garder votre compte, notifiez votre contact %s pour ce projet."
-
-#, php-format
-msgid "Show %1$s"
-msgstr "Afficher %1$s"
 
 msgid "Show project announcement"
 msgstr "Afficher l'annonce du projet"
@@ -3208,12 +3050,6 @@ msgstr ""
 msgid "Specific project"
 msgstr "Projet spécifique"
 
-msgid "Start New Thread"
-msgstr "Commencer une nouvelle discussion"
-
-msgid "Start a New Thread"
-msgstr "Commencer une nouvelle discussion"
-
 msgid "Start a new project"
 msgstr "Démarrer un nouveau projet"
 
@@ -3225,9 +3061,6 @@ msgstr "Commencez le travail"
 
 msgid "Status"
 msgstr "Statut"
-
-msgid "Stop Monitoring Forum"
-msgstr "Arrêter la surveillance"
 
 msgid ""
 "Streamline your workflow and focus on what's hot with an easy-to-use board"
@@ -3505,6 +3338,9 @@ msgstr "Il manque le nom pour créer un tableau de bord."
 msgid "The name is missing for editing the dashboard."
 msgstr "Il manque le nom pour éditer le tableau de bord."
 
+msgid "The name must start with a letter."
+msgstr "Le nom doit commencer par une lettre."
+
 msgid "The page you are looking for does not exist"
 msgstr "La page demandée n'existe pas"
 
@@ -3610,6 +3446,12 @@ msgstr "Aucun projet dans cette catégorie"
 
 msgid "There are no widgets here"
 msgstr "Il n’y a aucun widget"
+
+msgid "There cannot be any spaces in the login name."
+msgstr "Les espaces sont interdits dans le nom de login."
+
+msgid "There cannot be any spaces in the short name."
+msgstr "Les espaces sont interdits dans le nom court."
 
 msgid ""
 "There is already an event scheduled to rename this project. Please check <a "
@@ -3847,24 +3689,6 @@ msgstr ""
 msgid "This will remove this service from all projects."
 msgstr "Ceci supprimera ce service de tous les projets."
 
-msgid "Thread"
-msgstr "Fil de discussion"
-
-msgid "Thread Monitoring Panel"
-msgstr "Ecran de surveillance des fils de discussion"
-
-msgid "Thread View"
-msgstr "Vue des fils de discussion"
-
-msgid "Thread monitoring update failed."
-msgstr "Echec de la mise à jour de la surveillance des fils de discussion."
-
-msgid "Thread monitoring updated."
-msgstr "Mise à jour de la surveillance des fils de discussion."
-
-msgid "Threaded"
-msgstr "En fils de discussions"
-
 msgid "Timezone"
 msgstr "Fuseau horaire"
 
@@ -3901,11 +3725,6 @@ msgstr "Pour vous connecter (votre nom d'utilisateur est %s) :"
 msgid "To sign up:"
 msgstr "Pour vous enregistrer :"
 
-msgid "To turn off monitoring, simply click the <B>Stop Monitoring Forum</B>."
-msgstr ""
-"Pour arrêter la surveillance, cliquer sur le lien <b>Arrêter la "
-"surveillance</B>."
-
 msgid "Today"
 msgstr "Aujourd'hui"
 
@@ -3929,12 +3748,6 @@ msgstr "Import trackers v3"
 
 msgid "Trove categories"
 msgstr "Catégories"
-
-msgid "Trying to followup to a message that doesn't exist."
-msgstr "Tentative de poster une réponse sur un fil de discussion inexistant."
-
-msgid "Trying to post without a forum ID"
-msgstr "Tentative de poster un message sans identifiant (ID) de forum"
 
 msgid ""
 "Tuleap helps teams to deliver awesome applications, better, faster, and "
@@ -3994,12 +3807,6 @@ msgstr "Jusqu'à 2 catégories peuvent être utilisées en tant que marqueur."
 msgid "Update"
 msgstr "Mettre à jour"
 
-msgid "Update Forum Info/Status"
-msgstr "Mettre à jour les infos et le statut du forum"
-
-msgid "Update Forum Status"
-msgstr "Mettre à jour le statut du forum"
-
 msgid "Update failed"
 msgstr "La mise à jour a échoué"
 
@@ -4044,6 +3851,9 @@ msgstr "Utilisée en tant que marqueur de projet"
 
 msgid "Use default avatar"
 msgstr "Utiliser l'avatar par défaut"
+
+msgid "Use theme color for favicon"
+msgstr "Utiliser la couleur du thème pour le favicon"
 
 #, php-format
 msgid "User #%d is not administrator of project #%d"
@@ -4219,16 +4029,6 @@ msgstr "Voir les navigateurs recommandés"
 msgid "Visibility"
 msgstr "Visibilité"
 
-msgid ""
-"WARNING! You are about to permanently delete a message and all of its "
-"followups!!"
-msgstr ""
-"ATTENTION ! Vous êtes sur le point de détruire un message et tout son fil de "
-"discussion !!"
-
-msgid "Want to monitor this forum?"
-msgstr "Surveiller ce forum ?"
-
 msgid "Warnings"
 msgstr "Alertes"
 
@@ -4268,10 +4068,6 @@ msgstr "Bienvenue à bord"
 
 msgid "Welcome message and information for users"
 msgstr "Message de bienvenue et informations générales pour les utilisateurs"
-
-#, php-format
-msgid "Welcome to %1$s"
-msgstr "Bienvenue sur %1$s"
 
 #, php-format
 msgid "Welcome to %1$s!"
@@ -4376,13 +4172,6 @@ msgid "Yesterday"
 msgstr "Hier"
 
 msgid ""
-"You appear to be double-posting this message, since it has the same subject "
-"and followup information as a prior post."
-msgstr ""
-"Il semble que vous tentiez de poster ce message deux fois, car il a le même "
-"sujet et les mêmes information d fil de discussion qu'un précédent message."
-
-msgid ""
 "You are about to allow access to a resource for every projects on the "
 "platform."
 msgstr ""
@@ -4465,13 +4254,6 @@ msgstr[1] ""
 
 msgid "You are going to be redirected"
 msgstr "Vous allez être redirigé(e)"
-
-msgid ""
-"You are monitoring the whole forum. If you want to monitor only specific "
-"threads, Stop Monitoring Forum."
-msgstr ""
-"Vous surveillez tout le forum. Si vous souhaitez seulement surveiller "
-"certains fils de discussion, stoppez la surveillance du forum."
 
 msgid "You are not allowed to access this resource"
 msgstr "Vous n'avez pas l'autorisation d'accéder à cette resource"
@@ -4558,13 +4340,6 @@ msgid "You can include empty lines in the import file."
 msgstr "Vous pouvez inclure des lignes vides dans le fichier d'import."
 
 msgid ""
-"You can make forums private from here. Please note that private forums can "
-"still be viewed by members of your project, not the general public."
-msgstr ""
-"Vous pouvez rendre un forum privé. veuillez noter que les forums privés ne "
-"sont visibles que pour les membres du projet."
-
-msgid ""
 "You can no longer invite people to use %1$s you have reached the limit of "
 "%2$s invitations by day."
 msgstr ""
@@ -4648,9 +4423,6 @@ msgstr ""
 
 msgid "You cannot create an already expired access key."
 msgstr "Vous ne pouvez pas créer une clé déja expirée."
-
-msgid "You could post if you were logged in"
-msgstr "Vous pourriez poster un message si vous étiez connecté"
 
 msgid "You do not have permission to access the site administration."
 msgstr ""
@@ -4791,27 +4563,11 @@ msgstr ""
 msgid "You should provide a file in entry."
 msgstr "Vous devez fournir un fichier en entrée."
 
-msgid ""
-"You should remove user from news administrators before being able to remove "
-"him from writers."
-msgstr ""
-"Vous devez supprimer l'utilisateur des administrateurs d'annonces avant de "
-"pouvoir l'enlever des rédacteurs."
-
 msgid "You should send a png image"
 msgstr "Merci d'uploader une image au format png"
 
 msgid "You should send an image with height smaller than 100px"
 msgstr "L'image excède les 100px de hauteur"
-
-msgid "You will not receive any more emails from this forum."
-msgstr ""
-"Vous ne recevrez plus de courrier électronique en provenance de ce forum."
-
-msgid "You will now be emailed followups to this entire forum."
-msgstr ""
-"Vous recevrez désormais un courrier électronique pour chaque message posté "
-"sur ce forum."
 
 msgid "You will receive an email when the project is approved."
 msgstr ""
@@ -4819,6 +4575,34 @@ msgstr ""
 
 msgid "You're about to withdraw %s invitation from this project."
 msgstr "Vous êtes sur le point d'annuler l'invitation de %s pour ce projet."
+
+#, php-format
+msgid ""
+"Your Tuleap subscription has expired. All accounts will be in read only mode "
+"in %d day. %s"
+msgid_plural ""
+"Your Tuleap subscription has expired. All accounts will be in read only mode "
+"in %d days. %s"
+msgstr[0] ""
+"Votre abonnement Tuleap a expiré. Tout les comptes vont passer en mode "
+"lecture seule dans %d jour. %s"
+msgstr[1] ""
+"Votre abonnement Tuleap a expiré. Tout les comptes vont passer en mode "
+"lecture seule dans %d jours. %s"
+
+#, php-format
+msgid ""
+"Your Tuleap subscription will expire in %d day. Please renew to avoid any "
+"disruption. %s"
+msgid_plural ""
+"Your Tuleap subscription will expire in %d days. Please renew to avoid any "
+"disruption. %s"
+msgstr[0] ""
+"Votre abonnement Tuleap arrive à expiration dans %d jour. Merci de le "
+"renouveler pour éviter toute interruption. %s"
+msgstr[1] ""
+"Votre abonnement Tuleap arrive à expiration dans %d jours. Merci de le "
+"renouveler pour éviter toute interruption. %s"
 
 msgid "Your account has been created"
 msgstr "Votre compte a été créé"
@@ -4896,9 +4680,6 @@ msgid_plural "Your password will expire in %d days."
 msgstr[0] "Votre mot de passe sera expiré dans %d jour."
 msgstr[1] "Votre mot de passe sera expiré dans %d jours."
 
-msgid "Your place was saved"
-msgstr "Position dans le forum sauvegardée"
-
 msgid "Your platform does not allow restricted users."
 msgstr "Votre plateforme n’autorise pas les utilisateurs restreints."
 
@@ -4907,6 +4688,13 @@ msgstr "Votre projet a été soumis aux administrateurs pour validation."
 
 msgid "Your request is invalid"
 msgstr "Votre requête n'est pas valide"
+
+msgid ""
+"Your subscription has expired. Please contact your administrator to continue "
+"using Tuleap."
+msgstr ""
+"Votre abonnement a expiré. Merci de contacter votre administrateur pour "
+"continuer à utiliser Tuleap."
 
 msgid ""
 "Your web browser is no longer supported. Please upgrade to a modern, fully "
@@ -4998,9 +4786,6 @@ msgstr "en attente"
 
 msgid "permissions"
 msgstr "permissions"
-
-msgid "reply"
-msgstr "répondre"
 
 msgid "restricted"
 msgstr "restreint"

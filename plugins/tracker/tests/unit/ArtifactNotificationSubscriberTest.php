@@ -27,12 +27,12 @@ use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
-final class ArtifactNotificationSubscriberTest extends \Tuleap\Test\PHPUnit\TestCase // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+final class ArtifactNotificationSubscriberTest extends \Tuleap\Test\PHPUnit\TestCase // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 {
     use \Tuleap\GlobalResponseMock;
 
-    private const USER_ID     = 101;
-    private const ARTIFACT_ID = 201;
+    private const int USER_ID     = 101;
+    private const int ARTIFACT_ID = 201;
 
     private Tracker_ArtifactNotificationSubscriber $artifact_subscriber;
 

@@ -102,34 +102,6 @@ final class ProjectUserGroupsTest extends RestBase
                 'additional_information' => [],
             ],
             [
-                'id'                     => $this->project_private_member_id . '_' . BaseTestDataBuilder::DYNAMIC_UGROUP_FORUM_ADMIN_ID,
-                'uri'                    => 'user_groups/' . $this->project_private_member_id . '_' . BaseTestDataBuilder::DYNAMIC_UGROUP_FORUM_ADMIN_ID,
-                'label'                  => 'Forum moderators',
-                'users_uri'              => 'user_groups/' . $this->project_private_member_id . '_' . BaseTestDataBuilder::DYNAMIC_UGROUP_FORUM_ADMIN_ID . '/users',
-                'key'                    => 'ugroup_forum_admin_name_key',
-                'short_name'             => 'forum_admins',
-                'additional_information' => [],
-            ],
-            [
-                'id'                     => $this->project_private_member_id . '_' . BaseTestDataBuilder::DYNAMIC_UGROUP_NEWS_ADMIN_ID,
-                'uri'                    => 'user_groups/' . $this->project_private_member_id . '_' . BaseTestDataBuilder::DYNAMIC_UGROUP_NEWS_ADMIN_ID,
-                'label'                  => 'News administrators',
-                'users_uri'              => 'user_groups/' . $this->project_private_member_id . '_' . BaseTestDataBuilder::DYNAMIC_UGROUP_NEWS_ADMIN_ID . '/users',
-                'key'                    => 'ugroup_news_admin_name_key',
-                'short_name'             => 'news_admins',
-                'additional_information' => [],
-
-            ],
-            [
-                'id'                     => $this->project_private_member_id . '_' . BaseTestDataBuilder::DYNAMIC_UGROUP_NEWS_WRITER_ID,
-                'uri'                    => 'user_groups/' . $this->project_private_member_id . '_' . BaseTestDataBuilder::DYNAMIC_UGROUP_NEWS_WRITER_ID,
-                'label'                  => 'News writers',
-                'users_uri'              => 'user_groups/' . $this->project_private_member_id . '_' . BaseTestDataBuilder::DYNAMIC_UGROUP_NEWS_WRITER_ID . '/users',
-                'key'                    => 'ugroup_news_writer_name_key',
-                'short_name'             => 'news_editors',
-                'additional_information' => [],
-            ],
-            [
                 'id'                     => (string) BaseTestDataBuilder::STATIC_UGROUP_1_ID,
                 'uri'                    => 'user_groups/' . BaseTestDataBuilder::STATIC_UGROUP_1_ID,
                 'label'                  => BaseTestDataBuilder::STATIC_UGROUP_1_LABEL,
@@ -157,7 +129,7 @@ final class ProjectUserGroupsTest extends RestBase
                 'additional_information' => ['ldap' => null],
             ],
         ];
-        $collection = $projects_api->getUserGroupsOfProject($this->project_private_member_id);
+        $collection         = $projects_api->getUserGroupsOfProject($this->project_private_member_id);
         self::assertEquals($expected_result, iterator_to_array($collection, false));
     }
 

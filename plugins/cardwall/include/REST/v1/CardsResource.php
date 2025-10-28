@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
+
 namespace Tuleap\Cardwall\REST\v1;
 
 use CardControllerBuilderRequestDataException;
@@ -38,7 +39,7 @@ use Tuleap\Cardwall\BackgroundColor\BackgroundColorBuilder;
 use Tuleap\REST\Header;
 use Tuleap\REST\ProjectAuthorization;
 use Tuleap\REST\ProjectStatusVerificator;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindDecoratorRetriever;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindDecoratorRetriever;
 use Tuleap\Tracker\Semantic\Status\CachedSemanticStatusFieldRetriever;
 use URLVerification;
 use UserManager;

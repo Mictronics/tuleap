@@ -21,7 +21,7 @@ if (! defined('MEDIAWIKI')) {
  */
 class SkinTuleap extends SkinTemplate
 {
-    public const MEDIAWIKI_URL = '/\/plugins\/mediawiki\/wiki\/(.*)\/index.php\//';
+    public const string MEDIAWIKI_URL = '/\/plugins\/mediawiki\/wiki\/(.*)\/index.php\//';
 
     /** Using fusionforge. */
     public $skinname       = 'tuleap';
@@ -196,7 +196,7 @@ class TuleapTemplate extends BaseTemplate
             }
             ?>
     </ul>
-        <?php	}
+        <?php   }
         echo $footerEnd;
         ?>
 
@@ -289,10 +289,10 @@ class TuleapTemplate extends BaseTemplate
         <h5<?php $this->html('userlangattributes') ?>><?php $this->msg('otherlanguages') ?></h5>
         <div class="pBody">
             <ul>
-            <?php	    foreach ($this->data['language_urls'] as $key => $langlink) { ?>
+            <?php       foreach ($this->data['language_urls'] as $key => $langlink) { ?>
                 <?php echo $this->makeListItem($key, $langlink); ?>
 
-            <?php	    } ?>
+            <?php       } ?>
             </ul>
         </div>
     </div>
@@ -318,7 +318,7 @@ class TuleapTemplate extends BaseTemplate
             <?php             foreach ($cont as $key => $val) { ?>
                 <?php echo $this->makeListItem($key, $val); ?>
 
-            <?php	        } ?>
+            <?php           } ?>
             </ul>
         <?php   } else {
             // allow raw HTML block to be defined by extensions

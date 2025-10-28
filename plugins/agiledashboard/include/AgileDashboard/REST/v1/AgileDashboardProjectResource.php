@@ -324,7 +324,7 @@ final class AgileDashboardProjectResource extends AuthenticatedResource
 
         $milestone_factory = \Planning_MilestoneFactory::build();
 
-        $backlog_factory = new \AgileDashboard_Milestone_Backlog_BacklogFactory(
+        $backlog_factory = new \Tuleap\AgileDashboard\Milestone\Backlog\MilestoneBacklogFactory(
             new BacklogItemDao(),
             $tracker_artifact_factory,
             $planning_factory,
@@ -333,7 +333,7 @@ final class AgileDashboardProjectResource extends AuthenticatedResource
 
         $parent_tracker_retriever = new ParentTrackerRetriever($planning_factory);
 
-        $sub_milestone_finder = new \AgileDashboard_Milestone_Pane_Planning_SubmilestoneFinder(
+        $sub_milestone_finder = new \Tuleap\AgileDashboard\Milestone\Pane\Planning\SubmilestoneFinder(
             \Tracker_HierarchyFactory::instance(),
             $planning_factory,
         );

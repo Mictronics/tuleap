@@ -33,19 +33,23 @@ import {
     buildAllowedTrackersCollection,
 } from "@/configuration/AllowedTrackersCollection";
 import { SELECTED_FIELDS } from "@/configuration/SelectedFieldsCollection";
+import { createGettext } from "vue3-gettext";
+import { CAN_USER_DISPLAY_VERSIONS } from "@/can-user-display-versions-injection-key";
 
 describe("App", () => {
     it("should load and display the document view", () => {
         const getAllJSON = vi.spyOn(rest_querier, "getAllSections");
         const wrapper = shallowMount(App, {
             global: {
+                plugins: [createGettext({ silent: true })],
                 provide: {
                     [ALLOWED_TRACKERS.valueOf()]: buildAllowedTrackersCollection([]),
-                    [CAN_USER_EDIT_DOCUMENT.valueOf()]: true,
+                    [CAN_USER_EDIT_DOCUMENT.valueOf()]: ref(true),
                     [DOCUMENT_ID.valueOf()]: 1,
                     [SECTIONS_COLLECTION.valueOf()]: SectionsCollectionStub.withSections([]),
                     [IS_LOADING_SECTIONS_FAILED.valueOf()]: ref(false),
                     [SELECTED_FIELDS.valueOf()]: ref([]),
+                    [CAN_USER_DISPLAY_VERSIONS.valueOf()]: true,
                 },
             },
         });

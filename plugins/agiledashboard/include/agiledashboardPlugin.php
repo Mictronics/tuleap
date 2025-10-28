@@ -20,8 +20,6 @@
 
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Tuleap\admin\ProjectEdit\ProjectStatusUpdate;
-use Tuleap\AgileDashboard\AgileDashboard\Milestone\Backlog\RecentlyVisitedTopBacklogDao;
-use Tuleap\AgileDashboard\AgileDashboard\Milestone\Backlog\VisitRetriever;
 use Tuleap\AgileDashboard\AgileDashboardLegacyController;
 use Tuleap\AgileDashboard\Artifact\AdditionalArtifactActionBuilder;
 use Tuleap\AgileDashboard\Artifact\EventRedirectAfterArtifactCreationOrUpdateHandler;
@@ -50,9 +48,9 @@ use Tuleap\AgileDashboard\ExplicitBacklog\UnplannedReportCriterionMatchingIdsRet
 use Tuleap\AgileDashboard\FormElement\Burnup\Calculator\BurnupEffortCalculatorForArtifact;
 use Tuleap\AgileDashboard\FormElement\Burnup\Calculator\SystemEvent\SystemEvent_BURNUP_DAILY;
 use Tuleap\AgileDashboard\FormElement\Burnup\Calculator\SystemEvent\SystemEvent_BURNUP_GENERATE;
-use Tuleap\AgileDashboard\FormElement\Burnup\CountElementsCacheDao;
-use Tuleap\AgileDashboard\FormElement\Burnup\CountElementsCalculator;
-use Tuleap\AgileDashboard\FormElement\Burnup\ProjectsCountModeDao;
+use Tuleap\AgileDashboard\FormElement\Burnup\Count\CountElementsCacheDao;
+use Tuleap\AgileDashboard\FormElement\Burnup\Count\CountElementsCalculator;
+use Tuleap\AgileDashboard\FormElement\Burnup\Count\ProjectsCountModeDao;
 use Tuleap\AgileDashboard\FormElement\BurnupCacheDao;
 use Tuleap\AgileDashboard\FormElement\BurnupCacheDateRetriever;
 use Tuleap\AgileDashboard\FormElement\BurnupCalculator;
@@ -62,15 +60,27 @@ use Tuleap\AgileDashboard\FormElement\MessageFetcher;
 use Tuleap\AgileDashboard\Masschange\AdditionalMasschangeActionProcessor;
 use Tuleap\AgileDashboard\Milestone\AllBreadCrumbsForMilestoneBuilder;
 use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItem;
+use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemBuilder;
 use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemCollectionFactory;
+use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemPresenterBuilder;
+use Tuleap\AgileDashboard\Milestone\Backlog\IBuildBacklogItemAndBacklogItemCollection;
+use Tuleap\AgileDashboard\Milestone\Backlog\MilestoneBacklogFactory;
+use Tuleap\AgileDashboard\Milestone\Backlog\RecentlyVisitedTopBacklogDao;
+use Tuleap\AgileDashboard\Milestone\Backlog\VisitRetriever;
 use Tuleap\AgileDashboard\Milestone\MilestoneDao;
 use Tuleap\AgileDashboard\Milestone\MilestoneReportCriterionDao;
+use Tuleap\AgileDashboard\Milestone\Pane\AgileDashboardPaneInfoIdentifier;
+use Tuleap\AgileDashboard\Milestone\Pane\PaneInfoFactory;
+use Tuleap\AgileDashboard\Milestone\Pane\PanePresenterBuilderFactory;
+use Tuleap\AgileDashboard\Milestone\Pane\Planning\SubmilestoneFinder;
+use Tuleap\AgileDashboard\Milestone\Pane\PlanningMilestonePaneFactory;
 use Tuleap\AgileDashboard\Milestone\Sidebar\MilestonesInSidebarDao;
 use Tuleap\AgileDashboard\Move\AgileDashboardMovableFieldsCollector;
 use Tuleap\AgileDashboard\Planning\BacklogHistoryEntry;
 use Tuleap\AgileDashboard\Planning\PlanningDao;
 use Tuleap\AgileDashboard\Planning\PlanningTrackerBacklogChecker;
 use Tuleap\AgileDashboard\Planning\XML\ProvideCurrentUserForXMLImport;
+use Tuleap\AgileDashboard\Priority\SequenceIdManager;
 use Tuleap\AgileDashboard\RemainingEffortValueRetriever;
 use Tuleap\AgileDashboard\Semantic\XML\SemanticsExporter;
 use Tuleap\AgileDashboard\SplitModalPresenter;
@@ -204,7 +214,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
 
     public const string USER_PREF_DISPLAY_SPLIT_MODAL = 'should_display_agiledashboard_split_modal';
 
-    /** @var AgileDashboard_SequenceIdManager */
+    /** @var SequenceIdManager */
     private $sequence_id_manager;
 
     /**
@@ -542,7 +552,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
                 $this->getBacklogFactory(),
                 $this->getBacklogItemCollectionFactory(
                     $this->getMilestoneFactory(),
-                    new AgileDashboard_Milestone_Backlog_BacklogItemBuilder()
+                    new BacklogItemBuilder()
                 ),
                 $this->getPlanningFactory(),
                 new ExplicitBacklogDao(),
@@ -815,7 +825,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
 
     private function getBacklogFactory()
     {
-        return new AgileDashboard_Milestone_Backlog_BacklogFactory(
+        return new MilestoneBacklogFactory(
             new BacklogItemDao(),
             $this->getArtifactFactory(),
             PlanningFactory::build(),
@@ -995,11 +1005,11 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
     private function getSequenceIdManager()
     {
         if (! $this->sequence_id_manager) {
-            $this->sequence_id_manager = new AgileDashboard_SequenceIdManager(
+            $this->sequence_id_manager = new SequenceIdManager(
                 $this->getBacklogFactory(),
                 $this->getBacklogItemCollectionFactory(
                     $this->getMilestoneFactory(),
-                    new AgileDashboard_Milestone_Backlog_BacklogItemBuilder()
+                    new BacklogItemBuilder()
                 )
             );
         }
@@ -1011,7 +1021,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
     public function cardwallUseStandardJavascriptEvent(CardwallUseStandardJavascriptEvent $event): void
     {
         $request              = HTTPRequest::instance();
-        $pane_info_identifier = new AgileDashboard_PaneInfoIdentifier();
+        $pane_info_identifier = new AgileDashboardPaneInfoIdentifier();
         if ($pane_info_identifier->isPaneAPlanningV2($request->get('pane'))) {
             $event->use_standard_javascript = false;
         }
@@ -1061,7 +1071,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
         $backlog_factory                 = $this->getBacklogFactory();
         $backlog_item_collection_factory = $this->getBacklogItemCollectionFactory(
             $milestone_factory,
-            new AgileDashboard_Milestone_Backlog_BacklogItemBuilder()
+            new BacklogItemBuilder()
         );
 
         $user         = $event->getUser();
@@ -1378,7 +1388,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
 
     private function getBacklogItemCollectionFactory(
         Planning_MilestoneFactory $milestone_factory,
-        AgileDashboard_Milestone_Backlog_IBuildBacklogItemAndBacklogItemCollection $presenter_builder,
+        IBuildBacklogItemAndBacklogItemCollection $presenter_builder,
     ): BacklogItemCollectionFactory {
         $form_element_factory = Tracker_FormElementFactory::instance();
 
@@ -1397,32 +1407,32 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
         );
     }
 
-    public function getMilestonePaneFactory(): Planning_MilestonePaneFactory
+    public function getMilestonePaneFactory(): PlanningMilestonePaneFactory
     {
         $request = HTTPRequest::instance();
 
         $planning_factory    = $this->getPlanningFactory();
         $milestone_factory   = $this->getMilestoneFactory();
         $hierarchy_factory   = $this->getHierarchyFactory();
-        $submilestone_finder = new AgileDashboard_Milestone_Pane_Planning_SubmilestoneFinder(
+        $submilestone_finder = new SubmilestoneFinder(
             $hierarchy_factory,
             $planning_factory,
         );
 
-        $pane_info_factory = new AgileDashboard_PaneInfoFactory(
+        $pane_info_factory = new PaneInfoFactory(
             $submilestone_finder
         );
 
         $event_manager = EventManager::instance();
 
-        return new Planning_MilestonePaneFactory(
+        return new PlanningMilestonePaneFactory(
             $request,
             $milestone_factory,
-            new AgileDashboard_Milestone_Pane_PanePresenterBuilderFactory(
+            new PanePresenterBuilderFactory(
                 $this->getBacklogFactory(),
                 $this->getBacklogItemCollectionFactory(
                     $this->getMilestoneFactory(),
-                    new AgileDashboard_Milestone_Backlog_BacklogItemPresenterBuilder()
+                    new BacklogItemPresenterBuilder()
                 ),
                 new BurnupFieldRetriever(Tracker_FormElementFactory::instance()),
                 $event_manager

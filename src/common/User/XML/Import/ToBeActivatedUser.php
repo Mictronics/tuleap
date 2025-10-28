@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
+
 namespace User\XML\Import;
 
 use PFUser;
@@ -25,7 +26,7 @@ class ToBeActivatedUser extends ActionToBeTakenForUser
 {
     private static $ALLOWED_ACTIONS = [self::ACTION, ToBeMappedUser::ACTION];
 
-    public const ACTION = 'noop';
+    public const string ACTION = 'noop';
 
     private $status;
 

@@ -21,9 +21,14 @@
 <!-- prettier-ignore -->
 <template>
     <span>
-        <button type="button" class="btn btn-small button-commonmark-syntax-helper" ref="button_helper"
-            v-bind:disabled="is_in_preview_mode" data-test="button-helper">
-            <i class="fas fa-question-circle" aria-hidden="true"></i>
+        <button
+            type="button"
+            class="btn btn-small button-commonmark-syntax-helper"
+            ref="button_helper"
+            v-bind:disabled="is_in_preview_mode"
+            data-test="button-helper"
+        >
+            <i class="fa-solid fa-circle-question" aria-hidden="true"></i>
             {{ $gettext("Help") }}
         </button>
         <section class="tlp-popover" id="popover-content" ref="popover_content">

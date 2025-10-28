@@ -39,6 +39,7 @@ use Tuleap\Mediawiki\XMLMediaWikiExporter;
 use Tuleap\MediawikiStandalone\Permissions\ForgeUserGroupPermission\MediawikiAdminAllProjects;
 use Tuleap\Plugin\LifecycleHookCommand\PluginExecuteUpdateHookEvent;
 use Tuleap\Plugin\ListeningToEventClass;
+use Tuleap\Plugin\ListeningToEventName;
 use Tuleap\Project\Admin\Navigation\NavigationDropdownItemPresenter;
 use Tuleap\Project\Admin\Navigation\NavigationDropdownQuickLinksCollector;
 use Tuleap\Project\Admin\PermissionsPerGroup\PermissionPerGroupPaneCollector;
@@ -67,13 +68,12 @@ require_once __DIR__ . '/../../mediawiki_standalone/vendor/autoload.php';
 
 class MediaWikiPlugin extends Plugin implements PluginWithService //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 {
-    public const SERVICE_SHORTNAME = 'plugin_mediawiki';
+    public const string SERVICE_SHORTNAME = 'plugin_mediawiki';
 
     public function __construct($id = 0)
     {
         parent::__construct($id);
         $this->setName('mediawiki');
-        $this->addHook('cssfile');
 
         $this->addHook('permission_get_name');
         $this->addHook(RegisterProjectCreationEvent::NAME);
@@ -253,6 +253,7 @@ class MediaWikiPlugin extends Plugin implements PluginWithService //phpcs:ignore
         return null;
     }
 
+    #[ListeningToEventName('cssfile')]
     public function cssFile($params): void
     {
         // Only show the stylesheet if we're actually in the Mediawiki pages.

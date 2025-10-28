@@ -81,8 +81,8 @@ import {
 
 export type ArtifactsTableBuilder = {
     mapQueryContentToArtifactsTable(
-        query_content: SelectableQueryContentRepresentation,
         direction: ArtifactLinkDirection,
+        ...query_content: ReadonlyArray<SelectableQueryContentRepresentation>
     ): ArtifactsTable;
 };
 
@@ -316,19 +316,37 @@ function buildCell(selectable: Selectable, artifact: ArtifactRepresentation): Re
     }
 }
 
+function getSelectedFromFirstQueryContentAsItShouldBeTheSameForAllOfThem(
+    query_content_collection: ReadonlyArray<SelectableQueryContentRepresentation>,
+): ReadonlyArray<Selectable> {
+    return query_content_collection[0]?.selected;
+}
+
 export const ArtifactsTableBuilder = (): ArtifactsTableBuilder => {
     return {
         mapQueryContentToArtifactsTable(
-            query_content,
             direction: ArtifactLinkDirection,
+            ...query_content_collection: ReadonlyArray<SelectableQueryContentRepresentation>
         ): ArtifactsTable {
             const initial_table: ArtifactsTable = {
                 columns: new Set(),
                 rows: [],
             };
-            return findArtifactSelectable(query_content.selected).mapOr((artifact_selectable) => {
+
+            const selected =
+                getSelectedFromFirstQueryContentAsItShouldBeTheSameForAllOfThem(
+                    query_content_collection,
+                );
+            const artifacts = query_content_collection.reduce(
+                (accumulated_artifacts: ArtifactRepresentation[], query_content) => {
+                    return accumulated_artifacts.concat(query_content.artifacts);
+                },
+                [],
+            );
+
+            return findArtifactSelectable(selected).mapOr((artifact_selectable) => {
                 initial_table.columns.add(artifact_selectable.name);
-                return query_content.artifacts.reduce((accumulator, artifact) => {
+                return artifacts.reduce((accumulator, artifact) => {
                     const artifact_uri = findArtifactURI(artifact_selectable, artifact);
                     const artifact_id = findArtifactId(artifact_selectable, artifact);
                     const number_of_forward_link = findNumberOfForwardLink(
@@ -340,16 +358,17 @@ export const ArtifactsTableBuilder = (): ArtifactsTableBuilder => {
                         artifact,
                     );
 
+                    const row_uuid = uuidv4();
                     const row: ArtifactRow = {
-                        uuid: uuidv4(),
-                        id: artifact_id,
+                        row_uuid: row_uuid,
+                        artifact_id: artifact_id,
                         expected_number_of_forward_links: number_of_forward_link,
                         expected_number_of_reverse_links: number_of_reverse_link,
-                        uri: artifact_uri,
+                        artifact_uri: artifact_uri,
                         cells: new Map<string, Cell>(),
                         direction,
                     };
-                    for (const selectable of query_content.selected) {
+                    for (const selectable of selected) {
                         // Filter out unsupported selectable
                         buildCell(selectable, artifact).map((cell) => {
                             accumulator.columns.add(selectable.name);

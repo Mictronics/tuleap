@@ -39,12 +39,12 @@ use Tuleap\Tracker\FormElement\Field\Integer\IntegerField;
 use Tuleap\Tracker\FormElement\Field\LastUpdateBy\LastUpdateByField;
 use Tuleap\Tracker\FormElement\Field\LastUpdateDate\LastUpdateDateField;
 use Tuleap\Tracker\FormElement\Field\List\CheckboxField;
+use Tuleap\Tracker\FormElement\Field\List\ListField;
 use Tuleap\Tracker\FormElement\Field\List\MultiSelectboxField;
 use Tuleap\Tracker\FormElement\Field\List\OpenListField;
 use Tuleap\Tracker\FormElement\Field\List\RadioButtonField;
+use Tuleap\Tracker\FormElement\Field\List\RetrieveUsedListField;
 use Tuleap\Tracker\FormElement\Field\List\SelectboxField;
-use Tuleap\Tracker\FormElement\Field\ListField;
-use Tuleap\Tracker\FormElement\Field\ListFields\RetrieveUsedListField;
 use Tuleap\Tracker\FormElement\Field\PermissionsOnArtifact\PermissionsOnArtifactField;
 use Tuleap\Tracker\FormElement\Field\PerTrackerArtifactId\PerTrackerArtifactIdField;
 use Tuleap\Tracker\FormElement\Field\Priority\PriorityField;
@@ -64,41 +64,43 @@ use Tuleap\Tracker\FormElement\StaticField\LineBreak\LineBreakStaticField;
 use Tuleap\Tracker\FormElement\StaticField\RichText\RichTextStaticField;
 use Tuleap\Tracker\FormElement\StaticField\Separator\SeparatorStaticField;
 use Tuleap\Tracker\FormElement\TrackerFormElement;
+use Tuleap\Tracker\FormElement\View\Admin\CreateSharedVisitorAdminView;
+use Tuleap\Tracker\FormElement\View\Admin\CreateVisitorAdminView;
 use Tuleap\Tracker\FormElement\View\Admin\FilterFormElementsThatCanBeCreatedForTracker;
 use Tuleap\Tracker\Tracker;
 use Tuleap\Tracker\XML\TrackerXmlImportFeedbackCollector;
 
 require_once __DIR__ . '/../../tracker_permissions.php';
 
-class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValuesToFieldsData, RetrieveUsedArtifactLinkFields, RetrieveFormElementsForTracker, RetrieveFieldType, RetrieveAnArtifactLinkField, RetrieveUsedListField, RetrieveFieldById //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
+class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValuesToFieldsData, RetrieveUsedArtifactLinkFields, RetrieveFormElementsForTracker, RetrieveFieldType, RetrieveAnArtifactLinkField, RetrieveUsedListField, RetrieveFieldById // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 {
-    public const FIELD_STRING_TYPE                 = 'string';
-    public const FIELD_TEXT_TYPE                   = 'text';
-    public const FIELD_FLOAT_TYPE                  = 'float';
-    public const FIELD_INTEGER_TYPE                = 'int';
-    public const FIELD_DATE_TYPE                   = 'date';
-    public const FIELD_LAST_UPDATE_DATE_TYPE       = 'lud';
-    public const FIELD_SUBMITTED_ON_TYPE           = 'subon';
-    public const FIELD_SUBMITTED_BY_TYPE           = 'subby';
-    public const FIELD_ARTIFACT_ID_TYPE            = 'aid';
-    public const FIELD_SELECT_BOX_TYPE             = 'sb';
-    public const FIELD_RADIO_BUTTON_TYPE           = 'rb';
-    public const FIELD_MULTI_SELECT_BOX_TYPE       = 'msb';
-    public const FIELD_CHECKBOX_TYPE               = 'cb';
-    public const FIELD_OPEN_LIST_TYPE              = 'tbl';
-    public const FIELD_FILE_TYPE                   = 'file';
-    public const FIELD_ARTIFACT_LINKS              = 'art_link';
-    public const FIELD_CROSS_REFERENCES            = 'cross';
-    public const FIELD_COMPUTED                    = 'computed';
-    public const FIELD_BURNDOWN                    = 'burndown';
-    public const FIELD_LAST_MODIFIED_BY            = 'luby';
-    public const FIELD_ARTIFACT_IN_TRACKER         = 'atid';
-    public const FIELD_RANK                        = 'priority';
-    public const FIELD_SHARED                      = 'shared';
-    public const FIELD_PERMISSION_ON_ARTIFACT_TYPE = 'perm';
+    public const string FIELD_STRING_TYPE                 = 'string';
+    public const string FIELD_TEXT_TYPE                   = 'text';
+    public const string FIELD_FLOAT_TYPE                  = 'float';
+    public const string FIELD_INTEGER_TYPE                = 'int';
+    public const string FIELD_DATE_TYPE                   = 'date';
+    public const string FIELD_LAST_UPDATE_DATE_TYPE       = 'lud';
+    public const string FIELD_SUBMITTED_ON_TYPE           = 'subon';
+    public const string FIELD_SUBMITTED_BY_TYPE           = 'subby';
+    public const string FIELD_ARTIFACT_ID_TYPE            = 'aid';
+    public const string FIELD_SELECT_BOX_TYPE             = 'sb';
+    public const string FIELD_RADIO_BUTTON_TYPE           = 'rb';
+    public const string FIELD_MULTI_SELECT_BOX_TYPE       = 'msb';
+    public const string FIELD_CHECKBOX_TYPE               = 'cb';
+    public const string FIELD_OPEN_LIST_TYPE              = 'tbl';
+    public const string FIELD_FILE_TYPE                   = 'file';
+    public const string FIELD_ARTIFACT_LINKS              = 'art_link';
+    public const string FIELD_CROSS_REFERENCES            = 'cross';
+    public const string FIELD_COMPUTED                    = 'computed';
+    public const string FIELD_BURNDOWN                    = 'burndown';
+    public const string FIELD_LAST_MODIFIED_BY            = 'luby';
+    public const string FIELD_ARTIFACT_IN_TRACKER         = 'atid';
+    public const string FIELD_RANK                        = 'priority';
+    public const string FIELD_SHARED                      = 'shared';
+    public const string FIELD_PERMISSION_ON_ARTIFACT_TYPE = 'perm';
 
-    public const CONTAINER_COLUMN_TYPE   = 'column';
-    public const CONTAINER_FIELDSET_TYPE = 'fieldset';
+    public const string CONTAINER_COLUMN_TYPE   = 'column';
+    public const string CONTAINER_FIELDSET_TYPE = 'fieldset';
 
     /**
      * Cache formElements
@@ -165,7 +167,7 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
      *  - group   => (in/out) array of {'type' => 'classname'} Containers of fields (column, fieldset, …)
      *  - static  => (in/out) array of {'type' => 'classname'} Static fields (static text, separators, …)
      */
-    public const GET_CLASSNAMES = 'tracker_formelement_get_classnames';
+    public const string GET_CLASSNAMES = 'tracker_formelement_get_classnames';
 
     /**
      * A protected constructor; prevents direct creation of object
@@ -1506,9 +1508,9 @@ class Tracker_FormElementFactory implements RetrieveUsedFields, AddDefaultValues
 
             $allUsedElements = $this->getUsedFormElementForTracker($tracker);
             if ($form_element instanceof Tracker_FormElement_Shared) {
-                $visitor = new Tracker_FormElement_View_Admin_CreateSharedVisitor($allUsedElements);
+                $visitor = new CreateSharedVisitorAdminView($allUsedElements);
             } else {
-                $visitor = new Tracker_FormElement_View_Admin_CreateVisitor($allUsedElements);
+                $visitor = new CreateVisitorAdminView($allUsedElements);
             }
 
             $visitor->setType($type);

@@ -21,21 +21,22 @@ use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\Project\REST\MinimalUserGroupRepresentation;
 use Tuleap\Project\REST\UserGroupRepresentation;
 use Tuleap\Project\UGroupRetriever;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindParameters;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindUgroupsValueDao;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindVisitor;
+use Tuleap\Tracker\FormElement\Field\List\Bind\ListFieldBind;
+use Tuleap\Tracker\FormElement\Field\List\ListField;
 use Tuleap\Tracker\FormElement\Field\List\OpenListField;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindParameters;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindUgroupsValueDao;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindVisitor;
-use Tuleap\Tracker\FormElement\Field\ListFields\OpenListValueDao;
-use Tuleap\Tracker\FormElement\Field\ListField;
+use Tuleap\Tracker\FormElement\Field\List\OpenListValueDao;
 use Tuleap\Tracker\REST\FieldListBindUGroupValueRepresentation;
 
 /**
- * @template-extends Tracker_FormElement_Field_List_Bind<Tracker_FormElement_Field_List_Bind_UgroupsValue>
+ * @template-extends ListFieldBind<Tracker_FormElement_Field_List_Bind_UgroupsValue>
  */
-// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
-class Tracker_FormElement_Field_List_Bind_Ugroups extends Tracker_FormElement_Field_List_Bind
+// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
+class Tracker_FormElement_Field_List_Bind_Ugroups extends ListFieldBind
 {
-    public const TYPE = 'ugroups';
+    public const string TYPE = 'ugroups';
 
     /**
      * @var UGroupRetriever

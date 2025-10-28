@@ -30,13 +30,13 @@ use Tracker_Rule_List_Dao;
 use Tracker_Rule_List_Factory;
 use Tracker_RuleDao;
 use Tracker_RuleFactory;
-use Tuleap\Tracker\FormElement\Field\ListField;
+use Tuleap\Tracker\FormElement\Field\List\ListField;
 use Tuleap\Tracker\Test\Builders\Fields\SelectboxFieldBuilder;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Tracker;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
-final class Tracker_RuleFactoryTest extends \Tuleap\Test\PHPUnit\TestCase //phpcs:ignore Squiz.Classes.ValidClassName.NotCamelCaps
+final class Tracker_RuleFactoryTest extends \Tuleap\Test\PHPUnit\TestCase //phpcs:ignore Squiz.Classes.ValidClassName.NotPascalCase
 {
     private string $xmlstr;
     private SimpleXMLElement $xml;

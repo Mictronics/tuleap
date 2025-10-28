@@ -22,13 +22,13 @@ use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Tracker;
 use Tuleap\Tracker\Workflow\Transition\Condition\Visitor;
 
-// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 class Workflow_Transition_Condition_Permissions extends Workflow_Transition_Condition
 {
     /** @var string */
     public $identifier = 'perms';
 
-    public const PERMISSION_TRANSITION = 'PLUGIN_TRACKER_WORKFLOW_TRANSITION';
+    public const string PERMISSION_TRANSITION = 'PLUGIN_TRACKER_WORKFLOW_TRANSITION';
 
     /** @var PermissionsManager */
     private $permission_manager;

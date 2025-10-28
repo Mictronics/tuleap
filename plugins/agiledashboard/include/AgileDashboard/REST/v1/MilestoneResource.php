@@ -20,8 +20,6 @@
 
 namespace Tuleap\AgileDashboard\REST\v1;
 
-use AgileDashboard_Milestone_Backlog_BacklogFactory;
-use AgileDashboard_Milestone_Backlog_BacklogItemBuilder;
 use BacklogItemReference;
 use EventManager;
 use Luracast\Restler\RestException;
@@ -40,10 +38,12 @@ use Tracker_FormElementFactory;
 use Tracker_NoArtifactLinkFieldException;
 use Tracker_NoChangeException;
 use TransitionFactory;
-use Tuleap\AgileDashboard\BacklogItem\AgileDashboard_BacklogItem_PaginatedBacklogItemsRepresentationsBuilder;
+use Tuleap\AgileDashboard\BacklogItem\PaginatedBacklogItemsRepresentationsBuilder;
 use Tuleap\AgileDashboard\BacklogItemDao;
 use Tuleap\AgileDashboard\ExplicitBacklog\ArtifactsInExplicitBacklogDao;
+use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemBuilder;
 use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemCollectionFactory;
+use Tuleap\AgileDashboard\Milestone\Backlog\MilestoneBacklogFactory;
 use Tuleap\AgileDashboard\Milestone\ParentTrackerRetriever;
 use Tuleap\AgileDashboard\Milestone\Request\MalformedQueryParameterException;
 use Tuleap\AgileDashboard\Milestone\Request\SiblingMilestoneRequest;
@@ -93,7 +93,7 @@ use Tuleap\Tracker\FormElement\Field\ArtifactLink\ParentLinkAction;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\SystemTypePresenterBuilder;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypePresenterFactory;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindDecoratorRetriever;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindDecoratorRetriever;
 use Tuleap\Tracker\FormElement\Field\Text\TextValueValidator;
 use Tuleap\Tracker\Permission\SubmissionPermissionVerifier;
 use Tuleap\Tracker\REST\Helpers\ArtifactsRankOrderer;
@@ -155,7 +155,7 @@ class MilestoneResource extends AuthenticatedResource
     /** @var ArtifactLinkUpdater */
     private $artifactlink_updater;
 
-    /** @var AgileDashboard_Milestone_Backlog_BacklogFactory */
+    /** @var MilestoneBacklogFactory */
     private $backlog_factory;
 
     /** @var Tracker_ArtifactFactory */
@@ -186,7 +186,7 @@ class MilestoneResource extends AuthenticatedResource
 
         $this->milestone_factory = Planning_MilestoneFactory::build();
 
-        $this->backlog_factory = new AgileDashboard_Milestone_Backlog_BacklogFactory(
+        $this->backlog_factory = new MilestoneBacklogFactory(
             new BacklogItemDao(),
             $this->tracker_artifact_factory,
             $planning_factory,
@@ -198,7 +198,7 @@ class MilestoneResource extends AuthenticatedResource
             $this->tracker_artifact_factory,
             $this->milestone_factory,
             $planning_factory,
-            new AgileDashboard_Milestone_Backlog_BacklogItemBuilder(),
+            new BacklogItemBuilder(),
             new RemainingEffortValueRetriever(Tracker_FormElementFactory::instance()),
             new ArtifactsInExplicitBacklogDao(),
             new PriorityDao(),
@@ -235,7 +235,7 @@ class MilestoneResource extends AuthenticatedResource
 
         $parent_tracker_retriever = new ParentTrackerRetriever($planning_factory);
 
-        $sub_milestone_finder = new \AgileDashboard_Milestone_Pane_Planning_SubmilestoneFinder(
+        $sub_milestone_finder = new \Tuleap\AgileDashboard\Milestone\Pane\Planning\SubmilestoneFinder(
             \Tracker_HierarchyFactory::instance(),
             $planning_factory,
         );
@@ -866,7 +866,7 @@ class MilestoneResource extends AuthenticatedResource
             throw new RestException(400, $exception->getMessage());
         }
 
-        $paginated_backlog_item_representation_builder = new AgileDashboard_BacklogItem_PaginatedBacklogItemsRepresentationsBuilder(
+        $paginated_backlog_item_representation_builder = new PaginatedBacklogItemsRepresentationsBuilder(
             $this->getBacklogItemRepresentationFactory(),
             $this->backlog_item_collection_factory,
             $this->backlog_factory,

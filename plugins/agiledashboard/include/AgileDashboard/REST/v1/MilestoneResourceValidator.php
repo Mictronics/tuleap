@@ -24,9 +24,6 @@
  */
 namespace Tuleap\AgileDashboard\REST\v1;
 
-use AgileDashboard_Milestone_Backlog_Backlog;
-use AgileDashboard_Milestone_Backlog_BacklogFactory;
-use AgileDashboard_Milestone_Backlog_IBacklogItemCollection;
 use PFUser;
 use Planning_Milestone;
 use Planning_MilestoneFactory;
@@ -34,6 +31,9 @@ use PlanningFactory;
 use Project;
 use Tracker_ArtifactFactory;
 use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemCollectionFactory;
+use Tuleap\AgileDashboard\Milestone\Backlog\IBacklogItemCollection;
+use Tuleap\AgileDashboard\Milestone\Backlog\MilestoneBacklog;
+use Tuleap\AgileDashboard\Milestone\Backlog\MilestoneBacklogFactory;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\REST\Helpers\IdsFromBodyAreNotUniqueException;
 use Tuleap\Tracker\REST\Helpers\OrderIdOutOfBoundException;
@@ -45,7 +45,7 @@ class MilestoneResourceValidator
     public function __construct(
         private readonly PlanningFactory $planning_factory,
         private readonly Tracker_ArtifactFactory $tracker_artifact_factory,
-        private readonly AgileDashboard_Milestone_Backlog_BacklogFactory $backlog_factory,
+        private readonly MilestoneBacklogFactory $backlog_factory,
         private readonly Planning_MilestoneFactory $milestone_factory,
         private readonly BacklogItemCollectionFactory $backlog_item_collection_factory,
     ) {
@@ -127,9 +127,9 @@ class MilestoneResourceValidator
     private function getArtifactsFromBodyContent(
         array $ids,
         array $backlog_tracker_ids,
-        ?AgileDashboard_Milestone_Backlog_IBacklogItemCollection $todo = null,
-        ?AgileDashboard_Milestone_Backlog_IBacklogItemCollection $done = null,
-        ?AgileDashboard_Milestone_Backlog_IBacklogItemCollection $open_unplanned = null,
+        ?IBacklogItemCollection $todo = null,
+        ?IBacklogItemCollection $done = null,
+        ?IBacklogItemCollection $open_unplanned = null,
     ) {
         $artifacts = [];
 
@@ -157,22 +157,22 @@ class MilestoneResourceValidator
         return $artifacts;
     }
 
-    private function getMilestoneDoneBacklogItems(PFUser $user, Planning_Milestone $milestone, AgileDashboard_Milestone_Backlog_Backlog $backlog)
+    private function getMilestoneDoneBacklogItems(PFUser $user, Planning_Milestone $milestone, MilestoneBacklog $backlog)
     {
         return $this->backlog_item_collection_factory->getDoneCollection($user, $milestone, $backlog, null);
     }
 
-    private function getMilestoneTodoBacklogItems(PFUser $user, Planning_Milestone $milestone, AgileDashboard_Milestone_Backlog_Backlog $backlog)
+    private function getMilestoneTodoBacklogItems(PFUser $user, Planning_Milestone $milestone, MilestoneBacklog $backlog)
     {
         return $this->backlog_item_collection_factory->getTodoCollection($user, $milestone, $backlog, null);
     }
 
-    private function isArtifactInUnplannedParentMilestoneBacklogItems(Artifact $artifact, AgileDashboard_Milestone_Backlog_IBacklogItemCollection $unplanned_backlog_items)
+    private function isArtifactInUnplannedParentMilestoneBacklogItems(Artifact $artifact, IBacklogItemCollection $unplanned_backlog_items)
     {
         return $unplanned_backlog_items->containsId($artifact->getId());
     }
 
-    private function isArtifactInPlannedMilestoneBacklogItems(Artifact $artifact, AgileDashboard_Milestone_Backlog_IBacklogItemCollection $done, AgileDashboard_Milestone_Backlog_IBacklogItemCollection $todo)
+    private function isArtifactInPlannedMilestoneBacklogItems(Artifact $artifact, IBacklogItemCollection $done, IBacklogItemCollection $todo)
     {
         return ($done->containsId($artifact->getId()) || $todo->containsId($artifact->getId()));
     }

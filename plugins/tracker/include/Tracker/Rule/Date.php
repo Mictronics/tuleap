@@ -18,6 +18,8 @@
   * along with Tuleap. If not, see <http://www.gnu.org/licenses/
   */
 
+use Tuleap\Tracker\FormElement\DateFormatter;
+
 /**
  * Date Rule between two dynamic fields
  *
@@ -25,14 +27,14 @@
  * then target field will be constrained to another value.
  *
  */
-class Tracker_Rule_Date extends Tracker_Rule
+class Tracker_Rule_Date extends Tracker_Rule //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 {
-    public const COMPARATOR_EQUALS                 = '=';
-    public const COMPARATOR_NOT_EQUALS             = '≠';
-    public const COMPARATOR_LESS_THAN              = '<';
-    public const COMPARATOR_LESS_THAN_OR_EQUALS    = '≤';
-    public const COMPARATOR_GREATER_THAN           = '>';
-    public const COMPARATOR_GREATER_THAN_OR_EQUALS = '≥';
+    public const string COMPARATOR_EQUALS                 = '=';
+    public const string COMPARATOR_NOT_EQUALS             = '≠';
+    public const string COMPARATOR_LESS_THAN              = '<';
+    public const string COMPARATOR_LESS_THAN_OR_EQUALS    = '≤';
+    public const string COMPARATOR_GREATER_THAN           = '>';
+    public const string COMPARATOR_GREATER_THAN_OR_EQUALS = '≥';
 
     public static $allowed_comparators = [
         self::COMPARATOR_LESS_THAN,
@@ -120,7 +122,7 @@ class Tracker_Rule_Date extends Tracker_Rule
     {
         if (preg_match(Rule_Timestamp::TIMESTAMP_REGEX, $date) && $date_only) {
             //transform timestamps for "submitted on" and "last updated date"
-            $date = date(Tracker_FormElement_DateFormatter::DATE_FORMAT, $date);
+            $date = date(DateFormatter::DATE_FORMAT, $date);
         } elseif (preg_match(Rule_Timestamp::TIMESTAMP_REGEX, $date)) {
             return $date;
         }

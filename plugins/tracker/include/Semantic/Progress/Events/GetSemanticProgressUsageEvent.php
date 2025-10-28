@@ -20,14 +20,13 @@
 
 declare(strict_types=1);
 
-
 namespace Tuleap\Tracker\Semantic\Progress\Events;
 
 use Tuleap\Event\Dispatchable;
 
 class GetSemanticProgressUsageEvent implements Dispatchable
 {
-    public const NAME = 'getSemanticProgressUsageEvent';
+    public const string NAME = 'getSemanticProgressUsageEvent';
 
     public function __construct(public readonly \Tuleap\Tracker\Tracker $tracker)
     {

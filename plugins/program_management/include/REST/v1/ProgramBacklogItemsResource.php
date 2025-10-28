@@ -45,13 +45,13 @@ use Tuleap\ProgramManagement\Domain\Program\Backlog\Feature\Links\UserStoryRetri
 use Tuleap\REST\AuthenticatedResource;
 use Tuleap\REST\Header;
 use Tuleap\REST\I18NRestException;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindDecoratorRetriever;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindDecoratorRetriever;
 use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
 
 final class ProgramBacklogItemsResource extends AuthenticatedResource
 {
-    private const MAX_LIMIT = 50;
-    public const  ROUTE     = 'program_backlog_items';
+    private const int MAX_LIMIT = 50;
+    public const  string ROUTE  = 'program_backlog_items';
 
     /**
      * Get content of a feature

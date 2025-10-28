@@ -11,6 +11,7 @@
  *
  * Author: Joby Walker, Reini Urban, Matthew Palmer
  */
+
 /*
  * Copyright 2004,2005 $ThePhpWikiProgrammingTeam
  *
@@ -116,7 +117,6 @@ function IniConfig($file)
             'AUTH_USER_FILE_STORABLE', 'ALLOW_HTTP_AUTH_LOGIN',
             'ALLOW_USER_LOGIN', 'ALLOW_LDAP_LOGIN', 'ALLOW_IMAP_LOGIN',
             'WARN_NONPUBLIC_INTERWIKIMAP', 'USE_PATH_INFO',
-            'DISABLE_HTTP_REDIRECT',
             'BLOG_EMPTY_DEFAULT_PREFIX', 'ENABLE_DISCUSSION_LINK',
         ];
 

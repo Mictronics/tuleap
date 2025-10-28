@@ -19,7 +19,7 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-class URL
+class URL //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 {
     /**
     * @see http://www.ietf.org/rfc/rfc2396.txt Annex B
@@ -100,41 +100,6 @@ class URL
             $group_id = $dao_results->getRow();
             $group_id = $group_id['group_id'];
         }
-        // Forum and news. Each published news is a special forum of project 'news'
-        if (strpos($req_uri, '/forum/') === 0) {
-            if (array_key_exists('forum_id', $_REQUEST) && $_REQUEST['forum_id']) {
-                // Get corresponding project
-                $dao      = $this->getForumDao();
-                $result   = $dao->searchByGroupForumId($_REQUEST['forum_id']);
-                $group_id = $result->getRow();
-                if ($group_id === false) {
-                    return false;
-                }
-                $group_id = $group_id['group_id'];
-
-                // News
-                if ($group_id == ForgeConfig::get('sys_news_group')) {
-                    $group_id = $this->getGroupIdForNewsFromForumId($_REQUEST['forum_id']);
-                }
-            }
-
-            if (array_key_exists('msg_id', $_REQUEST) && $_REQUEST['msg_id']) {
-                // Get corresponding project
-                $dao = $this->getForumDao();
-                $row = $dao->getMessageProjectIdAndForumId($_REQUEST['msg_id']);
-                if ($row === false) {
-                    return false;
-                }
-                $group_id = $row['group_id'];
-                $forum_id = $row['group_forum_id'];
-
-                // News
-                if ($group_id == ForgeConfig::get('sys_news_group')) {
-                    // Otherwise, get group_id of corresponding news
-                    $group_id = $this->getGroupIdForNewsFromForumId($forum_id);
-                }
-            }
-        }
 
         // Artifact attachment download...
         if (strpos($req_uri, '/tracker/download.php') === 0) {
@@ -168,27 +133,9 @@ class URL
         return null;
     }
 
-    private function getGroupIdForNewsFromForumId($forum_id)
-    {
-        $dao      = $this->getNewsBytesDao();
-        $result   = $dao->searchByForumId($forum_id);
-        $group_id = $result->getRow();
-        return $group_id['group_id'];
-    }
-
     public function getProjectDao()
     {
         return new ProjectDao(CodendiDataAccess::instance());
-    }
-
-    public function getForumDao()
-    {
-        return new ForumDao(CodendiDataAccess::instance());
-    }
-
-    public function getNewsBytesDao()
-    {
-        return new NewsBytesDao(CodendiDataAccess::instance());
     }
 
     public function getArtifactDao()

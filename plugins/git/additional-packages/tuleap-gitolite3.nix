@@ -1,15 +1,20 @@
-{ pkgs ? (import ../../../tools/utils/nix/pinned-nixpkgs.nix) {}, nixpkgsPinEpoch ? (import ../../../tools/utils/nix/nixpkgs-pin-epoch.nix) { inherit pkgs; } }:
+{
+  pkgs ? (import ../../../tools/utils/nix/pinned-nixpkgs.nix) { },
+  nixpkgsPinEpoch ? (import ../../../tools/utils/nix/nixpkgs-pin-epoch.nix) { inherit pkgs; },
+}:
 
 let
   tuleapVersion = builtins.readFile ../../../VERSION;
-in pkgs.stdenvNoCC.mkDerivation rec {
+in
+pkgs.stdenvNoCC.mkDerivation rec {
   pname = "tuleap-gitolite3";
   version = "3.6.14";
 
   src = pkgs.stdenvNoCC.mkDerivation {
     name = "gitolite-src.tar";
 
-    src = pkgs.fetchFromGitHub {
+    src = pkgs.fetchFromGitea {
+      domain = "codeberg.org";
       owner = "sitaramc";
       repo = "gitolite";
       rev = "v${version}";
@@ -23,7 +28,11 @@ in pkgs.stdenvNoCC.mkDerivation rec {
     '';
   };
 
-  nativeBuildInputs = [ pkgs.rpm pkgs.file pkgs.perl ];
+  nativeBuildInputs = [
+    pkgs.rpm
+    pkgs.file
+    pkgs.perl
+  ];
 
   unpackPhase = ''
     ln -s $src $(stripHash $src)

@@ -17,7 +17,9 @@
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
+
 declare(strict_types=1);
+
 namespace Tuleap\RealTimeMercure;
 
 use BackendLogger;
@@ -28,7 +30,7 @@ use Tuleap\User\Avatar\ProvideUserAvatarUrl;
 
 class ClientBuilder
 {
-    public const  DEFAULTPATH = '/etc/tuleap/conf/mercure.env';
+    public const  string DEFAULTPATH = '/etc/tuleap/conf/mercure.env';
     public static function build(string $path, ProvideUserAvatarUrl $provide_user_avatar_url): Client
     {
         $mercure_jwt_generator = MercureJWTGeneratorBuilder::build($path, $provide_user_avatar_url);

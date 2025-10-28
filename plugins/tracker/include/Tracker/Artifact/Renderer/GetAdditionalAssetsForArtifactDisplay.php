@@ -20,7 +20,6 @@
 
 declare(strict_types=1);
 
-
 namespace Tuleap\Tracker\Artifact\Renderer;
 
 use Tuleap\Event\Dispatchable;
@@ -28,7 +27,7 @@ use Tuleap\Layout\JavascriptAssetGeneric;
 
 final class GetAdditionalAssetsForArtifactDisplay implements Dispatchable
 {
-    public const NAME = 'getAdditionalAssetsForArtifactDisplay';
+    public const string NAME = 'getAdditionalAssetsForArtifactDisplay';
 
     /**
      * @var list<JavascriptAssetGeneric>

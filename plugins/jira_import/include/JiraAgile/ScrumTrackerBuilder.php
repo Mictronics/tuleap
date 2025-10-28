@@ -31,15 +31,15 @@ use Tuleap\Tracker\FormElement\Container\Fieldset\XML\XMLFieldset;
 use Tuleap\Tracker\FormElement\Field\ArtifactId\XML\XMLArtifactIdField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\XML\XMLArtifactLinkField;
 use Tuleap\Tracker\FormElement\Field\Burndown\XML\XMLBurndownField;
-use Tuleap\Tracker\FormElement\Field\CrossReference\XML\XMLCrossReferenceField;
+use Tuleap\Tracker\FormElement\Field\CrossReferences\XMLCrossReferenceField;
 use Tuleap\Tracker\FormElement\Field\Date\XML\XMLDateField;
 use Tuleap\Tracker\FormElement\Field\Integer\XML\XMLIntegerField;
-use Tuleap\Tracker\FormElement\Field\LastModifiedBy\XML\XMLLastModifiedByField;
+use Tuleap\Tracker\FormElement\Field\LastUpdateBy\XML\XMLLastModifiedByField;
 use Tuleap\Tracker\FormElement\Field\LastUpdateDate\XML\XMLLastUpdateDateField;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindStatic\XML\XMLBindStaticValue;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\XML\XMLBindValueReferenceByLabel;
-use Tuleap\Tracker\FormElement\Field\ListFields\XML\XMLSelectBoxField;
-use Tuleap\Tracker\FormElement\Field\StringField\XML\XMLStringField;
+use Tuleap\Tracker\FormElement\Field\List\Bind\Static\XML\XMLBindStaticValue;
+use Tuleap\Tracker\FormElement\Field\List\Bind\XML\XMLBindValueReferenceByLabel;
+use Tuleap\Tracker\FormElement\Field\List\XML\XMLSelectBoxField;
+use Tuleap\Tracker\FormElement\Field\String\XML\XMLStringField;
 use Tuleap\Tracker\FormElement\Field\SubmittedBy\XML\XMLSubmittedByField;
 use Tuleap\Tracker\FormElement\Field\SubmittedOn\XML\XMLSubmittedOnField;
 use Tuleap\Tracker\FormElement\Field\XML\ReadPermission;
@@ -59,17 +59,17 @@ use Tuleap\Tracker\XML\XMLTracker;
 
 final class ScrumTrackerBuilder
 {
-    public const DETAILS_RIGHT_COLUMN_NAME    = 'details2';
-    public const NAME_FIELD_NAME              = 'name';
-    public const START_DATE_FIELD_NAME        = 'start_date';
-    public const END_DATE_FIELD_NAME          = 'end_date';
-    public const COMPLETED_DATE_FIELD_NAME    = 'completed_date';
-    public const STATUS_FIELD_NAME            = 'status';
-    public const ARTIFACT_LINK_FIELD_NAME     = 'links';
-    private const CAPACITY_FIELD_NAME         = 'capacity';
-    private const CROSS_REFERENCES_FIELD_NAME = 'references';
-    private const BURNDOWN_FIELD_NAME         = 'burndown';
-    private const BURNUP_FIELD_NAME           = 'burnup';
+    public const string DETAILS_RIGHT_COLUMN_NAME    = 'details2';
+    public const string NAME_FIELD_NAME              = 'name';
+    public const string START_DATE_FIELD_NAME        = 'start_date';
+    public const string END_DATE_FIELD_NAME          = 'end_date';
+    public const string COMPLETED_DATE_FIELD_NAME    = 'completed_date';
+    public const string STATUS_FIELD_NAME            = 'status';
+    public const string ARTIFACT_LINK_FIELD_NAME     = 'links';
+    private const string CAPACITY_FIELD_NAME         = 'capacity';
+    private const string CROSS_REFERENCES_FIELD_NAME = 'references';
+    private const string BURNDOWN_FIELD_NAME         = 'burndown';
+    private const string BURNUP_FIELD_NAME           = 'burnup';
 
     /**
      * @var EventDispatcherInterface

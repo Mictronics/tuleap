@@ -46,22 +46,7 @@ abstract class Layout extends Tuleap\Layout\BaseLayout //phpcs:ignore PSR1.Class
 
     private $javascript;
 
-    //Define all the icons for this theme
-    public $icons = ['Summary' => 'ic/anvil24.png',
-        'Homepage' => 'ic/home.png',
-        'Forums' => 'ic/notes.png',
-        'Bugs' => 'ic/bug.png',
-        'Support' => 'ic/support.png',
-        'Patches' => 'ic/patch.png',
-        'Lists' => 'ic/mail.png',
-        'Tasks' => 'ic/index.png',
-        'Docs' => 'ic/docman.png',
-        'News' => 'ic/news.png',
-        'Files' => 'ic/save.png',
-        'Trackers' => 'ic/tracker20w.png',
-    ];
-
-    public const INCLUDE_FAT_COMBINED = 'include_fat_combined';
+    public const string INCLUDE_FAT_COMBINED = 'include_fat_combined';
 
     /**
      * Background for priorities
@@ -245,7 +230,6 @@ abstract class Layout extends Tuleap\Layout\BaseLayout //phpcs:ignore PSR1.Class
     #[\Override]
     public function includeCalendarScripts()
     {
-        $this->includeJavascriptSnippet("var useLanguage = '" . Codendi_HTMLPurifier::instance()->purify(substr($this->getUser()->getLocale(), 0, 2), CODENDI_PURIFIER_JS_QUOTE) . "';");
         $this->includeJavascriptFile('/scripts/datepicker/datepicker.js');
         return $this;
     }
@@ -512,11 +496,6 @@ abstract class Layout extends Tuleap\Layout\BaseLayout //phpcs:ignore PSR1.Class
     {
         $hp = Codendi_HTMLPurifier::instance();
 
-        //Basic feeds
-        echo $this->getRssFeed(
-            $hp->purify(ForgeConfig::get(\Tuleap\Config\ConfigurationVariables::NAME) . ' - ' . $GLOBALS['Language']->getText('include_layout', 'latest_news_rss'), CODENDI_PURIFIER_CONVERT_HTML),
-            '/export/rss_sfnews.php'
-        );
         echo $this->getRssFeed(
             $hp->purify(ForgeConfig::get(\Tuleap\Config\ConfigurationVariables::NAME) . ' - ' . $GLOBALS['Language']->getText('include_layout', 'newest_projects_rss'), CODENDI_PURIFIER_CONVERT_HTML),
             '/export/rss_sfprojects.php'
@@ -622,7 +601,6 @@ abstract class Layout extends Tuleap\Layout\BaseLayout //phpcs:ignore PSR1.Class
         if ($project->isTemplate()) {
             switch ($service_top_tab) {
                 case 'admin':
-                case 'forum':
                 case 'docman':
                 case 'svn':
                 case 'file':
@@ -653,8 +631,7 @@ abstract class Layout extends Tuleap\Layout\BaseLayout //phpcs:ignore PSR1.Class
         echo '<html lang="' . $GLOBALS['Language']->getText('conf', 'language_code') . '">
                 <head>
                     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
-                    <title>' . $hp->purify($pagetitle) . '</title>
-                    <link rel="SHORTCUT ICON" href="' . $this->imgroot . 'favicon.ico' . '">';
+                    <title>' . $hp->purify($pagetitle) . '</title>';
         $this->displayJavascriptElements($params);
         $this->displayStylesheetElements();
         $this->displaySyndicationElements();

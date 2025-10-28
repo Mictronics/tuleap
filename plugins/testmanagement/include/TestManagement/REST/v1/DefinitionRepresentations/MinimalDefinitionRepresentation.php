@@ -162,7 +162,7 @@ class MinimalDefinitionRepresentation
         if (! $field_status || ! $changeset) {
             return null;
         }
-        \assert($field_status instanceof \Tuleap\Tracker\FormElement\Field\ListField);
+        \assert($field_status instanceof \Tuleap\Tracker\FormElement\Field\List\ListField);
 
         return $field_status->getFirstValueFor($changeset);
     }

@@ -37,7 +37,7 @@
                 </span>
             {{/ access }}
             <span class="tlp-badge-primary tlp-badge-outline dashboard-project-header-members">
-                <i class="tlp-badge-icon fa fa-users"></i>
+                <i class="tlp-badge-icon fa-solid fa-users"></i>
                 {{ nb_members }}
             </span>
         </div>
@@ -50,7 +50,7 @@
         {{# should_display_a_warning_message_for_no_trove_cat }}
             <div class="dashboard-project-header-trovecat">
                 <span class="tlp-text-warning">
-                    <i class="fas fa-exclamation-triangle"></i>
+                    <i class="fa-solid fa-triangle-exclamation"></i>
                     {{# gettext }}This project is not categorized yet.{{/ gettext }}
                     <a href="{{ trove_url }}" class="dashboard-project-header-trovecat-link">
                         {{# gettext }}Please categorize it.{{/gettext}}
@@ -82,7 +82,7 @@
                                 data-target-modal-id="add-widget-modal"
                                 data-href="{{ url_add_widget_content }}"
                         >
-                            <i class="fa fa-plus tlp-button-icon"></i>
+                            <i class="fa-solid fa-plus tlp-button-icon"></i>
                             {{ add_widget_title }}
                         </button>
                     {{/ can_update_dashboards }}
@@ -102,7 +102,7 @@
                 class="empty-state-action tlp-button-primary"
                 data-target-modal-id="add-dashboard"
             >
-                <i class="fa fa-plus tlp-button-icon"></i>
+                <i class="fa-solid fa-plus tlp-button-icon"></i>
                 {{ add_dashboard_label }}
             </button>
         {{/ can_update_dashboards }}

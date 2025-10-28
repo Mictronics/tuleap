@@ -91,14 +91,14 @@ use Tuleap\REST\Header;
 use Tuleap\REST\I18NRestException;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkUpdater;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkUpdaterDataFormater;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindDecoratorRetriever;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindDecoratorRetriever;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeBuilder;
 use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
 
 final class ProgramIncrementResource extends AuthenticatedResource
 {
-    private const MAX_LIMIT = 50;
-    public const  ROUTE     = 'program_increment';
+    private const int MAX_LIMIT = 50;
+    public const  string ROUTE  = 'program_increment';
 
     /**
      * Get content of a program increment

@@ -17,13 +17,14 @@
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
+
 declare(strict_types=1);
 
 use Tuleap\Plugin\ListeningToEventName;
 
 require_once __DIR__ . '/../../tracker/include/trackerPlugin.php';
 require_once __DIR__ . '/../vendor/autoload.php';
-// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
+// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotPascalCase
 final class graphsPlugin extends Plugin
 {
     public const RENDERER_TYPE = 'plugin_graphs';

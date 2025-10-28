@@ -17,6 +17,11 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import type { Ref } from "vue";
 import type { StrictInjectionKey } from "@tuleap/vue-strict-inject";
 
-export const CAN_USER_EDIT_DOCUMENT: StrictInjectionKey<boolean> = Symbol("can_user_edit_document");
+export const CAN_USER_EDIT_DOCUMENT: StrictInjectionKey<Ref<boolean>> =
+    Symbol("can_user_edit_document");
+export const ORIGINAL_CAN_USER_EDIT_DOCUMENT: StrictInjectionKey<boolean> = Symbol(
+    "original_can_user_edit_document",
+);

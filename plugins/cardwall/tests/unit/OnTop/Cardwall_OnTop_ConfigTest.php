@@ -29,7 +29,7 @@ use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Tracker;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
-final class Cardwall_OnTop_ConfigTest extends \Tuleap\Test\PHPUnit\TestCase // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+final class Cardwall_OnTop_ConfigTest extends \Tuleap\Test\PHPUnit\TestCase // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 {
     /**
      * @var Artifact&\PHPUnit\Framework\MockObject\MockObject
@@ -134,7 +134,7 @@ final class Cardwall_OnTop_ConfigTest extends \Tuleap\Test\PHPUnit\TestCase // p
     {
         $this->config->method('getMappingFor')->willReturn($this->mapping);
 
-        $field = $this->createMock(\Tuleap\Tracker\FormElement\Field\ListField::class);
+        $field = $this->createMock(\Tuleap\Tracker\FormElement\Field\List\ListField::class);
         $field->method('getFirstValueFor')->willReturn('In Progress');
         $field_provider = $this->createMock(\Cardwall_FieldProviders_CustomFieldRetriever::class);
         $field_provider->method('getField')->willReturn($field);
@@ -147,7 +147,7 @@ final class Cardwall_OnTop_ConfigTest extends \Tuleap\Test\PHPUnit\TestCase // p
     {
         $this->config->method('getMappingFor')->willReturn($this->mapping);
 
-        $field = $this->createMock(\Tuleap\Tracker\FormElement\Field\ListField::class);
+        $field = $this->createMock(\Tuleap\Tracker\FormElement\Field\List\ListField::class);
         $field->method('getFirstValueFor')->willReturn('Todo');
         $field_provider = $this->createMock(\Cardwall_FieldProviders_CustomFieldRetriever::class);
         $field_provider->method('getField')->willReturn($field);
@@ -160,7 +160,7 @@ final class Cardwall_OnTop_ConfigTest extends \Tuleap\Test\PHPUnit\TestCase // p
     {
         $this->config->method('getMappingFor')->willReturn($this->mapping);
 
-        $field = $this->createMock(\Tuleap\Tracker\FormElement\Field\ListField::class);
+        $field = $this->createMock(\Tuleap\Tracker\FormElement\Field\List\ListField::class);
         $field->method('getFirstValueFor')->willReturn(null);
         $field_provider = $this->createMock(\Cardwall_FieldProviders_CustomFieldRetriever::class);
         $field_provider->method('getField')->willReturn($field);
@@ -173,7 +173,7 @@ final class Cardwall_OnTop_ConfigTest extends \Tuleap\Test\PHPUnit\TestCase // p
     {
         $this->config->method('getMappingFor')->willReturn($this->mapping);
 
-        $field = $this->createMock(\Tuleap\Tracker\FormElement\Field\ListField::class);
+        $field = $this->createMock(\Tuleap\Tracker\FormElement\Field\List\ListField::class);
         $field->method('getFirstValueFor')->willReturn('Ongoing');
         $field_provider = $this->createMock(\Cardwall_FieldProviders_CustomFieldRetriever::class);
         $field_provider->method('getField')->willReturn($field);
@@ -186,7 +186,7 @@ final class Cardwall_OnTop_ConfigTest extends \Tuleap\Test\PHPUnit\TestCase // p
     {
         $this->config->method('getMappingFor')->willReturn($this->mapping);
 
-        $field = $this->createMock(\Tuleap\Tracker\FormElement\Field\ListField::class);
+        $field = $this->createMock(\Tuleap\Tracker\FormElement\Field\List\ListField::class);
         $field->method('getFirstValueFor')->willReturn(null);
         $field_provider = $this->createMock(\Cardwall_FieldProviders_CustomFieldRetriever::class);
         $field_provider->method('getField')->willReturn($field);

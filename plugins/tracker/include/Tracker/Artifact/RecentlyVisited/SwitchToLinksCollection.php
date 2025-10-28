@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
+
 declare(strict_types=1);
 
 namespace Tuleap\Tracker\Artifact\RecentlyVisited;
@@ -27,7 +28,7 @@ use Tuleap\QuickLink\SwitchToQuickLink;
 
 class SwitchToLinksCollection implements Dispatchable
 {
-    public const NAME = 'getSwitchToQuickLinkCollection';
+    public const string NAME = 'getSwitchToQuickLinkCollection';
 
     /**
      * @var SwitchToQuickLink[]

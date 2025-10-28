@@ -28,7 +28,7 @@ use PFUser;
 use Project;
 use ProjectManager;
 use Response;
-use Tuleap\BuildVersion\FlavorFinderFromFilePresence;
+use Tuleap\BuildVersion\FlavorFinderFromLicense;
 use Tuleap\Config\FeatureFlagConfigKey;
 use Tuleap\ContentSecurityPolicy\CSPNonce;
 use Tuleap\Glyph\GlyphFinder;
@@ -53,6 +53,7 @@ use Tuleap\Project\ProjectBackground\ProjectBackgroundConfiguration;
 use Tuleap\Project\ProjectBackground\ProjectBackgroundDao;
 use Tuleap\Project\REST\v1\ProjectSidebarDataRepresentation;
 use Tuleap\Sanitizer\URISanitizer;
+use Tuleap\SeatManagement\CachedLicenseBuilder;
 use Tuleap\User\CurrentUserWithLoggedInInformation;
 use UserManager;
 use Valid_FTPURI;
@@ -62,7 +63,7 @@ use Widget_Static;
 abstract class BaseLayout extends Response
 {
     #[FeatureFlagConfigKey('Feature flag to show a footer on some pages. ⚠️ The footer will soon be removed definitively.')]
-    public const FEATURE_FLAG_SHOW_FOOTER = 'show_footer';
+    public const string FEATURE_FLAG_SHOW_FOOTER = 'show_footer';
 
     /**
      * The root location for the current theme : '/themes/Tuleap/'
@@ -363,7 +364,7 @@ abstract class BaseLayout extends Response
                 new ProjectFlagsBuilder(new ProjectFlagsDao()),
                 EventManager::instance(),
                 new UserCanAccessProjectAdministrationVerifier(new MembershipDelegationDao()),
-                new FlavorFinderFromFilePresence(),
+                new FlavorFinderFromLicense(CachedLicenseBuilder::instance()),
                 new \Tuleap\Layout\Logo\CachedCustomizedLogoDetector(
                     new CustomizedLogoDetector(new LogoRetriever(), new FileContentComparator()),
                     BackendLogger::getDefaultLogger(),

@@ -23,7 +23,7 @@ import { shallowMount } from "@vue/test-utils";
 import { Option } from "@tuleap/option";
 import { IntlFormatter } from "@tuleap/date-helper";
 import { en_US_LOCALE } from "@tuleap/core-constants";
-import { nextTick, ref } from "vue";
+import { nextTick } from "vue";
 import SelectableTable from "./SelectableTable.vue";
 import { getGlobalTestOptions } from "../../helpers/global-options-for-tests";
 import {
@@ -31,10 +31,10 @@ import {
     DATE_TIME_FORMATTER,
     EMITTER,
     GET_COLUMN_NAME,
-    IS_EXPORT_ALLOWED,
-    WIDGET_ID,
     RETRIEVE_ARTIFACTS_TABLE,
     ARROW_REDRAW_TRIGGERER,
+    TABLE_DATA_STORE,
+    TABLE_DATA_ORCHESTRATOR,
 } from "../../injection-symbols";
 import { DATE_CELL, NUMERIC_CELL, PRETTY_TITLE_CELL, TEXT_CELL } from "../../domain/ArtifactsTable";
 import { RetrieveArtifactsTableStub } from "../../../tests/stubs/RetrieveArtifactsTableStub";
@@ -44,7 +44,6 @@ import type { RetrieveArtifactsTable } from "../../domain/RetrieveArtifactsTable
 import { Fault } from "@tuleap/fault";
 import { buildVueDompurifyHTMLDirective } from "vue-dompurify-html";
 import EmptyState from "../EmptyState.vue";
-import ExportXLSXButton from "../ExportXLSXButton.vue";
 import { ColumnNameGetter } from "../../domain/ColumnNameGetter";
 import { createVueGettextProviderPassThrough } from "../../helpers/vue-gettext-provider-for-test";
 import type { Events, NotifyFaultEvent } from "../../helpers/widget-events";
@@ -55,6 +54,10 @@ import SelectablePagination from "./SelectablePagination.vue";
 import { PRETTY_TITLE_COLUMN_NAME } from "../../domain/ColumnName";
 import type { ArrowRedrawTriggerer } from "../../ArrowRedrawTriggerer";
 import ArtifactRows from "./ArtifactRows.vue";
+import { TableDataStore } from "../../domain/TableDataStore";
+import { TableDataOrchestrator } from "../../domain/TableDataOrchestrator";
+import type { RetrieveArtifactLinks } from "../../domain/RetrieveArtifactLinks";
+import { RetrieveArtifactLinksStub } from "../../../tests/stubs/RetrieveArtifactLinksStub";
 
 vi.useFakeTimers();
 
@@ -63,18 +66,18 @@ const NUMERIC_COLUMN_NAME = "remaining_effort";
 const TEXT_COLUMN_NAME = "details";
 
 describe(`SelectableTable`, () => {
-    let is_xlsx_export_allowed: boolean;
     let emitter: Emitter<Events>;
     let dispatched_fault_events: NotifyFaultEvent[];
     let stub_arrow_redrawer_triggerer: ArrowRedrawTriggerer;
+    let table_data_orchestrator: TableDataOrchestrator;
+    let table_data_store: TableDataStore;
+    let artifact_links_table_retriever: RetrieveArtifactLinks;
 
     const registerFaultEvent = (event: NotifyFaultEvent): void => {
         dispatched_fault_events.push(event);
     };
 
     beforeEach(() => {
-        is_xlsx_export_allowed = true;
-
         stub_arrow_redrawer_triggerer = {
             listenToSelectableTableResize: vi.fn(),
             removeListener: vi.fn(),
@@ -83,6 +86,9 @@ describe(`SelectableTable`, () => {
         emitter = mitt<Events>();
         dispatched_fault_events = [];
         emitter.on(NOTIFY_FAULT_EVENT, registerFaultEvent);
+
+        artifact_links_table_retriever = RetrieveArtifactLinksStub.withDefaultContent();
+        table_data_store = TableDataStore();
     });
 
     afterEach(() => {
@@ -92,6 +98,11 @@ describe(`SelectableTable`, () => {
     const getWrapper = (
         table_retriever: RetrieveArtifactsTable,
     ): VueWrapper<InstanceType<typeof SelectableTable>> => {
+        table_data_orchestrator = TableDataOrchestrator(
+            table_retriever,
+            artifact_links_table_retriever,
+            table_data_store,
+        );
         return shallowMount(SelectableTable, {
             global: {
                 ...getGlobalTestOptions(),
@@ -106,13 +117,13 @@ describe(`SelectableTable`, () => {
                         "date-with-time",
                     ),
                     [RETRIEVE_ARTIFACTS_TABLE.valueOf()]: table_retriever,
-                    [WIDGET_ID.valueOf()]: 15,
-                    [IS_EXPORT_ALLOWED.valueOf()]: ref(is_xlsx_export_allowed),
                     [GET_COLUMN_NAME.valueOf()]: ColumnNameGetter(
                         createVueGettextProviderPassThrough(),
                     ),
                     [EMITTER.valueOf()]: emitter,
                     [ARROW_REDRAW_TRIGGERER.valueOf()]: stub_arrow_redrawer_triggerer,
+                    [TABLE_DATA_STORE.valueOf()]: table_data_store,
+                    [TABLE_DATA_ORCHESTRATOR.valueOf()]: table_data_orchestrator,
                 },
             },
             props: {
@@ -165,9 +176,10 @@ describe(`SelectableTable`, () => {
                 table,
                 total: 2,
             };
-            const table_retriever = RetrieveArtifactsTableStub.withContent(table_result, [
+            const table_retriever = RetrieveArtifactsTableStub.withContent(
+                table_result,
                 table_result.table,
-            ]);
+            );
 
             const wrapper = getWrapper(table_retriever);
 
@@ -206,9 +218,10 @@ describe(`SelectableTable`, () => {
                 table: new ArtifactsTableBuilder().build(),
                 total: 0,
             };
-            const table_retriever = RetrieveArtifactsTableStub.withContent(table_result, [
+            const table_retriever = RetrieveArtifactsTableStub.withContent(
+                table_result,
                 table_result.table,
-            ]);
+            );
 
             const wrapper = getWrapper(table_retriever);
 
@@ -224,9 +237,10 @@ describe(`SelectableTable`, () => {
                 table: new ArtifactsTableBuilder().build(),
                 total: 0,
             };
-            const table_retriever = RetrieveArtifactsTableStub.withContent(table_result, [
+            const table_retriever = RetrieveArtifactsTableStub.withContent(
+                table_result,
                 table_result.table,
-            ]);
+            );
 
             const wrapper = getWrapper(table_retriever);
             wrapper.unmount();
@@ -243,13 +257,13 @@ describe(`SelectableTable`, () => {
                 table: new ArtifactsTableBuilder().build(),
                 total: 0,
             };
-            const table_retriever = RetrieveArtifactsTableStub.withContent(table_result, [
+            const table_retriever = RetrieveArtifactsTableStub.withContent(
+                table_result,
                 table_result.table,
-            ]);
+            );
 
             const wrapper = getWrapper(table_retriever);
             expect(wrapper.findComponent(EmptyState).exists()).toBe(true);
-            expect(wrapper.findComponent(ExportXLSXButton).exists()).toBe(false);
             expect(wrapper.findComponent(SelectablePagination).exists()).toBe(false);
         });
     });
@@ -279,9 +293,10 @@ describe(`SelectableTable`, () => {
                 table,
                 total: 1,
             };
-            const table_retriever = RetrieveArtifactsTableStub.withContent(table_result, [
+            const table_retriever = RetrieveArtifactsTableStub.withContent(
+                table_result,
                 table_result.table,
-            ]);
+            );
 
             const wrapper = getWrapper(table_retriever);
 

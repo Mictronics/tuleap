@@ -68,12 +68,6 @@ def runESLint() {
     }
 }
 
-def runStylelint() {
-    dir ('sources') {
-        runInsideNixShell('pnpm run stylelint **/*.scss **/*.vue')
-    }
-}
-
 def runTabFilesCheck() {
     dir ('sources') {
         runInsideNixShell('src/utils/analyse_language_files.pl ./')
@@ -83,6 +77,12 @@ def runTabFilesCheck() {
 def runSecretsScan() {
     dir ('sources') {
         runInsideNixShell('make scan-secrets')
+    }
+}
+
+def runTreefmt() {
+    dir ('sources') {
+        runInsideNixShell('treefmt --ci')
     }
 }
 
@@ -109,7 +109,7 @@ def runPsalmTaintAnalysis(String configPath, String root='.') {
 }
 
 def runPHPCodingStandards(String phpcsPath, String rulesetPath, String filesToAnalyze) {
-    if (filesToAnalyze == '') {
+    if (filesToAnalyze == '' || !filesToAnalyze.contains('.php')) {
         return;
     }
     sh """

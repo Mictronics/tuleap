@@ -20,9 +20,9 @@
 
 namespace Tuleap\TestManagement\REST\v1;
 
-use Tracker_FormElement_Field_List_Bind_Static;
 use Tuleap\TestManagement\Step\Step;
-use Tuleap\Tracker\FormElement\Field\ListField;
+use Tuleap\Tracker\FormElement\Field\List\Bind\Static\ListFieldStaticBind;
+use Tuleap\Tracker\FormElement\Field\List\ListField;
 use Tuleap\Tracker\Test\Builders\ArtifactValuesRepresentationBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticValueBuilder;
 
@@ -31,10 +31,10 @@ require_once __DIR__ . '/../../../bootstrap.php';
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 class TestStatusAccordingToStepsStatusChangesBuilderTest extends \Tuleap\Test\PHPUnit\TestCase
 {
-    private const NOT_RUN_ID = 101;
-    private const PASSED_ID  = 102;
-    private const FAILED_ID  = 103;
-    private const BLOCKED_ID = 104;
+    private const int NOT_RUN_ID = 101;
+    private const int PASSED_ID  = 102;
+    private const int FAILED_ID  = 103;
+    private const int BLOCKED_ID = 104;
 
     /**
      * @var TestStatusAccordingToStepsStatusChangesBuilder
@@ -52,7 +52,7 @@ class TestStatusAccordingToStepsStatusChangesBuilderTest extends \Tuleap\Test\PH
         $this->status_field = $this->createMock(ListField::class);
         $this->status_field->method('getId')->willReturn(42);
 
-        $bind = $this->createMock(Tracker_FormElement_Field_List_Bind_Static::class);
+        $bind = $this->createMock(ListFieldStaticBind::class);
         $this->status_field->method('getBind')->willReturn($bind);
 
         $values = [

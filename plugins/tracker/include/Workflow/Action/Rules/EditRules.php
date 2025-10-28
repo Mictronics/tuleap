@@ -23,16 +23,16 @@ use Tuleap\Tracker\Tracker;
 
 require_once __DIR__ . '/../../../../../../src/www/include/html.php';
 
-// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 class Tracker_Workflow_Action_Rules_EditRules extends Tracker_Workflow_Action
 {
-    public const PARAMETER_ADD_RULE     = 'add_rule';
-    public const PARAMETER_UPDATE_RULES = 'update_rules';
-    public const PARAMETER_REMOVE_RULES = 'remove_rules';
+    public const string PARAMETER_ADD_RULE     = 'add_rule';
+    public const string PARAMETER_UPDATE_RULES = 'update_rules';
+    public const string PARAMETER_REMOVE_RULES = 'remove_rules';
 
-    public const PARAMETER_SOURCE_FIELD = 'source_date_field';
-    public const PARAMETER_TARGET_FIELD = 'target_date_field';
-    public const PARAMETER_COMPARATOR   = 'comparator';
+    public const string PARAMETER_SOURCE_FIELD = 'source_date_field';
+    public const string PARAMETER_TARGET_FIELD = 'target_date_field';
+    public const string PARAMETER_COMPARATOR   = 'comparator';
 
     private $default_value = 'default_value';
 
@@ -352,7 +352,7 @@ class Tracker_Workflow_Action_Rules_EditRules extends Tracker_Workflow_Action
         $selected = $this->default_value;
         echo '<p class="add_new_rule">';
         echo '<span class="add_new_rule_title">';
-        echo '<i class="fa fa-plus"></i> ';
+        echo '<i class="fa-solid fa-plus"></i> ';
         echo dgettext('tuleap-tracker', 'Add a new rule') . ' ';
         echo '</span>';
         echo '<span>';

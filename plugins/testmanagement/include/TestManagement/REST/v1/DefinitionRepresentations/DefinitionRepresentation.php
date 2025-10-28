@@ -26,14 +26,14 @@ namespace Tuleap\TestManagement\REST\v1\DefinitionRepresentations;
  */
 interface DefinitionRepresentation
 {
-    public const ROUTE = 'testmanagement_definitions';
+    public const string ROUTE = 'testmanagement_definitions';
 
-    public const FIELD_DESCRIPTION     = 'details';
-    public const FIELD_STEPS           = 'steps';
-    public const FIELD_SUMMARY         = 'summary';
-    public const FIELD_CATEGORY        = 'category';
-    public const FIELD_CHAPTER         = 'chapter';
-    public const FIELD_SECTION         = 'section';
-    public const FIELD_SUBSECTION      = 'subsection';
-    public const FIELD_AUTOMATED_TESTS = 'automated_tests';
+    public const string FIELD_DESCRIPTION     = 'details';
+    public const string FIELD_STEPS           = 'steps';
+    public const string FIELD_SUMMARY         = 'summary';
+    public const string FIELD_CATEGORY        = 'category';
+    public const string FIELD_CHAPTER         = 'chapter';
+    public const string FIELD_SECTION         = 'section';
+    public const string FIELD_SUBSECTION      = 'subsection';
+    public const string FIELD_AUTOMATED_TESTS = 'automated_tests';
 }

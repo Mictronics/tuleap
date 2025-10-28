@@ -41,15 +41,12 @@ use Tracker_Report;
 use Tracker_Report_Criteria;
 use Tracker_Report_Criteria_Text_ValueDao;
 use Tracker_Report_Criteria_ValueDao;
-use Tuleap\Forum\ForumDao;
-use Tuleap\Forum\ForumRetriever;
-use Tuleap\Forum\MessageRetriever;
+use Tuleap\DB\DBFactory;
 use Tuleap\Layout\IncludeViteAssets;
 use Tuleap\Option\Option;
 use Tuleap\Project\ProjectAccessChecker;
 use Tuleap\Project\RestrictedUserCanAccessProjectVerifier;
 use Tuleap\Reference\ByNature\CrossReferenceByNatureInCoreOrganizer;
-use Tuleap\Reference\ByNature\Forum\CrossReferenceForumOrganizer;
 use Tuleap\Reference\ByNature\FRS\CrossReferenceFRSOrganizer;
 use Tuleap\Reference\ByNature\Wiki\CrossReferenceWikiOrganizer;
 use Tuleap\Reference\ByNature\Wiki\WikiPageFromReferenceValueRetriever;
@@ -57,7 +54,6 @@ use Tuleap\Reference\CrossReferenceByDirectionPresenterBuilder;
 use Tuleap\Reference\CrossReferencePresenterFactory;
 use Tuleap\Reference\CrossReferencesDao;
 use Tuleap\Tracker\Artifact\Artifact;
-use Tuleap\Tracker\FormElement\Field\CrossReference\CrossReferenceFieldRenderer;
 use Tuleap\Tracker\FormElement\Field\Files\CreatedFileURLMapping;
 use Tuleap\Tracker\FormElement\Field\TrackerField;
 use Tuleap\Tracker\FormElement\View\Reference\CrossReferenceFieldPresenterBuilder;
@@ -90,14 +86,16 @@ final class CrossReferencesField extends TrackerField implements Tracker_FormEle
             return Option::nothing(ParametrizedFromWhere::class);
         }
 
-        $a = 'A_' . $this->id;
+        $db                 = DBFactory::getMainTuleapDBConnection()->getDB();
+        $table_name_escaped = $db->escapeIdentifier('A_' . $this->id);
         return Option::fromValue(
             ParametrizedFromWhere::fromParametrizedFrom(
                 new ParametrizedFrom(
-                    " INNER JOIN cross_references AS $a
-                         ON (artifact.id = $a.source_id AND $a.source_type = ? AND $a.target_id = ?
+                    " INNER JOIN cross_references AS $table_name_escaped
+                         ON (
+                            (CAST(artifact.id AS CHAR CHARACTER SET utf8) = $table_name_escaped.source_id AND $table_name_escaped.source_type = ? AND $table_name_escaped.target_id = ?)
                              OR
-                             artifact.id = $a.target_id AND $a.target_type = ? AND $a.source_id = ?
+                            (CAST(artifact.id AS CHAR CHARACTER SET utf8) = $table_name_escaped.target_id AND $table_name_escaped.target_type = ? AND $table_name_escaped.source_id = ?)
                          )",
                     [Artifact::REFERENCE_NATURE, $criteria_value, Artifact::REFERENCE_NATURE, $criteria_value],
                 )
@@ -388,13 +386,6 @@ final class CrossReferencesField extends TrackerField implements Tracker_FormEle
                         new FRSPackageFactory(),
                         new FRSReleaseFactory(),
                         new FRSFileFactory()
-                    ),
-                    new CrossReferenceForumOrganizer(
-                        ProjectManager::instance(),
-                        new MessageRetriever(),
-                        new ForumRetriever(
-                            new ForumDao(),
-                        )
                     ),
                 ),
             )

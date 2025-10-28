@@ -29,11 +29,11 @@ use Tuleap\Layout\CssViteAsset;
 use Tuleap\Layout\IncludeViteAssets;
 use Tuleap\Option\Option;
 use Tuleap\Project\MappingRegistry;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindDecoratorRetriever;
 use Tuleap\Tracker\FormElement\Field\List\SelectboxField;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindDecoratorRetriever;
 use Tuleap\Tracker\Report\Widget\WidgetAdditionalButtonPresenter;
 
-// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 class Cardwall_Renderer extends Tracker_Report_Renderer
 {
     /** @var Plugin  */

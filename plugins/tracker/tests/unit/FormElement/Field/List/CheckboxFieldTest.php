@@ -26,9 +26,8 @@ namespace Tuleap\Tracker\FormElement\Field\List;
 use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
 use ReflectionClass;
 use Tracker_Artifact_ChangesetValue_List;
-use Tracker_FormElement_Field_List_Bind_StaticValue_None;
 use Tuleap\Test\PHPUnit\TestCase;
-use Tuleap\Tracker\FormElement\Field\ListField;
+use Tuleap\Tracker\FormElement\Field\List\Bind\Static\ListFieldStaticBindNoneValue;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetValueListTestBuilder;
@@ -87,7 +86,6 @@ final class CheckboxFieldTest extends TestCase
 
         $reflection = new ReflectionClass($field::class);
         $method     = $reflection->getMethod('fetchFieldValue');
-        $method->setAccessible(true);
 
         $html = $method->invokeArgs($field, $parameters);
 
@@ -117,7 +115,7 @@ final class CheckboxFieldTest extends TestCase
     {
         $field = $this->getCheckboxField();
         self::assertEquals(
-            [Tracker_FormElement_Field_List_Bind_StaticValue_None::VALUE_ID],
+            [ListFieldStaticBindNoneValue::VALUE_ID],
             $field->getFieldDataFromCSVValue(null)
         );
     }

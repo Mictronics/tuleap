@@ -19,6 +19,7 @@
  */
 
 declare(strict_types=1);
+
 namespace Tuleap\Project\Event;
 
 use SimpleXMLElement;
@@ -28,7 +29,7 @@ use SimpleXMLElement;
  */
 final class ProjectXMLImportFromArchiveTemplatePreChecksEvent implements ProjectXMLImportPreChecks
 {
-    public const NAME = 'projectXMLImportFromArchiveTemplatePreChecksEvent';
+    public const string NAME = 'projectXMLImportFromArchiveTemplatePreChecksEvent';
 
     public function __construct(private readonly SimpleXMLElement $xml_element)
     {

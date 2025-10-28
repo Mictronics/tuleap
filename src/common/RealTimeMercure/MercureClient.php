@@ -16,7 +16,9 @@
  * along with Tuleap; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
+
 declare(strict_types=1);
+
 namespace Tuleap\RealTimeMercure;
 
 use Psr\Log\LoggerInterface;
@@ -31,12 +33,12 @@ use Tuleap\JWT\generators\MercureJWTGenerator;
 class MercureClient implements Client
 {
     #[FeatureFlagConfigKey('Feature flag to enable mercure based real time in kanban ')]
-    public const FEATURE_FLAG_KANBAN_KEY = 'enable_mercure_dev_kanban';
+    public const string FEATURE_FLAG_KANBAN_KEY = 'enable_mercure_dev_kanban';
 
     #[FeatureFlagConfigKey('Feature flag to enable mercure based real time in TestManagement')]
-    public const FEATURE_FLAG_TESTMANAGEMENT_KEY = 'enable_mercure_dev_testmanagement';
+    public const string FEATURE_FLAG_TESTMANAGEMENT_KEY = 'enable_mercure_dev_testmanagement';
     #[ConfigKeyInt(0)]
-    private const MERCURE_LOCAL_URL              = 'http://localhost:3000/.well-known/mercure';
+    private const string MERCURE_LOCAL_URL              = 'http://localhost:3000/.well-known/mercure';
 
     public function __construct(
         private ClientInterface $http_client,

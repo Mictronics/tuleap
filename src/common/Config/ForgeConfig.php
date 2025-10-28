@@ -28,15 +28,14 @@ use Tuleap\Config\ConfigValueDefaultValueAttributeProvider;
 use Tuleap\Config\ConfigValueEnvironmentProvider;
 use Tuleap\Config\GetConfigKeys;
 use Tuleap\Cryptography\ConcealedString;
-use Tuleap\Cryptography\KeyFactory;
 use Tuleap\Cryptography\SymmetricLegacy2025\SymmetricCrypto;
 use Tuleap\Mail\Transport\MailTransportBuilder;
 use Tuleap\ServerHostname;
 
 class ForgeConfig
 {
-    public const AUTH_TYPE_LDAP      = 'ldap';
-    public const FEATURE_FLAG_PREFIX = 'feature_flag_';
+    public const string AUTH_TYPE_LDAP      = 'ldap';
+    public const string FEATURE_FLAG_PREFIX = 'feature_flag_';
 
     /**
      * Hold the configuration variables
@@ -360,7 +359,7 @@ class ForgeConfig
     public static function encryptValue(ConcealedString $value): string
     {
         return \sodium_bin2base64(
-            SymmetricCrypto::encrypt($value, (new KeyFactory())->getLegacy2025EncryptionKey()),
+            SymmetricCrypto::encrypt($value, (new \Tuleap\Cryptography\KeyFactoryFromFileSystem())->getLegacy2025EncryptionKey()),
             SODIUM_BASE64_VARIANT_ORIGINAL
         );
     }
@@ -369,7 +368,7 @@ class ForgeConfig
     {
         return SymmetricCrypto::decrypt(
             \sodium_base642bin($value, SODIUM_BASE64_VARIANT_ORIGINAL),
-            (new KeyFactory())->getLegacy2025EncryptionKey(),
+            (new \Tuleap\Cryptography\KeyFactoryFromFileSystem())->getLegacy2025EncryptionKey(),
         );
     }
 }

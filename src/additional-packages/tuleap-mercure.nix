@@ -1,6 +1,6 @@
 {
-  pkgs ? (import ../../tools/utils/nix/pinned-nixpkgs.nix) {},
-  nixpkgsPinEpoch ? (import ../../tools/utils/nix/nixpkgs-pin-epoch.nix) { inherit pkgs; }
+  pkgs ? (import ../../tools/utils/nix/pinned-nixpkgs.nix) { },
+  nixpkgsPinEpoch ? (import ../../tools/utils/nix/nixpkgs-pin-epoch.nix) { inherit pkgs; },
 }:
 
 let
@@ -9,14 +9,18 @@ let
 
     src = ./tuleap-mercure;
 
-    vendorHash = "sha256-UnUuVRJ1FdS2vchXwDoMCaB0o3BwKnfxfQOldoOZhiU=";
+    vendorHash = "sha256-8PUOXrNshei0ml5Q0UplciKDur1Hk1eq43TO6bkv3pM=";
 
-    env.CGO_ENABLED=0;
+    env.CGO_ENABLED = 0;
 
-    ldflags = [ "-s" "-w" ];
+    ldflags = [
+      "-s"
+      "-w"
+    ];
   };
   tuleapVersion = builtins.readFile ../../VERSION;
-in pkgs.stdenvNoCC.mkDerivation {
+in
+pkgs.stdenvNoCC.mkDerivation {
   name = "tuleap-mercure-rpm-package";
   srcs = [
     "${tuleapMercureBin}/bin/tuleap-mercure"

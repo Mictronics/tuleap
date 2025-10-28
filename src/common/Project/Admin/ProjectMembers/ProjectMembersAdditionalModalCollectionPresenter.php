@@ -22,7 +22,6 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 namespace Tuleap\Project\Admin\ProjectMembers;
 
 use CSRFSynchronizerToken;
@@ -32,7 +31,7 @@ use Tuleap\Layout\CssAsset;
 
 class ProjectMembersAdditionalModalCollectionPresenter implements Dispatchable
 {
-    public const NAME = 'project_admin_members_additional_modal';
+    public const string NAME = 'project_admin_members_additional_modal';
 
     /**
      * @var Project

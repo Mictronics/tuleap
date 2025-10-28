@@ -70,8 +70,8 @@ Requires: libxml2
 Requires: systemd
 
 # ForgeUpgrade and EnaleanLicenceManager is now provided by Tuleap
-Obsoletes: forgeupgrade <= 999, plugin-enalean-licensemanager <= 999
-Provides: forgeupgrade, plugin-enalean-licensemanager
+Obsoletes: forgeupgrade <= 999, tuleap-plugin-enalean-licensemanager <= 16.13
+Provides: forgeupgrade, tuleap-plugin-enalean-licensemanager
 
 
 %description
@@ -526,6 +526,19 @@ Requires: %{name} = %{tuleap_version}-%{tuleap_release}%{?dist}, tuleap-plugin-t
 %description plugin-graphs
 %{summary}.
 
+%package plugin-ai
+Summary: AI Connectors
+Group: Development/Tools
+Requires: %{name} = %{tuleap_version}-%{tuleap_release}%{?dist}
+%description plugin-ai
+%{summary}.
+
+%package plugin-ai-crosstracker
+Summary: AI - Cross-Tracker Search
+Group: Development/Tools
+Requires: %{name} = %{tuleap_version}-%{tuleap_release}%{?dist} tuleap-plugin-ai
+%description plugin-ai-crosstracker
+%{summary}.
 
 %endif
 
@@ -613,11 +626,14 @@ done
 %{__rm} -rf $RPM_BUILD_ROOT/%{APP_DIR}/plugins/tracker_functions
 %{__rm} -rf $RPM_BUILD_ROOT/%{APP_DIR}/plugins/artidoc
 %{__rm} -rf $RPM_BUILD_ROOT/%{APP_DIR}/plugins/pdftemplate
+%{__rm} -rf $RPM_BUILD_ROOT/%{APP_DIR}/src/common/SeatManagement/keys
 %endif
 
 %if %{with experimental}
 %else
 %{__rm} -rf $RPM_BUILD_ROOT/%{APP_DIR}/plugins/graphs
+%{__rm} -rf $RPM_BUILD_ROOT/%{APP_DIR}/plugins/ai
+%{__rm} -rf $RPM_BUILD_ROOT/%{APP_DIR}/plugins/ai_crosstracker
 %endif
 
 %{__rm} -rf $RPM_BUILD_ROOT/%{APP_DIR}/src/themes/BurningParrot/composer.json
@@ -712,6 +728,10 @@ done
 # Sudoers directory
 %{__install} -d $RPM_BUILD_ROOT/etc/sudoers.d
 %{__install} src/utils/sudoers.d/tuleap_fileforge $RPM_BUILD_ROOT%{_sysconfdir}/sudoers.d/tuleap_fileforge
+
+# Plugin statistics
+%{__install} plugins/statistics/etc/logrotate.syslog.dist $RPM_BUILD_ROOT/etc/logrotate.d/%{APP_NAME}_statistics
+%{__sed} -i "s~%%APP_USER%%~%{APP_USER}~g" $RPM_BUILD_ROOT/etc/logrotate.d/%{APP_NAME}_statistics
 
 ## plugin webdav
 %{__install} -d $RPM_BUILD_ROOT/%{APP_CACHE_DIR}/plugins/webdav/locks
@@ -1044,11 +1064,9 @@ fi
 %{APP_DIR}/src/www/api/reference
 %{APP_DIR}/src/www/favicon.ico
 %{APP_DIR}/src/www/file
-%{APP_DIR}/src/www/forum
 %{APP_DIR}/src/www/help
 %{APP_DIR}/src/www/include
 %{APP_DIR}/src/www/my
-%{APP_DIR}/src/www/news
 %{APP_DIR}/src/www/project
 %{APP_DIR}/src/www/reference
 %{APP_DIR}/src/www/scripts
@@ -1140,6 +1158,9 @@ fi
 
 # Compatibility with older version
 %attr(-,root,root) %{_datadir}/codendi
+
+# Statistics Plugin (provided by Tuleap core)
+%attr(00644,root,root) %config(noreplace) /etc/logrotate.d/tuleap_statistics
 
 #
 # Core
@@ -1451,6 +1472,14 @@ fi
 %files plugin-graphs
 %defattr(-,root,root,-)
 %{APP_DIR}/plugins/graphs
+
+%files plugin-ai
+%defattr(-,root,root,-)
+%{APP_DIR}/plugins/ai
+
+%files plugin-ai-crosstracker
+%defattr(-,root,root,-)
+%{APP_DIR}/plugins/ai_crosstracker
 
 %endif
 

@@ -21,13 +21,13 @@
 use Tuleap\Cardwall\OnTop\Config\ColumnCollection;
 use Tuleap\Cardwall\OnTop\Config\ColumnFactory;
 use Tuleap\Tracker\Artifact\Artifact;
-use Tuleap\Tracker\FormElement\Field\ListField;
+use Tuleap\Tracker\FormElement\Field\List\ListField;
 use Tuleap\Tracker\Tracker;
 
 /**
  * Manage configuration of a cardwall on top of a tracker
  */
-class Cardwall_OnTop_Config implements Cardwall_OnTop_IConfig // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+class Cardwall_OnTop_Config implements Cardwall_OnTop_IConfig // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 {
     /**
      * @var Tracker

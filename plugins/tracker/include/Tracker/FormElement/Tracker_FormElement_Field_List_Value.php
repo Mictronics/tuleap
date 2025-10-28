@@ -19,13 +19,13 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use Tuleap\Tracker\FormElement\Field\ListField;
+use Tuleap\Tracker\FormElement\Field\List\ListField;
 use Tuleap\Tracker\FormElement\Field\TrackerField;
 
-// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 abstract class Tracker_FormElement_Field_List_Value implements Tracker_IProvideJsonFormatOfMyself
 {
-    public const XML_ID_PREFIX = 'V';
+    public const string XML_ID_PREFIX = 'V';
 
     /**
      *

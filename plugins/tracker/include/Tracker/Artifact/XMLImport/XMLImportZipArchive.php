@@ -23,10 +23,10 @@ use Tuleap\Tracker\Tracker;
 /**
  * I am responsible of reading the content of a zip archive to import artifacts history
  */
-class Tracker_Artifact_XMLImport_XMLImportZipArchive
+class Tracker_Artifact_XMLImport_XMLImportZipArchive //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 {
-    public const RESOURCE_NAME          = 'tv5';
-    public const ARTIFACTS_XML_FILENAME = 'artifacts.xml';
+    public const string RESOURCE_NAME          = 'tv5';
+    public const string ARTIFACTS_XML_FILENAME = 'artifacts.xml';
 
     /** @var ZipArchive */
     private $zip;
@@ -78,10 +78,14 @@ class Tracker_Artifact_XMLImport_XMLImportZipArchive
      *
      * @return string Path to the new directory
      */
-    private function tempdir($tmp_dir, $resource_name, $id)
+    private function tempdir(string $tmp_dir, string $resource_name, int $id): string
     {
-        $template = 'import_' . $resource_name . '_' . $id . '_XXXXXX';
-
-        return trim(`mktemp -d -p $tmp_dir $template`);
+        if ($tmp_dir === '') {
+            throw new \RuntimeException('Provided tmp_dir must not be empty');
+        }
+        $path = \Psl\Filesystem\create_temporary_file($tmp_dir, 'import_' . $resource_name . '_' . $id . '_');
+        \Psl\Filesystem\delete_file($path);
+        \Psl\Filesystem\create_directory($path, 0700);
+        return $path;
     }
 }

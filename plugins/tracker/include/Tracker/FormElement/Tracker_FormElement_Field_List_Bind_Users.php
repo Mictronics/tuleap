@@ -19,13 +19,14 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindListUserValueGetter;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindParameters;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindUsersDao;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindVisitor;
+use Tuleap\Tracker\FormElement\Field\List\Bind\ListFieldBind;
+use Tuleap\Tracker\FormElement\Field\List\Bind\PlatformUsersGetterSingleton;
+use Tuleap\Tracker\FormElement\Field\List\ListField;
 use Tuleap\Tracker\FormElement\Field\List\OpenListField;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindListUserValueGetter;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindParameters;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindUsersDao;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindVisitor;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\PlatformUsersGetterSingleton;
-use Tuleap\Tracker\FormElement\Field\ListField;
 use Tuleap\Tracker\Import\Spotter;
 use Tuleap\Tracker\REST\FieldListBindUserValueRepresentation;
 use Tuleap\Tracker\REST\FormElement\UserListValueRepresentation;
@@ -34,14 +35,14 @@ use Tuleap\User\Avatar\ComputeAvatarHash;
 use Tuleap\User\Avatar\UserAvatarUrlProvider;
 use Tuleap\User\REST\UserRepresentation;
 
-class Tracker_FormElement_Field_List_Bind_Users extends Tracker_FormElement_Field_List_Bind //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
+class Tracker_FormElement_Field_List_Bind_Users extends ListFieldBind // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 {
-    public const TYPE = 'users';
+    public const string TYPE = 'users';
 
-    public const REGISTERED_USERS_UGROUP_NAME = 'ugroup_2';
+    public const string REGISTERED_USERS_UGROUP_NAME = 'ugroup_2';
 
-    public const REST_BINDING_LIST_ID    = 'ugroup_id';
-    public const REST_BINDING_LIST_LABEL = 'name';
+    public const string REST_BINDING_LIST_ID    = 'ugroup_id';
+    public const string REST_BINDING_LIST_LABEL = 'name';
 
     /** @var UserManager */
     protected $userManager;

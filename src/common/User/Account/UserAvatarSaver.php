@@ -27,7 +27,7 @@ use Tuleap\User\Avatar\ComputeAvatarHash;
 
 final readonly class UserAvatarSaver
 {
-    public const AVATAR_MAX_SIZE = 100;
+    public const int AVATAR_MAX_SIZE = 100;
 
 
     public function __construct(
@@ -56,8 +56,6 @@ final readonly class UserAvatarSaver
             imagecopy($dst_im, $imageDesc, 0, 0, 0, 0, $x, $y);
 
             imagecopy($imageDesc, $dst_im, 0, 0, 0, 0, $x, $y);
-
-            imagedestroy($dst_im);
         });
         $avatar_path   = $user->getAvatarFilePath();
         $avatar_folder = dirname($avatar_path);

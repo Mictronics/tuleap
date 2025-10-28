@@ -50,13 +50,13 @@ use Tuleap\ProgramManagement\Domain\Program\Backlog\Iteration\IterationNotFoundE
 use Tuleap\ProgramManagement\Domain\Team\MirroredTimebox\FeatureOfUserStoryRetriever;
 use Tuleap\REST\Header;
 use Tuleap\REST\I18NRestException;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindDecoratorRetriever;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindDecoratorRetriever;
 use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
 
 final class IterationResource
 {
-    private const MAX_LIMIT = 50;
-    public const  ROUTE     = 'iteration';
+    private const int MAX_LIMIT = 50;
+    public const  string ROUTE  = 'iteration';
 
     private \UserManager $user_manager;
     private UserManagerAdapter $user_adapter;

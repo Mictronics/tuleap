@@ -18,13 +18,13 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use Tuleap\Tracker\FormElement\Field\ListField;
+use Tuleap\Tracker\FormElement\Field\List\ListField;
 use Tuleap\Tracker\Tracker;
 
 /**
  * Provide a link between a Tracker_Artifact and a Tracker_FormElement_Field
  */
-interface Cardwall_FieldProviders_IProvideFieldGivenAnArtifact // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+interface Cardwall_FieldProviders_IProvideFieldGivenAnArtifact // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 {
     /**
      * @return ListField | null

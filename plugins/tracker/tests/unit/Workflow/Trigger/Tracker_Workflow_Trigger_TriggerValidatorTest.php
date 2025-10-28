@@ -24,7 +24,7 @@ use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 use Tuleap\Tracker\Tracker;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
-final class Tracker_Workflow_Trigger_TriggerValidatorTest extends \Tuleap\Test\PHPUnit\TestCase // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+final class Tracker_Workflow_Trigger_TriggerValidatorTest extends \Tuleap\Test\PHPUnit\TestCase // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 {
     private Tracker_Workflow_Trigger_TriggerValidator $validator;
     private Tracker $tracker;
@@ -184,7 +184,7 @@ final class Tracker_Workflow_Trigger_TriggerValidatorTest extends \Tuleap\Test\P
 
         $json->triggering_fields = [$triggering_field, $triggering_field2];
 
-        $field_list = $this->createMock(\Tuleap\Tracker\FormElement\Field\ListField::class);
+        $field_list = $this->createMock(\Tuleap\Tracker\FormElement\Field\List\ListField::class);
         $bind_value = $this->createMock(\Tracker_FormElement_Field_List_BindValue::class);
         $bind_value->method('getId')->willReturn(75);
         $target    = new Tracker_Workflow_Trigger_FieldValue($field_list, $bind_value);

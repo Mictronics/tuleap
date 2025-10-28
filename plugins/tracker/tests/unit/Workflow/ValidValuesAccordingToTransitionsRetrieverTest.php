@@ -39,19 +39,19 @@ use Workflow_Transition_ConditionFactory;
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class ValidValuesAccordingToTransitionsRetrieverTest extends TestCase
 {
-    private const FIRST_VALUE_ID                  = 101;
-    private const SECOND_VALUE_ID                 = 102;
-    private const THIRD_VALUE_ID                  = 103;
-    private const ORIGINAL_FIELD_CHANGED_VALUE_ID = 108;
+    private const int FIRST_VALUE_ID                  = 101;
+    private const int SECOND_VALUE_ID                 = 102;
+    private const int THIRD_VALUE_ID                  = 103;
+    private const int ORIGINAL_FIELD_CHANGED_VALUE_ID = 108;
 
     private SelectboxField&MockObject $field_changed;
     private Artifact|Stub $artifact;
     private Stub|Workflow $workflow;
     private BindValueIdCollectionStub $values_collection;
-    private \Tracker_FormElement_Field_List_Bind_StaticValue $test_value_1;
-    private \Tracker_FormElement_Field_List_Bind_StaticValue $test_value_2;
-    private \Tracker_FormElement_Field_List_Bind_StaticValue $test_value_3;
-    private \Tracker_FormElement_Field_List_Bind_StaticValue $value_from_artifact;
+    private \Tuleap\Tracker\FormElement\Field\List\Bind\Static\ListFieldStaticBindValue $test_value_1;
+    private \Tuleap\Tracker\FormElement\Field\List\Bind\Static\ListFieldStaticBindValue $test_value_2;
+    private \Tuleap\Tracker\FormElement\Field\List\Bind\Static\ListFieldStaticBindValue $test_value_3;
+    private \Tuleap\Tracker\FormElement\Field\List\Bind\Static\ListFieldStaticBindValue $value_from_artifact;
     private \PFUser $user;
     /**
      * @var Workflow_Transition_ConditionFactory&MockObject

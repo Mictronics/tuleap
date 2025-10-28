@@ -24,7 +24,7 @@ use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\TypeDao;
 use Tuleap\Tracker\FormElement\Field\TrackerField;
 
-// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 class Tracker_Artifact_XMLImport_XMLImportFieldStrategyArtifactLink implements Tracker_Artifact_XMLImport_XMLImportFieldStrategy
 {
     /**
@@ -34,7 +34,7 @@ class Tracker_Artifact_XMLImport_XMLImportFieldStrategyArtifactLink implements T
      *  - tracker_id: input int
      *  - error : output string
      */
-    public const TRACKER_ADD_SYSTEM_TYPES = 'tracker_add_system_types';
+    public const string TRACKER_ADD_SYSTEM_TYPES = 'tracker_add_system_types';
 
     public function __construct(
         private Tracker_XML_Importer_ArtifactImportedMapping $artifact_id_mapping,

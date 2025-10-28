@@ -9,7 +9,7 @@
                 data-test="add-item"
                 open-tlp-dropdown
         >
-            <i class="fa fa-plus tlp-button-icon"></i>
+            <i class="fa-solid fa-plus tlp-button-icon"></i>
             <span translate>Add item</span>
             <i class="fa fa-caret-down tlp-button-icon"></i>
         </button>
@@ -22,6 +22,7 @@
                ng-repeat="accepted_type in backlog.details.accepted_types.content"
                ng-click="backlog.showAddBacklogItemModal($event, accepted_type)"
                data-test="add-{{ accepted_type.label }}"
+               data-test-static="add-item-in-backlog"
                class="tlp-dropdown-menu-item"
                role="menuitem"
             ><i class="tlp-dropdown-menu-item-icon fa fa-fw fa-plus"></i> <span translate>Add {{ accepted_type.label }}</span></a>
@@ -33,7 +34,7 @@
         class="tlp-button-primary tlp-button-outline tlp-button-small backlog-add-item-button"
         ng-click="backlog.showAddBacklogItemModal($event, backlog.details.accepted_types.content[0])"
     >
-        <i class="fa fa-plus tlp-button-icon"></i> <span translate>Add {{ backlog.details.accepted_types.content[0].label }}</span>
+        <i class="fa-solid fa-plus tlp-button-icon"></i> <span translate>Add {{ backlog.details.accepted_types.content[0].label }}</span>
     </button>
 
     <div class="planning-header-spacer"></div>

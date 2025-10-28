@@ -20,14 +20,13 @@
 
 declare(strict_types=1);
 
-
 namespace Tuleap\Tracker\Semantic\Timeframe\Events;
 
 use Tuleap\Event\Dispatchable;
 
 class GetSemanticTimeframeUsageEvent implements Dispatchable
 {
-    public const NAME = 'getSemanticTimeframeUsageEvent';
+    public const string NAME = 'getSemanticTimeframeUsageEvent';
 
     /**
      * @var string[]

@@ -22,14 +22,14 @@ declare(strict_types=1);
 
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\Artifact\Changeset\PostCreation\PostCreationContext;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindStaticValueDao;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindStaticValueDao;
 use Tuleap\Tracker\FormElement\Field\TrackerField;
 
-class Tracker_Artifact_XMLImport_XMLImportFieldStrategyList extends Tracker_Artifact_XMLImport_XMLImportFieldStrategyAlphanumeric // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+class Tracker_Artifact_XMLImport_XMLImportFieldStrategyList extends Tracker_Artifact_XMLImport_XMLImportFieldStrategyAlphanumeric // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 {
-    public const BIND_STATIC  = 'static';
-    public const BIND_UGROUPS = 'ugroups';
-    public const FORMAT_ID    = 'id';
+    public const string BIND_STATIC  = 'static';
+    public const string BIND_UGROUPS = 'ugroups';
+    public const string FORMAT_ID    = 'id';
 
     /** @var BindStaticValueDao */
     private $static_value_dao;

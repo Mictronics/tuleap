@@ -17,13 +17,14 @@
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
+
 namespace Tuleap\Tracker\Artifact\XML\Exporter;
 
 use Tracker_XML_ChildrenCollector;
 
 class NullChildrenCollector extends Tracker_XML_ChildrenCollector
 {
-    public const MAX = 50;
+    public const int MAX = 50;
 
     #[\Override]
     public function addChild($artifact_id, $parent_id)

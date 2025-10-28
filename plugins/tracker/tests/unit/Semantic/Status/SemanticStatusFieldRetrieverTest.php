@@ -30,7 +30,7 @@ use Tuleap\Tracker\Test\Stub\Semantic\Status\SearchStatusFieldStub;
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class SemanticStatusFieldRetrieverTest extends \Tuleap\Test\PHPUnit\TestCase
 {
-    private const TRACKER_ID = 77;
+    private const int TRACKER_ID = 77;
     private ?\Tuleap\Tracker\FormElement\Field\List\SelectboxField $field;
 
     #[\Override]
@@ -51,7 +51,7 @@ final class SemanticStatusFieldRetrieverTest extends \Tuleap\Test\PHPUnit\TestCa
         );
     }
 
-    public function getStatusField(): ?\Tuleap\Tracker\FormElement\Field\ListField
+    public function getStatusField(): ?\Tuleap\Tracker\FormElement\Field\List\ListField
     {
         $tracker = TrackerTestBuilder::aTracker()->build();
 

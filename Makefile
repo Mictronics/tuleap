@@ -211,7 +211,7 @@ phpunit-ci:
 	@$(DOCKER) run --rm -v $(CURDIR):/usr/share/tuleap:ro --network none -v $(WORKSPACE)/results/ut-phpunit/php-$(PHP_VERSION):/tmp/results ghcr.io/enalean/tuleap-aio-dev:el9-php$(PHP_VERSION) make -C /usr/share/tuleap TARGET="phpunit-ci-run COVERAGE_ENABLED=$(COVERAGE_ENABLED)" PHP=/opt/remi/php$(PHP_VERSION)/root/usr/bin/php run-as-owner
 
 .PHONY: tests-unit-php
-tests-unit-php: ## Run PHPUnit unit tests in a Docker container. PHP_VERSION to select the version of PHP to use (84). FILES to run specific tests.
+tests-unit-php: ## Run PHPUnit unit tests in a Docker container. PHP_VERSION to select the version of PHP to use (84,85). FILES to run specific tests.
 	$(eval PHP_VERSION ?= 84)
 	@$(DOCKER) run --rm -v $(CURDIR):/usr/share/tuleap:ro --network none ghcr.io/enalean/tuleap-aio-dev:el9-php$(PHP_VERSION) scl enable php$(PHP_VERSION) "make phpunit FILES=$(FILES)"
 
@@ -262,13 +262,9 @@ eslint-fix: ## Execute eslint with --fix to try to fix problems automatically. U
 	$(eval FILES ?= .)
 	@pnpm run eslint --fix --quiet -- $(FILES)
 
-stylelint: ## Execute stylelint. Use FILES parameter to execute on specific files.
-	$(eval FILES ?= **/*.{vue,scss})
-	@pnpm run stylelint -- $(FILES)
-
-stylelint-fix: ## Execute stylelint with --fix to try to fix problems automatically. Use FILES parameter to execute on specific file or directory.
-	$(eval FILES ?= **/*.{vue,scss})
-	@pnpm run stylelint --fix -- $(FILES)
+.PHONY:treefmt
+treefmt: ## Run treefmt
+	@treefmt
 
 bash-web: ## Give a bash on web container
 	@$(DOCKER) exec -e COLUMNS="`tput cols`" -e LINES="`tput lines`" -ti `$(DOCKER_COMPOSE) ps -q web` bash

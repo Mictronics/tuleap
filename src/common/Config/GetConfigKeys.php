@@ -31,7 +31,6 @@ use Tuleap\Date\OpeningDaysRetriever;
 use Tuleap\DB\DBConfig;
 use Tuleap\DB\ThereIsAnOngoingTransactionChecker;
 use Tuleap\Event\Dispatchable;
-use Tuleap\Forum\DeprecatedForum;
 use Tuleap\HelpDropdown\HelpDropdownPresenterBuilder;
 use Tuleap\Http\Client\FilteredOutboundHTTPResponseAlerter;
 use Tuleap\Http\Client\OutboundHTTPRequestProxy;
@@ -53,6 +52,7 @@ use Tuleap\Request\RequestInstrumentation;
 use Tuleap\ServerHostname;
 use Tuleap\System\ServiceControl;
 use Tuleap\SystemEvent\Massmail;
+use Tuleap\User\Account\Appearance\FaviconVariant;
 use Tuleap\User\Password\PasswordExpirationChecker;
 use Tuleap\User\UserSuspensionManager;
 use Tuleap\Widget\MyProjects;
@@ -60,7 +60,7 @@ use User_UserStatusManager;
 
 final class GetConfigKeys implements Dispatchable, ConfigClassProvider, KeyMetadataProvider, KeysThatCanBeModifiedProvider
 {
-    public const NAME = 'getConfigKeys';
+    public const string NAME = 'getConfigKeys';
 
     public const array CORE_CLASSES_WITH_CONFIG_KEYS = [
         ConfigurationVariables::class,
@@ -98,9 +98,9 @@ final class GetConfigKeys implements Dispatchable, ConfigClassProvider, KeyMetad
         ThereIsAnOngoingTransactionChecker::class,
         OpeningDaysRetriever::class,
         CookieManager::class,
-        DeprecatedForum::class,
         ClientFactory::class,
         PasswordExpirationChecker::class,
+        FaviconVariant::class,
     ];
 
     /**

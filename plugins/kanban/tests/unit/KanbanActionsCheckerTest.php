@@ -24,8 +24,8 @@ namespace Tuleap\Kanban;
 
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
+use Tuleap\Tracker\FormElement\Field\List\ListField;
 use Tuleap\Tracker\FormElement\Field\String\StringField;
-use Tuleap\Tracker\FormElement\Field\ListField;
 use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus;
 use Tuleap\Tracker\Semantic\Title\RetrieveSemanticTitleField;
 use Tuleap\Tracker\Test\Builders\Fields\IntegerFieldBuilder;
@@ -43,8 +43,8 @@ use Tuleap\Tracker\Tracker;
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class KanbanActionsCheckerTest extends \Tuleap\Test\PHPUnit\TestCase
 {
-    private const STRING_FIELD_ID = 201;
-    private const LIST_FIELD_ID   = 40;
+    private const int STRING_FIELD_ID = 201;
+    private const int LIST_FIELD_ID   = 40;
     private StringField $field_string;
     private ListField $field_list;
     private Tracker $tracker;

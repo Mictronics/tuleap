@@ -17,13 +17,14 @@
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
+
 namespace User\XML\Import;
 
 use RuntimeException;
 
 class ToBeMappedUser extends ActionToBeTakenForUser
 {
-    public const ACTION = 'map';
+    public const string ACTION = 'map';
 
     /** @var \PFUser[] */
     private $matching_users;

@@ -29,7 +29,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionClass;
 use TestHelper;
 use Tracker_Artifact_ChangesetValue_OpenList;
-use Tracker_FormElement_Field_List_Bind_Static;
 use Tracker_FormElement_Field_List_BindValue;
 use Tracker_FormElement_Field_List_OpenValue;
 use Tuleap\DB\DatabaseUUIDV7Factory;
@@ -38,9 +37,7 @@ use Tuleap\GlobalResponseMock;
 use Tuleap\Test\PHPUnit\TestCase;
 use Tuleap\Tracker\Artifact\Artifact;
 use Tuleap\Tracker\FormElement\Field\Files\CreatedFileURLMapping;
-use Tuleap\Tracker\FormElement\Field\ListFields\OpenListChangesetValueDao;
-use Tuleap\Tracker\FormElement\Field\ListFields\OpenListValueDao;
-use Tuleap\Tracker\FormElement\Field\ListField;
+use Tuleap\Tracker\FormElement\Field\List\Bind\Static\ListFieldStaticBind;
 use Tuleap\Tracker\Test\Builders\ArtifactTestBuilder;
 use Tuleap\Tracker\Test\Builders\ChangesetTestBuilder;
 use Tuleap\Tracker\Test\Builders\Fields\List\ListStaticValueBuilder;
@@ -52,14 +49,14 @@ final class OpenListFieldTest extends TestCase
     use GlobalResponseMock;
 
     private OpenListValueDao&MockObject $dao;
-    private Tracker_FormElement_Field_List_Bind_Static&MockObject $bind;
+    private ListFieldStaticBind&MockObject $bind;
     private OpenListField $field;
 
     #[\Override]
     protected function setUp(): void
     {
         $this->field = $this->createPartialMock(OpenListField::class, ['getId', 'getBind', 'getOpenValueDao']);
-        $this->bind  = $this->createMock(Tracker_FormElement_Field_List_Bind_Static::class);
+        $this->bind  = $this->createMock(ListFieldStaticBind::class);
         $this->dao   = $this->createMock(OpenListValueDao::class);
 
         $this->field->method('getId')->willReturn(852);
@@ -92,7 +89,7 @@ final class OpenListFieldTest extends TestCase
             ListStaticValueBuilder::aStaticValue('c')->build(),
         ];
 
-        $bind = $this->getMockBuilder(Tracker_FormElement_Field_List_Bind_Static::class)
+        $bind = $this->getMockBuilder(ListFieldStaticBind::class)
             ->setConstructorArgs([new DatabaseUUIDV7Factory(), $this->aRequiredOpenListField(), true, [], $bind_values, []])
             ->onlyMethods(['getBindValuesForIds'])
             ->getMock();
@@ -177,7 +174,6 @@ final class OpenListFieldTest extends TestCase
         $list_field->method('getOpenValueDao')->willReturn($open_value_dao);
         $reflection = new ReflectionClass($list_field::class);
         $method     = $reflection->getMethod('saveValue');
-        $method->setAccessible(true);
 
         $method->invoke($list_field, $artifact, $changeset_id, $submitted_value, null, new CreatedFileURLMapping());
     }

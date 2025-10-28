@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
+
 declare(strict_types=1);
 
 namespace Tuleap\REST\v1;
@@ -35,7 +36,7 @@ use UserManager;
 
 class ProjectFieldsResource extends AuthenticatedResource
 {
-    public const MAX_LIMIT = 100;
+    public const int MAX_LIMIT = 100;
 
     /**
      * @var DescriptionFieldsFactory

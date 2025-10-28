@@ -26,13 +26,13 @@ use Tuleap\Tracker\FormElement\Field\TrackerField;
  * For a tracker, if a source field is selected to a specific value,
  * then target field will react, depending of the implementation of the rule.
  */
-abstract class Tracker_Rule // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+abstract class Tracker_Rule // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 {
-    public const RULETYPE_HIDDEN    = 1;
-    public const RULETYPE_DISABLED  = 2;
-    public const RULETYPE_MANDATORY = 3;
-    public const RULETYPE_VALUE     = 4;
-    public const RULETYPE_DATE      = 5;
+    public const int RULETYPE_HIDDEN    = 1;
+    public const int RULETYPE_DISABLED  = 2;
+    public const int RULETYPE_MANDATORY = 3;
+    public const int RULETYPE_VALUE     = 4;
+    public const int RULETYPE_DATE      = 5;
 
     /**
      *

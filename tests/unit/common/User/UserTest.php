@@ -20,9 +20,8 @@
 
 declare(strict_types=1);
 
-// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
-final class UserTest extends \Tuleap\Test\PHPUnit\TestCase
+final class UserTest extends \Tuleap\Test\PHPUnit\TestCase // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 {
     public function testStatus(): void
     {
@@ -102,14 +101,12 @@ final class UserTest extends \Tuleap\Test\PHPUnit\TestCase
                 'group_id' => '1',
                 'admin_flags' => 'A',
                 'bug_flags' => '2',
-                'forum_flags' => '2',
                 'project_flags' => '2',
                 'patch_flags' => '2',
                 'support_flags' => '2',
                 'file_flags' => '2',
                 'wiki_flags' => '2',
                 'svn_flags' => '2',
-                'news_flags' => '2',
             ],
         ];
         $siteadmin->method('getUserGroupData')->willReturn($ug_siteadmin);
@@ -135,14 +132,12 @@ final class UserTest extends \Tuleap\Test\PHPUnit\TestCase
                 'group_id'      => '123',
                 'admin_flags'   => 'A',
                 'bug_flags'     => '2',
-                'forum_flags'   => '2',
                 'project_flags' => '2',
                 'patch_flags'   => '2',
                 'support_flags' => '2',
                 'file_flags'    => '2',
                 'wiki_flags'    => '2',
                 'svn_flags'     => '2',
-                'news_flags'    => '2',
             ],
         ];
         $projectadmin->method('getUserGroupData')->willReturn($ug_project_admin);
@@ -176,14 +171,12 @@ final class UserTest extends \Tuleap\Test\PHPUnit\TestCase
                 'group_id'      => '789',
                 'admin_flags'   => '',
                 'bug_flags'     => '2',
-                'forum_flags'   => '2',
                 'project_flags' => '2',
                 'patch_flags'   => '2',
                 'support_flags' => '2',
                 'file_flags'    => '2',
                 'wiki_flags'    => '2',
                 'svn_flags'     => '2',
-                'news_flags'    => '2',
             ],
         ];
         $projectmember->method('getUserGroupData')->willReturn($ug_project_member);

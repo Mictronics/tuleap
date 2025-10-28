@@ -20,7 +20,6 @@
 
 declare(strict_types=1);
 
-
 namespace Tuleap\Tools\Xml2Php\Tracker\Report;
 
 use PhpParser\Node\Arg;
@@ -31,7 +30,7 @@ use PhpParser\Node\Name;
 use PhpParser\Node\Scalar\LNumber;
 use PhpParser\Node\Scalar\String_;
 use Tuleap\Tools\Xml2Php\Tracker\FormElement\IdToNameMapping;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\XML\XMLBindValueReferenceById;
+use Tuleap\Tracker\FormElement\Field\List\Bind\XML\XMLBindValueReferenceById;
 use Tuleap\Tracker\FormElement\XML\XMLReferenceByName;
 use Tuleap\Tracker\Report\XML\XMLReportCriterion;
 

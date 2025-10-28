@@ -24,11 +24,13 @@ use Tuleap\Artidoc\Domain\Document\ArtidocWithContext;
 use Tuleap\NeverThrow\Err;
 use Tuleap\NeverThrow\Fault;
 use Tuleap\NeverThrow\Ok;
+use Tuleap\Option\Option;
 
 interface BuildRequiredArtifactInformation
 {
     /**
-     * @return Ok<RequiredArtifactInformation>|Err<Fault>
+     * @param Option<int> $before_changeset_id
+     * @return Ok<RequiredArtifactInformation>|Ok<null>|Err<Fault>
      */
-    public function getRequiredArtifactInformation(ArtidocWithContext $artidoc, int $artifact_id, \PFUser $user): Ok|Err;
+    public function getRequiredArtifactInformation(ArtidocWithContext $artidoc, int $artifact_id, Option $before_changeset_id, \PFUser $user): Ok|Err;
 }

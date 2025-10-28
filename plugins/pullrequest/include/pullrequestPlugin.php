@@ -109,12 +109,12 @@ use Tuleap\User\Avatar\AvatarHashDao;
 use Tuleap\User\Avatar\ComputeAvatarHash;
 use Tuleap\User\Avatar\UserAvatarUrlProvider;
 
-// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 class pullrequestPlugin extends Plugin
 {
-    public const PR_REFERENCE_KEYWORD          = 'pr';
-    public const PULLREQUEST_REFERENCE_KEYWORD = 'pullrequest';
-    public const REFERENCE_NATURE              = 'pullrequest';
+    public const string PR_REFERENCE_KEYWORD          = 'pr';
+    public const string PULLREQUEST_REFERENCE_KEYWORD = 'pullrequest';
+    public const string REFERENCE_NATURE              = 'pullrequest';
     private $git_rest_route_additional_informations;
 
     public function __construct($id)

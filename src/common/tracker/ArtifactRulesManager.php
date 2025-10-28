@@ -19,7 +19,6 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-
 require_once('ArtifactRuleFactory.php');
 
 /**
@@ -28,7 +27,7 @@ require_once('ArtifactRuleFactory.php');
 * This is only a proxy to access the factory.
 * Maybe there is no need to have this intermediary?
 */
-// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 class ArtifactRulesManager
 {
     public function __construct()

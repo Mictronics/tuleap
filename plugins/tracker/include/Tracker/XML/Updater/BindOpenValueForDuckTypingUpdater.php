@@ -24,7 +24,7 @@ namespace Tuleap\Tracker\Tracker\XML\Updater;
 
 use SimpleXMLElement;
 use Tuleap\Tracker\FormElement\Field\List\OpenListField;
-use Tuleap\Tracker\FormElement\Field\ListFields\RetrieveMatchingValueByDuckTyping;
+use Tuleap\Tracker\FormElement\Field\List\RetrieveMatchingValueByDuckTyping;
 use Tuleap\Tracker\XML\Updater\MoveChangesetXMLUpdater;
 
 final class BindOpenValueForDuckTypingUpdater implements UpdateBindOpenValueByDuckTyping
@@ -39,8 +39,8 @@ final class BindOpenValueForDuckTypingUpdater implements UpdateBindOpenValueByDu
     #[\Override]
     public function updateOpenValueForDuckTypingMove(
         SimpleXMLElement $changeset_xml,
-        \Tuleap\Tracker\FormElement\Field\ListField $source_field,
-        \Tuleap\Tracker\FormElement\Field\ListField $destination_field,
+        \Tuleap\Tracker\FormElement\Field\List\ListField $source_field,
+        \Tuleap\Tracker\FormElement\Field\List\ListField $destination_field,
         int $index,
     ): void {
         if (! $changeset_xml->field_change[$index]) {

@@ -20,9 +20,9 @@
  */
 
 
-abstract class Tracker_FormElement_Field_List_BindValue extends Tracker_FormElement_Field_List_Value // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+abstract class Tracker_FormElement_Field_List_BindValue extends Tracker_FormElement_Field_List_Value // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 {
-    public const BIND_PREFIX = 'b';
+    public const string BIND_PREFIX = 'b';
 
     #[\Override]
     public function getJsonId()

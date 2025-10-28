@@ -32,6 +32,7 @@ class IncludeAssetsBuilder
         return new class extends IncludeAssets {
             public function __construct()
             {
+                parent::__construct('', '');
             }
 
             #[\Override]

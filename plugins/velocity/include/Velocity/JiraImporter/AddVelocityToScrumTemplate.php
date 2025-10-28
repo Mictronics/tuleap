@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Tuleap\Velocity\JiraImporter;
 
 use Tuleap\JiraImport\JiraAgile\ScrumTrackerBuilder;
-use Tuleap\Tracker\FormElement\Field\FloatingPointNumber\XML\XMLFloatField;
+use Tuleap\Tracker\FormElement\Field\Float\XML\XMLFloatField;
 use Tuleap\Tracker\FormElement\Field\XML\ReadPermission;
 use Tuleap\Tracker\FormElement\Field\XML\SubmitPermission;
 use Tuleap\Tracker\FormElement\Field\XML\UpdatePermission;
@@ -35,7 +35,7 @@ use Tuleap\Velocity\Semantic\XML\XMLVelocitySemantic;
 
 final class AddVelocityToScrumTemplate
 {
-    private const VELOCITY_FIELD_NAME = 'velocity';
+    private const string VELOCITY_FIELD_NAME = 'velocity';
 
     public function addVelocityToStructure(XMLTracker $tracker, IDGenerator $id_generator): XMLTracker
     {

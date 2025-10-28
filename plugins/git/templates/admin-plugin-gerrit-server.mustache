@@ -7,7 +7,7 @@
                 data-target-modal-id="modal-add-gerrit-server"
                 data-test="gerrit-server-add-button"
         >
-            <i class="fa fa-plus tlp-button-icon"></i> {{ gerrit_add_server }}
+            <i class="fa-solid fa-plus tlp-button-icon"></i> {{ gerrit_add_server }}
         </button>
     </section>
 {{/ list_of_servers_is_empty }}
@@ -19,7 +19,7 @@
             data-target-modal-id="modal-add-gerrit-server"
             data-test="gerrit-server-add-button"
     >
-        <i class="fa fa-plus tlp-button-icon"></i> {{ gerrit_add_server }}
+        <i class="fa-solid fa-plus tlp-button-icon"></i> {{ gerrit_add_server }}
     </button>
 
     {{# list_of_servers }}
@@ -121,7 +121,7 @@
                                     class="tlp-text-danger tlp-tooltip tlp-tooltip-left gerrit-server-deprecated-configuration"
                                     data-tlp-tooltip="{{# dgettext }} tuleap-git | This server is configured to use Gerrit 2.5 which is not supported anymore, please review the configuration and save it to migrate {{/ dgettext }}"
                             >
-                                <i class="tlp-badge-icon fas fa-exclamation-triangle"></i>
+                                <i class="tlp-badge-icon fa-solid fa-triangle-exclamation"></i>
                             </span>
                         {{/ use_gerrit_2_5 }}
                         <button type="button"

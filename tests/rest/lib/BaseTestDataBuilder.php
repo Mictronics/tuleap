@@ -103,9 +103,6 @@ class BaseTestDataBuilder
     final public const int DYNAMIC_UGROUP_FILE_MANAGER_ID         = 11;
     final public const string DYNAMIC_UGROUP_FILE_MANAGER_LABEL   = 'file_manager_admins';
     final public const int DYNAMIC_UGROUP_WIKI_ADMIN_ID           = 14;
-    final public const int DYNAMIC_UGROUP_FORUM_ADMIN_ID          = 16;
-    final public const int DYNAMIC_UGROUP_NEWS_ADMIN_ID           = 17;
-    final public const int DYNAMIC_UGROUP_NEWS_WRITER_ID          = 18;
 
     protected readonly ProjectManager $project_manager;
     protected readonly UserManager $user_manager;

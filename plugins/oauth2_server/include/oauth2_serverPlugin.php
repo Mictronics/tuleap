@@ -30,7 +30,6 @@ use Tuleap\Authentication\Scope\AuthenticationScopeBuilder;
 use Tuleap\Authentication\Scope\AuthenticationScopeBuilderFromClassNames;
 use Tuleap\Authentication\SplitToken\PrefixedSplitTokenSerializer;
 use Tuleap\Authentication\SplitToken\SplitTokenVerificationStringHasher;
-use Tuleap\Cryptography\KeyFactory;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\DBTransactionExecutorWithConnection;
 use Tuleap\Http\HTTPFactoryBuilder;
@@ -80,11 +79,11 @@ use Tuleap\User\OAuth2\Scope\OAuth2ScopeBuilderCollector;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 final class oauth2_serverPlugin extends Plugin
 {
-    public const SERVICE_NAME_INSTRUMENTATION = 'oauth2_server';
-    public const CSRF_TOKEN_APP_EDITION       = 'oauth2_server_app_edition';
+    public const string SERVICE_NAME_INSTRUMENTATION = 'oauth2_server';
+    public const string CSRF_TOKEN_APP_EDITION       = 'oauth2_server_app_edition';
 
     public function __construct(?int $id)
     {
@@ -218,7 +217,7 @@ final class oauth2_serverPlugin extends Plugin
             new SplitTokenVerificationStringHasher(),
             new LastGeneratedClientSecretStore(
                 new PrefixedSplitTokenSerializer(new PrefixOAuth2ClientSecret()),
-                (new KeyFactory())->getEncryptionKey(),
+                (new \Tuleap\Cryptography\KeyFactoryFromFileSystem())->getEncryptionKey(),
                 $storage
             ),
             new \Tuleap\Http\Response\RedirectWithFeedbackFactory(
@@ -246,7 +245,7 @@ final class oauth2_serverPlugin extends Plugin
             new SplitTokenVerificationStringHasher(),
             new LastGeneratedClientSecretStore(
                 new PrefixedSplitTokenSerializer(new PrefixOAuth2ClientSecret()),
-                (new KeyFactory())->getEncryptionKey(),
+                (new \Tuleap\Cryptography\KeyFactoryFromFileSystem())->getEncryptionKey(),
                 $storage
             ),
             new \Tuleap\Http\Response\RedirectWithFeedbackFactory(
@@ -325,7 +324,7 @@ final class oauth2_serverPlugin extends Plugin
                 $app_dao,
                 new LastGeneratedClientSecretStore(
                     new PrefixedSplitTokenSerializer(new PrefixOAuth2ClientSecret()),
-                    (new KeyFactory())->getEncryptionKey(),
+                    (new \Tuleap\Cryptography\KeyFactoryFromFileSystem())->getEncryptionKey(),
                     $storage
                 )
             ),
@@ -357,7 +356,7 @@ final class oauth2_serverPlugin extends Plugin
                 $app_dao,
                 new LastGeneratedClientSecretStore(
                     new PrefixedSplitTokenSerializer(new PrefixOAuth2ClientSecret()),
-                    (new KeyFactory())->getEncryptionKey(),
+                    (new \Tuleap\Cryptography\KeyFactoryFromFileSystem())->getEncryptionKey(),
                     $storage
                 )
             ),
@@ -424,6 +423,7 @@ final class oauth2_serverPlugin extends Plugin
                     TemplateRendererFactory::build(),
                     new \Tuleap\OAuth2Server\AuthorizationServer\AuthorizationFormPresenterBuilder($redirect_uri_builder)
                 ),
+                \Tuleap\ContentSecurityPolicy\CSPNonce::build(),
             ),
             \UserManager::instance(),
             new \Tuleap\OAuth2ServerCore\App\AppFactory(

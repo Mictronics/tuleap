@@ -17,7 +17,6 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-export { getLocaleWithDefault } from "./dom";
 export type { LocaleString } from "./constants";
 export {
     DEFAULT_LOCALE,
@@ -26,4 +25,6 @@ export {
     pt_BR_LOCALE,
     ko_KR_LOCALE,
 } from "./constants";
+export { getLocaleWithDefault } from "./dom";
+export { toBCP47 } from "./format";
 export { getPOFileFromLocale, getPOFileFromLocaleWithoutExtension } from "./pofile-helpers";

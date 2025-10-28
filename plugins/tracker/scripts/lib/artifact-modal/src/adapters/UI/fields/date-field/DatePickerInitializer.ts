@@ -17,14 +17,15 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { datePicker } from "@tuleap/tlp-date-picker";
+import { createDatePicker } from "@tuleap/tlp-date-picker";
+import type { LocaleString } from "@tuleap/locale";
 
 export interface DatePickerInitializerType {
     initDatePicker(input_element: HTMLInputElement): void;
 }
 
-export const DatePickerInitializer = (): DatePickerInitializerType => ({
+export const DatePickerInitializer = (locale: LocaleString): DatePickerInitializerType => ({
     initDatePicker(input_element: HTMLInputElement): void {
-        datePicker(input_element);
+        createDatePicker(input_element, locale);
     },
 });

@@ -18,7 +18,6 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use Tuleap\Config\PluginWithConfigKeys;
 use Tuleap\Layout\CssViteAsset;
 use Tuleap\Layout\IncludeViteAssets;
 use Tuleap\Plugin\PluginWithLegacyInternalRouting;
@@ -47,9 +46,8 @@ use Tuleap\Timetracking\Time\TimePresenterBuilder;
 use Tuleap\Timetracking\Time\TimeRetriever;
 use Tuleap\Timetracking\Time\TimetrackingReportDao;
 use Tuleap\Timetracking\Time\TimeUpdater;
-use Tuleap\Timetracking\Widget\FeatureFlagTimetrackingManagementWidget;
-use Tuleap\Timetracking\Widget\TimetrackingManagementWidget;
-use Tuleap\Timetracking\Widget\TimeTrackingOverview;
+use Tuleap\Timetracking\Widget\PeopleTimetrackingWidget;
+use Tuleap\Timetracking\Widget\ProjectTimetracking;
 use Tuleap\Timetracking\Widget\UserWidget;
 use Tuleap\Timetracking\XML\XMLExport;
 use Tuleap\Timetracking\XML\XMLImport;
@@ -66,7 +64,7 @@ require_once __DIR__ . '/../../tracker/include/trackerPlugin.php';
 require_once 'constants.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
-class timetrackingPlugin extends PluginWithLegacyInternalRouting implements PluginWithConfigKeys// @codingStandardsIgnoreLine
+class timetrackingPlugin extends PluginWithLegacyInternalRouting // phpcs:ignore
 {
     public function __construct($id)
     {
@@ -191,7 +189,7 @@ class timetrackingPlugin extends PluginWithLegacyInternalRouting implements Plug
     }
 
     #[\Tuleap\Plugin\ListeningToEventName(Tracker_Artifact_EditRenderer::EVENT_ADD_VIEW_IN_COLLECTION)]
-    public function trackerArtifactEditrendererAddViewInCollection(array $params): void // @codingStandardsIgnoreLine
+    public function trackerArtifactEditrendererAddViewInCollection(array $params): void // phpcs:ignore
     {
         $user     = $params['user'];
         $request  = $params['request'];
@@ -226,7 +224,7 @@ class timetrackingPlugin extends PluginWithLegacyInternalRouting implements Plug
     }
 
     #[\Tuleap\Plugin\ListeningToEventName('permission_get_name')]
-    public function permissionGetName(array $params): void // @codingStandardsIgnoreLine
+    public function permissionGetName(array $params): void // phpcs:ignore
     {
         if (! $params['name']) {
             switch ($params['permission_type']) {
@@ -294,7 +292,7 @@ class timetrackingPlugin extends PluginWithLegacyInternalRouting implements Plug
     }
 
     #[\Tuleap\Plugin\ListeningToEventName('project_admin_ugroup_deletion')]
-    public function projectAdminUgroupDeletion(array $params): void // @codingStandardsIgnoreLine
+    public function projectAdminUgroupDeletion(array $params): void // phpcs:ignore
     {
         $ugroup = $params['ugroup'];
 
@@ -308,16 +306,16 @@ class timetrackingPlugin extends PluginWithLegacyInternalRouting implements Plug
         if ($get_widget_event->getName() === UserWidget::NAME) {
             $get_widget_event->setWidget(new UserWidget());
         }
-        if ($get_widget_event->getName() === TimeTrackingOverview::NAME) {
+        if ($get_widget_event->getName() === ProjectTimetracking::NAME) {
             $get_widget_event->setWidget(
-                new TimeTrackingOverview(
+                new ProjectTimetracking(
                     new TimetrackingReportDao(),
                     TemplateRendererFactory::build()->getRenderer(TIMETRACKING_TEMPLATE_DIR)
                 )
             );
         }
-        if ($get_widget_event->getName() === TimetrackingManagementWidget::NAME && FeatureFlagTimetrackingManagementWidget::isActive()) {
-            $get_widget_event->setWidget(new TimetrackingManagementWidget(new \Tuleap\Timetracking\Widget\Management\ManagementDao()));
+        if ($get_widget_event->getName() === PeopleTimetrackingWidget::NAME) {
+            $get_widget_event->setWidget(new PeopleTimetrackingWidget(new \Tuleap\Timetracking\Widget\People\PeopleDao()));
         }
     }
 
@@ -325,12 +323,12 @@ class timetrackingPlugin extends PluginWithLegacyInternalRouting implements Plug
     public function getUserWidgetList(\Tuleap\Widget\Event\GetUserWidgetList $event): void
     {
         $event->addWidget(UserWidget::NAME);
-        $event->addWidget(TimeTrackingOverview::NAME);
-        $event->addWidget(TimetrackingManagementWidget::NAME);
+        $event->addWidget(ProjectTimetracking::NAME);
+        $event->addWidget(PeopleTimetrackingWidget::NAME);
     }
 
     #[\Tuleap\Plugin\ListeningToEventName('fill_project_history_sub_events')]
-    public function fillProjectHistorySubEvents($params): void // @codingStandardsIgnoreLine
+    public function fillProjectHistorySubEvents($params): void // phpcs:ignore
     {
         array_push(
             $params['subEvents']['event_others'],
@@ -450,11 +448,5 @@ class timetrackingPlugin extends PluginWithLegacyInternalRouting implements Plug
                 dgettext('tuleap-timetracking', 'Archive should not contain timetracking data.'),
             );
         }
-    }
-
-    #[\Override]
-    public function getConfigKeys(\Tuleap\Config\ConfigClassProvider $event): void
-    {
-        $event->addConfigClass(FeatureFlagTimetrackingManagementWidget::class);
     }
 }

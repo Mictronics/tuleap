@@ -21,36 +21,56 @@ import { beforeEach, describe, expect, it } from "vitest";
 import { nextTick } from "vue";
 import type { VueWrapper } from "@vue/test-utils";
 import { shallowMount } from "@vue/test-utils";
-import type { ArtifactLinkDirection } from "../../domain/ArtifactsTable";
+import type { ArtifactLinkDirection, ArtifactRow } from "../../domain/ArtifactsTable";
 import { FORWARD_DIRECTION, PRETTY_TITLE_CELL } from "../../domain/ArtifactsTable";
 import { getGlobalTestOptions } from "../../helpers/global-options-for-tests";
 import PrettyTitleCellComponent from "./PrettyTitleCellComponent.vue";
 import CaretIndentation from "./CaretIndentation.vue";
 import ArtifactLinkArrow from "./ArtifactLinkArrow.vue";
-import { DASHBOARD_ID, DASHBOARD_TYPE } from "../../injection-symbols";
+import {
+    ARROW_DATA_STORE,
+    DASHBOARD_ID,
+    DASHBOARD_TYPE,
+    TABLE_DATA_STORE,
+} from "../../injection-symbols";
 import { PROJECT_DASHBOARD, USER_DASHBOARD } from "../../domain/DashboardType";
+import { TableDataStore } from "../../domain/TableDataStore";
+import { ArrowDataStore } from "../../domain/ArrowDataStore";
+import { v4 as uuidv4 } from "uuid";
 
 describe("PrettyTitleCellComponent", () => {
     let artifact_uri: string;
     let expected_number_of_forward_link: number;
     let expected_number_of_reverse_link: number;
-    let parent_element: HTMLElement | undefined;
-    let parent_caret: HTMLElement | undefined;
     let direction: ArtifactLinkDirection | undefined;
     let reverse_links_count: number | undefined;
     let level: number;
     let dashboard_type: string;
+    let table_data_store: TableDataStore;
+    let arrow_data_store: ArrowDataStore;
+
+    const parent_uuid = uuidv4();
+    const row_uuid = uuidv4();
 
     beforeEach(() => {
         artifact_uri = "/plugins/tracker/?aid=286";
         expected_number_of_forward_link = 0;
         expected_number_of_reverse_link = 0;
         level = 0;
-        parent_element = undefined;
-        parent_caret = undefined;
         direction = undefined;
         reverse_links_count = undefined;
         dashboard_type = PROJECT_DASHBOARD;
+        table_data_store = TableDataStore();
+        table_data_store.addEntry({
+            row: { row_uuid: parent_uuid } as ArtifactRow,
+            parent_row_uuid: null,
+        });
+        table_data_store.addEntry({
+            row: { row_uuid: row_uuid } as ArtifactRow,
+            parent_row_uuid: parent_uuid,
+        });
+        arrow_data_store = ArrowDataStore();
+        arrow_data_store.addEntry(parent_uuid, {} as HTMLElement, {} as HTMLElement);
     });
 
     const getWrapper = (): VueWrapper<InstanceType<typeof PrettyTitleCellComponent>> => {
@@ -60,9 +80,12 @@ describe("PrettyTitleCellComponent", () => {
                 provide: {
                     [DASHBOARD_TYPE.valueOf()]: dashboard_type,
                     [DASHBOARD_ID.valueOf()]: 22,
+                    [TABLE_DATA_STORE.valueOf()]: table_data_store,
+                    [ARROW_DATA_STORE.valueOf()]: arrow_data_store,
                 },
             },
             props: {
+                uuid: row_uuid,
                 cell: {
                     type: PRETTY_TITLE_CELL,
                     title: "uncensorable litigant",
@@ -75,8 +98,6 @@ describe("PrettyTitleCellComponent", () => {
                 expected_number_of_reverse_link,
                 level,
                 is_last: false,
-                parent_element,
-                parent_caret,
                 reverse_links_count,
                 direction,
             },
@@ -222,8 +243,6 @@ describe("PrettyTitleCellComponent", () => {
         });
 
         it("should include an ArtifactLinkArrow if there are parent elements", async () => {
-            parent_element = {} as HTMLElement;
-            parent_caret = {} as HTMLElement;
             direction = FORWARD_DIRECTION;
             reverse_links_count = 3;
 
@@ -235,8 +254,6 @@ describe("PrettyTitleCellComponent", () => {
         });
 
         it("should include an ArtifactLinkArrow if there are parent elements BUT no reverse links", async () => {
-            parent_element = {} as HTMLElement;
-            parent_caret = {} as HTMLElement;
             direction = FORWARD_DIRECTION;
             reverse_links_count = 0;
 
@@ -245,6 +262,21 @@ describe("PrettyTitleCellComponent", () => {
             await nextTick();
 
             expect(wrapper.findComponent(ArtifactLinkArrow).exists()).toBe(true);
+        });
+    });
+
+    describe("Mount and unmount", () => {
+        it("should register the element into the ArrowDataStore on Mount", () => {
+            expect(arrow_data_store.getByUUID(row_uuid)).toBeUndefined();
+            getWrapper();
+            expect(arrow_data_store.getByUUID(row_uuid)).not.toBeUndefined();
+        });
+        it("should remove the element from the ArrowDataStore on unMount", () => {
+            const wrapper = getWrapper();
+            expect(arrow_data_store.getByUUID(row_uuid)).not.toBeUndefined();
+
+            wrapper.unmount();
+            expect(arrow_data_store.getByUUID(row_uuid)).toBeUndefined();
         });
     });
 });

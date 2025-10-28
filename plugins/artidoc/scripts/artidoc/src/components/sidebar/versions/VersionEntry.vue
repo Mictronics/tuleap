@@ -19,8 +19,12 @@
   -->
 
 <template>
-    <div>
-        {{ title }}
+    <section v-on:click="click" v-bind:class="classes">
+        <h1 v-bind:class="{ 'version-with-title': version.title.isValue() }">
+            <span>{{ title }}</span>
+            <version-toggle v-if="toggle_state" v-bind:toggle_state="toggle_state" />
+            <display-version-button v-on:click="click" />
+        </h1>
         <div class="metadata">
             <tlp-relative-date
                 v-bind:date="version.created_on.toISOString()"
@@ -37,13 +41,13 @@
                     ><img
                         loading="lazy"
                         v-bind:src="version.created_by.avatar_url"
-                        data-test="user-list-item-avatar"
                         v-bind:alt="$gettext('User avatar')"
                 /></span>
                 {{ version.created_by.display_name }}
             </span>
         </div>
-    </div>
+        <version-description v-bind:version="version" />
+    </section>
 </template>
 
 <script setup lang="ts">
@@ -55,8 +59,13 @@ import { USER_PREFERENCES } from "@/user-preferences-injection-key";
 import { IntlFormatter } from "@tuleap/date-helper";
 import { relativeDatePlacement, relativeDatePreference } from "@tuleap/tlp-relative-date";
 import { strictInject } from "@tuleap/vue-strict-inject";
+import VersionDescription from "@/components/sidebar/versions/VersionDescription.vue";
+import VersionToggle from "@/components/sidebar/versions/VersionToggle.vue";
+import type { ToggleState } from "@/components/sidebar/versions/toggle-state";
+import { CURRENT_VERSION_DISPLAYED } from "@/components/current-version-displayed";
+import DisplayVersionButton from "@/components/sidebar/versions/DisplayVersionButton.vue";
 
-const props = defineProps<{ version: Version }>();
+const props = defineProps<{ version: Version; is_latest: boolean; toggle_state?: ToggleState }>();
 
 const { $gettext } = useGettext();
 
@@ -78,11 +87,65 @@ const formatted_date = computed((): string =>
     formatter.format(props.version.created_on.toISOString()),
 );
 
-const title = computed(() => props.version.title ?? formatted_date.value);
+const title = computed(() => props.version.title.unwrapOr(formatted_date.value));
+
+const current_version_displayed = strictInject(CURRENT_VERSION_DISPLAYED);
+function click(event: Event): void {
+    if (hasClickOccurredOnSummaryElement(event)) {
+        return;
+    }
+
+    if (props.is_latest) {
+        current_version_displayed.switchToLatestVersion();
+    } else {
+        current_version_displayed.switchToOldVersion(props.version);
+    }
+}
+
+function hasClickOccurredOnSummaryElement(event: Event): boolean {
+    return event
+        .composedPath()
+        .some(
+            (element: EventTarget) =>
+                element instanceof Element && element.tagName.toLowerCase() === "summary",
+        );
+}
+
+const classes = computed(() => {
+    const version_displayed_class = "version-displayed";
+
+    return current_version_displayed.old_version.value.match(
+        (version_displayed: Version) => {
+            return version_displayed === props.version ? version_displayed_class : "";
+        },
+        () => {
+            return props.is_latest ? version_displayed_class : "";
+        },
+    );
+});
 </script>
 
 <style scoped lang="scss">
+section {
+    width: calc(100% - var(--tlp-medium-spacing));
+}
+
+h1 {
+    margin: 0;
+    color: inherit;
+    font-size: inherit;
+    font-weight: normal;
+}
+
+.version-with-title {
+    font-weight: 500;
+}
+
 .metadata {
     font-size: 0.75rem;
+
+    &:not(:last-child) {
+        margin: 0 0 var(--tlp-small-spacing);
+    }
 }
 </style>

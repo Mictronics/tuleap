@@ -22,8 +22,12 @@ declare(strict_types=1);
 
 use FastRoute\RouteCollector;
 use Tuleap\AgileDashboard\BacklogItemDao;
+use Tuleap\AgileDashboard\Milestone\Backlog\MilestoneBacklogFactory;
 use Tuleap\AgileDashboard\Milestone\HeaderOptionsProvider;
+use Tuleap\AgileDashboard\Milestone\Pane\AgileDashboardPane;
+use Tuleap\AgileDashboard\Milestone\Pane\AgileDashboardPaneInfoIdentifier;
 use Tuleap\AgileDashboard\Milestone\Pane\PaneInfoCollector;
+use Tuleap\AgileDashboard\Milestone\Pane\Planning\SubmilestoneFinder;
 use Tuleap\AgileDashboard\Planning\AllowedAdditionalPanesToDisplayCollector;
 use Tuleap\AgileDashboard\Planning\HeaderOptionsForPlanningProvider;
 use Tuleap\AgileDashboard\Planning\PlanningDao;
@@ -42,11 +46,11 @@ use Tuleap\TestPlan\TestPlanPresenterBuilder;
 use Tuleap\TestPlan\TestPlanTestDefinitionTrackerRetriever;
 use Tuleap\Tracker\Admin\ArtifactLinksUsageDao;
 use Tuleap\Tracker\Artifact\Dao\PriorityDao;
+use Tuleap\Tracker\Artifact\PriorityManager;
 use Tuleap\Tracker\Artifact\RecentlyVisited\RecentlyVisitedDao;
 use Tuleap\Tracker\Artifact\RecentlyVisited\VisitRecorder;
 use Tuleap\Tracker\Artifact\RedirectAfterArtifactCreationOrUpdateEvent;
 use Tuleap\Tracker\Artifact\Renderer\BuildArtifactFormActionEvent;
-use Tuleap\Tracker\Artifact\PriorityManager;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkUpdater;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkUpdaterDataFormater;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\SystemTypePresenterBuilder;
@@ -61,7 +65,7 @@ require_once __DIR__ . '/../../tracker/include/trackerPlugin.php';
 require_once __DIR__ . '/../../agiledashboard/include/agiledashboardPlugin.php';
 require_once __DIR__ . '/../../testmanagement/include/testmanagementPlugin.php';
 
-// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotCamelCaps
+// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 final class testplanPlugin extends Plugin
 {
     public function __construct(?int $id)
@@ -107,7 +111,7 @@ final class testplanPlugin extends Plugin
         if ($collector->getActivePaneContext() && strpos($_SERVER['REQUEST_URI'], TestPlanPaneInfo::URL) === 0) {
             $pane_info->setActive(true);
             $collector->setActivePaneBuilder(
-                static function () use ($pane_info): AgileDashboard_Pane {
+                static function () use ($pane_info): AgileDashboardPane {
                     return new TestPlanPane($pane_info);
                 }
             );
@@ -190,16 +194,16 @@ final class testplanPlugin extends Plugin
             ),
             new TestPlanHeaderOptionsProvider(
                 new HeaderOptionsProvider(
-                    new AgileDashboard_Milestone_Backlog_BacklogFactory(
+                    new MilestoneBacklogFactory(
                         new BacklogItemDao(),
                         Tracker_ArtifactFactory::instance(),
                         $planning_factory,
                         new \Tuleap\Tracker\Artifact\Dao\ArtifactDao(),
                     ),
-                    new AgileDashboard_PaneInfoIdentifier(),
+                    new AgileDashboardPaneInfoIdentifier(),
                     $tracker_new_dropdown_link_presenter_builder,
                     new HeaderOptionsForPlanningProvider(
-                        new AgileDashboard_Milestone_Pane_Planning_SubmilestoneFinder(
+                        new SubmilestoneFinder(
                             \Tracker_HierarchyFactory::instance(),
                             $planning_factory,
                         ),

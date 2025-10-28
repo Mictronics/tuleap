@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
+
 declare(strict_types=1);
 
 namespace Tuleap\REST\v1;
@@ -29,7 +30,7 @@ use Tuleap\REST\JsonCast;
  */
 class ProjectFieldRepresentation
 {
-    public const ROUTE = 'project_fields';
+    public const string ROUTE = 'project_fields';
 
     /**
      * @var int

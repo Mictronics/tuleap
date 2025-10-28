@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
+
 namespace User\XML\Import;
 
 use PFUser;
@@ -25,7 +26,7 @@ class ToBeCreatedUser extends ActionToBeTakenForUser
 {
     private static $ALLOWED_ACTIONS = ['create', 'map'];
 
-    public const ACTION = 'create';
+    public const string ACTION = 'create';
 
     /** @return array */
     #[\Override]

@@ -29,7 +29,7 @@ enum ThemeVariantColor: string
     case Purple = 'purple';
     case Red    = 'red';
 
-    public const DEFAULT = self::Orange;
+    public const ThemeVariantColor DEFAULT = self::Orange;
 
     public static function buildFromDefaultVariant(): self
     {
@@ -58,7 +58,7 @@ enum ThemeVariantColor: string
     public function getHexaCode(): string
     {
         return match ($this) {
-            self::Orange => '#f79514',
+            self::Orange => '#ff6e30',
             self::Blue => '#1593c4',
             self::Green => '#67af45',
             self::Grey => '#5b6c79',

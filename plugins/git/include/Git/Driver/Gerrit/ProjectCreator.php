@@ -19,7 +19,7 @@
  */
 
 
-class Git_Driver_Gerrit_ProjectCreator // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
+class Git_Driver_Gerrit_ProjectCreator // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotPascalCase
 {
     public const string GROUP_REPLICATION      = 'replication';
     public const string GROUP_REGISTERED_USERS = 'Registered Users';
@@ -221,9 +221,12 @@ class Git_Driver_Gerrit_ProjectCreator // phpcs:ignore PSR1.Classes.ClassDeclara
         $this->dumpTemplateContent($this->template_processor->processTemplate($template, $repository->getProject()));
     }
 
-    private function removeProjectConfig()
+    private function removeProjectConfig(): void
     {
-        `cd $this->dir; rm project.config`;
+        $project_config_path = $this->dir . '/project.config';
+        if (\Psl\Filesystem\exists($project_config_path)) {
+            \Psl\Filesystem\delete_file($project_config_path);
+        }
     }
 
     private function dumpTemplateContent($template_content)

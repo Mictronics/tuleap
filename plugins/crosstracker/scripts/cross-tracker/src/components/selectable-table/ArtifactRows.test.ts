@@ -23,26 +23,20 @@ import type { VueWrapper } from "@vue/test-utils";
 import { Option } from "@tuleap/option";
 import { ArtifactsTableBuilder } from "../../../tests/builders/ArtifactsTableBuilder";
 import { ArtifactRowBuilder } from "../../../tests/builders/ArtifactRowBuilder";
-import { RetrieveArtifactLinksStub } from "../../../tests/stubs/RetrieveArtifactLinksStub";
 import { DATE_CELL, NUMERIC_CELL, TEXT_CELL } from "../../domain/ArtifactsTable";
 import type { ArtifactsTable } from "../../domain/ArtifactsTable";
 import { getGlobalTestOptions } from "../../helpers/global-options-for-tests";
-import { RETRIEVE_ARTIFACT_LINKS } from "../../injection-symbols";
-import type { RetrieveArtifactLinks } from "../../domain/RetrieveArtifactLinks";
 import ArtifactRows from "./ArtifactRows.vue";
-import ArtifactRow from "./ArtifactRow.vue";
+import RowArtifact from "./RowArtifact.vue";
 
 const DATE_COLUMN_NAME = "start_date";
 const NUMERIC_COLUMN_NAME = "remaining_effort";
 const TEXT_COLUMN_NAME = "details";
 
 describe("ArtifactRows", () => {
-    let table: ArtifactsTable,
-        artifact_links_table_retriever: RetrieveArtifactLinks,
-        ancestors: number[];
+    let table: ArtifactsTable, ancestors: number[];
 
     beforeEach(() => {
-        artifact_links_table_retriever = RetrieveArtifactLinksStub.withDefaultContent();
         ancestors = [123, 135];
 
         table = new ArtifactsTableBuilder()
@@ -88,16 +82,13 @@ describe("ArtifactRows", () => {
         return shallowMount(ArtifactRows, {
             global: {
                 ...getGlobalTestOptions(),
-                provide: {
-                    [RETRIEVE_ARTIFACT_LINKS.valueOf()]: artifact_links_table_retriever,
-                },
             },
             props: {
                 rows: artifacts_table.rows,
-                columns: artifacts_table.columns,
                 tql_query: "SELECT @id FROM @project='self' WHERE @id>1",
                 level: 0,
                 ancestors,
+                parent_row: null,
             },
         });
     };
@@ -105,13 +96,13 @@ describe("ArtifactRows", () => {
     it(`will show a table-like grid with the selected columns and artifact values`, () => {
         const wrapper = getWrapper(table);
 
-        expect(wrapper.findAllComponents(ArtifactRow)).toHaveLength(2);
+        expect(wrapper.findAllComponents(RowArtifact)).toHaveLength(2);
     });
 
-    it("should propagate its own level to each ArtifactRow", () => {
+    it("should propagate its own level to each RowArtifact", () => {
         const wrapper = getWrapper(table);
 
-        const artifact_rows = wrapper.findAllComponents(ArtifactRow);
+        const artifact_rows = wrapper.findAllComponents(RowArtifact);
 
         expect(artifact_rows).not.toHaveLength(0);
         artifact_rows.forEach((artifact_row) => {
@@ -123,7 +114,7 @@ describe("ArtifactRows", () => {
         it("should propagate ancestors to its rows", () => {
             const wrapper = getWrapper(table);
 
-            const artifact_rows = wrapper.findAllComponents(ArtifactRow);
+            const artifact_rows = wrapper.findAllComponents(RowArtifact);
 
             expect(artifact_rows).not.toHaveLength(0);
             artifact_rows.forEach((artifact_row) => {
@@ -135,7 +126,7 @@ describe("ArtifactRows", () => {
             ancestors = [];
             const wrapper = getWrapper(table);
 
-            const artifact_rows = wrapper.findAllComponents(ArtifactRow);
+            const artifact_rows = wrapper.findAllComponents(RowArtifact);
 
             expect(artifact_rows).not.toHaveLength(0);
             artifact_rows.forEach((artifact_row) => {

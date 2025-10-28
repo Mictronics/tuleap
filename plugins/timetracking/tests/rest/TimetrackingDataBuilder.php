@@ -41,9 +41,9 @@ use User_ForgeUserGroupPermissionsManager;
 
 class TimetrackingDataBuilder extends RESTTestDataBuilder
 {
-    public const PROJECT_TEST_TIMETRACKING_SHORTNAME = 'test-timetracking';
-    public const USER_TESTER_NAME                    = 'rest_api_timetracking_1';
-    public const USER_TESTER_PASS                    = 'welcome0';
+    public const string PROJECT_TEST_TIMETRACKING_SHORTNAME = 'test-timetracking';
+    public const string USER_TESTER_NAME                    = 'rest_api_timetracking_1';
+    public const string USER_TESTER_PASS                    = 'welcome0';
 
     public function __construct()
     {
@@ -60,7 +60,7 @@ class TimetrackingDataBuilder extends RESTTestDataBuilder
         $this->createUser();
         $this->addTimeOnLastMonthPeriod($project);
 
-        $this->initTimetrackingOverviewWidget();
+        $this->initProjectTimetrackingWidget();
     }
 
     private function createUser()
@@ -92,7 +92,7 @@ class TimetrackingDataBuilder extends RESTTestDataBuilder
         }
     }
 
-    private function initTimetrackingOverviewWidget()
+    private function initProjectTimetrackingWidget(): void
     {
         $report_dao = new TimetrackingReportDao();
         $widget_dao = new DashboardWidgetDao(
@@ -109,6 +109,6 @@ class TimetrackingDataBuilder extends RESTTestDataBuilder
         $dashboard_ids       = $dashboard_retriever->getAllUserDashboards($user);
 
         $user_report_id = $report_dao->create();
-        $widget_dao->create($user->getId(), 'u', $dashboard_ids[0]->getId(), 'timetracking-overview', $user_report_id);
+        $widget_dao->create($user->getId(), 'u', $dashboard_ids[0]->getId(), 'project-timetracking', $user_report_id);
     }
 }

@@ -20,8 +20,6 @@
 
 namespace Tuleap\AgileDashboard\REST\v1;
 
-use AgileDashboard_Milestone_Backlog_BacklogFactory;
-use AgileDashboard_Milestone_Backlog_BacklogItemBuilder;
 use AgileDashboard_Milestone_MilestoneReportCriterionOptionsProvider;
 use Luracast\Restler\RestException;
 use PFUser;
@@ -33,12 +31,14 @@ use Tracker_Artifact_PriorityHistoryDao;
 use Tracker_ArtifactFactory;
 use Tracker_FormElementFactory;
 use Tuleap\AgileDashboard\Artifact\PlannedArtifactDao;
-use Tuleap\AgileDashboard\BacklogItem\AgileDashboard_BacklogItem_PaginatedBacklogItemsRepresentationsBuilder;
+use Tuleap\AgileDashboard\BacklogItem\PaginatedBacklogItemsRepresentationsBuilder;
 use Tuleap\AgileDashboard\BacklogItemDao;
 use Tuleap\AgileDashboard\ExplicitBacklog\ArtifactsInExplicitBacklogDao;
 use Tuleap\AgileDashboard\ExplicitBacklog\ExplicitBacklogDao;
 use Tuleap\AgileDashboard\ExplicitBacklog\UnplannedArtifactsAdder;
+use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemBuilder;
 use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemCollectionFactory;
+use Tuleap\AgileDashboard\Milestone\Backlog\MilestoneBacklogFactory;
 use Tuleap\AgileDashboard\Milestone\Backlog\NoRootPlanningException;
 use Tuleap\AgileDashboard\Milestone\Backlog\ProvidedAddedIdIsNotInPartOfTopBacklogException;
 use Tuleap\AgileDashboard\Milestone\Backlog\TopBacklogElementsToAddChecker;
@@ -58,7 +58,7 @@ use Tuleap\Tracker\Artifact\PriorityManager;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkUpdater;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkUpdaterDataFormater;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\ItemListedTwiceException;
-use Tuleap\Tracker\FormElement\Field\ListFields\Bind\BindDecoratorRetriever;
+use Tuleap\Tracker\FormElement\Field\List\Bind\BindDecoratorRetriever;
 use Tuleap\Tracker\Permission\SubmissionPermissionVerifier;
 use Tuleap\Tracker\REST\Helpers\ArtifactsRankOrderer;
 use Tuleap\Tracker\REST\Helpers\IdsFromBodyAreNotUniqueException;
@@ -93,7 +93,7 @@ class ProjectBacklogResource
     /** @var PlanningPermissionsManager */
     private $planning_permissions_manager;
 
-    /** @var AgileDashboard_BacklogItem_PaginatedBacklogItemsRepresentationsBuilder */
+    /** @var PaginatedBacklogItemsRepresentationsBuilder */
     private $paginated_backlog_item_representation_builder;
 
     public function __construct()
@@ -106,7 +106,7 @@ class ProjectBacklogResource
 
         $this->milestone_factory = Planning_MilestoneFactory::build();
 
-        $backlog_factory = new AgileDashboard_Milestone_Backlog_BacklogFactory(
+        $backlog_factory = new MilestoneBacklogFactory(
             new BacklogItemDao(),
             $tracker_artifact_factory,
             $this->planning_factory,
@@ -118,7 +118,7 @@ class ProjectBacklogResource
             $tracker_artifact_factory,
             $this->milestone_factory,
             $this->planning_factory,
-            new AgileDashboard_Milestone_Backlog_BacklogItemBuilder(),
+            new BacklogItemBuilder(),
             new RemainingEffortValueRetriever(
                 $tracker_form_element_factory
             ),
@@ -160,7 +160,7 @@ class ProjectBacklogResource
             SubmissionPermissionVerifier::instance(),
         );
 
-        $this->paginated_backlog_item_representation_builder = new AgileDashboard_BacklogItem_PaginatedBacklogItemsRepresentationsBuilder(
+        $this->paginated_backlog_item_representation_builder = new PaginatedBacklogItemsRepresentationsBuilder(
             $item_factory,
             $backlog_item_collection_factory,
             $backlog_factory,

@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
+
 declare(strict_types=1);
 
 namespace Tuleap\Kanban\RealTimeMercure;
@@ -36,7 +37,7 @@ final class KanbanArtifactMessageBuilderMercureTest extends TestCase
     private Tracker_Artifact_ChangesetFactory&MockObject $changeset_factory;
     private KanbanArtifactMessageBuilderMercure $message_builder;
     private \Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus&MockObject $tracker_semantic;
-    private \Tuleap\Tracker\FormElement\Field\ListField&MockObject $status_field;
+    private \Tuleap\Tracker\FormElement\Field\List\ListField&MockObject $status_field;
     #[\Override]
     protected function setUp(): void
     {
@@ -45,7 +46,7 @@ final class KanbanArtifactMessageBuilderMercureTest extends TestCase
         $this->changeset_factory = $this->createMock(Tracker_Artifact_ChangesetFactory::class);
         $this->message_builder   = new KanbanArtifactMessageBuilderMercure($this->kanban_item_dao, $this->changeset_factory);
         $this->tracker_semantic  = $this->createMock(\Tuleap\Tracker\Semantic\Status\TrackerSemanticStatus::class);
-        $this->status_field      = $this->createMock(\Tuleap\Tracker\FormElement\Field\ListField::class);
+        $this->status_field      = $this->createMock(\Tuleap\Tracker\FormElement\Field\List\ListField::class);
         $this->status_field->method('getId')->willReturn(1);
     }
 

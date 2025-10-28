@@ -45,7 +45,7 @@ use Tuleap\Reference\NatureCollection;
 require_once __DIR__ . '/constants.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 
-class bugzilla_referencePlugin extends Plugin //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotCamelCaps
+class bugzilla_referencePlugin extends Plugin //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotPascalCase
 {
     public function __construct($id)
     {
@@ -139,7 +139,7 @@ class bugzilla_referencePlugin extends Plugin //phpcs:ignore PSR1.Classes.ClassD
 
     private function getEncryptionKey(): \Tuleap\Cryptography\SymmetricLegacy2025\EncryptionKey
     {
-        $key_factory = new \Tuleap\Cryptography\KeyFactory();
+        $key_factory = new \Tuleap\Cryptography\KeyFactoryFromFileSystem();
         return $key_factory->getLegacy2025EncryptionKey();
     }
 

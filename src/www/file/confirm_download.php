@@ -18,6 +18,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
+
 require_once __DIR__ . '/../include/pre.php';
 
 $vGroupId = new Valid_GroupId();
@@ -93,11 +94,11 @@ echo $Language->getText('file_confirm_download', 'download_explain', [ForgeConfi
 
 <br><br>
 <table width="100%" border="0" cellspacing="0" cellpadding="0" class="normal">
-  <tr> 
-    <td> 
+  <tr>
+    <td>
       <div align="center"><a href="javascript:<?php echo "$dlscript($file_id);"; ?>"><b><?php echo $Language->getText('file_confirm_download', 'agree'); ?></b></a></div>
     </td>
-    <td> 
+    <td>
       <div align="center"><a href="javascript:<?php echo "$cancelscript"?>;"><b><?php echo $Language->getText('file_confirm_download', 'decline'); ?></b></a></div>
     </td>
   </tr>

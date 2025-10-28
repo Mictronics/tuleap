@@ -17,6 +17,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
+
 declare(strict_types=1);
 
 namespace Tuleap\Tracker\FormElement\Field\Files\Upload;
@@ -28,9 +29,9 @@ use Tuleap\Test\DB\DBTransactionExecutorPassthrough;
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
 final class FileToUploadCreatorTest extends \Tuleap\Test\PHPUnit\TestCase
 {
-    private const UPLOADING_USER_ID = 102;
-    private const FILE_SIZE         = 123;
-    private const MAX_SIZE_UPLOAD   = 1000;
+    private const int UPLOADING_USER_ID = 102;
+    private const int FILE_SIZE         = 123;
+    private const int MAX_SIZE_UPLOAD   = 1000;
 
     /**
      * @var FileOngoingUploadDao & Stub

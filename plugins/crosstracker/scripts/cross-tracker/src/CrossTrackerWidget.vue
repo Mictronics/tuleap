@@ -63,10 +63,11 @@ import ReadQuery from "./components/ReadQuery.vue";
 import FeedbackMessage from "./components/feedback/FeedbackMessage.vue";
 import EditQuery from "./components/query/edition/EditQuery.vue";
 import type { Query } from "./type";
+import type { WidgetTitleUpdater } from "./WidgetTitleUpdater";
 
 const is_user_admin = strictInject(IS_USER_ADMIN);
 const emitter = strictInject(EMITTER);
-const widget_title_updater = strictInject(WIDGET_TITLE_UPDATER);
+const widget_title_updater: WidgetTitleUpdater = strictInject(WIDGET_TITLE_UPDATER);
 
 const widget_pane = ref(QUERY_ACTIVE_PANE);
 const selected_query = ref<Query>();
