@@ -1,5 +1,13 @@
 # Changelog
 
+## 2.7.2
+
+* No user facing changes, adjusted the URL of the repository in the package metadata
+
+## 2.7.1
+
+* 🐛 Active service contrast has been improved 
+
 ## 2.7.0
 
 * 💄 Update Tuleap logo

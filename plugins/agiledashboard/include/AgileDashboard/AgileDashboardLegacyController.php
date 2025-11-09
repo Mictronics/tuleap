@@ -37,9 +37,9 @@ use Tuleap\Request\DispatchableWithThemeSelection;
 use Tuleap\Request\ForbiddenException;
 use Tuleap\Request\NotFoundException;
 
-class AgileDashboardLegacyController implements DispatchableWithRequest, DispatchableWithThemeSelection
+final readonly class AgileDashboardLegacyController implements DispatchableWithRequest, DispatchableWithThemeSelection
 {
-    public function __construct(private readonly AgileDashboardRouterBuilder $router_builder)
+    public function __construct(private AgileDashboardRouterBuilder $router_builder)
     {
     }
 
@@ -74,8 +74,9 @@ class AgileDashboardLegacyController implements DispatchableWithRequest, Dispatc
     public function isInABurningParrotPage(HTTPRequest $request, array $variables): bool
     {
         return $this->isInOverviewTab($request)
-            || $this->isPlanningV2URL($request)
-            || $this->isScrumAdminURL($request);
+               || $this->isPlanningV2URL($request)
+               || $this->isScrumAdminURL($request)
+               || $this->isPlanningAdministration($request);
     }
 
     public static function isInOverviewTab(HTTPRequest $request): bool
@@ -87,15 +88,17 @@ class AgileDashboardLegacyController implements DispatchableWithRequest, Dispatc
     public static function isPlanningV2URL(HTTPRequest $request): bool
     {
         $pane_info_identifier = new AgileDashboardPaneInfoIdentifier();
-
         return $pane_info_identifier->isPaneAPlanningV2($request->get('pane'));
     }
 
     public static function isScrumAdminURL(HTTPRequest $request): bool
     {
-        return $request->get('action') === 'import-form'
-            || $request->get('action') === 'admin'
-            && $request->get('pane') !== 'charts';
+        return $request->get('action') === 'import-form' || $request->get('action') === 'admin';
+    }
+
+    public function isPlanningAdministration(HTTPRequest $request): bool
+    {
+        return $request->get('action') === 'edit' || $request->get('action') === 'new';
     }
 
     private function includeAssets(HTTPRequest $request, BaseLayout $layout): void

@@ -44,6 +44,8 @@ tsconfig.tsbuildinfo
 js-test-results/
 result
 .vscode/
+bom.json
+
 # Workaround OSV Scanner not taking into account .gitignore not located at root directory
 plugins/mediawiki_standalone/additional-packages/mediawiki-extensions-*/extensions/
 plugins/mediawiki_standalone/additional-packages/mediawiki-extensions-*/skins/

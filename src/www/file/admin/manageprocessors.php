@@ -26,6 +26,7 @@ require_once __DIR__ . '/../file_utils.php';
 
 use Tuleap\FRS\ToolbarPresenter;
 use Tuleap\FRS\FRSPermissionManager;
+use Tuleap\Layout\BreadCrumbDropdown\BreadCrumbCollection;
 
 $request = HTTPRequest::instance();
 
@@ -59,8 +60,12 @@ if (! $service) {
     );
 }
 
+$page_url   = '/file/admin/manageprocessors.php?group_id=' . urlencode((string) $project->getID());
+$csrf_token = new CSRFSynchronizerToken($page_url);
+
 $vMode = new Valid_WhiteList('mode', ['delete']);
-if ($request->valid($vMode) && $request->existAndNonEmpty('mode')) {
+if ($request->isPost() && $request->valid($vMode) && $request->existAndNonEmpty('mode')) {
+    $csrf_token->check();
     // delete a processor from db
     if ($request->valid(new Valid_UInt('proc_id'))) {
         $proc_id = $request->get('proc_id');
@@ -80,6 +85,7 @@ $vProcRank = new Valid_UInt('procrank');
 $vProcRank->required();
 
 if ($request->isPost() && $request->existAndNonEmpty('add')) {
+    $csrf_token->check();
     // add a new processor to the database
     if (
         $request->valid($vProcName) &&
@@ -109,6 +115,7 @@ $vProcessRank = new Valid_UInt('processrank');
 $vProcessRank->required();
 
 if ($request->isPost() && $request->existAndNonEmpty('update')) {
+    $csrf_token->check();
     // update a processor
     if (
         $request->valid($vProcessName) &&
@@ -140,7 +147,7 @@ if ($request->isPost() && $request->existAndNonEmpty('update')) {
 $sql    = 'SELECT * FROM frs_processor WHERE group_id=' . db_ei($group_id) . ' OR group_id=100 ORDER BY `rank`';
 $result = db_query($sql);
 
-$service->displayFRSHeader($project, _('Files Administration'));
+$service->displayFRSHeader($project, _('Files Administration'), new BreadCrumbCollection());
 $renderer->renderToPage('toolbar-presenter', $presenter);
 
 ?>
@@ -158,7 +165,7 @@ $renderer->renderToPage('toolbar-presenter', $presenter);
             <div class="tlp-pane-section">
 <?php
 
-file_utils_show_processors($result);
+file_utils_show_processors($result, $csrf_token);
 
 ?>
 
@@ -203,7 +210,7 @@ $return = '
             ' . $Language->getText('file_file_utils', 'add_proc') . '
         </button>
     </div>';
-echo $return;
+echo $return . $csrf_token->fetchHTMLInput();
 ?>
             </form>
         </div>

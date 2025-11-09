@@ -17,8 +17,10 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import "../themes/FlamingParrot/planning-admin-colorpicker.scss";
-import { createColorPicker } from "@tuleap/plugin-tracker-color-picker";
+import { getAttributeOrThrow } from "@tuleap/dom";
+import { createColorPicker } from "@tuleap/tlp-color-picker";
+import { createListPicker } from "@tuleap/list-picker";
+import "../themes/colorpicker.scss";
 
 document.addEventListener("DOMContentLoaded", () => {
     const mount_points = document.querySelectorAll(".vue-colorpicker-mount-point");
@@ -27,6 +29,37 @@ document.addEventListener("DOMContentLoaded", () => {
         if (!(element instanceof HTMLElement)) {
             continue;
         }
-        createColorPicker(element);
+        createColorPicker(element, {
+            input_name: getAttributeOrThrow(element, "data-input-name"),
+            input_id: getAttributeOrThrow(element, "data-input-id"),
+            current_color: getAttributeOrThrow(element, "data-current-color"),
+            is_unsupported_color: Boolean(
+                getAttributeOrThrow(element, "data-is-unsupported-color"),
+            ),
+        });
+    }
+
+    const tracker_picker = document.querySelector<HTMLSelectElement>("#backlog_tracker_ids");
+    if (tracker_picker !== null) {
+        createListPicker(tracker_picker, {
+            is_filterable: true,
+        });
+    }
+
+    const user_group_picker = document.getElementById(
+        "planning[PLUGIN_AGILEDASHBOARD_PLANNING_PRIORITY_CHANGE]",
+    );
+    if (user_group_picker instanceof HTMLSelectElement) {
+        createListPicker(user_group_picker, {
+            is_filterable: true,
+        });
+    }
+
+    for (const element of document.querySelectorAll(".mapping-value-selector")) {
+        if (!(element instanceof HTMLSelectElement)) {
+            continue;
+        }
+
+        createListPicker(element, {});
     }
 });

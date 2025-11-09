@@ -101,6 +101,7 @@ use TrackerFactory;
 use trackerPlugin;
 use TransitionFactory;
 use Tuleap\Color\ColorName;
+use Tuleap\CSRFSynchronizerTokenPresenter;
 use Tuleap\Dashboard\Project\ProjectDashboardDao;
 use Tuleap\Dashboard\Project\ProjectDashboardRetriever;
 use Tuleap\Dashboard\Widget\DashboardWidgetDao;
@@ -111,7 +112,9 @@ use Tuleap\Layout\BreadCrumbDropdown\BreadCrumb;
 use Tuleap\Layout\BreadCrumbDropdown\BreadCrumbLink;
 use Tuleap\Layout\BreadCrumbDropdown\BreadCrumbLinkCollection;
 use Tuleap\Layout\BreadCrumbDropdown\SubItemsSection;
+use Tuleap\Layout\CssAssetWithoutVariantDeclinaisons;
 use Tuleap\Layout\IncludeAssets;
+use Tuleap\Layout\JavascriptAsset;
 use Tuleap\Layout\NewDropdown\NewDropdownLinkSectionPresenter;
 use Tuleap\Mapper\ValinorMapperBuilderFactory;
 use Tuleap\Notification\Mention\MentionedUserInTextRetriever;
@@ -120,6 +123,7 @@ use Tuleap\Project\ProjectAccessChecker;
 use Tuleap\Project\RestrictedUserCanAccessProjectVerifier;
 use Tuleap\Project\UGroupRetrieverWithLegacy;
 use Tuleap\Project\XML\Import\ExternalFieldsExtractor;
+use Tuleap\Request\CSRFSynchronizerTokenInterface;
 use Tuleap\Search\ItemToIndexQueueEventBased;
 use Tuleap\Tracker\Action\CreateArtifactAction;
 use Tuleap\Tracker\Admin\ArtifactDeletion\ArtifactsDeletionConfig;
@@ -809,7 +813,8 @@ class Tracker implements Tracker_Dispatchable_Interface
                 break;
             case 'admin-editoptions':
                 if ($this->userIsAdmin($current_user)) {
-                    if ($request->get('update')) {
+                    if ($request->isPost() && $request->get('update')) {
+                        $this->getAdminSettingsCSRFToken()->check();
                         $this->editOptions($request);
                     }
                     $this->displayAdminOptions($layout, $request, $current_user);
@@ -1046,7 +1051,7 @@ class Tracker implements Tracker_Dispatchable_Interface
                 if ($this->userIsAdmin($current_user)) {
                     $hierarchy_controller = $this->getHierarchyController($request);
                     $hierarchy_controller->includeHeaderAssets();
-                    $this->displayAdminHeader($layout, 'hierarchy', dgettext('tuleap-tracker', 'Hierarchy'));
+                    $this->displayAdminHeaderBurningParrot($layout, 'hierarchy', dgettext('tuleap-tracker', 'Hierarchy'), []);
                     $hierarchy_controller->edit();
                     $this->displayAdminFooter($layout);
                 } else {
@@ -1629,8 +1634,12 @@ class Tracker implements Tracker_Dispatchable_Interface
 
     protected function displayAdminOptions(Tracker_IDisplayTrackerLayout $layout, $request, $current_user)
     {
+        $assets = new IncludeAssets(__DIR__ . '/../scripts/tracker-admin/frontend-assets', '/assets/trackers/tracker-admin');
+        $GLOBALS['HTML']->addJavascriptAsset(new JavascriptAsset($assets, 'general-settings.js'));
+        $GLOBALS['HTML']->addCssAsset(new CssAssetWithoutVariantDeclinaisons($assets, 'general-settings-style'));
+
         $this->displayWarningGeneralsettings();
-        $this->displayAdminItemHeader($layout, 'editoptions', dgettext('tuleap-tracker', 'General settings'));
+        $this->displayAdminItemHeaderBurningParrot($layout, 'editoptions', dgettext('tuleap-tracker', 'General settings'));
         $general_settings = EventManager::instance()->dispatch(new \Tuleap\Tracker\Config\GeneralSettingsEvent($this));
         $this->renderer->renderToPage(
             'tracker-general-settings',
@@ -1641,10 +1650,18 @@ class Tracker implements Tracker_Dispatchable_Interface
                 $this->getMailGatewayConfig(),
                 $this->getArtifactByMailStatus(),
                 $general_settings->cannot_configure_instantiate_for_new_projects,
+                CSRFSynchronizerTokenPresenter::fromToken(
+                    $this->getAdminSettingsCSRFToken(),
+                )
             )
         );
 
         $this->displayAdminFooter($layout);
+    }
+
+    private function getAdminSettingsCSRFToken(): CSRFSynchronizerTokenInterface
+    {
+        return new CSRFSynchronizerToken(TRACKER_BASE_URL . '/?tracker=' . (int) $this->id . '&func=admin-editoptions');
     }
 
     public function displayAdminPermsHeader(Tracker_IDisplayTrackerLayout $layout, $title)
@@ -1867,11 +1884,9 @@ class Tracker implements Tracker_Dispatchable_Interface
     /**
      * Test if tracker is deleted
      *
-     * @return bool
-     *
      * @psalm-mutation-free
      */
-    public function isDeleted()
+    public function isDeleted(): bool
     {
         return ($this->deletion_date != '');
     }

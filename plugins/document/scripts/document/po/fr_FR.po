@@ -9,8 +9,8 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Generator: Poedit 2.3\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.0.1\n"
 
 msgid "\"%{ title }\" is being copied…"
 msgstr "\"%{ title }\" est en train d'être copié…"
@@ -92,6 +92,9 @@ msgstr "Une erreur est survenue lors de la suppression de la version"
 
 msgid "An error occurred while loading logs"
 msgstr "Une erreur est survenue lors du chargement des logs"
+
+msgid "An error occurred while loading references"
+msgstr "Une erreur est survenue lors du chargement des références"
 
 msgid "An error occurred while searching for results."
 msgstr "Une erreur est survenue lors de la recherche."
@@ -598,6 +601,18 @@ msgstr "Lecteur"
 
 msgid "Recursion option"
 msgstr "Options de récursion"
+
+msgid "Referenced by document"
+msgstr "Référencé par le document"
+
+msgid "References"
+msgstr "Références"
+
+msgid "References list is empty"
+msgstr "Ce document n'est pas référencé, et n'est pas source de références"
+
+msgid "Referencing document"
+msgstr "Référence le document"
 
 msgid "Rejected"
 msgstr "Rejeté"

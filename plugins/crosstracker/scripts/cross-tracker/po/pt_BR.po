@@ -18,6 +18,9 @@ msgstr ""
 msgid "%{from} – %{to} of %{total}"
 msgstr ""
 
+msgid "Ai query assistant"
+msgstr ""
+
 msgid "All artifacts created in the last 10 days"
 msgstr ""
 
@@ -64,6 +67,9 @@ msgid "Delete"
 msgstr ""
 
 msgid "Delete the query"
+msgstr ""
+
+msgid "Describe what you are looking for..."
 msgstr ""
 
 msgid "Description"
@@ -160,9 +166,6 @@ msgstr ""
 msgid "Overwrite current query"
 msgstr ""
 
-msgid "Please create a new query."
-msgstr ""
-
 msgid "Previous"
 msgstr ""
 
@@ -179,9 +182,6 @@ msgid "Query creation is under implementation"
 msgstr ""
 
 msgid "Query details"
-msgstr ""
-
-msgid "Query is empty"
 msgstr ""
 
 msgid "Query suggestions"
@@ -226,6 +226,9 @@ msgstr ""
 
 msgid "Title"
 msgstr "Título"
+
+msgid "Toggle Tuleap AI Assistant"
+msgstr ""
 
 msgid "Tracker"
 msgstr ""

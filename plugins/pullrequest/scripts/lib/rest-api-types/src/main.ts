@@ -25,3 +25,4 @@ export * from "./post-comments";
 export * from "./patch-comments";
 export * from "./labels";
 export * from "./branches";
+export * from "./commits";

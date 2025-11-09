@@ -222,7 +222,6 @@ use Tuleap\Tracker\FormElement\SystemEvent\SystemEvent_BURNDOWN_GENERATE;
 use Tuleap\Tracker\FormElement\TrackerFormElement;
 use Tuleap\Tracker\Hierarchy\HierarchyHistoryEntry;
 use Tuleap\Tracker\Import\Spotter;
-use Tuleap\Tracker\Legacy\Inheritor;
 use Tuleap\Tracker\Migration\KeepReverseCrossReferenceDAO;
 use Tuleap\Tracker\Migration\LegacyTrackerMigrationDao;
 use Tuleap\Tracker\NewDropdown\TrackerNewDropdownLinkPresenterBuilder;
@@ -512,7 +511,8 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             strpos($_SERVER['REQUEST_URI'], $this->getPluginPath() . '/config.php') === 0 ||
             $this->isInTrackersHomepage() ||
             $this->isInDashboard() ||
-            $this->isAConvertedSemanticPage()
+            $this->isAConvertedSemanticPage() ||
+            $this->isInTrackerAdmin()
         ) {
             $event->setIsInBurningParrotCompatiblePage();
         }
@@ -528,18 +528,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
 
         if (array_keys($query_string) !== ['tracker', 'func']) {
             if (
-                ! isset($query_string['semantic']) ||
-                (
-                    $query_string['semantic'] !== 'title' &&
-                    $query_string['semantic'] !== 'description' &&
-                    $query_string['semantic'] !== 'status' &&
-                    $query_string['semantic'] !== 'done' &&
-                    $query_string['semantic'] !== 'contributor' &&
-                    $query_string['semantic'] !== 'timeframe' &&
-                    $query_string['semantic'] !== 'progress' &&
-                    $query_string['semantic'] !== 'initial_effort' &&
-                    $query_string['semantic'] !== 'tooltip'
-                )
+                ! isset($query_string['semantic'])
             ) {
                 return false;
             }
@@ -557,6 +546,19 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         parse_str($_SERVER['QUERY_STRING'], $output);
 
         return array_keys($output) === ['group_id'];
+    }
+
+    private function isInTrackerAdmin(): bool
+    {
+        return in_array(
+            HTTPRequest::instance()->get('func'),
+            [
+                'admin-canned',
+                'admin-hierarchy',
+                'admin-editoptions',
+            ],
+            true,
+        );
     }
 
     #[ListeningToEventName('cssfile')]
@@ -752,11 +754,6 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         }
     }
 
-    private function isLegacyTrackerV3StillUsed($legacy)
-    {
-        return $legacy[Service::TRACKERV3];
-    }
-
     public function registerProjectCreationEvent(RegisterProjectCreationEvent $event): void
     {
         if ($event->shouldProjectInheritFromTemplate()) {
@@ -771,21 +768,6 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
                 $project,
                 $event->getMappingRegistry(),
             );
-
-            $legacy_services = $event->getLegacyServiceUsage();
-
-            if (
-                ! $this->isRestricted() &&
-                ! $this->isLegacyTrackerV3StillUsed($legacy_services) &&
-                TrackerV3::instance()->available()
-            ) {
-                $inheritor = new Inheritor(
-                    new ArtifactTypeFactory($template),
-                    $this->getTrackerFactory()
-                );
-
-                $inheritor->inheritFromLegacy($this->getUserManager()->getCurrentUser(), $template, $project);
-            }
 
             $artifact_link_types_duplicator = new ArtifactLinksUsageDuplicator(new ArtifactLinksUsageDao());
             $artifact_link_types_duplicator->duplicate($template, $project);

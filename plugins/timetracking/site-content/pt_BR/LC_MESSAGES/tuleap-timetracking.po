@@ -56,16 +56,13 @@ msgstr ""
 msgid "No times saved"
 msgstr ""
 
-msgid "People timetracking"
-msgstr ""
-
-msgid "Permissions"
+msgid "People Timetracking"
 msgstr ""
 
 msgid "Permissions successfully saved."
 msgstr ""
 
-msgid "Personal time tracking"
+msgid "Personal Timetracking"
 msgstr ""
 
 msgid "Project Timetracking"

@@ -246,7 +246,7 @@ function permission_user_allowed_to_change($project_id, $permission_type, $objec
     } elseif ($permission_type == 'RELEASE_READ') {
         $frs_package_factory = new FRSPackageFactory();
 
-        return $frs_package_factory->userCanCreate($project_id, $user->getId());
+        return $frs_package_factory->userCanCreate((int) $project->getID(), $user);
     } else {
         $em      = EventManager::instance();
         $allowed = false;
@@ -603,8 +603,8 @@ function permission_fetch_selection_form($permission_type, $object_id, $group_id
 
     $html .= permission_fetch_selection_field($permission_type, $object_id, $group_id);
 
-    $html .= '<p><INPUT TYPE="SUBMIT" NAME="submit" data-test="submit-form-permissions" VALUE="' . $GLOBALS['Language']->getText('project_admin_permissions', 'submit_perm') . '">';
-    $html .= '<INPUT TYPE="SUBMIT" NAME="reset" VALUE="' . $GLOBALS['Language']->getText('project_admin_permissions', 'reset_to_def') . '">';
+    $html .= '<p><br><INPUT TYPE="SUBMIT" NAME="submit" class="tlp-button-primary" data-test="submit-form-permissions" VALUE="' . $GLOBALS['Language']->getText('project_admin_permissions', 'submit_perm') . '"> ';
+    $html .= '<INPUT TYPE="SUBMIT" class="tlp-button-primary tlp-button-secondary" NAME="reset" VALUE="' . $GLOBALS['Language']->getText('project_admin_permissions', 'reset_to_def') . '">';
     $html .= '</FORM>';
     $html .= '<p>' . $GLOBALS['Language']->getText(
         'project_admin_permissions',

@@ -133,13 +133,14 @@ class ServiceFile extends Service //phpcs:ignore PSR1.Classes.ClassDeclaration.M
 
     private function getPackagesForUser($user_id): array
     {
-        $frspf      = $this->getFRSPackageFactory();
-        $packages   = [];
-        $sql        = 'SELECT frs_package.package_id,frs_package.name AS package_name,frs_release.name AS release_name,frs_release.release_id AS release_id,frs_release.release_date AS release_date ' .
+        $frspf    = $this->getFRSPackageFactory();
+        $packages = [];
+        $sql      = 'SELECT frs_package.package_id,frs_package.name AS package_name,frs_release.name AS release_name,frs_release.release_id AS release_id,frs_release.release_date AS release_date ' .
         'FROM frs_package,frs_release ' .
         'WHERE frs_package.package_id=frs_release.package_id ' .
+        /** @psalm-suppress DeprecatedFunction */
         "AND frs_package.group_id='" . db_ei($this->getGroupId()) . "' " .
-        "AND frs_release.status_id=' " . db_ei($frspf->STATUS_ACTIVE) . "' " .
+        'AND frs_release.status_id = ' . FRSPackage::STATUS_ACTIVE . ' ' .
         'ORDER BY frs_package.rank,frs_package.package_id,frs_release.release_date DESC, frs_release.release_id DESC';
         $res_files  = db_query($sql);
         $rows_files = db_numrows($res_files);
@@ -147,7 +148,7 @@ class ServiceFile extends Service //phpcs:ignore PSR1.Classes.ClassDeclaration.M
             for ($f = 0; $f < $rows_files; $f++) {
                 $package_id = db_result($res_files, $f, 'package_id');
                 $release_id = db_result($res_files, $f, 'release_id');
-                if ($frspf->userCanRead($this->getGroupId(), $package_id, $user_id)) {
+                if ($frspf->userCanRead($package_id, $user_id)) {
                     if (isset($package_displayed[$package_id]) && $package_displayed[$package_id]) {
                         //if ($package_id==db_result($res_files,($f-1),'package_id')) {
                         //same package as last iteration - don't show this release
@@ -175,14 +176,13 @@ class ServiceFile extends Service //phpcs:ignore PSR1.Classes.ClassDeclaration.M
         return $packages;
     }
 
-    public function displayFRSHeader(Project $project, $title)
+    public function displayFRSHeader(Project $project, string $title, BreadCrumbCollection $breadcrumbs): void
     {
         $frs_breadcrumb = new BreadCrumb(
             new BreadCrumbLink($this->getInternationalizedName(), $this->getUrl()),
         );
 
-        $breadcrumbs = new BreadCrumbCollection();
-        $breadcrumbs->addBreadCrumb($frs_breadcrumb);
+        $breadcrumbs->addFirst($frs_breadcrumb);
 
         $user = UserManager::instance()->getCurrentUser();
         if ($this->getFrsPermissionManager()->isAdmin($project, $user)) {
