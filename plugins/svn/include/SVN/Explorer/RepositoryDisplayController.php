@@ -22,8 +22,9 @@ namespace Tuleap\SVN\Explorer;
 
 use Event;
 use EventManager;
-use HTTPRequest;
 use Tuleap\Layout\BreadCrumbDropdown\BreadCrumbCollection;
+use Tuleap\Layout\IncludeAssets;
+use Tuleap\Layout\JavascriptAsset;
 use Tuleap\SVN\Repository\Exception\CannotFindRepositoryException;
 use Tuleap\SVN\Repository\RepositoryManager;
 use Tuleap\SVN\ServiceSvn;
@@ -56,7 +57,7 @@ class RepositoryDisplayController
         $this->event_manager      = $event_manager;
     }
 
-    public function displayRepository(ServiceSvn $service, HTTPRequest $request, array $url_variables)
+    public function displayRepository(ServiceSvn $service, \Tuleap\HTTPRequest $request, array $url_variables)
     {
         try {
             $repository = $this->repository_manager->getByIdAndProject($request->get('repo_id'), $request->getProject());
@@ -73,6 +74,13 @@ class RepositoryDisplayController
             if ($plugin_intro_info) {
                 $username = $plugin_intro_info->getLogin();
             }
+
+            $GLOBALS['Response']->addJavascriptAsset(
+                new JavascriptAsset(
+                    new IncludeAssets(__DIR__ . '/../../../scripts/main/frontend-assets', '/assets/svn/main'),
+                    'svn.js',
+                )
+            );
 
             $service->renderInPageRepository(
                 $request,

@@ -8,7 +8,7 @@
         "dev:prosemirror-architecture": "slidev --open prosemirror-architecture.md"
     },
     "dependencies": {
-        "@fontsource/public-sans": "^5.2.7",
+        "@fontsource-variable/public-sans": "^5.2.7",
         "vue": "^3.5.22"
     },
     "devDependencies": {
@@ -19,7 +19,8 @@
         "overrides": {
             "isarray": "npm:@nolyfill/isarray@^1",
             "safe-buffer": "npm:@nolyfill/safe-buffer@^1",
-            "safer-buffer": "npm:@nolyfill/safer-buffer@^1"
+            "safer-buffer": "npm:@nolyfill/safer-buffer@^1",
+            "argparse": "npm:@types/argparse@^2"
         }
     }
 }

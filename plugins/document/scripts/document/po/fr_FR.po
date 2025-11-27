@@ -37,6 +37,9 @@ msgstr "*lorem => finissant par \"lorem\""
 msgid "*lorem* => contains \"lorem\""
 msgstr "*lorem* => contenant \"lorem\""
 
+msgid "...and for the whole sub-hierarchy."
+msgstr "...ainsi que pour toute la sous-hiérarchie."
+
 msgid "1 warning"
 msgid_plural "%{ nb_warnings } warnings"
 msgstr[0] "1 avertissement"
@@ -67,6 +70,9 @@ msgstr "Un dossier existe déjà avec le même titre."
 
 msgid "Actions in Documents service"
 msgstr "Actions dans le service Documents"
+
+msgid "Add notification"
+msgstr "Ajouter une notification"
 
 msgid "Administration"
 msgstr "Administration"
@@ -118,8 +124,20 @@ msgstr ""
 msgid "Approval"
 msgstr "Approbation"
 
+msgid "Approval cycle start date"
+msgstr "Date de début du cycle d'approbation"
+
+msgid "Approval requester"
+msgstr "Demandeur d'approbation"
+
 msgid "Approval table"
 msgstr "Table d'approbation"
+
+msgid "Approval table details"
+msgstr "Détails de la table d'approbation"
+
+msgid "Approval table history"
+msgstr "Historique des tables d'approbation"
 
 msgid "Approval table status"
 msgstr "Status de la table d'approbation"
@@ -135,6 +153,9 @@ msgstr "Seuil d'avertissement de taille d'archive atteint"
 
 msgid "Ascending sort on %{label}."
 msgstr "Tri ascendant sur %{label}."
+
+msgid "Attached to document version"
+msgstr "Associé à la version"
 
 msgid "Author"
 msgstr "Auteur"
@@ -159,6 +180,15 @@ msgstr "Description des changements"
 
 msgid "Close"
 msgstr "Fermer"
+
+msgid "Closed"
+msgstr "Fermé"
+
+msgid "Comment"
+msgstr "Commentaire"
+
+msgid "Confirm deletion"
+msgstr "Confirmer la suppression"
 
 msgid ""
 "Contact your administrator or try to reorganize this folder, then try again."
@@ -195,6 +225,9 @@ msgstr "Créer un nouveau fichier"
 
 msgid "Create a new folder"
 msgstr "Créer un nouveau dossier"
+
+msgid "Create a new one"
+msgstr ""
 
 msgid "Create a new version of document"
 msgstr "Créer une nouvelle version du document"
@@ -243,8 +276,14 @@ msgstr "Tri décroissant sur {label}."
 msgid "Description"
 msgstr "Description"
 
+msgid "Details"
+msgstr "Détails"
+
 msgid "Document locked by %{username}."
 msgstr "Document verrouillé par %{username}."
+
+msgid "Document version"
+msgstr "Version du document"
 
 msgid "Documents"
 msgstr "Documents"
@@ -292,6 +331,9 @@ msgstr "Embarqué"
 
 msgid "Empty"
 msgstr "Vide"
+
+msgid "Enable monitoring for the whole sub-hierarchy"
+msgstr "Monitoring activé pour toute la sous-hiérarchie"
 
 msgid "End"
 msgstr "Fin"
@@ -365,6 +407,9 @@ msgstr "Le contenu de cet élément n'a pas pu être chargé."
 msgid "It's time to add new documents!"
 msgstr "Il est temps d'ajouter des documents !"
 
+msgid "Item type"
+msgstr "Type d'élément"
+
 msgid "Keep lock?"
 msgstr "Garder le verrou ?"
 
@@ -417,6 +462,9 @@ msgstr "Taille maximum de l'archive autorisée : %{ max_archive_size } Mo"
 msgid "Maximum archive size threshold exceeded"
 msgstr "Seuil de taille maximum de l'archive dépassé"
 
+msgid "Monitored document"
+msgstr "Document monitoré"
+
 msgid "My content..."
 msgstr "Mon contenu..."
 
@@ -462,8 +510,14 @@ msgstr "Nouvelle version de \"%s\""
 msgid "Next"
 msgstr "Suivant"
 
+msgid "No comment"
+msgstr "Pas de commentaire"
+
 msgid "No matching results"
 msgstr "Il n'y a aucun résultat"
+
+msgid "No notifications set"
+msgstr "Aucune notification définie"
 
 msgid "No version history"
 msgstr "Pas d'historique de version"
@@ -474,8 +528,23 @@ msgstr "Aucun"
 msgid "Not yet"
 msgstr "Pas encore"
 
+msgid "Notification deletion"
+msgstr "Suppression de notification"
+
+msgid "Notification type"
+msgstr "Type de notification"
+
 msgid "Notifications"
 msgstr "Notifications"
+
+msgid "Notified people or groups"
+msgstr "Personnes ou groupes notifiés"
+
+msgid "Number of item"
+msgstr "Nombre d'élément"
+
+msgid "Number of items in this folder"
+msgstr "Nombre d'éléments dans ce dossier"
 
 msgid "Obsolescence date"
 msgstr "Date d'obsolescence"
@@ -553,6 +622,9 @@ msgstr "Permanent"
 msgid "Permissions"
 msgstr "Permissions"
 
+msgid "Please confirm your action."
+msgstr "Merci de confirmer votre action."
+
 msgid "Please describe the changes of the new version here"
 msgstr "Merci de décrire ici le changement de version"
 
@@ -620,8 +692,14 @@ msgstr "Rejeté"
 msgid "Reload the page"
 msgstr "Recharger la page"
 
+msgid "Requester comment"
+msgstr "Commentaire du demandeur"
+
 msgid "Reset the approval cycle."
 msgstr "Recommencer le cycle d'approbation."
+
+msgid "Review"
+msgstr "Approbation"
 
 msgid "Search"
 msgstr "Recherche"
@@ -659,6 +737,9 @@ msgstr "Sélectionner le premier élément"
 msgid "Send mail"
 msgstr "Envoyer un Email"
 
+msgid "Send me an email whenever this item is updated."
+msgstr "Envoyez-moi un email dès que cet élément est modifié."
+
 msgid ""
 "Shortcuts will apply to the selected document or folder. If there is no "
 "selected item they will apply to the current folder."
@@ -672,6 +753,9 @@ msgstr "Afficher"
 msgid "Show error details"
 msgstr "Voir les détails de l'erreur"
 
+msgid "Size"
+msgstr "Taille"
+
 msgid "Size of the archive to be downloaded: %{ size_in_MB } MB"
 msgstr "Taille de l'archive à télécharger: %{ size_in_MB } Mo"
 
@@ -683,14 +767,35 @@ msgstr ""
 msgid "Source"
 msgstr "Source"
 
+msgid "Start date"
+msgstr "Date de début"
+
 msgid "Start over with a completely new approval table."
 msgstr "Commencer avec une nouvelle table d'approbation."
+
+msgid "Statistics"
+msgstr "Statistiques"
 
 msgid "Status"
 msgstr "Statut"
 
+msgid "Submit"
+msgstr "Valider"
+
+msgid "Subscribers"
+msgstr "Abonnés"
+
+msgid "Summary"
+msgstr "Résumé"
+
 msgid "Switch to old user interface"
 msgstr "Basculer sur l'ancienne interface utilisateur"
+
+msgid "Table status"
+msgstr "Status de la table"
+
+msgid "The approval table is not yet available"
+msgstr "La table d'approbation n'est pas encore disponible"
 
 msgid ""
 "The archive you want to download has a size greater than %"
@@ -744,6 +849,11 @@ msgstr ""
 "La taille du fichier zip que vous tentez de télécharger dépasse le seuil "
 "défini par les administrateurs du site."
 
+msgid "The whole folder sub-tree is taken in account for these statistics."
+msgstr ""
+"Ces statistiques prennent en compte toute l'arborescence descendante de ce "
+"dossier."
+
 msgid "There are no items here or you don't have permissions to see them."
 msgstr ""
 "Il n’y a aucun élément ou alors vous n'avez pas le droit de le(s) voir."
@@ -754,8 +864,20 @@ msgstr "Il n'y a pas encore de logs"
 msgid "There are no versions yet"
 msgstr "Il n'y a pas encore de versions"
 
+msgid "There is no approval table for this document."
+msgstr "Il n'y a pas de table d'approbation pour ce document."
+
+msgid "There is no history"
+msgstr "Il n'y a pas d'historique"
+
 msgid "There is no upload in progress"
 msgstr "Il n'y a aucun téléversement en cours"
+
+msgid "There isn't any item"
+msgstr "Il n'y a aucun élément"
+
+msgid "There isn't any reviewers"
+msgstr "Il n'y a aucun approbateur"
 
 msgid "This document is currently locked by"
 msgstr "Ce document est actuellement verrouillé par"
@@ -765,6 +887,9 @@ msgstr "Ce dossier est vide"
 
 msgid "This is a private folder"
 msgstr "Ce dossier est privé"
+
+msgid "This item cannot have an approval table"
+msgstr "Cet élément ne peut pas avoir de table d'approbation"
 
 msgid "This item is not versionable"
 msgstr "Cet élément n'est pas versionnable"
@@ -777,12 +902,22 @@ msgstr ""
 "que vous avez entrées ne seront pas sauvegardées. Voulez-vous quitter cette "
 "page ?"
 
+msgid "This table shows the number of elements of each type."
+msgstr "Ce tableau présente le nombre d'éléments de chaque type."
+
 msgid "This wiki has a approval table, you can't update it."
 msgstr ""
 "Ce wiki a une table d'approbation, vous ne pouvez pas le mettre à jour."
 
 msgid "Title"
 msgstr "Titre"
+
+msgid ""
+"To compute the size, only the last versions of 'file' and 'embedded' file "
+"documents are taken in account."
+msgstr ""
+"Pour le calcul de la taille, seuls sont pris en compte les dernières "
+"versions des documents de type 'fichier' et 'fichier embarqué'."
 
 msgid "Today"
 msgstr "Aujourd'hui"
@@ -817,6 +952,15 @@ msgstr "Documents en cours de téléversement"
 msgid "User avatar"
 msgstr "Avatar de l'utilisateur"
 
+msgid "User groups that will receive the notification"
+msgstr "Groupes d'utilisateurs qui recevront la notification"
+
+msgid "Users who will receive the notification"
+msgstr "Utilisateurs qui recevront la notification"
+
+msgid "Validate"
+msgstr "Valider"
+
 msgid "Validity"
 msgstr "Validité"
 
@@ -825,6 +969,9 @@ msgstr "Version"
 
 msgid "Version %{ number } has been successfully deleted"
 msgstr "La version %{ number } a été supprimée"
+
+msgid "Version label"
+msgstr "Label de la version"
 
 msgid "Version name"
 msgstr "Nom de version"
@@ -936,6 +1083,14 @@ msgstr "Vous n'êtes pas autorisé à écrire dans ce dossier"
 msgid "You are viewing an old version (%{ version_number }) of this document."
 msgstr ""
 "Vous visualisez une ancienne version (%{ version_number }) de ce document."
+
+msgid ""
+"You cannot delete because a parent folder is monitored with its sub-"
+"hierarchy. You can delete that monitoring only from the parent itself."
+msgstr ""
+"Impossible de supprimer car un dossier parent est monitoré avec sa sous-"
+"hiérarchie. Vous pouvez supprimer ce monitoring uniquement depuis le parent "
+"en question."
 
 msgid "You don't have read permission for this item"
 msgstr "Vous n'avez pas le droit de lecture sur cet élément"

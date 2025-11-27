@@ -20,6 +20,8 @@
 
 namespace Tuleap\Widget;
 
+use Tuleap\Layout\IncludeViteAssets;
+
 /**
 * Widget_Contacts
 *
@@ -42,7 +44,7 @@ class ProjectContacts extends \Widget
     #[\Override]
     public function getContent(): string
     {
-        $request  = \HTTPRequest::instance();
+        $request  = \Tuleap\HTTPRequest::instance();
         $group_id = $request->get('group_id');
         $pm       = \ProjectManager::instance();
         $project  = $pm->getProject($group_id);
@@ -77,9 +79,10 @@ class ProjectContacts extends \Widget
     #[\Override]
     public function getJavascriptDependencies(): array
     {
-        $assets = new \Tuleap\Layout\IncludeCoreAssets();
+        $assets          = new \Tuleap\Layout\IncludeCoreAssets();
+        $ckeditor_assets = new IncludeViteAssets(__DIR__ . '/../../scripts/ckeditor4/frontend-assets/', '/assets/core/ckeditor4/');
         return [
-            ['file' => $assets->getFileURL('ckeditor.js')],
+            ['file' => $ckeditor_assets->getFileURL('ckeditor.js')],
             ['file' => '/scripts/tuleap/tuleap-ckeditor-toolbar.js'],
             ['file' => $assets->getFileURL('dashboards/widget-contact-modal.js')],
         ];

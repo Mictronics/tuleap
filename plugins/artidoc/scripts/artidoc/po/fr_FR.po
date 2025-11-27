@@ -76,6 +76,9 @@ msgstr "Êtes vous sûr de vouloir supprimer cette section de texte libre ?"
 msgid "Artidoc allows composition of a document based on artifacts."
 msgstr "Artidoc permet la composition d'un document basé sur des artifacts."
 
+msgid "Artifact history"
+msgstr "Historique artifact"
+
 msgid ""
 "As soon as you reload the page, the feature will no longer be displayed."
 msgstr ""
@@ -181,6 +184,9 @@ msgstr "Erreur d'export"
 msgid "Failed"
 msgstr "Échoué"
 
+msgid "Fake data"
+msgstr "Données simulées"
+
 msgid "Fake display of versions"
 msgstr "Affichage simulé des versions"
 
@@ -192,6 +198,13 @@ msgstr "Sélection des champs"
 
 msgid "Force save"
 msgstr "Forcer la sauvegarde"
+
+msgid ""
+"Freetext sections do not have a version history yet. Only their latest "
+"versions are displayed."
+msgstr ""
+"Les sections de texte libre n'ont pas encore d'historiques de versions. "
+"Seulement leurs dernières versions sont affichées."
 
 msgid "Full row"
 msgstr "Ligne entière"
@@ -408,6 +421,9 @@ msgstr "Il n'y a pas de tracker utilisable dans ce projet"
 msgid "This activation is personal and not persistent."
 msgstr "Cette activation est personnelle et n'est pas sauvegardée."
 
+msgid "This artidoc has no versions yet"
+msgstr "Cet artidoc n'a pas encore de versions"
+
 msgid "This document is empty"
 msgstr "Ce document est vide"
 
@@ -471,8 +487,9 @@ msgstr "Avatar de l'utilisateur"
 msgid "Versions"
 msgstr "Versions"
 
-msgid "Versions based on fake data"
-msgstr "Versions basées sur des données simulées"
+msgid "You are currently viewing \"%{ title }\" in read-only mode."
+msgstr ""
+"Vous être actuellement en train de visionner \"%{ title }\" en lecture seule."
 
 msgid ""
 "You can now select your fields or go back to the document and create new "

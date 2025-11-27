@@ -21,8 +21,10 @@
 namespace Tuleap\Docman\REST\v1;
 
 use Codendi_HTMLPurifier;
+use Docman_ApprovalTableFactoriesFactory;
 use Docman_ItemDao;
 use Docman_ItemFactory;
+use Docman_VersionFactory;
 use Project;
 use Tuleap\Docman\ApprovalTable\ApprovalTableRetriever;
 use Tuleap\Docman\ApprovalTable\ApprovalTableStateMapper;
@@ -94,6 +96,8 @@ class ItemRepresentationBuilder
         DocmanItemPermissionsForGroupsBuilder $item_permissions_for_groups_builder,
         Codendi_HTMLPurifier $purifier,
         private readonly ProvideUserAvatarUrl $provide_user_avatar_url,
+        private readonly Docman_ApprovalTableFactoriesFactory $factories_factory,
+        private readonly Docman_VersionFactory $version_factory,
     ) {
         $this->dao                                 = $dao;
         $this->user_manager                        = $user_manager;
@@ -159,9 +163,9 @@ class ItemRepresentationBuilder
         $can_user_manage = $this->permissions_manager->userCanManage($current_user, $item->getId());
 
         $lock_info                 = $this->getLockInformation($item);
-        $approval_table            = $this->getApprovalTable($item);
-        $has_approval_item         = $this->approval_table_retriever->hasApprovalTable($item);
-        $is_approval_table_enabled = $approval_table !== null;
+        $approval_table            = $this->approval_table_retriever->retrieveByItem($item);
+        $has_approval_item         = $approval_table !== null;
+        $is_approval_table_enabled = $has_approval_item && ! $approval_table->isDisabled();
 
         $metadata_representations = $this->metadata_representation_builder->build($item);
 
@@ -178,7 +182,16 @@ class ItemRepresentationBuilder
             $has_approval_item,
             $is_approval_table_enabled,
             $item->accept(new MoveItemUriVisitor(\EventManager::instance())),
-            $approval_table,
+            $approval_table === null ? null : ItemApprovalTableRepresentation::build(
+                $item,
+                $approval_table,
+                $this->getMinimalUserRepresentation((int) $approval_table->getOwner()),
+                $this->approval_table_state_mapper,
+                $this->factories_factory,
+                $this->user_manager,
+                $this->provide_user_avatar_url,
+                $this->version_factory,
+            ),
             $lock_info,
             $this->item_permissions_for_groups_builder->getRepresentation($current_user, $item),
             $file_properties,
@@ -203,22 +216,6 @@ class ItemRepresentationBuilder
         return new ItemLockInfoRepresentation(
             $lock_owner,
             $lock_infos
-        );
-    }
-
-    private function getApprovalTable(\Docman_Item $item): ?ItemApprovalTableRepresentation
-    {
-        $approval_table = $this->approval_table_retriever->retrieveByItem($item);
-        if (! $approval_table) {
-            return null;
-        }
-
-        $table_owner = $this->getMinimalUserRepresentation((int) $approval_table->getOwner());
-
-        return new ItemApprovalTableRepresentation(
-            $approval_table,
-            $table_owner,
-            $this->approval_table_state_mapper
         );
     }
 

@@ -26,10 +26,13 @@ import DisplayHistory from "../components/History/DisplayHistory.vue";
 import DisplayVersions from "../components/Versions/DisplayVersions.vue";
 import DisplayReferences from "../components/References/DisplayReferences.vue";
 import SearchContainer from "../components/AdvancedSearch/SearchContainer.vue";
+import DisplayNotifications from "../components/Notifications/DisplayNotifications.vue";
 import { abortCurrentUploads } from "../helpers/abort-current-uploads";
 import { getSearchPropsFromRoute } from "./get-search-props-from-route";
 import type { Store } from "vuex";
 import type { RootState, GettextProvider, SearchCriteria } from "../type";
+import DisplayStatistics from "../components/Statisitcs/DisplayStatistics.vue";
+import DisplayApprovalTable from "../components/ApprovalTable/DisplayApprovalTable.vue";
 
 export const routes: RouteRecordRaw[] = [
     {
@@ -92,6 +95,31 @@ export const routes: RouteRecordRaw[] = [
         component: DisplayReferences,
         props: (route) => ({
             item_id: Number(route.params.item_id),
+        }),
+    },
+    {
+        path: "/notifications/:item_id",
+        name: "notifications",
+        component: DisplayNotifications,
+        props: (route) => ({
+            item_id: Number(route.params.item_id),
+        }),
+    },
+    {
+        path: "/statistics/:item_id",
+        name: "statistics",
+        component: DisplayStatistics,
+        props: (route) => ({
+            item_id: Number(route.params.item_id),
+        }),
+    },
+    {
+        path: "/approval-table/:item_id/:version?",
+        name: "approval-table",
+        component: DisplayApprovalTable,
+        props: (route) => ({
+            item_id: Number(route.params.item_id),
+            version: route.params.version ? Number(route.params.version) : null,
         }),
     },
 ];

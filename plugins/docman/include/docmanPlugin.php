@@ -64,6 +64,8 @@ use Tuleap\Docman\Metadata\Owner\AllOwnerRetriever;
 use Tuleap\Docman\Metadata\Owner\OwnerDao;
 use Tuleap\Docman\Metadata\Owner\OwnerRequestHandler;
 use Tuleap\Docman\Notifications\NotificationsForProjectMemberCleaner;
+use Tuleap\Docman\Notifications\NotificationsStatisticsController;
+use Tuleap\Docman\Notifications\NotificationsSubscribersController;
 use Tuleap\Docman\Notifications\NotifiedPeopleRetriever;
 use Tuleap\Docman\Notifications\UGroupsRetriever;
 use Tuleap\Docman\Notifications\UgroupsToNotifyDao;
@@ -79,6 +81,7 @@ use Tuleap\Docman\Reference\DocumentFromReferenceValueFinder;
 use Tuleap\Docman\Reference\DocumentIconPresenterBuilder;
 use Tuleap\Docman\REST\ResourcesInjector;
 use Tuleap\Docman\REST\v1\DocmanItemsEventAdder;
+use Tuleap\Docman\REST\v1\DocmanItemsRequestBuilder;
 use Tuleap\Docman\REST\v1\Folders\ComputeFolderSizeVisitor;
 use Tuleap\Docman\REST\v1\Search\SearchColumnCollectionBuilder;
 use Tuleap\Docman\Settings\ForbidWritersSettings;
@@ -179,7 +182,6 @@ use Tuleap\User\Avatar\UserAvatarUrlProvider;
 use Tuleap\User\History\HistoryEntryCollection;
 use Tuleap\User\History\HistoryRetriever;
 use Tuleap\Widget\Event\GetProjectWidgetList;
-use Tuleap\Widget\Event\GetPublicAreas;
 use Tuleap\Widget\Event\GetUserWidgetList;
 use Tuleap\Widget\Event\GetWidget;
 use Tuleap\wiki\Events\GetItemsReferencingWikiPageCollectionEvent;
@@ -395,21 +397,6 @@ class DocmanPlugin extends Plugin implements PluginWithConfigKeys // phpcs:ignor
     }
 
     #[\Tuleap\Plugin\ListeningToEventClass]
-    public function servicePublicAreas(GetPublicAreas $event): void //phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
-    {
-        $project = $event->getProject();
-        $service = $project->getService($this->getServiceShortname());
-        if ($service instanceof \Tuleap\Docman\ServiceDocman) {
-            $event->addArea(
-                '<a href="' . $service->getUrl() . '">' .
-                '<i class="dashboard-widget-content-projectpublicareas ' . Codendi_HTMLPurifier::instance()->purify($service->getIcon()) . '"></i>' .
-                dgettext('tuleap-docman', 'Document Manager') .
-                '</a>'
-            );
-        }
-    }
-
-    #[\Tuleap\Plugin\ListeningToEventClass]
     public function registerProjectCreationEvent(RegisterProjectCreationEvent $event): void
     {
         $this->getHTTPController()->installDocman(
@@ -517,7 +504,7 @@ class DocmanPlugin extends Plugin implements PluginWithConfigKeys // phpcs:ignor
 
     public function process()
     {
-        $request = HTTPRequest::instance();
+        $request = \Tuleap\HTTPRequest::instance();
         $user    = $request->getCurrentUser();
         $proxy   = new DocmanHTTPControllerProxy(
             new ExternalLinkParametersExtractor(),
@@ -749,7 +736,7 @@ class DocmanPlugin extends Plugin implements PluginWithConfigKeys // phpcs:ignor
     #[\Tuleap\Plugin\ListeningToEventClass]
     public function pendingDocumentsRetriever(PendingDocumentsRetriever $event): void
     {
-        $request = HTTPRequest::instance();
+        $request = \Tuleap\HTTPRequest::instance();
         $limit   = 25;
 
         //return all pending versions for given group id
@@ -1073,7 +1060,7 @@ class DocmanPlugin extends Plugin implements PluginWithConfigKeys // phpcs:ignor
     protected function getHTTPController($request = null)
     {
         if ($request == null) {
-            $request = HTTPRequest::instance();
+            $request = \Tuleap\HTTPRequest::instance();
         }
         return $this->getController('Docman_HTTPController', $request);
     }
@@ -1603,6 +1590,34 @@ class DocmanPlugin extends Plugin implements PluginWithConfigKeys // phpcs:ignor
         return HistoryEnforcementAdminSaveController::buildSelf();
     }
 
+    public function routeGetSubscribers(): NotificationsSubscribersController
+    {
+        $response_factory = HTTPFactoryBuilder::responseFactory();
+        $stream_factory   = HTTPFactoryBuilder::streamFactory();
+        $user_manager     = UserManager::instance();
+        return new NotificationsSubscribersController(
+            $user_manager,
+            new UGroupManager(),
+            $this->getUsersToNotifyDao(),
+            $this->getUGroupToNotifyDao(),
+            new DocmanItemsRequestBuilder($user_manager, ProjectManager::instance()),
+            new JSONResponseBuilder($response_factory, $stream_factory),
+            new UserAvatarUrlProvider(new AvatarHashDao(), new ComputeAvatarHash()),
+            new SapiEmitter(),
+        );
+    }
+
+    public function routeGetStatistics(): NotificationsStatisticsController
+    {
+        $user_manager = UserManager::instance();
+        return new NotificationsStatisticsController(
+            new DocmanItemsRequestBuilder($user_manager, ProjectManager::instance()),
+            $user_manager,
+            new JSONResponseBuilder(HTTPFactoryBuilder::responseFactory(), HTTPFactoryBuilder::streamFactory()),
+            new SapiEmitter(),
+        );
+    }
+
     public function routeGetOwners(): OwnerRequestHandler
     {
         $response_factory = HTTPFactoryBuilder::responseFactory();
@@ -1667,6 +1682,8 @@ class DocmanPlugin extends Plugin implements PluginWithConfigKeys // phpcs:ignor
                 '/{project_name:[A-z0-9-]+}/admin-search',
                 $this->getRouteHandler('routeUpdateAdminSearch')
             );
+            $r->get('/{item_id:\d+}/statistics', $this->getRouteHandler('routeGetStatistics'));
+            $r->get('/{item_id:\d+}/subscribers', $this->getRouteHandler('routeGetSubscribers'));
             $r->get('/{project_name:[A-z0-9-]+}/owners', $this->getRouteHandler('routeGetOwners'));
             $r->get('/{project_name:[A-z0-9-]+}/[{vue-routing:.*}]', $this->getRouteHandler('routeGet'));
         });

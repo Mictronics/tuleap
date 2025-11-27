@@ -21,7 +21,6 @@
 namespace Tuleap\Git\Repository;
 
 use GitRepository;
-use HTTPRequest;
 use PFUser;
 use TemplateRendererFactory;
 use Tuleap\Git\GitViews\Header\HeaderRenderer;
@@ -66,7 +65,7 @@ class GitRepositoryHeaderDisplayer
     }
 
     public function display(
-        HTTPRequest $request,
+        \Tuleap\HTTPRequest $request,
         BaseLayout $layout,
         PFUser $current_user,
         GitRepository $repository,
@@ -75,7 +74,7 @@ class GitRepositoryHeaderDisplayer
         $this->displayForBurningParrot($request, $current_user, $repository);
     }
 
-    private function includeAssetsForBurningParrot(HTTPRequest $request, BaseLayout $layout): void
+    private function includeAssetsForBurningParrot(\Tuleap\HTTPRequest $request, BaseLayout $layout): void
     {
         if (! $request->exist('a') || in_array($request->get('a'), ['blob', 'blame', 'tree'], true)) {
             $layout->addCssAsset(new CssAssetWithoutVariantDeclinaisons($this->core_assets, 'syntax-highlight'));
@@ -84,16 +83,13 @@ class GitRepositoryHeaderDisplayer
 
         $external_assets = new CollectAssets();
         $this->event_manager->processEvent($external_assets);
-        foreach ($external_assets->getStylesheets() as $css_asset) {
-            $layout->addCssAsset($css_asset);
-        }
         foreach ($external_assets->getScripts() as $script) {
-            $layout->includeFooterJavascriptFile($script->getFileURL());
+            $layout->addJavascriptAsset($script);
         }
     }
 
     private function displayForBurningParrot(
-        HTTPRequest $request,
+        \Tuleap\HTTPRequest $request,
         PFUser $current_user,
         GitRepository $repository,
     ) {

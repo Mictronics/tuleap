@@ -77,7 +77,10 @@
         data-test="document-dropdown-approval-tables"
         data-shortcut-approval-tables
     >
-        <i class="fa-regular fa-fw fa-square-check tlp-dropdown-menu-item-icon"></i>
+        <i
+            class="fa-regular fa-fw fa-square-check tlp-dropdown-menu-item-icon"
+            aria-hidden="true"
+        ></i>
         <span>{{ $gettext("Approval tables") }}</span>
     </a>
     <router-link
@@ -89,6 +92,17 @@
     >
         <i class="fa-solid fa-fw fa-list-ol tlp-dropdown-menu-item-icon" aria-hidden="true"></i>
         <span>{{ $gettext("References") }}</span>
+    </router-link>
+    <router-link
+        v-if="item.type === TYPE_FOLDER"
+        v-bind:to="{ name: 'statistics', params: { item_id: item.id } }"
+        class="tlp-dropdown-menu-item"
+        role="menuitem"
+        data-shortcut-statistics
+        data-test="document-dropdown-statistics"
+    >
+        <i class="fa-regular fa-fw fa-chart-bar tlp-dropdown-menu-item-icon" aria-hidden="true"></i>
+        <span>{{ $gettext("Statistics") }}</span>
     </router-link>
 
     <drop-down-separator v-if="item.user_can_write" />
@@ -128,6 +142,7 @@ import { computed } from "vue";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import { IS_DELETION_ALLOWED, PROJECT } from "../../../configuration-keys";
 import { getDocumentProperties } from "../../../helpers/properties/document-properties";
+import { TYPE_FOLDER } from "../../../constants";
 
 const props = defineProps<{ item: Item }>();
 

@@ -64,8 +64,16 @@ preload:
 generate-sbom: ## Generate Software-Bill-of-Materials
 	COMPOSER_HOME="$(CURDIR)/src/" COMPOSER_CACHE_DIR=/dev/null COMPOSER_HTACCESS_PROTECT=0 COMPOSER_DISABLE_NETWORK=1 \
 		$(MAKE) composer COMPOSER_INSTALL='composer --quiet CycloneDX:make-sbom --output-format=json --output-reproducible --output-file=bom.json --spec-version=1.6'
-	cdxgen -t pnpm --spec-version=1.6 --profile=license-compliance -o bom.json --no-recurse .
-	pnpm -r --no-bail exec -- cdxgen -t pnpm --spec-version=1.6 --profile=license-compliance -o bom.json --no-recurse .
+	cdxgen --noBanner -t pnpm --spec-version=1.6 --profile=license-compliance -o bom.json --no-recurse .
+	pnpm -r --no-bail exec -- cdxgen --noBanner -t pnpm --spec-version=1.6 --profile=license-compliance -o bom.json --no-recurse .
+	git ls-files --cached --modified --other --exclude-standard -z -- '*/go.mod' | \
+		xargs -0 -I{} bash -c 'echo "Processing {}" && cd "`dirname "{}"`" && cyclonedx-gomod mod -licenses -type application -json -output-version 1.6 -test -output bom.json'
+	git ls-files --cached --modified --other --exclude-standard -z -- '*/Cargo.toml' | \
+		xargs -0 -I{} bash -c 'echo "Processing {}" && cd "`dirname "{}"`" && cdxgen --noBanner -t cargo --spec-version=1.6 --profile=license-compliance -o bom.json --no-install-deps --no-recurse .'
+
+.PHONY: verify-licenses
+verify-licenses: ## Verify that only allowed licenses are used
+	@find . -name "bom.json"  -print0 | xargs -0 -n1 ./tools/utils/licenses-verification/policy.php
 
 ## RNG generation
 
@@ -250,28 +258,15 @@ psalm-baseline-create-from-scratch: ## Recreate the Psalm baseline from scratch,
 	$(PHP) -d display_errors=1 -d display_startup_errors=1 -d memory_limit=-1 \
 	    ./src/vendor/bin/psalm --no-cache --use-ini-defaults --set-baseline=./tests/psalm/tuleap-baseline.xml -c=./tests/psalm/psalm.xml
 
-phpcs: ## Execute PHPCS with the "strict" ruleset. Use FILES parameter to execute on specific file or directory.
-	$(eval FILES ?= .)
-	@$(PHP) -d memory_limit=2536M ./src/vendor/bin/phpcs --extensions=php,phpstub --encoding=utf-8 --standard=tests/phpcs/tuleap-ruleset-minimal.xml --runtime-set php_version 80200 -s -p $(FILES)
-
-phpcbf: ## Execute PHPCBF with the "strict" ruleset enforced on all the codebase. Use FILES parameter to execute on specific file or directory.
-	$(eval FILES ?= .)
-	@$(PHP) -d memory_limit=2536M ./src/vendor/bin/phpcbf --extensions=php,phpstub --encoding=utf-8 --standard=tests/phpcs/tuleap-ruleset-minimal.xml --runtime-set php_version 80200 -p $(FILES)
-
 deptrac: ## Execute deptrac. Use SEARCH_PATH to look for deptrac config files under a specific path.
 	@PHP=$(PHP) ./tests/deptrac/run.sh
-
-eslint: ## Execute eslint. Use FILES parameter to execute on specific file or directory.
-	$(eval FILES ?= .)
-	@pnpm run eslint --quiet -- $(FILES)
-
-eslint-fix: ## Execute eslint with --fix to try to fix problems automatically. Use FILES parameter to execute on specific file or directory.
-	$(eval FILES ?= .)
-	@pnpm run eslint --fix --quiet -- $(FILES)
 
 .PHONY:treefmt
 treefmt: ## Run treefmt
 	@treefmt
+
+tests-consistency-frontend-assets-manifests: ## Check that entry points referenced in JS manifests are present on disk
+	@pnpm -r --no-bail exec -- $(CURDIR)/tests/js_manifest_output_integrity/check.php
 
 bash-web: ## Give a bash on web container
 	@$(DOCKER) exec -e COLUMNS="`tput cols`" -e LINES="`tput lines`" -ti `$(DOCKER_COMPOSE) ps -q web` bash

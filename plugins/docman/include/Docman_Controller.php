@@ -38,7 +38,7 @@ class Docman_Controller extends Controler // phpcs:ignoreFile
 {
     // variables
     /**
-     * @var HTTPRequest
+     * @var \Tuleap\HTTPRequest
      */
     public $request;
     private ?PFUser $user;
@@ -604,13 +604,6 @@ class Docman_Controller extends Controler // phpcs:ignoreFile
                 $this->action = $view;
                 $this->view   = 'Admin_Permissions';
                 break;
-            case 'admin_change_view':
-                $this->action                            = $view;
-                $this->_viewParams['default_url_params'] = ['action'  => \Docman_View_Admin_View::IDENTIFIER,
-                    'id'      => $item->getParentId(),
-                ];
-                $this->view                              = 'RedirectAfterCrud';
-                break;
             case 'details':
                 $section = $this->request->get('section');
                 if ($section === 'properties') {
@@ -626,11 +619,16 @@ class Docman_Controller extends Controler // phpcs:ignoreFile
                     $project      = ProjectManager::instance()->getProject((int) $item->getGroupId());
                     $redirect_url = '/plugins/document/' . urlencode($project->getUnixNameLowerCase()) . '/references/' . urlencode($item->getId());
                     $GLOBALS['Response']->redirect($redirect_url);
+                } else if ($section === 'notifications') {
+                    $project = ProjectManager::instance()->getProject((int)$item->getGroupId());
+                    $redirect_url = '/plugins/document/' . urlencode($project->getUnixNameLowerCase()) . '/notifications/' . urlencode($item->getId());
+                    $GLOBALS['Response']->redirect($redirect_url);
+                } else if ($section === 'statistics') {
+                    $project      = ProjectManager::instance()->getProject((int) $item->getGroupId());
+                    $redirect_url = '/plugins/document/' . urlencode($project->getUnixNameLowerCase()) . '/statistics/' . urlencode($item->getId());
+                    $GLOBALS['Response']->redirect($redirect_url);
                 }
                 $this->view = ucfirst($view);
-                break;
-            case \Docman_View_Admin_View::IDENTIFIER:
-                $this->view = 'Admin_View';
                 break;
             case 'admin':
                 $GLOBALS['Response']->redirect(
@@ -924,6 +922,8 @@ class Docman_Controller extends Controler // phpcs:ignoreFile
                 }
                 break;
             case 'monitor':
+                $redirect_to = '/plugins/document/' . urlencode($this->getProject()->getUnixNameLowerCase()). '/notifications/' . urlencode($item->getId());
+                new CSRFSynchronizerToken('plugin-document')->check($redirect_to, $this->request);
                 if ($this->request->exist('monitor')) {
                     $this->_actionParams['monitor'] =  $this->request->get('monitor');
                     if ($this->request->exist('cascade')) {
@@ -932,31 +932,34 @@ class Docman_Controller extends Controler // phpcs:ignoreFile
                     $this->_actionParams['item'] = $item;
                     $this->action                = 'monitor';
                 }
-                $this->_setView('Details');
+                $this->view                       = 'RedirectAfterCrud';
+                $this->_viewParams['redirect_to'] = $redirect_to;
                 break;
             case 'update_monitoring':
+                $redirect_to = '/plugins/document/' . urlencode($this->getProject()->getUnixNameLowerCase()). '/notifications/' . urlencode($item->getId());
+                new CSRFSynchronizerToken('plugin-document')->check($redirect_to, $this->request);
                 $users_to_delete   = $this->request->get('listeners_users_to_delete');
                 $ugroups_to_delete = $this->request->get('listeners_ugroups_to_delete');
-                $listeners_to_add  = $this->request->get('listeners_to_add');
+                $ugroups_to_add  = $this->request->get('listeners_ugroups_to_add');
+                $users_to_add  = $this->request->get('listeners_users_to_add');
 
-                if (! $users_to_delete && ! $ugroups_to_delete && ! $listeners_to_add) {
+                if (! $users_to_delete && ! $ugroups_to_delete && ! $ugroups_to_add && !$users_to_add) {
                     $this->feedback->log(
-                        'error',
+                        Feedback::ERROR,
                         dgettext('tuleap-docman', 'No element selected')
                     );
                 } else {
                     if ($users_to_delete || $ugroups_to_delete) {
                         $this->removeMonitoring($item, $users_to_delete, $ugroups_to_delete);
                     }
-                    if ($listeners_to_add) {
-                        $this->addMonitoring($item, $listeners_to_add);
+                    if ($ugroups_to_add || $users_to_add) {
+                        $this->addMonitoring($item, $ugroups_to_add, $users_to_add);
                     }
                     $this->_actionParams['item'] = $item;
                     $this->action                = 'update_monitoring';
                 }
                 $this->view                       = 'RedirectAfterCrud';
-                $this->_viewParams['redirect_to'] = DOCMAN_BASE_URL . '/index.php?group_id='
-                . $item->groupId . '&id=' . $item->id . '&action=details&section=notifications';
+                $this->_viewParams['redirect_to'] = $redirect_to;
                 break;
             case 'move_here':
                 if (! $this->request->exist('item_to_move')) {
@@ -1013,92 +1016,6 @@ class Docman_Controller extends Controler // phpcs:ignoreFile
                     $this->view = 'Details';
                 } else {
                     $this->view = 'Update';
-                }
-                break;
-
-            case 'action_copy':
-                //@XSS: validate action against a regexp.
-                $_action                     = $this->request->get('orig_action');
-                $_id                         = (int) $this->request->get('orig_id');
-                $this->_actionParams['item'] = $item;
-
-                $this->action = $view;
-                if (! $this->request->exist('ajax_copy')) {
-                    $this->_viewParams['default_url_params'] = ['action'  => $_action,
-                        'id'      => $_id,
-                    ];
-                    $this->view                              = 'RedirectAfterCrud';
-                }
-                break;
-
-            case 'action_cut':
-                $_action                     = $this->request->get('orig_action');
-                $_id                         = (int) $this->request->get('orig_id');
-                $this->_actionParams['item'] = $item;
-
-                $this->action = $view;
-                if (! $this->request->exist('ajax_cut')) {
-                    $this->_viewParams['default_url_params'] = ['action'  => $_action,
-                        'id'      => $_id,
-                    ];
-                    $this->view                              = 'RedirectAfterCrud';
-                }
-                break;
-
-            case 'action_paste':
-                $itemToPaste = null;
-                $mode        = null;
-                $allowed     = $this->checkPasteIsAllowed($item, $itemToPaste, $mode);
-                if (! $allowed) {
-                    $this->view = 'Details';
-                } else {
-                    $this->_viewParams['itemToPaste'] = $itemToPaste;
-                    $this->_viewParams['srcMode']     = $mode;
-                    $this->view                       = 'Paste';
-                }
-                break;
-
-            case 'paste_cancel':
-                // intend to be only called through ajax call
-                $item_factory->delCopyPreference();
-                $item_factory->delCutPreference();
-                break;
-
-            case 'paste':
-                if ($this->request->exist('cancel')) {
-                    $this->_viewParams['default_url_params'] = ['action'  => 'show'];
-                    $this->view                              = 'RedirectAfterCrud';
-                } else {
-                    $itemToPaste = null;
-                    $mode        = null;
-                    $allowed     = $this->checkPasteIsAllowed($item, $itemToPaste, $mode);
-                    if (! $allowed) {
-                        $this->view = 'Details';
-                    } else {
-                        $this->_viewParams['importMd'] = false;
-                        if ($this->userCanAdmin()) {
-                            if (
-                                $this->request->exist('import_md') &&
-                                $this->request->get('import_md') == '1'
-                            ) {
-                                $this->_viewParams['importMd'] = true;
-                            }
-                        }
-                        $this->_viewParams['item']        = $item;
-                        $this->_viewParams['rank']        = $this->request->get('rank');
-                        $this->_viewParams['itemToPaste'] = $itemToPaste;
-                        $this->_viewParams['srcMode']     = $mode;
-                        /*$this->action = $view;
-
-                        $this->_viewParams['default_url_params'] = array('action'  => 'show',
-                                                                     'id'      => $item->getId());
-                        $this->view = 'RedirectAfterCrud';*/
-                        $this->_viewParams['item']        = $item;
-                        $this->_viewParams['rank']        = $this->request->get('rank');
-                        $this->_viewParams['itemToPaste'] = $itemToPaste;
-                        $this->_viewParams['srcMode']     = $mode;
-                        $this->view                       = 'PasteInProgress';
-                    }
                 }
                 break;
 
@@ -1508,9 +1425,6 @@ class Docman_Controller extends Controler // phpcs:ignoreFile
                     }
                 }
                 break;
-            case 'change_view':
-                $this->action = $view;
-                break;
             case 'install':
                 $this->feedback->log('error', dgettext('tuleap-docman', 'Document Manager already installed.'));
                 $this->view = 'DocmanError';
@@ -1739,51 +1653,6 @@ class Docman_Controller extends Controler // phpcs:ignoreFile
         return $valid;
     }
 
-    public function checkPasteIsAllowed($item, &$itemToPaste, &$mode)
-    {
-        $isAllowed = false;
-
-        $itemFactory = $this->getItemFactory();
-        $user        = $this->getUser();
-
-        $type = $itemFactory->getItemTypeForItem($item);
-        if (PLUGIN_DOCMAN_ITEM_TYPE_FOLDER != $type) {
-            $this->feedback->log('error', dgettext('tuleap-docman', 'You cannot paste something into a document.'));
-        } elseif (! $this->userCanWrite($item->getId())) {
-            $this->feedback->log('error', dgettext('tuleap-docman', 'You do not have sufficient access rights to edit this item.'));
-        } else {
-            $copiedItemId = $itemFactory->getCopyPreference($user);
-            $cutItemId    = $itemFactory->getCutPreference($user, $item->getGroupId());
-            $itemToPaste  = null;
-
-            if ($copiedItemId !== false && $cutItemId === false) {
-                $itemToPaste = $itemFactory->getItemFromDb($copiedItemId);
-                $mode        = 'copy';
-            } elseif ($item->getId() == $cutItemId) {
-                $this->feedback->log('error', dgettext('tuleap-docman', 'You can not paste an item into itself.'));
-                return false;
-            } elseif ($copiedItemId === false && $cutItemId !== false) {
-                if ($itemFactory->isInSubTree($item->getId(), $cutItemId)) {
-                    $this->feedback->log('error', dgettext('tuleap-docman', 'You cannot cut something and then paste it into its child.'));
-                    return false;
-                }
-                $itemToPaste = $itemFactory->getItemFromDb($cutItemId);
-                $mode        = 'cut';
-            } else {
-                $this->feedback->log('error', dgettext('tuleap-docman', 'No valid item to paste. Either no item was copied or item no longer exist.'));
-                return false;
-            }
-
-            if ($itemToPaste == null) {
-                $this->feedback->log('error', dgettext('tuleap-docman', 'No valid item to paste. Either no item was copied or item no longer exist.'));
-            } else {
-                $isAllowed = true;
-            }
-        }
-
-        return $isAllowed;
-    }
-
     #[\Override]
     public function actionsManagement()
     {
@@ -1890,17 +1759,23 @@ class Docman_Controller extends Controler // phpcs:ignoreFile
 
     /**
      * @param $item
+     * @param list<int> $ugroup_ids_to_add
+     * @param list<int> $user_ids_to_add
      */
-    private function addMonitoring($item, $listeners_to_add)
+    private function addMonitoring($item, $ugroup_ids_to_add, $user_ids_to_add)
     {
-        $this->_actionParams['listeners_to_add'] = [];
+        $this->_actionParams['listeners_ugroups_to_add'] = [];
+        $this->_actionParams['listeners_users_to_add'] = [];
         if ($this->userCanManage($item->getId())) {
-            $invalid_entries = new InvalidEntryInAutocompleterCollection();
-            $autocompleter   = $this->getAutocompleter($listeners_to_add, $invalid_entries);
-            $invalid_entries->generateWarningMessageForInvalidEntries();
-            $emails  = $autocompleter->getEmails();
-            $users   = $autocompleter->getUsers();
-            $ugroups = $autocompleter->getUgroups();
+            $users   = [];
+            foreach ($user_ids_to_add as $user_id) {
+                $users[] = UserManager::instance()->getUserById($user_id);
+            }
+
+            $ugroups = [];
+            foreach ($ugroup_ids_to_add as $ugroup_id) {
+                $ugroups[] = new UGroupManager()->getById($ugroup_id);
+            }
 
             if (! empty($users)) {
                 $this->notificationAddUsers($users);
@@ -1908,13 +1783,6 @@ class Docman_Controller extends Controler // phpcs:ignoreFile
 
             if (! empty($ugroups)) {
                 $this->notificationAddUgroups($ugroups);
-            }
-
-            if (! empty($emails)) {
-                $this->feedback->log(
-                    'warning',
-                    dgettext('tuleap-docman', 'You cannot add emails')
-                );
             }
         } else {
             $this->feedback->log(

@@ -48,6 +48,29 @@
         >
             {{ $gettext("References") }}
         </router-link>
+        <router-link
+            class="tlp-tab"
+            v-bind:class="{ 'tlp-tab-active': active_tab === NotificationsTab }"
+            v-bind:to="{ name: 'notifications', params: { item_id: item.id } }"
+        >
+            {{ $gettext("Notifications") }}
+        </router-link>
+        <router-link
+            v-if="item.type === TYPE_FOLDER"
+            class="tlp-tab"
+            v-bind:class="{ 'tlp-tab-active': active_tab === StatisticsTab }"
+            v-bind:to="{ name: 'statistics', params: { item_id: item.id } }"
+        >
+            {{ $gettext("Statistics") }}
+        </router-link>
+        <router-link
+            v-if="isAnApprovableDocument(item)"
+            class="tlp-tab"
+            v-bind:class="{ 'tlp-tab-active': active_tab === ApprovalTableTab }"
+            v-bind:to="{ name: 'approval-table', params: { item_id: item.id } }"
+        >
+            {{ $gettext("Approval table") }}
+        </router-link>
     </nav>
 </template>
 <script setup lang="ts">
@@ -56,7 +79,16 @@ import type { Item } from "../../type";
 import { computed } from "vue";
 import { isEmbedded, isFile, isLink } from "../../helpers/type-check-helper";
 import type { DetailsTabs } from "../../helpers/details-tabs";
-import { LogsTab, ReferencesTab, VersionsTab } from "../../helpers/details-tabs";
+import {
+    ApprovalTableTab,
+    LogsTab,
+    NotificationsTab,
+    ReferencesTab,
+    StatisticsTab,
+    VersionsTab,
+} from "../../helpers/details-tabs";
+import { TYPE_FOLDER } from "../../constants";
+import { isAnApprovableDocument } from "../../helpers/approval-table-helper";
 
 const props = defineProps<{
     item: Item;

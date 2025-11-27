@@ -23,7 +23,6 @@ namespace Tuleap\Git\DefaultSettings;
 use EventManager;
 use GitPermissionsManager;
 use GitPresenters_AdminDefaultSettingsPresenter;
-use HTTPRequest;
 use Project;
 use TemplateRendererFactory;
 use Tuleap\Git\AccessRightsPresenterOptionsBuilder;
@@ -36,10 +35,18 @@ use Tuleap\Git\Permissions\DefaultFineGrainedPermissionFactory;
 use Tuleap\Git\Permissions\FineGrainedRepresentationBuilder;
 use Tuleap\Git\Permissions\FineGrainedRetriever;
 use Tuleap\Git\Permissions\RegexpFineGrainedRetriever;
+use Tuleap\HTTPRequest;
+use Tuleap\Layout\IncludeViteAssets;
+use Tuleap\Layout\JavascriptViteAsset;
 use UserManager;
 
 class IndexController
 {
+    public const array BURNING_PARROT_COMPATIBLE_PANES = [
+        false, // when no pane is given, it maps to 'settings'
+        'access_control',
+    ];
+
     /**
      * @var AccessRightsPresenterOptionsBuilder
      */
@@ -93,7 +100,7 @@ class IndexController
         $this->event_manager                           = $event_manager;
     }
 
-    public function displayDefaultSettings(HTTPRequest $request)
+    public function displayDefaultSettings(\Tuleap\HTTPRequest $request)
     {
         $project = $request->getProject();
 
@@ -114,13 +121,9 @@ class IndexController
     /**
      * @return Pane\Pane[]
      */
-    private function getPanes(Project $project, HTTPRequest $request)
+    private function getPanes(Project $project, \Tuleap\HTTPRequest $request)
     {
-        $current_pane   = AccessControl::NAME;
-        $requested_pane = $request->get('pane');
-        if ($requested_pane) {
-            $current_pane = $requested_pane;
-        }
+        $current_pane = $this->getCurrentPaneName($request);
 
         $panes = new DefaultSettingsPanesCollection($project, $current_pane);
 
@@ -150,16 +153,43 @@ class IndexController
     /**
      * @param             $presenter
      */
-    private function render(HTTPRequest $request, $presenter)
+    private function render(\Tuleap\HTTPRequest $request, $presenter)
     {
         $renderer = TemplateRendererFactory::build()->getRenderer(dirname(GIT_BASE_DIR) . '/templates');
 
+        $this->addJavascriptAssets($request);
         $this->header_renderer->renderServiceAdministrationHeader(
             $request,
             $request->getCurrentUser(),
             $request->getProject()
         );
+
         $renderer->renderToPage('admin-default-settings', $presenter);
         $GLOBALS['HTML']->footer([]);
+    }
+
+    private function getCurrentPaneName(\Tuleap\HTTPRequest $request): string
+    {
+        $current_pane   = AccessControl::NAME;
+        $requested_pane = $request->get('pane');
+        if ($requested_pane) {
+            $current_pane = $requested_pane;
+        }
+        return $current_pane;
+    }
+
+    private function addJavascriptAssets(HTTPRequest $request): void
+    {
+        if ($this->getCurrentPaneName($request) === AccessControl::NAME) {
+            $GLOBALS['HTML']->addJavascriptAsset(
+                new JavascriptViteAsset(
+                    new IncludeViteAssets(
+                        __DIR__ . '/../../../scripts/access-control/frontend-assets',
+                        '/assets/git/access-control'
+                    ),
+                    'src/main.ts',
+                ),
+            );
+        }
     }
 }

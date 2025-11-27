@@ -24,6 +24,10 @@
         "tracker-administration": {
             "src": "scripts/tracker-admin/src",
             "po": "scripts/tracker-admin/po"
+        },
+        "tracker-admin-triggers": {
+            "src": "scripts/tracker-admin-triggers/src",
+            "po": "scripts/tracker-admin-triggers/po"
         }
     },
     "gettext-vue3": {
@@ -46,6 +50,10 @@
         "workflow-transitions": {
             "src": "scripts/workflow-transitions/src",
             "po": "scripts/workflow-transitions/po"
+        },
+        "tracker-admin-fields": {
+            "src": "scripts/tracker-admin-fields/src",
+            "po": "scripts/tracker-admin-fields/po"
         }
     },
     "gettext-angularjs": {

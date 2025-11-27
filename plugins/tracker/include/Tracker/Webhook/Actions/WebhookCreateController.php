@@ -22,7 +22,6 @@
 namespace Tuleap\Tracker\Webhook\Actions;
 
 use CSRFSynchronizerToken;
-use HTTPRequest;
 use TrackerFactory;
 use Tuleap\Layout\BaseLayout;
 use Tuleap\Request\DispatchableWithRequest;
@@ -59,7 +58,7 @@ class WebhookCreateController implements DispatchableWithRequest
     }
 
     #[\Override]
-    public function process(HTTPRequest $request, BaseLayout $layout, array $variables)
+    public function process(\Tuleap\HTTPRequest $request, BaseLayout $layout, array $variables)
     {
         $tracker_id  = $request->get('tracker_id');
         $webhook_url = $request->get('webhook_url');
@@ -87,8 +86,8 @@ class WebhookCreateController implements DispatchableWithRequest
         $this->webhook_dao->save($tracker_id, $webhook_url);
 
         $layout->addFeedback(
-            \Feedback::INFO,
-            dgettext('tuleap-tracker', 'Webhook sucessfully created')
+            \Feedback::SUCCESS,
+            dgettext('tuleap-tracker', 'Webhook successfully created')
         );
 
         $layout->redirect($this->getAdminWebhooksURL($tracker));

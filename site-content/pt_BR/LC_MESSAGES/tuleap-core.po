@@ -2210,9 +2210,6 @@ msgstr "Convites pendentes"
 msgid "Pending projects"
 msgstr "Projetos pendentes"
 
-msgid "Pending trackers removal"
-msgstr "Trackers pendentes de remoção"
-
 msgid "Pending users"
 msgstr "Usuários pendentes"
 
@@ -2249,9 +2246,6 @@ msgstr "Delegação de permissões"
 
 msgid "Permissions delegations have been successfully updated."
 msgstr "As delegações de permissões foram atualizadas com sucesso."
-
-msgid "Permissions for deprecated services"
-msgstr "Permissões para serviços descontinuados"
 
 msgid "Permissions per group"
 msgstr "Permissões por grupo"
@@ -4124,7 +4118,7 @@ msgstr "Avisos"
 
 msgid ""
 "We are sorry you caught an error, something meaningful was logged for site "
-"administrators. You may want got get in touch with them."
+"administrators. You may want to get in touch with them."
 msgstr ""
 "Lamentamos que tenha encontrado um erro, algo significativo foi registrado "
 "para os administradores do site. Se desejar, entre em contato com eles."

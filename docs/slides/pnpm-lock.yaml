@@ -8,9 +8,10 @@ overrides:
   isarray: npm:@nolyfill/isarray@^1
   safe-buffer: npm:@nolyfill/safe-buffer@^1
   safer-buffer: npm:@nolyfill/safer-buffer@^1
+  argparse: npm:@types/argparse@^2
 
 dependencies:
-  '@fontsource/public-sans':
+  '@fontsource-variable/public-sans':
     specifier: ^5.2.7
     version: 5.2.7
   vue:
@@ -612,8 +613,8 @@ packages:
     resolution: {integrity: sha512-aGTxbpbg8/b5JfU1HXSrbH3wXZuLPJcNEcZQFMxLs3oSzgtVu6nFPkbbGGUvBcUjKV2YyB9Wxxabo+HEH9tcRQ==}
     dev: true
 
-  /@fontsource/public-sans@5.2.7:
-    resolution: {integrity: sha512-pVttDr3HvhVIt2x6sZJfZKksNEpq23C1JCHTQwT9KWJdmFRdNeRM8gQftq8uP72sPW+p3Ku9x8HPk2E392DFvg==}
+  /@fontsource-variable/public-sans@5.2.7:
+    resolution: {integrity: sha512-4mvade2J3slKkvwRkS+p8T3szet/0vhWoSnuUJTVU81Uo2pRpSZY/Y8bSLRqpSwzIPxjVmRJ53oq6JKP/l/PSg==}
     dev: false
 
   /@iconify-json/carbon@1.2.14:
@@ -1341,6 +1342,10 @@ packages:
       - vite
       - vue-template-compiler
       - vue-template-es2015-compiler
+    dev: true
+
+  /@types/argparse@2.0.17:
+    resolution: {integrity: sha512-fueJssTf+4dW4HODshEGkIZbkLKHzgu1FvCI4cTc/MKum/534Euo3SrN+ilq8xgyHnOjtmg33/hee8iXLRg1XA==}
     dev: true
 
   /@types/d3-array@3.2.2:
@@ -2113,16 +2118,6 @@ packages:
     dependencies:
       normalize-path: 3.0.0
       picomatch: 2.3.1
-    dev: true
-
-  /argparse@1.0.10:
-    resolution: {integrity: sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==}
-    dependencies:
-      sprintf-js: 1.0.3
-    dev: true
-
-  /argparse@2.0.1:
-    resolution: {integrity: sha512-8+9WqebbFzpX9OR+Wa6O29asIogeRMzcGtAINdpMHHyAg10f05aSFVBbcEqGf/PXw1EjAZ+q2/bEBg3DvurK3Q==}
     dev: true
 
   /baseline-browser-mapping@2.8.22:
@@ -3097,7 +3092,7 @@ packages:
     resolution: {integrity: sha512-5v6yZd4JK3eMI3FqqCouswVqwugaA9r4dNZB1wwcmrD02QkV5H0y7XBQW8QwQqEaZY1pM9aqORSORhJRdNK44Q==}
     engines: {node: '>=6.0'}
     dependencies:
-      js-yaml: 3.14.1
+      js-yaml: 3.14.2
       kind-of: 6.0.3
       section-matter: 1.0.0
       strip-bom-string: 1.0.0
@@ -3300,11 +3295,11 @@ packages:
     resolution: {integrity: sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==}
     dev: true
 
-  /js-yaml@3.14.1:
-    resolution: {integrity: sha512-okMH7OXXJ7YrN9Ok3/SXrnu4iX9yOk+25nqX4imS2npuvTYDmo/QEZoqwZkYaIDk3jVvBOTOIEgEhaLOynBS9g==}
+  /js-yaml@3.14.2:
+    resolution: {integrity: sha512-PMSmkqxr106Xa156c2M265Z+FTrPl+oxd/rgOQy2tijQeK5TxQ43psO1ZCwhVOSdnn+RzkzlRz/eY4BgJBYVpg==}
     hasBin: true
     dependencies:
-      argparse: 1.0.10
+      argparse: /@types/argparse@2.0.17
       esprima: 4.0.1
     dev: true
 
@@ -3461,7 +3456,7 @@ packages:
     resolution: {integrity: sha512-a54IwgWPaeBCAAsv13YgmALOF1elABB08FxO9i+r4VFk5Vl4pKokRPeX8u5TCgSsPi6ec1otfLjdOpVcgbpshg==}
     hasBin: true
     dependencies:
-      argparse: 2.0.1
+      argparse: /@types/argparse@2.0.17
       entities: 4.5.0
       linkify-it: 5.0.0
       mdurl: 2.0.0
@@ -4357,10 +4352,6 @@ packages:
 
   /space-separated-tokens@2.0.2:
     resolution: {integrity: sha512-PEGlAwrG8yXGXRjW32fGbg66JAlOAwbObuqVoJpv/mRgoWDQfgH1wDPvtzWyUSNAXBGSk8h755YDbbcEy3SH2Q==}
-    dev: true
-
-  /sprintf-js@1.0.3:
-    resolution: {integrity: sha512-D9cPgkvLlV3t3IzL0D0YLvGA9Ahk4PcvVwUbN0dSGr1aP0Nrt4AEnTUbuGvquEC0mA64Gqt1fzirlRs5ibXx8g==}
     dev: true
 
   /statuses@1.5.0:

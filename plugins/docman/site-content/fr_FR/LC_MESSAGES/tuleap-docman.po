@@ -111,9 +111,6 @@ msgstr "-- Rapports projet:"
 msgid "-- Project saved search:"
 msgstr "-- Recherche projet sauvegardée :"
 
-msgid "...and for the whole sub-hierarchy."
-msgstr "...ainsi que pour toute la sous-hiérarchie."
-
 msgid "12 Months from today"
 msgstr "12 Mois"
 
@@ -245,9 +242,6 @@ msgstr ""
 "totalement nouvelle.</li></ul>Dans tous les cas : Les <strong>approbateurs "
 "ne sont pas notifiés automatiquement</strong>.</p>"
 
-msgid "<p>Paste operation successfully completed.</p>"
-msgstr "<p>Opération \"Coller\" terminée avec succès.</p>"
-
 #, php-format
 msgid ""
 "<p>The table below highlight the differences between %1$s and %2$s "
@@ -263,25 +257,8 @@ msgstr ""
 "cette opération supprime ni les propriétes ni les valeurs de %1$s et %2$s.</"
 "p>"
 
-#, php-format
-msgid ""
-"<p>You will be redirected to <a href=\"%1$s\"> %2$s </a> in %3$s seconds</p>"
-msgstr ""
-"<p>Vous allez être redirigé vers <a href=\"%1$s\"> %2$s </a> dans %3$s "
-"secondes</p>"
-
 msgid "<strong>Actions</strong> with selected reviewers:"
 msgstr "<strong>Actions</strong> pour les approbateurs sélectionnés:"
-
-msgid ""
-"<ul><li>The whole folder sub-tree is taken in account for these statistics.</"
-"li><li>To compute the size, only the last versions of \"file\" and "
-"\"embedded file\" documents are taken in account.</li></ul>"
-msgstr ""
-"<ul><li>Ces statistiques prennent en compte toute l'arborescence descendante "
-"de ce dossier.</li><li>Pour le calcul de la taille, seuls sont pris en "
-"compte les dernières versions des documents de type \"fichier\" et \"fichier "
-"embarqué\".</li></ul>"
 
 msgid "A directory already exists with this name under docman"
 msgstr "Un répertoire Docman existe déjà avec ce nom"
@@ -542,9 +519,6 @@ msgstr "Début"
 msgid "Can't delete folder %s because it is not empty."
 msgstr "Impossible de supprimer le dossier %s car il n'est pas vide."
 
-msgid "Can't move item."
-msgstr "Impossible de déplacer l'élément."
-
 #, php-format
 msgid "Cannot add  following user(s). Internal error: %1$s."
 msgstr "Impossible d'ajouter les utilisateurs suivants. Erreur interne : %1$s."
@@ -632,9 +606,6 @@ msgstr "Commenté"
 msgid "Content:"
 msgstr "Contenu :"
 
-msgid "Copy"
-msgstr "Copier"
-
 msgid "Copy from template"
 msgstr "Copier du template"
 
@@ -703,9 +674,6 @@ msgstr "Image courrante :"
 msgid "Customize filters"
 msgstr "Personnaliser les filtres"
 
-msgid "Cut"
-msgstr "Couper"
-
 msgid "Date"
 msgstr "Date"
 
@@ -760,9 +728,6 @@ msgstr ""
 "Valeur par défaut: celui qui soumet. Correspond au propriétaire officiel du "
 "document."
 
-msgid "Default view"
-msgstr "Vue par défaut"
-
 msgid ""
 "Define a period of validity for your document. It will automatically be "
 "archived at the end of the period."
@@ -776,9 +741,6 @@ msgid ""
 msgstr ""
 "Définissez les propriétés par défaut pour les éléments qui seront créés dans "
 "ce dossier."
-
-msgid "Define the default view for the document manager."
-msgstr "Définir la vue par défaut pour le gestionnaire de documents."
 
 msgid "Define the properties of your documents."
 msgstr "Sélectionnez les propriétés que vous voulez pour vos documents."
@@ -839,9 +801,6 @@ msgstr "Description :"
 msgid "Description: <strong><em>new text</em></strong>"
 msgstr "Description : <strong><em>nouveau texte</em></strong>"
 
-msgid "Details"
-msgstr "Détails"
-
 #, php-format
 msgid "Details of %1$s"
 msgstr "Détails de %1$s"
@@ -858,12 +817,6 @@ msgstr "Lien direct :"
 
 msgid "Disabled"
 msgstr "Désactivé"
-
-msgid "Display"
-msgstr "Affichage"
-
-msgid "Display (legacy)"
-msgstr "Affichage (ancienne interface)"
 
 msgid ""
 "Display a docman item directly in the dashboard. <br /><em>For now, only "
@@ -990,8 +943,8 @@ msgstr "Fichier embarqué"
 msgid "Embedded file"
 msgstr "Fichier embarqué"
 
-msgid "Embedded files:"
-msgstr "Fichiers embarqués :"
+msgid "Embedded files"
+msgstr "Fichiers embarqués"
 
 msgid "Empty"
 msgstr "Vide"
@@ -999,11 +952,8 @@ msgstr "Vide"
 msgid "Empty document"
 msgstr "Document vide"
 
-msgid "Empty documents:"
-msgstr "Documents vides :"
-
-msgid "Enable monitoring for the whole sub-hierarchy"
-msgstr "Monitoring activé pour toute la sous-hiérarchie"
+msgid "Empty documents"
+msgstr "Documents vides"
 
 msgid "Enabled"
 msgstr "Activé"
@@ -1091,8 +1041,8 @@ msgstr "Limites de téléversement"
 msgid "Filename pattern"
 msgstr "Modèle de nom de fichier"
 
-msgid "Files:"
-msgstr "Fichiers :"
+msgid "Files"
+msgstr "Fichiers"
 
 msgid "Fixed date"
 msgstr "Date fixe"
@@ -1103,8 +1053,8 @@ msgstr "Dossier"
 msgid "Folder Properties"
 msgstr "Propriétés du dossier"
 
-msgid "Folders:"
-msgstr "Dossiers :"
+msgid "Folders"
+msgstr "Dossiers"
 
 msgid ""
 "Following table aims to organize the approval cycle:<ul><li>With "
@@ -1269,16 +1219,6 @@ msgstr "Nature du document"
 msgid "Item successfully deleted."
 msgstr "Elément supprimé."
 
-#, php-format
-msgid ""
-"Item successfully moved form <a href=\"?"
-"group_id=%1$s&amp;action=show&amp;id=%2$s\">%3$s</a> to <a href=\"?"
-"group_id=%1$s&amp;action=show&amp;id=%4$s\">%5$s</a>."
-msgstr ""
-"Elément déplacé de <a href=\"?"
-"group_id=%1$s&amp;action=show&amp;id=%2$s\">%3$s</a> vers <a href=\"?"
-"group_id=%1$s&amp;action=show&amp;id=%4$s\">%5$s</a>."
-
 msgid "Item successfully updated"
 msgstr "Élément mis à jour"
 
@@ -1306,8 +1246,8 @@ msgstr "Dernière mise à jour du document ou de ses propriétés."
 msgid "Link"
 msgstr "Lien"
 
-msgid "Links:"
-msgstr "Liens :"
+msgid "Links"
+msgstr "Liens"
 
 msgid "List of locked documents."
 msgstr "Afficher la liste des documents réservés."
@@ -1365,9 +1305,6 @@ msgstr "La metadonnée n'a pas été mise à jour."
 
 msgid "Metadata successfully updated."
 msgstr "La metadonnée a été mise à jour."
-
-msgid "Monitored document"
-msgstr "Document monitoré"
 
 #, php-format
 msgid "Monitoring for group(s) '%1$s' already exists"
@@ -1485,16 +1422,8 @@ msgstr "Aucun élément séléctionné"
 msgid "No email sent to reviewers."
 msgstr "Pas d'email envoyé aux approbateurs."
 
-msgid "No notifications set"
-msgstr "Aucune notification définie"
-
 msgid "No review requested."
 msgstr "Pas d'approbation demandée."
-
-msgid ""
-"No valid item to paste. Either no item was copied or item no longer exist."
-msgstr ""
-"Pas d'élément valide à coller. L'élément n'a pas été copié ou n'existe plus."
 
 msgid "No, I do not want to delete it"
 msgstr "Non, je ne veux pas le supprimer"
@@ -1528,12 +1457,6 @@ msgstr "Notification :"
 
 msgid "Notifications"
 msgstr "Notifications"
-
-msgid "Notified people"
-msgstr "Personnes notifiées"
-
-msgid "Number of items in this folder:"
-msgstr "Nombre d'éléments dans ce dossier :"
 
 msgid "Obsolescence Date"
 msgstr "Date d'obsolescence"
@@ -1580,13 +1503,6 @@ msgstr "Coller '%1$s' dans '%2$s'"
 
 msgid "Paste Anyway"
 msgstr "Coller [force]"
-
-#, php-format
-msgid "Paste in progress '%1$s' in '%2$s'"
-msgstr "Coller '%1$s' dans '%2$s' en cours"
-
-msgid "Paste in progress..."
-msgstr "Coller en cours..."
 
 msgid "Pattern"
 msgstr "Modèle"
@@ -1635,25 +1551,10 @@ msgstr "Veuillez choisir une option pour la création de la table d'approbation"
 msgid "Please enter a new search name:"
 msgstr "Merci d'entrer un nom pour la nouvelle recherche :"
 
-msgid ""
-"Please select the default view for browsing documents. Please note that this "
-"setting can be overridden by user preferences."
-msgstr ""
-"Selectionnez la vue par défaut pour le parcours des documents. Notez que ce "
-"paramètre pourra être ignoré selon les préférences utilisateurs."
-
 msgid "Please select the folder where you want this new document appears."
 msgstr ""
 "Merci de sélectionner le répertoire où vous souhaitez que ce document "
 "apparaisse."
-
-#, php-format
-msgid ""
-"Please wait for the paste to complete. This may take a while depending on "
-"size of data to be copied <img src=\"%1$s\" />"
-msgstr ""
-"Veuillez attendre que la copie soit terminée. L'opération peut prendre du "
-"temps en fonction de la taille des données à coller <img src=\"%1$s\" />"
 
 msgid "Position:"
 msgstr "Position :"
@@ -1881,26 +1782,17 @@ msgstr ""
 msgid "Sequential"
 msgstr "Sequentiellement"
 
-msgid "Settings cannot be updated."
-msgstr "Les paramètres ne peuvent pas être mis à jour."
-
 msgid "Settings differ"
 msgstr "Les paramètres diffèrent"
 
 msgid "Settings have been saved successfully"
 msgstr "Les paramètres ont été sauvegardés avec succès"
 
-msgid "Settings have been updated."
-msgstr "Paramètres mis à jour."
-
 msgid "Show actions"
 msgstr "Afficher les actions"
 
 msgid "Show my saved search"
 msgstr "Afficher mes recherche sauvegardées"
-
-msgid "Size:"
-msgstr "Taille :"
 
 msgid "Something happen!"
 msgstr "Quelque chose a changé !"
@@ -1918,9 +1810,6 @@ msgstr "Date de début"
 msgid "Start:"
 msgstr "Début :"
 
-msgid "Statistics"
-msgstr "Statistiques"
-
 msgid "Status"
 msgstr "Statut"
 
@@ -1936,17 +1825,14 @@ msgstr "Sujet :"
 msgid "Submit permissions"
 msgstr "Valider les permissions"
 
-msgid "Subscribers"
-msgstr "Abonnés"
-
-msgid "Summary"
-msgstr "Résumé"
-
 msgid "Switch to the new user interface"
 msgstr "Basculer sur la nouvelle interface utilisateur"
 
 msgid "Table"
 msgstr "Table"
+
+msgid "Table does not exist"
+msgstr "La table n'existe pas"
 
 msgid "Table settings updated."
 msgstr "Paramètres de la table modifiés."
@@ -2200,9 +2086,6 @@ msgstr ""
 msgid "This table is linked to an old version of the document."
 msgstr "Cette table correspond à une ancienne version du document."
 
-msgid "This table shows the number of elements of each type."
-msgstr "Ce tableau présente le nombre d'éléments de chaque type."
-
 msgid "Title"
 msgstr "Titre"
 
@@ -2307,12 +2190,6 @@ msgstr ""
 msgid "User successfully added to the approval table."
 msgstr "L'utilisateur a été ajouté à la table."
 
-msgid "User, group"
-msgstr "Utilisateur, groupe"
-
-msgid "Validate"
-msgstr "Valider"
-
 msgid "Validity:"
 msgstr "Validité :"
 
@@ -2404,8 +2281,8 @@ msgstr "Nouvelle version de la page Wiki"
 msgid "Wiki page successfully deleted from wiki service."
 msgstr "Page wiki supprimé du service wiki avec succès."
 
-msgid "Wiki pages:"
-msgstr "Pages wiki :"
+msgid "Wiki pages"
+msgstr "Pages wiki"
 
 msgid "Will be created with the same permissions than its parent."
 msgstr "Les même permissions que celles du parent."
@@ -2546,14 +2423,6 @@ msgstr ""
 "Vous pouvez <a href=\"%1$s\" data-test=\"%s\">supprimer ce dossier</a>."
 
 #, php-format
-msgid "You can <a href=\"%1$s\">copy this document</a>."
-msgstr "Vous pouvez <a href=\"%1$s\">copier ce document</a>."
-
-#, php-format
-msgid "You can <a href=\"%1$s\">copy this folder</a>."
-msgstr "Vous pouvez <a href=\"%1$s\">copier ce dossier</a>."
-
-#, php-format
 msgid "You can <a href=\"%1$s\">create a new document</a> in this folder."
 msgstr ""
 "Vous pouvez <a href=\"%1$s\">créer un nouveau document</a> dans ce dossier."
@@ -2566,14 +2435,6 @@ msgstr ""
 #, php-format
 msgid "You can <a href=\"%1$s\">create a new version</a>."
 msgstr "Vous pouvez <a href=\"%1$s\">créer une nouvelle version</a>."
-
-#, php-format
-msgid "You can <a href=\"%1$s\">cut this document</a>."
-msgstr "Vous pouvez <a href=\"%1$s\">couper ce document</a>."
-
-#, php-format
-msgid "You can <a href=\"%1$s\">cut this folder</a>."
-msgstr "Vous pouvez <a href=\"%1$s\">couper ce dossier</a>."
 
 #, php-format
 msgid ""
@@ -2590,10 +2451,6 @@ msgid ""
 msgstr ""
 "Vous pouvez <a href=\"%1$s\">déplacer ce dossier</a> dans un autre dossier "
 "ou au sein de son dossier actuel."
-
-#, php-format
-msgid "You can <a href=\"%1$s\">paste '%2$s' into this folder</a>."
-msgstr "Vous pouvez <a href=\"%1$s\">coller '%2$s' dans ce dossier</a>."
 
 #, php-format
 msgid "You can <a href=\"%1$s\">update</a> this document."
@@ -2655,14 +2512,16 @@ msgstr ""
 "Vous ne pouvez pas supprimer un rapport que vous ne possédez pas. "
 "Suppression annulée."
 
-msgid "You can not paste an item into itself."
-msgstr "Vous ne pouvez pas coller l'élément en lui même."
-
 msgid "You can only clone 'Project' wide reports or your 'Personal' reports."
 msgstr "Vous ne pouvez cloner que les rapports 'projet' ou personnels."
 
-msgid "You cannot add emails"
-msgstr "Vous ne pouvez pas ajouter de mails"
+#, php-format
+msgid ""
+"You can view this table in the %s. Please note the interface is under "
+"development"
+msgstr ""
+"Vous pouvez voir cette table dans la %s. Veuillez noter que l'interface est "
+"en cours de développement"
 
 msgid "You cannot add people to an old approval table."
 msgstr ""
@@ -2671,22 +2530,6 @@ msgstr ""
 
 msgid "You cannot create a new version."
 msgstr "Vous ne pouvez pas créer une nouvelle version."
-
-msgid "You cannot cut something and then paste it into its child."
-msgstr ""
-"Vous ne pouvez pas couper un élément et le coller ensuite dans l'un de ses "
-"enfants."
-
-msgid "You cannot cut this folder."
-msgstr "Vous ne pouvez pas couper ce document."
-
-msgid ""
-"You cannot delete because a parent folder is monitored with its sub-"
-"hierarchy. You can delete that monitoring only from the parent itself."
-msgstr ""
-"Impossible de supprimer car un dossier parent est monitoré avec sa sous-"
-"hiérarchie. Vous pouvez supprimer ce monitoring uniquement depuis le parent "
-"en question."
 
 msgid "You cannot delete the root folder."
 msgstr "Vous ne pouvez pas supprimer le dossier racine."
@@ -2713,9 +2556,6 @@ msgstr "Vous ne pouvez pas déplacer ce document."
 
 msgid "You cannot move this folder."
 msgstr "Vous ne pouvez pas déplacer ce dossier."
-
-msgid "You cannot paste something into a document."
-msgstr "Vous ne pouvez pas coller un élément dans un document."
 
 msgid "You cannot update this document."
 msgstr "Vous ne pouvez pas mettre à jour ce document."
@@ -2998,6 +2838,9 @@ msgstr "lorem doit figurer dans le résultat"
 
 msgid "lorem must not be in result"
 msgstr "lorem ne doit pas figurer dans le résultat"
+
+msgid "new ui"
+msgstr "nouvelle interface"
 
 msgid "null is not a valid status."
 msgstr "null n'est pas un statut valide."

@@ -20,7 +20,7 @@
 
 namespace Tuleap\Git\DefaultSettings;
 
-use HTTPRequest;
+use Git;
 use Tuleap\Git\RouterLink;
 
 class DefaultSettingsRouter extends RouterLink
@@ -36,10 +36,10 @@ class DefaultSettingsRouter extends RouterLink
     }
 
     #[\Override]
-    public function process(HTTPRequest $request)
+    public function process(\Tuleap\HTTPRequest $request)
     {
         switch ($request->get('action')) {
-            case 'admin-default-settings':
+            case Git::ADMIN_DEFAULT_SETTINGS_ACTION:
                 $this->index_controller->displayDefaultSettings($request);
                 break;
             default:

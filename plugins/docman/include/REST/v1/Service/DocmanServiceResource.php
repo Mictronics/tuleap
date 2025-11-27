@@ -69,7 +69,10 @@ final class DocmanServiceResource extends AuthenticatedResource
         $html_purifier       = \Codendi_HTMLPurifier::instance();
         $permissions_manager = \Docman_PermissionsManager::instance($id);
         $ugroup_manager      = new UGroupManager();
-        $builder             = new DocmanServiceRepresentationBuilder(
+        $factories_factory   = new \Docman_ApprovalTableFactoriesFactory();
+        $version_factory     = new Docman_VersionFactory();
+
+        $builder = new DocmanServiceRepresentationBuilder(
             new ItemRepresentationBuilder(
                 new \Docman_ItemDao(),
                 $user_manager,
@@ -82,10 +85,7 @@ final class DocmanServiceResource extends AuthenticatedResource
                     $html_purifier,
                     UserHelper::instance()
                 ),
-                new ApprovalTableRetriever(
-                    new \Docman_ApprovalTableFactoriesFactory(),
-                    new Docman_VersionFactory()
-                ),
+                new ApprovalTableRetriever($factories_factory, $version_factory),
                 new DocmanItemPermissionsForGroupsBuilder(
                     $permissions_manager,
                     ProjectManager::instance(),
@@ -94,6 +94,8 @@ final class DocmanServiceResource extends AuthenticatedResource
                 ),
                 $html_purifier,
                 new UserAvatarUrlProvider(new AvatarHashDao(), new ComputeAvatarHash()),
+                $factories_factory,
+                $version_factory,
             ),
             $permissions_manager,
             new DocmanServicePermissionsForGroupsBuilder(

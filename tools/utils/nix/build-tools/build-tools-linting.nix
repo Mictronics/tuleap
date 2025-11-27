@@ -29,6 +29,20 @@ treefmt-nix.mkWrapper pkgs {
     package = pkgs.nixfmt;
   };
   programs.oxipng.enable = true;
+  settings.formatter.eslint = {
+    command = pkgs.writeShellScriptBin "tuleap-eslint" ''
+      set -eou pipefail
+
+      pnpm run eslint --fix -- "$@"
+    '';
+    includes = [
+      "*.js"
+      "*.mjs"
+      "*.ts"
+      "*.mts"
+      "*.vue"
+    ];
+  };
   settings.formatter.stylelint = {
     command = pkgs.writeShellScriptBin "tuleap-stylelint" ''
       set -eou pipefail
@@ -42,4 +56,16 @@ treefmt-nix.mkWrapper pkgs {
   };
   programs.actionlint.enable = true;
   programs.zizmor.enable = true;
+  settings.formatter.phpcs = {
+    command = pkgs.writeShellScriptBin "tuleap-phpcs" ''
+      set -eou pipefail
+
+      php -d short_open_tag=OFF -d memory_limit=512M ./src/vendor/bin/phpcbf --encoding=utf-8 --standard=tests/phpcs/tuleap-ruleset-minimal.xml -q --runtime-set php_version 80400 -- "$@" 2> /dev/null ||
+        php -d short_open_tag=OFF -d memory_limit=512M ./src/vendor/bin/phpcs --encoding=utf-8 --standard=tests/phpcs/tuleap-ruleset-minimal.xml -q --runtime-set php_version 80400 -- "$@"
+    '';
+    includes = [
+      "*.php"
+      "*.phpstub"
+    ];
+  };
 }

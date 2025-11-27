@@ -9,7 +9,6 @@
     Insertion:readonly
     Effect:readonly
     Position:readonly
-    tuleap:readonly
 */
 
 if (!com) {
@@ -779,16 +778,6 @@ Object.extend(com.xerox.codendi.Menu.prototype, {
         a.appendChild(title_txt);
         return this._createLi(a);
     },
-    _getMove: function () {
-        var txtNode = Builder.node("span", { class: "docman_item_option_move" });
-        txtNode.appendChild(document.createTextNode(this.docman.options.language.action_move));
-        var li = this._createLi(txtNode);
-        this._appendQuickMoveIcon(li, "move-up");
-        this._appendQuickMoveIcon(li, "move-down");
-        this._appendQuickMoveIcon(li, "move-beginning");
-        this._appendQuickMoveIcon(li, "move-end");
-        return li;
-    },
     _getPermissions: function () {
         var a = Builder.node("a", {
             href: this.defaultUrl + "&action=details&section=permissions",
@@ -901,202 +890,7 @@ Object.extend(com.xerox.codendi.Menu.prototype, {
         );
         return this._createLi(a);
     },
-    _getCut: function () {
-        var a = Builder.node("a", {
-            href: this.defaultUrl + "&action=action_cut",
-            class: "docman_item_option_cut",
-            title: this.docman.options.language.action_cut,
-        });
-        var title_txt = document.createTextNode(this.docman.options.language.action_cut);
-        a.appendChild(title_txt);
-        Event.observe(
-            a,
-            "click",
-            function (evt) {
-                new Ajax.Request(this.defaultUrl + "&action=action_cut&ajax_cut=true", {
-                    onComplete: function () {
-                        // Hide menu
-                        this.hide();
 
-                        // Display feedback message
-                        var li = Builder.node("li");
-
-                        // Search item title
-                        var title = $("docman_item_title_link_" + this.item_id).firstChild
-                            .nodeValue;
-                        li.textContent =
-                            '"' + title + '" ' + this.docman.options.language.feedback_cut;
-
-                        // Hide previous feedback
-                        if ($("item_copied")) {
-                            $("item_copied").remove();
-                        }
-                        if ($("item_cut")) {
-                            $("item_cut").remove();
-                        }
-
-                        var ul = Builder.node("ul", { class: "feedback_info", id: "item_cut" });
-                        ul.appendChild(li);
-                        var feedback = $("feedback");
-                        feedback.appendChild(ul);
-                        feedback.show();
-
-                        // There is something to paste & user have write permission on a folder -> user can paste inside that folder.
-                        $H(this.docman.actionsForItem)
-                            .keys()
-                            .each(
-                                function (id) {
-                                    if (this.docman.actionsForItem[id].canNewDocument) {
-                                        const parents = this.docman.actionsForItem[id].parents;
-                                        if (this.item_id == id || parents[this.item_id] == true) {
-                                            this.docman.actionsForItem[id].canPaste = false;
-                                        } else {
-                                            this.docman.actionsForItem[id].canPaste = true;
-                                        }
-                                    }
-                                }.bind(this),
-                            );
-                    }.bindAsEventListener(this),
-                });
-                Event.stop(evt);
-                return false;
-            }.bindAsEventListener(this),
-        );
-        return this._createLi(a);
-    },
-    _getCopy: function () {
-        var a = Builder.node("a", {
-            href: this.defaultUrl + "&action=action_copy",
-            class: "docman_item_option_copy",
-            title: this.docman.options.language.action_copy,
-        });
-        var title_txt = document.createTextNode(this.docman.options.language.action_copy);
-        a.appendChild(title_txt);
-        Event.observe(
-            a,
-            "click",
-            function (evt) {
-                new Ajax.Request(this.defaultUrl + "&action=action_copy&ajax_copy=true", {
-                    onComplete: function () {
-                        // Hide menu
-                        this.hide();
-
-                        // Display feedback message
-                        var li = Builder.node("li");
-
-                        // Search item title
-                        var title = $("docman_item_title_link_" + this.item_id).firstChild
-                            .nodeValue;
-                        // eslint-disable-next-line no-unsanitized/property
-                        li.innerHTML =
-                            '"' +
-                            tuleap.escaper.html(title) +
-                            '" ' +
-                            this.docman.options.language.feedback_copy;
-
-                        // Hide previous feedback
-                        if ($("item_copied")) {
-                            $("item_copied").remove();
-                        }
-                        if ($("item_cut")) {
-                            $("item_cut").remove();
-                        }
-
-                        var ul = Builder.node("ul", { class: "feedback_info", id: "item_copied" });
-                        ul.appendChild(li);
-                        var feedback = $("feedback");
-                        feedback.appendChild(ul);
-                        feedback.show();
-
-                        // There is sth to paste.
-                        //this.docman.canPaste = true;
-
-                        // There is something to paste & user have write permission on a folder -> user can paste inside that folder.
-                        $H(this.docman.actionsForItem)
-                            .keys()
-                            .each(
-                                function (id) {
-                                    if (this.docman.actionsForItem[id].canNewDocument) {
-                                        this.docman.actionsForItem[id].canPaste = true;
-                                    }
-                                }.bind(this),
-                            );
-                    }.bindAsEventListener(this),
-                });
-                Event.stop(evt);
-                return false;
-            }.bindAsEventListener(this),
-        );
-        return this._createLi(a);
-    },
-    _getPaste: function () {
-        var title_txt = document.createTextNode(this.docman.options.language.action_paste);
-        var a = Builder.node("a", {
-            href: this.defaultUrl + "&action=action_paste",
-            class: "docman_item_option_paste",
-            title: this.docman.options.language.action_paste,
-        });
-        a.appendChild(title_txt);
-
-        const spanCancel = Builder.node("span", {
-            style: "width:100%; align: right; vertical-align: middle;",
-        });
-        spanCancel.appendChild(this._getCancelPaste());
-
-        const li = this._createLi(a);
-        li.appendChild(spanCancel);
-        return li;
-    },
-    _getCancelPaste: function () {
-        this.docman.options.language.action_paste_cancel = "Cancel paste";
-        var im = Builder.node("img", {
-            src: this.docman.options.themePath + "/images/ic/cancel.png",
-            style: "margin:0; padding:0, border:0;",
-            title: "",
-        });
-
-        Event.observe(
-            im,
-            "click",
-            function (evt) {
-                new Ajax.Request(this.defaultUrl + "&action=paste_cancel", {
-                    onComplete: function () {
-                        // Hide menu
-                        this.hide();
-
-                        // There disable paste for all items
-                        $H(this.docman.actionsForItem)
-                            .keys()
-                            .each(
-                                function (id) {
-                                    this.docman.actionsForItem[id].canPaste = false;
-                                }.bind(this),
-                            );
-
-                        // Hide previous feedback
-                        if ($("item_copied")) {
-                            $("item_copied").remove();
-                        }
-                        if ($("item_cut")) {
-                            $("item_cut").remove();
-                        }
-                    }.bindAsEventListener(this),
-                });
-                Event.stop(evt);
-                return false;
-            }.bindAsEventListener(this),
-        );
-
-        // Display the pointer when the mouse is over the image (as a link does)
-        Event.observe(im, "mouseover", function () {
-            Element.setStyle(document.body, { cursor: "pointer" });
-        });
-        Event.observe(im, "mouseout", function () {
-            Element.setStyle(document.body, { cursor: "default" });
-        });
-
-        return im;
-    },
     _getApproval: function () {
         var a = Builder.node("a", {
             href: this.defaultUrl + "&action=details&section=approval",
@@ -1228,23 +1022,6 @@ Object.extend(com.xerox.codendi.Menu.prototype, {
         // Approval table
         if (this.docman.actionsForItem[this.item_id].canApproval) {
             ul.appendChild(this._getApproval());
-        }
-
-        ul.appendChild(this._getSeparator());
-
-        // Move
-        if (this.docman.actionsForItem[this.item_id].canMove) {
-            ul.appendChild(this._getMove());
-        }
-        // Cut
-        if (this.docman.actionsForItem[this.item_id].canCut) {
-            ul.appendChild(this._getCut());
-        }
-        // Copy
-        ul.appendChild(this._getCopy());
-        // Paste
-        if (this.docman.actionsForItem[this.item_id].canPaste) {
-            ul.appendChild(this._getPaste());
         }
 
         ul.appendChild(this._getSeparator());

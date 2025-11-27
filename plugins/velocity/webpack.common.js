@@ -22,7 +22,6 @@ const { webpack_configurator } = require("@tuleap/build-system-configurator");
 
 let entry_points = {
     "velocity-chart": "./scripts/velocity-chart/src/index.js",
-    "style-fp": "./themes/FlamingParrot/css/style.scss",
     "velocity-style": "./themes/BurningParrot/css/velocity.scss",
 };
 
@@ -41,7 +40,6 @@ module.exports = [
             rules: [webpack_configurator.rule_scss_loader, webpack_configurator.rule_po_files],
         },
         plugins: [
-            webpack_configurator.getCleanWebpackPlugin(),
             ...webpack_configurator.getCSSExtractionPlugins(),
             webpack_configurator.getManifestPlugin(),
             webpack_configurator.getMomentLocalePlugin(),

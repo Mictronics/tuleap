@@ -22,10 +22,11 @@ namespace Tuleap\SVN\Admin;
 
 use CSRFSynchronizerToken;
 use Feedback;
-use HTTPRequest;
 use Psr\Log\LoggerInterface;
 use Project;
 use Rule_Email;
+use Tuleap\CSRFSynchronizerTokenPresenter;
+use Tuleap\Layout\IncludeAssets;
 use Tuleap\Layout\IncludeViteAssets;
 use Tuleap\Layout\JavascriptViteAsset;
 use Tuleap\SVN\Notifications\CannotAddUgroupsNotificationException;
@@ -86,6 +87,8 @@ class AdminController
         HookConfigUpdator $hook_config_updator,
         HookConfigRetriever $hook_config_retriever,
         RepositoryDeleter $repository_deleter,
+        private readonly \User_ForgeUserGroupFactory $ugroup_factory,
+        private readonly UserGroupsPresenterBuilder $user_groups_presenter_builder,
     ) {
         $this->repository_manager        = $repository_manager;
         $this->mail_header_manager       = $mail_header_manager;
@@ -104,7 +107,7 @@ class AdminController
         return new CSRFSynchronizerToken(SVN_BASE_URL . '/?group_id=' . $project->getid() . '&repo_id=' . $repository->getId() . '&action=display-mail-notification');
     }
 
-    public function displayMailNotification(ServiceSvn $service, HTTPRequest $request): void
+    public function displayMailNotification(ServiceSvn $service, \Tuleap\HTTPRequest $request): void
     {
         $repository = $this->repository_manager->getByIdAndProject($request->get('repo_id'), $request->getProject());
 
@@ -112,9 +115,16 @@ class AdminController
 
         $mail_header           = $this->mail_header_manager->getByRepository($repository);
         $notifications_details = $this->mail_notification_manager->getByRepository($repository);
+        $project_ugroups       = $this->ugroup_factory->getAllForProject($request->getProject());
 
         $title = $GLOBALS['Language']->getText('global', 'Administration');
 
+        $GLOBALS['Response']->addJavascriptAsset(
+            new \Tuleap\Layout\JavascriptAsset(
+                new IncludeAssets(__DIR__ . '/../../../scripts/main/frontend-assets', '/assets/svn/main'),
+                'svn-admin.js',
+            )
+        );
         $service->renderInPageRepositoryAdministration(
             $request,
             $repository->getName() . ' – ' . $title,
@@ -122,17 +132,18 @@ class AdminController
             new MailNotificationPresenter(
                 $repository,
                 $request->getProject(),
-                $token,
+                CSRFSynchronizerTokenPresenter::fromToken($token),
                 $title,
                 $mail_header,
-                $this->notification_list_builder->getNotificationsPresenter($notifications_details)
+                $this->user_groups_presenter_builder->getUgroups($project_ugroups, []),
+                $this->notification_list_builder->getNotificationsPresenter($project_ugroups, $notifications_details)
             ),
             '',
             $repository,
         );
     }
 
-    public function saveMailHeader(HTTPRequest $request): void
+    public function saveMailHeader(\Tuleap\HTTPRequest $request): void
     {
         $repository = $this->repository_manager->getByIdAndProject($request->get('repo_id'), $request->getProject());
 
@@ -145,12 +156,12 @@ class AdminController
             $mail_header = new MailHeader($repository, $repo_name);
             try {
                 $this->mail_header_manager->create($mail_header);
-                $GLOBALS['Response']->addFeedback('info', dgettext('tuleap-svn', 'Header updated successfully'));
+                $GLOBALS['Response']->addFeedback(Feedback::SUCCESS, dgettext('tuleap-svn', 'Header updated successfully'));
             } catch (CannotCreateMailHeaderException $e) {
-                $GLOBALS['Response']->addFeedback('error', dgettext('tuleap-svn', 'Header update failed.'));
+                $GLOBALS['Response']->addFeedback(Feedback::ERROR, dgettext('tuleap-svn', 'Header update failed.'));
             }
         } else {
-            $GLOBALS['Response']->addFeedback('error', dgettext('tuleap-svn', 'Header update failed.'));
+            $GLOBALS['Response']->addFeedback(Feedback::ERROR, dgettext('tuleap-svn', 'Header update failed.'));
         }
 
         $GLOBALS['Response']->redirect(SVN_BASE_URL . '/?' . http_build_query(
@@ -162,7 +173,7 @@ class AdminController
         ));
     }
 
-    public function saveMailingList(HTTPRequest $request): void
+    public function saveMailingList(\Tuleap\HTTPRequest $request): void
     {
         $repository = $this->repository_manager->getByIdAndProject($request->get('repo_id'), $request->getProject());
 
@@ -182,12 +193,12 @@ class AdminController
         }
     }
 
-    private function createMailingList(HTTPRequest $request, Repository $repository, $notification_to_add): void
+    private function createMailingList(\Tuleap\HTTPRequest $request, Repository $repository, $notification_to_add): void
     {
         $form_path       = $notification_to_add['path'];
         $valid_path      = new Valid_String($form_path);
         $invalid_entries = new InvalidEntryInAutocompleterCollection();
-        $autocompleter   = $this->getAutocompleter($request->getProject(), $invalid_entries, $notification_to_add['emails']);
+        $autocompleter   = $this->getAutocompleter($request->getProject(), $invalid_entries, $notification_to_add);
 
         $is_path_valid = $request->valid($valid_path) && $form_path !== '';
         $invalid_entries->generateWarningMessageForInvalidEntries();
@@ -225,7 +236,7 @@ class AdminController
             try {
                 $this->mail_notification_manager->createWithHistory($mail_notification);
                 $GLOBALS['Response']->addFeedback(
-                    Feedback::INFO,
+                    Feedback::SUCCESS,
                     dgettext('tuleap-svn', 'Email Notification updated successfully')
                 );
             } catch (CannotCreateMailHeaderException $e) {
@@ -248,16 +259,15 @@ class AdminController
         $this->redirectOnDisplayNotification($request);
     }
 
-    private function updateMailingList(HTTPRequest $request, Repository $repository, $notification_to_update): void
+    private function updateMailingList(\Tuleap\HTTPRequest $request, Repository $repository, $notification_to_update): void
     {
         $notification_ids = array_keys($notification_to_update);
         $notification_id  = $notification_ids[0];
         $new_path         = $notification_to_update[$notification_id]['path'];
-        $emails           = $notification_to_update[$notification_id]['emails'];
         $valid_path       = new Valid_String($new_path);
 
         $invalid_entries = new InvalidEntryInAutocompleterCollection();
-        $autocompleter   = $this->getAutocompleter($request->getProject(), $invalid_entries, $emails);
+        $autocompleter   = $this->getAutocompleter($request->getProject(), $invalid_entries, $notification_to_update[$notification_id]);
 
         $is_path_valid = $request->valid($valid_path) && $new_path !== '';
         $invalid_entries->generateWarningMessageForInvalidEntries();
@@ -319,7 +329,7 @@ class AdminController
             }
 
             $GLOBALS['Response']->addFeedback(
-                Feedback::INFO,
+                Feedback::SUCCESS,
                 dgettext('tuleap-svn', 'Email Notification updated successfully')
             );
         } catch (CannotCreateMailHeaderException $e) {
@@ -332,7 +342,7 @@ class AdminController
         $this->redirectOnDisplayNotification($request);
     }
 
-    public function deleteMailingList(HTTPRequest $request): void
+    public function deleteMailingList(\Tuleap\HTTPRequest $request): void
     {
         $repository = $this->repository_manager->getByIdAndProject($request->get('repo_id'), $request->getProject());
 
@@ -350,7 +360,7 @@ class AdminController
 
                 $this->mail_notification_manager->removeByPathWithHistory($notification);
                 $GLOBALS['Response']->addFeedback(
-                    Feedback::INFO,
+                    Feedback::SUCCESS,
                     dgettext(
                         'tuleap-svn',
                         'Notification deleted successfully.'
@@ -367,7 +377,7 @@ class AdminController
         $this->redirectOnDisplayNotification($request);
     }
 
-    public function updateHooksConfig(ServiceSvn $service, HTTPRequest $request): void
+    public function updateHooksConfig(ServiceSvn $service, \Tuleap\HTTPRequest $request): void
     {
         $repository = $this->repository_manager->getByIdAndProject($request->get('repo_id'), $request->getProject());
 
@@ -389,7 +399,7 @@ class AdminController
         ));
     }
 
-    public function displayHooksConfig(ServiceSvn $service, HTTPRequest $request): void
+    public function displayHooksConfig(ServiceSvn $service, \Tuleap\HTTPRequest $request): void
     {
         $repository  = $this->repository_manager->getByIdAndProject($request->get('repo_id'), $request->getProject());
         $hook_config = $this->hook_config_retriever->getHookConfig($repository);
@@ -414,7 +424,7 @@ class AdminController
         );
     }
 
-    public function displayRepositoryDelete(ServiceSvn $service, HTTPRequest $request): void
+    public function displayRepositoryDelete(ServiceSvn $service, \Tuleap\HTTPRequest $request): void
     {
         $repository = $this->repository_manager->getByIdAndProject($request->get('repo_id'), $request->getProject());
         if (! $repository->canBeDeleted()) {
@@ -447,7 +457,7 @@ class AdminController
         );
     }
 
-    public function deleteRepository(HTTPRequest $request): void
+    public function deleteRepository(\Tuleap\HTTPRequest $request): void
     {
         $project       = $request->getProject();
         $project_id    = $project->getID();
@@ -511,7 +521,7 @@ class AdminController
         ));
     }
 
-    private function redirectOnDisplayNotification(HTTPRequest $request): void
+    private function redirectOnDisplayNotification(\Tuleap\HTTPRequest $request): void
     {
         $GLOBALS['Response']->redirect(SVN_BASE_URL . '/?' . http_build_query(
             [
@@ -522,7 +532,7 @@ class AdminController
         ));
     }
 
-    private function getAutocompleter(Project $project, InvalidEntryInAutocompleterCollection $invalid_entries, $emails): RequestFromAutocompleter
+    private function getAutocompleter(Project $project, InvalidEntryInAutocompleterCollection $invalid_entries, array $recipients): RequestFromAutocompleter
     {
         $autocompleter = new RequestFromAutocompleter(
             $invalid_entries,
@@ -531,7 +541,7 @@ class AdminController
             $this->ugroup_manager,
             $this->user_manager->getCurrentUser(),
             $project,
-            $emails
+            $recipients
         );
         return $autocompleter;
     }

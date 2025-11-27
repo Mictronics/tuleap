@@ -23,7 +23,6 @@ declare(strict_types=1);
 
 namespace Tuleap\FRS\LicenseAgreement\Admin;
 
-use HTTPRequest;
 use Project;
 use Tuleap\FRS\FRSPermissionManager;
 use Tuleap\FRS\LicenseAgreement\LicenseAgreementDao;
@@ -31,6 +30,8 @@ use Tuleap\FRS\LicenseAgreement\LicenseAgreementFactory;
 use Tuleap\FRS\LicenseAgreement\LicenseAgreementInterface;
 use Tuleap\Layout\BaseLayout;
 use Tuleap\Layout\IncludeAssets;
+use Tuleap\Layout\IncludeAssetsGeneric;
+use Tuleap\Layout\IncludeViteAssets;
 use Tuleap\Request\DispatchableWithBurningParrot;
 use Tuleap\Request\DispatchableWithRequest;
 use Tuleap\Request\ForbiddenException;
@@ -71,6 +72,7 @@ class EditLicenseAgreementController implements DispatchableWithRequest, Dispatc
         LicenseAgreementFactory $factory,
         \CSRFSynchronizerToken $csrf_token,
         IncludeAssets $assets,
+        private readonly IncludeAssetsGeneric $ckeditor_assets,
     ) {
         $this->project_retriever = $project_retriever;
         $this->helper            = $helper;
@@ -94,6 +96,7 @@ class EditLicenseAgreementController implements DispatchableWithRequest, Dispatc
             ),
             SaveLicenseAgreementController::getCSRFTokenSynchronizer(),
             new \Tuleap\Layout\IncludeCoreAssets(),
+            new IncludeViteAssets(__DIR__ . '/../../../src/scripts/ckeditor4/frontend-assets/', '/assets/core/ckeditor4/')
         );
     }
 
@@ -105,7 +108,7 @@ class EditLicenseAgreementController implements DispatchableWithRequest, Dispatc
      * @throws NotFoundException
      */
     #[\Override]
-    public function process(HTTPRequest $request, BaseLayout $layout, array $variables)
+    public function process(\Tuleap\HTTPRequest $request, BaseLayout $layout, array $variables)
     {
         $project = $this->project_retriever->getProjectFromId($variables['project_id']);
         $this->helper->assertCanAccess($project, $request->getCurrentUser());
@@ -127,7 +130,7 @@ class EditLicenseAgreementController implements DispatchableWithRequest, Dispatc
 
         $content_renderer = $this->renderer_factory->getRenderer(__DIR__ . '/templates');
 
-        $layout->includeFooterJavascriptFile($this->assets->getFileURL('ckeditor.js'));
+        $layout->includeFooterJavascriptFile($this->ckeditor_assets->getFileURL('ckeditor.js'));
         $layout->includeFooterJavascriptFile($this->assets->getFileURL('frs-admin-license-agreement.js'));
 
         $this->helper->renderHeader($project);

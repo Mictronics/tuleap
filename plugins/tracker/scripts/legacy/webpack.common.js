@@ -34,7 +34,6 @@ const config_for_legacy_scripts = {
         tuleap: "tuleap",
     },
     plugins: [
-        webpack_configurator.getCleanWebpackPlugin(),
         ...webpack_configurator.getLegacyConcatenatedScriptsPlugins({
             "tracker.js": [
                 "./src/TrackerReports.js",
@@ -42,7 +41,7 @@ const config_for_legacy_scripts = {
                 "./src/TrackerBinds.js",
                 "./src/ReorderColumns.js",
                 "./src/TrackerTextboxLists.js",
-                "./src/TrackerAdminFieldWorkflow.js",
+                "./src/TrackerAdminRichTextEditor.js",
                 "./src/TrackerArtifact.js",
                 "./src/TrackerArtifactEmailActions.js",
                 "./src/TrackerArtifactLink.js",
@@ -50,7 +49,6 @@ const config_for_legacy_scripts = {
                 "./src/TrackerCreate.js",
                 "./src/TrackerFormElementFieldPermissions.js",
                 "./src/TrackerDateReminderForms.js",
-                "./src/TrackerTriggers.js",
                 "./src/SubmissionKeeper.js",
                 "./src/TrackerFieldDependencies.js",
                 "./src/artifactChildren.js",
@@ -59,7 +57,6 @@ const config_for_legacy_scripts = {
                 "./src/TrackerCollapseFieldset.js",
                 "./src/CopyArtifact.js",
                 "./src/tracker-report-type-column.js",
-                "./src/tracker-webhooks.js",
             ],
         }),
         webpack_configurator.getManifestPlugin(),

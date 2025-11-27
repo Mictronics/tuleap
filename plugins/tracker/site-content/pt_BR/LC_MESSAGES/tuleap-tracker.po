@@ -154,6 +154,9 @@ msgstr ""
 msgid "-- Choose target field"
 msgstr ""
 
+msgid "-- Please choose"
+msgstr ""
+
 #, php-format
 msgid ""
 "<h3>Confirm deletion of date reminder</h3><p>You are going to delete this "
@@ -287,6 +290,10 @@ msgstr ""
 msgid "Activate unified and simplified artifact links edition"
 msgstr ""
 
+#, php-format
+msgid "Add a dependency between %1$s as source and %2$s as target"
+msgstr ""
+
 msgid "Add a follow-up comment"
 msgstr ""
 
@@ -312,6 +319,9 @@ msgstr ""
 msgid ""
 "Add a target which will be called everytime an artifact is created or "
 "updated. The URL will be called using HTTP POST method."
+msgstr ""
+
+msgid "Add condition"
 msgstr ""
 
 msgid "Add field to tooltip"
@@ -407,10 +417,6 @@ msgid ""
 "following values:"
 msgstr ""
 
-msgid ""
-"An email not truncated will be sent at the end of the migration process."
-msgstr ""
-
 #, php-format
 msgid "An error has occurred during the deletion of the type: %1$s"
 msgstr ""
@@ -432,6 +438,9 @@ msgid "An error occured while creating the tracker."
 msgstr ""
 
 msgid "An error occurred while clearing done values."
+msgstr ""
+
+msgid "An error occurred while deleting the rule"
 msgstr ""
 
 msgid "An error occurred while deleting the semantic"
@@ -762,6 +771,9 @@ msgid ""
 "missing."
 msgstr ""
 
+msgid "Cannot save: missing data in form"
+msgstr ""
+
 #, php-format
 msgid "Cannot update conditions of transition with id '%d'"
 msgstr ""
@@ -967,6 +979,9 @@ msgstr ""
 msgid "Create new trigger"
 msgstr ""
 
+msgid "Create rule"
+msgstr ""
+
 msgid ""
 "Creating artifact by mail is not possible due to the current configuration "
 "of the tracker."
@@ -1059,6 +1074,9 @@ msgstr ""
 msgid "Define global date rules"
 msgstr ""
 
+msgid "Define rule between two fields:"
+msgstr ""
+
 msgid "Define the closed status that are considered Done"
 msgstr ""
 
@@ -1094,6 +1112,9 @@ msgid "Delete permanently the field"
 msgstr ""
 
 msgid "Delete the reference?"
+msgstr ""
+
+msgid "Delete the rule"
 msgstr ""
 
 msgid "Delete the value"
@@ -1429,6 +1450,9 @@ msgid "Fields permissions"
 msgstr ""
 
 msgid "Fieldset"
+msgstr ""
+
+msgid "File"
 msgstr ""
 
 msgid "File not found"
@@ -2233,6 +2257,9 @@ msgid ""
 "field</a> to your tracker first."
 msgstr ""
 
+msgid "Please confirm your action."
+msgstr ""
+
 msgid ""
 "Please note that date reminders does not take tracker notifications settings "
 "into account and will always be sent even if notifications are disabled."
@@ -2400,6 +2427,10 @@ msgstr ""
 msgid "Remove %s from sidebar and +New dropdown"
 msgstr ""
 
+#, php-format
+msgid "Remove dependency between %1$s as source and %2$s as target"
+msgstr ""
+
 msgid "Remove from tooltip"
 msgstr ""
 
@@ -2476,13 +2507,16 @@ msgstr ""
 msgid "Rows"
 msgstr ""
 
+msgid "Rule"
+msgstr ""
+
+msgid "Rule deletion"
+msgstr ""
+
 msgid "Rule successfully created"
 msgstr ""
 
-msgid "Rule(s) successfully deleted"
-msgstr ""
-
-msgid "Rule(s) successfully updated"
+msgid "Rule successfully deleted"
 msgstr ""
 
 msgid "S"
@@ -2618,13 +2652,13 @@ msgstr ""
 msgid "Send an email to"
 msgstr ""
 
+msgid "Send notifications"
+msgstr ""
+
 msgid "Send notifications to people monitoring these artifacts"
 msgstr ""
 
 msgid "Send notifications to selected people"
-msgstr ""
-
-msgid "Send notifications:"
 msgstr ""
 
 msgid "Separator"
@@ -2674,11 +2708,6 @@ msgid ""
 msgstr ""
 
 msgid ""
-"Some migrations are being processed. Your new trackers will appear as soon "
-"as the migrations are completed."
-msgstr ""
-
-msgid ""
 "Some selected values was not saved because they are used in another semantic."
 msgstr ""
 
@@ -2693,6 +2722,9 @@ msgid "Something went wrong."
 msgstr ""
 
 msgid "Sort by:"
+msgstr ""
+
+msgid "Source and target fields must be different"
 msgstr ""
 
 msgid "Source id does not exist."
@@ -3521,6 +3553,9 @@ msgstr ""
 msgid "There isn't any information in the tooltip yet."
 msgstr ""
 
+msgid "There isn't any rules yet"
+msgstr ""
+
 msgid "There isn't any trackers yet"
 msgstr ""
 
@@ -3828,6 +3863,9 @@ msgstr ""
 msgid "Trackers new generation"
 msgstr ""
 
+msgid "Trackers restoration"
+msgstr ""
+
 msgid "Transition not found."
 msgstr ""
 
@@ -4095,13 +4133,16 @@ msgid_plural ""
 msgstr[0] ""
 msgstr[1] ""
 
-msgid "Webhook sucessfully created"
+msgid "Webhook deletion"
 msgstr ""
 
-msgid "Webhook sucessfully deleted"
+msgid "Webhook successfully created"
 msgstr ""
 
-msgid "Webhook sucessfully updated"
+msgid "Webhook successfully deleted"
+msgstr ""
+
+msgid "Webhook successfully updated"
 msgstr ""
 
 msgid "Webhooks"
@@ -4146,6 +4187,9 @@ msgid ""
 "you confirm this deletion?"
 msgstr ""
 
+msgid "You are about to delete the rule: %s"
+msgstr ""
+
 msgid "You are about to delete the tracker %s. Please, confirm your action."
 msgstr ""
 
@@ -4157,7 +4201,7 @@ msgid ""
 "your action."
 msgstr ""
 
-msgid "You are about to remove the webhook. Please confirm your action."
+msgid "You are about to remove the webhook."
 msgstr ""
 
 #, php-format
@@ -4429,6 +4473,9 @@ msgstr ""
 msgid "added"
 msgstr ""
 
+msgid "all children"
+msgstr ""
+
 #, php-format
 msgid "all of <strong>%1$s %2$s</strong> are set to <strong>%3$s</strong>"
 msgstr ""
@@ -4437,6 +4484,9 @@ msgid "alphabetically sort values"
 msgstr ""
 
 msgid "and"
+msgstr ""
+
+msgid "and all children"
 msgstr ""
 
 msgid "and it's now placed after"
@@ -4458,10 +4508,10 @@ msgstr ""
 msgid "at least one <strong>%1$s %2$s</strong> equals <strong>%3$s</strong>"
 msgstr ""
 
-msgid "autocomputed"
+msgid "at least one child"
 msgstr ""
 
-msgid "cancel"
+msgid "autocomputed"
 msgstr ""
 
 msgid "changed from"
@@ -4517,6 +4567,9 @@ msgstr ""
 msgid "fixed_in"
 msgstr ""
 
+msgid "has its field"
+msgstr ""
+
 msgid "have access to all artifacts"
 msgstr ""
 
@@ -4530,6 +4583,9 @@ msgid "have access to artifacts submitted by group"
 msgstr ""
 
 msgid "have access to artifacts they submitted"
+msgstr ""
+
+msgid "have their field"
 msgstr ""
 
 msgid "in"
@@ -4574,16 +4630,13 @@ msgstr ""
 msgid "or"
 msgstr "ou"
 
+msgid "or at least one child"
+msgstr ""
+
 msgid "raised"
 msgstr ""
 
 msgid "removed"
-msgstr ""
-
-msgid "select child tracker field"
-msgstr ""
-
-msgid "select child tracker name"
 msgstr ""
 
 msgid "select current tracker field"

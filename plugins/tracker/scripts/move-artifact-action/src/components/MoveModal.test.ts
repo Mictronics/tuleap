@@ -16,8 +16,7 @@
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
-import type { Mock } from "vitest";
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { VueWrapper } from "@vue/test-utils";
 import { shallowMount } from "@vue/test-utils";
 import { getGlobalTestOptions } from "../../tests/global-options-for-tests";
@@ -26,22 +25,10 @@ import { useSelectorsStore } from "../stores/selectors";
 import { useDryRunStore } from "../stores/dry-run";
 import { ARTIFACT_ID } from "../injection-symbols";
 import type { ArtifactField } from "../api/types";
-
 import MoveModal from "./MoveModal.vue";
 import MoveModalSelectors from "./MoveModalSelectors.vue";
-import DryRunPreview from "./DryRunPreview.vue";
 
 const artifact_id = 126;
-
-type MockedJquery = { on: Mock; modal: Mock };
-const mocked_jquery: MockedJquery = {
-    on: vi.fn(),
-    modal: vi.fn(),
-};
-
-vi.mock("jquery", () => ({
-    default: (): MockedJquery => mocked_jquery,
-}));
 
 describe("MoveModal", () => {
     const getWrapper = (): VueWrapper => {
@@ -54,14 +41,6 @@ describe("MoveModal", () => {
             },
         });
     };
-
-    describe("mounted()", () => {
-        it("should create a modal", () => {
-            getWrapper();
-
-            expect(mocked_jquery.modal).toHaveBeenCalledTimes(1);
-        });
-    });
 
     describe("display", () => {
         describe("Loader", () => {
@@ -120,35 +99,6 @@ describe("MoveModal", () => {
                 await useModalStore().$patch({ is_processing_move: true });
 
                 expect(wrapper.findComponent(MoveModalSelectors).isVisible()).toBe(false);
-            });
-        });
-
-        describe("Dry run preview", () => {
-            it("should not be displayed if the dry run has not been processed", async () => {
-                const wrapper = getWrapper();
-
-                await useModalStore().$patch({ is_processing_move: false });
-                await useDryRunStore().$patch({ has_processed_dry_run: false });
-
-                expect(wrapper.findComponent(DryRunPreview).exists()).toBe(false);
-            });
-
-            it("should not be displayed when the move is being processed", async () => {
-                const wrapper = getWrapper();
-
-                await useModalStore().$patch({ is_processing_move: true });
-                await useDryRunStore().$patch({ has_processed_dry_run: true });
-
-                expect(wrapper.findComponent(DryRunPreview).exists()).toBe(false);
-            });
-
-            it("should be displayed when the dry run has been processed", async () => {
-                const wrapper = getWrapper();
-
-                await useModalStore().$patch({ is_processing_move: false });
-                await useDryRunStore().$patch({ has_processed_dry_run: true });
-
-                expect(wrapper.findComponent(DryRunPreview).exists()).toBe(true);
             });
         });
 

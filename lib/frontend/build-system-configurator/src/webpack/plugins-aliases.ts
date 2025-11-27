@@ -24,10 +24,6 @@ import { merge } from "webpack-merge";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import WebpackAssetsManifest from "webpack-assets-manifest";
 // eslint-disable-next-line import/no-extraneous-dependencies
-import CopyWebpackPlugin from "copy-webpack-plugin";
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { CleanWebpackPlugin } from "clean-webpack-plugin";
-// eslint-disable-next-line import/no-extraneous-dependencies
 import RemoveEmptyScriptsPlugin from "webpack-remove-empty-scripts";
 // eslint-disable-next-line import/no-extraneous-dependencies
 import MiniCssExtractPlugin from "mini-css-extract-plugin";
@@ -54,13 +50,26 @@ interface OutputResult {
     path: string;
     filename: string;
     publicPath: string | undefined;
+    clean: { keep: (filename: string) => boolean } | boolean;
 }
 
-export function configureOutput(assets_dir_path: string, public_path = ""): OutputResult {
+export function configureOutput(
+    assets_dir_path: string,
+    public_path = "",
+    clean: { keep: (filename: string) => boolean } | boolean = true,
+): OutputResult {
+    if (clean === true) {
+        clean = {
+            keep: function (filename: string): boolean {
+                return filename.startsWith("css-assets/") || filename.startsWith("ckeditor-4.");
+            },
+        };
+    }
     const output: OutputResult = {
         path: assets_dir_path,
         filename: "[name]-[chunkhash].js",
         publicPath: undefined,
+        clean,
     };
 
     if (public_path) {
@@ -68,16 +77,6 @@ export function configureOutput(assets_dir_path: string, public_path = ""): Outp
     }
 
     return output;
-}
-
-export function getCleanWebpackPlugin(): CleanWebpackPlugin {
-    return new CleanWebpackPlugin({
-        cleanAfterEveryBuildPatterns: ["!css-assets/", "!css-assets/**"],
-    });
-}
-
-export function getCopyPlugin(patterns = [], options = {}): CopyWebpackPlugin {
-    return new CopyWebpackPlugin({ patterns, options });
 }
 
 export function getCSSExtractionPlugins(): object[] {

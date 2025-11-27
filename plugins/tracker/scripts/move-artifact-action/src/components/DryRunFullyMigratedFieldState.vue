@@ -20,11 +20,10 @@
 <template>
     <div
         v-if="fully_migrated_fields_count > 0"
-        class="alert alert-info"
+        class="tlp-alert-info"
         data-test="dry-run-message-info"
     >
-        <i class="fa-solid fa-circle-info move-artifact-icon"></i>
-        <span>{{ message }}</span>
+        <p class="tlp-alert-title">{{ message }}</p>
         <fields-list-displayer
             v-bind:fields="fully_migrated_fields"
             v-bind:type="TYPE_FULLY_MIGRATED"

@@ -22,11 +22,9 @@
 use Psr\Log\LoggerInterface;
 use Tuleap\Git\DefaultBranch\CannotSetANonExistingBranchAsDefaultException;
 use Tuleap\Git\DefaultBranch\DefaultBranchUpdater;
-use Tuleap\Git\ForkRepositories\ForkRepositoriesPOSTUrlBuilder;
 use Tuleap\Git\GitViews\Header\HeaderRenderer;
 use Tuleap\Git\Notifications\UgroupsToNotifyDao;
 use Tuleap\Git\Notifications\UsersToNotifyDao;
-use Tuleap\Git\PathJoinUtil;
 use Tuleap\Git\Permissions\DefaultFineGrainedPermissionFactory;
 use Tuleap\Git\Permissions\FineGrainedPermissionDestructor;
 use Tuleap\Git\Permissions\FineGrainedPermissionFactory;
@@ -51,6 +49,12 @@ use Tuleap\User\RequestFromAutocompleter;
 
 class Git extends PluginController //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 {
+    public const string ADMIN_ACTION                  = 'admin';
+    public const string ADMIN_GERRIT_TEMPLATES_ACTION = 'admin-gerrit-templates';
+    public const string GIT_ADMIN_USER_GROUPS_ACTION  = 'admin-git-admins';
+    public const string ADMIN_DEFAULT_SETTINGS_ACTION = 'admin-default-settings';
+    public const string ADMIN_GIT_ADMINS_ACTION       = 'admin-git-admins';
+
     public const string PERM_READ  = 'PLUGIN_GIT_READ';
     public const string PERM_WRITE = 'PLUGIN_GIT_WRITE';
     public const string PERM_WPLUS = 'PLUGIN_GIT_WPLUS';
@@ -64,8 +68,6 @@ class Git extends PluginController //phpcs:ignore PSR1.Classes.ClassDeclaration.
     public const string PERM_ADMIN         = 'PLUGIN_GIT_ADMIN';
     public const string SPECIAL_PERM_ADMIN = 'PROJECT_ADMIN';
 
-    public const string SCOPE_PERSONAL = 'personal';
-
     public const string REFERENCE_KEYWORD = 'git';
     public const string REFERENCE_NATURE  = 'git_commit';
 
@@ -75,8 +77,6 @@ class Git extends PluginController //phpcs:ignore PSR1.Classes.ClassDeclaration.
     public const string DEFAULT_GIT_PERMS_GRANTED_FOR_PROJECT = 'default_git_perms_granted_for_project';
 
     private string $action;
-
-    public const string ADMIN_GIT_ADMINS_ACTION = 'admin-git-admins';
 
     /**
      * Lists all git-related permission types.
@@ -116,7 +116,7 @@ class Git extends PluginController //phpcs:ignore PSR1.Classes.ClassDeclaration.
         GitRepositoryFactory $git_repository_factory,
         UserManager $user_manager,
         ProjectManager $project_manager,
-        HTTPRequest $request,
+        \Tuleap\HTTPRequest $request,
         private readonly Git_Driver_Gerrit_ProjectCreator $project_creator,
         private readonly Git_Driver_Gerrit_Template_TemplateFactory $template_factory,
         GitPermissionsManager $permissions_manager,
@@ -208,7 +208,7 @@ class Git extends PluginController //phpcs:ignore PSR1.Classes.ClassDeclaration.
         $this->factory = $factory;
     }
 
-    public function setRequest(HTTPRequest $request)
+    public function setRequest(\Tuleap\HTTPRequest $request)
     {
         $this->request = $request;
     }
@@ -261,19 +261,16 @@ class Git extends PluginController //phpcs:ignore PSR1.Classes.ClassDeclaration.
                 'save',
                 'repo_management',
                 'mail',
-                'fork',
                 'set_private',
                 'confirm_private',
-                'admin',
-                'admin-git-admins',
-                'admin-gerrit-templates',
+                self::ADMIN_ACTION,
+                self::GIT_ADMIN_USER_GROUPS_ACTION,
+                self::ADMIN_GERRIT_TEMPLATES_ACTION,
                 'admin-default-access-rights',
                 'delete-permissions',
                 'delete-default-permissions',
                 'fetch_git_config',
                 'fetch_git_template',
-                'fork_repositories_permissions',
-                'do_fork_repositories',
                 'view_last_git_pushes',
                 'migrate_to_gerrit',
                 'disconnect_gerrit',
@@ -285,8 +282,6 @@ class Git extends PluginController //phpcs:ignore PSR1.Classes.ClassDeclaration.
         } else {
             $this->addPermittedAction('index');
             $this->addPermittedAction('view_last_git_pushes');
-            $this->addPermittedAction('fork_repositories_permissions');
-            $this->addPermittedAction('do_fork_repositories');
 
             if ($repository && $repository->userCanRead($user)) {
                 $this->addPermittedAction('view');
@@ -534,9 +529,9 @@ class Git extends PluginController //phpcs:ignore PSR1.Classes.ClassDeclaration.
                 $this->addAction('setPrivate', [$this->groupId, $repository->getId()]);
                 $this->addView('view');
                 break;
-            case 'admin-git-admins':
+            case self::GIT_ADMIN_USER_GROUPS_ACTION:
                 if ($this->request->get('submit')) {
-                    $this->defaultProjectAdminCSRFChecks($action);
+                    $this->defaultProjectAdminCSRFChecks(self::GIT_ADMIN_USER_GROUPS_ACTION);
                     $valid_url = new Valid_Numeric(GitPresenters_AdminGitAdminsPresenter::GIT_ADMIN_SELECTBOX_NAME);
                     $project   = $this->projectManager->getProject($this->groupId);
 
@@ -559,12 +554,12 @@ class Git extends PluginController //phpcs:ignore PSR1.Classes.ClassDeclaration.
                 );
 
                 break;
-            case 'admin':
-            case 'admin-gerrit-templates':
+            case self::ADMIN_ACTION:
+            case self::ADMIN_GERRIT_TEMPLATES_ACTION:
                 $project = $this->projectManager->getProject($this->groupId);
 
                 if ($this->request->get('save')) {
-                    $this->defaultProjectAdminCSRFChecks('admin-gerrit-templates');
+                    GitViews::getGerritTemplatesCSRF($this->groupId)->check();
                     $template_content = $this->request->getValidated('git_admin_config_data', 'text');
                     if ($this->request->getValidated('git_admin_template_id', 'uint')) {
                         $template_id = $this->request->get('git_admin_template_id');
@@ -576,7 +571,7 @@ class Git extends PluginController //phpcs:ignore PSR1.Classes.ClassDeclaration.
                 }
 
                 if ($this->request->get('delete')) {
-                    $this->defaultProjectAdminCSRFChecks('admin-gerrit-templates');
+                    GitViews::getGerritTemplatesCSRF($this->groupId)->check();
                     if ($this->request->getValidated('git_admin_template_id', 'uint')) {
                         $template_id = $this->request->get('git_admin_template_id');
                         $this->addAction('deleteGerritTemplate', [$template_id, $project, $user]);
@@ -614,55 +609,6 @@ class Git extends PluginController //phpcs:ignore PSR1.Classes.ClassDeclaration.
                 $template_id = $this->request->getValidated('template_id', 'uint');
                 $this->setDefaultPageRendering(false);
                 $this->addAction('fetchGitTemplate', [$template_id, $user, $project]);
-                break;
-            case 'fork_repositories_permissions':
-                $scope     = self::SCOPE_PERSONAL;
-                $valid_url = new Valid_UInt('repos');
-                $valid_url->required();
-                if ($this->request->validArray($valid_url)) {
-                    $repos = $this->request->get('repos');
-                }
-                $valid_url = new Valid_UInt('to_project');
-                if ($this->request->valid($valid_url)) {
-                    $toProject = $this->request->get('to_project');
-                }
-                $valid_url = new Valid_String('path');
-                $valid_url->required();
-                $path = '';
-                if ($this->request->valid($valid_url)) {
-                    $path = $this->request->get('path');
-                }
-                $valid_url = new Valid_String('choose_destination');
-                $valid_url->required();
-                if ($this->request->valid($valid_url)) {
-                    $scope = $this->request->get('choose_destination');
-                }
-                if (! empty($repos)) {
-                    $this->addAction('forkRepositoriesPermissions', [$repos, $toProject, $path, $scope]);
-                    $this->addView('forkRepositoriesPermissions');
-                } else {
-                    $this->addError(dgettext('tuleap-git', 'Empty required parameter(s)'));
-                    $this->redirectToForkProjectRepositories();
-                }
-                break;
-            case 'do_fork_repositories':
-                try {
-                    if ($this->request->get('choose_destination') == self::SCOPE_PERSONAL) {
-                        if ($this->user->isMember($this->groupId)) {
-                            $this->_doDispatchForkRepositories($this->request, $user);
-                        } else {
-                            $this->addError(dgettext('tuleap-git', 'You are not allowed to access this page'));
-                            $this->redirectToForkProjectRepositories();
-                        }
-                    } else {
-                        $this->_doDispatchForkCrossProject($this->request, $user);
-                    }
-                    $this->executeActions();
-                } catch (MalformedPathException $e) {
-                    $this->addError(dgettext('tuleap-git', 'Path cannot contain double dots (..)'));
-                    $this->redirectToForkProjectRepositories();
-                }
-
                 break;
             case 'view_last_git_pushes':
                 $vGroupId = new Valid_GroupId();
@@ -766,7 +712,7 @@ class Git extends PluginController //phpcs:ignore PSR1.Classes.ClassDeclaration.
                 $this->addAction('redirectToRepoManagement', [$this->groupId, $repository->getId(), $pane]);
                 break;
             case 'delete-default-permissions':
-                $url  = '?action=admin-default-settings&pane=access_control&group_id=' . $this->groupId;
+                $url  = '?action=' . self::ADMIN_DEFAULT_SETTINGS_ACTION . '&pane=access_control&group_id=' . $this->groupId;
                 $csrf = new CSRFSynchronizerToken($url);
                 $csrf->check();
 
@@ -1012,41 +958,6 @@ class Git extends PluginController //phpcs:ignore PSR1.Classes.ClassDeclaration.
         return $instance;
     }
 
-    public function _doDispatchForkCrossProject($request, $user) //phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
-    {
-        $this->checkSynchronizerToken(ForkRepositoriesPOSTUrlBuilder::buildForksPermissionsURL($this->groupId));
-        $validators = [new Valid_UInt('to_project'), new Valid_String('repos'), new Valid_Array('repo_access')];
-
-        foreach ($validators as $validator) {
-            $validator->required();
-            if (! $request->valid($validator)) {
-                if ($validator->key === 'to_project') {
-                    $this->addError(dgettext('tuleap-git', 'No project selected for the fork'));
-                } elseif ($validator->key === 'repos') {
-                    $this->addError(dgettext('tuleap-git', 'No repository selected for the fork'));
-                } else {
-                    $this->addError(dgettext('tuleap-git', 'No access selected for the fork'));
-                }
-                $this->redirectToProjectRepositoriesList();
-                return;
-            }
-        }
-        $to_project_id = $request->get('to_project');
-        if ($this->permissions_manager->userIsGitAdmin($user, $this->projectManager->getProject($to_project_id))) {
-            $to_project      = $this->projectManager->getProject($to_project_id);
-            $repos_ids       = explode(',', $request->get('repos'));
-            $repos           = $this->getRepositoriesFromIds($repos_ids);
-            $namespace       = '';
-            $scope           = GitRepository::REPO_SCOPE_PROJECT;
-            $redirect_url    = '/plugins/git/' . urlencode($to_project->getUnixNameLowerCase()) . '/';
-            $forkPermissions = $this->getForkPermissionsFromRequest($request);
-
-            $this->addAction('fork', [$repos, $to_project, $namespace, $scope, $user, $GLOBALS['HTML'], $redirect_url, $forkPermissions]);
-        } else {
-            $this->addError(dgettext('tuleap-git', 'Only project administrator can create repositories'));
-        }
-    }
-
     public function redirectNoRepositoryError()
     {
         $this->addError(dgettext('tuleap-git', 'The repository does not exist'));
@@ -1077,64 +988,6 @@ class Git extends PluginController //phpcs:ignore PSR1.Classes.ClassDeclaration.
         $token->check();
     }
 
-    public function _doDispatchForkRepositories($request, $user) //phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
-    {
-        $this->addAction('getProjectRepositoryList', [$this->groupId]);
-        $this->checkSynchronizerToken(ForkRepositoriesPOSTUrlBuilder::buildForksPermissionsURL($this->groupId));
-
-        $valid = new Valid_String('path');
-        $valid->required();
-
-        $path = '';
-        if ($request->valid($valid)) {
-            $path = trim($request->get('path'));
-        }
-        $path            = PathJoinUtil::userRepoPath($user->getUserName(), $path);
-        $forkPermissions = $this->getForkPermissionsFromRequest($request);
-
-        $valid = new Valid_String('repos');
-        $valid->required();
-        $repos_ids    = explode(',', $request->get('repos'));
-        $to_project   = $this->projectManager->getProject($this->groupId);
-        $repos        = $this->getRepositoriesFromIds($repos_ids);
-        $scope        = GitRepository::REPO_SCOPE_INDIVIDUAL;
-        $redirect_url = '/plugins/git/' . urlencode($to_project->getUnixNameLowerCase()) . '/';
-        $this->addAction('fork', [$repos, $to_project, $path, $scope, $user, $GLOBALS['HTML'], $redirect_url, $forkPermissions]);
-    }
-
-    /**
-     * @return array
-     */
-    private function getForkPermissionsFromRequest(Codendi_Request $request)
-    {
-        $fork_permissions = $request->get('repo_access');
-        if ($fork_permissions) {
-            return $fork_permissions;
-        }
-        // when we fork a gerrit repository, the repo rights cannot
-        // be updated by the user on the intermediate screen and the
-        // repo_access is false. Forcing it to empty array to avoid
-        // fatal errors
-        return [];
-    }
-
-    private function getRepositoriesFromIds($repository_ids)
-    {
-        $repositories = [];
-
-        foreach ($repository_ids as $repository_id) {
-            $repository = $this->factory->getRepositoryById($repository_id);
-
-            if (! $repository) {
-                return false;
-            }
-
-            $repositories[] = $repository;
-        }
-
-        return $repositories;
-    }
-
     /**
      * Add pushes' logs stuff
      *
@@ -1151,10 +1004,5 @@ class Git extends PluginController //phpcs:ignore PSR1.Classes.ClassDeclaration.
     protected function redirectToProjectRepositoriesList(): void
     {
         $this->redirect('/plugins/git/' . urlencode($this->project->getUnixNameLowerCase()) . '/');
-    }
-
-    protected function redirectToForkProjectRepositories(): void
-    {
-        $this->redirect('/projects/' . urlencode($this->project->getUnixNameLowerCase()) . '/fork-repositories/');
     }
 }

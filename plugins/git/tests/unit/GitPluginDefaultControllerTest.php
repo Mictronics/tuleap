@@ -24,7 +24,6 @@ namespace Tuleap\Git;
 
 use Git;
 use GitPlugin;
-use HTTPRequest;
 use Override;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
@@ -49,7 +48,7 @@ final class GitPluginDefaultControllerTest extends TestCase
         $this->event_dispatcher = EventDispatcherStub::withIdentityCallback();
     }
 
-    private function isBurningParrot(HTTPRequest $request): bool
+    private function isBurningParrot(\Tuleap\HTTPRequest $request): bool
     {
         $controller = new GitPluginDefaultController(
             RouterLinkStub::buildPassThrough(),
@@ -61,6 +60,8 @@ final class GitPluginDefaultControllerTest extends TestCase
 
     public static function generateBurningParrotURIs(): iterable
     {
+        yield [Git::ADMIN_ACTION];
+        yield [Git::ADMIN_GERRIT_TEMPLATES_ACTION];
         yield [Git::ADMIN_GIT_ADMINS_ACTION];
     }
 
@@ -81,8 +82,7 @@ final class GitPluginDefaultControllerTest extends TestCase
         yield ['fetch_git_template'];
         yield ['fork_repositories_permissions'];
         yield ['view_last_git_pushes'];
-        yield ['admin'];
-        yield ['admin-gerrit-templates'];
+        yield [''];
     }
 
     #[DataProvider('generateNotBurningParrotURIs')]
@@ -92,7 +92,7 @@ final class GitPluginDefaultControllerTest extends TestCase
         self::assertFalse($this->isBurningParrot($request));
     }
 
-    private function process(HTTPRequest $request): void
+    private function process(\Tuleap\HTTPRequest $request): void
     {
         $controller = new GitPluginDefaultController(
             $this->router_link,

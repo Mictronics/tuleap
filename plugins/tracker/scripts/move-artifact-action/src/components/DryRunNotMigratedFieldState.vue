@@ -20,12 +20,12 @@
 <template>
     <div
         v-if="!dry_run_store.is_move_possible || not_migrated_fields_count > 0"
-        class="alert alert-error"
+        class="tlp-alert-danger"
         data-test="dry-run-message-error"
     >
-        <i class="fa-solid fa-circle-exclamation move-artifact-icon move-artifact-error-icon"></i>
-        <span
+        <p
             v-if="!dry_run_store.is_move_possible"
+            class="tlp-alert-title"
             data-test="move-action-not-possible-error-message"
         >
             {{
@@ -33,11 +33,15 @@
                     "This artifact cannot be moved to the selected tracker because none of its fields matches with it.",
                 )
             }}
-        </span>
+        </p>
 
-        <span v-if="dry_run_store.is_move_possible" data-test="not-migrated-field-error-message">
+        <p
+            v-if="dry_run_store.is_move_possible"
+            class="tlp-alert-title"
+            data-test="not-migrated-field-error-message"
+        >
             {{ message }}
-        </span>
+        </p>
         <fields-list-displayer
             v-if="dry_run_store.is_move_possible"
             v-bind:fields="not_migrated_fields"
@@ -72,3 +76,8 @@ const message = computed((): string => {
     );
 });
 </script>
+<style scoped lang="scss">
+.tlp-alert-danger {
+    margin: var(--tlp-medium-spacing) 0;
+}
+</style>

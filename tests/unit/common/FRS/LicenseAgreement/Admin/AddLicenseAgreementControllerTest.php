@@ -23,7 +23,6 @@ declare(strict_types=1);
 namespace Tuleap\FRS\LicenseAgreement\Admin;
 
 use CSRFSynchronizerToken;
-use HTTPRequest;
 use PHPUnit\Framework\MockObject\MockObject;
 use Project;
 use TemplateRenderer;
@@ -71,7 +70,8 @@ final class AddLicenseAgreementControllerTest extends TestCase
             $this->helper,
             $this->renderer,
             $this->csrf_token,
-            $this->assets
+            $this->assets,
+            $this->assets,
         );
     }
 
@@ -81,7 +81,7 @@ final class AddLicenseAgreementControllerTest extends TestCase
         $project->method('getID')->willReturn(102);
         $this->project_retriever->expects($this->once())->method('getProjectFromId')->with('102')->willReturn($project);
         $current_user = UserTestBuilder::buildWithDefaults();
-        $request      = $this->createMock(HTTPRequest::class);
+        $request      = $this->createMock(\Tuleap\HTTPRequest::class);
         $request->expects($this->once())->method('getCurrentUser')->willReturn($current_user);
         $layout = $this->createMock(BaseLayout::class);
 

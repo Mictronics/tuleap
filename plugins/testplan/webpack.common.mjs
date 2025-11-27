@@ -27,7 +27,7 @@ import POGettextPlugin from "@tuleap/po-gettext-plugin";
 const context = __dirname;
 const output = webpack_configurator.configureOutput(
     path.resolve(__dirname, "./frontend-assets/"),
-    "/assets/testplan/"
+    "/assets/testplan/",
 );
 
 const entry = {
@@ -61,7 +61,6 @@ export default [
             ],
         },
         plugins: [
-            webpack_configurator.getCleanWebpackPlugin(),
             webpack_configurator.getManifestPlugin(),
             POGettextPlugin.webpack(),
             new VueLoaderPlugin(),

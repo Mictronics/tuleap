@@ -35,6 +35,12 @@ module.exports = [
             hierarchy: "./styles/hierarchy.scss",
             "general-settings": "./src/general-settings.ts",
             "general-settings-style": "./styles/general-settings.scss",
+            "global-rules": "./src/global-rules.ts",
+            "global-rules-style": "./styles/global-rules.scss",
+            webhooks: "./src/webhooks.ts",
+            "webhooks-style": "./styles/webhooks.scss",
+            "field-dependencies": "./src/field-dependencies.ts",
+            "field-dependencies-style": "./styles/field-dependencies.scss",
         },
         context: __dirname,
         output: webpack_configurator.configureOutput(
@@ -56,7 +62,6 @@ module.exports = [
             ],
         },
         plugins: [
-            webpack_configurator.getCleanWebpackPlugin(),
             webpack_configurator.getManifestPlugin(),
             ...webpack_configurator.getCSSExtractionPlugins(),
         ],
