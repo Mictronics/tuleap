@@ -18,7 +18,6 @@
  */
 
 import type { ErrorState } from "./store/error/module";
-import type { PermissionsState } from "./store/permissions/permissions-default-state";
 import type { Upload } from "tus-js-client";
 import type { RestUser } from "./api/rest-querier";
 import {
@@ -52,7 +51,6 @@ export interface State {
 
 export interface RootState extends State {
     error: ErrorState;
-    permissions: PermissionsState;
 }
 
 export type Direction = "BOTTOM" | "TOP" | "NEXT" | "PREVIOUS";
@@ -296,7 +294,7 @@ export interface Empty extends Item, Uploadable {
 
 export interface LockInfo {
     lock_date: string;
-    lock_by: User;
+    locked_by: User;
 }
 
 export interface User {
@@ -334,6 +332,22 @@ export interface ApprovalTable {
     approval_state: string;
     approval_request_date: string;
     has_been_approved: boolean;
+    version_number: number | null;
+    version_label: string;
+    notification_type: string;
+    is_closed: boolean;
+    description: string;
+    reviewers: ReadonlyArray<ApprovalTableReviewer>;
+}
+
+export interface ApprovalTableReviewer {
+    user: User;
+    rank: number;
+    review_date: string | null;
+    state: string;
+    comment: string;
+    version_id: number | null;
+    version_name: string | null;
 }
 
 export interface FolderProperties {
@@ -583,3 +597,8 @@ export type OtherItemTypeCollection = Record<string, OtherItemType>;
 export type EmbeddedFileDisplayPreference = "large" | "narrow";
 export const EMBEDDED_FILE_DISPLAY_LARGE: EmbeddedFileDisplayPreference = "large";
 export const EMBEDDED_FILE_DISPLAY_NARROW: EmbeddedFileDisplayPreference = "narrow";
+
+export type CsrfToken = {
+    readonly value: string;
+    readonly name: string;
+};

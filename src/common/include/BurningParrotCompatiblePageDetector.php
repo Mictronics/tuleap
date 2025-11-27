@@ -60,7 +60,8 @@ class BurningParrotCompatiblePageDetector
             || $this->isInHelp()
             || $this->isInBurningParrotCompatiblePage()
             || $this->isSoftwareMap()
-            || $this->isTos();
+            || $this->isTos()
+            || $this->isPhpWiki();
     }
 
     private function isManagingLabels()
@@ -82,10 +83,7 @@ class BurningParrotCompatiblePageDetector
     {
         $uri = $_SERVER['REQUEST_URI'];
 
-        $is_in_site_admin = (
-                    strpos($uri, '/admin/') === 0 ||
-                    strpos($uri, '/tracker/admin/restore.php') === 0
-                );
+        $is_in_site_admin = strpos($uri, '/admin/') === 0;
 
         if ($is_in_site_admin && $current_user->isSuperUser()) {
             return true;
@@ -132,18 +130,16 @@ class BurningParrotCompatiblePageDetector
             return false;
         }
 
-        $query_string = [];
-        if (isset($_SERVER['QUERY_STRING'])) {
-            parse_str($_SERVER['QUERY_STRING'], $query_string);
+        return strpos($_SERVER['REQUEST_URI'], '/file/') === 0;
+    }
+
+    private function isPhpWiki(): bool
+    {
+        if (! isset($_SERVER['REQUEST_URI'])) {
+            return false;
         }
 
-        return strpos($_SERVER['REQUEST_URI'], '/file/admin/manageprocessors.php') === 0
-            || strpos($_SERVER['REQUEST_URI'], '/file/admin/editproc.php') === 0
-            || (
-                strpos($_SERVER['REQUEST_URI'], '/file/admin/') === 0 &&
-                isset($query_string['action']) &&
-                $query_string['action'] === 'edit-permissions'
-            );
+        return str_starts_with($_SERVER['REQUEST_URI'], '/wiki/');
     }
 
     private function isInBurningParrotCompatiblePage()

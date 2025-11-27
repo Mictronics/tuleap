@@ -24,6 +24,7 @@ namespace Tuleap\FRS;
 use TemplateRendererFactory;
 use Project;
 use Service;
+use Tuleap\Layout\BreadCrumbDropdown\BreadCrumbCollection;
 use User_UGroup;
 use Feedback;
 use PFUser;
@@ -55,7 +56,7 @@ class PermissionController extends BaseFrsPresenter
         $this->permission_manager = $permission_manager;
     }
 
-    public function displayPermissions(Project $project, PFUser $user)
+    public function displayPermissions(Project $project, PFUser $user, \CSRFSynchronizerToken $csrf_token): void
     {
         if (! $this->permission_manager->isAdmin($project, $user)) {
             return;
@@ -76,7 +77,8 @@ class PermissionController extends BaseFrsPresenter
         $presenter = new PermissionPresenter(
             $project,
             $this->getFrsUGroupsByPermission($project, FRSPermission::FRS_ADMIN, $admin_project_ugroups),
-            $this->getFrsUGroupsByPermission($project, FRSPermission::FRS_READER, $all_project_ugroups)
+            $this->getFrsUGroupsByPermission($project, FRSPermission::FRS_READER, $all_project_ugroups),
+            $csrf_token,
         );
 
         $renderer->renderToPage('permissions-global-presenter', $presenter);
@@ -145,7 +147,7 @@ class PermissionController extends BaseFrsPresenter
         $toolbar_presenter->setPermissionIsActive();
         $toolbar_presenter->displaySectionNavigation();
 
-        $service->displayFRSHeader($project, $title);
+        $service->displayFRSHeader($project, $title, new BreadCrumbCollection());
         $renderer->renderToPage('toolbar-presenter', $toolbar_presenter);
     }
 

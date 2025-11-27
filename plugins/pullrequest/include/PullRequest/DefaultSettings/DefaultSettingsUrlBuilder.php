@@ -22,13 +22,15 @@ declare(strict_types=1);
 
 namespace Tuleap\PullRequest\DefaultSettings;
 
+use Git;
+
 final class DefaultSettingsUrlBuilder
 {
     public static function build(\Project $project): string
     {
-        return GIT_BASE_URL . '/?' . http_build_query(
+        return '/plugins/git/?' . http_build_query(
             [
-                'action'   => 'admin-default-settings',
+                'action'   => Git::ADMIN_DEFAULT_SETTINGS_ACTION,
                 'group_id' => $project->getID(),
                 'pane'     => PullRequestPane::NAME,
             ]

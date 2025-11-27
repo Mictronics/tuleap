@@ -31,13 +31,9 @@ module.exports = [
             rules: [webpack_configurator.rule_scss_loader],
         },
         plugins: [
-            webpack_configurator.getCleanWebpackPlugin(),
             ...webpack_configurator.getCSSExtractionPlugins(),
             ...webpack_configurator.getLegacyConcatenatedScriptsPlugins({
-                "tracker_encryption.js": [
-                    "./scripts/update_tracker_key_modal.js",
-                    "./scripts/encrypted_field.js",
-                ],
+                "tracker_encryption.js": ["./scripts/encrypted_field.js"],
             }),
             webpack_configurator.getManifestPlugin(),
         ],

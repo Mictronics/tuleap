@@ -30,7 +30,6 @@ use EventManager;
 use Exception;
 use Feedback;
 use ForgeConfig;
-use HTTPRequest;
 use InvalidArgumentException;
 use PFUser;
 use Project;
@@ -101,6 +100,7 @@ use TrackerFactory;
 use trackerPlugin;
 use TransitionFactory;
 use Tuleap\Color\ColorName;
+use Tuleap\CSRFSynchronizerTokenPresenter;
 use Tuleap\Dashboard\Project\ProjectDashboardDao;
 use Tuleap\Dashboard\Project\ProjectDashboardRetriever;
 use Tuleap\Dashboard\Widget\DashboardWidgetDao;
@@ -111,7 +111,9 @@ use Tuleap\Layout\BreadCrumbDropdown\BreadCrumb;
 use Tuleap\Layout\BreadCrumbDropdown\BreadCrumbLink;
 use Tuleap\Layout\BreadCrumbDropdown\BreadCrumbLinkCollection;
 use Tuleap\Layout\BreadCrumbDropdown\SubItemsSection;
+use Tuleap\Layout\CssAssetWithoutVariantDeclinaisons;
 use Tuleap\Layout\IncludeAssets;
+use Tuleap\Layout\JavascriptAsset;
 use Tuleap\Layout\NewDropdown\NewDropdownLinkSectionPresenter;
 use Tuleap\Mapper\ValinorMapperBuilderFactory;
 use Tuleap\Notification\Mention\MentionedUserInTextRetriever;
@@ -120,6 +122,7 @@ use Tuleap\Project\ProjectAccessChecker;
 use Tuleap\Project\RestrictedUserCanAccessProjectVerifier;
 use Tuleap\Project\UGroupRetrieverWithLegacy;
 use Tuleap\Project\XML\Import\ExternalFieldsExtractor;
+use Tuleap\Request\CSRFSynchronizerTokenInterface;
 use Tuleap\Search\ItemToIndexQueueEventBased;
 use Tuleap\Tracker\Action\CreateArtifactAction;
 use Tuleap\Tracker\Admin\ArtifactDeletion\ArtifactsDeletionConfig;
@@ -809,7 +812,8 @@ class Tracker implements Tracker_Dispatchable_Interface
                 break;
             case 'admin-editoptions':
                 if ($this->userIsAdmin($current_user)) {
-                    if ($request->get('update')) {
+                    if ($request->isPost() && $request->get('update')) {
+                        $this->getAdminSettingsCSRFToken()->check();
                         $this->editOptions($request);
                     }
                     $this->displayAdminOptions($layout, $request, $current_user);
@@ -952,7 +956,7 @@ class Tracker implements Tracker_Dispatchable_Interface
                 if ($this->userIsAdmin($current_user)) {
                     $this->getGlobalRulesManager()->process($layout, $request, $current_user);
                 } else {
-                    $GLOBALS['Response']->addFeedback('error', dgettext('tuleap-tracker', 'Access denied. You don\'t have permissions to perform this action.'));
+                    $GLOBALS['Response']->addFeedback(Feedback::ERROR, dgettext('tuleap-tracker', 'Access denied. You don\'t have permissions to perform this action.'));
                     $GLOBALS['Response']->redirect(TRACKER_BASE_URL . '/?tracker=' . $this->getId());
                 }
                 break;
@@ -1046,7 +1050,7 @@ class Tracker implements Tracker_Dispatchable_Interface
                 if ($this->userIsAdmin($current_user)) {
                     $hierarchy_controller = $this->getHierarchyController($request);
                     $hierarchy_controller->includeHeaderAssets();
-                    $this->displayAdminHeader($layout, 'hierarchy', dgettext('tuleap-tracker', 'Hierarchy'));
+                    $this->displayAdminHeaderBurningParrot($layout, 'hierarchy', dgettext('tuleap-tracker', 'Hierarchy'), []);
                     $hierarchy_controller->edit();
                     $this->displayAdminFooter($layout);
                 } else {
@@ -1156,7 +1160,7 @@ class Tracker implements Tracker_Dispatchable_Interface
         return;
     }
 
-    private function checkIsAnAcceptableRequestForTrackerViewArtifactManipulation(HTTPRequest $request): void
+    private function checkIsAnAcceptableRequestForTrackerViewArtifactManipulation(\Tuleap\HTTPRequest $request): void
     {
         if (! $request->isPost()) {
             $GLOBALS['Response']->redirect($this->getUri());
@@ -1629,8 +1633,12 @@ class Tracker implements Tracker_Dispatchable_Interface
 
     protected function displayAdminOptions(Tracker_IDisplayTrackerLayout $layout, $request, $current_user)
     {
+        $assets = new IncludeAssets(__DIR__ . '/../scripts/tracker-admin/frontend-assets', '/assets/trackers/tracker-admin');
+        $GLOBALS['HTML']->addJavascriptAsset(new JavascriptAsset($assets, 'general-settings.js'));
+        $GLOBALS['HTML']->addCssAsset(new CssAssetWithoutVariantDeclinaisons($assets, 'general-settings-style'));
+
         $this->displayWarningGeneralsettings();
-        $this->displayAdminItemHeader($layout, 'editoptions', dgettext('tuleap-tracker', 'General settings'));
+        $this->displayAdminItemHeaderBurningParrot($layout, 'editoptions', dgettext('tuleap-tracker', 'General settings'));
         $general_settings = EventManager::instance()->dispatch(new \Tuleap\Tracker\Config\GeneralSettingsEvent($this));
         $this->renderer->renderToPage(
             'tracker-general-settings',
@@ -1641,15 +1649,23 @@ class Tracker implements Tracker_Dispatchable_Interface
                 $this->getMailGatewayConfig(),
                 $this->getArtifactByMailStatus(),
                 $general_settings->cannot_configure_instantiate_for_new_projects,
+                CSRFSynchronizerTokenPresenter::fromToken(
+                    $this->getAdminSettingsCSRFToken(),
+                )
             )
         );
 
         $this->displayAdminFooter($layout);
     }
 
+    private function getAdminSettingsCSRFToken(): CSRFSynchronizerTokenInterface
+    {
+        return new CSRFSynchronizerToken(TRACKER_BASE_URL . '/?tracker=' . (int) $this->id . '&func=admin-editoptions');
+    }
+
     public function displayAdminPermsHeader(Tracker_IDisplayTrackerLayout $layout, $title)
     {
-        $this->displayAdminHeader($layout, 'editperms', $title);
+        $this->displayAdminHeaderBurningParrot($layout, 'editperms', $title, []);
     }
 
     public function displayAdminFormElementsHeader(Tracker_IDisplayTrackerLayout $layout, $title)
@@ -1705,28 +1721,53 @@ class Tracker implements Tracker_Dispatchable_Interface
 
     public function displayAdminCSVImportHeader(Tracker_IDisplayTrackerLayout $layout, $title)
     {
-        $this->displayAdminHeader($layout, 'csvimport', $title);
+        $this->displayAdminHeaderBurningParrot($layout, 'csvimport', $title, []);
     }
 
     public function displayAdminCSVImport(Tracker_IDisplayTrackerLayout $layout, $request, $current_user)
     {
+        $purifier = Codendi_HTMLPurifier::instance();
+
         $title = dgettext('tuleap-tracker', 'CSV Import');
         $this->displayAdminCSVImportHeader($layout, $title);
 
-        echo '<h2 class="almost-tlp-title">' . $title . ' ' . help_button('tracker.html#tracker-artifact-import') . '</h2>';
-        echo '<form name="form1" method="POST" enctype="multipart/form-data" action="' . TRACKER_BASE_URL . '/?tracker=' . (int) $this->id . '&amp;func=admin-csvimport">';
-        echo '<input type="file" name="csv_filename" size="50">';
-        echo '<br>';
-        echo '<span class="smaller"><em>';
-        echo sprintf(dgettext('tuleap-tracker', '(The maximum upload file size is %1$s Mb. The file must be encoded in UTF-8)'), formatByteToMb(ForgeConfig::getInt('sys_max_size_upload')));
-        echo '</em></span>';
-        echo '<br>';
-        echo dgettext('tuleap-tracker', 'Send notifications:');
-        echo '<input type="checkbox" name="notify" value="ok" />';
-        echo '<br>';
-        echo '<input type="hidden" name="action" value="import_preview">';
-        echo '<input type="submit" value="' . dgettext('tuleap-tracker', 'Load artifacts') . '">';
-        echo '</form>';
+        echo '<div class="tlp-framed">';
+
+        echo '<form class="tlp-pane" method="POST" enctype="multipart/form-data" action="' . TRACKER_BASE_URL . '/?tracker=' . (int) $this->id . '&amp;func=admin-csvimport">
+            <div class="tlp-pane-container">
+                <div class="tlp-pane-header">
+                    <h1 class="tlp-pane-title">
+                        ' . $purifier->purify($title) . '
+                    </h1>
+                </div>
+                <div class="tlp-pane-section">
+                    <div class="tlp-form-element">
+                        <label class="tlp-label" for="csv_filename">
+                            ' . $purifier->purify(dgettext('tuleap-tracker', 'File')) . '
+                        </label>
+                        <input type="file" name="csv_filename" id="csv_filename" />
+                        <p class="tlp-text-info">
+                            ' . $purifier->purify(sprintf(dgettext('tuleap-tracker', '(The maximum upload file size is %1$s Mb. The file must be encoded in UTF-8)'), formatByteToMb(ForgeConfig::getInt('sys_max_size_upload')))) . '
+                        </p>
+                    </div>
+                    <div class="tlp-form-element">
+                        <label class="tlp-label tlp-checkbox" for="notify">
+                            <input type="checkbox" name="notify" value="ok" />
+                            ' . $purifier->purify(dgettext('tuleap-tracker', 'Send notifications')) . '
+                    </div>
+                    <div class="tlp-pane-section-submit">
+                        <input type="hidden" name="action" value="import_preview">
+                        <button type="submit" class="tlp-button-primary">
+                            <i class="fa-solid fa-upload tlp-button-icon" aria-hidden="true"></i>
+                            ' . $purifier->purify(dgettext('tuleap-tracker', 'Load artifacts')) . '
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </form>
+        ';
+
+        echo '</div>';
         $this->displayAdminFooter($layout);
     }
 
@@ -1784,7 +1825,7 @@ class Tracker implements Tracker_Dispatchable_Interface
         $this->displayFooter($layout);
     }
 
-    protected function editOptions(HTTPRequest $request): void
+    protected function editOptions(\Tuleap\HTTPRequest $request): void
     {
         $previous_shortname   = $this->getItemName();
         $previous_public_name = $this->getName();
@@ -1867,11 +1908,9 @@ class Tracker implements Tracker_Dispatchable_Interface
     /**
      * Test if tracker is deleted
      *
-     * @return bool
-     *
      * @psalm-mutation-free
      */
-    public function isDeleted()
+    public function isDeleted(): bool
     {
         return ($this->deletion_date != '');
     }
@@ -2455,16 +2494,25 @@ class Tracker implements Tracker_Dispatchable_Interface
 
                         $title = dgettext('tuleap-tracker', 'CSV Import');
                         $this->displayAdminCSVImportHeader($layout, $title);
+                        echo '<div class="tlp-framed">';
 
-                        echo '<h2 class="almost-tlp-title">' . $title . '</h2>';
+                        echo '<section class="tlp-pane">
+                            <div class="tlp-pane-container">
+                                <div class="tlp-pane-header">
+                                    <h1 class="tlp-pane-title">
+                                        ' . $purifier->purify($title) . '
+                                    </h1>
+                                </div>
+                                <div class="tlp-pane-section">';
+
                         //body
                         if (count($lines) > 1) {
                             $html_table  = '';
-                            $html_table .= '<table class="table csv-import-preview">';
+                            $html_table .= '<table class="tlp-table">';
                             $html_table .= '<thead>';
                             $header      = array_shift($lines);
-                            $html_table .= '<tr class="boxtable">';
-                            $html_table .= '<th class="boxtitle"></th>';
+                            $html_table .= '<tr>';
+                            $html_table .= '<th></th>';
                             $fields      = $this->getCSVFields($header);
 
                             foreach ($header as $field_name) {
@@ -2479,13 +2527,8 @@ class Tracker implements Tracker_Dispatchable_Interface
                             $nb_artifact_creation = 0;
                             $nb_artifact_update   = 0;
                             foreach ($lines as $line_number => $data_line) {
-                                if ($nb_lines % 2 == 0) {
-                                    $tr_class = 'boxitem';
-                                } else {
-                                    $tr_class = 'boxitemalt';
-                                }
-                                $html_table .= '<tr class="' . $tr_class . '">';
-                                $html_table .= '<td style="color:gray;">' . ($line_number + 1) . '</td>';
+                                $html_table .= '<tr>';
+                                $html_table .= '<td>' . ($line_number + 1) . '</td>';
                                 $mode        = 'creation';
                                 foreach ($data_line as $idx => $data_cell) {
                                     if ($fields[$idx] && $fields[$idx] instanceof FormElement\Field\TrackerField) {
@@ -2498,7 +2541,7 @@ class Tracker implements Tracker_Dispatchable_Interface
                                         }
                                         $displayed_data = $purifier->purify($data_cell);
                                     }
-                                    $html_table .= '<td class="tracker_report_table_column">' . $displayed_data . '</td>';
+                                    $html_table .= '<td>' . $displayed_data . '</td>';
                                 }
                                 $html_table .= '</tr>';
                                 $nb_lines++;
@@ -2535,7 +2578,9 @@ class Tracker implements Tracker_Dispatchable_Interface
                                 if ($request->exist('notify') && $request->get('notify') == 'ok') {
                                     echo '<input type="hidden" name="notify" value="ok">';
                                 }
-                                echo '<input type="submit" class="csv-preview-import-button" value="' . dgettext('tuleap-tracker', 'Import Artifacts') . '">';
+                                echo '<div class="tlp-table-actions">';
+                                echo '<input type="submit" class="tlp-button-primary tlp-table-actions-element" value="' . dgettext('tuleap-tracker', 'Import Artifacts') . '">';
+                                echo '</div>';
                             }
                             echo $html_table;
                             if ($is_valid) {
@@ -2545,7 +2590,13 @@ class Tracker implements Tracker_Dispatchable_Interface
                                 $session->set('csv_body', $lines);
                             }
                         }
+                        echo '
+                                </div>
+                            </div>
+                        </section>
+                        ';
 
+                        echo '</div>';
                         $this->displayAdminFooter($layout);
                         exit();
                     } else {

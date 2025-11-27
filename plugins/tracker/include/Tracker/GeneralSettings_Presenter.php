@@ -19,6 +19,7 @@
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
+use Tuleap\CSRFSynchronizerTokenPresenter;
 use Tuleap\Tracker\Artifact\MailGateway\MailGatewayConfig;
 use Tuleap\Tracker\Tracker;
 
@@ -177,6 +178,7 @@ class Tracker_GeneralSettings_Presenter // phpcs:ignore PSR1.Classes.ClassDeclar
         MailGatewayConfig $config,
         Tracker_ArtifactByEmailStatus $artifactbyemail_status,
         $cannot_configure_instantiate_for_new_projects,
+        public CSRFSynchronizerTokenPresenter $csrf_token,
     ) {
         $this->action_url                                    = $action_url;
         $this->cannot_configure_instantiate_for_new_projects = $cannot_configure_instantiate_for_new_projects;
@@ -209,7 +211,7 @@ class Tracker_GeneralSettings_Presenter // phpcs:ignore PSR1.Classes.ClassDeclar
 
         $this->submit_button                = $GLOBALS['Language']->getText('global', 'save_change');
         $this->tracker_emailgateway         = dgettext('tuleap-tracker', 'Enable to create/reply to artifacts by mail');
-        $this->html_tags                    = dgettext('tuleap-tracker', '(HTML tags allowed)');
+        $this->html_tags                    = dgettext('tuleap-tracker', 'HTML tags allowed');
         $this->tracker_name_label           = dgettext('tuleap-tracker', 'Name');
         $this->tracker_description_label    = dgettext('tuleap-tracker', 'Description');
         $this->tracker_shortname_label      = dgettext('tuleap-tracker', 'Short name');

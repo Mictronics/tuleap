@@ -24,7 +24,10 @@ namespace Tuleap\Docman\ApprovalTable;
 
 use Docman_ApprovalTable;
 use Docman_ApprovalTableFactoriesFactory;
+use Docman_ApprovalTableFileFactory;
+use Docman_ApprovalTableLinkFactory;
 use Docman_ApprovalTableVersionnedFactory;
+use Docman_ApprovalTableWikiFactory;
 use Docman_Item;
 
 class ApprovalTableRetriever
@@ -48,12 +51,7 @@ class ApprovalTableRetriever
 
     public function retrieveByItem(Docman_Item $item): ?Docman_ApprovalTable
     {
-        $approval_table = $this->getLastApprovalTable($item);
-        if (! $approval_table || $approval_table->isDisabled()) {
-            return null;
-        }
-
-        return $approval_table;
+        return $this->getLastApprovalTable($item);
     }
 
     /**
@@ -85,5 +83,50 @@ class ApprovalTableRetriever
         }
 
         return $table_factory->getTable();
+    }
+
+    /**
+     * @return list<Docman_ApprovalTable>
+     */
+    public function retrieveAllApprovalTables(Docman_Item $item, int $limit, int $offset): array
+    {
+        $item_factory = $this->approval_table_factory->getFromItem($item);
+
+        if ($item_factory instanceof Docman_ApprovalTableVersionnedFactory) {
+            return $item_factory->getAllApprovalTable($limit, $offset);
+        }
+
+        if ($item_factory === null) {
+            return [];
+        }
+
+        $table = $item_factory->getTable(false);
+        return $table !== null ? [$table] : [];
+    }
+
+    public function getCountOfApprovalTable(Docman_Item $item): int
+    {
+        $item_factory = $this->approval_table_factory->getFromItem($item);
+
+        if ($item_factory instanceof Docman_ApprovalTableVersionnedFactory) {
+            return $item_factory->getCountOfApprovalTable();
+        }
+
+        if ($item_factory === null) {
+            return 0;
+        }
+
+        return $item_factory->getTable(false) !== null ? 1 : 0;
+    }
+
+    public function retrieveSpecificTable(Docman_Item $item, int $version): ?Docman_ApprovalTable
+    {
+        $item_factory = $this->approval_table_factory->getFromItem($item, $version);
+        return match (true) {
+            $item_factory instanceof Docman_ApprovalTableLinkFactory,
+            $item_factory instanceof Docman_ApprovalTableFileFactory => $item_factory->getTableFromVersion($item_factory->itemVersion),
+            $item_factory instanceof Docman_ApprovalTableWikiFactory => $item_factory->getTableFromVersion($item->getId(), $item_factory->wikiVersionId),
+            default                                                  => $item_factory?->getTable(),
+        };
     }
 }

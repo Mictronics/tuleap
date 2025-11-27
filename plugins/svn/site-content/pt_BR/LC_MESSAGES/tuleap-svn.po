@@ -9,9 +9,7 @@ msgstr ""
 msgid "0 or no value means no limits."
 msgstr ""
 
-msgid ""
-"A notification already exists for this path. You cannot save it. Please "
-"change the path or update the existing notification."
+msgid "A comma-separated list of email addresses."
 msgstr ""
 
 #, php-format
@@ -31,6 +29,9 @@ msgstr ""
 msgid "Add notification"
 msgstr ""
 
+msgid "Add the notification"
+msgstr ""
+
 msgid "Admin Groups"
 msgstr ""
 
@@ -44,9 +45,6 @@ msgid "Archive should not contain svn data."
 msgstr ""
 
 msgid "Authentication cache"
-msgstr ""
-
-msgid "Be careful"
 msgstr ""
 
 #, php-format
@@ -65,9 +63,6 @@ msgstr ""
 
 msgid "Cache lifetime (in minutes)"
 msgstr ""
-
-msgid "Cancel"
-msgstr "Cancelar"
 
 msgid "Cannot find changed directories information"
 msgstr ""
@@ -141,19 +136,19 @@ msgstr "Editar"
 msgid "Edit access control file"
 msgstr ""
 
+msgid "Edit notification"
+msgstr ""
+
 msgid "Email Notification updated successfully"
 msgstr ""
 
 msgid "Email notifications on commits"
 msgstr ""
 
+msgid "Emails who will receive the notification"
+msgstr ""
+
 msgid "Error during new revision file creation"
-msgstr ""
-
-msgid "Example of impacted svn operations"
-msgstr ""
-
-msgid "Example of impacted svn operations in"
 msgstr ""
 
 msgid "Force every commit to include a reference."
@@ -181,11 +176,6 @@ msgid "Header update failed."
 msgstr ""
 
 msgid "Header updated successfully"
-msgstr ""
-
-msgid ""
-"Here is a preview of what your configuration does. Click on highlighted "
-"folders to get more information."
 msgstr ""
 
 msgid ""
@@ -217,12 +207,6 @@ msgid ""
 msgstr ""
 
 msgid "Last commit"
-msgstr ""
-
-msgid "Loading..."
-msgstr ""
-
-msgid "Mail to specific recipients or mailing lists (comma separated)"
 msgstr ""
 
 msgid "Max file size"
@@ -257,6 +241,9 @@ msgstr ""
 msgid "Notification deleted successfully."
 msgstr ""
 
+msgid "Notification deletion"
+msgstr ""
+
 msgid "Notification list"
 msgstr ""
 
@@ -267,9 +254,6 @@ msgstr ""
 msgid "Notifications"
 msgstr "Notificações"
 
-msgid "Path"
-msgstr ""
-
 #, php-format
 msgid ""
 "Path `%s` is already defined, this will not be supported in the future "
@@ -278,12 +262,6 @@ msgstr ""
 
 msgid "Permission"
 msgstr "Permissão"
-
-msgid "Please select tag on the left"
-msgstr ""
-
-msgid "Preview of your configuration"
-msgstr ""
 
 msgid "Project SVN repositories"
 msgstr ""
@@ -302,6 +280,9 @@ msgstr ""
 msgid "Repository '%1$s' will be removed in a few seconds"
 msgstr ""
 
+msgid "Repository URL"
+msgstr ""
+
 msgid "Repository list"
 msgstr ""
 
@@ -315,9 +296,6 @@ msgid "Repository not found"
 msgstr ""
 
 msgid "Repository not found."
-msgstr ""
-
-msgid "Repository tree structure"
 msgstr ""
 
 msgid "Rules on commit"
@@ -352,9 +330,6 @@ msgstr ""
 msgid "SVN service is not activated in project %s"
 msgstr ""
 
-msgid "SVN status style"
-msgstr ""
-
 msgid "SVN with multiple repositories"
 msgstr ""
 
@@ -379,7 +354,7 @@ msgstr ""
 msgid "Save the subject"
 msgstr ""
 
-msgid "Saved versions:"
+msgid "Saved versions"
 msgstr ""
 
 msgid "Select a version"
@@ -463,6 +438,9 @@ msgid ""
 msgstr ""
 
 msgid "There is no notification"
+msgstr ""
+
+msgid "These can be mailing list addresses or external recipients."
 msgstr ""
 
 msgid "This action cannot be undone."
@@ -559,7 +537,10 @@ msgstr ""
 msgid "User group \"%s\" is empty or does not exist"
 msgstr ""
 
-msgid "User, group, email"
+msgid "User groups that will receive the notification"
+msgstr ""
+
+msgid "Users who will receive the notification"
 msgstr ""
 
 msgid "Wait a minute..."
@@ -586,11 +567,11 @@ msgid ""
 msgstr ""
 
 #, php-format
-msgid "You are using a previous version (#%1$s):"
+msgid "You are using a previous version (#%1$s)"
 msgstr ""
 
 #, php-format
-msgid "You are using the last version (#%1$s):"
+msgid "You are using the last version (#%1$s)"
 msgstr ""
 
 msgid "You can not browse the repository without being logged."
@@ -601,16 +582,6 @@ msgstr ""
 
 msgid "You don't have permissions to see user groups."
 msgstr "Você não tem permissão para visualizar os grupos de usuários."
-
-msgid ""
-"Your SVN repository is not impacted by immutable tags because the "
-"configuration is empty or does not match the current repository layout"
-msgstr ""
-
-msgid ""
-"Your repository contains too many folders (more than %s), for performance "
-"reasons, we cannot display the preview of your configuration."
-msgstr ""
 
 msgid "Your settings could not be saved."
 msgstr ""
@@ -629,13 +600,7 @@ msgstr ""
 msgid "my-new-repository"
 msgstr ""
 
-msgid "my-tag"
-msgstr ""
-
 msgid "saved on"
-msgstr ""
-
-msgid "some/path"
 msgstr ""
 
 msgid "{{ user_group_name }} has no global permission"

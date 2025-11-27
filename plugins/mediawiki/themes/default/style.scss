@@ -19,7 +19,7 @@
 
 #ff-mw-wrapper {
     position: relative;
-    margin-top: 15px;
+    margin-top: var(--tlp-large-spacing);
 }
 
 /* stylelint-disable-next-line selector-no-qualifying-type */
@@ -31,58 +31,3 @@
 #mw-content-text a {
     color: #002bb8;
 }
-
-/* stylelint-disable selector-class-pattern */
-
-/** {{{ Admin mapping */
-.admin_group_mediawiki {
-    h2 {
-        padding: 20px 0 0;
-    }
-}
-
-.forge_mw_help_block {
-    width: 800px;
-    margin: 0 0 30px;
-}
-
-.forge_mw_mapping_spacer {
-    clear: both;
-}
-
-.forge_mw_mapping_available,
-.forge_mw_mapping_selected {
-    float: left;
-
-    select {
-        height: 130px;
-    }
-}
-
-.forge_mw_btn {
-    margin: 60px 20px 0;
-    float: left;
-    font-weight: bold;
-}
-
-.mediawiki-options {
-    margin-bottom: 10px;
-
-    > label > input {
-        vertical-align: middle;
-    }
-}
-
-.admin_group_mediawiki_submit {
-    margin: 20px 0 0;
-}
-
-.forge_mw_access_write_control {
-    margin-left: 20px;
-    float: left;
-}
-
-.forge_mw_access_read_control {
-    float: left;
-}
-/* stylelint-enable */

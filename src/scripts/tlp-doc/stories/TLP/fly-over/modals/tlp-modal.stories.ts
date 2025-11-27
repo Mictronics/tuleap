@@ -20,7 +20,7 @@
 import type { Meta, StoryObj } from "@storybook/web-components-vite";
 import type { TemplateResult } from "lit";
 import { html } from "lit";
-import "./ModalWrapper.js";
+import "./ModalWrapper.ts";
 import "./modal.scss";
 import { USER_INTERFACE_COLORS, type UserInterfaceColorName } from "@tuleap/core-constants";
 
@@ -187,7 +187,7 @@ function getTemplate(args: ModalProps): TemplateResult {
       </button>
       <button type="button" class="tlp-button-${args.user_interface_color} tlp-button-large tlp-modal-action">Action</button>
     ` : html`
-      <button id="button-close" type="button" class="tlp-button-${args.user_interface_color} tlp-button-outline tlp-modal-action" data-dismiss="modal">
+      <button type="button" class="tlp-button-${args.user_interface_color} tlp-button-outline tlp-modal-action" data-dismiss="modal">
           Cancel
       </button>
       <button type="button" class="tlp-button-${args.user_interface_color} tlp-modal-action">Action</button>`}

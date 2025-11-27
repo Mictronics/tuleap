@@ -25,7 +25,6 @@ namespace Tuleap\HudsonGit\Git\Administration;
 use CSRFSynchronizerToken;
 use GitPermissionsManager;
 use GitPlugin;
-use HTTPRequest;
 use Project;
 use ProjectManager;
 use Psr\EventDispatcher\EventDispatcherInterface;
@@ -34,13 +33,15 @@ use Tuleap\Git\Events\GitAdminGetExternalPanePresenters;
 use Tuleap\Git\GitViews\Header\HeaderRenderer;
 use Tuleap\HudsonGit\Log\LogFactory;
 use Tuleap\Layout\BaseLayout;
-use Tuleap\Layout\IncludeAssets;
+use Tuleap\Layout\IncludeViteAssets;
+use Tuleap\Layout\JavascriptViteAsset;
+use Tuleap\Request\DispatchableWithBurningParrot;
 use Tuleap\Request\DispatchableWithProject;
 use Tuleap\Request\DispatchableWithRequest;
 use Tuleap\Request\ForbiddenException;
 use Tuleap\Request\NotFoundException;
 
-class AdministrationController implements DispatchableWithRequest, DispatchableWithProject
+class AdministrationController implements DispatchableWithRequest, DispatchableWithProject, DispatchableWithBurningParrot
 {
     public function __construct(
         private ProjectManager $project_manager,
@@ -49,13 +50,12 @@ class AdministrationController implements DispatchableWithRequest, DispatchableW
         private LogFactory $log_factory,
         private HeaderRenderer $header_renderer,
         private TemplateRenderer $renderer,
-        private IncludeAssets $include_assets,
         private EventDispatcherInterface $event_manager,
     ) {
     }
 
     #[\Override]
-    public function process(HTTPRequest $request, BaseLayout $layout, array $variables)
+    public function process(\Tuleap\HTTPRequest $request, BaseLayout $layout, array $variables)
     {
         $project = $this->getProject($variables);
 
@@ -68,9 +68,13 @@ class AdministrationController implements DispatchableWithRequest, DispatchableW
             throw new ForbiddenException(dgettext('tuleap-hudson_git', 'User is not Git administrator.'));
         }
 
-        $layout->includeFooterJavascriptFile(
-            $this->include_assets->getFileURL('git-administration.js')
-        );
+        $layout->addJavascriptAsset(new JavascriptViteAsset(
+            new IncludeViteAssets(
+                __DIR__ . '/../../../../scripts/jenkins-administration/frontend-assets',
+                '/assets/hudson_git/jenkins-administration',
+            ),
+            'src/jenkins-administration.ts',
+        ));
 
         $this->header_renderer->renderServiceAdministrationHeader(
             $request,

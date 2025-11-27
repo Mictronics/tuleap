@@ -18,8 +18,12 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/
  */
 
-use Tuleap\Git\GitPresenters\AdminExternalPanePresenter;
+use Tuleap\Git\GlobalAdmin\AdminExternalPanePresenter;
 
+/**
+ * @deprecated Use GlobalAdminTabsPresenter,
+ * @see \Tuleap\Git\GlobalAdmin\GlobalAdminTabsPresenter
+ */
 abstract class GitPresenters_AdminPresenter
 {
     public $project_id;
@@ -48,11 +52,6 @@ abstract class GitPresenters_AdminPresenter
     public function tab_git_admins()
     {
         return dgettext('tuleap-git', 'Git administrators');
-    }
-
-    public function tab_mass_update()
-    {
-        return dgettext('tuleap-git', 'Mass update of repositories');
     }
 
     public function tab_template_settings()

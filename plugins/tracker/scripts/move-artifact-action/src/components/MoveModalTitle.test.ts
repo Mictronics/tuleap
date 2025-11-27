@@ -42,7 +42,10 @@ describe("MoveModalTitle", () => {
         });
 
         const artifact_xref = wrapper.find("[data-test=artifact-xref]");
-        expect(artifact_xref.classes()).toStrictEqual([tracker_color, "xref-in-title"]);
+        expect(artifact_xref.classes()).toStrictEqual([
+            `tlp-swatch-${tracker_color}`,
+            "cross-ref-badge",
+        ]);
         expect(artifact_xref.element.textContent?.trim()).toBe("Tasks #126");
     });
 });

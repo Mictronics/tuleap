@@ -2,12 +2,12 @@
   pkgs ? (import ../../../../tools/utils/nix/pinned-nixpkgs.nix) { },
 }:
 
-pkgs.buildGoModule {
+pkgs.buildGoLatestModule {
   name = "vault-tuleap-plugin";
 
   src = ./.;
 
-  vendorHash = "sha256-KFjgm4gjig/mXlx9LLzypX0pLtFWJKeZMlLWUW6LBk8=";
+  vendorHash = "sha256-C/X3b+4EQz7PuLqG0CRWKD0w/zTNmRJfWkFJUObQ99c=";
 
   env.CGO_ENABLED = 0;
 }

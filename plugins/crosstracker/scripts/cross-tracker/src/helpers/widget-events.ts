@@ -23,8 +23,6 @@ import type { QuerySuggestion } from "../domain/SuggestedQueriesGetter";
 
 export const SWITCH_QUERY_EVENT = "switch-query";
 export const INITIALIZED_WITH_QUERY_EVENT = "initialized-with-query";
-export const REFRESH_ARTIFACTS_EVENT = "refresh-artifacts";
-export const SEARCH_ARTIFACTS_EVENT = "search-artifact";
 export const SEARCH_ARTIFACTS_SUCCESS_EVENT = "search-artifact-success";
 export const CREATE_NEW_QUERY_EVENT = "create-new-query";
 export const EDIT_QUERY_EVENT = "edit-query";
@@ -39,12 +37,11 @@ export const STARTING_XLSX_EXPORT_EVENT = "starting-xlsx-export-event";
 export const SELECTABLE_TABLE_RESIZED_EVENT = "selectable-table-resized-event";
 export const DISPLAY_XLSX_MODAL_EVENT = "display-xlsx-modal-event";
 export const HIDE_XLSX_MODAL_EVENT = "hide-xlsx-modal-event";
+export const SEND_TQL_QUERY_FROM_CHATBOT_EVENT = "send-tql-query-from-chat-bot-event";
 
 export type Events = {
     [SWITCH_QUERY_EVENT]: SwitchQueryEvent;
     [INITIALIZED_WITH_QUERY_EVENT]: InitializedWithQueryEvent;
-    [REFRESH_ARTIFACTS_EVENT]: RefreshArtifactsEvent;
-    [SEARCH_ARTIFACTS_EVENT]: void;
     [SEARCH_ARTIFACTS_SUCCESS_EVENT]: void;
     [CREATE_NEW_QUERY_EVENT]: void;
     [EDIT_QUERY_EVENT]: EditQueryEvent;
@@ -59,6 +56,8 @@ export type Events = {
     [SELECTABLE_TABLE_RESIZED_EVENT]: void;
     [DISPLAY_XLSX_MODAL_EVENT]: void;
     [HIDE_XLSX_MODAL_EVENT]: void;
+    [HIDE_XLSX_MODAL_EVENT]: void;
+    [SEND_TQL_QUERY_FROM_CHATBOT_EVENT]: TQLQueryEvent;
 };
 
 export type ToggleQueryDetailsEvent = {
@@ -89,10 +88,6 @@ export type InitializedWithQueryEvent = {
     readonly query: Query;
 };
 
-export type RefreshArtifactsEvent = {
-    readonly query: Query;
-};
-
 export type NotifyFaultEvent = {
     readonly fault: Fault;
     readonly tql_query?: string;
@@ -104,4 +99,8 @@ export type NotifySuccessEvent = {
 
 export type DisplayQueryPreviewEvent = {
     readonly query: QuerySuggestion;
+};
+
+export type TQLQueryEvent = {
+    readonly tql_query: string;
 };

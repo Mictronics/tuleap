@@ -40,6 +40,7 @@ use Tuleap\AgileDashboard\Planning\TrackerHaveAtLeastOneAddToTopBacklogPostActio
 use Tuleap\AgileDashboard\Planning\TrackersHaveAtLeastOneHierarchicalLinkException;
 use Tuleap\AgileDashboard\Planning\TrackersWithHierarchicalLinkDefinedNotFoundException;
 use Tuleap\DB\DBTransactionExecutor;
+use Tuleap\Layout\BaseLayout;
 use Tuleap\Layout\BreadCrumbDropdown\BreadCrumbCollection;
 use Tuleap\Layout\HeaderConfigurationBuilder;
 use Tuleap\Layout\IncludeViteAssets;
@@ -98,6 +99,7 @@ class Planning_Controller extends BaseController //phpcs:ignore PSR1.Classes.Cla
         private readonly BacklogTrackersUpdateChecker $backlog_trackers_update_checker,
         private readonly ProjectHistoryDao $project_history_dao,
         private readonly TrackerFactory $tracker_factory,
+        private readonly BaseLayout $layout,
     ) {
         parent::__construct('agiledashboard', $request);
 
@@ -132,6 +134,16 @@ class Planning_Controller extends BaseController //phpcs:ignore PSR1.Classes.Cla
         $planning  = $this->planning_factory->buildNewPlanning($this->group_id);
         $presenter = $this->getFormPresenter($this->request->getCurrentUser(), $planning);
 
+        $this->layout->addJavascriptAsset(
+            new JavascriptViteAsset(
+                new IncludeViteAssets(
+                    __DIR__ . '/../../scripts/administration/frontend-assets',
+                    '/assets/agiledashboard/administration'
+                ),
+                'src/creation.ts'
+            )
+        );
+
         $title = dgettext('tuleap-agiledashboard', 'New Planning');
 
         $displayHeader(
@@ -159,12 +171,13 @@ class Planning_Controller extends BaseController //phpcs:ignore PSR1.Classes.Cla
         $template_file->required();
 
         if ($this->request->validFile($template_file)) {
+            $this->checkCSRFToken();
             $this->importConfiguration();
         }
 
-        $presenter = new ImportTemplateFormPresenter($project);
+        $presenter = new ImportTemplateFormPresenter($project, $this->getCSRFToken());
 
-        $GLOBALS['HTML']->addJavascriptAsset(
+        $this->layout->addJavascriptAsset(
             new JavascriptViteAsset(
                 new IncludeViteAssets(
                     __DIR__ . '/../../scripts/administration/frontend-assets',
@@ -199,17 +212,17 @@ class Planning_Controller extends BaseController //phpcs:ignore PSR1.Classes.Cla
                 })
                 ->match(
                     function (): void {
-                        $GLOBALS['Response']->addFeedback(
+                        $this->layout->addFeedback(
                             Feedback::INFO,
                             dgettext('tuleap-agiledashboard', 'The configuration has been successfully imported!')
                         );
                     },
                     function (\Tuleap\NeverThrow\Fault $fault): void {
-                        $GLOBALS['Response']->addFeedback(Feedback::ERROR, (string) $fault);
+                        $this->layout->addFeedback(Feedback::ERROR, (string) $fault);
                     }
                 );
         } catch (Exception) {
-            $GLOBALS['Response']->addFeedback(Feedback::ERROR, dgettext('tuleap-agiledashboard', 'Unable to import the configuration!'));
+            $this->layout->addFeedback(Feedback::ERROR, dgettext('tuleap-agiledashboard', 'Unable to import the configuration!'));
         }
     }
 
@@ -224,11 +237,11 @@ class Planning_Controller extends BaseController //phpcs:ignore PSR1.Classes.Cla
             $this->redirectToMainAdministrationPageWhenPlanningManagementIsDelegatedToAnotherPlugin($project);
             $xml = $this->getFullConfigurationAsXML($project);
         } catch (Exception $e) {
-            $GLOBALS['Response']->addFeedback(Feedback::ERROR, dgettext('tuleap-agiledashboard', 'Unable to export the configuration'));
+            $this->layout->addFeedback(Feedback::ERROR, dgettext('tuleap-agiledashboard', 'Unable to export the configuration'));
             $this->redirect(['group_id' => $this->group_id, 'action' => 'admin']);
         }
 
-        $GLOBALS['Response']->sendXMLAttachementFile($xml, self::AGILE_DASHBOARD_TEMPLATE_NAME);
+        $this->layout->sendXMLAttachementFile($xml, self::AGILE_DASHBOARD_TEMPLATE_NAME);
     }
 
     /**
@@ -248,6 +261,7 @@ class Planning_Controller extends BaseController //phpcs:ignore PSR1.Classes.Cla
     public function create(): void
     {
         $this->checkUserIsAdmin();
+        $this->checkCSRFToken();
 
         if ($this->planning_request_validator->isValid($this->request, new EnsureThatTrackerIsReadableByUser())) {
             $this->planning_factory->createPlanning(
@@ -286,15 +300,24 @@ class Planning_Controller extends BaseController //phpcs:ignore PSR1.Classes.Cla
         if ($planning === null) {
             throw new \Tuleap\AgileDashboard\Planning\NotFoundException($planning_id);
         }
-        $presenter = $this->planning_edition_presenter_builder->build($planning, $this->request->getCurrentUser(), $this->project);
+        $presenter = $this->planning_edition_presenter_builder->build($planning, $this->request->getCurrentUser(), $this->project, $this->getCSRFToken());
 
-        $GLOBALS['HTML']->addJavascriptAsset(
+        $this->layout->addJavascriptAsset(
             new JavascriptViteAsset(
                 new IncludeViteAssets(
                     __DIR__ . '/../../scripts/administration/frontend-assets',
                     '/assets/agiledashboard/administration'
                 ),
                 'src/planning-admin-colorpicker.ts'
+            )
+        );
+        $this->layout->addJavascriptAsset(
+            new JavascriptViteAsset(
+                new IncludeViteAssets(
+                    __DIR__ . '/../../../cardwall/scripts/planning-administration/frontend-assets',
+                    '/assets/cardwall/planning-administration'
+                ),
+                'src/planning-administration.ts'
             )
         );
 
@@ -337,6 +360,7 @@ class Planning_Controller extends BaseController //phpcs:ignore PSR1.Classes.Cla
             $planning_trackers_filtered,
             $cardwall_admin,
             $this->getWarnings($planning),
+            $this->getCSRFToken(),
         );
     }
 
@@ -359,6 +383,8 @@ class Planning_Controller extends BaseController //phpcs:ignore PSR1.Classes.Cla
     public function update(): void
     {
         $this->checkUserIsAdmin();
+        $this->checkCSRFToken();
+
 
         $updated_planning_id = (int) $this->request->get('planning_id');
         $original_planning   = $this->planning_factory->getPlanning($this->request->getCurrentUser(), $updated_planning_id);
@@ -482,6 +508,7 @@ class Planning_Controller extends BaseController //phpcs:ignore PSR1.Classes.Cla
     {
         $this->checkUserIsAdmin();
         $this->redirectToMainAdministrationPageWhenPlanningManagementIsDelegatedToAnotherPlugin($this->project);
+        $this->checkCSRFToken();
 
         $planning_id = $this->request->get('planning_id');
         $user        = $this->request->getCurrentUser();

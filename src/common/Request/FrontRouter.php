@@ -23,7 +23,6 @@ namespace Tuleap\Request;
 
 use Backend;
 use FastRoute;
-use HTTPRequest;
 use PluginManager;
 use Psr\Log\LoggerInterface;
 use ThemeManager;
@@ -83,7 +82,7 @@ class FrontRouter
         $this->request_instrumentation  = $request_instrumentation;
     }
 
-    public function route(HTTPRequest $request)
+    public function route(\Tuleap\HTTPRequest $request)
     {
         try {
             $route_info = $this->getRouteInfo();
@@ -157,7 +156,7 @@ class FrontRouter
                 $request,
                 $code,
                 _('Internal server error'),
-                _('We are sorry you caught an error, something meaningful was logged for site administrators. You may want got get in touch with them.'),
+                _('We are sorry you caught an error, something meaningful was logged for site administrators. You may want to get in touch with them.'),
                 $exception
             );
         }
@@ -226,7 +225,7 @@ class FrontRouter
      * @throws ForbiddenException
      * @throws NotFoundException
      */
-    private function routeHandler(HTTPRequest $request, DispatchableWithRequest $handler, array $route_info)
+    private function routeHandler(\Tuleap\HTTPRequest $request, DispatchableWithRequest $handler, array $route_info)
     {
         if ($handler instanceof DispatchableWithBurningParrot) {
             $layout = $this->getBurningParrotTheme();
@@ -261,7 +260,7 @@ class FrontRouter
         return $plugin->$handler();
     }
 
-    private function shouldRedirectAnonymousUser(HTTPRequest $request): bool
+    private function shouldRedirectAnonymousUser(\Tuleap\HTTPRequest $request): bool
     {
         if ($request->isAjax()) {
             return false;

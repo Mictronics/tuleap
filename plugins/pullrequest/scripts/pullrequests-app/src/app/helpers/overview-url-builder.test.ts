@@ -17,6 +17,7 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import type { PullRequest } from "@tuleap/plugin-pullrequest-rest-api-types";
 import { buildOverviewURL } from "./overview-url-builder";
 
 describe("overview-url-builder", () => {
@@ -38,7 +39,7 @@ describe("overview-url-builder", () => {
                         uri: "uri/to/project",
                     },
                 },
-            },
+            } as PullRequest,
             101,
             1,
         );

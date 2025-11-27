@@ -27,6 +27,7 @@ require_once __DIR__ . '/../file_utils.php';
 
 use Tuleap\FRS\ToolbarPresenter;
 use Tuleap\FRS\FRSPermissionManager;
+use Tuleap\Layout\BreadCrumbDropdown\BreadCrumbCollection;
 
 $vGroupId = new Valid_GroupId();
 $vGroupId->required();
@@ -73,7 +74,7 @@ $presenter = new ToolbarPresenter($project);
 $presenter->setProcessorsIsActive();
 $presenter->displaySectionNavigation();
 
-$service->displayFRSHeader($project, _('Files Administration'));
+$service->displayFRSHeader($project, _('Files Administration'), new BreadCrumbCollection());
 $renderer->renderToPage('toolbar-presenter', $presenter);
 
 $sql    = 'SELECT name, `rank` FROM frs_processor WHERE group_id=' . db_ei($group_id) . ' AND processor_id=' . db_ei($proc_id);
@@ -102,10 +103,14 @@ if (db_numrows($result) < 1) {
 
 $purifier = Codendi_HTMLPurifier::instance();
 
+$management_page_url = '/file/admin/manageprocessors.php?group_id=' . urlencode((string) $project->getID());
+$csrf_token          = new CSRFSynchronizerToken($management_page_url);
+
 $return = '
-<form action="/file/admin/manageprocessors.php?group_id=' . $purifier->purify(urlencode($group_id)) . '" method="post" class="tlp-pane-section">
+<form action="' . $purifier->purify($management_page_url) . '" method="post" class="tlp-pane-section">
     <input type="hidden" name="group_id" value="' . $purifier->purify($group_id) . '">
     <input type="hidden" name="proc_id" value="' . $purifier->purify($proc_id) . '">
+    ' . $csrf_token->fetchHTMLInput() . '
 
     <div class="tlp-form-element">
         <label class="tlp-label" for="processname">

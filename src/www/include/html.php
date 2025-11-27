@@ -177,7 +177,7 @@ function html_build_select_box_from_array($vals, $select_name, $checked_val = 'x
 
     $purifier = Codendi_HTMLPurifier::instance();
     $return   = '
-		<SELECT NAME="' . $purifier->purify($select_name) . '" id="' . $purifier->purify($select_name) . '">';
+		<SELECT NAME="' . $purifier->purify($select_name) . '" id="' . $purifier->purify($select_name) . '" class="tlp-select tlp-select-adjusted">';
 
     foreach ($vals as $value => $label) {
         if ($samevals) {
@@ -557,7 +557,7 @@ function site_project_header(Project $project, HeaderConfiguration|array $params
 
     //for dead projects must be member of admin project
     if (! $project->isActive()) {
-        HTTPRequest::instance()->checkUserIsSuperUser();
+        \Tuleap\HTTPRequest::instance()->checkUserIsSuperUser();
     }
 
     if (is_array($params)) {

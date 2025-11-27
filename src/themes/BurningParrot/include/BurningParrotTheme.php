@@ -20,7 +20,7 @@ namespace Tuleap\Theme\BurningParrot;
 
 use Event;
 use EventManager;
-use HTTPRequest;
+use Lcobucci\Clock\SystemClock;
 use Project;
 use TemplateRendererFactory;
 use ThemeVariant;
@@ -47,6 +47,7 @@ use Tuleap\Layout\BeforeStartProjectHeader;
 use Tuleap\Layout\BreadCrumbDropdown\BreadCrumb;
 use Tuleap\Layout\BreadCrumbDropdown\BreadCrumbLink;
 use Tuleap\Layout\BreadCrumbDropdown\BreadCrumbPresenterBuilder;
+use Tuleap\Layout\CssAssetCollection;
 use Tuleap\Layout\FooterConfiguration;
 use Tuleap\Layout\HeaderConfiguration;
 use Tuleap\Layout\IncludeAssets;
@@ -99,7 +100,7 @@ class BurningParrotTheme extends BaseLayout
      */
     private $detected_browser;
 
-    /** @var HTTPRequest */
+    /** @var \Tuleap\HTTPRequest */
     private $request;
 
     private $show_sidebar = false;
@@ -118,7 +119,7 @@ class BurningParrotTheme extends BaseLayout
     {
         parent::__construct($root);
         $this->event_manager    = EventManager::instance();
-        $this->request          = HTTPRequest::instance();
+        $this->request          = \Tuleap\HTTPRequest::instance();
         $this->renderer         = TemplateRendererFactory::build()->getRenderer($this->getTemplateDir());
         $license_builder        = CachedLicenseBuilder::instance();
         $this->version          = VersionPresenter::fromFlavorFinder(new FlavorFinderFromLicense($license_builder));
@@ -129,7 +130,7 @@ class BurningParrotTheme extends BaseLayout
         $this->theme_variant_color = (new ThemeVariant())->getVariantColorForUser($this->current_user->user);
         $this->theme_variation     = new ThemeVariation($this->theme_variant_color, $this->current_user->user);
 
-        $this->feedback_builder = new FeedbackBuilder($license_builder, $this->current_user->user);
+        $this->feedback_builder = new FeedbackBuilder($license_builder, $this->current_user->user, SystemClock::fromSystemTimezone());
 
         $this->includeFooterJavascriptFile((new JavascriptAsset(new \Tuleap\Layout\IncludeCoreAssets(), 'collect-frontend-errors.js'))->getFileURL());
         $this->includeFooterJavascriptFile(
@@ -282,7 +283,7 @@ class BurningParrotTheme extends BaseLayout
             $url_redirect,
             $this->toolbar,
             $breadcrumbs,
-            $this->css_assets,
+            $this->getBurningParrotStylesheetsBuilder(),
             $open_graph,
             $help_dropdown_presenter,
             $new_dropdown_presenter_builder->getPresenter($this->current_user->user, $project, $current_context_section),
@@ -296,8 +297,6 @@ class BurningParrotTheme extends BaseLayout
             $this->getPlatformBannerWithScript($this->current_user->user, 'platform/platform-banner.js'),
             $this->detected_browser,
             $this->theme_variant_color,
-            $this->theme_variation,
-            $this->javascript_assets,
             $in_project_without_project_context,
             $invite_buddies_presenter,
         );
@@ -307,6 +306,16 @@ class BurningParrotTheme extends BaseLayout
         if ($project) {
             $this->event_manager->dispatch(new AfterStartProjectContainer($project, $this->current_user->user));
         }
+    }
+
+    public function getBurningParrotStylesheetsBuilder(): BurningParrotStylesheetsBuilder
+    {
+        return new BurningParrotStylesheetsBuilder($this->theme_variation, $this->css_assets, $this->javascript_assets);
+    }
+
+    public function getCssAssets(): CssAssetCollection
+    {
+        return $this->css_assets;
     }
 
     protected function hasHeaderBeenWritten(): bool

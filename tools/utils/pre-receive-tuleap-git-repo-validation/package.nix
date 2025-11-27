@@ -2,12 +2,12 @@
   pkgs ? (import ../nix/pinned-nixpkgs.nix) { },
 }:
 
-pkgs.buildGoModule {
+pkgs.buildGoLatestModule {
   name = "pre-receive-tuleap-git-repo-validation";
   src = ./src;
 
   goSum = ./src/go.sum;
-  vendorHash = "sha256-Stbm8Lgxb3I0ZwTPcVSSQN318HKC2zrIN+zz4/dxDiA=";
+  vendorHash = "sha256-vrvnVUDZ6Id3Lwvr5LsVJgr3uk3Yq50hvcfOzeUJoaQ=";
 
   preBuild = ''
     export GOARCH="wasm"

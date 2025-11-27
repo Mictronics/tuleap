@@ -31,7 +31,7 @@ use Tuleap\Reference\ReferenceGetTooltipChainLegacy;
 use Tuleap\Reference\ReferenceGetTooltipChainOpenGraph;
 
 $reference_manager = ReferenceManager::instance();
-$request           = HTTPRequest::instance();
+$request           = \Tuleap\HTTPRequest::instance();
 $project_manager   = ProjectManager::instance();
 
 $project = null;
@@ -149,8 +149,7 @@ if ($request->isAjax()) {
                     $rf         = new FRSReleaseFactory();
                     $release_id = $request->get('val');
                     $release    = $rf->getFRSReleaseFromDb($release_id);
-                    $package_id = $release->getPackageID();
-                    if ($rf->userCanRead($group_id, $package_id, $release_id)) {
+                    if ($rf->userCanRead($release)) {
                         echo $release->getReferenceTooltip();
                     }
                     break;
@@ -161,8 +160,7 @@ if ($request->isAjax()) {
                     $rf         = new FRSReleaseFactory();
                     $release_id = $file->getReleaseID();
                     $release    = $rf->getFRSReleaseFromDb($release_id);
-                    $package_id = $release->getPackageID();
-                    if ($rf->userCanRead($group_id, $package_id, $release_id)) {
+                    if ($rf->userCanRead($release)) {
                         echo $file->getReferenceTooltip();
                     }
                     break;

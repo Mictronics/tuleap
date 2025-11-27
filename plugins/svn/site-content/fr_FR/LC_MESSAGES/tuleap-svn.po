@@ -2,7 +2,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: 2017-04-03 14:12+0200\n"
-"PO-Revision-Date: 2025-09-01 22:22+0200\n"
+"PO-Revision-Date: 2025-11-12 21:54+0100\n"
 "Last-Translator: Nicolas Terray <nicolas.terray@enalean.com>\n"
 "Language-Team: \n"
 "Language: fr\n"
@@ -16,13 +16,8 @@ msgstr ""
 msgid "0 or no value means no limits."
 msgstr "0 ou aucune valeur signifie sans limites."
 
-msgid ""
-"A notification already exists for this path. You cannot save it. Please "
-"change the path or update the existing notification."
-msgstr ""
-"Une notification existe déjà pour ce chemin. Vous ne pouvez pas "
-"l’enregistrer. Veuillez modifier le chemin d’accès ou mettre à jour la "
-"notification existante."
+msgid "A comma-separated list of email addresses."
+msgstr "Une liste d'adresses e-mail séparées par des virgules."
 
 #, php-format
 msgid ""
@@ -39,6 +34,9 @@ msgid "Active notifications list"
 msgstr "Liste des notifications actives"
 
 msgid "Add notification"
+msgstr "Ajouter une notification"
+
+msgid "Add the notification"
 msgstr "Ajouter la notification"
 
 msgid "Admin Groups"
@@ -57,9 +55,6 @@ msgstr "L'archive ne peut contenir des données svn."
 
 msgid "Authentication cache"
 msgstr "Cache d'authentification"
-
-msgid "Be careful"
-msgstr "Attention"
 
 #, php-format
 msgid ""
@@ -81,9 +76,6 @@ msgstr "Accès depuis l'interface"
 
 msgid "Cache lifetime (in minutes)"
 msgstr "Durée de vie du cache (en minutes)"
-
-msgid "Cancel"
-msgstr "Annuler"
 
 msgid "Cannot find changed directories information"
 msgstr "Impossible de trouver les informations des repertoires mis à jour"
@@ -165,20 +157,20 @@ msgstr "Éditer"
 msgid "Edit access control file"
 msgstr "Modifier le fichier de contrôle d'accès"
 
+msgid "Edit notification"
+msgstr "Éditer la notification"
+
 msgid "Email Notification updated successfully"
 msgstr "Notification email mise à jour avec succès"
 
 msgid "Email notifications on commits"
 msgstr "Notifications par email lors des commits"
 
+msgid "Emails who will receive the notification"
+msgstr "E-mails qui recevront la notification"
+
 msgid "Error during new revision file creation"
 msgstr "Erreur lors de la création de la nouvelle révision"
-
-msgid "Example of impacted svn operations"
-msgstr "Exemple d'operations svn"
-
-msgid "Example of impacted svn operations in"
-msgstr "Exemple d'operations svn dans"
 
 msgid "Force every commit to include a reference."
 msgstr "Requiert une référence dans tous les messages de commit."
@@ -206,13 +198,6 @@ msgstr "L'entête n'a pas été mise à jour."
 
 msgid "Header updated successfully"
 msgstr "Entête mise à jour avec succès"
-
-msgid ""
-"Here is a preview of what your configuration does. Click on highlighted "
-"folders to get more information."
-msgstr ""
-"Voici une prévisualisation des impacts de votre configuration. Cliquez sur "
-"les dossiers en surbrillance pour les détails."
 
 msgid ""
 "If a file is already bigger than the limit it can no longer be modified. It "
@@ -252,14 +237,6 @@ msgstr ""
 msgid "Last commit"
 msgstr "Dernier commit"
 
-msgid "Loading..."
-msgstr "Chargement en cours..."
-
-msgid "Mail to specific recipients or mailing lists (comma separated)"
-msgstr ""
-"Envoyer à certains destinataires ou listes de diffusion (séparés par des "
-"virgules)"
-
 msgid "Max file size"
 msgstr "Taille max de fichier"
 
@@ -295,6 +272,9 @@ msgstr "Aucun dépôt svn à restaurer."
 msgid "Notification deleted successfully."
 msgstr "La notification a été correctement supprimée."
 
+msgid "Notification deletion"
+msgstr "Suppression de notification"
+
 msgid "Notification list"
 msgstr "Liste des emails notifiés"
 
@@ -304,9 +284,6 @@ msgstr "La notification à mettre à jour n’existe pas."
 
 msgid "Notifications"
 msgstr "Notifications"
-
-msgid "Path"
-msgstr "Chemin"
 
 #, php-format
 msgid ""
@@ -318,12 +295,6 @@ msgstr ""
 
 msgid "Permission"
 msgstr "Permission"
-
-msgid "Please select tag on the left"
-msgstr "Veuillez sélectionner un tag dans l'arborescence à gauche"
-
-msgid "Preview of your configuration"
-msgstr "Prévisualisation de votre configuration"
 
 msgid "Project SVN repositories"
 msgstr "Dépôts SVN du projet"
@@ -342,6 +313,9 @@ msgstr "Le dépôt %s a été créé avec succès"
 msgid "Repository '%1$s' will be removed in a few seconds"
 msgstr "Le dépôt '%1$s' va être supprimé dans quelques secondes"
 
+msgid "Repository URL"
+msgstr "URL du dépôt"
+
 msgid "Repository list"
 msgstr "Liste des dépôts"
 
@@ -356,9 +330,6 @@ msgstr "Le dépôt n'a pas été trouvé"
 
 msgid "Repository not found."
 msgstr "Dépôt non trouvé."
-
-msgid "Repository tree structure"
-msgstr "Arborescence"
 
 msgid "Rules on commit"
 msgstr "Règles lors d'un commit"
@@ -394,9 +365,6 @@ msgstr "Le service SVN est inactif."
 msgid "SVN service is not activated in project %s"
 msgstr "Le service SVN n'est pas activé dans le projet %s"
 
-msgid "SVN status style"
-msgstr "Façon SVN status"
-
 msgid "SVN with multiple repositories"
 msgstr "SVN avec dépôt multiple"
 
@@ -421,8 +389,8 @@ msgstr "Sauvegarder les règles"
 msgid "Save the subject"
 msgstr "Sauvegarder le sujet"
 
-msgid "Saved versions:"
-msgstr "Versions sauvegardées :"
+msgid "Saved versions"
+msgstr "Versions sauvegardées"
 
 msgid "Select a version"
 msgstr "Séléctionnez une version"
@@ -525,6 +493,10 @@ msgstr ""
 msgid "There is no notification"
 msgstr "Il n'y a aucune notification"
 
+msgid "These can be mailing list addresses or external recipients."
+msgstr ""
+"Elles peuvent être celles de liste de diffusion ou de destinataires externes."
+
 msgid "This action cannot be undone."
 msgstr "Cette action est irréversible."
 
@@ -623,10 +595,13 @@ msgstr "L'utilisateur n'a pas les droits pour créer un nouveau dépôt"
 
 #, php-format
 msgid "User group \"%s\" is empty or does not exist"
-msgstr "Le groupe \"%s\ est vide ou n'existe pas"
+msgstr "Le groupe \"%s\" est vide ou n'existe pas"
 
-msgid "User, group, email"
-msgstr "Utilisateur, groupe, mail"
+msgid "User groups that will receive the notification"
+msgstr "Groupes d'utilisateurs qui recevront la notification"
+
+msgid "Users who will receive the notification"
+msgstr "Utilisateurs qui recevront la notification"
 
 msgid "Wait a minute..."
 msgstr "Attendez une minute ..."
@@ -658,12 +633,12 @@ msgstr ""
 "un <a href=\"%1$s\">administrateur du projet</a>"
 
 #, php-format
-msgid "You are using a previous version (#%1$s):"
-msgstr "Vous utilisez une version antérieure (#%1$s) :"
+msgid "You are using a previous version (#%1$s)"
+msgstr "Vous utilisez une version précédente (#%1$s)"
 
 #, php-format
-msgid "You are using the last version (#%1$s):"
-msgstr "Vous utilisez la dernière version (#%1$s) :"
+msgid "You are using the last version (#%1$s)"
+msgstr "Vous utilisez la dernière version (#%1$s)"
 
 msgid "You can not browse the repository without being logged."
 msgstr "Vous ne pouvez pas naviguer dans le dépôt sans être authentifié."
@@ -673,22 +648,6 @@ msgstr "Vous ne pouvez pas supprimer."
 
 msgid "You don't have permissions to see user groups."
 msgstr "Vous n'avez pas les droits de voir les groupes utilisateurs."
-
-msgid ""
-"Your SVN repository is not impacted by immutable tags because the "
-"configuration is empty or does not match the current repository layout"
-msgstr ""
-"Votre dépôt SVN n'est pas impacté par les tags immutable car la "
-"configuration actuelle est vide ou ne correspond pas à l'arborescence du "
-"dépôt."
-
-msgid ""
-"Your repository contains too many folders (more than %s), for performance "
-"reasons, we cannot display the preview of your configuration."
-msgstr ""
-"Votre dépôt contient trop de dossiers (plus que %s), nous ne pouvons pas "
-"afficher la prévisualisation de la configuration pour des raisons de "
-"performances."
 
 msgid "Your settings could not be saved."
 msgstr "Vos paramètres n'ont pas pu être sauvegardés."
@@ -711,14 +670,8 @@ msgstr ""
 msgid "my-new-repository"
 msgstr "mon-depot"
 
-msgid "my-tag"
-msgstr "mon-tag"
-
 msgid "saved on"
 msgstr "sauvegardée le"
-
-msgid "some/path"
-msgstr "le/chemin"
 
 msgid "{{ user_group_name }} has no global permission"
 msgstr "{{ user_group_name }} n'a pas de permissions globales"

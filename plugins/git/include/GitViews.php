@@ -19,43 +19,42 @@
  * along with Codendi. If not, see <http://www.gnu.org/licenses/
  */
 
-use Tuleap\Git\AccessRightsPresenterOptionsBuilder;
 use Tuleap\Git\Events\GitAdminGetExternalPanePresenters;
 use Tuleap\Git\GitViews\Header\HeaderRenderer;
+use Tuleap\Git\GlobalAdmin\GerritTemplatesPresenter;
 use Tuleap\Git\Permissions\DefaultFineGrainedPermissionFactory;
 use Tuleap\Git\Permissions\FineGrainedPermissionFactory;
 use Tuleap\Git\Permissions\FineGrainedRepresentationBuilder;
 use Tuleap\Git\Permissions\FineGrainedRetriever;
 use Tuleap\Git\Permissions\RegexpFineGrainedRetriever;
 use Tuleap\Git\Repository\Settings\ArtifactClosure\VerifyArtifactClosureIsAllowed;
+use Tuleap\Layout\IncludeViteAssets;
 
 include_once __DIR__ . '/../../../src/www/project/admin/permissions.php';
 
-/**
- * GitViews
- */
 class GitViews extends PluginViews // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 {
-    private Project $project;
-    private UGroupManager $ugroup_manager;
-    private EventManager $event_manager;
+    private readonly Project $project;
+    private readonly UGroupManager $ugroup_manager;
+    private readonly EventManager $event_manager;
+    private int|string $groupId;
 
     public function __construct(
         $controller,
-        private GitPermissionsManager $git_permissions_manager,
-        private FineGrainedPermissionFactory $fine_grained_permission_factory,
-        private FineGrainedRetriever $fine_grained_retriever,
-        private DefaultFineGrainedPermissionFactory $default_fine_grained_permission_factory,
-        private FineGrainedRepresentationBuilder $fine_grained_builder,
-        private RegexpFineGrainedRetriever $regexp_retriever,
-        private Git_RemoteServer_GerritServerFactory $gerrit_server_factory,
-        private HeaderRenderer $header_renderer,
-        private ProjectManager $project_manager,
-        private VerifyArtifactClosureIsAllowed $closure_verifier,
+        private readonly GitPermissionsManager $git_permissions_manager,
+        private readonly FineGrainedPermissionFactory $fine_grained_permission_factory,
+        private readonly FineGrainedRetriever $fine_grained_retriever,
+        private readonly DefaultFineGrainedPermissionFactory $default_fine_grained_permission_factory,
+        private readonly FineGrainedRepresentationBuilder $fine_grained_builder,
+        private readonly RegexpFineGrainedRetriever $regexp_retriever,
+        private readonly Git_RemoteServer_GerritServerFactory $gerrit_server_factory,
+        private readonly HeaderRenderer $header_renderer,
+        private readonly ProjectManager $project_manager,
+        private readonly VerifyArtifactClosureIsAllowed $closure_verifier,
     ) {
         parent::__construct($controller);
         $this->groupId        = (int) $this->request->get('group_id');
-        $this->project        = ProjectManager::instance()->getProject($this->groupId);
+        $this->project        = $this->project_manager->getProject($this->groupId);
         $this->projectName    = $this->project->getUnixName();
         $this->userName       = $this->user->getUserName();
         $this->ugroup_manager = new UGroupManager();
@@ -67,7 +66,7 @@ class GitViews extends PluginViews // phpcs:ignore PSR1.Classes.ClassDeclaration
         $this->header_renderer->renderDefaultHeader($this->request, $this->user, $this->project);
     }
 
-    public function footer()
+    public function footer(): void
     {
         $GLOBALS['HTML']->footer([]);
     }
@@ -75,19 +74,9 @@ class GitViews extends PluginViews // phpcs:ignore PSR1.Classes.ClassDeclaration
     /**
      * REPOSITORY MANAGEMENT VIEW
      */
-    public function repoManagement()
+    public function repoManagement(GitRepository $repository, bool $is_burning_parrot)
     {
-        $params     = $this->getData();
-        $repository = $params['repository'];
-
-        $this->header_renderer->renderRepositorySettingsHeader(
-            $this->request,
-            $this->user,
-            $this->project,
-            $repository
-        );
-
-        echo '<h1 class="almost-tlp-title administration-title">' . Codendi_HTMLPurifier::instance()->purify($repository->getName()) . ' - ' . $GLOBALS['Language']->getText('global', 'Settings') . '</h1>';
+        $params               = $this->getData();
         $repo_management_view = new GitViews_RepoManagement(
             $repository,
             $this->controller->getRequest(),
@@ -105,7 +94,21 @@ class GitViews extends PluginViews // phpcs:ignore PSR1.Classes.ClassDeclaration
             $this->project_manager,
             $this->closure_verifier,
         );
-        $repo_management_view->display();
+
+        $repo_management_view->addPaneAssets();
+        $this->header_renderer->renderRepositorySettingsHeader(
+            $this->request,
+            $this->user,
+            $this->project,
+            $repository
+        );
+
+        echo '<h1 class="project-administration-title">' . Codendi_HTMLPurifier::instance()->purify($repository->getName()) . ' - ' . $GLOBALS['Language']->getText('global', 'Settings') . '</h1>';
+        if ($is_burning_parrot) {
+            $repo_management_view->display();
+        } else {
+            $repo_management_view->displayFlamingParrot();
+        }
 
         $this->footer();
     }
@@ -159,78 +162,6 @@ class GitViews extends PluginViews // phpcs:ignore PSR1.Classes.ClassDeclaration
         }
     }
 
-    protected function forkRepositories()
-    {
-        $params = $this->getData();
-
-        echo '<h1 class="almost-tlp-title administration-title">' . dgettext('tuleap-git', 'Fork repositories') . '</h1>';
-        echo '<div class="git-fork-creation-content">';
-        if ($this->user->isMember($this->groupId)) {
-            echo dgettext('tuleap-git', '<p>You can create personal forks of any reference repositories. By default forks will end up into your personal area of this project.</p></p>');
-        }
-        echo dgettext('tuleap-git', '<p>You might choose to fork into another project. In this case, fork creates new "References" in the target project.<br />You need to be administrator of the target project to do so and Git service must be activated.</p>');
-        if (! empty($params['repository_list'])) {
-            echo '<form action="" method="POST">';
-            echo '<input type="hidden" name="group_id" value="' . (int) $this->groupId . '" />';
-            echo '<input type="hidden" name="action" value="fork_repositories_permissions" />';
-            $token = new CSRFSynchronizerToken('/plugins/git/?group_id=' . (int) $this->groupId . '&action=fork_repositories');
-            echo $token->fetchHTMLInput();
-
-            echo '<table id="fork_repositories" cellspacing="0">';
-            echo '<thead>';
-            echo '<tr valign="top">';
-            echo '<td class="first">';
-            echo '<label style="font-weight: bold;">' . dgettext('tuleap-git', 'Select repositories to fork') . '</label>';
-            echo '</td>';
-            echo '<td>';
-            echo '<label style="font-weight: bold;">' . dgettext('tuleap-git', 'Choose a destination project') . '</label>';
-            echo '</td>';
-            echo '<td>';
-            echo '<label style="font-weight: bold;">' . dgettext('tuleap-git', 'Choose the path for the forks') . '</label>';
-            echo '</td>';
-            echo '<td class="last">&nbsp;</td>';
-            echo '</tr>';
-            echo '</thead>';
-
-            echo '<tbody><tr valign="top">';
-            echo '<td class="first">';
-            $strategy = new GitViewsRepositoriesTraversalStrategy_Selectbox($this);
-            echo $strategy->fetch($params['repository_list'], $this->user);
-            echo '</td>';
-
-            echo '<td>';
-            $options = ' disabled="true" ';
-            if ($this->user->isMember($this->groupId)) {
-                $options = ' checked="true" ';
-            }
-            echo '<div>
-                <input id="choose_personal" type="radio" name="choose_destination" value="' . Git::SCOPE_PERSONAL . '" ' . $options . ' data-test="in-this-project"/>
-                <label class="radio" for="choose_personal">' . dgettext('tuleap-git', 'Create personal repositories in this project') . '</label>
-            </div>';
-
-            echo $this->fetchCopyToAnotherProject();
-
-            echo '</td>';
-
-            $purifier = Codendi_HTMLPurifier::instance();
-
-            echo '<td>';
-            $placeholder = dgettext('tuleap-git', 'Enter a path or leave it blank');
-            echo '<input type="text" title="' . $placeholder . '" placeholder="' . $placeholder . '" data-test="fork-repository-path" id="fork_repositories_path" name="path" />';
-            echo '<input type="hidden" id="fork_repositories_prefix" value="u/' . $purifier->purify($this->user->getUserName()) . '" />';
-            echo '</td>';
-
-            echo '<td class="last">';
-            echo '<input type="submit" class="btn btn-primary" value="' . dgettext('tuleap-git', 'Fork repositories') . '" data-test="create-fork-button" />';
-            echo '</td>';
-
-            echo '</tr></tbody></table>';
-
-            echo '</form>';
-        }
-        echo '</div>';
-    }
-
     protected function adminGitAdminsView()
     {
         $event = new GitAdminGetExternalPanePresenters($this->project);
@@ -250,105 +181,60 @@ class GitViews extends PluginViews // phpcs:ignore PSR1.Classes.ClassDeclaration
         $this->footer();
     }
 
-    protected function adminGerritTemplatesView()
+    protected function adminGerritTemplatesView(): void
     {
+        assert($GLOBALS['HTML'] instanceof \Tuleap\Layout\BaseLayout);
+        $GLOBALS['HTML']->addJavascriptAsset(
+            new \Tuleap\Layout\JavascriptViteAsset(
+                new IncludeViteAssets(
+                    __DIR__ . '/../scripts/global-admin-gerrit/frontend-assets',
+                    '/assets/git/global-admin-gerrit'
+                ),
+                'src/main.ts'
+            )
+        );
+
         $params = $this->getData();
 
-        $repository_list       = (isset($params['repository_list'])) ? $params['repository_list'] : [];
-        $templates_list        = (isset($params['templates_list'])) ? $params['templates_list'] : [];
-        $parent_templates_list = (isset($params['parent_templates_list'])) ? $params['parent_templates_list'] : [];
+        $repository_list       = $params['repository_list'] ?? [];
+        $templates_list        = $params['templates_list'] ?? [];
+        $parent_templates_list = $params['parent_templates_list'] ?? [];
 
         $event = new GitAdminGetExternalPanePresenters($this->project);
         $this->event_manager->processEvent($event);
 
-        $presenter = new GitPresenters_AdminGerritTemplatesPresenter(
+        $presenter = new GerritTemplatesPresenter(
             $repository_list,
             $templates_list,
             $parent_templates_list,
-            $this->groupId,
+            (int) $this->groupId,
+            $params['has_gerrit_servers_set_up'],
+            self::getGerritTemplatesCSRF((int) $this->groupId),
             $event->getExternalPanePresenters(),
-            $params['has_gerrit_servers_set_up']
         );
 
-        $renderer = TemplateRendererFactory::build()->getRenderer(dirname(GIT_BASE_DIR) . '/templates');
+        $renderer = TemplateRendererFactory::build()->getRenderer(__DIR__ . '/../templates');
 
         $this->header_renderer->renderServiceAdministrationHeader($this->request, $this->user, $this->project);
-        echo $renderer->renderToString('admin-gerrit-templates', $presenter);
+        $renderer->renderToPage('admin-gerrit-templates', $presenter);
         $this->footer();
+    }
+
+    public static function getGerritTemplatesCSRF(int $project_id): CSRFSynchronizerToken
+    {
+        return new CSRFSynchronizerToken(
+            '/plugins/git/?' . http_build_query(
+                [
+                    'action' => Git::ADMIN_GERRIT_TEMPLATES_ACTION,
+                    'group_id' => $project_id,
+                ]
+            )
+        );
     }
 
     private function generateMassUpdateCSRF()
     {
         return new CSRFSynchronizerToken('/plugins/git/?group_id=' . (int) $this->groupId . '&action=admin-mass-update');
-    }
-
-    /**
-     * Creates form to set permissions when fork repositories is performed
-     *
-     * @return void
-     */
-    protected function forkRepositoriesPermissions()
-    {
-        $params = $this->getData();
-
-        if ($params['scope'] == 'project') {
-            $groupId = $params['group_id'];
-        } else {
-            $groupId = (int) $this->groupId;
-        }
-
-        $repositories = explode(',', $params['repos']);
-        $repository   = $this->getGitRepositoryFactory()->getRepositoryById($repositories[0]);
-        if (! empty($repository)) {
-            $forkPermissionsManager = new GitForkPermissionsManager(
-                $repository,
-                $this->getAccessRightsPresenterOptionsBuilder(),
-                $this->fine_grained_retriever,
-                $this->fine_grained_permission_factory,
-                $this->fine_grained_builder,
-                $this->default_fine_grained_permission_factory,
-                $this->git_permissions_manager,
-                $this->regexp_retriever
-            );
-
-            $userName = $this->user->getUserName();
-            echo $forkPermissionsManager->displayRepositoriesPermissionsForm($params, $groupId, $userName);
-        }
-    }
-
-    private function getAccessRightsPresenterOptionsBuilder()
-    {
-        $dao                = new UserGroupDao();
-        $user_group_factory = new User_ForgeUserGroupFactory($dao);
-
-        return new AccessRightsPresenterOptionsBuilder($user_group_factory, PermissionsManager::instance());
-    }
-
-    private function getGitRepositoryFactory()
-    {
-        return new GitRepositoryFactory(new GitDao(), ProjectManager::instance());
-    }
-
-    private function fetchCopyToAnotherProject()
-    {
-        $html               = '';
-        $userProjectOptions = $this->getUserProjectsAsOptions($this->user, ProjectManager::instance(), $this->groupId);
-        if ($userProjectOptions) {
-            $options = ' checked="true" ';
-            if ($this->user->isMember($this->groupId)) {
-                $options = '';
-            }
-            $html .= '<div>
-            <label class="radio">
-                <input id="choose_project" type="radio" name="choose_destination" value="project" ' . $options . ' />
-                ' . dgettext('tuleap-git', 'Copy to another project') . '</label>
-            </div>';
-
-            $html .= '<select name="to_project" id="fork_destination" data-test="fork-destination-project">';
-            $html .= $userProjectOptions;
-            $html .= '</select>';
-        }
-        return $html;
     }
 
     public function getUserProjectsAsOptions(PFUser $user, ProjectManager $manager, $currentProjectId)

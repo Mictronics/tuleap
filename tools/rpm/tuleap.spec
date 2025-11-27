@@ -59,7 +59,6 @@ Requires: sudo, openssh
 Requires: perl(File::Copy)
 Requires: highlight, nginx, logrotate
 Requires: tuleap-realtime = %{tuleap_version}
-Requires: tuleap-mercure = %{tuleap_version}
 Requires: tuleap-smokescreen = %{tuleap_version}
 Requires: tuleap-wasmtime-wrapper-lib = %{tuleap_version}
 
@@ -672,8 +671,6 @@ done
 %{__install} src/utils/systemd/tuleap-process-system-events-default.service $RPM_BUILD_ROOT/%{_unitdir}
 %{__install} src/utils/systemd/tuleap-process-system-events-statistics.timer $RPM_BUILD_ROOT/%{_unitdir}
 %{__install} src/utils/systemd/tuleap-process-system-events-statistics.service $RPM_BUILD_ROOT/%{_unitdir}
-%{__install} src/utils/systemd/tuleap-process-system-events-tv3-tv5-migration.timer $RPM_BUILD_ROOT/%{_unitdir}
-%{__install} src/utils/systemd/tuleap-process-system-events-tv3-tv5-migration.service $RPM_BUILD_ROOT/%{_unitdir}
 %{__install} src/utils/systemd/tuleap-launch-system-check.timer $RPM_BUILD_ROOT/%{_unitdir}
 %{__install} src/utils/systemd/tuleap-launch-system-check.service $RPM_BUILD_ROOT/%{_unitdir}
 %{__install} src/utils/systemd/tuleap-launch-daily-event.timer $RPM_BUILD_ROOT/%{_unitdir}
@@ -1064,16 +1061,13 @@ fi
 %dir %{APP_DIR}/src/www/themes
 %{APP_DIR}/src/www/themes/common
 %{APP_DIR}/src/www/tos
-%{APP_DIR}/src/www/tracker
 %{APP_DIR}/src/www/user
 %{APP_DIR}/src/www/widgets
 %{APP_DIR}/src/www/wiki
 # Plugins dir
 %dir %{APP_DIR}/plugins
 %{APP_DIR}/plugins/pluginsadministration
-%{APP_DIR}/plugins/projectlinks
 %{APP_DIR}/plugins/statistics
-%{APP_DIR}/plugins/tracker_date_reminder
 %{APP_DIR}/plugins/userlog
 
 # Configuration
@@ -1131,8 +1125,6 @@ fi
 %attr(00644,root,root) %{_unitdir}/tuleap-process-system-events-default.service
 %attr(00644,root,root) %{_unitdir}/tuleap-process-system-events-statistics.timer
 %attr(00644,root,root) %{_unitdir}/tuleap-process-system-events-statistics.service
-%attr(00644,root,root) %{_unitdir}/tuleap-process-system-events-tv3-tv5-migration.timer
-%attr(00644,root,root) %{_unitdir}/tuleap-process-system-events-tv3-tv5-migration.service
 %attr(00644,root,root) %{_unitdir}/tuleap-launch-system-check.timer
 %attr(00644,root,root) %{_unitdir}/tuleap-launch-system-check.service
 %attr(00644,root,root) %{_unitdir}/tuleap-launch-daily-event.timer

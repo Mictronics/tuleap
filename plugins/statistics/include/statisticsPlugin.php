@@ -28,6 +28,7 @@ use Tuleap\BurningParrotCompatiblePageEvent;
 use Tuleap\Config\ConfigClassProvider;
 use Tuleap\Config\PluginWithConfigKeys;
 use Tuleap\Layout\IncludeAssets;
+use Tuleap\Layout\IncludeViteAssets;
 use Tuleap\Plugin\ListeningToEventName;
 use Tuleap\Project\Admin\Navigation\NavigationDropdownItemPresenter;
 use Tuleap\Project\Admin\Navigation\NavigationPresenter;
@@ -113,7 +114,7 @@ class StatisticsPlugin extends Plugin implements PluginWithConfigKeys
     /** @see Event::AFTER_MASSMAIL_TO_PROJECT_ADMINS */
     public function after_massmail_to_project_admins($params) //phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
-        $request = HTTPRequest::instance();
+        $request = \Tuleap\HTTPRequest::instance();
         if ($request->get('project_over_quota')) {
             $GLOBALS['Response']->redirect('/plugins/statistics/project_over_quota.php');
         }
@@ -287,7 +288,7 @@ class StatisticsPlugin extends Plugin implements PluginWithConfigKeys
     public function burning_parrot_get_javascript_files(array $params) //phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
         if (strpos($_SERVER['REQUEST_URI'], $this->getPluginPath()) === 0) {
-            $ckeditor_assets              = new \Tuleap\Layout\IncludeCoreAssets();
+            $ckeditor_assets              = new IncludeViteAssets(__DIR__ . '/../../../src/scripts/ckeditor4/frontend-assets/', '/assets/core/ckeditor4/');
             $params['javascript_files'][] = $ckeditor_assets->getFileURL('ckeditor.js');
             $params['javascript_files'][] = $this->getAssets()->getFileURL('admin.js');
         }

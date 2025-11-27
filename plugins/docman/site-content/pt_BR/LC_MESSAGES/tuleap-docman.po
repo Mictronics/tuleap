@@ -90,9 +90,6 @@ msgstr ""
 msgid "-- Project saved search:"
 msgstr ""
 
-msgid "...and for the whole sub-hierarchy."
-msgstr ""
-
 msgid "12 Months from today"
 msgstr ""
 
@@ -178,9 +175,6 @@ msgid ""
 "<strong>no automatic notification</strong> of the reviewers.</p>"
 msgstr ""
 
-msgid "<p>Paste operation successfully completed.</p>"
-msgstr ""
-
 #, php-format
 msgid ""
 "<p>The table below highlight the differences between %1$s and %2$s "
@@ -190,18 +184,7 @@ msgid ""
 "delete neither properties nor values in %1$s and %2$s won't be modified.</p>"
 msgstr ""
 
-#, php-format
-msgid ""
-"<p>You will be redirected to <a href=\"%1$s\"> %2$s </a> in %3$s seconds</p>"
-msgstr ""
-
 msgid "<strong>Actions</strong> with selected reviewers:"
-msgstr ""
-
-msgid ""
-"<ul><li>The whole folder sub-tree is taken in account for these statistics.</"
-"li><li>To compute the size, only the last versions of \"file\" and "
-"\"embedded file\" documents are taken in account.</li></ul>"
 msgstr ""
 
 msgid "A directory already exists with this name under docman"
@@ -431,9 +414,6 @@ msgstr ""
 msgid "Can't delete folder %s because it is not empty."
 msgstr ""
 
-msgid "Can't move item."
-msgstr ""
-
 #, php-format
 msgid "Cannot add  following user(s). Internal error: %1$s."
 msgstr ""
@@ -512,9 +492,6 @@ msgstr ""
 msgid "Content:"
 msgstr ""
 
-msgid "Copy"
-msgstr ""
-
 msgid "Copy from template"
 msgstr ""
 
@@ -583,9 +560,6 @@ msgstr ""
 msgid "Customize filters"
 msgstr ""
 
-msgid "Cut"
-msgstr ""
-
 msgid "Date"
 msgstr "Data"
 
@@ -622,9 +596,6 @@ msgstr ""
 msgid "Default value: submitter. Correspond to official owner of the document."
 msgstr ""
 
-msgid "Default view"
-msgstr ""
-
 msgid ""
 "Define a period of validity for your document. It will automatically be "
 "archived at the end of the period."
@@ -633,9 +604,6 @@ msgstr ""
 msgid ""
 "Define the default properties values for the item that will be created "
 "within this folder."
-msgstr ""
-
-msgid "Define the default view for the document manager."
 msgstr ""
 
 msgid "Define the properties of your documents."
@@ -694,9 +662,6 @@ msgstr ""
 msgid "Description: <strong><em>new text</em></strong>"
 msgstr ""
 
-msgid "Details"
-msgstr "Detalhes"
-
 #, php-format
 msgid "Details of %1$s"
 msgstr ""
@@ -712,12 +677,6 @@ msgid "Direct link:"
 msgstr ""
 
 msgid "Disabled"
-msgstr ""
-
-msgid "Display"
-msgstr ""
-
-msgid "Display (legacy)"
 msgstr ""
 
 msgid ""
@@ -840,7 +799,7 @@ msgstr ""
 msgid "Embedded file"
 msgstr ""
 
-msgid "Embedded files:"
+msgid "Embedded files"
 msgstr ""
 
 msgid "Empty"
@@ -849,10 +808,7 @@ msgstr "Vazio"
 msgid "Empty document"
 msgstr ""
 
-msgid "Empty documents:"
-msgstr ""
-
-msgid "Enable monitoring for the whole sub-hierarchy"
+msgid "Empty documents"
 msgstr ""
 
 msgid "Enabled"
@@ -933,7 +889,7 @@ msgstr ""
 msgid "Filename pattern"
 msgstr ""
 
-msgid "Files:"
+msgid "Files"
 msgstr ""
 
 msgid "Fixed date"
@@ -945,7 +901,7 @@ msgstr ""
 msgid "Folder Properties"
 msgstr ""
 
-msgid "Folders:"
+msgid "Folders"
 msgstr ""
 
 msgid ""
@@ -991,9 +947,6 @@ msgid "Global text search"
 msgstr ""
 
 msgid "Granted groups"
-msgstr ""
-
-msgid "Hide related documents"
 msgstr ""
 
 msgid ""
@@ -1083,13 +1036,6 @@ msgstr ""
 msgid "Item successfully deleted."
 msgstr ""
 
-#, php-format
-msgid ""
-"Item successfully moved form <a href=\"?"
-"group_id=%1$s&amp;action=show&amp;id=%2$s\">%3$s</a> to <a href=\"?"
-"group_id=%1$s&amp;action=show&amp;id=%4$s\">%5$s</a>."
-msgstr ""
-
 msgid "Item successfully updated"
 msgstr ""
 
@@ -1117,7 +1063,7 @@ msgstr ""
 msgid "Link"
 msgstr "Link"
 
-msgid "Links:"
+msgid "Links"
 msgstr ""
 
 msgid "List of locked documents."
@@ -1171,9 +1117,6 @@ msgid "Metadata not updated."
 msgstr ""
 
 msgid "Metadata successfully updated."
-msgstr ""
-
-msgid "Monitored document"
 msgstr ""
 
 #, php-format
@@ -1288,14 +1231,7 @@ msgstr ""
 msgid "No email sent to reviewers."
 msgstr ""
 
-msgid "No notifications set"
-msgstr ""
-
 msgid "No review requested."
-msgstr ""
-
-msgid ""
-"No valid item to paste. Either no item was copied or item no longer exist."
 msgstr ""
 
 msgid "No, I do not want to delete it"
@@ -1331,12 +1267,6 @@ msgstr ""
 msgid "Notifications"
 msgstr "Notificações"
 
-msgid "Notified people"
-msgstr ""
-
-msgid "Number of items in this folder:"
-msgstr ""
-
 msgid "Obsolescence Date"
 msgstr ""
 
@@ -1350,9 +1280,6 @@ msgid "Obsolete today"
 msgstr ""
 
 msgid "Only admin can delete Project wide reports."
-msgstr ""
-
-msgid "Open to see related documents"
 msgstr ""
 
 msgid "Operation Canceled"
@@ -1384,13 +1311,6 @@ msgid "Paste '%1$s' in '%2$s'"
 msgstr ""
 
 msgid "Paste Anyway"
-msgstr ""
-
-#, php-format
-msgid "Paste in progress '%1$s' in '%2$s'"
-msgstr ""
-
-msgid "Paste in progress..."
 msgstr ""
 
 msgid "Pattern"
@@ -1438,18 +1358,7 @@ msgstr ""
 msgid "Please enter a new search name:"
 msgstr ""
 
-msgid ""
-"Please select the default view for browsing documents. Please note that this "
-"setting can be overridden by user preferences."
-msgstr ""
-
 msgid "Please select the folder where you want this new document appears."
-msgstr ""
-
-#, php-format
-msgid ""
-"Please wait for the paste to complete. This may take a while depending on "
-"size of data to be copied <img src=\"%1$s\" />"
 msgstr ""
 
 msgid "Position:"
@@ -1525,9 +1434,6 @@ msgid ""
 "Refer to a document id available in the document manager (Warning: "
 "<strong>permissions apply</strong>)."
 msgstr ""
-
-msgid "References"
-msgstr "Referências"
 
 msgid "Rejected"
 msgstr ""
@@ -1664,25 +1570,16 @@ msgstr ""
 msgid "Sequential"
 msgstr ""
 
-msgid "Settings cannot be updated."
-msgstr ""
-
 msgid "Settings differ"
 msgstr ""
 
 msgid "Settings have been saved successfully"
 msgstr ""
 
-msgid "Settings have been updated."
-msgstr ""
-
 msgid "Show actions"
 msgstr ""
 
 msgid "Show my saved search"
-msgstr ""
-
-msgid "Size:"
 msgstr ""
 
 msgid "Something happen!"
@@ -1697,9 +1594,6 @@ msgid "Start date"
 msgstr ""
 
 msgid "Start:"
-msgstr ""
-
-msgid "Statistics"
 msgstr ""
 
 msgid "Status"
@@ -1717,16 +1611,13 @@ msgstr ""
 msgid "Submit permissions"
 msgstr ""
 
-msgid "Subscribers"
-msgstr ""
-
-msgid "Summary"
-msgstr "Resumo"
-
 msgid "Switch to the new user interface"
 msgstr ""
 
 msgid "Table"
+msgstr ""
+
+msgid "Table does not exist"
 msgstr ""
 
 msgid "Table settings updated."
@@ -1944,9 +1835,6 @@ msgstr ""
 msgid "This table is linked to an old version of the document."
 msgstr ""
 
-msgid "This table shows the number of elements of each type."
-msgstr ""
-
 msgid "Title"
 msgstr "Título"
 
@@ -2049,12 +1937,6 @@ msgstr ""
 msgid "User successfully added to the approval table."
 msgstr ""
 
-msgid "User, group"
-msgstr ""
-
-msgid "Validate"
-msgstr ""
-
 msgid "Validity:"
 msgstr ""
 
@@ -2141,7 +2023,7 @@ msgstr ""
 msgid "Wiki page successfully deleted from wiki service."
 msgstr ""
 
-msgid "Wiki pages:"
+msgid "Wiki pages"
 msgstr ""
 
 msgid "Will be created with the same permissions than its parent."
@@ -2248,14 +2130,6 @@ msgid "You can <a href=\"%1$s\" data-test=\"%s\">delete this folder</a>."
 msgstr ""
 
 #, php-format
-msgid "You can <a href=\"%1$s\">copy this document</a>."
-msgstr ""
-
-#, php-format
-msgid "You can <a href=\"%1$s\">copy this folder</a>."
-msgstr ""
-
-#, php-format
 msgid "You can <a href=\"%1$s\">create a new document</a> in this folder."
 msgstr ""
 
@@ -2268,14 +2142,6 @@ msgid "You can <a href=\"%1$s\">create a new version</a>."
 msgstr ""
 
 #, php-format
-msgid "You can <a href=\"%1$s\">cut this document</a>."
-msgstr ""
-
-#, php-format
-msgid "You can <a href=\"%1$s\">cut this folder</a>."
-msgstr ""
-
-#, php-format
 msgid ""
 "You can <a href=\"%1$s\">move this document</a> to another folder or inside "
 "the current folder."
@@ -2285,10 +2151,6 @@ msgstr ""
 msgid ""
 "You can <a href=\"%1$s\">move this folder</a> to another folder or inside "
 "the current folder."
-msgstr ""
-
-#, php-format
-msgid "You can <a href=\"%1$s\">paste '%2$s' into this folder</a>."
 msgstr ""
 
 #, php-format
@@ -2331,30 +2193,19 @@ msgstr ""
 msgid "You can not delete report you do not own. Cancel deletion."
 msgstr ""
 
-msgid "You can not paste an item into itself."
-msgstr ""
-
 msgid "You can only clone 'Project' wide reports or your 'Personal' reports."
 msgstr ""
 
-msgid "You cannot add emails"
+#, php-format
+msgid ""
+"You can view this table in the %s. Please note the interface is under "
+"development"
 msgstr ""
 
 msgid "You cannot add people to an old approval table."
 msgstr ""
 
 msgid "You cannot create a new version."
-msgstr ""
-
-msgid "You cannot cut something and then paste it into its child."
-msgstr ""
-
-msgid "You cannot cut this folder."
-msgstr ""
-
-msgid ""
-"You cannot delete because a parent folder is monitored with its sub-"
-"hierarchy. You can delete that monitoring only from the parent itself."
 msgstr ""
 
 msgid "You cannot delete the root folder."
@@ -2378,9 +2229,6 @@ msgid "You cannot move this document."
 msgstr ""
 
 msgid "You cannot move this folder."
-msgstr ""
-
-msgid "You cannot paste something into a document."
 msgstr ""
 
 msgid "You cannot update this document."
@@ -2516,6 +2364,11 @@ msgid ""
 msgstr ""
 
 msgid ""
+"Your link is not anymore valid: accessing the references via the old "
+"interface is not supported."
+msgstr ""
+
+msgid ""
 "Your message is not valid, you can not send the default message or an empty "
 "one."
 msgstr ""
@@ -2592,6 +2445,9 @@ msgid "lorem must be in result"
 msgstr ""
 
 msgid "lorem must not be in result"
+msgstr ""
+
+msgid "new ui"
 msgstr ""
 
 msgid "null is not a valid status."

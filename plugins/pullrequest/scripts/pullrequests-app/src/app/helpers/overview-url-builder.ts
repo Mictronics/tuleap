@@ -17,19 +17,11 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { ProjectReference } from "@tuleap/core-rest-api-types";
-
-interface PullRequestWithProjectAndRepository {
-    readonly id: number;
-    readonly repository: {
-        readonly id: number;
-        readonly project: ProjectReference;
-    };
-}
+import type { PullRequest } from "@tuleap/plugin-pullrequest-rest-api-types";
 
 export function buildOverviewURL(
     location: Location,
-    pull_request: PullRequestWithProjectAndRepository,
+    pull_request: PullRequest,
     current_project_id: number,
     current_repository_id: number,
 ): URL {

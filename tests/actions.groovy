@@ -35,6 +35,12 @@ def runJSUnitTests(Boolean with_coverage = false) {
     }
 }
 
+def runJSManifestConsistencyCheck() {
+    dir ('sources') {
+        runInsideNixShell('make tests-consistency-frontend-assets-manifests')
+    }
+}
+
 def runRESTTests(String db, String php) {
     sh """
     mkdir -p \$WORKSPACE/results/api-rest/php${php}-${db}
@@ -61,19 +67,6 @@ def runBuildAndRun(String os) {
     }
 }
 
-def runESLint() {
-    sh("mkdir -p ${WORKSPACE}/results/eslint/")
-    dir ('sources') {
-        runInsideNixShell("pnpm run eslint --quiet --format=checkstyle --output-file=${WORKSPACE}/results/eslint/checkstyle.xml .")
-    }
-}
-
-def runStylelint() {
-    dir ('sources') {
-        runInsideNixShell('pnpm run stylelint **/*.scss **/*.vue')
-    }
-}
-
 def runTabFilesCheck() {
     dir ('sources') {
         runInsideNixShell('src/utils/analyse_language_files.pl ./')
@@ -86,9 +79,15 @@ def runSecretsScan() {
     }
 }
 
-def runTreefmt() {
+def runTreefmt(String filesToAnalyze = '.') {
     dir ('sources') {
-        runInsideNixShell('treefmt --ci')
+        runInsideNixShell("treefmt --ci ${filesToAnalyze}")
+    }
+}
+
+def verifyLicenses() {
+    dir ('sources') {
+        runInsideNixShell('make generate-sbom && make verify-licenses', 'dev')
     }
 }
 
@@ -112,16 +111,6 @@ def runPsalmTaintAnalysis(String configPath, String root='.') {
             """
         }
     }
-}
-
-def runPHPCodingStandards(String phpcsPath, String rulesetPath, String filesToAnalyze) {
-    if (filesToAnalyze == '' || !filesToAnalyze.contains('.php')) {
-        return;
-    }
-    sh """
-    docker run --rm -v $WORKSPACE/sources:/usr/share/tuleap:ro -w /usr/share/tuleap --network none \${DOCKER_REGISTRY:-ghcr.io}/enalean/tuleap-aio-dev:el9-php84 \
-        scl enable php84 "php -d memory_limit=2536M ${phpcsPath} --extensions=php,phpstub --encoding=utf-8 --standard="${rulesetPath}" -p ${filesToAnalyze}"
-    """
 }
 
 def runDeptrac() {

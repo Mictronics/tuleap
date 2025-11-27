@@ -20,8 +20,9 @@
 
 namespace Tuleap\SVN\AccessControl;
 
+use Tuleap\Layout\IncludeViteAssets;
+use Tuleap\Layout\JavascriptViteAsset;
 use Tuleap\SVN\ServiceSvn;
-use HTTPRequest;
 use Tuleap\SVN\SVNAccessFileReader;
 use Tuleap\SVN\Repository;
 use Tuleap\SVN\Repository\RepositoryManager;
@@ -52,7 +53,7 @@ class AccessControlController
         ]);
     }
 
-    public function displayAuthFile(ServiceSvn $service, HTTPRequest $request)
+    public function displayAuthFile(ServiceSvn $service, \Tuleap\HTTPRequest $request)
     {
         $repository = $this->repository_manager->getByIdAndProject($request->get('repo_id'), $request->getProject());
 
@@ -82,6 +83,14 @@ class AccessControlController
             $GLOBALS['Response']->addFeedback(\Feedback::WARN, (string) $fault);
         }
 
+        $GLOBALS['Response']->addJavascriptAsset(new JavascriptViteAsset(
+            new IncludeViteAssets(
+                __DIR__ . '/../../../scripts/admin/frontend-assets',
+                '/assets/svn/admin',
+            ),
+            'src/admin.ts',
+        ));
+
         $service->renderInPageRepositoryAdministration(
             $request,
             $title,
@@ -100,7 +109,7 @@ class AccessControlController
         );
     }
 
-    public function displayArchivedVersion(HTTPRequest $request)
+    public function displayArchivedVersion(\Tuleap\HTTPRequest $request)
     {
         $id         = $request->get('accessfile_history_id');
         $repository = $this->repository_manager->getByIdAndProject($request->get('repo_id'), $request->getProject());
@@ -110,7 +119,7 @@ class AccessControlController
         $GLOBALS['Response']->sendJSON(['content' => $access_file->getContent()]);
     }
 
-    public function saveAuthFile(ServiceSvn $service, HTTPRequest $request)
+    public function saveAuthFile(ServiceSvn $service, \Tuleap\HTTPRequest $request)
     {
         $repository = $this->repository_manager->getByIdAndProject($request->get('repo_id'), $request->getProject());
         $this->getToken($repository)->check();

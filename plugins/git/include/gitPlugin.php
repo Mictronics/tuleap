@@ -21,6 +21,7 @@
  */
 
 use Cocur\Slugify\Slugify;
+use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Lcobucci\Clock\SystemClock;
 use Tuleap\Admin\AdminPageRenderer;
 use Tuleap\admin\PendingElements\PendingDocumentsRetriever;
@@ -31,6 +32,7 @@ use Tuleap\Authentication\Scope\AuthenticationScopeBuilder;
 use Tuleap\Authentication\Scope\AuthenticationScopeBuilderFromClassNames;
 use Tuleap\Authentication\SplitToken\SplitTokenVerificationStringHasher;
 use Tuleap\BurningParrotCompatiblePageDetector;
+use Tuleap\BurningParrotCompatiblePageEvent;
 use Tuleap\CLI\CLICommandsCollector;
 use Tuleap\Config\ConfigClassProvider;
 use Tuleap\Config\PluginWithConfigKeys;
@@ -58,8 +60,18 @@ use Tuleap\Git\DefaultSettings\DefaultSettingsRouter;
 use Tuleap\Git\DefaultSettings\IndexController;
 use Tuleap\Git\DiskUsage\Collector;
 use Tuleap\Git\DiskUsage\Retriever;
+use Tuleap\Git\ForkRepositories\DoFork\DoForkRepositoriesController;
+use Tuleap\Git\ForkRepositories\DoFork\DoForkRepositoriesCSRFChecker;
+use Tuleap\Git\ForkRepositories\DoFork\DoForkRepositoriesFormInputsBuilder;
+use Tuleap\Git\ForkRepositories\DoFork\ForkCreator;
+use Tuleap\Git\ForkRepositories\ForkRepositoriesController;
+use Tuleap\Git\ForkRepositories\ForkRepositoriesPresenterBuilder;
+use Tuleap\Git\ForkRepositories\Permissions\ForkRepositoriesFormInputsBuilder;
+use Tuleap\Git\ForkRepositories\Permissions\ForkRepositoriesPermissionsController;
+use Tuleap\Git\ForkRepositories\Permissions\ForkRepositoriesPermissionsPresenterBuilder;
 use Tuleap\Git\Gerrit\ReplicationHTTPUserAuthenticator;
 use Tuleap\Git\GerritServerResourceRestrictor;
+use Tuleap\Git\GitAccessControlPresenterBuilder;
 use Tuleap\Git\GitGodObjectWrapper;
 use Tuleap\Git\Gitolite\Gitolite3LogParser;
 use Tuleap\Git\Gitolite\GitoliteAccessURLGenerator;
@@ -73,6 +85,7 @@ use Tuleap\Git\Gitolite\SSHKey\Provider\GitoliteAdmin;
 use Tuleap\Git\Gitolite\SSHKey\Provider\User;
 use Tuleap\Git\Gitolite\SSHKey\Provider\WholeInstanceKeysAggregator;
 use Tuleap\Git\GitPHP\Controller_Snapshot;
+use Tuleap\Git\GitPluginDefaultController;
 use Tuleap\Git\GitProjectRenamer;
 use Tuleap\Git\GitRepositoryBrowserController;
 use Tuleap\Git\GitViews\Header\HeaderRenderer;
@@ -161,6 +174,7 @@ use Tuleap\Git\RepositoryList\GitRepositoryListController;
 use Tuleap\Git\RepositoryList\ListPresenterBuilder;
 use Tuleap\Git\REST\v1\Branch\BranchNameCreatorFromArtifact;
 use Tuleap\Git\RestrictedGerritServerDao;
+use Tuleap\Git\RouterLink;
 use Tuleap\Git\SystemCheck;
 use Tuleap\Git\SystemEvent\OngoingDeletionDAO;
 use Tuleap\Git\SystemEvents\ParseGitolite3Logs;
@@ -170,9 +184,15 @@ use Tuleap\Git\Webhook\WebhookDao;
 use Tuleap\Git\XmlUgroupRetriever;
 use Tuleap\GitBundle;
 use Tuleap\Http\HttpClientFactory;
+use Tuleap\Http\HTTPFactoryBuilder;
+use Tuleap\Http\Response\RedirectWithFeedbackFactory;
 use Tuleap\Instrument\Prometheus\Prometheus;
+use Tuleap\Layout\CssViteAsset;
+use Tuleap\Layout\Feedback\FeedbackSerializer;
 use Tuleap\Layout\HomePage\StatisticsCollectionCollector;
 use Tuleap\Layout\IncludeAssets;
+use Tuleap\Layout\IncludeViteAssets;
+use Tuleap\Layout\JavascriptViteAsset;
 use Tuleap\Mail\MailFilter;
 use Tuleap\Mail\MailLogger;
 use Tuleap\Plugin\ListeningToEventClass;
@@ -197,6 +217,7 @@ use Tuleap\Project\ProjectAccessChecker;
 use Tuleap\Project\Registration\RegisterProjectCreationEvent;
 use Tuleap\Project\Registration\Template\Upload\ArchiveWithoutDataCheckerErrorCollection;
 use Tuleap\Project\RestrictedUserCanAccessProjectVerifier;
+use Tuleap\Project\Routing\ProjectByNameRetrieverMiddleware;
 use Tuleap\Project\Service\AddMissingService;
 use Tuleap\Project\Service\CollectServicesAllowedForRestrictedEvent;
 use Tuleap\Project\Service\PluginWithService;
@@ -210,6 +231,7 @@ use Tuleap\Reference\GetReferenceEvent;
 use Tuleap\Reference\Nature;
 use Tuleap\Reference\NatureCollection;
 use Tuleap\Request\DispatchableWithRequest;
+use Tuleap\Request\ProjectRetriever;
 use Tuleap\Request\RestrictedUsersAreHandledByPluginEvent;
 use Tuleap\SystemEvent\GetSystemEventQueuesEvent;
 use Tuleap\Tracker\Artifact\ActionButtons\AdditionalArtifactActionButtonsFetcher;
@@ -819,7 +841,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         );
     }
 
-    protected function getChainOfRouters()
+    protected function getChainOfRouters(): RouterLink
     {
         $repository_retriever = new RepositoryFromRequestRetriever(
             $this->getRepositoryFactory(),
@@ -876,7 +898,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         );
     }
 
-    private function getWebhookRouter($repository_retriever)
+    private function getWebhookRouter($repository_retriever): RouterLink
     {
         $dao = new WebhookDao();
 
@@ -1483,7 +1505,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
 
     public function getProjectWidgetList(\Tuleap\Widget\Event\GetProjectWidgetList $event)
     {
-        $request = HTTPRequest::instance();
+        $request = \Tuleap\HTTPRequest::instance();
         $groupId = $request->get('group_id');
         $pm      = ProjectManager::instance();
         $project = $pm->getProject($groupId);
@@ -1565,7 +1587,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
             $this->getRepositoryFactory(),
             UserManager::instance(),
             ProjectManager::instance(),
-            HTTPRequest::instance(),
+            \Tuleap\HTTPRequest::instance(),
             $this->getProjectCreator(),
             new Git_Driver_Gerrit_Template_TemplateFactory(new Git_Driver_Gerrit_Template_TemplateDao()),
             $this->getGitPermissionsManager(),
@@ -2371,7 +2393,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
                 $this->getPluginPath() . '/?' . http_build_query(
                     [
                         'group_id' => $project->getID(),
-                        'action'   => 'admin-git-admins',
+                        'action'   => Git::GIT_ADMIN_USER_GROUPS_ACTION,
                     ]
                 )
             )
@@ -2596,9 +2618,9 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         );
     }
 
-    public function routeGetPostLegacyController()
+    public function routeGetPostLegacyController(): GitPluginDefaultController
     {
-        return new \Tuleap\Git\GitPluginDefaultController(
+        return new GitPluginDefaultController(
             $this->getChainOfRouters(),
             EventManager::instance()
         );
@@ -2624,6 +2646,102 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
             $r->addRoute(['GET', 'POST'], '/{project_name}/{path:.*}', $this->getRouteHandler('routeGetPostRepositoryView'));
             $r->addRoute(['GET', 'POST'], '/{path:.*}', $this->getRouteHandler('routeGetPostLegacyController'));
         });
+
+        $event->getRouteCollector()->addGroup('/projects', function (FastRoute\RouteCollector $r) {
+            $r->get('/{project_name}/fork-repositories[/]', $this->getRouteHandler('routeForkRepositories'));
+            $r->post('/{project_name}/fork-repositories/permissions[/]', $this->getRouteHandler('routeForkRepositoriesPermissions'));
+            $r->post('/{project_name}/fork-repositories/fork[/]', $this->getRouteHandler('routeDoForkRepositories'));
+        });
+    }
+
+    public function routeForkRepositories(): ForkRepositoriesController
+    {
+        $project_manager = ProjectManager::instance();
+        return new ForkRepositoriesController(
+            $project_manager,
+            $this->getHeaderRenderer(),
+            new JavascriptViteAsset(
+                new IncludeViteAssets(__DIR__ . '/../scripts/fork-repositories/frontend-assets', '/assets/git/fork-repositories'),
+                'src/main.ts'
+            ),
+            new ForkRepositoriesPresenterBuilder(
+                $project_manager,
+                new GitRepositoryFactory(
+                    new GitDao(),
+                    $project_manager,
+                ),
+            ),
+            TemplateRendererFactory::build()->getRenderer(dirname(GIT_BASE_DIR) . '/templates/fork-repositories')
+        );
+    }
+
+    public function routeForkRepositoriesPermissions(): ForkRepositoriesPermissionsController
+    {
+        $project_manager = ProjectManager::instance();
+        $dirname         = dirname(GIT_BASE_DIR);
+        return new ForkRepositoriesPermissionsController(
+            $project_manager,
+            $project_manager,
+            $this->getHeaderRenderer(),
+            CssViteAsset::fromFileName(
+                new IncludeViteAssets(__DIR__ . '/../scripts/access-control/frontend-assets', '/assets/git/access-control'),
+                'styles/styles.scss'
+            ),
+            new ForkRepositoriesFormInputsBuilder(
+                \Tuleap\Mapper\ValinorMapperBuilderFactory::mapperBuilder()->mapper(),
+            ),
+            TemplateRendererFactory::build()->getRenderer([
+                $dirname . '/templates/fork-repositories',
+                $dirname . '/templates/access-control',
+            ]),
+            new ForkRepositoriesPermissionsPresenterBuilder(
+                new GitRepositoryFactory(
+                    new GitDao(),
+                    $project_manager,
+                ),
+                new GitAccessControlPresenterBuilder(
+                    new AccessRightsPresenterOptionsBuilder(new User_ForgeUserGroupFactory(new UserGroupDao()), PermissionsManager::instance()),
+                    $this->getDefaultFineGrainedPermissionFactory(),
+                    $this->getFineGrainedRetriever(),
+                    $this->getFineGrainedRepresentationBuilder(),
+                    $this->getFineGrainedFactory(),
+                    new Git_Driver_Gerrit_ProjectCreatorStatus(
+                        new Git_Driver_Gerrit_ProjectCreatorStatusDao()
+                    ),
+                    $this->getGitPermissionsManager(),
+                    $this->getRegexpFineGrainedRetriever(),
+                ),
+            ),
+        );
+    }
+
+    public function routeDoForkRepositories(): DoForkRepositoriesController
+    {
+        $project_manager = ProjectManager::instance();
+
+        $fork_creator = new ForkCreator(
+            $this->getRepositoryManager(),
+            $this->getGitPermissionsManager(),
+            new ProjectHistoryDao(),
+            $project_manager,
+            $this->getRepositoryFactory(),
+            new DoForkRepositoriesFormInputsBuilder(
+                \Tuleap\Mapper\ValinorMapperBuilderFactory::mapperBuilder()->mapper(),
+            ),
+            new DoForkRepositoriesCSRFChecker(),
+        );
+
+        return new DoForkRepositoriesController(
+            new RedirectWithFeedbackFactory(
+                HTTPFactoryBuilder::responseFactory(),
+                new FeedbackSerializer(new FeedbackDao()),
+            ),
+            UserManager::instance(),
+            $fork_creator,
+            $fork_creator,
+            new SapiEmitter(),
+            new ProjectByNameRetrieverMiddleware(ProjectRetriever::buildSelf()),
+        );
     }
 
     /**
@@ -2635,7 +2753,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         $selected_tab = RepositoryHeaderPresenterBuilder::TAB_FILES;
 
         $gitphp_actions_displayed_in_commits_tab = ['shortlog', 'commit', 'commitdiff', 'blobdiff', 'search'];
-        if (in_array(HTTPRequest::instance()->get('a'), $gitphp_actions_displayed_in_commits_tab, true)) {
+        if (in_array(\Tuleap\HTTPRequest::instance()->get('a'), $gitphp_actions_displayed_in_commits_tab, true)) {
             $selected_tab = RepositoryHeaderPresenterBuilder::TAB_COMMITS;
         }
 
@@ -2718,6 +2836,23 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
                 )
             )
         );
+    }
+
+    #[ListeningToEventClass]
+    public function burningParrotCompatiblePage(BurningParrotCompatiblePageEvent $event): void
+    {
+        $request = \Tuleap\HTTPRequest::instance();
+
+        $action = $request->get('action');
+        if ($action === 'repo_management') {
+            if (in_array($request->get('pane'), GitViews_RepoManagement::BURNING_PARROT_COMPATIBLE_PANES, true)) {
+                $event->setIsInBurningParrotCompatiblePage();
+            }
+        }
+
+        if (in_array($action, [Git::ADMIN_GIT_ADMINS_ACTION, Git::ADMIN_DEFAULT_SETTINGS_ACTION], true)) {
+            $event->setIsInBurningParrotCompatiblePage();
+        }
     }
 
     public function statisticsCollectionCollector(StatisticsCollectionCollector $collector)
@@ -2895,14 +3030,6 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
             $event_manager
         );
         $handler->handle($event);
-    }
-
-    private function getAssets(): IncludeAssets
-    {
-        return new IncludeAssets(
-            __DIR__ . '/../frontend-assets',
-            '/assets/git'
-        );
     }
 
     #[ListeningToEventClass]

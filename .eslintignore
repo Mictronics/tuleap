@@ -17,7 +17,6 @@ src/www/scripts/d3/
 src/www/scripts/datepicker/
 src/www/scripts/jquery/
 src/www/scripts/lightwindow/
-src/www/scripts/lytebox/
 src/www/scripts/placeholder/
 src/www/scripts/protocheck/
 src/www/scripts/prototype/
@@ -26,7 +25,6 @@ src/www/scripts/select2/
 src/www/scripts/tablekit/
 src/www/scripts/textboxlist/
 src/www/scripts/vendor/
-src/www/scripts/fieldDependencies.js
 src/scripts/tlp/src/types/
 plugins/mediawiki/www/
 **/additional-packages/**

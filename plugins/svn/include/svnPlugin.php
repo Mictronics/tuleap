@@ -87,6 +87,7 @@ use Tuleap\SVN\Admin\MailHeaderManager;
 use Tuleap\SVN\Admin\MailNotificationDao;
 use Tuleap\SVN\Admin\MailNotificationManager;
 use Tuleap\SVN\Admin\RestoreController;
+use Tuleap\SVN\Admin\UserGroupsPresenterBuilder;
 use Tuleap\SVN\BackendSVN;
 use Tuleap\SVN\Commit\FileSizeValidator;
 use Tuleap\SVN\Commit\Svnlook;
@@ -154,6 +155,9 @@ use Tuleap\SVNCore\GetAllRepositories;
 use Tuleap\SVN\SVNAccessFileReader;
 use Tuleap\SVNCore\SvnCoreAccess;
 use Tuleap\SystemEvent\RootPostEventsActionsEvent;
+use Tuleap\User\Avatar\AvatarHashDao;
+use Tuleap\User\Avatar\ComputeAvatarHash;
+use Tuleap\User\Avatar\UserAvatarUrlProvider;
 
 // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 class SvnPlugin extends Plugin implements PluginWithConfigKeys, PluginWithService
@@ -490,29 +494,6 @@ class SvnPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         return ProjectManager::instance();
     }
 
-    #[ListeningToEventName('cssfile')]
-    public function cssfile(): void
-    {
-        if (strpos($_SERVER['REQUEST_URI'], $this->getPluginPath()) === 0) {
-            $assets = $this->getIncludeAssets();
-            echo '<link rel="stylesheet" type="text/css" href="' . $assets->getFileURL('style-fp.css') . '" />';
-        }
-    }
-
-    #[ListeningToEventName('javascript_file')]
-    public function javascriptFile(array $params): void
-    {
-        $layout = $params['layout'];
-        assert($layout instanceof \Tuleap\Layout\BaseLayout);
-        // Only show the javascript if we're actually in the svn pages.
-        if (strpos($_SERVER['REQUEST_URI'], $this->getPluginPath()) === 0) {
-            $layout->addJavascriptAsset(new \Tuleap\Layout\JavascriptAsset($this->getIncludeAssets(), 'svn.js'));
-        }
-        if ($this->currentRequestIsForPlugin()) {
-            $layout->addJavascriptAsset(new \Tuleap\Layout\JavascriptAsset($this->getIncludeAssets(), 'svn-admin.js'));
-        }
-    }
-
     #[\Override]
     #[ListeningToEventClass]
     public function serviceClassnamesCollector(ServiceClassnamesCollector $event): void
@@ -607,15 +588,21 @@ class SvnPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
                 $this->getMailNotificationManager(),
                 self::getLogger(),
                 new NotificationListBuilder(
-                    new UGroupDao(),
+                    new UgroupsToNotifyDao(),
+                    new UsersToNotifyDao(),
+                    UserManager::instance(),
+                    new UserAvatarUrlProvider(new AvatarHashDao(), new ComputeAvatarHash()),
+                    new UserGroupsPresenterBuilder(),
                     new CollectionOfUserToBeNotifiedPresenterBuilder($this->getUserNotifyDao()),
-                    new CollectionOfUgroupToBeNotifiedPresenterBuilder($this->getUGroupNotifyDao())
+                    new CollectionOfUgroupToBeNotifiedPresenterBuilder($this->getUGroupNotifyDao()),
                 ),
                 $this->getUserManager(),
                 new UGroupManager(),
                 $hook_config_updator,
                 $this->getHookConfigRetriever(),
                 $this->getRepositoryDeleter(),
+                new User_ForgeUserGroupFactory(new UserGroupDao()),
+                new UserGroupsPresenterBuilder(),
             ),
             new ExplorerController(
                 $repository_manager,
@@ -1164,7 +1151,7 @@ class SvnPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
     #[ListeningToEventClass]
     public function burningParrotCompatiblePage(BurningParrotCompatiblePageEvent $event): void
     {
-        if ($this->isInSvnHomepage()) {
+        if ($this->isInSvn()) {
             $event->setIsInBurningParrotCompatiblePage();
         }
     }
@@ -1174,7 +1161,7 @@ class SvnPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
     {
         if (
             strpos($_SERVER['REQUEST_URI'], '/project/admin/permission_per_group') === 0
-            || $this->isInSvnHomepage()
+            || $this->isInSvn()
         ) {
             $assets = $this->getIncludeAssets();
 
@@ -1182,18 +1169,9 @@ class SvnPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         }
     }
 
-    private function isInSvnHomepage(): bool
+    private function isInSvn(): bool
     {
-        if (strpos($_SERVER['REQUEST_URI'], $this->getPluginPath()) !== 0) {
-            return false;
-        }
-
-        parse_str($_SERVER['QUERY_STRING'], $output);
-        if (count($output) !== 1) {
-            return false;
-        }
-
-        return array_keys($output) === ['group_id'];
+        return str_starts_with($_SERVER['REQUEST_URI'], $this->getPluginPath());
     }
 
     #[ListeningToEventClass]

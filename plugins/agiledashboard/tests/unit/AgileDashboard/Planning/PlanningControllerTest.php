@@ -46,7 +46,9 @@ use Tuleap\AgileDashboard\Test\Builders\PlanningBuilder;
 use Tuleap\GlobalLanguageMock;
 use Tuleap\GlobalResponseMock;
 use Tuleap\Test\Builders\HTTPRequestBuilder;
+use Tuleap\Test\Builders\LayoutInspector;
 use Tuleap\Test\Builders\ProjectTestBuilder;
+use Tuleap\Test\Builders\TestLayout;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\DB\DBTransactionExecutorPassthrough;
 use Tuleap\Test\PHPUnit\TestCase;
@@ -91,7 +93,7 @@ final class PlanningControllerTest extends TestCase
 
     private function getPlanningController(Codendi_Request $request): Planning_Controller
     {
-        return $this->planning_controller = new Planning_Controller(
+        $planning_controller              = new class (
             $request,
             $this->planning_factory,
             $this->createMock(ProjectManager::class),
@@ -111,8 +113,17 @@ final class PlanningControllerTest extends TestCase
             $this->update_request_validator,
             $this->backlog_trackers_update_checker,
             $this->project_history_dao,
-            $this->tracker_factory
-        );
+            $this->tracker_factory,
+            new TestLayout(new LayoutInspector()),
+        ) extends Planning_Controller
+        {
+            #[\Override]
+            protected function checkCSRFToken(): void
+            {
+                // Do nothing, always consider requests as valid
+            }
+        };
+        return $this->planning_controller = $planning_controller;
     }
 
     public function testItDeletesThePlanningAndRedirectsToTheIndex(): void

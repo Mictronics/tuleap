@@ -83,7 +83,7 @@ class AccessControl extends Pane
             dgettext('tuleap-git', 'Access control'),
             '?' . http_build_query(
                 [
-                    'action'   => 'admin-default-settings',
+                    'action'   => Git::ADMIN_DEFAULT_SETTINGS_ACTION,
                     'group_id' => $project->getID(),
                     'pane'     => self::NAME,
                 ]
@@ -138,7 +138,7 @@ class AccessControl extends Pane
         $new_fine_grained_ugroups = $this->access_rights_builder->getAllOptions($this->project);
 
         $delete_url  = '?action=delete-default-permissions&pane=access_control&group_id=' . urlencode($this->project->getID());
-        $url         = '?action=admin-default-settings&pane=access_control&group_id=' . urlencode($this->project->getID());
+        $url         = '?action=' . Git::ADMIN_DEFAULT_SETTINGS_ACTION . '&pane=access_control&group_id=' . urlencode($this->project->getID());
         $csrf_delete = new CSRFSynchronizerToken($url);
 
         $branches_permissions_representation = [];
@@ -157,7 +157,11 @@ class AccessControl extends Pane
             );
         }
 
-        $renderer = TemplateRendererFactory::build()->getRenderer(dirname(GIT_BASE_DIR) . '/templates');
+        $dirname  = dirname(GIT_BASE_DIR);
+        $renderer = TemplateRendererFactory::build()->getRenderer([
+            $dirname . '/templates',
+            $dirname . '/templates/access-control',
+        ]);
 
         return $renderer->renderToString(
             'admin-git-access-rights',

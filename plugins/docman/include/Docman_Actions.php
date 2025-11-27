@@ -83,7 +83,7 @@ class Docman_Actions extends Actions // phpcs:ignoreFile
 
     private function _getFolderFromRequest()
     {
-        $request = HTTPRequest::instance();
+        $request = \Tuleap\HTTPRequest::instance();
         $folder  = new Docman_Folder();
         $folder->setId((int) $request->get('id'));
         $folder->setGroupId((int) $request->get('group_id'));
@@ -853,195 +853,6 @@ class Docman_Actions extends Actions // phpcs:ignoreFile
     }
 
     /**
-     * Perform paste operation after cut
-     *
-     * @param Docman_Item   $itemToMove    Item to move
-     * @param Docman_Folder $newParentItem New parent item
-     * @param PFUser          $user          User who perform the paste
-     * @param String        $ordering      Where the item should be paste within the new folder
-     *
-     * @return void
-     */
-    protected function _doCutPaste($itemToMove, $newParentItem, $user, $ordering)
-    {
-        if ($itemToMove && $newParentItem && $newParentItem->getId() != $itemToMove->getId()) {
-            $item_factory = $this->_getItemFactory();
-            $old_parent   = $item_factory->getItemFromDb($itemToMove->getParentId());
-            if ($item_factory->move($itemToMove, $newParentItem, $user, $ordering)) {
-                $hp = Codendi_HTMLPurifier::instance();
-                $this->_controler->feedback->log(
-                    'info',
-                    sprintf(dgettext('tuleap-docman', 'Item successfully moved form <a href="?group_id=%1$s&amp;action=show&amp;id=%2$s">%3$s</a> to <a href="?group_id=%1$s&amp;action=show&amp;id=%4$s">%5$s</a>.'), $itemToMove->getGroupId(), $old_parent->getId(), $hp->purify($old_parent->getTitle(), CODENDI_PURIFIER_CONVERT_HTML), $newParentItem->getId(), $hp->purify($newParentItem->getTitle(), CODENDI_PURIFIER_CONVERT_HTML)),
-                    CODENDI_PURIFIER_DISABLED
-                );
-                    $item_factory->delCopyPreference();
-                    $item_factory->delCutPreference();
-            } else {
-                $this->_controler->feedback->log('error', dgettext('tuleap-docman', 'Can\'t move item.'));
-            }
-        }
-    }
-
-    /**
-     * Perform paste operation after a copy
-     *
-     * @param Docman_Item   $itemToPaste   Item to paste
-     * @param Docman_Folder $newParentItem New parent item
-     * @param PFUser          $user          User who perform the paste
-     * @param String        $ordering      Where the item should be paste within the new folder
-     * @param bool $importMd Do we need to import metadata from another project
-     * @param String        $dataRoot      Where the docman data stand on hard drive
-     *
-     * @return void
-     */
-    protected function _doCopyPaste($itemToPaste, $newParentItem, $user, $ordering, $importMd, $dataRoot)
-    {
-        $srcMdFactory = new Docman_MetadataFactory($itemToPaste->getGroupId());
-
-        // Import metadata if asked
-        if ($importMd) {
-            $srcMdFactory->exportMetadata($newParentItem->getGroupId());
-        }
-
-        // Get mapping between the 2 definitions
-        $mdMapping = [];
-        $srcMdFactory->getMetadataMapping($newParentItem->getGroupId(), $mdMapping);
-
-        // Permissions
-        if ($itemToPaste->getGroupId() != $newParentItem->getGroupId()) {
-            $ugroupsMapping = false;
-        } else {
-            $ugroupsMapping = true;
-        }
-
-        // Action
-        $itemFactory = $this->_getItemFactory();
-        $itemFactory->cloneItems(
-            $user,
-            $mdMapping,
-            $ugroupsMapping,
-            $dataRoot,
-            $itemToPaste,
-            DestinationCloneItem::fromNewParentFolder($newParentItem, ProjectManager::instance(), new Docman_LinkVersionFactory(), $this->event_manager),
-            $ordering
-        );
-
-        $itemFactory->delCopyPreference();
-        $itemFactory->delCutPreference();
-    }
-
-    public function move()
-    {
-        $request = $this->_controler->request;
-        if ($request->exist('id')) {
-            $item_factory = $this->_getItemFactory();
-            //Move in a specific folder (maybe the same)
-            if ($request->exist('item_to_move')) {
-                $item          = $item_factory->getItemFromDb($request->get('item_to_move'));
-                $new_parent_id = $request->get('id');
-                $ordering      = $request->get('ordering');
-            } else {
-                //Move in the same folder
-                if ($request->exist('quick_move')) {
-                    $item          = $item_factory->getItemFromDb($request->get('id'));
-                    $new_parent_id = $item->getParentId();
-                    switch ($request->get('quick_move')) {
-                        case 'move-up':
-                        case 'move-down':
-                        case 'move-beginning':
-                        case 'move-end':
-                            $ordering = substr($request->get('quick_move'), 5);
-                            break;
-                        default:
-                            $ordering = 'beginning';
-                            break;
-                    }
-                }
-            }
-            $newParentItem = $item_factory->getItemFromDb($new_parent_id ?? 0);
-            $user          = $this->_controler->getUser();
-            $this->_doCutPaste($item, $newParentItem, $user, $ordering);
-        }
-        $this->event_manager->processEvent('send_notifications', []);
-    }
-
-    public function action_cut($params)
-    {
-        // Param
-        $user = $this->_controler->getUser();
-        $item = $this->_controler->_actionParams['item'];
-        $hp   = Codendi_HTMLPurifier::instance();
-
-        // Action
-        $itemFactory = $this->_getItemFactory();
-
-        $itemFactory->delCopyPreference();
-        $itemFactory->delCutPreference();
-        $itemFactory->setCutPreference($item);
-
-        // Message
-        $this->_controler->feedback->log('info', $hp->purify($item->getTitle()) . ' ' . dgettext('tuleap-docman', 'cut. You can now paste it wherever you want with \'Paste\' action in popup menu.'));
-    }
-
-    public function action_copy($params)
-    {
-        // Param
-        $user = $this->_controler->getUser();
-        $item = $this->_controler->_actionParams['item'];
-        $hp   = Codendi_HTMLPurifier::instance();
-
-        // Action
-        $itemFactory = $this->_getItemFactory();
-
-        $itemFactory->delCopyPreference();
-        $itemFactory->delCutPreference();
-        $itemFactory->setCopyPreference($item);
-
-        // Message
-        $msg = $hp->purify($item->getTitle()) . ' ' . dgettext('tuleap-docman', 'copied. you can now paste it wherever you want (even across projects) with \'Paste\' action in popup menu.<br />Note that copy keeps <strong>neither approval tables nor notifications</strong> while cut does. <br />Note that only the link of the <strong>wiki pages</strong> is copied, not the <strong>content</strong>.');
-        $this->_controler->feedback->log('info', $msg, CODENDI_PURIFIER_DISABLED);
-    }
-
-    /**
-     * Perform paste action (after a copy or a cut)
-     *
-     * @param Docman_Item $itemToPaste
-     * @param Docman_Item $newParentItem
-     * @param String      $rank
-     * @param bool $importMd
-     * @param String      $srcMode
-     *
-     * @return void
-     */
-    public function doPaste($itemToPaste, $newParentItem, $rank, $importMd, $srcMode)
-    {
-        $user      = $this->_controler->getUser();
-        $mdMapping = false;
-        switch ($srcMode) {
-            case 'copy':
-                $dataRoot = \ForgeConfig::get(\DocmanPlugin::CONFIG_ROOT_DIRECTORY);
-                $this->_doCopyPaste($itemToPaste, $newParentItem, $user, $rank, $importMd, $dataRoot);
-                break;
-
-            case 'cut':
-                $this->_doCutPaste($itemToPaste, $newParentItem, $user, $rank);
-                break;
-        }
-        $this->event_manager->processEvent('send_notifications', []);
-    }
-
-    public function paste($params)
-    {
-        $this->doPaste(
-            $this->_controler->_actionParams['itemToPaste'],
-            $this->_controler->_actionParams['item'],
-            $this->_controler->_actionParams['rank'],
-            $this->_controler->_actionParams['importMd'],
-            $this->_controler->_actionParams['srcMode']
-        );
-    }
-
-    /**
     * User has asked to set or to change permissions on an item
     * This method is the direct action of the docman controler
     *
@@ -1086,32 +897,6 @@ class Docman_Actions extends Actions // phpcs:ignoreFile
                 'section' => 'permissions',
                 'id'      => $id,
             ];
-        }
-    }
-
-    public function change_view()
-    {
-        $request = HTTPRequest::instance();
-        if ($request->exist('selected_view')) {
-            if (is_numeric($request->get('selected_view'))) {
-                $this->_controler->setReportId($request->get('selected_view'));
-                $this->_controler->forceView('Table');
-            } elseif (is_array($request->get('selected_view')) && count($request->get('selected_view'))) {
-                $selected_view_request = $request->get('selected_view');
-                foreach ($selected_view_request as $selected_view => $id) {
-                    if (Docman_View_Browse::isViewAllowed($selected_view)) {
-                        $item_factory = $this->_getItemFactory();
-                        $folder       = $item_factory->getItemFromDb($request->get('id'));
-                        if ($folder) {
-                            user_set_preference(
-                                PLUGIN_DOCMAN_VIEW_PREF . '_' . $folder->getGroupId(),
-                                $selected_view
-                            );
-                            $this->_controler->forceView($selected_view);
-                        }
-                    }
-                }
-            }
         }
     }
 
@@ -1228,21 +1013,6 @@ class Docman_Actions extends Actions // phpcs:ignoreFile
         return new Docman_ActionsDeleteVisitor();
     }
 
-    public function admin_change_view()
-    {
-        $request  = HTTPRequest::instance();
-        $group_id = (int) $request->get('group_id');
-
-        if ($request->exist('selected_view') && Docman_View_Browse::isViewAllowed($request->get('selected_view'))) {
-            $sBo = Docman_SettingsBo::instance($group_id);
-            if ($sBo->updateView($request->get('selected_view'))) {
-                $this->_controler->feedback->log('info', dgettext('tuleap-docman', 'Settings have been updated.'));
-            } else {
-                $this->_controler->feedback->log('error', dgettext('tuleap-docman', 'Settings cannot be updated.'));
-            }
-        }
-    }
-
     /**
     * @deprecated
     */
@@ -1253,7 +1023,7 @@ class Docman_Actions extends Actions // phpcs:ignoreFile
 
     public function admin_set_permissions()
     {
-        $request = HTTPRequest::instance();
+        $request = \Tuleap\HTTPRequest::instance();
         if ($request->exist('forbid_writers_to_update')) {
             $settings_dao = new Tuleap\Docman\Settings\SettingsDAO();
             $settings_dao->saveForbidWriters(
@@ -1277,7 +1047,7 @@ class Docman_Actions extends Actions // phpcs:ignoreFile
 
     public function admin_md_details_update()
     {
-        $request = HTTPRequest::instance();
+        $request = \Tuleap\HTTPRequest::instance();
         $_label  = $request->get('label');
         $_gid    = (int) $request->get('group_id');
 
@@ -1347,7 +1117,7 @@ class Docman_Actions extends Actions // phpcs:ignoreFile
 
     public function admin_create_metadata()
     {
-        $request = HTTPRequest::instance();
+        $request = \Tuleap\HTTPRequest::instance();
 
         $_gid                   = (int) $request->get('group_id');
         $_name                  = trim($request->get('name'));
@@ -1408,7 +1178,7 @@ class Docman_Actions extends Actions // phpcs:ignoreFile
 
     public function admin_create_love()
     {
-        $request = HTTPRequest::instance();
+        $request = \Tuleap\HTTPRequest::instance();
 
         $_name        = $request->get('name');
         $_description = $request->get('descr');
@@ -1437,7 +1207,7 @@ class Docman_Actions extends Actions // phpcs:ignoreFile
 
     public function admin_delete_love()
     {
-        $request = HTTPRequest::instance();
+        $request = \Tuleap\HTTPRequest::instance();
 
         $_loveId  = (int) $request->get('loveid');
         $_mdLabel = $request->get('md');
@@ -2113,7 +1883,7 @@ class Docman_Actions extends Actions // phpcs:ignoreFile
 
     public function admin_change_filename_pattern(): void
     {
-        $request = HTTPRequest::instance();
+        $request = \Tuleap\HTTPRequest::instance();
 
         $project_id       = (int) $request->get('group_id');
         $filename_pattern = new Tuleap\Docman\FilenamePattern\FilenamePattern(

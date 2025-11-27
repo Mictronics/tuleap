@@ -21,7 +21,6 @@
 
 namespace Tuleap\Admin;
 
-use HTTPRequest;
 use Tuleap\Layout\BaseLayout;
 use Tuleap\Request\DispatchableWithRequest;
 use Tuleap\Request\ForbiddenException;
@@ -37,7 +36,7 @@ class ProjectCreationModerationUpdateController implements DispatchableWithReque
      * @return void
      */
     #[\Override]
-    public function process(HTTPRequest $request, BaseLayout $layout, array $variables)
+    public function process(\Tuleap\HTTPRequest $request, BaseLayout $layout, array $variables)
     {
         if (! $request->getCurrentUser()->isSuperUser()) {
             throw new ForbiddenException();
@@ -51,8 +50,8 @@ class ProjectCreationModerationUpdateController implements DispatchableWithReque
         $nb_max_per_user       = $this->getInputNotLowerThanMinusOne($request, 'nb_max_projects_waiting_for_validation_per_user');
 
         $config_dao = new \Tuleap\Config\ConfigDao();
-        $config_dao->save(\ProjectManager::CONFIG_PROJECT_APPROVAL, $project_approval);
-        $config_dao->save(\ProjectManager::CONFIG_RESTRICTED_USERS_CAN_CREATE_PROJECTS, $restricted_can_create);
+        $config_dao->save(\ProjectManager::CONFIG_PROJECT_APPROVAL, (string) $project_approval);
+        $config_dao->save(\ProjectManager::CONFIG_RESTRICTED_USERS_CAN_CREATE_PROJECTS, (string) $restricted_can_create);
         $config_dao->save(\ProjectManager::CONFIG_NB_PROJECTS_WAITING_FOR_VALIDATION, $nb_max_global);
         $config_dao->save(\ProjectManager::CONFIG_NB_PROJECTS_WAITING_FOR_VALIDATION_PER_USER, $nb_max_per_user);
 
@@ -61,7 +60,7 @@ class ProjectCreationModerationUpdateController implements DispatchableWithReque
         $layout->redirect('/admin/project-creation/moderation');
     }
 
-    private function getInputNotLowerThanMinusOne(HTTPRequest $request, $variable)
+    private function getInputNotLowerThanMinusOne(\Tuleap\HTTPRequest $request, $variable)
     {
         return $this->sanitizeInteger($request->getValidated($variable, 'int', -1));
     }

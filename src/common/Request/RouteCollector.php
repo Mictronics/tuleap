@@ -21,7 +21,6 @@
 
 namespace Tuleap\Request;
 
-use ArtifactTypeFactory;
 use Codendi_HTMLPurifier;
 use Cose\Algorithm\Manager;
 use Cose\Algorithm\Signature\ECDSA\ES256;
@@ -31,6 +30,8 @@ use EventManager;
 use FastRoute;
 use ForgeConfig;
 use FRSFileFactory;
+use FRSPackageFactory;
+use FRSReleaseFactory;
 use Laminas\HttpHandlerRunner\Emitter\SapiEmitter;
 use Laminas\HttpHandlerRunner\Emitter\SapiStreamEmitter;
 use ProjectHistoryDao;
@@ -90,6 +91,7 @@ use Tuleap\FRS\LicenseAgreement\Admin\EditLicenseAgreementController;
 use Tuleap\FRS\LicenseAgreement\Admin\ListLicenseAgreementsController;
 use Tuleap\FRS\LicenseAgreement\Admin\SaveLicenseAgreementController;
 use Tuleap\FRS\LicenseAgreement\Admin\SetDefaultLicenseAgreementController;
+use Tuleap\FRS\ShowPackageController as ShowPackageControllerAlias;
 use Tuleap\HelpDropdown\HelpMenuOpenedController;
 use Tuleap\Http\HTTPFactoryBuilder;
 use Tuleap\Http\Response\BinaryFileResponseBuilder;
@@ -184,6 +186,14 @@ use Tuleap\Project\Service\ServicesPresenterBuilder;
 use Tuleap\Project\UGroups\Membership\DynamicUGroups\ProjectMemberAdderWithStatusCheckAndNotifications;
 use Tuleap\Project\UserPermissionsDao;
 use Tuleap\Queue\EnqueueTask;
+use Tuleap\Reference\ByNature\CrossReferenceByNatureInCoreOrganizer;
+use Tuleap\Reference\ByNature\FRS\CrossReferenceFRSOrganizer;
+use Tuleap\Reference\ByNature\Wiki\CrossReferenceWikiOrganizer;
+use Tuleap\Reference\ByNature\Wiki\WikiPageFromReferenceValueRetriever;
+use Tuleap\Reference\CrossReferenceByDirectionPresenterBuilder;
+use Tuleap\Reference\CrossReferencePresenterFactory;
+use Tuleap\Reference\CrossReferencesDao;
+use Tuleap\Reference\CrossReferencesRetrieverController;
 use Tuleap\REST\BasicAuthentication;
 use Tuleap\REST\RESTCurrentUserMiddleware;
 use Tuleap\REST\TuleapRESTCORSMiddleware;
@@ -689,7 +699,6 @@ class RouteCollector
             new \Tuleap\Project\UserRemover(
                 $project_manager,
                 EventManager::instance(),
-                new ArtifactTypeFactory(false),
                 new \Tuleap\Project\UserRemoverDao(),
                 $user_manager,
                 new ProjectHistoryDao(),
@@ -799,6 +808,11 @@ class RouteCollector
     public static function getFileDownloadAgreementAdminAdd(): DispatchableWithRequest
     {
         return AddLicenseAgreementController::buildSelf();
+    }
+
+    public static function getShowPackageController(): DispatchableWithRequest
+    {
+        return ShowPackageControllerAlias::buildSelf();
     }
 
     public static function getFileDownloadAgreementAdminEdit(): DispatchableWithRequest
@@ -933,7 +947,10 @@ class RouteCollector
         return new BannerAdministrationController(
             AdministrationLayoutHelper::buildSelf(),
             TemplateRendererFactory::build()->getRenderer(__DIR__ . '/../../templates/project/admin/banner/'),
-            new JavascriptAsset(new \Tuleap\Layout\IncludeCoreAssets(), 'ckeditor.js'),
+            new JavascriptAsset(
+                new IncludeViteAssets(__DIR__ . '/../../../src/scripts/ckeditor4/frontend-assets/', '/assets/core/ckeditor4/'),
+                'ckeditor.js'
+            ),
             new JavascriptAsset(
                 new IncludeAssets(__DIR__ . '/../../scripts/project-admin-banner/frontend-assets', '/assets/core/project-admin-banner'),
                 'project-admin-banner.js'
@@ -950,7 +967,10 @@ class RouteCollector
         );
         return new PlatformBannerAdministrationController(
             new AdminPageRenderer(),
-            new JavascriptAsset(new \Tuleap\Layout\IncludeCoreAssets(), 'ckeditor.js'),
+            new JavascriptAsset(
+                new IncludeViteAssets(__DIR__ . '/../../../src/scripts/ckeditor4/frontend-assets/', '/assets/core/ckeditor4/'),
+                'ckeditor.js'
+            ),
             new JavascriptAsset($assets, 'platform-admin-banner.js'),
             new CssAssetWithoutVariantDeclinaisons($assets, 'platform-admin-banner-styles'),
             new \Tuleap\Platform\Banner\BannerRetriever(new \Tuleap\Platform\Banner\BannerDao())
@@ -1534,6 +1554,35 @@ class RouteCollector
         );
     }
 
+    public static function getCrossReferencesRetrieverController(): DispatchablePSR15Compatible
+    {
+        $event_manager   = EventManager::instance();
+        $project_manager = ProjectManager::instance();
+        return new CrossReferencesRetrieverController(
+            new CrossReferenceByDirectionPresenterBuilder(
+                $event_manager,
+                ReferenceManager::instance(),
+                new CrossReferencePresenterFactory(new CrossReferencesDao()),
+                $project_manager,
+                new ProjectAccessChecker(new RestrictedUserCanAccessProjectVerifier(), $event_manager),
+                new CrossReferenceByNatureInCoreOrganizer(
+                    new CrossReferenceWikiOrganizer(
+                        $project_manager,
+                        new WikiPageFromReferenceValueRetriever(),
+                    ),
+                    new CrossReferenceFRSOrganizer(
+                        new FRSPackageFactory(),
+                        new FRSReleaseFactory(),
+                        new FRSFileFactory(),
+                    ),
+                ),
+            ),
+            \UserManager::instance(),
+            new JSONResponseBuilder(HTTPFactoryBuilder::responseFactory(), HTTPFactoryBuilder::streamFactory()),
+            new SapiEmitter(),
+        );
+    }
+
     public function collect(FastRoute\RouteCollector $r): void
     {
         $r->get('/', [self::class, 'getSlash']);
@@ -1681,6 +1730,7 @@ class RouteCollector
             $r->get('/{project_id:\d+}/admin/license-agreements/{id:\d+}', [self::class, 'getFileDownloadAgreementAdminEdit']);
             $r->post('/{project_id:\d+}/admin/license-agreements/save', [self::class, 'getFileDownloadAgreementAdminSave']);
             $r->post('/{project_id:\d+}/admin/license-agreements/set-default', [self::class, 'getFileDownloadAgreementAdminSetDefault']);
+            $r->get('/{project_id:\d+}/package/{package_id:\d+}', [self::class, 'getShowPackageController']);
         });
 
         $r->get('/export/rss_sfprojects.php', [self::class, 'getRssLatestProjects']);
@@ -1693,6 +1743,7 @@ class RouteCollector
             $r->get('/from-archive-creation/{project_id:\d+}', [self::class, 'getProjectRegistrationController']);
             $r->get('/approval', [self::class, 'getProjectRegistrationController']);
             $r->post('/{project_id:\d+}/interpret-commonmark', [self::class, 'getInterpretedCommonmark']);
+            $r->get('/{project_id:\d+}/cross-references/{item_id:\d+}', [self::class, 'getCrossReferencesRetrieverController']);
         });
 
         $r->addGroup(

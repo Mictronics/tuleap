@@ -16,7 +16,7 @@ deptrac:
     - name: Plugins
       collectors:
         - type: directory
-          value: plugins/api_explorer|plugins/archivedeleteditems|plugins/bugzilla_reference|plugins/captcha|plugins/dynamic_credentials|plugins/embed|plugins/fts_common|plugins/fts_db|plugins/fts_meilisearch|plugins/label|plugins/ldap|plugins/mediawiki|plugins/mediawiki_standalone|plugins/oauth2_server|plugins/openidconnectclient|plugins/pdftemplate|plugins/pluginsadministration|plugins/projectlinks|plugins/project_ownership|plugins/prometheus_metrics|plugins/securitytxt|plugins/statistics|plugins/tee_container|plugins/template|plugins/userlog|plugins/webauthn
+          value: plugins/api_explorer|plugins/archivedeleteditems|plugins/bugzilla_reference|plugins/captcha|plugins/dynamic_credentials|plugins/embed|plugins/fts_common|plugins/fts_db|plugins/fts_meilisearch|plugins/label|plugins/ldap|plugins/mediawiki|plugins/mediawiki_standalone|plugins/oauth2_server|plugins/openidconnectclient|plugins/pdftemplate|plugins/pluginsadministration|plugins/project_ownership|plugins/prometheus_metrics|plugins/securitytxt|plugins/statistics|plugins/tee_container|plugins/template|plugins/userlog|plugins/webauthn
     - name: Ai
       collectors:
         - type: directory
@@ -159,10 +159,6 @@ deptrac:
       collectors:
         - type: directory
           value: plugins/tracker/include/.*
-    - name: TrackerDateReminder
-      collectors:
-        - type: directory
-          value: plugins/tracker_date_reminder/include/.*
     - name: TrackerEncryption
       collectors:
         - type: directory
@@ -187,6 +183,8 @@ deptrac:
     AiCrossTracker:
       - Core
       - Ai
+      - Tracker
+      - CrossTracker
     AgileDashboard:
       - Core
       - Cardwall
@@ -309,9 +307,6 @@ deptrac:
       - TestManagement
     Tracker:
       - Core
-    TrackerDateReminder:
-      - Core
-      - Tracker
     TrackerEncryption:
       - Core
       - Tracker

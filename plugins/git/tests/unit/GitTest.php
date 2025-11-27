@@ -24,8 +24,6 @@ namespace Tuleap\Git;
 
 use Git;
 use GitRepositoryFactory;
-use HTTPRequest;
-use PFUser;
 use SystemEventDao;
 use SystemEventManager;
 use Tuleap\Git\Tests\Builders\GitRepositoryTestBuilder;
@@ -64,7 +62,7 @@ final class GitTest extends TestCase
         $usermanager = $this->createMock(UserManager::class);
         $usermanager->method('getCurrentUser')->willReturn(UserTestBuilder::buildWithDefaults());
         $_SERVER['REQUEST_METHOD'] = 'POST';
-        $request                   = new HTTPRequest();
+        $request                   = new \Tuleap\HTTPRequest();
         $request->params           = ['repo_id' => 1];
 
         $git = $this->createPartialMock(Git::class, ['addAction', 'definePermittedActions', 'addView']);
@@ -84,59 +82,5 @@ final class GitTest extends TestCase
         $git->expects($this->once())->method('addView')->with('index');
 
         $git->request();
-    }
-
-    public function testDispatchToForkRepositoriesIfRequestsPersonal(): void
-    {
-        $git             = $this->createPartialMock(Git::class, ['_doDispatchForkRepositories']);
-        $request         = new HTTPRequest();
-        $request->params = ['choose_destination' => 'personal'];
-        $git->setRequest($request);
-        $git->expects($this->once())->method('_doDispatchForkRepositories');
-
-        $factory = $this->createMock(GitRepositoryFactory::class);
-        $git->setFactory($factory);
-
-        $user = $this->createMock(PFUser::class);
-        $user->method('isMember')->willReturn(true);
-        $git->user = $user;
-
-        $git->_dispatchActionAndView('do_fork_repositories', null, null, null, null);
-    }
-
-    public function testDispatchToForkRepositoriesIfRequestsPersonalAndNonMember(): void
-    {
-        $git             = $this->createPartialMock(Git::class, ['_doDispatchForkRepositories']);
-        $request         = new HTTPRequest();
-        $request->params = ['choose_destination' => 'personal'];
-        $git->setRequest($request);
-        $git->expects($this->never())->method('_doDispatchForkRepositories');
-
-        $factory = $this->createMock(GitRepositoryFactory::class);
-        $git->setFactory($factory);
-
-        $user = $this->createMock(PFUser::class);
-        $user->method('isMember')->willReturn(false);
-        $git->user = $user;
-
-        $git->_dispatchActionAndView('do_fork_repositories', null, null, null, null);
-    }
-
-    public function testDispatchToForkCrossProjectIfRequestsProject(): void
-    {
-        $git             = $this->createPartialMock(Git::class, ['_doDispatchForkCrossProject']);
-        $request         = new HTTPRequest();
-        $request->params = ['choose_destination' => 'project'];
-        $git->setRequest($request);
-
-        $factory = $this->createMock(GitRepositoryFactory::class);
-        $git->setFactory($factory);
-
-        $user = $this->createMock(PFUser::class);
-        $user->method('isMember')->willReturn(true);
-        $git->user = $user;
-
-        $git->expects($this->once())->method('_doDispatchForkCrossProject');
-        $git->_dispatchActionAndView('do_fork_repositories', null, null, null, null);
     }
 }

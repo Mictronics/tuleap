@@ -27,17 +27,6 @@ msgid_plural "%s commits pushed on %s"
 msgstr[0] ""
 msgstr[1] ""
 
-msgid ""
-"<p>You can create personal forks of any reference repositories. By default "
-"forks will end up into your personal area of this project.</p></p>"
-msgstr ""
-
-msgid ""
-"<p>You might choose to fork into another project. In this case, fork creates "
-"new \"References\" in the target project.<br />You need to be administrator "
-"of the target project to do so and Git service must be activated.</p>"
-msgstr ""
-
 msgid "A Gerrit project with that name already exists on that server"
 msgstr ""
 
@@ -62,9 +51,6 @@ msgid "Access control template successfully saved."
 msgstr ""
 
 msgid "Access to Git repositories"
-msgstr ""
-
-msgid "Action"
 msgstr ""
 
 msgid "Actions"
@@ -178,9 +164,6 @@ msgid ""
 "mirror of the Gerrit reference.</li></ul>"
 msgstr ""
 
-msgid "As personal fork"
-msgstr ""
-
 msgid "Authorize"
 msgstr ""
 
@@ -249,6 +232,9 @@ msgstr ""
 msgid "Clone or download"
 msgstr ""
 
+msgid "Close"
+msgstr ""
+
 msgid "Command sent to remote gerrit servers"
 msgstr ""
 
@@ -302,10 +288,10 @@ msgstr ""
 msgid "Date"
 msgstr "Data"
 
-msgid "Default branch successfully updated"
+msgid "Default branch"
 msgstr ""
 
-msgid "Default branch:"
+msgid "Default branch successfully updated"
 msgstr ""
 
 msgid "Default permissions"
@@ -356,8 +342,14 @@ msgstr ""
 msgid "Do you confirm change of repository access to private ?"
 msgstr ""
 
+msgid "Edit"
+msgstr ""
+
 #, php-format
 msgid "Edit %1$s"
+msgstr ""
+
+msgid "Edit Gerrit template"
 msgstr ""
 
 msgid "Edit generic webhook"
@@ -449,6 +441,9 @@ msgstr ""
 msgid "Gerrit permission configuration templates"
 msgstr ""
 
+msgid "Gerrit template"
+msgstr ""
+
 #, php-format
 msgid ""
 "Gerrit: (%1$s) %2$s has been successfully suspended from gerrit server %3$s"
@@ -514,6 +509,10 @@ msgstr ""
 msgid "Global permissions"
 msgstr ""
 
+#, php-format
+msgid "Got an unexpected error while forking %s: %s"
+msgstr ""
+
 msgid "Granted groups"
 msgstr ""
 
@@ -542,10 +541,6 @@ msgid ""
 "necessary to update my group and project membership."
 msgstr ""
 
-#, php-format
-msgid "Into project <b>%1$s</b>"
-msgstr ""
-
 msgid "Invalid Project ID"
 msgstr ""
 
@@ -553,12 +548,6 @@ msgid "Invalid Template ID"
 msgstr ""
 
 msgid "Invalid namespace, please only use alphanumeric characters."
-msgstr ""
-
-#, php-format
-msgid ""
-"It does not appear to be any <em><a href=\"%1$s\">gerrit server</a></em> set-"
-"up for this platform! Please contact your site administrator."
 msgstr ""
 
 msgid "It is either SSH or password replication for replication"
@@ -583,6 +572,9 @@ msgid "List of mails to remove from notification"
 msgstr ""
 
 msgid "List of notified mails"
+msgstr ""
+
+msgid "Loading"
 msgstr ""
 
 msgid "Login"
@@ -622,9 +614,6 @@ msgstr ""
 msgid "Manually push SSH keys"
 msgstr ""
 
-msgid "Mass update of repositories"
-msgstr ""
-
 msgid "Maximum number of days ago"
 msgstr ""
 
@@ -653,13 +642,13 @@ msgstr ""
 msgid "Name"
 msgstr "Nome"
 
+msgid "New Gerrit template"
+msgstr ""
+
 msgid "No"
 msgstr "Não"
 
 msgid "No CI Token"
-msgstr ""
-
-msgid "No access selected for the fork"
 msgstr ""
 
 msgid "No data retrieved from the request"
@@ -686,16 +675,10 @@ msgstr ""
 msgid "No project selected"
 msgstr ""
 
-msgid "No project selected for the fork"
-msgstr ""
-
 msgid "No pushes to display"
 msgstr ""
 
 msgid "No repository has been forked."
-msgstr ""
-
-msgid "No repository selected for the fork"
 msgstr ""
 
 msgid "No restorable git repositories found"
@@ -779,6 +762,9 @@ msgid ""
 msgstr ""
 
 msgid "Plugin which provides Git support for Tuleap"
+msgstr ""
+
+msgid "Preview"
 msgstr ""
 
 msgid "Project"
@@ -937,6 +923,9 @@ msgstr ""
 msgid "Set build status"
 msgstr ""
 
+msgid "Set permissions for the repository to be created"
+msgstr ""
+
 msgid "Settings"
 msgstr ""
 
@@ -989,6 +978,11 @@ msgid "Template updated"
 msgstr ""
 
 msgid "Templates"
+msgstr ""
+
+msgid ""
+"The %1$s %%projectname%% %2$s variable is available; it will be replaced by "
+"the project's name during the migration process."
 msgstr ""
 
 #, php-format
@@ -1091,10 +1085,21 @@ msgstr ""
 msgid "The update of the default branch did not succeed"
 msgstr ""
 
+msgid "There are no Gerrit templates yet."
+msgstr ""
+
 msgid "There are no projects matching the filter"
 msgstr ""
 
 msgid "There are open changes for this project."
+msgstr ""
+
+msgid "There aren't any forkable repositories in this project."
+msgstr ""
+
+msgid ""
+"There does not appear to be any %1$s Gerrit server %2$s set up for this "
+"platform! Please contact your site administrator."
 msgstr ""
 
 #, php-format
@@ -1147,7 +1152,7 @@ msgstr ""
 
 msgid ""
 "This section allows you to choose a Gerrit project configuration and create "
-"a reusable template from it"
+"a reusable template from it."
 msgstr ""
 
 msgid ""
@@ -1179,6 +1184,9 @@ msgid ""
 msgstr ""
 
 msgid "Time"
+msgstr ""
+
+msgid "Token"
 msgstr ""
 
 msgid "Token for Continuous Integration"
@@ -1266,6 +1274,18 @@ msgid ""
 "access keys when calling the build status update APIs."
 msgstr ""
 
+msgid "View"
+msgstr ""
+
+msgid "View Gerrit template"
+msgstr ""
+
+msgid "Wait a minute..."
+msgstr ""
+
+msgid "Wait a minute…"
+msgstr ""
+
 msgid "Warning"
 msgstr ""
 
@@ -1321,9 +1341,10 @@ msgid ""
 "projects. Are you sure you want to do this?"
 msgstr ""
 
-#, php-format
-msgid "You are going to fork repository: %1$s"
-msgstr ""
+msgid "You are going to fork the repository:"
+msgid_plural "You are going to fork the repositories:"
+msgstr[0] ""
+msgstr[1] ""
 
 msgid "You are not allowed to access this page"
 msgstr ""
@@ -1337,12 +1358,12 @@ msgid ""
 "site administrators."
 msgstr ""
 
-msgid "You can define several generic webhooks."
+msgid ""
+"You can create personal forks of any reference repositories. By default, "
+"forks will end up into your personal area of this project."
 msgstr ""
 
-msgid ""
-"You can edit the template. The <b>%projectname%</b> variable is available; "
-"it will be replaced by the project's name during the migration process:"
+msgid "You can define several generic webhooks."
 msgstr ""
 
 #, php-format
@@ -1363,10 +1384,23 @@ msgstr "Você não tem permissão para visualizar os grupos de usuários."
 msgid "You may need to log into Gerrit first."
 msgstr ""
 
+msgid ""
+"You might choose to fork into another project. In this case, fork creates "
+"new \"References\" in the target project."
+msgstr ""
+
+msgid ""
+"You need to be administrator of the target project to do so and Git service "
+"must be activated."
+msgstr ""
+
 #, php-format
 msgid ""
 "Your platform does not allow regular expression usage, permissions %1$s not "
 "duplicated."
+msgstr ""
+
+msgid "as personal fork"
 msgstr ""
 
 msgid "close artifacts"
@@ -1375,13 +1409,10 @@ msgstr ""
 msgid "disabled"
 msgstr ""
 
-msgid "edit"
-msgstr ""
-
 msgid "enabled"
 msgstr ""
 
-msgid "from gerrit config"
+msgid "from Gerrit config"
 msgstr ""
 
 msgid "from scratch"
@@ -1390,13 +1421,13 @@ msgstr ""
 msgid "from template"
 msgstr ""
 
+msgid "into project"
+msgstr ""
+
 msgid "repository"
 msgstr ""
 
 msgid "submodule"
-msgstr ""
-
-msgid "view"
 msgstr ""
 
 msgid "{{ user_group_name }} has no global permission for Git"

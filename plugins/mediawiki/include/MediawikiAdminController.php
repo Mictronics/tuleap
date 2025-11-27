@@ -50,13 +50,13 @@ class MediawikiAdminController //phpcs:ignore PSR1.Classes.ClassDeclaration.Miss
         $this->language_manager       = new MediawikiLanguageManager(new MediawikiLanguageDao());
     }
 
-    public function index(ServiceMediawiki $service, HTTPRequest $request)
+    public function index(ServiceMediawiki $service, \Tuleap\HTTPRequest $request)
     {
         $this->assertUserIsProjectAdmin($service, $request);
 
-        $assets = new \Tuleap\Layout\IncludeAssets(__DIR__ . '/../frontend-assets', '/assets/mediawiki');
+        $assets = new \Tuleap\Layout\IncludeViteAssets(__DIR__ . '/../scripts/admin/frontend-assets', '/assets/mediawiki/admin');
 
-        $GLOBALS['HTML']->includeFooterJavascriptFile($assets->getFileURL('admin.js'));
+        $GLOBALS['HTML']->addJavascriptAsset(new \Tuleap\Layout\JavascriptViteAsset($assets, 'src/admin.ts'));
 
         $project = $request->getProject();
 
@@ -76,7 +76,8 @@ class MediawikiAdminController //phpcs:ignore PSR1.Classes.ClassDeclaration.Miss
                     'language-pane-admin',
                     new MediawikiAdminLanguagePanePresenter(
                         $project,
-                        $this->language_manager->getAvailableLanguagesWithUsage($project)
+                        $this->language_manager->getAvailableLanguagesWithUsage($project),
+                        $this->getCSRFTokenAdmin($request),
                     )
                 );
                 break;
@@ -90,7 +91,8 @@ class MediawikiAdminController //phpcs:ignore PSR1.Classes.ClassDeclaration.Miss
                         $this->getMappedGroupPresenter($project),
                         $this->manager->isCompatibilityViewEnabled($project),
                         $read_ugroups,
-                        $write_ugroups
+                        $write_ugroups,
+                        $this->getCSRFTokenAdmin($request),
                     )
                 );
                 break;
@@ -195,9 +197,10 @@ class MediawikiAdminController //phpcs:ignore PSR1.Classes.ClassDeclaration.Miss
         }
     }
 
-    public function save_language(ServiceMediawiki $service, HTTPRequest $request) //phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    public function save_language(ServiceMediawiki $service, \Tuleap\HTTPRequest $request) //phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
         $this->assertUserIsProjectAdmin($service, $request);
+        $this->getCSRFTokenAdmin($request)->check();
         if ($request->isPost()) {
             $project  = $request->getProject();
             $language = $request->get('language');
@@ -217,9 +220,10 @@ class MediawikiAdminController //phpcs:ignore PSR1.Classes.ClassDeclaration.Miss
         ));
     }
 
-    public function save_permissions(ServiceMediawiki $service, HTTPRequest $request) //phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    public function save_permissions(ServiceMediawiki $service, \Tuleap\HTTPRequest $request) //phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
         $this->assertUserIsProjectAdmin($service, $request);
+        $this->getCSRFTokenAdmin($request)->check();
         if ($request->isPost()) {
             $project          = $request->getProject();
             $new_mapping_list = $this->getSelectedMappingsFromRequest($request, $project);
@@ -256,14 +260,24 @@ class MediawikiAdminController //phpcs:ignore PSR1.Classes.ClassDeclaration.Miss
             }
         }
 
-        $GLOBALS['Response']->redirect(MEDIAWIKI_BASE_URL . '/forge_admin.php?' . http_build_query(
-            [
-                'group_id'   => $request->get('group_id'),
-            ]
-        ));
+        $GLOBALS['Response']->redirect($this->getAdminURL($request));
     }
 
-    private function getSelectedMappingsFromRequest(HTTPRequest $request, Project $project)
+    private function getCSRFTokenAdmin(\Tuleap\HTTPRequest $request): \Tuleap\Request\CSRFSynchronizerTokenInterface
+    {
+        return new CSRFSynchronizerToken($this->getAdminURL($request));
+    }
+
+    private function getAdminURL(\Tuleap\HTTPRequest $request): string
+    {
+        return MEDIAWIKI_BASE_URL . '/forge_admin.php?' . http_build_query(
+            [
+                'group_id'   => urlencode((string) $request->get('group_id')),
+            ]
+        );
+    }
+
+    private function getSelectedMappingsFromRequest(\Tuleap\HTTPRequest $request, Project $project)
     {
         if ($this->requestIsRestore($request)) {
             return $this->mapper->getDefaultMappingsForProject($project);
@@ -276,12 +290,12 @@ class MediawikiAdminController //phpcs:ignore PSR1.Classes.ClassDeclaration.Miss
         return $list;
     }
 
-    private function requestIsRestore(HTTPRequest $request)
+    private function requestIsRestore(\Tuleap\HTTPRequest $request)
     {
         return $request->get('restore') != null;
     }
 
-    private function assertUserIsProjectAdmin(ServiceMediawiki $service, HTTPRequest $request)
+    private function assertUserIsProjectAdmin(ServiceMediawiki $service, \Tuleap\HTTPRequest $request)
     {
         if (! $service->userIsAdmin($request->getCurrentUser())) {
             $GLOBALS['Response']->redirect(MEDIAWIKI_BASE_URL . '/wiki/' . $request->getProject()->getUnixName());

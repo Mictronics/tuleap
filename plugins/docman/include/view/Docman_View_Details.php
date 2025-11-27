@@ -19,12 +19,11 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-use Tuleap\Docman\Notifications\CollectionOfUgroupMonitoredItemsBuilder;
 
-class Docman_View_Details extends Docman_View_Display
+class Docman_View_Details extends Docman_View_Display // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 {
     /* protected */ #[\Override]
-    public function _getTitle($params)
+    public function _getTitle($params) // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
     {
         $hp = Codendi_HTMLPurifier::instance();
         return sprintf(dgettext('tuleap-docman', 'Details of %1$s'), $hp->purify($params['item']->getTitle(), CODENDI_PURIFIER_CONVERT_HTML));
@@ -104,7 +103,7 @@ class Docman_View_Details extends Docman_View_Display
     }
 
     #[\Override]
-    public function _content($params, $view = null, $section = null)
+    public function _content($params, $view = null, $section = null) // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
     {
         $url = $params['default_url'];
 
@@ -150,21 +149,6 @@ class Docman_View_Details extends Docman_View_Display
             $details->addSection($permissions);
         }
 
-        if ($user_can_read) {
-            $notifications_manager = $this->_controller->notificationsManager;
-
-            $sections['notifications'] = true;
-            $details->addSection(
-                new Docman_View_ItemDetailsSectionNotifications(
-                    $params['item'],
-                    $params['default_url'],
-                    $notifications_manager,
-                    $token,
-                    new CollectionOfUgroupMonitoredItemsBuilder($notifications_manager)
-                )
-            );
-        }
-
         if ($user_can_read && ! ($params['item'] instanceof Docman_Empty)) {
             if ($view && $section == 'approval') {
                 $approval = $view;
@@ -173,16 +157,6 @@ class Docman_View_Details extends Docman_View_Display
             }
             $sections['approval'] = true;
             $details->addSection($approval);
-        }
-
-        if ($user_can_read) {
-            $sections['references'] = true;
-            $details->addSection(new Docman_View_ItemDetailsSectionReferences($params['item'], $params['default_url']));
-        }
-
-        if ($user_can_read && $params['item'] instanceof \Docman_Folder) {
-            $sections['statistics'] = true;
-            $details->addSection(new Docman_View_ItemDetailsSectionStatistics($params['item'], $params['default_url'], $this->_controller, $token));
         }
 
         if ($section && isset($sections[$section])) {

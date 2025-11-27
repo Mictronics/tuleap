@@ -352,7 +352,7 @@ class cardwallPlugin extends Plugin //phpcs:ignore PSR1.Classes.ClassDeclaration
             $layout->addJavascriptAsset(new JavascriptAsset($cardwall_assets, 'cardwall.js'));
         }
 
-        if (HTTPRequest::instance()->get('pane') === CardwallPaneInfo::IDENTIFIER) {
+        if (\Tuleap\HTTPRequest::instance()->get('pane') === CardwallPaneInfo::IDENTIFIER) {
             $layout->addJavascriptAsset(RelativeDatesAssetsRetriever::getAsJavascriptAssets());
         }
     }
@@ -697,7 +697,7 @@ class cardwallPlugin extends Plugin //phpcs:ignore PSR1.Classes.ClassDeclaration
             Tracker_FormElementFactory::instance(),
             new FieldUsedInSemanticObjectChecker(new BackgroundColorDao())
         );
-        $allowed_types = $retriever->retrieveAllowedFieldType($event_retriever->getField());
+        $allowed_types = $retriever->retrieveAllowedFieldType($event_retriever->field);
 
         $event_retriever->setAllowedTypes($allowed_types);
     }

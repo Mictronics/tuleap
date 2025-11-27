@@ -21,7 +21,6 @@
 namespace Tuleap\AgileDashboard;
 
 use Codendi_Request;
-use CSRFSynchronizerToken;
 use EventManager;
 use Override;
 use Planning_MilestoneFactory;
@@ -129,7 +128,8 @@ class AdminController extends BaseController
             $this->scrum_presenter_builder->getAdminScrumPresenter(
                 $this->getCurrentUser(),
                 $this->project,
-                $this->additional_scrum_sections
+                $this->additional_scrum_sections,
+                $this->getCSRFToken(),
             )
         );
         $displayFooter();
@@ -142,6 +142,16 @@ class AdminController extends BaseController
     public function adminCharts(\Closure $displayHeader, \Closure $displayFooter): void
     {
         $this->checkScrumAccessIsNotBlocked();
+        $this->layout->addJavascriptAsset(
+            new JavascriptViteAsset(
+                new IncludeViteAssets(
+                    __DIR__ . '/../../scripts/administration/frontend-assets',
+                    '/assets/agiledashboard/administration'
+                ),
+                'src/main.ts'
+            )
+        );
+
         $title = dgettext('tuleap-agiledashboard', 'Charts configuration');
         $displayHeader(
             $title,
@@ -171,12 +181,11 @@ class AdminController extends BaseController
             return;
         }
 
-        $token = new CSRFSynchronizerToken('/plugins/agiledashboard/?action=admin');
-        $token->check();
+        $this->checkCSRFToken();
 
         $project = $this->request->getProject();
 
-        $this->additional_scrum_sections->notifyAdditionalSectionsControllers(\HTTPRequest::instance());
+        $this->additional_scrum_sections->notifyAdditionalSectionsControllers(\Tuleap\HTTPRequest::instance());
 
         if ($this->request->exist('burnup-count-mode')) {
             $updater = new AgileDashboardChartsConfigurationUpdater(
@@ -241,11 +250,9 @@ class AdminController extends BaseController
 
     private function getAdminChartsPresenter(Project $project): AdminChartsPresenter
     {
-        $token = new CSRFSynchronizerToken('/plugins/agiledashboard/?action=admin');
-
         return new AdminChartsPresenter(
             $project,
-            $token,
+            $this->getCSRFToken(),
             $this->count_elements_mode_checker->burnupMustUseCountElementsMode($project),
         );
     }

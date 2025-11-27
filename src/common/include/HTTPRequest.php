@@ -19,6 +19,10 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
+namespace Tuleap;
+
+use Codendi_Request;
+
 class HTTPRequest extends Codendi_Request
 {
     /**
@@ -66,7 +70,7 @@ class HTTPRequest extends Codendi_Request
     /**
      * The singleton method
      *
-     * @return HTTPRequest
+     * @return \Tuleap\HTTPRequest
      */
     public static function instance()
     {
@@ -97,24 +101,6 @@ class HTTPRequest extends Codendi_Request
     {
         if ($validator instanceof \Valid_File) {
             return $validator->validate($_FILES, $validator->getKey());
-        } else {
-            return false;
-        }
-    }
-
-    /**
-     * Get the value of $variable in $array. If magic_quotes are enabled, the
-     * value is escaped.
-     *
-     * @access private
-     * @param string $variable Name of the parameter to get.
-     * @param array $array Name of the parameter to get.
-     */
-    #[\Override]
-    public function _get($variable, $array)
-    {
-        if ($this->_exist($variable, $array)) {
-            return $array[$variable];
         } else {
             return false;
         }

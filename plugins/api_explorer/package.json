@@ -23,13 +23,15 @@
       "prismjs": "^1.30.0",
       "cookie": "^0.7.2",
       "dompurify": "^3.2.4",
+      "js-yaml": "^4.1.1",
       "json-stable-stringify": "npm:@nolyfill/json-stable-stringify@^1",
       "side-channel": "npm:@nolyfill/side-channel@^1",
       "es-set-tostringtag": "npm:@nolyfill/es-set-tostringtag@^1",
       "safe-buffer": "npm:@nolyfill/safe-buffer@^1",
       "hasown": "npm:@nolyfill/hasown@^1",
       "isarray": "npm:@nolyfill/isarray@^1",
-      "typed-array-buffer": "npm:@nolyfill/typed-array-buffer@^1"
+      "typed-array-buffer": "npm:@nolyfill/typed-array-buffer@^1",
+      "argparse": "npm:@types/argparse@^2"
     }
   }
 }

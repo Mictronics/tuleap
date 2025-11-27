@@ -22,7 +22,6 @@ namespace Tuleap\Tracker\Webhook\Actions;
 
 use CSRFSynchronizerToken;
 use Feedback;
-use HTTPRequest;
 use TrackerFactory;
 use Tuleap\Layout\BaseLayout;
 use Tuleap\Request\DispatchableWithRequest;
@@ -66,7 +65,7 @@ class WebhookEditController implements DispatchableWithRequest
     }
 
     #[\Override]
-    public function process(HTTPRequest $request, BaseLayout $layout, array $variables)
+    public function process(\Tuleap\HTTPRequest $request, BaseLayout $layout, array $variables)
     {
         $webhook_id = $request->get('webhook_id');
 
@@ -98,8 +97,8 @@ class WebhookEditController implements DispatchableWithRequest
         $this->dao->edit($webhook_id, $webhook_url);
 
         $layout->addFeedback(
-            Feedback::INFO,
-            dgettext('tuleap-tracker', 'Webhook sucessfully updated')
+            Feedback::SUCCESS,
+            dgettext('tuleap-tracker', 'Webhook successfully updated')
         );
 
         $layout->redirect($redirect_url);

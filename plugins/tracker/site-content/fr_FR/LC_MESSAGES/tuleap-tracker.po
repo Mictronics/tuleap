@@ -10,7 +10,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.6\n"
+"X-Generator: Poedit 3.4.2\n"
 
 msgid "\"Attachment\" type field cannot be modified during artifact copy."
 msgstr ""
@@ -153,9 +153,6 @@ msgstr ""
 msgid "'%s' is not supported for the operator %s."
 msgstr "'%s' n'est pas supporté pour l'opérateur %s."
 
-msgid "(HTML tags allowed)"
-msgstr "(Balises HTML autorisées)"
-
 #, php-format
 msgid ""
 "(The maximum upload file size is %1$s Mb. The file must be encoded in UTF-8)"
@@ -178,6 +175,9 @@ msgstr "-- Choisir un champ source"
 
 msgid "-- Choose target field"
 msgstr "-- Choisir un champ cible"
+
+msgid "-- Please choose"
+msgstr "-- Veuillez choisir"
 
 #, php-format
 msgid ""
@@ -353,6 +353,12 @@ msgstr "Activer la nouvelle interface pour tous les trackers"
 msgid "Activate unified and simplified artifact links edition"
 msgstr "Activer l'édition des liens unifiée et simplifiée"
 
+#, php-format
+msgid "Add a dependency between %1$s as source and %2$s as target"
+msgstr ""
+"Ajouter une dépendance entre la valeur du champ source %1$s et la valeur du "
+"champ cible %2$s"
+
 msgid "Add a follow-up comment"
 msgstr "Ajouter un commentaire"
 
@@ -381,6 +387,9 @@ msgid ""
 msgstr ""
 "Ajoutez une URL cible qui sera appelée à chaque création et mise à jour "
 "d'artifact. Cette URL sera appelée avec HTTP POST."
+
+msgid "Add condition"
+msgstr "Ajouter une condition"
 
 msgid "Add field to tooltip"
 msgstr "Ajouter un champ à l'infobulle"
@@ -484,11 +493,6 @@ msgstr ""
 "Un artifact sera considéré ouvert quand son champ %s aura une des valeurs "
 "suivantes :"
 
-msgid ""
-"An email not truncated will be sent at the end of the migration process."
-msgstr ""
-"Un courriel non tronqué sera envoyé à la fin du processus de migration."
-
 #, php-format
 msgid "An error has occurred during the deletion of the type: %1$s"
 msgstr "Une erreur est survenue pendant la suppression de la nature : %1$s"
@@ -511,6 +515,9 @@ msgstr "Une erreur est survenue lors de la création du tracker."
 
 msgid "An error occurred while clearing done values."
 msgstr "Une erreur est survenue lors de la suppression des valeurs finies."
+
+msgid "An error occurred while deleting the rule"
+msgstr "Une erreur est survenue lors de la suppression de la règle"
 
 msgid "An error occurred while deleting the semantic"
 msgstr "Une erreur est survenue lors de suppression de la sémantique"
@@ -892,6 +899,9 @@ msgstr ""
 "Ne peut pas être formaté car au moins un des champs requis pour le format "
 "est manquant."
 
+msgid "Cannot save: missing data in form"
+msgstr "Impossible de sauvegarder : formulaire incomplet"
+
 #, php-format
 msgid "Cannot update conditions of transition with id '%d'"
 msgstr ""
@@ -942,6 +952,9 @@ msgstr "Case à cocher"
 
 msgid "Child"
 msgstr "Enfant"
+
+msgid "Children"
+msgstr "Enfants"
 
 msgid "Choose a field..."
 msgstr "Choisir un champ ..."
@@ -1080,9 +1093,6 @@ msgstr "Créer un rapport"
 msgid "Create a %s"
 msgstr "Créer un(e) %s"
 
-msgid "Create a New Tracker"
-msgstr "Créer un tracker"
-
 msgid "Create a new one"
 msgstr "Créer un nouveau"
 
@@ -1106,6 +1116,9 @@ msgstr "Créer par courriel..."
 
 msgid "Create new trigger"
 msgstr "Ajouter un nouveau déclencheur"
+
+msgid "Create rule"
+msgstr "Créer la règle"
 
 msgid ""
 "Creating artifact by mail is not possible due to the current configuration "
@@ -1215,6 +1228,9 @@ msgstr ""
 msgid "Define global date rules"
 msgstr "Définition des règles globales sur les dates"
 
+msgid "Define rule between two fields:"
+msgstr "Définissez la règle entre deux champs :"
+
 msgid "Define the closed status that are considered Done"
 msgstr ""
 "Définissez les valeurs fermées de la sémantique État considérées comme finies"
@@ -1253,11 +1269,11 @@ msgstr "Suppression annulée"
 msgid "Delete permanently the field"
 msgstr "Supprimer définitivement le champ"
 
-msgid "Delete the canned response"
-msgstr "Supprimer la réponse type"
-
 msgid "Delete the reference?"
 msgstr "Supprimer la référence ?"
+
+msgid "Delete the rule"
+msgstr "Supprimer la règle"
 
 msgid "Delete the value"
 msgstr "Supprimer la valeur"
@@ -1510,9 +1526,6 @@ msgid "Example: (field_1 = 'value' OR field_2 = 'value') AND field_3 = 'value'"
 msgstr ""
 "Exemple : (champ_1 = 'valeur' OR champ_2 = 'valeur') AND champ_3 = 'valeur'"
 
-msgid "Existing Responses:"
-msgstr "Réponses existantes&nbsp;:"
-
 msgid "Existing triggers"
 msgstr "Déclencheurs existants"
 
@@ -1633,6 +1646,9 @@ msgstr "Permissions des champs"
 msgid "Fieldset"
 msgstr "Groupe de champs"
 
+msgid "File"
+msgstr "Fichier"
+
 msgid "File not found"
 msgstr "Fichier non trouvé"
 
@@ -1641,10 +1657,6 @@ msgstr "Fichier à transmettre"
 
 msgid "File:"
 msgstr "Fichier :"
-
-msgid "First, select a template you want to start from"
-msgstr ""
-"Tout d'abord, sélectionnez le modèle à partir duquel vous voulez démarrer"
 
 msgid "Fixed"
 msgstr "Fixé"
@@ -1680,9 +1692,6 @@ msgstr "Forcer la configuration des notifications à tous les utilisateurs"
 
 msgid "Forward label"
 msgstr "Label"
-
-msgid "From a Tracker v3"
-msgstr "A partir d'un tracker v3"
 
 msgid "From fields"
 msgstr "Depuis les champs"
@@ -1744,6 +1753,9 @@ msgstr "Marque un groupe de champs"
 
 msgid "HTML"
 msgstr "HTML"
+
+msgid "HTML tags allowed"
+msgstr "Balises HTML autorisées"
 
 msgid "Hidden fieldsets:"
 msgstr "Groupes de champs cachés:"
@@ -2115,14 +2127,8 @@ msgstr ""
 "déplacer depuis l'API REST ou l'interface utilisateur sur une période de 24 "
 "heures."
 
-msgid "Message Body:"
-msgstr "Message&nbsp;:"
-
-msgid "Migrate a Tracker v3 content for test"
-msgstr "Tester la migration de contenu d'un tracker v3"
-
-msgid "Migrate a Tracker v3 content keeping original ids"
-msgstr "Migrer le contenu d'un tracker v3 en conservant les ids d'origine"
+msgid "Message Body"
+msgstr "Message"
 
 msgid "Minimum"
 msgstr "Minimum"
@@ -2466,9 +2472,6 @@ msgstr "Options"
 msgid "Or select an existing field dependency"
 msgstr "Ou sélectionnez une dépendance existante"
 
-msgid "Or you can migrate a Tracker v3..."
-msgstr "Ou vous pouvez migrer un Tracker v3 …"
-
 msgid "Other Jira users:"
 msgstr "Autre utilisateurs Jira :"
 
@@ -2539,8 +2542,8 @@ msgstr ""
 "Veuillez d'abord <a href=\"{{ tracker_fields_admin_url }}\">ajouter un champ "
 "de lien d'artifact</a> à votre tracker."
 
-msgid "Please avoid spaces and punctuation in short names"
-msgstr "Veuillez éviter les espaces et les ponctuations dans le nom court"
+msgid "Please confirm your action."
+msgstr "Merci de confirmer votre action."
 
 msgid ""
 "Please note that date reminders does not take tracker notifications settings "
@@ -2734,6 +2737,12 @@ msgstr "Enlever %s du menu déroulant +Nouveau"
 msgid "Remove %s from sidebar and +New dropdown"
 msgstr "Enlever %s de la barre latérale et du menu déroulant +Nouveau"
 
+#, php-format
+msgid "Remove dependency between %1$s as source and %2$s as target"
+msgstr ""
+"Supprimer la dépendance entre la valeur du champ source %1$s et la valeur du "
+"champ cible %2$s"
+
 msgid "Remove from tooltip"
 msgstr "Enlever de l'infobulle"
 
@@ -2813,14 +2822,17 @@ msgstr "Annuler"
 msgid "Rows"
 msgstr "Lignes"
 
+msgid "Rule"
+msgstr "Règle"
+
+msgid "Rule deletion"
+msgstr "Suppression de règle"
+
 msgid "Rule successfully created"
 msgstr "Règle créée avec succès"
 
-msgid "Rule(s) successfully deleted"
-msgstr "Règle(s) supprimée(s) avec succès"
-
-msgid "Rule(s) successfully updated"
-msgstr "Règle(s) mise(s) à jour avec succès"
+msgid "Rule successfully deleted"
+msgstr "Règle supprimée avec succès"
 
 msgid "S"
 msgstr "S"
@@ -2964,14 +2976,14 @@ msgstr "Sémantiques"
 msgid "Send an email to"
 msgstr "Envoyer un email à"
 
+msgid "Send notifications"
+msgstr "Envoyer les notifications"
+
 msgid "Send notifications to people monitoring these artifacts"
 msgstr "Envoyer les notifications aux personnes suivant ces artifacts"
 
 msgid "Send notifications to selected people"
 msgstr "Envoyer des notifications aux personnes sélectionnées"
-
-msgid "Send notifications:"
-msgstr "Envoyer les notifications :"
 
 msgid "Separator"
 msgstr "Séparateur"
@@ -3025,13 +3037,6 @@ msgstr ""
 "Flottant ou Calculé :"
 
 msgid ""
-"Some migrations are being processed. Your new trackers will appear as soon "
-"as the migrations are completed."
-msgstr ""
-"Des migrations sont en cours. Les nouveaux trackers apparaîtront dès que les "
-"migrations seront terminées."
-
-msgid ""
 "Some selected values was not saved because they are used in another semantic."
 msgstr ""
 "Certaines valeurs selectionnées n'ont pu être enregistrées car elle sont "
@@ -3051,6 +3056,9 @@ msgstr "Quelque chose s'est mal passé."
 
 msgid "Sort by:"
 msgstr "Triés par :"
+
+msgid "Source and target fields must be different"
+msgstr "Les champs source et destination doivent être différents"
 
 msgid "Source id does not exist."
 msgstr "L'id source n'existe pas."
@@ -3163,9 +3171,6 @@ msgstr "Résumé"
 
 msgid "Switch to markup diff"
 msgstr "Basculer le diff en mode balise"
-
-msgid "Switch to new tracker creation flow"
-msgstr "Basculer sur le nouveau flux de création de tracker"
 
 msgid "Switch to:"
 msgstr "Transformer en :"
@@ -4009,10 +4014,6 @@ msgstr "La valeur '%s' n'existe pas pour le champ liste ‘%s’."
 msgid "Then the tracker field"
 msgstr "Alors le champ"
 
-msgid "Then, fill the name, description and short name of this new tracker:"
-msgstr ""
-"Veuillez remplir le nom, la description et le nom court de ce tracker&nbsp;:"
-
 msgid "There are no child trackers defined for this tracker"
 msgstr "Ce tracker n'a pas de trackers enfants"
 
@@ -4039,6 +4040,9 @@ msgstr "Il n'y a aucun champs à ajouter à l'infobulle"
 
 msgid "There isn't any information in the tooltip yet."
 msgstr "Il n'y a aucune information dans l'infobulle pour l'instant."
+
+msgid "There isn't any rules yet"
+msgstr "Il n'y a pas encore de règles"
 
 msgid "There isn't any trackers yet"
 msgstr "Il n'y pas encore de tracker"
@@ -4117,13 +4121,6 @@ msgstr "Ce champ est utilisé par les trackers suivants :"
 
 msgid "This file has been removed meantime."
 msgstr "Ce fichier a été supprimé entre temps."
-
-msgid ""
-"This page is deprecated and will be removed soon. You should switch to the "
-"new tracker creation flow."
-msgstr ""
-"Cette page est dépréciée et sera bientôt supprimée. Vous devriez utiliser le "
-"nouveau flux de création des trackers."
 
 msgid ""
 "This permission grants tracker administration rights on all trackers on all "
@@ -4406,6 +4403,9 @@ msgstr "Trackers en attente de suppression"
 
 msgid "Trackers new generation"
 msgstr "Tracker nouvelle génération"
+
+msgid "Trackers restoration"
+msgstr "Restauration de trackers"
 
 msgid "Transition not found."
 msgstr "Transition non trouvée."
@@ -4709,13 +4709,16 @@ msgstr[1] ""
 "fait référence. Veuillez consulter la documentation pour les sélections "
 "autorisées."
 
-msgid "Webhook sucessfully created"
+msgid "Webhook deletion"
+msgstr "Suppression de webhook"
+
+msgid "Webhook successfully created"
 msgstr "Le webhook a été créé"
 
-msgid "Webhook sucessfully deleted"
+msgid "Webhook successfully deleted"
 msgstr "Le webhook a été supprimé"
 
-msgid "Webhook sucessfully updated"
+msgid "Webhook successfully updated"
 msgstr "Le webhook a été mis à jour"
 
 msgid "Webhooks"
@@ -4769,6 +4772,9 @@ msgstr ""
 "Vous êtes sur le point de supprimer une nature. Cette action est "
 "irréversible. Confirmez-vous la suppression ?"
 
+msgid "You are about to delete the rule: %s"
+msgstr "Vous êtes sur le point de supprimer la règle : %s"
+
 msgid "You are about to delete the tracker %s. Please, confirm your action."
 msgstr ""
 "Vous êtes sur le point de supprimer le tracker %s. Veuillez confirmer la "
@@ -4786,10 +4792,8 @@ msgstr ""
 "Vous êtes sur le point de supprimer l'utilisateur de la liste des "
 "désabonnements.Merci de confirmer votre action."
 
-msgid "You are about to remove the webhook. Please confirm your action."
-msgstr ""
-"Vous êtes sur le point de supprimer le webhook. Veuillez confirmer la "
-"suppression."
+msgid "You are about to remove the webhook."
+msgstr "Vous êtes sur le point de supprimer le webhook."
 
 #, php-format
 msgid "You are currently copying the artifact %1$s."
@@ -5141,6 +5145,9 @@ msgstr "une nature avec le nom court %1$s existe déjà."
 msgid "added"
 msgstr "ajouté"
 
+msgid "all children"
+msgstr "tous les enfants"
+
 #, php-format
 msgid "all of <strong>%1$s %2$s</strong> are set to <strong>%3$s</strong>"
 msgstr ""
@@ -5152,6 +5159,9 @@ msgstr "par ordre alphabétique"
 
 msgid "and"
 msgstr "et"
+
+msgid "and all children"
+msgstr "et tous les enfants"
 
 msgid "and it's now placed after"
 msgstr "et il est maintenant placé après"
@@ -5174,11 +5184,11 @@ msgstr ""
 "au moins un(e) <strong>%1$s</strong> dont <strong>%2$s</strong> est à "
 "<strong>%3$s</strong>"
 
+msgid "at least one child"
+msgstr "au moins un enfant"
+
 msgid "autocomputed"
 msgstr "valeur calculée"
-
-msgid "cancel"
-msgstr "annuler"
 
 msgid "changed from"
 msgstr "modifié de"
@@ -5237,6 +5247,9 @@ msgstr "l'attribut fieldset_ids ne doit pas être vide."
 msgid "fixed_in"
 msgstr "fixed_in"
 
+msgid "has its field"
+msgstr "a le champ"
+
 msgid "have access to all artifacts"
 msgstr "accès à tous les artifacts"
 
@@ -5251,6 +5264,9 @@ msgstr "accès aux artifacts soumis par le groupe"
 
 msgid "have access to artifacts they submitted"
 msgstr "accès seulement aux artifacts qu'ils ont soumis"
+
+msgid "have their field"
+msgstr "ont le champ"
 
 msgid "in"
 msgstr "dans"
@@ -5294,17 +5310,14 @@ msgstr "de type"
 msgid "or"
 msgstr "ou"
 
+msgid "or at least one child"
+msgstr "ou au moins un enfant"
+
 msgid "raised"
 msgstr "augmentée"
 
 msgid "removed"
 msgstr "retiré"
-
-msgid "select child tracker field"
-msgstr "sélectionner le champ du tracker enfant"
-
-msgid "select child tracker name"
-msgstr "sélectionner le nom du tracker enfant"
 
 msgid "select current tracker field"
 msgstr "sélectionner le champ du tracker"

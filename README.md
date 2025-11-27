@@ -11,9 +11,9 @@ Use case, screen shots & more on [https://tuleap.org](https://www.tuleap.org/wha
 # How to use it?
 
 
-You should first [install it](https://docs.tuleap.org/install.html), it can be either with [Rocky Linux/Alma Linux/RHEL packages](https://docs.tuleap.org/installation-guide/step-by-step/introduction.html)
-or [Docker image](https://docs.tuleap.org/installation-guide/docker/introduction.html) and then you can find on tuleap.org a
-bunch of [documentation](https://docs.tuleap.org/) and [tutorials](https://www.tuleap.org/resources).
+You should first [install it](https://docs.tuleap.com/install.html), it can be either with [Rocky Linux/Alma Linux/RHEL packages](https://docs.tuleap.com/installation-guide/step-by-step/introduction.html)
+or [Docker image](https://docs.tuleap.com/installation-guide/docker/introduction.html) and then you can find on tuleap.org a
+bunch of [documentation](https://docs.tuleap.com/) and [tutorials](https://www.tuleap.org/resources).
 
 # I need help!
 
@@ -44,15 +44,16 @@ be added.
 ### Contributors
 
 * Aurélien Tisné
-* Fábio F. Silva
 * Guilhem Bonnefille
-* Jihyun Park
 * Clément Gayot
 * Antoine Sauzeau
-* Jacques Fiadehoundji
+* Lucas Musy
 
 ### Previous contributors (no longer active committers)
 
+* Fábio F. Silva
+* Jihyun Park
+* Jacques Fiadehoundji
 * Lou-Evan Rouby
 * Chloé Masoni
 * Sandra Echinard

@@ -33,7 +33,6 @@ use User_ForgeUserGroupPermissionsManager;
 use UserManager;
 use Widget;
 use Widget_MyAdmin;
-use Widget_MyArtifacts;
 use Widget_MyBookmarks;
 use Widget_MyImageViewer;
 use Widget_MyMonitoredFp;
@@ -42,7 +41,6 @@ use Widget_MySystemEvent;
 use Widget_ProjectDescription;
 use Widget_ProjectImageViewer;
 use Widget_ProjectLatestFileReleases;
-use Widget_ProjectPublicAreas;
 use Widget_ProjectRss;
 
 class WidgetFactory implements IBuildInstanceOfWidgets
@@ -89,9 +87,6 @@ class WidgetFactory implements IBuildInstanceOfWidgets
             case 'mymonitoredfp':
                 $widget = new Widget_MyMonitoredFp();
                 break;
-            case 'myartifacts':
-                $widget = new Widget_MyArtifacts();
-                break;
             case 'myrss':
                 $widget = new Widget_MyRss();
                 break;
@@ -129,9 +124,6 @@ class WidgetFactory implements IBuildInstanceOfWidgets
                 break;
             case 'projectlatestfilereleases':
                 $widget = new Widget_ProjectLatestFileReleases();
-                break;
-            case 'projectpublicareas':
-                $widget = new Widget_ProjectPublicAreas();
                 break;
             case 'projectrss':
                 $widget = new Widget_ProjectRss();

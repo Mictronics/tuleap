@@ -18,6 +18,7 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use Lcobucci\Clock\SystemClock;
 use Tuleap\Authentication\SplitToken\SplitTokenVerificationStringHasher;
 use Tuleap\BrowserDetection\BrowserDeprecationMessage;
 use Tuleap\BrowserDetection\DetectedBrowser;
@@ -104,10 +105,10 @@ class FlamingParrot_Theme extends Layout // phpcs:ignore PSR1.Classes.ClassDecla
         $this->renderer         = TemplateRendererFactory::build()->getRenderer($this->getTemplateDir());
         $license_builder        = CachedLicenseBuilder::instance();
         $this->tuleap_version   = VersionPresenter::fromFlavorFinder(new FlavorFinderFromLicense($license_builder));
-        $this->detected_browser = DetectedBrowser::detectFromTuleapHTTPRequest(HTTPRequest::instance());
+        $this->detected_browser = DetectedBrowser::detectFromTuleapHTTPRequest(\Tuleap\HTTPRequest::instance());
 
         $this->project_flags_builder = new ProjectFlagsBuilder(new ProjectFlagsDao());
-        $this->feedback_builder      = new FeedbackBuilder($license_builder, UserManager::instance()->getCurrentUser());
+        $this->feedback_builder      = new FeedbackBuilder($license_builder, UserManager::instance()->getCurrentUser(), SystemClock::fromSystemTimezone());
     }
 
     private function render($template_name, $presenter)
@@ -373,7 +374,7 @@ class FlamingParrot_Theme extends Layout // phpcs:ignore PSR1.Classes.ClassDecla
 
         $switch_to_presenter_builder = new SwitchToPresenterBuilder(
             $project_presenters_builder,
-            new \Tuleap\Layout\SearchFormPresenterBuilder($event_manager, HTTPRequest::instance())
+            new \Tuleap\Layout\SearchFormPresenterBuilder($event_manager, \Tuleap\HTTPRequest::instance())
         );
 
         $switch_to = $switch_to_presenter_builder->build($current_user);

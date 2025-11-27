@@ -19,6 +19,7 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use Tuleap\BurningParrotCompatiblePageEvent;
 use Tuleap\Layout\IncludeAssets;
 use Tuleap\Plugin\PluginWithLegacyInternalRouting;
 use Tuleap\Tracker\Admin\GlobalAdmin\Trackers\MarkTrackerAsDeletedController;
@@ -67,7 +68,7 @@ class tracker_encryptionPlugin extends PluginWithLegacyInternalRouting
     #[\Tuleap\Plugin\ListeningToEventName(Tracker_FormElementFactory::GET_CLASSNAMES)]
     public function trackerFormelementGetClassnames($params): void
     {
-        $request = HTTPRequest::instance();
+        $request = \Tuleap\HTTPRequest::instance();
         $params['fields'][Tracker_FormElement_Field_Encrypted::TYPE] = Tracker_FormElement_Field_Encrypted::class;
         if ($request->get('func') === 'admin-formElements') {
             $GLOBALS['Response']->addFeedback('warning', dgettext('tuleap-tracker_encryption', 'Please add a public key in the tracker administration in order to use encrypted field.'));
@@ -133,7 +134,7 @@ class tracker_encryptionPlugin extends PluginWithLegacyInternalRouting
     #[\Override]
     public function process() : void
     {
-        $request = HTTPRequest::instance();
+        $request = \Tuleap\HTTPRequest::instance();
         $func       = $request->get('func');
         $tracker_id = $request->get('tracker');
         $tracker = TrackerFactory::instance()->getTrackerById($tracker_id);
@@ -166,7 +167,7 @@ class tracker_encryptionPlugin extends PluginWithLegacyInternalRouting
         $title = dgettext('tuleap-tracker_encryption', 'Tracker Encryption');
         $layout = new TrackerManager();
         if ($tracker !== null) {
-            $tracker->displayAdminHeader($layout, 'Encryption', $title);
+            $tracker->displayAdminHeaderBurningParrot($layout, 'Encryption', $title, []);
         }
         $csrf_token = new CSRFSynchronizerToken('/plugins/tracker_encryption/?tracker='.$tracker_id.'&func=admin-editencryptionkey');
         $renderer   = TemplateRendererFactory::build()->getRenderer(__DIR__ . '/../templates/');
@@ -175,6 +176,14 @@ class tracker_encryptionPlugin extends PluginWithLegacyInternalRouting
             new Tracker_EncryptionKeySettings_Presenter($tracker_id, '/plugins/tracker_encryption/?tracker='. (int)$tracker_id.'&func=admin-editencryptionkey', $csrf_token)
         );
         $GLOBALS['HTML']->footer(array());
+    }
+
+    #[\Tuleap\Plugin\ListeningToEventClass]
+    public function burningParrotCompatiblePage(BurningParrotCompatiblePageEvent $event): void
+    {
+        if (isset($_SERVER['REQUEST_URI']) && str_starts_with($_SERVER['REQUEST_URI'], $this->getPluginPath())) {
+            $event->setIsInBurningParrotCompatiblePage();
+        }
     }
 
     private function editTrackerKey($tracker_id, $key)

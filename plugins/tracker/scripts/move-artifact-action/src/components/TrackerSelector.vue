@@ -18,14 +18,15 @@
   -->
 
 <template>
-    <div class="move-artifact-tracker-selector-section">
+    <div class="tlp-form-element">
         <label
+            class="tlp-label"
             data-test="tracker-selector-label"
             for="move-artifact-tracker-selector"
             v-bind:title="selector_title"
         >
             {{ $gettext("Destination tracker") }}
-            <span class="highlight">*</span>
+            <i class="fa-solid fa-asterisk" aria-hidden="true"></i>
         </label>
         <select
             id="move-artifact-tracker-selector"
@@ -34,6 +35,7 @@
             v-model="tracker_id"
             v-on:change="selectors_store.saveSelectedTrackerId(tracker_id)"
             ref="move_artifact_tracker_selector"
+            required
         >
             <option
                 v-for="tracker of tracker_options"

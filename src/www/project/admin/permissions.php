@@ -153,37 +153,11 @@ function permission_get_object_name($permission_type, $object_id)
     } elseif ($permission_type == 'WIKIATTACHMENT_READ') {
         return $Language->getText('project_admin_permissions', 'wikiattachment');
     } elseif (strpos($permission_type, 'TRACKER_ACCESS') === 0) {
-        $group = $pm->getProject($group_id);
-        $at    = new ArtifactType($group, $object_id);
-        return $at->getName();
+        return "LEGACY TRACKER v3 TRACKER ACCESS: $object_id";
     } elseif (strpos($permission_type, 'TRACKER_FIELD') === 0) {
-        $ret = "$object_id";
-        if ($group = $pm->getProject($group_id)) {
-            $atid = permission_extract_atid($object_id);
-            $at   = new ArtifactType($group, $atid);
-            $ret  = $at->getName();
-            if ($ath = new ArtifactTypeHtml($group, $atid)) {
-                if ($art_field_fact = new ArtifactFieldFactory($ath)) {
-                    $field_id = permission_extract_field_id($object_id);
-                    if ($field = $art_field_fact->getFieldFromId($field_id)) {
-                        $ret = $field->getName() . ' (' . $ret . ')';
-                    }
-                }
-            }
-        }
-        return $ret;
+        return "LEGACY TRACKER v3 FIELD: $object_id";
     } elseif ($permission_type == 'TRACKER_ARTIFACT_ACCESS') {
-        $ret    = $object_id;
-        $sql    = 'SELECT group_artifact_id FROM artifact WHERE artifact_id= ' . db_ei($object_id);
-        $result = db_query($sql);
-        if (db_numrows($result) > 0) {
-            $row  = db_fetch_array($result);
-            $atid = $row['group_artifact_id'];
-        }
-        $group = $pm->getProject($group_id);
-        $at    = new ArtifactType($group, $atid);
-        $a     = new Artifact($at, $object_id);
-        return 'art #' . $a->getId() . ' - ' . util_unconvert_htmlspecialchars($a->getSummary());
+        return "LEGACY TRACKER v3 ARTIFACT ACCESS: $object_id";
     } else {
         $em          = EventManager::instance();
         $object_name = false;
@@ -246,7 +220,7 @@ function permission_user_allowed_to_change($project_id, $permission_type, $objec
     } elseif ($permission_type == 'RELEASE_READ') {
         $frs_package_factory = new FRSPackageFactory();
 
-        return $frs_package_factory->userCanCreate($project_id, $user->getId());
+        return $frs_package_factory->userCanCreate((int) $project->getID(), $user);
     } else {
         $em      = EventManager::instance();
         $allowed = false;
@@ -603,8 +577,8 @@ function permission_fetch_selection_form($permission_type, $object_id, $group_id
 
     $html .= permission_fetch_selection_field($permission_type, $object_id, $group_id);
 
-    $html .= '<p><INPUT TYPE="SUBMIT" NAME="submit" data-test="submit-form-permissions" VALUE="' . $GLOBALS['Language']->getText('project_admin_permissions', 'submit_perm') . '">';
-    $html .= '<INPUT TYPE="SUBMIT" NAME="reset" VALUE="' . $GLOBALS['Language']->getText('project_admin_permissions', 'reset_to_def') . '">';
+    $html .= '<p><br><INPUT TYPE="SUBMIT" NAME="submit" class="tlp-button-primary" data-test="submit-form-permissions" VALUE="' . $GLOBALS['Language']->getText('project_admin_permissions', 'submit_perm') . '"> ';
+    $html .= '<INPUT TYPE="SUBMIT" class="tlp-button-primary tlp-button-secondary" NAME="reset" VALUE="' . $GLOBALS['Language']->getText('project_admin_permissions', 'reset_to_def') . '">';
     $html .= '</FORM>';
     $html .= '<p>' . $GLOBALS['Language']->getText(
         'project_admin_permissions',

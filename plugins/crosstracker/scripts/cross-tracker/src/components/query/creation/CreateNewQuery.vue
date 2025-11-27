@@ -18,7 +18,8 @@
   -->
 
 <template>
-    <section class="tlp-pane-section">
+    <section class="tlp-pane-section query-suggestion-container">
+        <ask-a-i v-if="doesAiPluginIsEnabled()" />
         <query-suggested
             v-on:query-chosen="handleChosenQuery"
             v-bind:is_modal_should_be_displayed="is_modal_should_be_displayed"
@@ -32,7 +33,7 @@
         <div class="tlp-form-element">
             <query-editor
                 v-model:tql_query="tql_query"
-                v-on:trigger-search="handleSearch"
+                v-on:trigger-search="ctrlEnterSearchFromEditor"
                 ref="query_editor"
             />
         </div>
@@ -54,16 +55,9 @@
                 data-test="query-creation-search-button"
             >
                 <i
-                    v-if="!is_search_loading"
                     aria-hidden="true"
                     class="fa-solid fa-search tlp-button-icon"
                     data-test="query-creation-search-button-search-icon"
-                ></i>
-                <i
-                    v-if="is_search_loading"
-                    aria-hidden="true"
-                    class="tlp-button-icon fas fa-spin fa-circle-notch"
-                    data-test="query-creation-search-button-spin-icon"
                 ></i>
                 {{ $gettext("Search") }}
             </button>
@@ -87,36 +81,39 @@
                 {{ $gettext("Save") }}
             </button>
         </div>
-        <selectable-table
-            v-if="is_selectable_table_displayed"
-            v-on:search-finished="is_search_loading = false"
-            v-on:search-started="is_search_loading = true"
-            v-bind:tql_query="tql_query"
-        />
+        <table-wrapper v-if="is_selectable_table_displayed" v-bind:tql_query="searched_tql_query" />
     </section>
 </template>
 
 <script setup lang="ts">
 import TitleInput from "../TitleInput.vue";
 import DescriptionTextArea from "../DescriptionTextArea.vue";
-import { computed, ref } from "vue";
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
 import type { QuerySuggestion } from "../../../domain/SuggestedQueriesGetter";
 import QuerySuggested from "../QuerySuggested.vue";
 
 import { strictInject } from "@tuleap/vue-strict-inject";
-import { EMITTER, NEW_QUERY_CREATOR, WIDGET_ID } from "../../../injection-symbols";
+import {
+    EMITTER,
+    EXTERNAL_PLUGINS,
+    NEW_QUERY_CREATOR,
+    WIDGET_ID,
+} from "../../../injection-symbols";
+import type { TQLQueryEvent } from "../../../helpers/widget-events";
 import {
     NEW_QUERY_CREATED_EVENT,
     NOTIFY_FAULT_EVENT,
     NOTIFY_SUCCESS_EVENT,
-    SEARCH_ARTIFACTS_EVENT,
+    SEND_TQL_QUERY_FROM_CHATBOT_EVENT,
 } from "../../../helpers/widget-events";
 import type { PostQueryRepresentation } from "../../../api/cross-tracker-rest-api-types";
 import { useGettext } from "vue3-gettext";
 import QueryDisplayedByDefaultSwitch from "../QueryDisplayedByDefaultSwitch.vue";
 import QueryEditor from "../QueryEditor.vue";
-import SelectableTable from "../../selectable-table/SelectableTable.vue";
 import type { PostNewQuery } from "../../../domain/PostNewQuery";
+import AskAI from "../../AskAI.vue";
+import { AI_CROSSTRACKER_PLUGIN } from "../../../helpers/external-plugins";
+import TableWrapper from "../../TableWrapper.vue";
 
 const { $gettext } = useGettext();
 
@@ -129,6 +126,7 @@ const emitter = strictInject(EMITTER);
 const widget_id = strictInject(WIDGET_ID);
 
 const new_query_creator: PostNewQuery = strictInject(NEW_QUERY_CREATOR);
+const external_plugins: string[] = strictInject(EXTERNAL_PLUGINS);
 
 const title = ref("");
 const description = ref("");
@@ -138,11 +136,10 @@ const is_default_query = ref(false);
 const searched_tql_query = ref("");
 
 const is_save_loading = ref(false);
-const is_search_loading = ref(false);
 const is_selectable_table_displayed = ref(false);
 
 const is_search_button_disabled = computed((): boolean => {
-    return tql_query.value === searched_tql_query.value || is_search_loading.value;
+    return tql_query.value === searched_tql_query.value;
 });
 
 const is_save_button_disabled = computed((): boolean => {
@@ -153,14 +150,33 @@ const is_modal_should_be_displayed = computed((): boolean => {
     return description.value !== "" || title.value !== "" || tql_query.value !== "";
 });
 
+function doesAiPluginIsEnabled(): boolean {
+    return external_plugins.includes(AI_CROSSTRACKER_PLUGIN);
+}
+
 function handleCancelButton(): void {
     emit("return-to-active-query-pane");
 }
 
-function handleSearch(tql_query: string): void {
+function ctrlEnterSearchFromEditor(tql_query: string): void {
     searched_tql_query.value = tql_query;
-    search();
+    is_selectable_table_displayed.value = true;
 }
+
+function handleSearchFromAi(event: TQLQueryEvent): void {
+    tql_query.value = event.tql_query;
+    searched_tql_query.value = tql_query.value;
+    query_editor.value?.updateEditor(event.tql_query);
+    is_selectable_table_displayed.value = true;
+}
+
+onMounted((): void => {
+    emitter.on(SEND_TQL_QUERY_FROM_CHATBOT_EVENT, handleSearchFromAi);
+});
+
+onBeforeUnmount(() => {
+    emitter.off(SEND_TQL_QUERY_FROM_CHATBOT_EVENT);
+});
 
 function handleSaveButton(): void {
     is_save_loading.value = true;
@@ -192,12 +208,7 @@ function handleSaveButton(): void {
 
 function handleSearchButton(): void {
     searched_tql_query.value = tql_query.value;
-    search();
-}
-
-function search(): void {
     is_selectable_table_displayed.value = true;
-    emitter.emit(SEARCH_ARTIFACTS_EVENT);
 }
 
 function handleChosenQuery(query: QuerySuggestion): void {
@@ -209,6 +220,10 @@ function handleChosenQuery(query: QuerySuggestion): void {
 </script>
 
 <style scoped lang="scss">
+.query-suggestion-container {
+    position: relative;
+}
+
 .create-new-query-title-description-container {
     display: flex;
     justify-content: space-between;
