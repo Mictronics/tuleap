@@ -22,7 +22,6 @@
 namespace Tuleap\Tracker\FormElement;
 
 use Codendi_HTMLPurifier;
-use Codendi_Request;
 use CSRFSynchronizerToken;
 use EventManager;
 use Feedback;
@@ -333,7 +332,7 @@ abstract class TrackerFormElement extends ProvideFactoryButtonInformation implem
      * Update the form element
      *
      * @param Tracker_IDisplayTrackerLayout $layout Displays the page header and footer
-     * @param Codendi_Request $request The data coming from the user
+     * @param \Tuleap\HTTPRequest $request The data coming from the user
      * @param PFUser $current_user The user who mades the request
      * @param bool $redirect Do we need to redirect? default is false
      *
@@ -465,7 +464,7 @@ abstract class TrackerFormElement extends ProvideFactoryButtonInformation implem
      * Display the form to administrate the element
      *
      * @param Tracker_IDisplayTrackerLayout $layout Displays the page header and footer
-     * @param Codendi_Request $request The data coming from the user
+     * @param \Tuleap\HTTPRequest $request The data coming from the user
      */
     public function displayAdminFormElement(Tracker_IDisplayTrackerLayout $layout, $request, ?CSRFSynchronizerToken $csrf_token = null): void
     {
@@ -1192,10 +1191,7 @@ abstract class TrackerFormElement extends ProvideFactoryButtonInformation implem
             $this->id,
             $permission_type,
             $user->getUgroups(
-                $this->getTracker()->getGroupId(),
-                [
-                    'tracker' => $this->getTrackerId(),
-                ]
+                $this->getTracker()->getGroupId()
             )
         );
     }
@@ -1448,7 +1444,7 @@ abstract class TrackerFormElement extends ProvideFactoryButtonInformation implem
      */
     public function formatDate($date)
     {
-        return format_date(Tracker_FormElement_DateFormatter::DATE_FORMAT, (float) $date, '');
+        return format_date(DateFormatter::DATE_FORMAT, (float) $date, '');
     }
 
     public function exportCurrentUserPermissionsToREST(PFUser $user)

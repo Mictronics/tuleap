@@ -78,7 +78,7 @@
 
 <script setup lang="ts">
 import type { ApprovableDocument, ApprovalTable, Item } from "../../../type";
-import { onBeforeMount, ref } from "vue";
+import { onBeforeMount, ref, watch } from "vue";
 import ApprovalTableHistoryLoading from "./ApprovalTableHistoryLoading.vue";
 import { getAllDocumentApprovalTables } from "../../../api/approval-table-rest-querier";
 import UserBadge from "../../User/UserBadge.vue";
@@ -97,6 +97,10 @@ const emit = defineEmits<{
 const approval_tables = ref<ReadonlyArray<ApprovalTable> | null>(null);
 
 onBeforeMount(() => {
+    refreshHistory();
+});
+
+function refreshHistory(): void {
     getAllDocumentApprovalTables(props.item.id).match(
         (tables) => {
             approval_tables.value = tables;
@@ -105,7 +109,7 @@ onBeforeMount(() => {
             emit("error", fault.toString());
         },
     );
-});
+}
 
 function shouldDisplayLinkToVersion(table: ApprovalTable): boolean {
     if (props.version !== null) {
@@ -113,4 +117,6 @@ function shouldDisplayLinkToVersion(table: ApprovalTable): boolean {
     }
     return props.item.approval_table?.version_number !== table.version_number;
 }
+
+watch(() => props.item, refreshHistory);
 </script>

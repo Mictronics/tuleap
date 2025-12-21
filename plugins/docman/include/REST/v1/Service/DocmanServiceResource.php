@@ -29,6 +29,8 @@ use PermissionsManager;
 use ProjectManager;
 use Tuleap\Docman\ApprovalTable\ApprovalTableRetriever;
 use Tuleap\Docman\ApprovalTable\ApprovalTableStateMapper;
+use Tuleap\Docman\Notifications\NotificationBuilders;
+use Tuleap\Docman\ResponseFeedbackWrapper;
 use Tuleap\Docman\REST\v1\ItemRepresentationBuilder;
 use Tuleap\Docman\REST\v1\Metadata\MetadataRepresentationBuilder;
 use Tuleap\Docman\REST\v1\Permissions\DocmanItemPermissionsForGroupsBuilder;
@@ -69,7 +71,6 @@ final class DocmanServiceResource extends AuthenticatedResource
         $html_purifier       = \Codendi_HTMLPurifier::instance();
         $permissions_manager = \Docman_PermissionsManager::instance($id);
         $ugroup_manager      = new UGroupManager();
-        $factories_factory   = new \Docman_ApprovalTableFactoriesFactory();
         $version_factory     = new Docman_VersionFactory();
 
         $builder = new DocmanServiceRepresentationBuilder(
@@ -85,7 +86,7 @@ final class DocmanServiceResource extends AuthenticatedResource
                     $html_purifier,
                     UserHelper::instance()
                 ),
-                new ApprovalTableRetriever($factories_factory, $version_factory),
+                new ApprovalTableRetriever(new \Docman_ApprovalTableFactoriesFactory(), $version_factory),
                 new DocmanItemPermissionsForGroupsBuilder(
                     $permissions_manager,
                     ProjectManager::instance(),
@@ -94,8 +95,8 @@ final class DocmanServiceResource extends AuthenticatedResource
                 ),
                 $html_purifier,
                 new UserAvatarUrlProvider(new AvatarHashDao(), new ComputeAvatarHash()),
-                $factories_factory,
                 $version_factory,
+                new NotificationBuilders(new ResponseFeedbackWrapper(), $project)->buildNotificationManager(),
             ),
             $permissions_manager,
             new DocmanServicePermissionsForGroupsBuilder(

@@ -18,8 +18,7 @@
  */
 
 import { vite } from "@tuleap/build-system-configurator";
-import * as path from "path";
-import { viteExternalsPlugin } from "vite-plugin-externals";
+import * as path from "node:path";
 
 export default vite.defineAppConfig(
     {
@@ -27,11 +26,12 @@ export default vite.defineAppConfig(
         sub_app_name: path.basename(__dirname),
     },
     {
-        plugins: [viteExternalsPlugin({ jquery: "jQuery" })],
         build: {
             rollupOptions: {
                 input: {
-                    notifications: path.resolve(__dirname, "./src/admin-notifications.js"),
+                    "gerrit-pane": path.resolve(__dirname, "src/gerrit-pane.ts"),
+                    notifications: path.resolve(__dirname, "./src/admin-notifications.ts"),
+                    webhooks: path.resolve(__dirname, "src/webhooks-pane.ts"),
                 },
             },
         },

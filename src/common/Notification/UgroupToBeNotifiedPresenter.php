@@ -24,8 +24,8 @@ use ProjectUGroup;
 
 class UgroupToBeNotifiedPresenter
 {
-    public $label;
-    public $ugroup_id;
+    public string $label;
+    public int $ugroup_id;
 
     public function __construct(ProjectUGroup $ugroup)
     {

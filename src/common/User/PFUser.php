@@ -297,15 +297,6 @@ class PFUser implements PFO_User, IHaveAnSSHKey
     }
 
     /**
-     * clear: clear the cached tracker data
-     */
-    public function clearTrackerData()
-    {
-        unset($this->tracker_data);
-        $this->tracker_data = null;
-    }
-
-    /**
      * group data row from db.
      * For each group_id (the user is part of) one array from the user_group table
      */
@@ -388,24 +379,23 @@ class PFUser implements PFO_User, IHaveAnSSHKey
      *
      * @param int $ugroup_id  the id of the ugroup
      * @param int $group_id   the id of the project (is necessary for automatic project groups like project member, release admin, etc.)
-     * @param int $tracker_id the id of the tracker (is necessary for trackers since the tracker admin role is different for each tracker.)
      *
      * @return bool true if user is member of the ugroup, false otherwise.
      */
-    public function isMemberOfUGroup($ugroup_id, $group_id, $tracker_id = 0)
+    public function isMemberOfUGroup($ugroup_id, $group_id)
     {
-        if (! isset($this->cache_ugroup_membership[$ugroup_id][$group_id][$tracker_id])) {
-            $is_member = ugroup_user_is_member($this->getId(), $ugroup_id, $group_id, $tracker_id);
+        if (! isset($this->cache_ugroup_membership[$ugroup_id][$group_id])) {
+            $is_member = ugroup_user_is_member($this->getId(), $ugroup_id, $group_id);
 
-            $this->cache_ugroup_membership[$ugroup_id][$group_id][$tracker_id] = $is_member;
+            $this->cache_ugroup_membership[$ugroup_id][$group_id] = $is_member;
         }
 
-        return $this->cache_ugroup_membership[$ugroup_id][$group_id][$tracker_id];
+        return $this->cache_ugroup_membership[$ugroup_id][$group_id];
     }
 
     public function setCacheUgroupMembership(int $ugroup_id, int $group_id, bool $is_member): void
     {
-        $this->cache_ugroup_membership[$ugroup_id][$group_id][0] = $is_member;
+        $this->cache_ugroup_membership[$ugroup_id][$group_id] = $is_member;
     }
 
     public function isNone(): bool
@@ -416,45 +406,6 @@ class PFUser implements PFO_User, IHaveAnSSHKey
     public function isAnonymous(): bool
     {
         return $this->getId() == self::ANONYMOUS_USER_ID;
-    }
-
-    /**
-     * is this user admin of the tracker group_artifact_id
-     * @deprecated This API belongs to Trackers v3, please use Trackers v5 API.
-     * @return bool
-     */
-    public function isTrackerAdmin($group_id, $group_artifact_id)
-    {
-        return ($this->getTrackerPerm($group_artifact_id) >= 2 || $this->isMember($group_id, 'A'));
-    }
-
-    /**
-     * tracker permission data
-     * for each group_artifact_id (the user is part of) one array from the artifact-perm table
-     */
-    private $tracker_data;
-    protected function getTrackerData()
-    {
-        if (! $this->tracker_data) {
-            $this->tracker_data = [];
-            $id                 = (int) $this->user_id;
-            //TODO: use a DAO (waiting for the next tracker api)
-            $sql    = 'SELECT group_artifact_id, perm_level
-                    FROM artifact_perm WHERE user_id = ' . db_ei($id);
-            $db_res = db_query($sql);
-            if (db_numrows($db_res) > 0) {
-                while ($row = db_fetch_array($db_res)) {
-                    $this->tracker_data[$row['group_artifact_id']] = $row;
-                }
-            }
-        }
-        return $this->tracker_data;
-    }
-
-    public function getTrackerPerm($group_artifact_id)
-    {
-        $tracker_data = $this->getTrackerData();
-        return isset($tracker_data[$group_artifact_id]) ? $tracker_data[$group_artifact_id]['perm_level'] : 0;
     }
 
     public function isSuperUser(): bool
@@ -493,16 +444,12 @@ class PFUser implements PFO_User, IHaveAnSSHKey
      * @return array<int|string>
      * @psalm-return non-empty-array<string|int>
      */
-    public function getUgroups($group_id, $instances): array
+    public function getUgroups($group_id): array
     {
-        $hash = md5(serialize($instances));
         if (! isset($this->ugroups)) {
-            $this->ugroups = [];
+            $this->ugroups = array_merge($this->getDynamicUgroups($group_id), $this->getStaticUgroups($group_id));
         }
-        if (! isset($this->ugroups[$hash])) {
-            $this->ugroups[$hash] = array_merge($this->getDynamicUgroups($group_id, $instances), $this->getStaticUgroups($group_id));
-        }
-        return $this->ugroups[$hash];
+        return $this->ugroups;
     }
 
     /**
@@ -534,16 +481,12 @@ class PFUser implements PFO_User, IHaveAnSSHKey
      */
     private $dynamics_ugroups;
 
-    public function getDynamicUgroups($group_id, $instances)
+    public function getDynamicUgroups($group_id)
     {
-        $hash = md5(serialize($instances));
         if (! isset($this->dynamics_ugroups)) {
-            $this->dynamics_ugroups = [];
+            $this->dynamics_ugroups = ugroup_db_list_dynamic_ugroups_for_user($group_id, $this->id);
         }
-        if (! isset($this->dynamics_ugroups[$hash])) {
-            $this->dynamics_ugroups[$hash] = ugroup_db_list_dynamic_ugroups_for_user($group_id, $instances, $this->id);
-        }
-        return $this->dynamics_ugroups[$hash];
+        return $this->dynamics_ugroups;
     }
 
     /**
@@ -1323,8 +1266,6 @@ class PFUser implements PFO_User, IHaveAnSSHKey
 
      /**
       * Return true if user can do "$permissionType" on "$objectId"
-      *
-      * Note: this method is not useable in trackerV2 because it doesn't use "instances" parameter of getUgroups.
       *
       * @param String  $permissionType Permission nature
       * @param String  $objectId       Object to test

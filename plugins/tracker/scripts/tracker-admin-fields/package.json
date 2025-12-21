@@ -6,15 +6,16 @@
   "private": true,
   "type": "module",
   "dependencies": {
+    "@tuleap/core-constants": "workspace:^",
     "@tuleap/dom": "workspace:^",
-    "@tuleap/fault": "workspace:^",
-    "@tuleap/fetch-result": "workspace:^",
     "@tuleap/gettext": "workspace:^",
+    "@tuleap/list-picker": "workspace:^",
     "@tuleap/plugin-tracker-constants": "workspace:^",
     "@tuleap/plugin-tracker-rest-api-types": "workspace:^",
+    "@tuleap/tlp-date-picker": "workspace:^",
     "@tuleap/vue3-gettext-init": "workspace:^",
-    "neverthrow": "6.0.0",
     "vue": "^3.5.25",
+    "vue-dompurify-html": "^5.3.0",
     "vue3-gettext": "^2.4.0"
   },
   "devDependencies": {

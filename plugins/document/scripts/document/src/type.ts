@@ -332,12 +332,15 @@ export interface ApprovalTable {
     approval_state: string;
     approval_request_date: string;
     has_been_approved: boolean;
+    version_id: number | null;
     version_number: number | null;
     version_label: string;
     notification_type: string;
+    state: string;
     is_closed: boolean;
     description: string;
     reviewers: ReadonlyArray<ApprovalTableReviewer>;
+    reminder_occurence: number;
 }
 
 export interface ApprovalTableReviewer {
@@ -348,6 +351,7 @@ export interface ApprovalTableReviewer {
     comment: string;
     version_id: number | null;
     version_name: string | null;
+    notification: boolean;
 }
 
 export interface FolderProperties {
@@ -362,6 +366,7 @@ export interface FileProperties {
     download_href: string;
     open_href: string | null;
     level?: number;
+    readonly version_number: number;
 }
 
 export interface CreatedItem extends CreatedItemResponse {
@@ -375,6 +380,7 @@ export interface CreatedItemFileProperties {
 
 export interface LinkProperties {
     link_url: string;
+    readonly version_number: number | null;
 }
 
 export interface EmbeddedProperties {
@@ -390,6 +396,7 @@ export interface OtherTypeProperties {
 export interface WikiProperties {
     page_name: string;
     page_id: number | null;
+    version_number: number;
 }
 
 export interface ItemReferencingWikiPageRepresentation {
@@ -400,6 +407,7 @@ export interface ItemReferencingWikiPageRepresentation {
 export interface UserGroup {
     id: string;
     label: string;
+    short_name: string;
 }
 
 export const AllowedSearchDateOperator = [">", "=", "<"];

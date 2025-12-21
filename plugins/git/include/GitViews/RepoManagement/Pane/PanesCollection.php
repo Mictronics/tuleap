@@ -20,9 +20,9 @@
 
 namespace Tuleap\Git\GitViews\RepoManagement\Pane;
 
-use Codendi_Request;
 use GitRepository;
 use Tuleap\Event\Dispatchable;
+use Tuleap\HTTPRequest;
 
 class PanesCollection implements Dispatchable
 {
@@ -37,11 +37,11 @@ class PanesCollection implements Dispatchable
      */
     private $repository;
     /**
-     * @var Codendi_Request
+     * @var HTTPRequest
      */
     private $request;
 
-    public function __construct(GitRepository $repository, Codendi_Request $request)
+    public function __construct(GitRepository $repository, HTTPRequest $request)
     {
         $this->repository = $repository;
         $this->request    = $request;
@@ -65,10 +65,7 @@ class PanesCollection implements Dispatchable
         return $this->repository;
     }
 
-    /**
-     * @return Codendi_Request
-     */
-    public function getRequest()
+    public function getRequest(): HTTPRequest
     {
         return $this->request;
     }

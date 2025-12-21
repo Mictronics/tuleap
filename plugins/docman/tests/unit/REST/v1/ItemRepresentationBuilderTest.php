@@ -30,6 +30,7 @@ use Docman_Item;
 use Docman_ItemDao;
 use Docman_ItemFactory;
 use Docman_LockFactory;
+use Docman_NotificationsManager;
 use Docman_PermissionsManager;
 use Docman_Version;
 use Docman_VersionFactory;
@@ -89,8 +90,8 @@ final class ItemRepresentationBuilderTest extends TestCase
             $this->item_permissions_for_groups_builder,
             $this->html_purifier,
             ProvideUserAvatarUrlStub::build(),
-            $this->factories_factory,
             $this->version_factory,
+            $this->createStub(Docman_NotificationsManager::class),
         );
 
         UserManager::setInstance($this->user_manager);
@@ -145,6 +146,8 @@ final class ItemRepresentationBuilderTest extends TestCase
         $item_approval_table->method('getNotification')->willReturn(PLUGIN_DOCMAN_APPROVAL_TABLE_DISABLED);
         $item_approval_table->method('getDescription')->willReturn('');
         $item_approval_table->method('getReviewerArray')->willReturn([]);
+        $item_approval_table->method('getStatus')->willReturn('enabled');
+        $item_approval_table->method('getNotificationOccurence')->willReturn(0);
 
         $approval_table_factory = $this->createMock(Docman_ApprovalTableFileFactory::class);
         $approval_table_factory->method('getNotificationTypeName')->with(PLUGIN_DOCMAN_APPROVAL_TABLE_DISABLED)->willReturn('Disabled');
@@ -198,10 +201,11 @@ final class ItemRepresentationBuilderTest extends TestCase
         self::assertFalse($representation->approval_table->has_been_approved);
         self::assertSame('', $representation->approval_table?->description);
         self::assertFalse($representation->approval_table?->is_closed);
-        self::assertSame('Disabled', $representation->approval_table?->notification_type);
+        self::assertSame('disabled', $representation->approval_table?->notification_type);
         self::assertSame(2, $representation->approval_table?->version_number);
         self::assertSame([], $representation->approval_table?->reviewers);
         self::assertSame('1.0.0-rc3', $representation->approval_table?->version_label);
+        self::assertSame(0, $representation->approval_table?->reminder_occurence);
         self::assertSame('2019-02-06T15:00:00+01:00', $representation->metadata[0]->value);
         self::assertSame('2019-02-06T15:00:00+01:00', $representation->metadata[0]->post_processed_value);
         self::assertSame('metadata name', $representation->metadata[0]->name);

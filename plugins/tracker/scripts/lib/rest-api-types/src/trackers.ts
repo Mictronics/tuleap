@@ -41,6 +41,8 @@ import type {
     LineBreak,
     Separator,
     StaticRichText,
+    DefaultValueDateType,
+    ShouldDisplayTime,
 } from "@tuleap/plugin-tracker-constants";
 import type { ProjectReference } from "@tuleap/core-rest-api-types";
 
@@ -67,12 +69,21 @@ export interface UnknownFieldStructure extends BaseFieldStructure {
     readonly type: never;
 }
 
-interface StringFieldStructure extends BaseFieldStructure {
+export interface StringFieldStructure extends BaseFieldStructure {
     readonly type: StringFieldIdentifier;
+    readonly specific_properties: {
+        readonly maxchars: number;
+        readonly size: number;
+        readonly default_value: string;
+    };
 }
 
-interface TextFieldStructure extends BaseFieldStructure {
+export interface TextFieldStructure extends BaseFieldStructure {
     readonly type: TextFieldIdentifier;
+    readonly specific_properties: {
+        readonly rows: number;
+        readonly default_value: string;
+    };
 }
 
 export interface CommonDateFieldStructure extends BaseFieldStructure {
@@ -86,6 +97,11 @@ export interface ReadonlyDateFieldStructure extends CommonDateFieldStructure {
 export interface EditableDateFieldStructure extends CommonDateFieldStructure {
     readonly type: DateFieldIdentifier;
     readonly permissions: PermissionsArray;
+    readonly specific_properties: {
+        readonly default_value_type: DefaultValueDateType;
+        readonly default_value: number;
+        readonly display_time: ShouldDisplayTime;
+    };
 }
 
 export type DateFieldStructure = ReadonlyDateFieldStructure | EditableDateFieldStructure;
@@ -113,20 +129,39 @@ export interface NumericFieldStructure extends BaseFieldStructure {
         | ComputedFieldIdentifier;
 }
 
+export interface IntFieldStructure extends NumericFieldStructure {
+    readonly type: IntFieldIdentifier;
+    readonly specific_properties: {
+        readonly maxchars: number;
+        readonly size: number;
+        readonly default_value: string;
+    };
+}
+
+export interface FloatFieldStructure extends NumericFieldStructure {
+    readonly type: FloatFieldIdentifier;
+    readonly specific_properties: {
+        readonly maxchars: number;
+        readonly size: number;
+        readonly default_value: string;
+    };
+}
+
 export interface UserFieldStructure extends BaseFieldStructure {
     readonly type: SubmittedByFieldIdentifier | LastUpdateByFieldIdentifier;
 }
 
-interface LineBreakStructure extends BaseFieldStructure {
+export interface LineBreakStructure extends BaseFieldStructure {
     readonly type: LineBreak;
 }
 
-interface SeparatorStructure extends BaseFieldStructure {
+export interface SeparatorStructure extends BaseFieldStructure {
     readonly type: Separator;
 }
 
 export interface StaticRichTextStructure extends BaseFieldStructure {
     readonly type: StaticRichText;
+    readonly default_value: string;
 }
 
 type StaticField = LineBreakStructure | SeparatorStructure | StaticRichTextStructure;

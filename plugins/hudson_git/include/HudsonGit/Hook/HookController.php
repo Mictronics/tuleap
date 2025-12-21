@@ -23,10 +23,7 @@ namespace Tuleap\HudsonGit\Hook;
 use GitRepository;
 use GitRepositoryFactory;
 use Tuleap\Cryptography\ConcealedString;
-use Tuleap\Cryptography\SymmetricLegacy2025\EncryptionKey;
-use Tuleap\Cryptography\SymmetricLegacy2025\SymmetricCrypto;
 use Tuleap\Git\GitViews\RepoManagement\Pane\Hooks;
-use Codendi_Request;
 use Feedback;
 use CSRFSynchronizerToken;
 use Valid_HTTPURI;
@@ -39,7 +36,7 @@ class HookController
     private $csrf;
 
     /**
-     * @var Codendi_Request
+     * @var \Tuleap\HTTPRequest
      */
     private $request;
 
@@ -59,12 +56,11 @@ class HookController
     private $valid_HTTPURI;
 
     public function __construct(
-        Codendi_Request $request,
+        \Tuleap\HTTPRequest $request,
         GitRepositoryFactory $git_repository_factory,
         HookDao $dao,
         CSRFSynchronizerToken $csrf,
         Valid_HTTPURI $valid_HTTPURI,
-        private EncryptionKey $encryption_key,
     ) {
         $this->request                = $request;
         $this->git_repository_factory = $git_repository_factory;
@@ -99,13 +95,8 @@ class HookController
         }
         $token = new ConcealedString($cleartext_token);
         sodium_memzero($cleartext_token);
-        $encrypted_token = null;
-        if ($token !== null) {
-            $encrypted_token = SymmetricCrypto::encrypt($token, $this->encryption_key);
-        }
 
-
-        $this->dao->save($repository->getId(), $jenkins_server, $encrypted_token, $is_commit_reference_needed);
+        $this->dao->save($repository->getId(), $jenkins_server, $token, $is_commit_reference_needed);
         $GLOBALS['Response']->addFeedback(Feedback::INFO, dgettext('tuleap-hudson_git', 'Jenkins webhook successfully saved'));
         $GLOBALS['Response']->redirect($this->getRedirectUrl($repository));
     }

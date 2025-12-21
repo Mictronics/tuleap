@@ -20,7 +20,6 @@
 
 namespace Tuleap\Layout;
 
-use Codendi_Request;
 use Event;
 use EventManager;
 use ForgeConfig;
@@ -32,11 +31,11 @@ class SearchFormPresenterBuilder
      */
     private $event_manager;
     /**
-     * @var Codendi_Request
+     * @var \Tuleap\HTTPRequest
      */
     private $request;
 
-    public function __construct(EventManager $event_manager, Codendi_Request $request)
+    public function __construct(EventManager $event_manager, \Tuleap\HTTPRequest $request)
     {
         $this->event_manager = $event_manager;
         $this->request       = $request;
@@ -56,16 +55,6 @@ class SearchFormPresenterBuilder
                 'value' => $group_id,
             ];
 
-            if ($this->request->exist('atid')) {
-                $search_entries[] = [
-                    'value'    => 'tracker',
-                    'selected' => true,
-                ];
-                $hidden[]         = [
-                    'name'  => 'atid',
-                    'value' => $this->request->get('atid'),
-                ];
-            }
             if (strpos($_SERVER['REQUEST_URI'], '/wiki/') === 0) {
                 $search_entries[] = [
                     'value'    => 'wiki',

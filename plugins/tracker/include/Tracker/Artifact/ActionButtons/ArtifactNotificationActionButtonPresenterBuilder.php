@@ -57,7 +57,8 @@ class ArtifactNotificationActionButtonPresenterBuilder
         return new ArtifactNotificationsButtonPresenter(
             $this->getUnsubscribeButtonLabel($user, $artifact),
             $this->getUnsubscribeButtonAlternateText($user, $artifact),
-            $this->getUnsubscribeButtonIcon($user, $artifact)
+            $this->getUnsubscribeButtonIcon($user, $artifact),
+            $this->getUnsubscribeButtonUrl($artifact->getId())
         );
     }
 
@@ -90,9 +91,14 @@ class ArtifactNotificationActionButtonPresenterBuilder
     private function getUnsubscribeButtonIcon(PFUser $user, Artifact $artifact)
     {
         if ($this->doesUserHaveUnsubscribedFromArtifactNotification($user, $artifact)) {
-            return 'fa-bell-o';
+            return 'fa-bell';
         }
 
-        return 'fa-bell-slash-o';
+        return 'fa-bell-slash';
+    }
+
+    private function getUnsubscribeButtonUrl(int $artifact_id): string
+    {
+        return TRACKER_BASE_URL . '/?aid=' . $artifact_id . '&func=manage-subscription&artifact=' . $artifact_id;
     }
 }

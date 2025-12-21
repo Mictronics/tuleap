@@ -21,8 +21,9 @@
 
 namespace Tuleap\Tracker\Artifact\Renderer;
 
-use Codendi_Request;
 use EventManager;
+use Tuleap\HTTPRequest;
+use Tuleap\Tracker\Artifact\Event\IsArtifactViewInBurningParrotEvent;
 use Tuleap\Tracker\Artifact\View\TrackerArtifactView;
 
 final class ViewCollection
@@ -39,9 +40,21 @@ final class ViewCollection
         $this->views[$view->getIdentifier()] = $view;
     }
 
-    public function fetchRequestedView(Codendi_Request $request): string
+    public function fetchRequestedView(\Tuleap\HTTPRequest $request): string
     {
         $requested_view = $this->getRequestedView($request);
+
+        $is_burning_parrot = $this->event_manager
+            ->dispatch(new IsArtifactViewInBurningParrotEvent(HTTPRequest::instance()))
+            ->isBurningParrot();
+        if ($is_burning_parrot) {
+            $html  = '';
+            $html .= $this->fetchTabs($requested_view);
+            $html .= '<div class="tlp-framed">';
+            $html .= $requested_view->fetch();
+            $html .= '</div>';
+            return $html;
+        }
 
         $event = new GetAdditionalCssAssetsForArtifactDisplay($requested_view->getIdentifier());
         $this->event_manager->dispatch($event);
@@ -50,7 +63,7 @@ final class ViewCollection
         }
 
         $html  = '';
-        $html .= $this->fetchTabs($requested_view);
+        $html .= $this->fetchFlamingParrotTabs($requested_view);
         $html .= '<div class="tracker-artifact-view-content">';
         $html .= $requested_view->fetch();
         $html .= '</div>';
@@ -61,7 +74,7 @@ final class ViewCollection
     /**
      * @return TrackerArtifactView
      */
-    private function getRequestedView(Codendi_Request $request)
+    private function getRequestedView(\Tuleap\HTTPRequest $request)
     {
         if (isset($this->views[$request->get('view')])) {
             return $this->views[$request->get('view')];
@@ -75,7 +88,7 @@ final class ViewCollection
      *
      * @return string html
      */
-    private function fetchTabs(TrackerArtifactView $current_view)
+    private function fetchFlamingParrotTabs(TrackerArtifactView $current_view)
     {
         $html  = '';
         $html .= '<div class="main-project-tabs"><ul class="nav nav-tabs tracker-artifact-nav">';
@@ -89,6 +102,17 @@ final class ViewCollection
             </li>';
         }
         $html .= '</ul></div>';
+        return $html;
+    }
+
+    private function fetchTabs(TrackerArtifactView $current_view): string
+    {
+        $html = '<div class="main-project-tabs"><nav class="tlp-tabs">';
+        foreach ($this->views as $view) {
+            $tab_active_class = $view === $current_view ? ' tlp-tab-active' : '';
+            $html            .= '<a class="tlp-tab' . $tab_active_class . '" href="' . $view->getURL() . '" data-test="' . $view->getIdentifier() . '">' . $view->getTitle() . '</a>';
+        }
+        $html .= '</nav></div>';
         return $html;
     }
 }

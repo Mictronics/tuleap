@@ -26,8 +26,14 @@ use Tuleap\Option\Option;
 
 interface DatabaseUUIDFactory
 {
+    /**
+     * @return non-empty-string
+     */
     public function buildUUIDBytes(): string;
 
+    /**
+     * @return non-empty-string
+     */
     public function buildUUIDBytesFromTime(\DateTimeInterface $time): string;
 
     public function buildUUIDFromBytesData(string $bytes): UUID;

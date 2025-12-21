@@ -28,7 +28,7 @@ define('GITOLITE3_LOGS_PATH', '/var/lib/gitolite/.gitolite/logs/');
  * Allow a plugin to append his own classes to the body DOM element in git views
  *
  * Parameters:
- *   'request' => (Input)  Codendi_Request Request
+ *   'request' => (Input)  \Tuleap\HTTPRequest Request
  *   'classes' => (Output) String[]        Additional classnames
  */
 define('GIT_ADDITIONAL_BODY_CLASSES', 'git_additional_body_classes');
@@ -42,13 +42,3 @@ define('GIT_ADDITIONAL_BODY_CLASSES', 'git_additional_body_classes');
  *   'permitted_actions' => (Output) String[]      Permitted actions
  */
 define('GIT_ADDITIONAL_PERMITTED_ACTIONS', 'git_additional_permitted_actions');
-
-/**
- * Allow plugins to add additional notifications setup for git
- *
- * Parameters:
- *   'repository' => (Input) GitRepository Git repository currently modified
- *   'request'    => (Input) \Tuleap\HTTPRequest   Current request
- *   'output'     => (Output) String       The HTML to present
- */
-define('GIT_ADDITIONAL_NOTIFICATIONS', 'git_additional_notifications');

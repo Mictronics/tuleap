@@ -330,7 +330,7 @@ class Tracker_Artifact_Changeset_Comment
         } else {
             $user = UserManager::instance()->getUserAnonymous();
             $user->setEmail($this->changeset->getEmail());
-            $user_info = $GLOBALS['Language']->getText('tracker_include_artifact', 'anon_user');
+            $user_info = _('Anonymous user');
         }
 
         return $user_info;
@@ -387,7 +387,7 @@ class Tracker_Artifact_Changeset_Comment
 
     private function getCommentBodyWithEscapedCrossReferences()
     {
-        $reference_manager = new ReferenceManager();
+        $reference_manager = ReferenceManager::instance();
         $pattern           = $reference_manager->_getExpForRef();
         $matches           = [];
         $escaped_body      = $this->body;

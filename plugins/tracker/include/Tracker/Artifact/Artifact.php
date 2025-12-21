@@ -26,7 +26,6 @@
 namespace Tuleap\Tracker\Artifact;
 
 use Codendi_HTMLPurifier;
-use Codendi_Request;
 use CSRFSynchronizerToken;
 use EventManager;
 use Feedback;
@@ -78,6 +77,7 @@ use Tuleap\Dashboard\Widget\DashboardWidgetDao;
 use Tuleap\DB\DBTransactionExecutor;
 use Tuleap\Http\HTTPFactoryBuilder;
 use Tuleap\Http\Response\JSONResponseBuilder;
+use Tuleap\HTTPRequest;
 use Tuleap\Layout\JavascriptViteAsset;
 use Tuleap\Layout\TooltipJSON;
 use Tuleap\Mapper\ValinorMapperBuilderFactory;
@@ -123,6 +123,7 @@ use Tuleap\Tracker\Artifact\ChangesetValue\ArtifactLink\ReverseLinksRetriever;
 use Tuleap\Tracker\Artifact\ChangesetValue\ArtifactLink\ReverseLinksToNewChangesetsConverter;
 use Tuleap\Tracker\Artifact\ChangesetValue\ChangesetValueSaver;
 use Tuleap\Tracker\Artifact\ChangesetValue\ChangesetValuesContainerBuilder;
+use Tuleap\Tracker\Artifact\Event\IsArtifactViewInBurningParrotEvent;
 use Tuleap\Tracker\Artifact\Link\ArtifactLinker;
 use Tuleap\Tracker\Artifact\Link\ArtifactReverseLinksUpdater;
 use Tuleap\Tracker\Artifact\Link\ForwardLinkProxy;
@@ -557,7 +558,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
         $html .= $this->fetchHiddenTrackerId();
         $html .= '<div class="tracker_artifact_title">';
         $html .= $prefix;
-        $html .= $this->getXRefAndTitle();
+        $html .= $this->getXRefAndTitleFlamingParrot();
         if ($unsubscribe_button) {
             $html .= $this->fetchActionButtons();
         }
@@ -569,6 +570,13 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
 
     public function fetchActionButtons()
     {
+        $include_assets = new Tuleap\Layout\IncludeViteAssets(
+            __DIR__ . '/../../../scripts/artifact/frontend-assets',
+            '/assets/trackers/artifact'
+        );
+
+        $GLOBALS['HTML']->addJavascriptAsset(new JavascriptViteAsset($include_assets, 'src/header/actions-button.ts'));
+
         $renderer = TemplateRendererFactory::build()->getRenderer(
             TRACKER_TEMPLATE_DIR
         );
@@ -604,7 +612,14 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
                 '/assets/trackers/move-artifact-action'
             );
 
-            $GLOBALS['HTML']->addJavascriptAsset(new JavascriptViteAsset($include_assets, 'src/index-fp.ts'));
+            $is_burning_parrot = $this->getEventManager()
+                ->dispatch(new IsArtifactViewInBurningParrotEvent(HTTPRequest::instance()))
+                ->isBurningParrot();
+            if ($is_burning_parrot) {
+                $GLOBALS['HTML']->addJavascriptAsset(new JavascriptViteAsset($include_assets, 'src/index.ts'));
+            } else {
+                $GLOBALS['HTML']->addJavascriptAsset(new JavascriptViteAsset($include_assets, 'src/index-fp.ts'));
+            }
         }
 
         foreach ($action_buttons_fetcher->getAdditionalActions() as $additional_action) {
@@ -638,7 +653,7 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
         return '<input type="hidden" id="tracker_id" name="tracker_id" value="' . $this->getTrackerId() . '"/>';
     }
 
-    public function getXRefAndTitle()
+    public function getXRefAndTitleFlamingParrot(): string
     {
         $hp = Codendi_HTMLPurifier::instance();
 
@@ -646,6 +661,30 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
                $hp->purify($this->getXRef()) . "\n" .
                '</span>' .
                $hp->purify($this->getTitle());
+    }
+
+    public function getXRefAndTitle(): string
+    {
+        $hp = Codendi_HTMLPurifier::instance();
+
+        return '<div class="tracker-artifact-parents-titles">
+                    <span class="tlp-swatch-' . $hp->purify($this->getTracker()->getColor()->value) . ' cross-ref-badge" data-test="xref-in-title">' .
+                        $hp->purify($this->getXRef()) . "\n" .
+                    '</span>' .
+                    '<div class="tracker-artifact-parents-title">' . $hp->purify($this->getTitle()) . '</div>' .
+                '</div>';
+    }
+
+    public function getXRefAndMainTitle(): string
+    {
+        $hp = Codendi_HTMLPurifier::instance();
+
+        return '<div class="tracker-artifact-main-title">
+                    <span class="tlp-swatch-' . $hp->purify($this->getTracker()->getColor()->value) . ' cross-ref-badge" data-test="xref-in-title">' .
+            $hp->purify($this->getXRef()) . "\n" .
+            '</span>' .
+            '<h2 class="artifact-title">' . $hp->purify($this->getTitle()) . '</h2>' .
+            '</div>';
     }
 
     public function fetchColoredXRef()
@@ -841,9 +880,9 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
     /**
      * Returns HTML code to display the artifact history
      *
-     * @param Codendi_Request $request The data from the user
+     * @param \Tuleap\HTTPRequest $request The data from the user
      */
-    public function validateCommentFormat(Codendi_Request $request, string $comment_format_field_name): CommentFormatIdentifier
+    public function validateCommentFormat(\Tuleap\HTTPRequest $request, string $comment_format_field_name): CommentFormatIdentifier
     {
         $comment_format = (string) $request->get($comment_format_field_name);
 
@@ -1171,7 +1210,13 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
      */
     public function fetchDirectLinkToArtifactWithTitle()
     {
-        return '<a class="direct-link-to-artifact" href="' . $this->getUri() . '">' . $this->getXRefAndTitle() . '</a>';
+        $is_burning_parrot = $this->getEventManager()
+            ->dispatch(new IsArtifactViewInBurningParrotEvent(HTTPRequest::instance()))
+            ->isBurningParrot();
+        if ($is_burning_parrot) {
+            return '<a class="direct-link-to-artifact" href="' . $this->getUri() . '">' . $this->getXRefAndTitle() . '</a>';
+        }
+        return '<a class="direct-link-to-artifact" href="' . $this->getUri() . '">' . $this->getXRefAndTitleFlamingParrot() . '</a>';
     }
 
     public function getRestUri()
@@ -2129,9 +2174,9 @@ class Artifact implements Recent_Element_Interface, Tracker_Dispatchable_Interfa
      * nothing is done. Else the client is redirected and
      * the script will die in agony!
      *
-     * @param Codendi_Request $request The request
+     * @param \Tuleap\HTTPRequest $request The request
      */
-    public function summonArtifactRedirectors(Codendi_Request $request, Tracker_Artifact_Redirect $redirect)
+    public function summonArtifactRedirectors(\Tuleap\HTTPRequest $request, Tracker_Artifact_Redirect $redirect)
     {
         $this->getEventManager()->processEvent(
             new RedirectAfterArtifactCreationOrUpdateEvent($request, $redirect, $this)

@@ -30,7 +30,7 @@ use Override;
  */
 final readonly class Message implements \JsonSerializable
 {
-    public function __construct(private Role $role, public StringContent|ChunkContent $content)
+    public function __construct(private(set) Role $role, public StringContent|ChunkContent $content)
     {
     }
 
@@ -41,5 +41,10 @@ final readonly class Message implements \JsonSerializable
             'role' => $this->role,
             'content' => $this->content,
         ];
+    }
+
+    public static function buildUserMessageFromString(string $content): self
+    {
+        return new self(Role::USER, new StringContent($content));
     }
 }

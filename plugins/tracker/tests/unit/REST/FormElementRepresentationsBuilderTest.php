@@ -48,11 +48,12 @@ final class FormElementRepresentationsBuilderTest extends \Tuleap\Test\PHPUnit\T
         $field1->method('isCollapsed')->willReturn(false);
         $field1->method('getDefaultRESTValue')->willReturn(null);
         $field1->method('getRESTAvailableValues')->willReturn(null);
-        $field1->method('userCanRead')->willReturn(true);
+        $field1->method('userCanRead')->with($user)->willReturn(true);
         $field1->method('getRESTBindingProperties')->willReturn([
             'bind_type' => null,
             'bind_list' => [],
         ]);
+        $field1->method('getFlattenPropertiesValues')->willReturn([]);
 
         $field2 = $this->createMock(StringField::class);
         $field2->method('getId')->willReturn(2);
@@ -62,11 +63,12 @@ final class FormElementRepresentationsBuilderTest extends \Tuleap\Test\PHPUnit\T
         $field2->method('isCollapsed')->willReturn(false);
         $field2->method('getDefaultRESTValue')->willReturn(null);
         $field2->method('getRESTAvailableValues')->willReturn(null);
-        $field2->method('userCanRead')->willReturn(false);
+        $field2->method('userCanRead')->with($user)->willReturn(false);
         $field2->method('getRESTBindingProperties')->willReturn([
             'bind_type' => null,
             'bind_list' => [],
         ]);
+        $field2->method('getFlattenPropertiesValues')->willReturn([]);
 
         $field3 = $this->createMock(StringField::class);
         $field3->method('getId')->willReturn(3);
@@ -76,11 +78,12 @@ final class FormElementRepresentationsBuilderTest extends \Tuleap\Test\PHPUnit\T
         $field3->method('isCollapsed')->willReturn(false);
         $field3->method('getDefaultRESTValue')->willReturn(null);
         $field3->method('getRESTAvailableValues')->willReturn(null);
-        $field3->method('userCanRead')->willReturn(true);
+        $field3->method('userCanRead')->with($user)->willReturn(true);
         $field3->method('getRESTBindingProperties')->willReturn([
             'bind_type' => null,
             'bind_list' => [],
         ]);
+        $field3->method('getFlattenPropertiesValues')->willReturn([]);
 
         $form_element_factory           = $this->createMock(Tracker_FormElementFactory::class);
         $permission_exporter            = $this->createMock(PermissionsExporter::class);

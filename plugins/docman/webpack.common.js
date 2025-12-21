@@ -25,8 +25,6 @@ const output = webpack_configurator.configureOutput(path.resolve(__dirname, "./f
 module.exports = [
     {
         entry: {
-            notifications: "./scripts/notifications.js",
-            "default-style": "./themes/default/css/style.scss",
             "burningparrot-style": "./themes/BurningParrot/css/docman.scss",
             "admin-style": "./themes/BurningParrot/css/admin.scss",
             "admin-permissions": "./scripts/admin-permissions.ts",
@@ -51,13 +49,6 @@ module.exports = [
         },
         plugins: [
             ...webpack_configurator.getCSSExtractionPlugins(),
-            ...webpack_configurator.getLegacyConcatenatedScriptsPlugins({
-                "docman.js": [
-                    "./scripts/docman.js",
-                    "./scripts/embedded_file.js",
-                    "./scripts/ApprovalTableReminder.js",
-                ],
-            }),
             webpack_configurator.getManifestPlugin(),
         ],
     },

@@ -32,10 +32,10 @@ use Tuleap\Git\Webhook\WebhookFactory;
 use Tuleap\Git\Webhook\WebhookDao;
 use Tuleap\Git\Webhook\Webhook;
 use GitRepository;
-use Codendi_Request;
 use CSRFSynchronizerToken;
 use EventManager;
 use TemplateRendererFactory;
+use Tuleap\HTTPRequest;
 use Tuleap\Layout\IncludeViteAssets;
 use Tuleap\Layout\JavascriptViteAsset;
 
@@ -68,7 +68,7 @@ class Hooks extends Pane
 
     public function __construct(
         GitRepository $repository,
-        Codendi_Request $request,
+        HTTPRequest $request,
         WebhookFactory $webhook_factory,
         WebhookDao $webhook_dao,
     ) {
@@ -99,7 +99,7 @@ class Hooks extends Pane
      * @see GitViews_RepoManagement_Pane::getContent()
      */
     #[Override]
-    public function getContent()
+    public function getContent(): string
     {
         $description            = dgettext('tuleap-git', 'You can define several generic webhooks.');
         $additional_description = '';
@@ -140,16 +140,21 @@ class Hooks extends Pane
             )
         ) . implode('', $additional_html_bits);
 
-
-        $assets = new IncludeViteAssets(
-            __DIR__ . '/../../../../scripts/repository-admin-webhooks/frontend-assets',
-            '/assets/git/repository-admin-webhooks'
-        );
-        assert($GLOBALS['HTML'] instanceof \Tuleap\Layout\BaseLayout);
-        $GLOBALS['HTML']->includeFooterJavascriptFile(
-            new JavascriptViteAsset($assets, 'src/index.ts')->getFileURL()
-        );
         return $html;
+    }
+
+    #[\Override]
+    public function getJavascriptViteAssets(): array
+    {
+        return [
+            new JavascriptViteAsset(
+                new IncludeViteAssets(
+                    __DIR__ . '/../../../../scripts/repository-admin/frontend-assets',
+                    '/assets/git/repository-admin'
+                ),
+                'src/webhooks-pane.ts',
+            ),
+        ];
     }
 
     private function addCustomWebhooks(array &$sections, array &$create_buttons, CSRFSynchronizerToken $csrf)

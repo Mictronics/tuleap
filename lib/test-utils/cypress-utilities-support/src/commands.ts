@@ -217,6 +217,7 @@ Cypress.Commands.add(
                     return Promise.resolve();
                 }
 
+                // eslint-disable-next-line cypress/no-unnecessary-waiting -- We must wait for this command to work
                 cy.wait(500);
                 reloadCallback();
                 return cy.reloadUntilCondition(
@@ -242,7 +243,7 @@ const LAZYBOX_TRIGGER_CALLBACK_DELAY_IN_MS = 250;
 Cypress.Commands.add("searchItemInLazyboxDropdown", (query, dropdown_item_label) => {
     cy.get("[data-test=lazybox]").click();
     cy.get("[data-test=lazybox-search-field]", { includeShadowDom: true }).focus().type(query);
-    // Lazybox waits a delay before loading items
+    // eslint-disable-next-line cypress/no-unnecessary-waiting -- Lazybox waits a delay before loading items
     cy.wait(LAZYBOX_TRIGGER_CALLBACK_DELAY_IN_MS);
     cy.get("[data-test=lazybox]")
         .find("[data-test=lazybox-loading-group-spinner]")
@@ -253,7 +254,7 @@ Cypress.Commands.add("searchItemInLazyboxDropdown", (query, dropdown_item_label)
 Cypress.Commands.add("addItemInLazyboxDropdown", (query: string) => {
     cy.get("[data-test=lazybox]").click();
     cy.get("[data-test=lazybox-search-field]", { includeShadowDom: true }).focus().type(query);
-    // Lazybox waits a delay before loading items
+    // eslint-disable-next-line cypress/no-unnecessary-waiting -- Lazybox waits a delay before loading items
     cy.wait(LAZYBOX_TRIGGER_CALLBACK_DELAY_IN_MS);
     cy.get("[data-test=lazybox]")
         .find("[data-test=lazybox-loading-group-spinner]")
@@ -273,6 +274,27 @@ Cypress.Commands.add("searchItemInListPickerDropdown", (dropdown_item_label) => 
                     .find("[data-test=list-picker-item]")
                     .contains(dropdown_item_label),
             );
+    });
+});
+
+Cypress.Commands.add("generateLargeFile", (file_size_in_mb: number, file_name: string) => {
+    return cy.window().then(() => {
+        const bytes_per_MB = 1024 * 1024;
+        const size = file_size_in_mb * bytes_per_MB;
+        const buffer = new ArrayBuffer(size);
+        const view = new Uint8Array(buffer);
+
+        for (let i = 0; i < size; i += 4096) {
+            view[i] = Math.floor(Math.random() * 256);
+        }
+
+        const blob = new Blob([buffer], { type: "text/plain" });
+        const file = new File([blob], file_name, { type: "text/plain" });
+
+        const data_transfer = new DataTransfer();
+        data_transfer.items.add(file);
+
+        return { file, data_transfer };
     });
 });
 

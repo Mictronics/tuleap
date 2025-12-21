@@ -352,19 +352,6 @@ class DocmanPlugin extends Plugin implements PluginWithConfigKeys // phpcs:ignor
         return $this->pluginInfo;
     }
 
-    #[\Tuleap\Plugin\ListeningToEventName('cssfile')]
-    public function cssfile($params): void
-    {
-        // Only show the stylesheet if we're actually in the Docman pages.
-        // This stops styles inadvertently clashing with the main site.
-        if (
-            $this->currentRequestIsForPlugin() ||
-            strpos($_SERVER['REQUEST_URI'], '/widgets/') === 0
-        ) {
-            echo '<link rel="stylesheet" type="text/css" href="' . $this->getAssets()->getFileURL('default-style.css') . '" />' . "\n";
-        }
-    }
-
     #[\Tuleap\Plugin\ListeningToEventName('javascript_file')]
     public function javascriptFile($params): void //phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
@@ -373,7 +360,6 @@ class DocmanPlugin extends Plugin implements PluginWithConfigKeys // phpcs:ignor
         if ($this->currentRequestIsForPlugin()) {
             $layout = $params['layout'];
             assert($layout instanceof \Layout);
-            $layout->includeJavascriptFile($this->getAssets()->getFileURL('docman.js'));
             $layout->addJavascriptAsset(RelativeDatesAssetsRetriever::getAsJavascriptAssets());
         }
     }
@@ -617,7 +603,7 @@ class DocmanPlugin extends Plugin implements PluginWithConfigKeys // phpcs:ignor
     public function referenceGetTooltipContentEvent(Tuleap\Reference\ReferenceGetTooltipContentEvent $event): void
     {
         if ($event->getReference()->getServiceShortName() === 'docman') {
-            $request    = new Codendi_Request([
+            $request    = new \Tuleap\HTTPRequest([
                 'id'       => $event->getValue(),
                 'group_id' => $event->getProject()->getID(),
                 'action'   => 'ajax_reference_tooltip',

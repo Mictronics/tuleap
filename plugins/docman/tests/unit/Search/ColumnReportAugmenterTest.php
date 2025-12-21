@@ -24,7 +24,7 @@ declare(strict_types=1);
 namespace Tuleap\Docman\Search;
 
 use Docman_Metadata;
-use Docman_ReportColumnTitle;
+use Docman_ReportColumn;
 use Tuleap\Docman\REST\v1\Search\SearchSortRepresentation;
 use Tuleap\Test\PHPUnit\TestCase;
 
@@ -36,7 +36,7 @@ final class ColumnReportAugmenterTest extends TestCase
      */
     private $column_factory;
     private ColumnReportAugmenter $builder;
-    private \Codendi_Request $request;
+    private \Tuleap\HTTPRequest $request;
 
     #[\Override]
     protected function setUp(): void
@@ -44,7 +44,7 @@ final class ColumnReportAugmenterTest extends TestCase
         $this->column_factory = $this->createMock(\Docman_ReportColumnFactory::class);
         $this->builder        = new ColumnReportAugmenter($this->column_factory, new SearchSortPropertyMapper());
 
-        $this->request = new \Codendi_Request(
+        $this->request = new \Tuleap\HTTPRequest(
             [
                 'aaaa'              => 'bbb',
                 'ccc' => '1280',
@@ -57,7 +57,7 @@ final class ColumnReportAugmenterTest extends TestCase
     {
         $metadata = new Docman_Metadata();
         $metadata->setLabel('My column');
-        $column_title = new Docman_ReportColumnTitle($metadata);
+        $column_title = new Docman_ReportColumn($metadata);
         $this->column_factory->method('getColumnFromLabel')->with('title')->willReturn($column_title);
 
         $report = new \Docman_Report();
@@ -71,7 +71,7 @@ final class ColumnReportAugmenterTest extends TestCase
     {
         $metadata = new Docman_Metadata();
         $metadata->setLabel('My column');
-        $column_title = new Docman_ReportColumnTitle($metadata);
+        $column_title = new Docman_ReportColumn($metadata);
         $column_title->setSort('sort_' . $metadata->getLabel());
         $this->column_factory->method('getColumnFromLabel')->with('title')->willReturn($column_title);
 
@@ -86,7 +86,7 @@ final class ColumnReportAugmenterTest extends TestCase
     {
         $metadata = new Docman_Metadata();
         $metadata->setLabel('My column');
-        $column_title = new Docman_ReportColumnTitle($metadata);
+        $column_title = new Docman_ReportColumn($metadata);
         $this->column_factory->method('getColumnFromLabel')->with('update_date')->willReturn($column_title);
 
         $report = new \Docman_Report();
@@ -100,7 +100,7 @@ final class ColumnReportAugmenterTest extends TestCase
     {
         $metadata = new Docman_Metadata();
         $metadata->setLabel('My column');
-        $column_title = new Docman_ReportColumnTitle($metadata);
+        $column_title = new Docman_ReportColumn($metadata);
         $column_title->setSort('sort_' . $metadata->getLabel());
         $this->column_factory->method('getColumnFromLabel')->with('update_date')->willReturn($column_title);
 
@@ -115,7 +115,7 @@ final class ColumnReportAugmenterTest extends TestCase
     {
         $metadata = new Docman_Metadata();
         $metadata->setLabel('My column');
-        $column_title = new Docman_ReportColumnTitle($metadata);
+        $column_title = new Docman_ReportColumn($metadata);
         $this->column_factory->method('getColumnFromLabel')->with('title')->willReturn($column_title);
 
         $report = new \Docman_Report();
@@ -129,7 +129,7 @@ final class ColumnReportAugmenterTest extends TestCase
     {
         $metadata = new Docman_Metadata();
         $metadata->setLabel('My column');
-        $column_title = new Docman_ReportColumnTitle($metadata);
+        $column_title = new Docman_ReportColumn($metadata);
         $column_title->setSort('sort_' . $metadata->getLabel());
         $this->column_factory->method('getColumnFromLabel')->with('title')->willReturn($column_title);
 
@@ -149,7 +149,7 @@ final class ColumnReportAugmenterTest extends TestCase
     {
         $metadata = new Docman_Metadata();
         $metadata->setLabel('My column');
-        $column_title = new Docman_ReportColumnTitle($metadata);
+        $column_title = new Docman_ReportColumn($metadata);
         $this->column_factory->method('getColumnFromLabel')->with('update_date')->willReturn($column_title);
 
         $report = new \Docman_Report();

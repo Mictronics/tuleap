@@ -18,19 +18,16 @@
   -->
 
 <template>
-    <div class="tlp-form-element">
-        <label-for-field v-bind:id="id" v-bind:field="field" />
-        <input class="tlp-input" v-bind:id="id" />
-    </div>
+    <field-alpha-numeric v-bind:id="id" v-bind:field="field" />
 </template>
 
 <script setup lang="ts">
 import { computed } from "vue";
-import type { StructureFields } from "@tuleap/plugin-tracker-rest-api-types";
-import LabelForField from "./LabelForField.vue";
+import type { StringFieldStructure } from "@tuleap/plugin-tracker-rest-api-types";
+import FieldAlphaNumeric from "./FieldAlphaNumeric.vue";
 
 const props = defineProps<{
-    field: StructureFields;
+    field: StringFieldStructure;
 }>();
 
 const id = computed(() => "string-" + props.field.field_id);

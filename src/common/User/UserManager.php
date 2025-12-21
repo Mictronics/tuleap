@@ -321,26 +321,6 @@ class UserManager implements ProvideCurrentUser, ProvideCurrentUserWithLoggedInI
     }
 
     /**
-     * Returns an array of user ids that match the given string
-     *
-     * @param String $search comma-separated users' names.
-     *
-     * @return Array
-     */
-    public function getUserIdsList($search)
-    {
-        $userArray = explode(',', $search);
-        $users     = [];
-        foreach ($userArray as $user) {
-            $user = $this->findUser($user);
-            if ($user) {
-                $users[] = $user->getId();
-            }
-        }
-        return $users;
-    }
-
-    /**
      * @return PaginatedUserCollection
      */
     public function getPaginatedUsersByUsernameOrRealname($words, $exact, $offset, $limit)
@@ -1041,14 +1021,12 @@ class UserManager implements ProvideCurrentUser, ProvideCurrentUserWithLoggedInI
      */
     public function renameUser($user, $newName)
     {
-        $dao = $this->getDao();
-        if ($dao->renameUser($user, $newName)) {
-            $wiki = new WikiDao(CodendiDataAccess::instance());
-            if ($wiki->updatePageName($user, $newName)) {
-                $user->setUserName($newName);
-                return ($this->updateDb($user));
-            }
+        $wiki = new WikiDao(CodendiDataAccess::instance());
+        if ($wiki->updatePageName($user, $newName)) {
+            $user->setUserName($newName);
+            return ($this->updateDb($user));
         }
+
         return false;
     }
 

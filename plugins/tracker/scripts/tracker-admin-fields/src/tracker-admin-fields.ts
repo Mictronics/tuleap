@@ -17,11 +17,13 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
+import VueDOMPurifyHTML from "vue-dompurify-html";
 import { createApp } from "vue";
 import { createGettext } from "vue3-gettext";
 import { getPOFileFromLocaleWithoutExtension, initVueGettext } from "@tuleap/vue3-gettext-init";
 import { getAttributeOrThrow } from "@tuleap/dom";
 import FieldsUsage from "./components/FieldsUsage.vue";
+import "./styles/tracker-admin-fields.scss";
 
 document.addEventListener("DOMContentLoaded", async () => {
     const mount_point = document.getElementById("tracker-admin-fields-usage-mount-point");
@@ -31,6 +33,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     createApp(FieldsUsage, {
         tracker_id: parseInt(getAttributeOrThrow(mount_point, "data-tracker-id"), 10),
+        fields: JSON.parse(getAttributeOrThrow(mount_point, "data-fields")),
+        structure: JSON.parse(getAttributeOrThrow(mount_point, "data-structure")),
     })
         .use(
             /** @ts-expect-error vue3-gettext-init is tested with Vue 3.4, but here we use Vue 3.5 */
@@ -38,5 +42,6 @@ document.addEventListener("DOMContentLoaded", async () => {
                 return import(`../po/${getPOFileFromLocaleWithoutExtension(locale)}.po`);
             }),
         )
+        .use(VueDOMPurifyHTML)
         .mount(mount_point);
 });

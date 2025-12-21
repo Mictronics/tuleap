@@ -54,6 +54,42 @@ msgstr "3 mois"
 msgid "6 months"
 msgstr "6 mois"
 
+msgid ""
+": Sends an email to the approval requester and notify next reviewer in "
+"sequence if any."
+msgstr ""
+" : Envoie un email au demandeur d'approbation et notifie le prochain "
+"approbateur dans la séquence si besoin."
+
+msgid ""
+": Sends an email to the approval requester and stops the approval sequence "
+"if any."
+msgstr ""
+" : Envoie un email au demandeur d'apporbation et stoppe la sequence si "
+"besoin."
+
+msgid ""
+": Sends an email to the approval requester to inform there are comments. In "
+"Sequential notification type, the notification workflow is frozen."
+msgstr ""
+" : Envoie une email au demandeur d'approbation pour l'informer qu'il y a des "
+"commentaires. Dans le mode Séquentiel, le workflow de notification est "
+"suspendu."
+
+msgid ": Status quo. You can add comment but nobody will be notified."
+msgstr " : Status quo. Vous pouvez commenter mais personne ne sera notifié."
+
+msgid ": notify all reviewers who did not commit themselves yet."
+msgstr ""
+" : notifie tout les approbateurs qui n'ont pas encore approuvé/réprouvé."
+
+msgid ""
+": notify reviewers (who did not commit themselves) one after another. If "
+"someone reject the document, the sequence stops"
+msgstr ""
+" : notifie les approbateurs (qui n'ont pas encore approuvé/réprouvé) l'un "
+"après l'autre. Si quelqu'un réprouve le document, la séquence s'arrête."
+
 msgid "A document already exists with the same title."
 msgstr "Un document existe déjà avec le même titre."
 
@@ -68,11 +104,24 @@ msgstr ""
 msgid "A folder already exists with the same title."
 msgstr "Un dossier existe déjà avec le même titre."
 
+msgid ""
+"A new approval table will be created from the previous one. Keeps reviewers, "
+"comments and commitments."
+msgstr ""
+"Une nouvelle table d'approbation sera créée à partir de l'actuelle. Les "
+"approbateurs, commentaires et engagements sont conservés."
+
 msgid "Actions in Documents service"
 msgstr "Actions dans le service Documents"
 
+msgid "Add a comment"
+msgstr "Ajouter un commentaire"
+
 msgid "Add notification"
 msgstr "Ajouter une notification"
+
+msgid "Add reviewers"
+msgstr "Ajouter des approbateurs"
 
 msgid "Administration"
 msgstr "Administration"
@@ -82,6 +131,16 @@ msgstr "Avancé"
 
 msgid "After"
 msgstr "Après"
+
+msgid ""
+"After an approver is notified by the approval table, it is informed of any "
+"later modification done on the document."
+msgstr ""
+"Dès qu'un approbateur est notifié par la table d'approbation, il est informé "
+"de tout changement ultérieur sur le document."
+
+msgid "All at once"
+msgstr "Tous d'un coup"
 
 msgid ""
 "All the properties values that you define here will be proposed as default "
@@ -108,6 +167,12 @@ msgstr "Une erreur est survenue lors de la recherche."
 msgid "Any"
 msgstr "Tous"
 
+msgid "Append members of user groups to the table"
+msgstr "Ajouter les membres des groupes d'utilisateurs à la table"
+
+msgid "Append users to the table"
+msgstr "Ajouter des utilisateurs à la table"
+
 msgid "Apply"
 msgstr "Appliquer"
 
@@ -124,6 +189,9 @@ msgstr ""
 msgid "Approval"
 msgstr "Approbation"
 
+msgid "Approval cycle details"
+msgstr "Détails du cycle d'approbation"
+
 msgid "Approval cycle start date"
 msgstr "Date de début du cycle d'approbation"
 
@@ -133,8 +201,14 @@ msgstr "Demandeur d'approbation"
 msgid "Approval table"
 msgstr "Table d'approbation"
 
+msgid "Approval table administration"
+msgstr "Administration de la table d'approbation"
+
 msgid "Approval table details"
 msgstr "Détails de la table d'approbation"
+
+msgid "Approval table global settings"
+msgstr "Paramètres généraux de la table d'approbation"
 
 msgid "Approval table history"
 msgstr "Historique des tables d'approbation"
@@ -160,6 +234,9 @@ msgstr "Associé à la version"
 msgid "Author"
 msgstr "Auteur"
 
+msgid "Available"
+msgstr "Disponible"
+
 msgid "Before"
 msgstr "Avant"
 
@@ -178,6 +255,12 @@ msgstr "Description des changements"
 msgid "Changelog"
 msgstr "Description des changements"
 
+msgid "Choose which users need to approve the document"
+msgstr "Choisissez quels utilisateurs ont besoin d'approuver ce document"
+
+msgid "Choose zero, one or multiple user group"
+msgstr "Choisissez zéro, un ou plusieurs groupes d'utilisateur"
+
 msgid "Close"
 msgstr "Fermer"
 
@@ -187,8 +270,17 @@ msgstr "Fermé"
 msgid "Comment"
 msgstr "Commentaire"
 
+msgid "Comment only"
+msgstr "Commentaire seulement"
+
+msgid "Commented"
+msgstr "Commenté"
+
 msgid "Confirm deletion"
 msgstr "Confirmer la suppression"
+
+msgid "Confirm deletion?"
+msgstr "Confirmer la suppression ?"
 
 msgid ""
 "Contact your administrator or try to reorganize this folder, then try again."
@@ -208,17 +300,29 @@ msgstr "Convertir en…"
 msgid "Copy"
 msgstr "Copier"
 
+msgid "Copy the previous approval table (e.g. for small / typo updates)."
+msgstr "Copier la table précédente (ex. corrections, mise à jour mineure)."
+
 msgid "Copy the previous approval table."
 msgstr "Copier la table d'approbation précédente."
 
 msgid "Corrupted"
 msgstr "Corrompu"
 
+msgid "Create"
+msgstr "Créer"
+
+msgid "Create a new approval table"
+msgstr "Créer une nouvelle table d'approbation"
+
 msgid "Create a new document"
 msgstr "Créer un nouveau document"
 
 msgid "Create a new empty approval table."
 msgstr "Créer une nouvelle table d'approbation vide."
+
+msgid "Create a new empty table."
+msgstr "Créer une nouvelle table vide."
 
 msgid "Create a new file"
 msgstr "Créer un nouveau fichier"
@@ -227,7 +331,7 @@ msgid "Create a new folder"
 msgstr "Créer un nouveau dossier"
 
 msgid "Create a new one"
-msgstr ""
+msgstr "En créer une nouvelle"
 
 msgid "Create a new version of document"
 msgstr "Créer une nouvelle version du document"
@@ -252,6 +356,15 @@ msgstr "Couper"
 
 msgid "Date"
 msgstr "Date"
+
+msgid "Days"
+msgstr "Jours"
+
+msgid "Days/Weeks"
+msgstr "Jours/Semaines"
+
+msgid "Declined"
+msgstr "Décliné"
 
 msgid "Default properties"
 msgstr "Propriétés par défaut"
@@ -279,8 +392,17 @@ msgstr "Description"
 msgid "Details"
 msgstr "Détails"
 
+msgid "Disabled"
+msgstr "Désactivé"
+
 msgid "Document locked by %{username}."
 msgstr "Document verrouillé par %{username}."
+
+msgid "Document name"
+msgstr "Nom du document"
+
+msgid "Document under review"
+msgstr "Document sous approbation"
 
 msgid "Document version"
 msgstr "Version du document"
@@ -337,6 +459,18 @@ msgstr "Monitoring activé pour toute la sous-hiérarchie"
 
 msgid "End"
 msgstr "Fin"
+
+msgid "Error while creating approval table"
+msgstr "Erreur lors de la création de la table d'approbation"
+
+msgid "Error while saving your review"
+msgstr "Erreur lors de la sauvegarde de votre approbation"
+
+msgid "Error while updating table"
+msgstr "Erreur lors de la mise à jour de la table"
+
+msgid "Every"
+msgstr "Tout les"
 
 msgid "File"
 msgstr "Fichier"
@@ -396,6 +530,10 @@ msgstr "Attendez une seconde !"
 
 msgid "Id"
 msgstr "Id"
+
+msgid "In all cases, there is no automatic notification of the reviewers."
+msgstr ""
+"Dans tout les cas, les approbateurs ne sont pas notifiés automatiquement."
 
 msgid "It seems an action you tried to perform can't be done."
 msgstr ""
@@ -519,6 +657,12 @@ msgstr "Il n'y a aucun résultat"
 msgid "No notifications set"
 msgstr "Aucune notification définie"
 
+msgid "No results found"
+msgstr "Aucun résultat trouvé"
+
+msgid "No values to select"
+msgstr "Aucune valeur à sélectionner"
+
 msgid "No version history"
 msgstr "Pas d'historique de version"
 
@@ -563,6 +707,16 @@ msgstr "Téléversement en cours"
 
 msgid "Only the last 5 versions are displayed."
 msgstr "Seules les 5 dernières versions sont affichées."
+
+msgid ""
+"Only the table structure will be kept (description, notification type, "
+"reviewer list). Actually, the new table will be identical to the previous "
+"one, but without reviewer comments and commitments."
+msgstr ""
+"Similaire à l'option précédente mais seule la structure de la table est "
+"conservée (description, type de notification, list des approbateurs). En "
+"fait, la nouvelle table sera identique à l'ancienne à ceci près que les "
+"commentaires et engagements des approbateurs seront remis à zéro."
 
 msgid ""
 "Only the table structure will be kept. Reviewer comments and commitments "
@@ -656,6 +810,9 @@ msgstr "Merci d'attendre que les téléversements en cours soient terminés."
 msgid "Please write something meaningful for the admin."
 msgstr "Veuillez soumettre un message pertinent afin d'aider l'administrateur."
 
+msgid "Possible commitment are:"
+msgstr "Engagements possibles :"
+
 msgid "Previous"
 msgstr "Précédent"
 
@@ -667,6 +824,9 @@ msgstr "Propager la suppression au service wiki"
 
 msgid "Quick look"
 msgstr "Aperçu"
+
+msgid "Rank"
+msgstr "Rang"
 
 msgid "Reader"
 msgstr "Lecteur"
@@ -692,14 +852,38 @@ msgstr "Rejeté"
 msgid "Reload the page"
 msgstr "Recharger la page"
 
+msgid "Reminder sent to %s"
+msgstr "Notification envoyée à %s"
+
+msgid "Reminder sent with success"
+msgstr "Notification envoyée avec succès"
+
+msgid "Remove"
+msgstr "Enlever"
+
+msgid "Remove all values"
+msgstr "Supprimer toutes les valeurs"
+
 msgid "Requester comment"
 msgstr "Commentaire du demandeur"
+
+msgid "Reset the approval cycle (e.g. for major rewrite)."
+msgstr "Réinitialiser le cycle d'approbation (ex. mise à jour majeure)."
 
 msgid "Reset the approval cycle."
 msgstr "Recommencer le cycle d'approbation."
 
 msgid "Review"
 msgstr "Approbation"
+
+msgid "Review date"
+msgstr "Date d'approbation"
+
+msgid "Review:"
+msgstr "Approbation :"
+
+msgid "Reviewers"
+msgstr "Approbateurs"
 
 msgid "Search"
 msgstr "Recherche"
@@ -734,11 +918,26 @@ msgstr "Sélectionner l'élément précédent"
 msgid "Select top item"
 msgstr "Sélectionner le premier élément"
 
+msgid "Send a mail reminder on occurence"
+msgstr "Envoyer un mail selon une occurence"
+
+msgid "Send a mail reminder to approver(s)"
+msgstr "Envoyer un mail au(x) approbateur(s)"
+
 msgid "Send mail"
 msgstr "Envoyer un Email"
 
 msgid "Send me an email whenever this item is updated."
 msgstr "Envoyez-moi un email dès que cet élément est modifié."
+
+msgid "Send my review"
+msgstr "Envoyer mon approbation"
+
+msgid "Send reminder"
+msgstr "Envoyer un rappel"
+
+msgid "Sequential"
+msgstr "Sequentiellement"
 
 msgid ""
 "Shortcuts will apply to the selected document or folder. If there is no "
@@ -773,6 +972,9 @@ msgstr "Date de début"
 msgid "Start over with a completely new approval table."
 msgstr "Commencer avec une nouvelle table d'approbation."
 
+msgid "Start over with a completly new approval table."
+msgstr "Recommencer le cycle avec une table totalement nouvelle."
+
 msgid "Statistics"
 msgstr "Statistiques"
 
@@ -788,8 +990,12 @@ msgstr "Abonnés"
 msgid "Summary"
 msgstr "Résumé"
 
-msgid "Switch to old user interface"
-msgstr "Basculer sur l'ancienne interface utilisateur"
+msgid ""
+"Table is not saved when you change it, please click on 'Update' button to "
+"save it."
+msgstr ""
+"La table n'est pas sauvegardée quand vous effectuez des changements, pensez "
+"à clicker sur le bouton 'Mettre à jour' pour sauvegarder."
 
 msgid "Table status"
 msgstr "Status de la table"
@@ -902,6 +1108,13 @@ msgstr ""
 "que vous avez entrées ne seront pas sauvegardées. Voulez-vous quitter cette "
 "page ?"
 
+msgid ""
+"This table is linked to an old version of the document (%d). The last "
+"document version is %d."
+msgstr ""
+"Cette table est associée à version précédente du document (%d). La dernière "
+"version en date est la version %d."
+
 msgid "This table shows the number of elements of each type."
 msgstr "Ce tableau présente le nombre d'éléments de chaque type."
 
@@ -925,11 +1138,17 @@ msgstr "Aujourd'hui"
 msgid "Toggle selected folder open and closed"
 msgstr "Ouvrir ou fermer le dossier sélectionné"
 
+msgid "Tuleap can notify approval members in two ways:"
+msgstr "Tuleap peut notifier les approbateurs de deux manières :"
+
 msgid "URL"
 msgstr "URL"
 
 msgid "Unlock"
 msgstr "Déverrouiller"
+
+msgid "Update"
+msgstr "Mettre à jour"
 
 msgid "Update permissions"
 msgstr "Mettre à jour les permissions"
@@ -985,6 +1204,9 @@ msgstr "Voir toutes les versions"
 msgid "We detect you are using OSX"
 msgstr "Nous détectons que vous utilisez OSX"
 
+msgid "Weeks"
+msgstr "Semaines"
+
 msgid "What"
 msgstr "Quoi"
 
@@ -1010,6 +1232,9 @@ msgstr "Qui"
 
 msgid "Wiki page"
 msgstr "Page wiki"
+
+msgid "Will not review"
+msgstr "Pas d'avis"
 
 msgid ""
 "Write your message below and click on the button to send your request to the "
@@ -1083,6 +1308,9 @@ msgstr "Vous n'êtes pas autorisé à écrire dans ce dossier"
 msgid "You are viewing an old version (%{ version_number }) of this document."
 msgstr ""
 "Vous visualisez une ancienne version (%{ version_number }) de ce document."
+
+msgid "You can either:"
+msgstr "Vous pouvez, au choix :"
 
 msgid ""
 "You cannot delete because a parent folder is monitored with its sub-"

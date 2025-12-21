@@ -29,4 +29,23 @@ namespace Tuleap\AI\Mistral;
 final readonly class AssistantMessage
 {
     public StringContent $content;
+
+    public static function fromStringContent(StringContent $content): self
+    {
+        $self          = new self();
+        $self->content = $content;
+        return $self;
+    }
+
+    public static function fromFakeContent(): self
+    {
+        $json = json_encode(['title' => 'foo', 'tql_query' => 'SELECT ...', 'explanations' => 'bar']);
+        assert($json !== false);
+        return self::fromStringContent(new StringContent($json));
+    }
+
+    public function toGenericMessage(): Message
+    {
+        return new Message(Role::ASSISTANT, $this->content);
+    }
 }

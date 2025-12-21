@@ -18,15 +18,13 @@
   -->
 
 <template>
-    <Teleport to="#main-content">
-        <div class="git-tracker-create-branch-modal">
-            <modal-content
-                v-bind:repositories="repositories"
-                v-bind:branch_name_preview="branch_name_preview"
-                v-bind:are_pullrequest_endpoints_available="are_pullrequest_endpoints_available"
-            />
-        </div>
-    </Teleport>
+    <div class="git-tracker-create-branch-modal">
+        <modal-content
+            v-bind:repositories="repositories"
+            v-bind:branch_name_preview="branch_name_preview"
+            v-bind:are_pullrequest_endpoints_available="are_pullrequest_endpoints_available"
+        />
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -44,6 +42,9 @@ defineProps<{
 @use "sass:meta";
 
 .git-tracker-create-branch-modal :deep() {
+    font-weight: initial;
+    text-shadow: initial;
+
     @include meta.load-css("pkg:@tuleap/tlp-styles/components/typography");
     @include meta.load-css(
         "pkg:@tuleap/tlp-styles/components/forms",
