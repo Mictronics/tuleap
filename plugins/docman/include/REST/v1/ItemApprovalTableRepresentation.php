@@ -24,11 +24,13 @@ namespace Tuleap\Docman\REST\v1;
 
 use Docman_ApprovalReviewer;
 use Docman_ApprovalTable;
-use Docman_ApprovalTableFactoriesFactory;
 use Docman_ApprovalTableVersionned;
 use Docman_Item;
+use Docman_NotificationsManager;
 use Docman_VersionFactory;
 use Tuleap\Docman\ApprovalTable\ApprovalTableStateMapper;
+use Tuleap\Docman\REST\v1\ApprovalTable\ApprovalTableNotificationMapper;
+use Tuleap\REST\I18NRestException;
 use Tuleap\REST\JsonCast;
 use Tuleap\User\Avatar\ProvideUserAvatarUrl;
 use Tuleap\User\REST\MinimalUserRepresentation;
@@ -45,12 +47,15 @@ final readonly class ItemApprovalTableRepresentation
         public string $approval_state,
         public ?string $approval_request_date,
         public ?bool $has_been_approved,
+        public ?int $version_id,
         public ?int $version_number,
         public string $version_label,
         public string $notification_type,
+        public string $state,
         public bool $is_closed,
         public string $description,
         public array $reviewers,
+        public int $reminder_occurence,
     ) {
     }
 
@@ -59,15 +64,19 @@ final readonly class ItemApprovalTableRepresentation
         Docman_ApprovalTable $approval_table,
         MinimalUserRepresentation $table_owner,
         ApprovalTableStateMapper $status_mapper,
-        Docman_ApprovalTableFactoriesFactory $factory,
         RetrieveUserById $user_manager,
         ProvideUserAvatarUrl $provide_user_avatar_url,
         Docman_VersionFactory $version_factory,
+        Docman_NotificationsManager $notifications_manager,
     ): self {
+        $version_label  = '';
+        $version_id     = null;
+        $version_number = null;
         if ($approval_table instanceof Docman_ApprovalTableVersionned) {
-            $version_label = (string) $version_factory->getSpecificVersion($item, $approval_table->getVersionNumber())?->getLabel();
-        } else {
-            $version_label = '';
+            $version        = $version_factory->getSpecificVersion($item, $approval_table->getVersionNumber());
+            $version_label  = (string) $version?->getLabel();
+            $version_id     = (int) $version?->getId();
+            $version_number = (int) $approval_table->getVersionNumber();
         }
 
         return new self(
@@ -76,12 +85,20 @@ final readonly class ItemApprovalTableRepresentation
             $status_mapper->getStatusStringFromStatusId((int) $approval_table->getApprovalState()),
             JsonCast::toDate($approval_table->getDate()),
             JsonCast::toBoolean($approval_table->getApprovalState() === PLUGIN_DOCMAN_APPROVAL_STATE_APPROVED),
-            $approval_table instanceof Docman_ApprovalTableVersionned ? (int) $approval_table->getVersionNumber() : null,
+            $version_id,
+            $version_number,
             $version_label,
-            $factory->getFromItem($item)?->getNotificationTypeName($approval_table->getNotification()) ?? '',
+            ApprovalTableNotificationMapper::fromConstantToString((int) $approval_table->getNotification()),
+            match ((int) $approval_table->getStatus()) {
+                PLUGIN_DOCMAN_APPROVAL_TABLE_DISABLED => 'disabled',
+                PLUGIN_DOCMAN_APPROVAL_TABLE_ENABLED  => 'enabled',
+                PLUGIN_DOCMAN_APPROVAL_TABLE_CLOSED   => 'closed',
+                PLUGIN_DOCMAN_APPROVAL_TABLE_DELETED  => 'deleted',
+                default                               => throw new I18NRestException(400, dgettext('tuleap-docman', 'Invalid approval table status')),
+            },
             $approval_table->isClosed(),
             $approval_table->getDescription() ?? '',
-            array_map(
+            array_values(array_map(
                 static fn(Docman_ApprovalReviewer $reviewer) => ItemApprovalTableReviewerRepresentation::build(
                     $item,
                     $reviewer,
@@ -89,9 +106,11 @@ final readonly class ItemApprovalTableRepresentation
                     $user_manager,
                     $provide_user_avatar_url,
                     $version_factory,
+                    $notifications_manager,
                 ),
                 $approval_table->getReviewerArray(),
-            ),
+            )),
+            (int) $approval_table->getNotificationOccurence(),
         );
     }
 }

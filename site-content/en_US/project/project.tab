@@ -122,13 +122,6 @@ project_admin_permissions	wiki_access	Wiki Access
 project_admin_permissions	wiki_attachment_access	Wiki Attachment Access
 project_admin_permissions	wiki	wiki
 project_admin_permissions	wikiattachment	wiki attachment
-project_admin_permissions	tracker_artifact_access	Access to an artifact
-project_admin_permissions	tracker_full_access	Access to all tracker artifacts
-project_admin_permissions	tracker_submitter_access	Access to tracker artifacts submitted by group
-project_admin_permissions	tracker_assignee_access	Access to tracker artifacts assigned to group
-project_admin_permissions	tracker_field_submit	Can submit tracker field
-project_admin_permissions	tracker_field_read	Can read tracker field
-project_admin_permissions	tracker_field_update	Can update tracker field
 project_admin_permissions	perm_type_not_def	permission_type '$1' is not defined
 project_admin_permissions	submit_perm	Submit Permissions
 project_admin_permissions	admins_create_modify_ug	Project admins can also <a href="$1">create or modify</a> user groups.
@@ -153,14 +146,12 @@ project_admin_permissions	override	Ignore $1 permission set to $2 because it was
 #-----------------------------------------------
 # Script: SF/www/project/admin/reference.php
 #
-project_reference	create_for_tracker_fail	Reference pattern not created: the shortname is not valid (reserved, or already exists). You may still reference tracker artifacts with the 'art' or 'artifact' keyword.
 project_reference	t_r_deleted	Corresponding Reference Pattern Deleted
 project_reference	extract_syntax	Parameters:\n  group_id : project where reference patterns are defined\n  text     : input text
 project_reference	insert_syntax	<p>Parameters:<br>- group_id or group_name : project where reference patterns are defined<br>- text : input text
 ## Description value here for each reference pattern (system or project wide) that should be localized
 ## Naming rule for the key:
 ## reference_<reference keyword>_desc_key for the reference pattern description
-project_reference	reference_art_desc_key	Tracker Artifact
 project_reference	reference_svn_desc_key	Subversion revision details
 project_reference	reference_wiki_desc_key	Wiki page
 project_reference	reference_wikiversion_desc_key	Wiki version
@@ -172,7 +163,6 @@ project_reference	reference_sr_desc_key	Support Request
 project_reference	reference_patch_desc_key	Patch
 project_reference	reference_release_desc_key	Release
 
-project_reference	reference_artifact_nature_key	Artifact
 project_reference	reference_document_nature_key	Document
 project_reference	reference_svn_revision_nature_key	Subversion Revision
 project_reference	reference_file_nature_key	File
@@ -377,25 +367,6 @@ project_admin_userperms	admin	Admin
 project_admin_userperms	tech&admin	Tech & Admin
 project_admin_userperms	upd_user_perm	Update User Permissions
 
-#
-#-----------------------------------------------
-# Script: SF/www/project/export/artifact_export.php
-#
-project_export_artifact_export	ath_not_created	ArtifactTypeHtml could not be created
-project_export_artifact_export	follow_up_comments	Follow-up Comments
-project_export_artifact_export	depend_on	Depend on
-project_export_artifact_export	all_followup_comments	All follow-up comments in one chunk of text
-project_export_artifact_export	depend_on_list	List of artifacts this artifact depends on
-project_export_artifact_export	art_export	Artifact Export
-project_export_artifact_export	no_art_found	No artifact found. Could not generate an export.
-project_export_artifact_export	db_access_err	Error while accessing your artifact database. Please report the error to the $1 Administrator
-project_export_artifact_export	art_exp_format	Artifact Export Format
-project_export_artifact_export	art_exp_format_msg	The artifact export provides you with the following artifact fields. The sample values indicate what the field data types are.
-project_export_artifact_export	add_cc_lbl	CC List
-project_export_artifact_export	add_cc_dsc	List of persons to receive a carbon-copy (CC) of the email notifications (in addition to submitter, assignees, and commenters)
-project_export_artifact_export	cc_comment_lbl	CC Comment
-project_export_artifact_export	cc_comment_dsc	Explain why these CC names were added and/or who they are
-#
 #-----------------------------------------------
 # Script: SF/www/project/export/artifact_history_export.php
 #
@@ -586,8 +557,6 @@ project_ugroup	ugroup_file_manager_admin_desc_key	File manager administrators
 project_ugroup	ugroup_document_tech_desc_key	Document manager technicians
 project_ugroup	ugroup_document_admin_desc_key	Document manager administrators
 project_ugroup	ugroup_wiki_admin_desc_key	Wiki administrators
-project_ugroup	ugroup_tracker_admins_desc_key	Tracker administrators
-#project_ugroup	ugroup_tracker_techs_desc_key	Tracker technicians
 project_ugroup	ugroup_nobody_desc_key	Empty group
 project_ugroup	ugroup_anonymous_users_name_key	all_users
 project_ugroup	ugroup_registered_users_name_key	registered_users
@@ -598,8 +567,6 @@ project_ugroup	ugroup_file_manager_admin_name_key	file_manager_admins
 project_ugroup	ugroup_document_tech_name_key	document_techs
 project_ugroup	ugroup_document_admin_name_key	document_admins
 project_ugroup	ugroup_wiki_admin_name_key	wiki_admins
-project_ugroup	ugroup_tracker_admins_name_key	tracker_admins
-#project_ugroup	ugroup_tracker_techs_name_key	tracker_techs
 project_ugroup	ugroup_all_users	All Users
 project_ugroup	ugroup_nobody_name_key	nobody
 project_ugroup	ugroup_nobody	Nobody

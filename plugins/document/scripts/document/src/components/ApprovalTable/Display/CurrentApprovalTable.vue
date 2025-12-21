@@ -18,16 +18,6 @@
   -->
 
 <template>
-    <a
-        v-if="item.user_can_write"
-        class="tlp-button-primary admin-button"
-        v-bind:href="getLinkToApprovalTableAdmin()"
-        data-test="table-admin-button"
-    >
-        <i class="fa-solid fa-gear tlp-button-icon" aria-hidden="true"></i>
-        {{ $gettext("Administration") }}
-    </a>
-
     <div
         v-if="!item.is_approval_table_enabled"
         class="tlp-alert-info"
@@ -42,13 +32,12 @@
         v-bind:is_readonly="
             approval_table.id !== props.item.approval_table?.id || approval_table.is_closed
         "
+        v-on:refresh-data="$emit('refresh-data')"
     />
 </template>
 
 <script setup lang="ts">
 import type { ApprovableDocument, ApprovalTable, Item } from "../../../type";
-import { strictInject } from "@tuleap/vue-strict-inject";
-import { PROJECT } from "../../../configuration-keys";
 import ApprovalTableDetails from "./ApprovalTableDetails.vue";
 import { ref, watch } from "vue";
 import { getDocumentApprovalTable } from "../../../api/approval-table-rest-querier";
@@ -60,36 +49,30 @@ const props = defineProps<{
 
 const emit = defineEmits<{
     (e: "error", message: string): void;
+    (e: "refresh-data"): void;
 }>();
 
 const approval_table = ref<ApprovalTable | null>(props.item.approval_table);
 
-const project = strictInject(PROJECT);
-
-function getLinkToApprovalTableAdmin(): string {
-    return `/plugins/docman/?group_id=${project.id}&action=approval_create&id=${props.item.id}`;
+function refreshTable(): void {
+    const version = props.version ?? props.item.approval_table?.version_number;
+    if (version === null || version === undefined) {
+        approval_table.value = props.item.approval_table;
+        return;
+    }
+    getDocumentApprovalTable(props.item.id, version).match(
+        (table) => {
+            approval_table.value = table;
+        },
+        (fault) => {
+            approval_table.value = null;
+            emit("error", fault.toString());
+        },
+    );
 }
 
-watch(
-    () => props.version,
-    () => {
-        const version = props.version ?? props.item.approval_table?.version_number;
-        if (version === null || version === undefined) {
-            approval_table.value = null;
-            return;
-        }
-        getDocumentApprovalTable(props.item.id, version).match(
-            (table) => {
-                approval_table.value = table;
-            },
-            (fault) => {
-                approval_table.value = null;
-                emit("error", fault.toString());
-            },
-        );
-    },
-    { immediate: true },
-);
+watch(() => props.version, refreshTable, { immediate: true });
+watch(() => props.item, refreshTable);
 </script>
 
 <style scoped lang="scss">

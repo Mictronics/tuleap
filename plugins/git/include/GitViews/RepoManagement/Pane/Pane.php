@@ -21,8 +21,8 @@
 namespace Tuleap\Git\GitViews\RepoManagement\Pane;
 
 use GitRepository;
-use Codendi_Request;
 use Codendi_HTMLPurifier;
+use Tuleap\HTTPRequest;
 use Tuleap\Layout\JavascriptViteAsset;
 
 /**
@@ -36,7 +36,7 @@ abstract class Pane
     protected $repository;
 
     /**
-     * @var Codendi_Request
+     * @var HTTPRequest
      */
     protected $request;
     /**
@@ -44,7 +44,7 @@ abstract class Pane
      */
     protected $hp;
 
-    public function __construct(GitRepository $repository, Codendi_Request $request)
+    public function __construct(GitRepository $repository, HTTPRequest $request)
     {
         $this->repository = $repository;
         $this->request    = $request;

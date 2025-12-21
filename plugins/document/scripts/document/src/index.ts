@@ -31,6 +31,7 @@ import { createGettext } from "vue3-gettext";
 import { getAttributeOrThrow } from "@tuleap/dom";
 import { getRelativeDateUserPreferenceOrThrow } from "@tuleap/tlp-relative-date";
 import { getLocaleWithDefault, toBCP47 } from "@tuleap/locale";
+import { getTimezoneOrThrow } from "@tuleap/date-helper";
 import { setupDocumentShortcuts } from "./keyboard-navigation/keyboard-navigation";
 import {
     NEW_ITEMS_ALTERNATIVES,
@@ -41,7 +42,6 @@ import {
 } from "./injection-keys";
 import type { SearchCriterion, SearchListOption } from "./type";
 import {
-    CAN_USER_SWITCH_TO_OLD_UI,
     CSRF_TOKEN,
     DATE_TIME_FORMAT,
     EMBEDDED_ARE_ALLOWED,
@@ -66,6 +66,7 @@ import {
     USER_ID,
     USER_IS_ADMIN,
     USER_LOCALE,
+    USER_TIMEZONE,
     WARNING_THRESHOLD,
 } from "./configuration-keys";
 
@@ -83,6 +84,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     const user_locale = getLocaleWithDefault(document);
+    const user_timezone = getTimezoneOrThrow(document);
     const project_id = Number.parseInt(getAttributeOrThrow(vue_mount_point, "data-project-id"), 10);
     const root_id = Number.parseInt(getAttributeOrThrow(vue_mount_point, "data-root-id"), 10);
     const project_name = getAttributeOrThrow(vue_mount_point, "data-project-name");
@@ -92,7 +94,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const user_can_create_wiki = Boolean(
         getAttributeOrThrow(vue_mount_point, "data-user-can-create-wiki"),
     );
-    const user_timezone = getAttributeOrThrow(document.body, "data-user-timezone");
     const date_time_format = getAttributeOrThrow(document.body, "data-date-time-format");
     const user_id = Number.parseInt(getAttributeOrThrow(document.body, "data-user-id"), 10);
     const max_files_dragndrop = Number.parseInt(
@@ -144,9 +145,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     const filename_pattern = getAttributeOrThrow(vue_mount_point, "data-filename-pattern");
     const is_filename_pattern_enforced = Boolean(
         getAttributeOrThrow(vue_mount_point, "data-is-filename-pattern-enforced"),
-    );
-    const can_user_switch_to_old_ui = Boolean(
-        getAttributeOrThrow(vue_mount_point, "data-can-user-switch-to-old-ui"),
     );
     const should_display_source_column_for_versions = Boolean(
         getAttributeOrThrow(vue_mount_point, "data-should-display-source-column"),
@@ -222,6 +220,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         .provide(IS_CHANGELOG_PROPOSED_AFTER_DND, is_changelog_proposed_after_dnd)
         .provide(IS_DELETION_ALLOWED, is_deletion_allowed)
         .provide(USER_LOCALE, user_locale)
+        .provide(USER_TIMEZONE, user_timezone)
         .provide(RELATIVE_DATES_DISPLAY, relative_dates_display)
         .provide(SEARCH_CRITERIA, search_criteria)
         .provide(SEARCH_COLUMNS, search_columns)
@@ -229,7 +228,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         .provide(FORBID_WRITERS_TO_DELETE, forbid_writers_to_delete)
         .provide(FILENAME_PATTERN, filename_pattern)
         .provide(IS_FILENAME_PATTERN_ENFORCED, is_filename_pattern_enforced)
-        .provide(CAN_USER_SWITCH_TO_OLD_UI, can_user_switch_to_old_ui)
         .provide(PROJECT_PROPERTIES, ref(null))
         .provide(PROJECT_USER_GROUPS, ref(null))
         .provide(CSRF_TOKEN, { name: csrf_token_name, value: csrf_token });

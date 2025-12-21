@@ -25,22 +25,26 @@ namespace Tuleap\AICrossTracker\REST\v1;
 
 use Luracast\Restler\RestException;
 use ProjectManager;
-use Tuleap\AI\Mistral\CompletionResponse;
+use Tracker_FormElementFactory;
+use TrackerFactory;
 use Tuleap\AI\Mistral\Message;
 use Tuleap\AI\Mistral\MistralConnectorLive;
-use Tuleap\AICrossTracker\Assistant\ProjectAssistant;
-use Tuleap\AICrossTracker\Assistant\UserAssistant;
-use Tuleap\CrossTracker\REST\v1\CrossTrackerWidgetNotFoundException;
+use Tuleap\AICrossTracker\Assistant\MessageRepositoryDao;
+use Tuleap\AICrossTracker\Assistant\ChatThreadManager;
+use Tuleap\AICrossTracker\Assistant\ThreadStorageDao;
 use Tuleap\CrossTracker\REST\v1\UserIsAllowedToSeeWidgetChecker;
 use Tuleap\CrossTracker\Widget\CrossTrackerWidgetDao;
 use Tuleap\CrossTracker\Widget\CrossTrackerWidgetRetriever;
 use Tuleap\CrossTracker\Widget\ProjectCrossTrackerWidget;
 use Tuleap\CrossTracker\Widget\UserCrossTrackerWidget;
+use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\Http\HttpClientFactory;
+use Tuleap\Http\HTTPFactoryBuilder;
+use Tuleap\Instrument\Prometheus\Prometheus;
+use Tuleap\Mapper\ValinorMapperBuilderFactory;
 use Tuleap\NeverThrow\Fault;
 use Tuleap\REST\AuthenticatedResource;
 use Tuleap\REST\Header;
-use Tuleap\REST\I18NRestException;
 use URLVerification;
 
 final class TQLAssistantResource extends AuthenticatedResource
@@ -59,54 +63,46 @@ final class TQLAssistantResource extends AuthenticatedResource
      * (EXPERIMENTAL) Get help on TQL
      *
      * @url    POST {id}/helper
-     * @access hybrid
+     * @access protected
      *
      * @param int $id Widget Id {@from body}
-     * @param array $messages {@from body} {@type \Tuleap\AICrossTracker\REST\v1\MessageRepresentation}
+     * @param string $message {@from body}{@min 1}{@max 500}
+     * @param ?string $thread_id {@from body}
      *
      * @status 200
      * @throws RestException
      */
-    public function post(int $id, array $messages): HelperRepresentation
+    protected function post(int $id, string $message, ?string $thread_id = null): HelperRepresentation
     {
         $this->checkAccess();
 
-        try {
-            if (! $this->getWidgetDao()->searchWidgetExistence($id)) {
-                throw new CrossTrackerWidgetNotFoundException();
-            }
-
-            $current_user = \UserManager::instance()->getCurrentUser();
-            $this->getUserIsAllowedToSeeWidgetChecker()->checkUserIsAllowedToSeeWidget($current_user, $id);
-
-            $cross_tracker_retriever = new CrossTrackerWidgetRetriever($this->getWidgetDao());
-            return $cross_tracker_retriever->retrieveWidgetById($id)->match(
-                function (ProjectCrossTrackerWidget|UserCrossTrackerWidget $widget) use ($current_user, $messages): HelperRepresentation {
-                    $assistant = match ($widget::class) {
-                        ProjectCrossTrackerWidget::class => new ProjectAssistant($widget),
-                        UserCrossTrackerWidget::class => new UserAssistant(),
-                    };
-
-                    $user_messages = array_map(static fn (MessageRepresentation $message): Message => $message->toMistralMessage(), $messages);
-
-                    $mistral_connector = new MistralConnectorLive(HttpClientFactory::createClientWithCustomTimeout(60));
-                    return $mistral_connector->sendCompletion($assistant->getCompletion($current_user, $user_messages))->match(
-                        static fn (CompletionResponse $response) => new HelperRepresentation((string) $response->choices[0]->message->content),
-                        static fn (Fault $fault) => throw new RestException(400, (string) $fault)
+        $mistral_message                         = Message::buildUserMessageFromString($message);
+        $current_user_with_logged_in_information = \UserManager::instance()->getCurrentUserWithLoggedInInformation();
+        return $this->getUserIsAllowedToSeeWidgetChecker()
+            ->getWidgetUserCanSee($current_user_with_logged_in_information->user, $id)
+            ->match(
+                function (ProjectCrossTrackerWidget|UserCrossTrackerWidget $widget) use ($current_user_with_logged_in_information, $mistral_message, $thread_id) {
+                    return new ChatThreadManager(
+                        new DatabaseUUIDV7Factory(),
+                        new MessageRepositoryDao(),
+                        new ThreadStorageDao(),
+                        ProjectManager::instance(),
+                        TrackerFactory::instance(),
+                        Tracker_FormElementFactory::instance(),
+                        new MistralConnectorLive(
+                            HttpClientFactory::createClientWithCustomTimeout(60),
+                            HTTPFactoryBuilder::requestFactory(),
+                            HTTPFactoryBuilder::streamFactory(),
+                            ValinorMapperBuilderFactory::mapperBuilder(),
+                            Prometheus::instance(),
+                        )
+                    )->handleConversation($current_user_with_logged_in_information, $widget, $mistral_message, $thread_id)->match(
+                        static fn (HelperRepresentation $helper_representation): HelperRepresentation => $helper_representation,
+                        static fn (Fault $fault) => throw new RestException(400, (string) $fault),
                     );
                 },
-                static fn() => throw new RestException(400, 'Unknown widget type'),
+                static fn () => throw new RestException(400, 'Invalid widget ID'),
             );
-        } catch (\Project_NotFoundException) {
-            throw new RestException(404, 'Project not found');
-        } catch (CrossTrackerWidgetNotFoundException) {
-            throw new I18NRestException(404, sprintf(dgettext('tuleap-crosstracker', 'Widget with id %d not found'), $id));
-        }
-    }
-
-    private function getWidgetDao(): CrossTrackerWidgetDao
-    {
-        return new CrossTrackerWidgetDao();
     }
 
     private function getUserIsAllowedToSeeWidgetChecker(): UserIsAllowedToSeeWidgetChecker
@@ -114,7 +110,7 @@ final class TQLAssistantResource extends AuthenticatedResource
         return new UserIsAllowedToSeeWidgetChecker(
             ProjectManager::instance(),
             new URLVerification(),
-            new CrossTrackerWidgetRetriever($this->getWidgetDao()),
+            new CrossTrackerWidgetRetriever(new CrossTrackerWidgetDao()),
         );
     }
 }

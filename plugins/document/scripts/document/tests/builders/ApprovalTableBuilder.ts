@@ -63,12 +63,15 @@ export class ApprovalTableBuilder {
             approval_state: this.approval_state,
             approval_request_date: "",
             has_been_approved: false,
+            version_id: null,
             version_number: this.version_number,
             version_label: this.version_label,
             notification_type: this.notification_type,
             is_closed: false,
             description: this.description,
             reviewers: [],
+            state: "disabled",
+            reminder_occurence: 0,
         };
     }
 }

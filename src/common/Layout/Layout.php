@@ -49,13 +49,6 @@ abstract class Layout extends Tuleap\Layout\BaseLayout //phpcs:ignore PSR1.Class
     public const string INCLUDE_FAT_COMBINED = 'include_fat_combined';
 
     /**
-     * Background for priorities
-     *
-     * @var array
-     */
-    private $bgpri = [];
-
-    /**
      * Store custom css added on the fly
      *
      * @var Array of path to CSS files
@@ -75,19 +68,6 @@ abstract class Layout extends Tuleap\Layout\BaseLayout //phpcs:ignore PSR1.Class
 
         $this->javascript = [];
         $this->includeJavascriptFile((new JavascriptAsset(new \Tuleap\Layout\IncludeCoreAssets(), 'collect-frontend-errors.js'))->getFileURL());
-
-        /*
-            Set up the priority color array one time only
-        */
-        $this->bgpri[1] = 'priora';
-        $this->bgpri[2] = 'priorb';
-        $this->bgpri[3] = 'priorc';
-        $this->bgpri[4] = 'priord';
-        $this->bgpri[5] = 'priore';
-        $this->bgpri[6] = 'priorf';
-        $this->bgpri[7] = 'priorg';
-        $this->bgpri[8] = 'priorh';
-        $this->bgpri[9] = 'priori';
 
         $this->purifier = Codendi_HTMLPurifier::instance();
     }
@@ -441,7 +421,6 @@ abstract class Layout extends Tuleap\Layout\BaseLayout //phpcs:ignore PSR1.Class
         $core_assets = $this->getAssets();
         echo '<link rel="stylesheet" type="text/css" href="/themes/common/css/bootstrap-tuleap-22d39b3.min.css" />';
         echo '<link rel="stylesheet" type="text/css" href="/themes/common/css/bootstrap-tuleap-responsive-22d39b3.min.css" />';
-        echo '<link rel="stylesheet" type="text/css" href="/themes/common/css/animate.min.css" />';
         echo '<link rel="stylesheet" type="text/css" href="' . $core_assets->getFileURL('common-theme/style.css') . '" />';
         echo '<link rel="stylesheet" type="text/css" href="' . $core_assets->getFileURL('common-theme/print.css') . '" media="print" />';
         echo '<link rel="stylesheet" type="text/css" href="' . $this->getStylesheetTheme('style.css') . '" />';
@@ -668,21 +647,6 @@ abstract class Layout extends Tuleap\Layout\BaseLayout //phpcs:ignore PSR1.Class
                  ' . $this->displayFooterJavascriptElements() . '
                  </body>
              </html>';
-    }
-
-    /**
-     * Return the background color (classname) for priority
-     *
-     * @param $index the index (id) of the priority : 1
-     * @return string 'priora'
-     */
-    public function getPriorityColor($index)
-    {
-        if (isset($this->bgpri[$index])) {
-            return $this->bgpri[$index];
-        } else {
-            return '';
-        }
     }
 
     /**

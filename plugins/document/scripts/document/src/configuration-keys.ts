@@ -55,6 +55,7 @@ export const IS_CHANGELOG_PROPOSED_AFTER_DND: StrictInjectionKey<boolean> = Symb
 );
 export const IS_DELETION_ALLOWED: StrictInjectionKey<boolean> = Symbol("is-deletion-allowed");
 export const USER_LOCALE: StrictInjectionKey<LocaleString> = Symbol("user-locale");
+export const USER_TIMEZONE: StrictInjectionKey<string> = Symbol("user-timezone");
 export const RELATIVE_DATES_DISPLAY: StrictInjectionKey<RelativeDatesDisplayPreference> =
     Symbol("relative-dates-display");
 export const SEARCH_CRITERIA: StrictInjectionKey<SearchCriteria> = Symbol("search-criteria");
@@ -69,8 +70,5 @@ export const FORBID_WRITERS_TO_DELETE: StrictInjectionKey<boolean> = Symbol(
 export const FILENAME_PATTERN: StrictInjectionKey<string> = Symbol("filename-pattern");
 export const IS_FILENAME_PATTERN_ENFORCED: StrictInjectionKey<boolean> = Symbol(
     "is-filename-pattern-enforced",
-);
-export const CAN_USER_SWITCH_TO_OLD_UI: StrictInjectionKey<boolean> = Symbol(
-    "can-user-switch-to-old-ui",
 );
 export const CSRF_TOKEN: StrictInjectionKey<CsrfToken> = Symbol("csrf_token");

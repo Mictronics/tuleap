@@ -1,34 +1,37 @@
-<div id="admin-config-bot-delete-{{ id }}"
-    class="modal hide fade"
-    tabindex="-1"
+<form
+    id="botmattermost-git-notification-delete-modal"
     role="dialog"
-    aria-labelledby="admin-config-bot-delete-title"
-    aria-hidden="true"
+    aria-labelledby="botmattermost-git-notification-delete-modal-title"
+    class="tlp-modal tlp-modal-danger"
+    action="/plugins/botmattermost_git/?action=delete_bot"
+    method="POST"
 >
-
-    <div class="modal-header modal-header-error">
-        <a role="button" class="close" data-dismiss="modal">
-            <i class="fas fa-times modal-close-icon" aria-hidden="true"></i>
-        </a>
-        <h3 id="modal-repository-delete-title">
-            {{ modal_delete_title }}</h3>
+    {{# csrf_token }}
+        {{> csrf_token_input }}
+    {{/ csrf_token }}
+    <input type="hidden" name="group_id" value="{{ project_id }}" />
+    <input type="hidden" name="repository_id" value="{{ repository_id }}" />
+    <div class="tlp-modal-header">
+        <h1 class="tlp-modal-title" id="botmattermost-git-notification-delete-modal-title">
+            {{ modal_delete_title }}
+        </h1>
+        <button class="tlp-modal-close" type="button" data-dismiss="modal"
+                aria-label="{{# gettext }}Close{{/ gettext }}">
+            <i class="fa-solid fa-xmark tlp-modal-close-icon" aria-hidden="true"></i>
+        </button>
     </div>
-
-    <div class="modal-body">
+    <div class="tlp-modal-body">
         <p>{{ modal_delete_content }}</p>
     </div>
-
-    <div class="modal-footer">
-        <form method="POST" action="/plugins/botmattermost_git/?action=delete_bot">
-            {{# csrf_token }}
-                {{> csrf_token_input }}
-            {{/ csrf_token }}
-            <input type="hidden" name="group_id" value="{{ project_id }}" />
-            <input type="hidden" name="repository_id" value="{{ repository_id }}" />
-
-            <button class="btn" data-dismiss="modal" aria-hidden="true">{{ button_close }}</button>
-            <button type="submit" class="btn btn-danger"><i class="fa fa-trash-o"></i> {{ button_delete }}</button>
-        </form>
+    <div class="tlp-modal-footer">
+        <button type="button" data-dismiss="modal" class="tlp-button-danger tlp-button-outline tlp-modal-action">
+            {{ button_close }}
+        </button>
+        <button type="submit"
+                class="tlp-button-danger tlp-modal-action"
+        >
+            <i class="fa-regular fa-trash-alt tlp-button-icon" aria-hidden="true"></i>
+            {{ button_delete }}
+        </button>
     </div>
-
-</div>
+</form>

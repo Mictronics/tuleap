@@ -37,6 +37,8 @@ use ProjectManager;
 use Tuleap\Docman\ApprovalTable\ApprovalTableRetriever;
 use Tuleap\Docman\ApprovalTable\ApprovalTableStateMapper;
 use Tuleap\Docman\ItemType\DoesItemHasExpectedTypeVisitor;
+use Tuleap\Docman\Notifications\NotificationBuilders;
+use Tuleap\Docman\ResponseFeedbackWrapper;
 use Tuleap\Docman\REST\v1\Folders\BuildSearchedItemRepresentationsFromSearchReport;
 use Tuleap\Docman\REST\v1\Folders\SearchReportBuilder;
 use Tuleap\Docman\REST\v1\Folders\SearchRepresentation;
@@ -268,7 +270,6 @@ final class SearchResource extends AuthenticatedResource
         $html_purifier = Codendi_HTMLPurifier::instance();
 
         $provide_user_avatar_url = new UserAvatarUrlProvider(new AvatarHashDao(), new ComputeAvatarHash());
-        $factories_factory       = new \Docman_ApprovalTableFactoriesFactory();
 
         $representation_builder = new ItemRepresentationBuilder(
             $item_dao,
@@ -282,7 +283,7 @@ final class SearchResource extends AuthenticatedResource
                 $html_purifier,
                 UserHelper::instance()
             ),
-            new ApprovalTableRetriever($factories_factory, $version_factory),
+            new ApprovalTableRetriever(new \Docman_ApprovalTableFactoriesFactory(), $version_factory),
             new DocmanItemPermissionsForGroupsBuilder(
                 $permissions_manager,
                 $project_manager,
@@ -291,8 +292,8 @@ final class SearchResource extends AuthenticatedResource
             ),
             $html_purifier,
             $provide_user_avatar_url,
-            $factories_factory,
             $version_factory,
+            new NotificationBuilders(new ResponseFeedbackWrapper(), $project)->buildNotificationManager(),
         );
 
 
@@ -301,6 +302,7 @@ final class SearchResource extends AuthenticatedResource
             $version_factory,
             new \Docman_LinkVersionFactory(),
             $item_factory,
+            new \Docman_ApprovalTableWikiFactory($item_request->getItem()),
             $event_manager,
             $event_adder
         );

@@ -18,11 +18,8 @@
   -->
 
 <template>
-    <div class="tlp-property">
-        <label class="tlp-label">{{ column.field.label }}</label>
-        <div class="column">
-            <display-form-elements v-bind:elements="column.children" />
-        </div>
+    <div class="column">
+        <display-form-elements v-bind:elements="column.children" />
     </div>
 </template>
 
@@ -36,11 +33,8 @@ defineProps<{
 </script>
 
 <style lang="scss" scoped>
-.tlp-property {
-    flex: 1 1 auto;
-}
-
 .column {
+    flex: 1 0 auto;
     padding: var(--tlp-medium-spacing);
     border: 1px dashed var(--tlp-neutral-normal-color);
     border-radius: var(--tlp-medium-radius);

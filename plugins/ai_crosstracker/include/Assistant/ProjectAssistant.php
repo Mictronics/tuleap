@@ -32,11 +32,18 @@ use Tuleap\AI\Mistral\Model;
 use Tuleap\AI\Mistral\Role;
 use Tuleap\AI\Mistral\TextChunk;
 use Tuleap\CrossTracker\Widget\ProjectCrossTrackerWidget;
+use Tuleap\Project\ProjectByIDFactory;
+use Tuleap\Tracker\FormElement\Field\RetrieveUsedFields;
+use Tuleap\Tracker\RetrieveMultipleTrackers;
 
 final readonly class ProjectAssistant implements Assistant
 {
-    public function __construct(private ProjectCrossTrackerWidget $widget)
-    {
+    public function __construct(
+        private ProjectByIDFactory $project_factory,
+        private RetrieveMultipleTrackers $tracker_factory,
+        private RetrieveUsedFields $fields_factory,
+        private ProjectCrossTrackerWidget $widget,
+    ) {
     }
 
     /**
@@ -46,10 +53,10 @@ final readonly class ProjectAssistant implements Assistant
     #[Override]
     public function getCompletion(\PFUser $user, array $messages): Completion
     {
-        $project = \ProjectManager::instance()->getProjectById($this->widget->getProjectId());
+        $project = $this->project_factory->getProjectById($this->widget->getProjectId());
 
         $trackers = [];
-        foreach (\TrackerFactory::instance()->getTrackersByGroupId((int) $project->getID()) as $tracker) {
+        foreach ($this->tracker_factory->getTrackersByGroupId((int) $project->getID()) as $tracker) {
             if (! $tracker->isActive() || ! $tracker->userCanView($user)) {
                 continue;
             }
@@ -60,7 +67,7 @@ final readonly class ProjectAssistant implements Assistant
                 'fields' => [],
             ];
 
-            $fields = $tracker->getFormElementFields();
+            $fields = $this->fields_factory->getUsedFields($tracker);
             foreach ($fields as $field) {
                 if (! $field->isUsed() || ! $field->userCanRead($user)) {
                     continue;
@@ -82,7 +89,8 @@ final readonly class ProjectAssistant implements Assistant
         }
 
         return new Completion(
-            Model::MEDIUM_2508,
+            Model::DEVSTRALL_2512,
+            AssistantResponseFormatBuilder::buildFormat(),
             new Message(
                 Role::SYSTEM,
                 new ChunkContent(
@@ -96,7 +104,8 @@ final readonly class ProjectAssistant implements Assistant
                         Stick to documentation provided below, there is no other functions or language keywords than
                         what is covered in documentation.
 
-                        You don't provide assistance for anything that doesnt aim to produce a TQL query.
+                        You do not provide assistance for anything that does not aim to produce a TQL query. Users
+                        request information using only plaintext.
                         EOT
                     ),
                     new TextChunk('### TQL documentation' . PHP_EOL . PHP_EOL . $tql_doc),

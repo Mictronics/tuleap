@@ -28,6 +28,7 @@ enum PullRequestApp: string
     case OVERVIEW_APP       = 'overview';
     case HOMEPAGE_APP       = 'homepage';
     case COMMITS_APP        = 'commits';
+    case CHANGES_APP        = 'changes';
 
     public static function fromRequest(\Tuleap\HTTPRequest $request): self
     {
@@ -35,6 +36,7 @@ enum PullRequestApp: string
             'overview' => self::OVERVIEW_APP,
             'homepage' => self::HOMEPAGE_APP,
             'commits'  => self::COMMITS_APP,
+            'changes'  => self::CHANGES_APP,
             default    => self::LEGACY_ANGULAR_APP,
         };
     }

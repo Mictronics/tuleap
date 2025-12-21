@@ -22,7 +22,6 @@
 namespace Tuleap\Tracker\FormElement\Field\ArtifactLink;
 
 use Codendi_HTMLPurifier;
-use Codendi_Request;
 use EventManager;
 use PFUser;
 use ReferenceManager;
@@ -718,7 +717,7 @@ class ArtifactLinkField extends TrackerField
                 $is_reverse             = false;
                 $hp                     = Codendi_HTMLPurifier::instance();
 
-                $ugroups = $current_user->getUgroups($this_project_id, []);
+                $ugroups = $current_user->getUgroups($this_project_id);
 
                 $ids     = $request->get('ids'); //2, 14, 15
                 $tracker = [];
@@ -793,7 +792,7 @@ class ArtifactLinkField extends TrackerField
                 $read_only              = true;
                 $use_data_from_db       = false;
 
-                $ugroups = $current_user->getUgroups($this->getTracker()->getGroupId(), []);
+                $ugroups = $current_user->getUgroups($this->getTracker()->getGroupId());
                 $ids     = $request->get('ids'); //2, 14, 15
                 $tracker = [];
                 $json    = ['tabs' => []];
@@ -1722,7 +1721,6 @@ class ArtifactLinkField extends TrackerField
             $this->getValueDao(),
             new Tracker_ReferenceManager(
                 ReferenceManager::instance(),
-                Tracker_ArtifactFactory::instance()
             ),
             EventManager::instance(),
             new ArtifactLinksUsageDao(),
@@ -1842,7 +1840,7 @@ class ArtifactLinkField extends TrackerField
         return TemplateRendererFactory::build()->getRenderer(TRACKER_TEMPLATE_DIR);
     }
 
-    private function appendTypeTable(PFUser $current_user, Codendi_Request $request, array &$result, bool $is_reverse_artifact_links): void
+    private function appendTypeTable(PFUser $current_user, \Tuleap\HTTPRequest $request, array &$result, bool $is_reverse_artifact_links): void
     {
         if (! $this->getTracker()->isProjectAllowedToUseType()) {
             return;

@@ -18,7 +18,7 @@
   -->
 
 <template>
-    <div class="column-wrapper">
+    <div class="tlp-form-element column-wrapper">
         <container-column
             v-for="column of columns"
             v-bind:key="column.field.field_id"

@@ -28,7 +28,9 @@
     </div>
     <div class="tlp-property">
         <label class="tlp-label">{{ $gettext("Notification type") }}</label>
-        <p data-test="table-notification">{{ table.notification_type }}</p>
+        <p data-test="table-notification">
+            {{ translateNotificationType(table.notification_type, $gettext) }}
+        </p>
     </div>
     <div class="tlp-property">
         <label class="tlp-label">{{ $gettext("Approval cycle start date") }}</label>
@@ -51,6 +53,8 @@
         v-bind:reviewers="table.reviewers"
         v-bind:item="item"
         v-bind:is_readonly="is_readonly"
+        v-bind:table="table"
+        v-on:refresh-data="$emit('refresh-data')"
     />
 </template>
 
@@ -59,10 +63,13 @@ import type { ApprovalTable, Item } from "../../../type";
 import UserBadge from "../../User/UserBadge.vue";
 import DocumentRelativeDate from "../../Date/DocumentRelativeDate.vue";
 import ApprovalTableReviewers from "./ApprovalTableReviewers.vue";
+import { translateNotificationType } from "../../../helpers/approval-table-helper";
 
 defineProps<{
     item: Item;
     table: ApprovalTable;
     is_readonly: boolean;
 }>();
+
+defineEmits<{ (e: "refresh-data"): void }>();
 </script>

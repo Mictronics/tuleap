@@ -23,7 +23,6 @@ namespace Tuleap\Tracker;
 
 use BackendLogger;
 use Codendi_HTMLPurifier;
-use Codendi_Request;
 use Codendi_Session;
 use CSRFSynchronizerToken;
 use EventManager;
@@ -201,6 +200,7 @@ use Tuleap\Tracker\Hierarchy\ParentInHierarchyRetriever;
 use Tuleap\Tracker\Masschange\TrackerMasschangeGetExternalActionsEvent;
 use Tuleap\Tracker\NewDropdown\TrackerNewDropdownLinkPresenterBuilder;
 use Tuleap\Tracker\Notifications\CollectionOfUgroupToBeNotifiedPresenterBuilder;
+use Tuleap\Tracker\Notifications\CollectionOfUserGroupPresenterBuilder;
 use Tuleap\Tracker\Notifications\CollectionOfUserInvolvedInNotificationPresenterBuilder;
 use Tuleap\Tracker\Notifications\GlobalNotificationsAddressesBuilder;
 use Tuleap\Tracker\Notifications\GlobalNotificationsEmailRetriever;
@@ -231,6 +231,7 @@ use Tuleap\Tracker\Semantic\Title\CachedSemanticTitleFieldRetriever;
 use Tuleap\Tracker\Semantic\Tooltip\SemanticTooltip;
 use Tuleap\Tracker\Semantic\TrackerSemanticManager;
 use Tuleap\Tracker\Tooltip\TrackerStats;
+use Tuleap\Tracker\Tracker\dao\TrackerGlobalNotificationDao;
 use Tuleap\Tracker\User\NotificationOnAllUpdatesRetriever;
 use Tuleap\Tracker\User\NotificationOnOwnActionRetriever;
 use Tuleap\Tracker\Webhook\Actions\AdminWebhooks;
@@ -248,11 +249,16 @@ use Tuleap\Tracker\Workflow\SimpleMode\State\TransitionRetriever;
 use Tuleap\Tracker\Workflow\WorkflowMenuPresenterBuilder;
 use Tuleap\Tracker\Workflow\WorkflowUpdateChecker;
 use Tuleap\Tracker\XML\Updater\FieldChange\FieldChangeComputedXMLUpdater;
+use Tuleap\User\Avatar\AvatarHashDao;
+use Tuleap\User\Avatar\ComputeAvatarHash;
+use Tuleap\User\Avatar\UserAvatarUrlProvider;
 use Tuleap\Widget\WidgetFactory;
 use UGroupDao;
 use UGroupManager;
+use User_ForgeUserGroupFactory;
 use User_ForgeUserGroupPermissionsDao;
 use User_ForgeUserGroupPermissionsManager;
+use UserGroupDao;
 use UserManager;
 use UserPreferencesDao;
 use UserXMLExportedCollection;
@@ -1182,7 +1188,7 @@ class Tracker implements Tracker_Dispatchable_Interface
         return $this->is_project_allowed_to_use_type;
     }
 
-    private function getHierarchyController(Codendi_Request $request): HierarchyController
+    private function getHierarchyController(\Tuleap\HTTPRequest $request): HierarchyController
     {
         $dao                  = new HierarchyDAO();
         $tracker_factory      = $this->getTrackerFactory();
@@ -1223,7 +1229,7 @@ class Tracker implements Tracker_Dispatchable_Interface
      * panels to ease the selection of artifacts to link
      *
      * @param Tracker_IDisplayTrackerLayout $layout Displays the page header and footer
-     * @param Codendi_Request $request The request
+     * @param \Tuleap\HTTPRequest $request The request
      * @param PFUser $current_user The user who made the request
      *
      * @return void
@@ -1775,7 +1781,7 @@ class Tracker implements Tracker_Dispatchable_Interface
     {
         $token    = new CSRFSynchronizerToken(TRACKER_BASE_URL . '/?tracker=' . (int) $this->id . '&amp;func=admin-delete-artifact');
         $content  = '<div class="tracker_confirm_delete">';
-        $content .= sprintf(dgettext('tuleap-tracker', '<h3>You are about to delete permanently the artifact "%1$s".</h3><p><strong>There is no way to restore the artifact.</strong></p>'), $artifact->getXRefAndTitle());
+        $content .= sprintf(dgettext('tuleap-tracker', '<h3>You are about to delete permanently the artifact "%1$s".</h3><p><strong>There is no way to restore the artifact.</strong></p>'), $artifact->getXRefAndTitleFlamingParrot());
         $content .= '<div class="tracker_confirm_delete_preview">';
         $content .= $this->fetchFormElementsReadOnly($artifact, []);
         $content .= '</div>';
@@ -1950,9 +1956,15 @@ class Tracker implements Tracker_Dispatchable_Interface
             new CollectionOfUserInvolvedInNotificationPresenterBuilder(
                 $user_to_notify_dao,
                 $unsubscribers_notification_dao,
-                $user_manager
+                $user_manager,
+                \UserHelper::instance(),
+                new UserAvatarUrlProvider(
+                    new AvatarHashDao(),
+                    new ComputeAvatarHash()
+                )
             ),
-            new CollectionOfUgroupToBeNotifiedPresenterBuilder($ugroup_to_notify_dao)
+            new CollectionOfUgroupToBeNotifiedPresenterBuilder($ugroup_to_notify_dao),
+            new \Tuleap\Tracker\Notifications\CollectionOfUserGroupPresenterBuilder()
         );
         return new Tracker_NotificationsManager(
             $this,
@@ -1984,7 +1996,10 @@ class Tracker implements Tracker_Dispatchable_Interface
                     new MentionedUserInTextRetriever($user_manager),
                 ),
                 $user_notification_settings_dao
-            )
+            ),
+            new User_ForgeUserGroupFactory(new UserGroupDao()),
+            new CollectionOfUserGroupPresenterBuilder(),
+            new TrackerGlobalNotificationDao()
         );
     }
 
@@ -2897,7 +2912,7 @@ class Tracker implements Tracker_Dispatchable_Interface
      *
      * @return bool true if import succeed, false otherwise
      */
-    private function importFromCSV(Codendi_Request $request, PFUser $current_user, array $header, array $lines)
+    private function importFromCSV(\Tuleap\HTTPRequest $request, PFUser $current_user, array $header, array $lines)
     {
         $is_error = false;
         if (count($lines) >= 1) {
@@ -3460,7 +3475,7 @@ class Tracker implements Tracker_Dispatchable_Interface
         );
     }
 
-    private function getChildrenCollector(Codendi_Request $request)
+    private function getChildrenCollector(\Tuleap\HTTPRequest $request)
     {
         if ($request->get('copy_children')) {
             return new Tracker_XML_ChildrenCollector();

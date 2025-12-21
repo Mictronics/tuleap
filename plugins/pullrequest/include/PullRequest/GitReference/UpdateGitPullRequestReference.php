@@ -23,19 +23,22 @@ declare(strict_types=1);
 namespace Tuleap\PullRequest\GitReference;
 
 use GitRepository;
+use Tuleap\NeverThrow\Err;
+use Tuleap\NeverThrow\Fault;
+use Tuleap\NeverThrow\Ok;
 use Tuleap\PullRequest\GitExec;
 use Tuleap\PullRequest\PullRequest;
 
 interface UpdateGitPullRequestReference
 {
     /**
-     * @throws \Git_Command_Exception
+     * @return Ok<null>|Err<Fault>
      * @throws GitReferenceNotFound
      */
     public function updatePullRequestReference(
         PullRequest $pull_request,
-        GitExec $executor_repository_source,
+        GitRepository $repository_source,
         GitExec $executor_repository_destination,
         GitRepository $repository_destination,
-    ): void;
+    ): Ok|Err;
 }

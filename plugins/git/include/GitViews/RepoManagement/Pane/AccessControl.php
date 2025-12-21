@@ -28,10 +28,10 @@ use Tuleap\Git\AccessRightsPresenterOptionsBuilder;
 use PermissionsManager;
 use Tuleap\Git\GitAccessControlPresenterBuilder;
 use Tuleap\Git\Permissions\RegexpFineGrainedRetriever;
+use Tuleap\HTTPRequest;
 use Tuleap\Layout\IncludeViteAssets;
 use Tuleap\Layout\JavascriptViteAsset;
 use UserGroupDao;
-use Codendi_Request;
 use User_ForgeUserGroupFactory;
 use Tuleap\Git\Permissions\FineGrainedRetriever;
 use Tuleap\Git\Permissions\FineGrainedPermissionFactory;
@@ -73,7 +73,7 @@ class AccessControl extends Pane
 
     public function __construct(
         GitRepository $repository,
-        Codendi_Request $request,
+        HTTPRequest $request,
         FineGrainedPermissionFactory $fine_grained_permission_factory,
         FineGrainedRetriever $fine_grained_retriever,
         FineGrainedRepresentationBuilder $fine_grained_builder,

@@ -23,14 +23,18 @@ declare(strict_types=1);
 
 namespace Tuleap\AI\Mistral;
 
+use CuyZ\Valinor\MapperBuilder;
 use ForgeConfig;
 use Http\Message\RequestMatcher\CallbackRequestMatcher;
 use Http\Message\RequestMatcher\RequestMatcher;
 use Http\Mock\Client;
 use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
+use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestInterface;
+use Tuleap\AI\Requestor\AIRequestorStub;
 use Tuleap\ForgeConfigSandbox;
 use Tuleap\Http\HTTPFactoryBuilder;
+use Tuleap\Instrument\Prometheus\Prometheus;
 use Tuleap\NeverThrow\Err;
 use Tuleap\NeverThrow\Ok;
 use Tuleap\Test\PHPUnit\TestCase;
@@ -44,7 +48,7 @@ final class MistralConnectorLiveTest extends TestCase
     {
         ForgeConfig::set(MistralConnector::CONFIG_API_KEY, '');
         $client    = new Client();
-        $connector = new MistralConnectorLive($client);
+        $connector = $this->buildConnector($client);
 
         $result = $connector->testConnection();
         self::assertInstanceOf(Err::class, $result);
@@ -55,7 +59,7 @@ final class MistralConnectorLiveTest extends TestCase
     {
         $this->setEncryptedValue(MistralConnector::CONFIG_API_KEY, 'whatever');
         $client    = new Client();
-        $connector = new MistralConnectorLive($client);
+        $connector = $this->buildConnector($client);
 
         $client->on(
             new RequestMatcher('^/v1/models$', null, 'GET'),
@@ -73,7 +77,7 @@ final class MistralConnectorLiveTest extends TestCase
     {
         $this->setEncryptedValue(MistralConnector::CONFIG_API_KEY, 'whatever');
         $client    = new Client();
-        $connector = new MistralConnectorLive($client);
+        $connector = $this->buildConnector($client);
 
         $client->on(
             new RequestMatcher('^/v1/models$', null, 'GET'),
@@ -90,14 +94,14 @@ final class MistralConnectorLiveTest extends TestCase
     {
         $this->setEncryptedValue(MistralConnector::CONFIG_API_KEY, 'whatever');
         $client    = new Client();
-        $connector = new MistralConnectorLive($client);
+        $connector = $this->buildConnector($client);
 
         $client->on(
             new CallbackRequestMatcher(
                 function (RequestInterface $request): bool {
                     return $request->getMethod() === 'POST' &&
                         $request->getUri()->getPath() === '/v1/chat/completions' &&
-                        $request->getBody()->getContents() === '{"model":"mistral-medium-2508","messages":[{"role":"system","content":[{"type":"text","text":"some def"},{"type":"text","text":"another def"}]},{"role":"user","content":"question"}]}';
+                        $request->getBody()->getContents() === '{"safe_prompt":true,"model":"mistral-medium-2508","response_format":{"type":"json_schema","json_schema":{"strict":true,"name":"test","schema":{"type":"object","additionalProperties":false,"title":"title","required":[],"properties":[]}}},"messages":[{"role":"system","content":[{"type":"text","text":"some def"},{"type":"text","text":"another def"}]},{"role":"user","content":"question"}]}';
                 }
             ),
             function () {
@@ -109,8 +113,10 @@ final class MistralConnectorLiveTest extends TestCase
         );
 
         $result = $connector->sendCompletion(
+            new AIRequestorStub(),
             new Completion(
                 Model::MEDIUM_2508,
+                $this->buildCompletionFormat(),
                 new Message(
                     Role::SYSTEM,
                     new ChunkContent(
@@ -122,7 +128,8 @@ final class MistralConnectorLiveTest extends TestCase
                     Role::USER,
                     new StringContent('question'),
                 ),
-            )
+            ),
+            'test',
         );
 
         self::assertInstanceOf(Ok::class, $result);
@@ -132,7 +139,7 @@ final class MistralConnectorLiveTest extends TestCase
     {
         $this->setEncryptedValue(MistralConnector::CONFIG_API_KEY, 'whatever');
         $client    = new Client();
-        $connector = new MistralConnectorLive($client);
+        $connector = $this->buildConnector($client);
 
         $client->on(
             new RequestMatcher('^/v1/chat/completions$', null, 'POST'),
@@ -144,7 +151,7 @@ final class MistralConnectorLiveTest extends TestCase
             }
         );
 
-        $result = $connector->sendCompletion(new Completion(Model::MEDIUM_2508));
+        $result = $connector->sendCompletion(new AIRequestorStub(), new Completion(Model::MEDIUM_2508, $this->buildCompletionFormat(),), 'test');
 
         self::assertInstanceOf(Ok::class, $result);
         self::assertInstanceOf(StringContent::class, $result->value->choices[0]->message->content);
@@ -155,7 +162,7 @@ final class MistralConnectorLiveTest extends TestCase
     {
         $this->setEncryptedValue(MistralConnector::CONFIG_API_KEY, 'whatever');
         $client    = new Client();
-        $connector = new MistralConnectorLive($client);
+        $connector = $this->buildConnector($client);
 
         $client->on(
             new RequestMatcher('^/v1/chat/completions$', null, 'POST'),
@@ -164,7 +171,7 @@ final class MistralConnectorLiveTest extends TestCase
             }
         );
 
-        $result = $connector->sendCompletion(new Completion(Model::MEDIUM_2508));
+        $result = $connector->sendCompletion(new AIRequestorStub(), new Completion(Model::MEDIUM_2508, $this->buildCompletionFormat(),), 'test');
 
         self::assertInstanceOf(Err::class, $result);
         self::assertStringContainsString('authentication failure', (string) $result->error);
@@ -174,7 +181,7 @@ final class MistralConnectorLiveTest extends TestCase
     {
         $this->setEncryptedValue(MistralConnector::CONFIG_API_KEY, 'whatever');
         $client    = new Client();
-        $connector = new MistralConnectorLive($client);
+        $connector = $this->buildConnector($client);
 
         $client->on(
             new RequestMatcher('^/v1/chat/completions$', null, 'POST'),
@@ -183,7 +190,7 @@ final class MistralConnectorLiveTest extends TestCase
             }
         );
 
-        $result = $connector->sendCompletion(new Completion(Model::MEDIUM_2508));
+        $result = $connector->sendCompletion(new AIRequestorStub(), new Completion(Model::MEDIUM_2508, $this->buildCompletionFormat(),), 'test');
 
         self::assertInstanceOf(Err::class, $result);
     }
@@ -192,7 +199,7 @@ final class MistralConnectorLiveTest extends TestCase
     {
         $this->setEncryptedValue(MistralConnector::CONFIG_API_KEY, 'whatever');
         $client    = new Client();
-        $connector = new MistralConnectorLive($client);
+        $connector = $this->buildConnector($client);
 
         $client->on(
             new RequestMatcher('^/v1/chat/completions$', null, 'POST'),
@@ -205,9 +212,34 @@ final class MistralConnectorLiveTest extends TestCase
             }
         );
 
-        $result = $connector->sendCompletion(new Completion(Model::MEDIUM_2508));
+        $result = $connector->sendCompletion(new AIRequestorStub(), new Completion(Model::MEDIUM_2508, $this->buildCompletionFormat()), 'test');
 
         self::assertInstanceOf(Err::class, $result);
         self::assertInstanceOf(UnexpectedCompletionResponseFault::class, $result->error);
+    }
+
+    private function buildConnector(ClientInterface $client): MistralConnectorLive
+    {
+        return new MistralConnectorLive(
+            $client,
+            HTTPFactoryBuilder::requestFactory(),
+            HTTPFactoryBuilder::streamFactory(),
+            new MapperBuilder(),
+            Prometheus::getInMemory(),
+        );
+    }
+
+    private function buildCompletionFormat(): CompletionResponseJSONFormat
+    {
+        return new CompletionResponseJSONFormat(
+            new CompletionJSONSchema(
+                'test',
+                new CompletionJSONSchemaSchema(
+                    'title',
+                    [],
+                    []
+                )
+            )
+        );
     }
 }

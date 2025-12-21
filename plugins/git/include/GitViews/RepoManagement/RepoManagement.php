@@ -47,7 +47,9 @@ class GitViews_RepoManagement // phpcs:ignore PSR1.Classes.ClassDeclaration.Miss
         'pullrequest', // should belong to pullrequest plugin, but it is a temporary situation, no need to fire a hook for that
         'delete',
         'perms',
+        'mail',
         'hooks',
+        Pane\Gerrit::ID,
     ];
 
     /**
@@ -58,7 +60,7 @@ class GitViews_RepoManagement // phpcs:ignore PSR1.Classes.ClassDeclaration.Miss
 
     public function __construct(
         private GitRepository $repository,
-        private Codendi_Request $request,
+        private \Tuleap\HTTPRequest $request,
         private Git_Driver_Gerrit_GerritDriverFactory $driver_factory,
         private array $gerrit_servers,
         private array $gerrit_config_templates,
@@ -72,6 +74,7 @@ class GitViews_RepoManagement // phpcs:ignore PSR1.Classes.ClassDeclaration.Miss
         private EventManager $event_manager,
         private ProjectManager $project_manager,
         private VerifyArtifactClosureIsAllowed $closure_verifier,
+        private readonly User_ForgeUserGroupFactory $user_group_factory,
     ) {
         $this->panes        = $this->buildPanes($repository);
         $this->current_pane = 'settings';
@@ -98,7 +101,11 @@ class GitViews_RepoManagement // phpcs:ignore PSR1.Classes.ClassDeclaration.Miss
                     $this->gerrit_can_migrate_checker,
                     $this->gerrit_servers,
                     $this->gerrit_config_templates,
-                    $this->project_manager
+                    $this->project_manager,
+                    TemplateRendererFactory::build()->getRenderer(__DIR__ . '/Pane/Gerrit/'),
+                    new Git_Driver_Gerrit_ProjectCreatorStatus(
+                        new Git_Driver_Gerrit_ProjectCreatorStatusDao()
+                    ),
                 )
             );
         }
@@ -125,8 +132,10 @@ class GitViews_RepoManagement // phpcs:ignore PSR1.Classes.ClassDeclaration.Miss
         $collection->add(new Pane\Notification(
             $repository,
             $this->request,
+            $this->event_manager,
             $user_to_be_notified_builder,
-            $group_to_be_notified_builder
+            $group_to_be_notified_builder,
+            $this->user_group_factory,
         ));
         $collection->add(new Pane\Hooks($repository, $this->request, $webhook_factory, $webhook_dao));
 

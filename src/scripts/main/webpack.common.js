@@ -135,7 +135,6 @@ const webpack_config_for_burning_parrot_code = {
 
 const fat_combined_files = [
         "../../www/scripts/prototype/prototype.js",
-        "../../www/scripts/protocheck/protocheck.js",
         "../../www/scripts/scriptaculous/scriptaculous.js",
         "../../www/scripts/scriptaculous/builder.js",
         "../../www/scripts/scriptaculous/effects.js",
@@ -168,7 +167,6 @@ const fat_combined_files = [
         "../../www/scripts/tablekit/tablekit.js",
         "../../www/scripts/lightwindow/lightwindow.js",
         "./node_modules/@tuleap/html-escaper/dist/html-escaper.umd.cjs",
-        "../../www/scripts/codendi/Tracker.js",
         "../../www/scripts/codendi/TreeNode.js",
         "../../www/scripts/tuleap/tuleap-modal.js",
         "../../www/scripts/tuleap/datetimepicker.js",

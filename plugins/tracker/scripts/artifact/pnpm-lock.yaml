@@ -5,6 +5,9 @@ settings:
   excludeLinksFromLockfile: false
 
 dependencies:
+  '@tuleap/burningparrot-theme':
+    specifier: workspace:^
+    version: link:../../../../src/themes/BurningParrot
   '@tuleap/dom':
     specifier: workspace:^
     version: link:../../../../lib/frontend/dom
@@ -44,12 +47,21 @@ dependencies:
   '@tuleap/plugin-tracker-rte-creator':
     specifier: workspace:*
     version: link:../lib/rte-creator
+  '@tuleap/project-background':
+    specifier: workspace:^
+    version: link:../../../../lib/frontend/project-background
+  '@tuleap/tlp-dropdown':
+    specifier: workspace:^
+    version: link:../../../../lib/frontend/tlp-dropdown
   '@tuleap/tlp-fetch':
     specifier: workspace:*
     version: link:../../../../lib/frontend/tlp-fetch
   '@tuleap/tlp-styles':
     specifier: workspace:^
     version: link:../../../../lib/frontend/tlp-styles
+  '@tuleap/tooltip':
+    specifier: workspace:^
+    version: link:../../../../lib/frontend/tooltip
   dompurify:
     specifier: ^3.2.4
     version: 3.2.4
