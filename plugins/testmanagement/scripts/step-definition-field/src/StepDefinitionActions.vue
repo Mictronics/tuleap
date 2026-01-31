@@ -62,9 +62,10 @@
                 v-bind:is_in_preview_mode="is_in_preview_mode"
                 v-if="is_commonmark_button_displayed"
             />
+            <step-deletion-action-button-unmark-deletion v-bind:step="step" v-if="step.is_deleted" />
+            <step-deletion-action-button-mark-as-deleted v-bind:step="step" v-else />
         </div>
-        <step-deletion-action-button-unmark-deletion v-bind:step="step" v-if="step.is_deleted" />
-        <step-deletion-action-button-mark-as-deleted v-bind:step="step" v-else />
+
     </div>
 </template>
 

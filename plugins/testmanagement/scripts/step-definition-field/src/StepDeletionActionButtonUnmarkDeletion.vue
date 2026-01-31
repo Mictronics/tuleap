@@ -19,7 +19,7 @@
 
 <template>
     <button
-        class="tlp-button-secondary tlp-button-outline tlp-button-small"
+        class="tlp-button-secondary tlp-button-outline tlp-button-small button-commonmark-preview"
         type="button"
         v-on:click="unmarkDeletion()"
     >
