@@ -19,6 +19,7 @@
 
 import type { ArtifactCreationPayload, ArtifactWithFieldCreationPayload } from "./trackers";
 export { WEB_UI_SESSION } from "./commands";
+export function registerCommands(): void;
 
 export type ReloadCallback = () => void;
 export type ConditionPredicate = (
@@ -163,6 +164,10 @@ declare global {
                 file_size_in_mb: number,
                 file_name: string,
             ): Chainable<{ file: File; data_transfer: DataTransfer }>;
+
+            setDatepickerValue(date: string): void;
         }
     }
 }
+
+export function getAntiCollisionNamePart(): string;

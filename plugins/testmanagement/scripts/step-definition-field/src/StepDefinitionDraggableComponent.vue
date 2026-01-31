@@ -34,20 +34,15 @@
     </div>
 </template>
 
-<script>
-import { mapGetters } from "vuex";
+<script setup lang="ts">
+import { useGetters } from "vuex-composition-helpers";
 import StepDefinitionTypeIcon from "./StepDefinitionTypeIcon.vue";
-export default {
-    name: "StepDefinitionDraggableComponent",
-    components: {
-        StepDefinitionTypeIcon,
-    },
-    props: {
-        step: Object,
-        dynamic_rank: Number,
-    },
-    computed: {
-        ...mapGetters(["is_text"]),
-    },
-};
+import type { Step } from "./Step";
+
+const { is_text } = useGetters(["is_text"]);
+
+defineProps<{
+    step: Step;
+    dynamic_rank: number;
+}>();
 </script>

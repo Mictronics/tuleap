@@ -43,6 +43,7 @@ use Tuleap\Git\Account\AccountGerritController;
 use Tuleap\Git\Account\PushSSHKeysController;
 use Tuleap\Git\Account\ResynchronizeGroupsController;
 use Tuleap\Git\Artifact\Action\CreateBranchButtonFetcher;
+use Tuleap\Git\AsynchronousEvents\RefreshGitoliteProjectConfigurationTask;
 use Tuleap\Git\BreadCrumbDropdown\GitCrumbBuilder;
 use Tuleap\Git\BreadCrumbDropdown\RepositoryCrumbBuilder;
 use Tuleap\Git\BreadCrumbDropdown\RepositorySettingsCrumbBuilder;
@@ -77,10 +78,8 @@ use Tuleap\Git\Gitolite\GitoliteAccessURLGenerator;
 use Tuleap\Git\Gitolite\GitoliteFileLogsDao;
 use Tuleap\Git\Gitolite\RegenerateConfigurationCommand;
 use Tuleap\Git\Gitolite\SSHKey\AuthorizedKeysFileCreator;
-use Tuleap\Git\Gitolite\SSHKey\DumperFactory;
-use Tuleap\Git\Gitolite\SSHKey\ManagementDetector;
+use Tuleap\Git\Gitolite\SSHKey\Gitolite3Dumper;
 use Tuleap\Git\Gitolite\SSHKey\Provider\GerritServer;
-use Tuleap\Git\Gitolite\SSHKey\Provider\GitoliteAdmin;
 use Tuleap\Git\Gitolite\SSHKey\Provider\User;
 use Tuleap\Git\Gitolite\SSHKey\Provider\WholeInstanceKeysAggregator;
 use Tuleap\Git\GitPHP\Controller_Snapshot;
@@ -90,7 +89,6 @@ use Tuleap\Git\GitRepositoryBrowserController;
 use Tuleap\Git\GitViews\Header\HeaderRenderer;
 use Tuleap\Git\GitXmlExporter;
 use Tuleap\Git\GitXMLImportDefaultBranchRetriever;
-use Tuleap\Git\GlobalParameterDao;
 use Tuleap\Git\History\Dao as HistoryDao;
 use Tuleap\Git\History\GitPhpAccessLogger;
 use Tuleap\Git\Hook\Asynchronous\AsynchronousEventHandler;
@@ -177,7 +175,6 @@ use Tuleap\Git\RouterLink;
 use Tuleap\Git\SystemCheck;
 use Tuleap\Git\SystemEvent\OngoingDeletionDAO;
 use Tuleap\Git\SystemEvents\ParseGitolite3Logs;
-use Tuleap\Git\SystemEvents\ProjectIsSuspended;
 use Tuleap\Git\User\AccessKey\Scope\GitRepositoryAccessKeyScope;
 use Tuleap\Git\Webhook\WebhookDao;
 use Tuleap\Git\XmlUgroupRetriever;
@@ -225,6 +222,7 @@ use Tuleap\Project\XML\ServiceEnableForXmlImportRetriever;
 use Tuleap\Queue\WorkerEvent;
 use Tuleap\Reference\CrossReferenceByNatureOrganizer;
 use Tuleap\Reference\GetReferenceEvent;
+use Tuleap\Reference\GetReservedKeywordsEvent;
 use Tuleap\Reference\Nature;
 use Tuleap\Reference\NatureCollection;
 use Tuleap\Request\DispatchableWithRequest;
@@ -286,7 +284,6 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         $this->setScope(Plugin::SCOPE_PROJECT);
         $this->addHook(SiteAdministrationAddOption::NAME);
         $this->addHook(Event::GET_SYSTEM_EVENT_CLASS, 'getSystemEventClass');
-        $this->addHook(Event::GET_PLUGINS_AVAILABLE_KEYWORDS_REFERENCES, 'getReferenceKeywords');
         $this->addHook(NatureCollection::NAME);
         $this->addHook(GetReferenceEvent::NAME);
         $this->addHook('SystemEvent_PROJECT_IS_PRIVATE', 'changeProjectRepositoriesAccess');
@@ -347,7 +344,6 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         $this->addHook(Event::SITE_ACCESS_CHANGE);
 
         $this->addHook('fill_project_history_sub_events');
-        $this->addHook(Event::POST_SYSTEM_EVENTS_ACTIONS);
 
         $this->addHook(Event::REST_RESOURCES);
         $this->addHook(Event::REST_PROJECT_RESOURCES);
@@ -386,9 +382,8 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         $this->addHook(AccessKeyScopeBuilderCollector::NAME);
         $this->addHook(AccountTabPresenterCollection::NAME);
         $this->addHook(PendingDocumentsRetriever::NAME);
-        $this->addHook(WorkerEvent::NAME);
 
-        if (defined('TRACKER_BASE_URL')) {
+        if (defined('\trackerPlugin::TRACKER_BASE_URL')) {
             $this->addHook(AdditionalArtifactActionButtonsFetcher::NAME);
             $this->addHook(SemanticDoneUsedExternalServiceEvent::NAME);
         }
@@ -661,28 +656,6 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
                     $this->getRepositoryFactory(),
                 ];
                 break;
-            case SystemEvent_GIT_PROJECTS_UPDATE::NAME:
-                $params['class']        = 'SystemEvent_GIT_PROJECTS_UPDATE';
-                $params['dependencies'] = [
-                    $this->getLogger(),
-                    $this->getProjectManager(),
-                    $this->getGitoliteDriver(),
-                ];
-                break;
-            case SystemEvent_GIT_REGENERATE_GITOLITE_CONFIG::NAME:
-                $params['class']        = 'SystemEvent_GIT_REGENERATE_GITOLITE_CONFIG';
-                $params['dependencies'] = [
-                    $this->getGitoliteDriver(),
-                    $this->getProjectManager(),
-                ];
-                break;
-            case ProjectIsSuspended::NAME:
-                $params['class']        = ProjectIsSuspended::class;
-                $params['dependencies'] = [
-                    $this->getGitoliteDriver(),
-                    $this->getProjectManager(),
-                ];
-                break;
             case ParseGitolite3Logs::NAME:
                 $params['class']        = '\\Tuleap\\Git\\SystemEvents\\ParseGitolite3Logs';
                 $params['dependencies'] = [
@@ -699,10 +672,11 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         return new Git_Driver_Gerrit_Template_TemplateFactory(new Git_Driver_Gerrit_Template_TemplateDao());
     }
 
-    public function getReferenceKeywords($params)
+    #[ListeningToEventClass]
+    public function getReservedKeywordsEvent(GetReservedKeywordsEvent $event): void
     {
-        $params['keywords'][] = Git::REFERENCE_KEYWORD;
-        $params['keywords'][] = Git::TAG_REFERENCE_KEYWORD;
+        $event->addKeyword(Git::REFERENCE_KEYWORD);
+        $event->addKeyword(Git::TAG_REFERENCE_KEYWORD);
     }
 
     public function getAvailableReferenceNatures(NatureCollection $natures): void
@@ -876,7 +850,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         );
     }
 
-    public function getAdminRouter()
+    public function getAdminRouter(): Git_AdminRouter
     {
         $project_manager             = ProjectManager::instance();
         $gerrit_ressource_restrictor = new GerritServerResourceRestrictor(new RestrictedGerritServerDao());
@@ -885,7 +859,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
             $this->getGerritServerFactory(),
             new CSRFSynchronizerToken(GIT_SITE_ADMIN_BASE_URL),
             $project_manager,
-            $this->getGitSystemEventManager(),
+            new \Tuleap\Queue\EnqueueTask(),
             $this->getRegexpFineGrainedRetriever(),
             $this->getRegexpFineGrainedEnabler(),
             $this->getAdminPageRenderer(),
@@ -1138,15 +1112,9 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
 
     public function proccess_system_check($params)//phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
-        $gitgc           = new Git_GitoliteHousekeeping_GitoliteHousekeepingGitGc(
-            new Git_GitoliteHousekeeping_GitoliteHousekeepingDao(),
-            $params['logger'],
-            $this->getGitoliteAdminPath()
-        );
         $gitolite_driver = $this->getGitoliteDriver();
 
         $system_check = new SystemCheck(
-            $gitgc,
             $gitolite_driver,
             new PluginConfigChecker($params['logger']),
             $this
@@ -1155,7 +1123,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         $system_check->process();
     }
 
-    public function getGitoliteDriver()
+    public function getGitoliteDriver(): Git_GitoliteDriver
     {
         return new Git_GitoliteDriver(
             $this->getLogger(),
@@ -1163,7 +1131,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
             $this->getGitDao(),
             $this,
             $this->getBigObjectAuthorizationManager(),
-            null,
+            new \Tuleap\Process\SymfonyProcessFactory(),
             null,
             null,
             null,
@@ -1173,9 +1141,9 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
 
     public function projectStatusUpdate(ProjectStatusUpdate $event): void
     {
+        $enqueuer = new \Tuleap\Queue\EnqueueTask();
         match ($event->status) {
-            Project::STATUS_ACTIVE    => $this->getGitSystemEventManager()->queueRegenerateGitoliteConfig($event->project->getID()),
-            Project::STATUS_SUSPENDED => $this->getGitSystemEventManager()->queueProjectIsSuspended($event->project->getID()),
+            Project::STATUS_ACTIVE, Project::STATUS_SUSPENDED => $enqueuer->enqueue(RefreshGitoliteProjectConfigurationTask::fromProject($event->project)),
             Project::STATUS_DELETED   => $this->getRepositoryManager()->deleteProjectRepositories($event->project),
         };
     }
@@ -1382,7 +1350,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         $this->getFineGrainedUpdater()->deleteUgroupPermissions($ugroup, $project_id);
         $this->getUgroupsToNotifyDao()->deleteByUgroupId($project_id, $ugroup->getId());
 
-        $this->getGitSystemEventManager()->queueProjectsConfigurationUpdate([$project_id]);
+        (new \Tuleap\Queue\EnqueueTask())->enqueue(new RefreshGitoliteProjectConfigurationTask((int) $project_id));
     }
 
     public function project_admin_add_user($params)//phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
@@ -1808,7 +1776,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         );
     }
 
-    public function getGitSystemEventManager()
+    public function getGitSystemEventManager(): Git_SystemEventManager
     {
         return new Git_SystemEventManager(SystemEventManager::instance());
     }
@@ -1863,11 +1831,11 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         return PermissionsManager::instance();
     }
 
-    protected function getGitPermissionsManager()
+    protected function getGitPermissionsManager(): GitPermissionsManager
     {
         return new GitPermissionsManager(
             new Git_PermissionsDao(),
-            $this->getGitSystemEventManager(),
+            new \Tuleap\Queue\EnqueueTask(),
             $this->getFineGrainedDao(),
             $this->getFineGrainedRetriever()
         );
@@ -1912,11 +1880,6 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
             $this->getGitSystemEventManager(),
             $this->getProjectManager()
         );
-    }
-
-    private function getGitoliteAdminPath()
-    {
-        return ForgeConfig::get('sys_data_dir') . '/gitolite/admin';
     }
 
     private function getUGroupManager()
@@ -1980,61 +1943,25 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         return new Git_GitRepositoryUrlManager($this);
     }
 
-    /**
-     * @return \Tuleap\Git\Gitolite\SSHKey\Dumper
-     */
-    private function getSSHKeyDumper()
+    private function getSSHKeyDumper(): Gitolite3Dumper
     {
-        $factory = $this->getSSHKeyDumperFactory();
-        return $factory->buildDumper();
-    }
-
-    /**
-     * @return \Tuleap\Git\Gitolite\SSHKey\MassDumper
-     */
-    private function getSSHKeyMassDumper()
-    {
-        $factory = $this->getSSHKeyDumperFactory();
-        return $factory->buildMassDumper();
-    }
-
-    /**
-     * @return DumperFactory
-     */
-    private function getSSHKeyDumperFactory()
-    {
-        $user_manager = UserManager::instance();
-
-        $whole_instance_keys = new WholeInstanceKeysAggregator(
-            new GitoliteAdmin(),
-            new GerritServer(new Git_RemoteServer_Dao()),
-            new User($user_manager)
-        );
-
-        $gitolite_admin_path = $this->getGitoliteAdminPath();
-        $git_exec            = new Git_Exec($gitolite_admin_path);
-
         $system_command = new System_Command();
-
-        return new DumperFactory(
-            $this->getManagementDetector(),
-            new AuthorizedKeysFileCreator($whole_instance_keys, $system_command),
+        return new Gitolite3Dumper(
+            new AuthorizedKeysFileCreator(
+                new WholeInstanceKeysAggregator(
+                    new GerritServer(new Git_RemoteServer_Dao()),
+                    new User(UserManager::instance())
+                ),
+                $system_command,
+            ),
             $system_command,
-            $git_exec,
-            $gitolite_admin_path,
-            $user_manager,
-            $this->getLogger()
+            $this->getLogger(),
         );
     }
 
-    /**
-     * @return ManagementDetector
-     */
-    private function getManagementDetector()
+    private function getSSHKeyMassDumper(): \Tuleap\Git\Gitolite\SSHKey\MassDumper
     {
-        return new ManagementDetector(
-            new GlobalParameterDao()
-        );
+        return new \Tuleap\Git\Gitolite\SSHKey\Gitolite3MassDumper($this->getSSHKeyDumper());
     }
 
     public function fill_project_history_sub_events($params)//phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
@@ -2052,30 +1979,6 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
             'git_admin_groups',
             'git_fork_repositories'
         );
-    }
-
-    /**
-     * @see Event::POST_EVENTS_ACTIONS
-     */
-    public function post_system_events_actions($params)//phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
-    {
-        if (! $this->pluginIsConcerned($params)) {
-            return;
-        }
-
-        $this->getLogger()->info('Processing git post system events actions');
-
-        $executed_events_ids = $params['executed_events_ids'];
-
-        $this->getGitoliteDriver()->commit('Modifications from events ' . implode(',', $executed_events_ids));
-        $this->getGitoliteDriver()->push();
-    }
-
-    private function pluginIsConcerned($params)
-    {
-        return $params['queue_name'] == 'git'
-            && is_array($params['executed_events_ids'])
-            && count($params['executed_events_ids']) > 0;
     }
 
     /**
@@ -2254,7 +2157,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
             $this->getRepositoryManager(),
             $this->getRepositoryFactory(),
             $this->getBackendGitolite(),
-            $this->getGitSystemEventManager(),
+            new \Tuleap\Queue\EnqueueTask(),
             PermissionsManager::instance(),
             EventManager::instance(),
             $this->getFineGrainedUpdater(),
@@ -2790,9 +2693,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
 
         $action = $request->get('action');
         if ($action === 'repo_management') {
-            if (in_array($request->get('pane'), GitViews_RepoManagement::BURNING_PARROT_COMPATIBLE_PANES, true)) {
-                $event->setIsInBurningParrotCompatiblePage();
-            }
+            $event->setIsInBurningParrotCompatiblePage();
         }
 
         if (in_array($action, [Git::ADMIN_GIT_ADMINS_ACTION, Git::ADMIN_DEFAULT_SETTINGS_ACTION], true)) {
@@ -2832,7 +2733,7 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
             function (): RegenerateConfigurationCommand {
                 return new RegenerateConfigurationCommand(
                     ProjectManager::instance(),
-                    $this->getGitSystemEventManager()
+                    new \Tuleap\Queue\EnqueueTask(),
                 );
             }
         );
@@ -2958,12 +2859,13 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
         );
     }
 
+    #[ListeningToEventClass]
     public function workerEvent(WorkerEvent $event): void
     {
         $logger        = $this->getLogger();
         $event_manager = \EventManager::instance();
 
-        $handler = new AsynchronousEventHandler(
+        $hook_handler = new AsynchronousEventHandler(
             $logger,
             new DefaultBranchPushParser(
                 \UserManager::instance(),
@@ -2974,7 +2876,13 @@ class GitPlugin extends Plugin implements PluginWithConfigKeys, PluginWithServic
             new DefaultBranchPushProcessorBuilder(),
             $event_manager
         );
-        $handler->handle($event);
+        $hook_handler->handle($event);
+
+        new \Tuleap\Git\AsynchronousEvents\GitProjectAsynchronousEventHandler(
+            \Tuleap\Mapper\ValinorMapperBuilderFactory::mapperBuilder(),
+            $this->getProjectManager(),
+            $this->getGitoliteDriver(),
+        )->handle($event);
     }
 
     #[ListeningToEventClass]

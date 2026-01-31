@@ -232,7 +232,7 @@ class ReferenceDao extends DataAccessObject implements GetSystemReferenceNatureB
     {
         $exclusion = implode(',', array_map($this->da->quoteSmart(...), self::NOT_ANYMORE_SUPPORTED_NATURES));
         // Order by scope to return 'P'roject references before 'S'ystem references
-        // This may happen for old tracker created before Reference management.
+        // This may happen for old services created before Reference management.
         // Otherwise, there should not be both S and P reference with the same keyword...
         $sql = sprintf(
             'SELECT * FROM reference,reference_group WHERE reference.keyword = %s and reference.id=reference_group.reference_id and reference_group.group_id=%s ORDER BY reference.scope AND reference.nature NOT IN (%s)',
@@ -251,7 +251,7 @@ class ReferenceDao extends DataAccessObject implements GetSystemReferenceNatureB
     {
         $exclusion = implode(',', array_map($this->da->quoteSmart(...), self::NOT_ANYMORE_SUPPORTED_NATURES));
         // Order by scope to return 'P'roject references before 'S'ystem references
-        // This may happen for old tracker created before Reference management.
+        // This may happen for old services created before Reference management.
         // Otherwise, there should not be both S and P reference with the same keyword...
         $sql = sprintf(
             'SELECT * FROM reference r,reference_group rg WHERE ' .
@@ -341,17 +341,6 @@ class ReferenceDao extends DataAccessObject implements GetSystemReferenceNatureB
                       INNER JOIN reference_group rg ON (r.id=rg.reference_id)
                 SET r.keyword=$new_short_name
                 WHERE r.keyword=$old_short_name AND rg.group_id=$group_id";
-        return $this->update($sql);
-    }
-
-    public function update_keyword($old_keyword, $keyword, $group_id) // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
-    {
-        $sql = sprintf(
-            'UPDATE reference, reference_group SET keyword=%s WHERE reference.keyword = %s and reference.id=reference_group.reference_id and reference_group.group_id=%s',
-            $this->da->quoteSmart($keyword),
-            $this->da->quoteSmart($old_keyword),
-            $this->da->quoteSmart($group_id)
-        );
         return $this->update($sql);
     }
 

@@ -36,11 +36,9 @@ final class URLVerificationTest extends \Tuleap\Test\PHPUnit\TestCase
 
     public function testIsScriptAllowedForAnonymous(): void
     {
-        $urlVerification = $this->createPartialMock(\URLVerification::class, [
-            'getEventManager',
-        ]);
+        $urlVerification = $this->getStubBuilder(\URLVerification::class)->onlyMethods(['getEventManager'])->getStub();
 
-        $em = $this->createMock(EventManager::class);
+        $em = $this->createStub(EventManager::class);
         $em->method('processEvent')->with(
             self::anything(),
             self::callback(
@@ -90,7 +88,7 @@ final class URLVerificationTest extends \Tuleap\Test\PHPUnit\TestCase
         $urlVerification = new URLVerification();
         self::assertFalse(
             $urlVerification->isException(
-                ['SCRIPT_NAME' => '/projects/foobar/?p=/api/reference/extractCross']
+                ['SCRIPT_NAME' => '/projects/foobar/?p=/api/whatever']
             )
         );
     }
@@ -98,15 +96,13 @@ final class URLVerificationTest extends \Tuleap\Test\PHPUnit\TestCase
     public function testItTreatsExtractionOfCrossReferencesApiAsException(): void
     {
         $urlVerification = new URLVerification();
-        self::assertTrue($urlVerification->isException(['SCRIPT_NAME' => '/api/reference/extractCross']));
+        self::assertTrue($urlVerification->isException(['SCRIPT_NAME' => '/api/whatever']));
     }
 
     public function testIsScriptAllowedForAnonymousFromHook(): void
     {
-        $urlVerification = $this->createPartialMock(\URLVerification::class, [
-            'getEventManager',
-        ]);
-        $em              = $this->createMock(EventManager::class);
+        $urlVerification = $this->getStubBuilder(\URLVerification::class)->onlyMethods(['getEventManager'])->getStub();
+        $em              = $this->createStub(EventManager::class);
         $em->method('processEvent')->with(
             self::anything(),
             self::callback(

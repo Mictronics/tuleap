@@ -19,10 +19,7 @@
 
 <template>
     <div class="tlp-form-element">
-        <label-for-field
-            v-bind:id="'tracker-admin-formElements_' + field.field_id"
-            v-bind:field="field"
-        />
+        <label-for-field v-bind:field="field" />
         <a
             v-if="field.type === ARTIFACT_ID_IN_TRACKER_FIELD"
             data-test="artifact-id-in-tracker-field"

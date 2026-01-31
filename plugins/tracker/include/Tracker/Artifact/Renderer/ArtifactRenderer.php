@@ -51,7 +51,7 @@ abstract class Tracker_Artifact_ArtifactRenderer // phpcs:ignore PSR1.Classes.Cl
         $this->tracker            = $tracker;
         $this->event_manager      = $event_manager;
         $this->redirect           = new Tracker_Artifact_Redirect();
-        $this->redirect->base_url = TRACKER_BASE_URL;
+        $this->redirect->base_url = \trackerPlugin::TRACKER_BASE_URL;
     }
 
     /**
@@ -62,8 +62,11 @@ abstract class Tracker_Artifact_ArtifactRenderer // phpcs:ignore PSR1.Classes.Cl
     {
         $this->enhanceRedirect($request);
 
-        $content  = $this->fetchFormContent($request, $current_user);
-        $content .= $this->fetchRulesAsJavascript();
+        $content                   = $this->fetchFormContent($request, $current_user);
+        $requested_view_identifier = $request->get('view');
+        if ($requested_view_identifier === false || $requested_view_identifier === \Tuleap\Tracker\Artifact\View\ArtifactViewEdit::IDENTIFIER) {
+            $content .= $this->fetchRulesAsJavascript();
+        }
 
         $this->displayHeader();
         echo $content;
@@ -161,7 +164,7 @@ abstract class Tracker_Artifact_ArtifactRenderer // phpcs:ignore PSR1.Classes.Cl
         </form>';
     }
 
-    protected function fetchRulesAsJavascript()
+    protected function fetchRulesAsJavascript(): string
     {
         return $this->tracker->displayRulesAsJavascript();
     }

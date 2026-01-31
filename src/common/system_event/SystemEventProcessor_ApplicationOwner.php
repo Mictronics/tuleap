@@ -25,23 +25,9 @@
 class SystemEventProcessor_ApplicationOwner extends SystemEventProcessor
 {
     #[\Override]
-    public function getOwner()
+    public function getOwner(): string
     {
         return SystemEvent::OWNER_APP;
-    }
-
-    #[\Override]
-    protected function postEventsActions(array $executed_events_ids, $queue_name)
-    {
-        $params = [
-            'executed_events_ids'  => $executed_events_ids,
-            'queue_name'           => $queue_name,
-        ];
-
-        EventManager::instance()->processEvent(
-            Event::POST_SYSTEM_EVENTS_ACTIONS,
-            $params
-        );
     }
 
     #[\Override]

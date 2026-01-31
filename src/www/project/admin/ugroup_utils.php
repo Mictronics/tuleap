@@ -56,12 +56,12 @@ $GLOBALS['UGROUPS']                   = [
 *          |
 *     +----+-----+
 *     |          |
-*  statics    members
-*                ^
+*  static       members
+*  (id > 100)    ^
 *                |
 *         +------+- - - -   -   -
 *         |
-*    tracker_tech
+*    wiki_admin
 */
 function ugroup_get_parent($ugroup_id)
 {
@@ -137,26 +137,6 @@ function ugroup_db_get_existing_ugroups($group_id, $predefined = null)
     return db_query($sql);
 }
 
-/**
- * Returns a list of ugroups for the given group, with their associated members
- */
-function ugroup_get_ugroups_with_members($group_id)
-{
-    $sql = 'SELECT ugroup.ugroup_id, ugroup.name, user.user_id, user.user_name FROM ugroup ' .
-    'NATURAL LEFT JOIN ugroup_user ' .
-    'NATURAL LEFT JOIN user ' .
-    'WHERE ugroup.group_id=' . db_ei($group_id) .
-    ' ORDER BY ugroup.name';
-
-    $return = [];
-
-    $res = db_query($sql);
-    while ($data = db_fetch_array($res)) {
-        $return[] = $data;
-    }
-
-    return $return;
-}
 
 // Return DB ugroup from ugroup_id
 function ugroup_db_get_ugroup($ugroup_id)
@@ -175,7 +155,7 @@ function ugroup_db_list_all_ugroups_for_user($group_id, $user_id)
 
 /** Return array of ugroup_id for all dynamic ugoups like
  * (anonymous_user, registered_user, project_member,
- * project_admins, tracker_admins) that user is part of */
+ * project_admins, wiki_admins) that user is part of */
 function ugroup_db_list_dynamic_ugroups_for_user($group_id, $user_id)
 {
     $user = UserManager::instance()->getUserById($user_id);

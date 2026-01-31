@@ -23,13 +23,11 @@ namespace Tuleap\Gitlab\REST\v1;
 
 use BackendLogger;
 use Git_PermissionsDao;
-use Git_SystemEventManager;
 use GitPermissionsManager;
 use GitUserNotAdminException;
 use Luracast\Restler\RestException;
 use Project;
 use ProjectManager;
-use SystemEventManager;
 use Tuleap\Cryptography\ConcealedString;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\DBTransactionExecutorWithConnection;
@@ -68,6 +66,7 @@ use Tuleap\Gitlab\Repository\Webhook\WebhookDao;
 use Tuleap\Gitlab\Repository\Webhook\WebhookDeletor;
 use Tuleap\Http\HttpClientFactory;
 use Tuleap\Http\HTTPFactoryBuilder;
+use Tuleap\Queue\EnqueueTask;
 use Tuleap\REST\Header;
 use UserManager;
 
@@ -153,7 +152,6 @@ final class GitlabRepositoryResource
                 ),
                 new GitlabRepositoryIntegrationDao(),
                 new WebhookCreator(
-                    new \Tuleap\Cryptography\KeyFactoryFromFileSystem(),
                     new WebhookDao(),
                     new WebhookDeletor(
                         new WebhookDao(),
@@ -163,7 +161,7 @@ final class GitlabRepositoryResource
                     $gitlab_api_client,
                     BackendLogger::getDefaultLogger(\gitlabPlugin::LOG_IDENTIFIER),
                 ),
-                new IntegrationApiTokenInserter(new IntegrationApiTokenDao(), new \Tuleap\Cryptography\KeyFactoryFromFileSystem())
+                new IntegrationApiTokenInserter(new IntegrationApiTokenDao())
             );
 
             if (isset($gitlab_repository->allow_artifact_closure) && $gitlab_repository->allow_artifact_closure === true) {
@@ -279,7 +277,7 @@ final class GitlabRepositoryResource
             new MergeRequestTuleapReferenceDao(),
             new TagInfoDao(),
             new BranchInfoDao(),
-            new CredentialsRetriever(new IntegrationApiTokenRetriever(new IntegrationApiTokenDao(), new \Tuleap\Cryptography\KeyFactoryFromFileSystem())),
+            new CredentialsRetriever(new IntegrationApiTokenRetriever(new IntegrationApiTokenDao())),
             new CreateBranchPrefixDao()
         );
 
@@ -379,10 +377,8 @@ final class GitlabRepositoryResource
                 $this->getGitPermissionsManager(),
                 new IntegrationApiTokenInserter(
                     new IntegrationApiTokenDao(),
-                    new \Tuleap\Cryptography\KeyFactoryFromFileSystem()
                 ),
                 new WebhookCreator(
-                    new \Tuleap\Cryptography\KeyFactoryFromFileSystem(),
                     new WebhookDao(),
                     new WebhookDeletor(
                         new WebhookDao(),
@@ -416,11 +412,9 @@ final class GitlabRepositoryResource
                 new CredentialsRetriever(
                     new IntegrationApiTokenRetriever(
                         new IntegrationApiTokenDao(),
-                        new \Tuleap\Cryptography\KeyFactoryFromFileSystem()
                     ),
                 ),
                 new WebhookCreator(
-                    new \Tuleap\Cryptography\KeyFactoryFromFileSystem(),
                     new WebhookDao(),
                     new WebhookDeletor(
                         new WebhookDao(),
@@ -530,7 +524,7 @@ final class GitlabRepositoryResource
                 new GitlabRepositoryIntegrationDao(),
                 ProjectManager::instance()
             ),
-            new CredentialsRetriever(new IntegrationApiTokenRetriever(new IntegrationApiTokenDao(), new \Tuleap\Cryptography\KeyFactoryFromFileSystem())),
+            new CredentialsRetriever(new IntegrationApiTokenRetriever(new IntegrationApiTokenDao())),
             new GitlabProjectBuilder(
                 new ClientWrapper(
                     HTTPFactoryBuilder::requestFactory(),
@@ -582,16 +576,12 @@ final class GitlabRepositoryResource
 
     private function getGitPermissionsManager(): GitPermissionsManager
     {
-        $git_system_event_manager = new Git_SystemEventManager(
-            SystemEventManager::instance(),
-        );
-
         $fine_grained_dao       = new FineGrainedDao();
         $fine_grained_retriever = new FineGrainedRetriever($fine_grained_dao);
 
         return new GitPermissionsManager(
             new Git_PermissionsDao(),
-            $git_system_event_manager,
+            new EnqueueTask(),
             $fine_grained_dao,
             $fine_grained_retriever
         );

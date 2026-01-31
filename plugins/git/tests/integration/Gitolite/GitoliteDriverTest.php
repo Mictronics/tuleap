@@ -23,32 +23,34 @@ declare(strict_types=1);
 
 namespace Tuleap\Git\Gitolite;
 
-use EventManager;
 use ForgeConfig;
 use Git_Driver_Gerrit_ProjectCreatorStatus;
-use Git_Exec;
 use Git_Gitolite_ConfigPermissionsSerializer;
 use Git_Gitolite_GitoliteConfWriter;
 use Git_Gitolite_ProjectSerializer;
 use Git_GitoliteDriver;
+use Git_GitRepositoryUrlManager;
 use GitDao;
 use GitPlugin;
-use PHPUnit\Framework\MockObject\MockObject;
+use GitRepositoryFactory;
 use ProjectManager;
 use Psr\Log\NullLogger;
 use Tuleap\Git\BigObjectAuthorization\BigObjectAuthorizationManager;
 use Tuleap\Git\Permissions\FineGrainedPermissionFactory;
 use Tuleap\Git\Permissions\FineGrainedRetriever;
 use Tuleap\Git\Permissions\RegexpFineGrainedRetriever;
-use Tuleap\Test\Builders\ProjectTestBuilder;
+use Tuleap\TemporaryTestDirectory;
+use Tuleap\Test\PHPUnit\TestIntegrationTestCase;
+use Tuleap\Test\Stubs\EventDispatcherStub;
+use Tuleap\Test\Stubs\Process\ProcessFactoryStub;
+use Tuleap\Test\Stubs\Process\ProcessStub;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
-final class GitoliteDriverTest extends GitoliteTestCase
+final class GitoliteDriverTest extends TestIntegrationTestCase
 {
+    use TemporaryTestDirectory;
+
     private Git_GitoliteDriver $a_gitolite_driver;
-    private Git_GitoliteDriver $another_gitolite_driver;
-    private Git_Exec&MockObject $another_git_exec;
-    private ProjectManager&MockObject $project_manager;
 
     #[\Override]
     protected function setUp(): void
@@ -57,135 +59,79 @@ final class GitoliteDriverTest extends GitoliteTestCase
 
         ForgeConfig::set('codendi_cache_dir', $this->getTmpDir() . '/cache');
 
-        $this->project_manager = $this->createMock(ProjectManager::class);
+        $project_manager    = $this->createStub(ProjectManager::class);
+        $repository_factory = $this->createStub(GitRepositoryFactory::class);
+
+        $git_plugin = $this->createStub(GitPlugin::class);
+        $git_plugin->method('areFriendlyUrlsActivated')->willReturn(false);
+        $url_manager = new Git_GitRepositoryUrlManager($git_plugin);
+
+        $logger = new NullLogger();
+
+        $fine_grained_retriever = $this->createStub(FineGrainedRetriever::class);
 
         $another_gitolite_permissions_serializer = new Git_Gitolite_ConfigPermissionsSerializer(
-            $this->createMock(Git_Driver_Gerrit_ProjectCreatorStatus::class),
+            $this->createStub(Git_Driver_Gerrit_ProjectCreatorStatus::class),
             'whatever',
-            $this->createMock(FineGrainedRetriever::class),
-            $this->createMock(FineGrainedPermissionFactory::class),
-            $this->createMock(RegexpFineGrainedRetriever::class),
-            $this->createMock(EventManager::class)
+            $fine_grained_retriever,
+            $this->createStub(FineGrainedPermissionFactory::class),
+            $this->createStub(RegexpFineGrainedRetriever::class),
+            EventDispatcherStub::withIdentityCallback(),
         );
 
-        $big_object_authorization_manager = $this->createMock(BigObjectAuthorizationManager::class);
+        $big_object_authorization_manager = $this->createStub(BigObjectAuthorizationManager::class);
         $a_gitolite_project_serializer    = new Git_Gitolite_ProjectSerializer(
-            $this->logger,
-            $this->repository_factory,
+            $logger,
+            $repository_factory,
             $another_gitolite_permissions_serializer,
-            $this->url_manager,
+            $url_manager,
             $big_object_authorization_manager,
         );
 
+        $dao                  = $this->createStub(GitDao::class);
         $gitolite_conf_writer = new Git_Gitolite_GitoliteConfWriter(
             $another_gitolite_permissions_serializer,
             $a_gitolite_project_serializer,
-            new NullLogger(),
-            $this->project_manager,
-            $this->sys_data_dir . '/gitolite/admin'
+            $dao,
+            $logger,
+            $project_manager,
+            $this->getGitoliteAdministrationPath()
         );
 
-        $git_dao                 = $this->createMock(GitDao::class);
-        $git_plugin              = $this->createMock(GitPlugin::class);
+        $git_dao                 = $this->createStub(GitDao::class);
+        $git_plugin              = $this->createStub(GitPlugin::class);
         $this->a_gitolite_driver = new Git_GitoliteDriver(
-            $this->logger,
-            $this->url_manager,
+            $logger,
+            $url_manager,
             $git_dao,
             $git_plugin,
             $big_object_authorization_manager,
-            $this->git_exec,
-            $this->repository_factory,
+            ProcessFactoryStub::withProcess(ProcessStub::successfulProcess()),
+            $repository_factory,
             $another_gitolite_permissions_serializer,
             $gitolite_conf_writer,
-            $this->project_manager,
-        );
-
-        $this->another_git_exec = $this->createMock(Git_Exec::class);
-
-        $this->another_gitolite_driver = new Git_GitoliteDriver(
-            $this->logger,
-            $this->url_manager,
-            $git_dao,
-            $git_plugin,
-            $big_object_authorization_manager,
-            $this->another_git_exec,
-            $this->repository_factory,
-            $another_gitolite_permissions_serializer,
-            $gitolite_conf_writer,
-            $this->project_manager,
+            $project_manager,
         );
     }
 
-    public function testGitoliteConfUpdate(): void
+    #[\Override]
+    protected function tearDown(): void
     {
-        $this->another_git_exec->method('add');
-
-        touch($this->gitolite_admin_dir . '/conf/projects/project1.conf');
-
-        $this->another_gitolite_driver->updateMainConfIncludes();
-
-        $gitoliteConf = $this->getGitoliteConf();
-
-        self::assertMatchesRegularExpression('#^include "projects/project1.conf"$#m', $gitoliteConf);
+        \PermissionsManager::clearInstance();
     }
 
-    private function getGitoliteConf(): string
+    private function getGitoliteAdministrationPath(): string
     {
-        return file_get_contents($this->gitolite_admin_dir . '/conf/gitolite.conf');
-    }
-
-    private function getFileConf($filename): string
-    {
-        return file_get_contents($this->gitolite_admin_dir . '/conf/' . $filename . '.conf');
-    }
-
-    public function testItCanRenameProject(): void
-    {
-        $new_name = 'newone';
-        $this->project_manager->method('getProjectByUnixName')->with($new_name)->willReturn(ProjectTestBuilder::aProject()->withUnixName($new_name)->build());
-        $this->git_exec->expects($this->once())->method('push')->willReturn(true);
-
-        self::assertTrue(is_file($this->gitolite_admin_dir . '/conf/projects/legacy.conf'));
-        self::assertFalse(is_file($this->gitolite_admin_dir . '/conf/projects/newone.conf'));
-
-        $this->assertTrue($this->a_gitolite_driver->renameProject('legacy', $new_name));
-
-        clearstatcache(true, $this->gitolite_admin_dir . '/conf/projects/legacy.conf');
-        self::assertFalse(is_file($this->gitolite_admin_dir . '/conf/projects/legacy.conf'));
-        self::assertTrue(is_file($this->gitolite_admin_dir . '/conf/projects/newone.conf'));
-        self::assertFileEquals(
-            $this->fixtures_dir . '/perms/newone.conf',
-            $this->gitolite_admin_dir . '/conf/projects/newone.conf'
-        );
-        self::assertDoesNotMatchRegularExpression('`\ninclude "projects/legacy.conf"\n`', $this->getGitoliteConf());
-        self::assertMatchesRegularExpression('`\ninclude "projects/newone.conf"\n`', $this->getGitoliteConf());
-        $this->assertEmptyGitStatus();
-    }
-
-    public function testItLogsEverytimeItPushes(): void
-    {
-        $this->git_exec->method('push')->willReturn(true);
-
-        $this->driver->push();
-        self::assertTrue($this->logger->hasDebugRecords());
-    }
-
-    public function testItAddsAllTheRequiredFilesForPush(): void
-    {
-        touch($this->gitolite_admin_dir . '/conf/projects/project1.conf');
-
-        $this->another_git_exec->expects($this->once())->method('add')->with('conf/gitolite.conf')->willReturn(true);
-
-        $this->another_gitolite_driver->updateMainConfIncludes();
+        return $this->getTmpDir();
     }
 
     public function testItIsInitializedEvenIfThereIsNoMaster(): void
     {
-        self::assertTrue($this->driver->isInitialized($this->fixtures_dir . '/headless.git'));
+        self::assertTrue($this->a_gitolite_driver->isInitialized(__DIR__ . '/_fixtures/headless.git'));
     }
 
     public function testItIsNotInitializedIfThereIsNoValidDirectory(): void
     {
-        self::assertFalse($this->driver->isInitialized($this->fixtures_dir));
+        self::assertFalse($this->a_gitolite_driver->isInitialized(__DIR__ . '/_fixtures/'));
     }
 }

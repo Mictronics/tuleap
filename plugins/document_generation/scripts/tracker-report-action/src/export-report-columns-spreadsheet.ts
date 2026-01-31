@@ -16,8 +16,8 @@
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
-import { downloadXLSXDocument } from "../../tracker-cross-report-action/src/export-document";
-import { downloadXLSX } from "../../tracker-cross-report-action/src/Exporter/XLSX/download-xlsx";
+
+import { downloadXLSX, downloadDocument } from "@tuleap/plugin-tracker-report-exporter";
 
 interface Properties {
     readonly current_tracker_name: string;
@@ -29,7 +29,7 @@ interface Properties {
 export async function startDownloadExportAllReportColumnsSpreadsheet(
     properties: Properties,
 ): Promise<void> {
-    await downloadXLSXDocument(
+    await downloadDocument(
         {
             first_level: {
                 tracker_name: properties.current_tracker_name,
@@ -37,6 +37,7 @@ export async function startDownloadExportAllReportColumnsSpreadsheet(
                 report_name: properties.current_report_name,
                 table_renderer_id: properties.current_renderer_id,
                 artifact_link_types: [],
+                all_columns: false,
             },
         },
         downloadXLSX,

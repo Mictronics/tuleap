@@ -147,7 +147,7 @@ ol {
 
 #filters-dropdown-menu {
     transform: translate(-62px, -8px);
-    border-bottom: 1px solid var(--tlp-neutral-normal-color);
+    border-bottom: 1px solid var(--tlp-border-color);
     border-top-style: none;
     box-shadow: none;
 
@@ -167,7 +167,7 @@ ol {
             margin: 0;
             padding: var(--tlp-medium-spacing) var(--tlp-medium-spacing) var(--tlp-small-spacing)
                 var(--tlp-medium-spacing);
-            border-top: 1px solid var(--tlp-neutral-light-color);
+            border-top: 1px solid var(--tlp-border-light-color);
         }
 
         > .tests-filter-option-title {
@@ -185,7 +185,7 @@ ol {
 
 .tests-list-category {
     margin: 0;
-    padding: calc(var(--tlp-small-spacing) / 2) calc(var(--tlp-small-spacing) / 2);
+    padding: calc(var(--tlp-small-spacing) / 2);
     background: var(--tlp-background-color);
     color: var(--tlp-main-color);
     font-size: 0.75rem;

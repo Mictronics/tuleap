@@ -91,22 +91,6 @@ class Event // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
      */
     public const string GET_SYSTEM_EVENT_CLASS = 'get_system_event_class';
 
-     /**
-      * This event is used to get all reserved keywords provided by plugins for reference
-      */
-    public const string GET_PLUGINS_AVAILABLE_KEYWORDS_REFERENCES = 'get_plugins_available_keywords_references';
-
-     /**
-      * Allow to define the group_id of an artifact reference
-      *
-      * Parameters
-      *     'artifact_id' => Id of an artifact
-      *
-      * Expected results:
-      *     'group_id'    => Id of the project the artifact belongs to
-      */
-    public const string GET_ARTIFACT_REFERENCE_GROUP_ID = 'get_artifact_reference_group_id';
-
     /**
      * Project unix name changed
      *
@@ -474,13 +458,6 @@ class Event // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
      *      'new_name'    => string
      */
     public const string RENAME_PROJECT = 'rename_project';
-
-    /**
-     *  Parameters:
-     *      'executed_events_ids' => array
-     *      'queue_name'          => string
-     */
-    public const string POST_SYSTEM_EVENTS_ACTIONS = 'post_system_events_actions';
 
     /**
      * Event raised to get project's Git repositories information with REST

@@ -89,12 +89,11 @@ final class TrackerRulesDateValidatorTest extends \Tuleap\Test\PHPUnit\TestCase
         $tracker_rule_date2->method('getSourceFieldId')->willReturn(12);
         $tracker_rule_date2->method('getTargetFieldId')->willReturn(13);
         $tracker_rule_date2->method('getComparator')->willReturn($comparator);
-        $this->formelement_factory->method('getFormElementById')->willReturnCallback(static fn (int $id) => match ($id) {
+        $this->formelement_factory->method('getFieldById')->willReturnCallback(static fn (int $id) => match ($id) {
             12 => $source_field,
             13 => $target_field,
         });
 
-        $GLOBALS['Response']->method('addFeedback')->with('error', 'Error on the tracker #' . $tracker->getId() . ' date value : aaaaa must be > to bbbbb.');
         $source_field->method('setHasErrors')->with(true);
         $target_field->method('setHasErrors')->with(true);
 
@@ -105,6 +104,8 @@ final class TrackerRulesDateValidatorTest extends \Tuleap\Test\PHPUnit\TestCase
             13 => '',
         ];
         $this->assertFalse($this->tracker_rules_date_validator->validateDateRules($value_field_list, [$tracker_rule_date, $tracker_rule_date2]));
+
+        self::assertEquals(['Error on the tracker #' . $tracker->getId() . ' date value : aaaaa must be > to bbbbb.'], $this->global_response->getFeedbackErrors());
     }
 
     public function testValidateDateRulesReturnsFalseAndFeedbackDuringCSVImportWhenADateIsValidButNotInFieldList(): void
@@ -129,15 +130,11 @@ final class TrackerRulesDateValidatorTest extends \Tuleap\Test\PHPUnit\TestCase
         $tracker_rule_date2->method('getSourceFieldId')->willReturn(12);
         $tracker_rule_date2->method('getTargetFieldId')->willReturn(13);
         $tracker_rule_date2->method('getComparator')->willReturn($comparator);
-        $this->formelement_factory->method('getFormElementById')->willReturnCallback(static fn (int $id) => match ($id) {
+        $this->formelement_factory->method('getFieldById')->willReturnCallback(static fn (int $id) => match ($id) {
             12 => $source_field,
             13 => $target_field,
         });
 
-        $GLOBALS['Response']->method('addUniqueFeedback')->willReturnCallback(static fn (string $level, string $message) => match (true) {
-            $level === 'error' && $message === 'Missing field in data:aaaaa',
-                $level === 'error' && $message === 'Missing field in data:bbbbb' => true,
-        });
         $source_field->method('setHasErrors')->with(true);
         $target_field->method('setHasErrors')->with(true);
 
@@ -147,5 +144,7 @@ final class TrackerRulesDateValidatorTest extends \Tuleap\Test\PHPUnit\TestCase
         ];
 
         $this->assertFalse($this->tracker_rules_date_validator->validateDateRules($value_field_list, [$tracker_rule_date, $tracker_rule_date2]));
+
+        self::assertEquals(['Missing field in data:aaaaa', 'Missing field in data:bbbbb'], $this->global_response->getFeedbackErrors());
     }
 }

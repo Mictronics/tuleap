@@ -18,19 +18,16 @@
  */
 
 import type { ConditionPredicate } from "@tuleap/cypress-utilities-support";
-
-function getCurrentTimestampInSeconds(): string {
-    return String(Date.now()).slice(0, -4);
-}
+import { getAntiCollisionNamePart } from "@tuleap/cypress-utilities-support";
 
 describe("Program management", () => {
     let program_project_name: string, team_project_name: string, other_team_project_name: string;
 
     beforeEach(function () {
-        const now = getCurrentTimestampInSeconds();
-        program_project_name = "program-" + now;
-        team_project_name = "team-" + now;
-        other_team_project_name = "z-other-team-" + now;
+        const anti_collision = getAntiCollisionNamePart();
+        program_project_name = "program-" + anti_collision;
+        team_project_name = "team-" + anti_collision;
+        other_team_project_name = "z-other-team-" + anti_collision;
 
         cy.intercept("/api/v1/projects/*/program_teams").as("linkTeamToProgram");
     });
@@ -160,7 +157,7 @@ function planFeatureIntoProgramIncrement(
 function createAndPlanFeature(program_project_name: string, team_project_name: string): void {
     cy.log("Create a program increment");
     cy.get("[data-test=program_increment_name]").type("My first PI");
-    cy.get("[data-test=date-time-start_date]").type("2021-08-03");
+    cy.get("[data-test=date-time-start_date]").setDatepickerValue("2021-08-03");
     cy.get("[data-test=date-time-end_date]").type("2021-10-03");
     cy.get("[data-test=artifact-submit-button]").click();
 
@@ -188,8 +185,8 @@ function createIteration(program_project_name: string): void {
     cy.get("[data-test=user-story-card]").contains("My US");
     cy.get("[data-test=planned-iterations-add-iteration-button]").click();
     cy.get("[data-test=iteration_name]").type("Iteration One");
-    cy.get("[data-test=date-time-start_date]").type("2021-08-03");
-    cy.get("[data-test=date-time-end_date]").type("2021-08-13");
+    cy.get("[data-test=date-time-start_date]").setDatepickerValue("2021-08-03");
+    cy.get("[data-test=date-time-end_date]").setDatepickerValue("2021-08-13");
     cy.get("[data-test=artifact-submit-button]").click();
 }
 

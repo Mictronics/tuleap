@@ -15,6 +15,16 @@ pipeline {
             }
         }
 
+        stage('Setup Nix cache') {
+            steps {
+                script {
+                    def helpers = load 'sources/tests/helpers.groovy'
+                    helpers.authenticateOnTailscale()
+                    helpers.setupTuleapCommunityNixCache()
+                }
+            }
+        }
+
         stage('Prepare') {
             steps {
                 dir ('results') {
@@ -53,29 +63,41 @@ pipeline {
         stage('E2E tests') {
             options { retry(1) }
             steps {
-                script { actions.runEndToEndTests('full', 'mysql80') }
+                script { actions.runEndToEndTests('full', 'mysql84') }
             }
             post {
                 always {
-                    junit 'results/e2e/full/*.xml'
-                }
-            }
-        }
-        stage ('MySQL 8.4') {
-            failFast false
-            parallel {
-                stage('DB/Integration') {
-                    steps { script { actions.runDBTests('mysql84', '84') } }
-                    post { always { junit 'results/db/*/db_tests.xml' } }
-                }
-                stage('REST') {
-                    steps { script { actions.runRESTTests('mysql84', '84') } }
-                    post { always { junit 'results/api-rest/*/*' } }
+                    junit 'results/e2e/full-mysql84/*.xml'
                 }
             }
         }
 
         stage('Build and run el10') { steps { script { actions.runBuildAndRun('el10') } } }
+
+        stage ('MySQL 8.0') {
+            failFast false
+            parallel {
+                stage('DB/Integration') {
+                    steps { script { actions.runDBTests('mysql80', '84') } }
+                    post { always { junit 'results/db/*/db_tests.xml' } }
+                }
+                stage('REST') {
+                    steps { script { actions.runRESTTests('mysql80', '84') } }
+                    post { always { junit 'results/api-rest/*/*' } }
+                }
+                stage('E2E tests') {
+                    options { retry(1) }
+                    steps {
+                        script { actions.runEndToEndTests('full', 'mysql80') }
+                    }
+                    post {
+                        always {
+                            junit 'results/e2e/full-mysql80/*.xml'
+                        }
+                    }
+                }
+            }
+        }
     }
     post {
         always {

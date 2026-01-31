@@ -20,6 +20,9 @@ dependencies:
   '@tuleap/tlp-fetch':
     specifier: workspace:*
     version: link:../../../../lib/frontend/tlp-fetch
+  '@tuleap/tlp-popovers':
+    specifier: workspace:^
+    version: link:../../../../lib/frontend/tlp-popovers
   '@tuleap/vue3-gettext-init':
     specifier: workspace:^
     version: link:../../../../lib/frontend/vue3-gettext-init
@@ -38,6 +41,9 @@ dependencies:
   vuex:
     specifier: ^4.1.0
     version: 4.1.0(vue@3.5.13)
+  vuex-composition-helpers:
+    specifier: ^2.0.1
+    version: 2.0.1(vue@3.5.13)(vuex@4.1.0)
 
 devDependencies:
   '@tuleap/build-system-configurator':
@@ -49,9 +55,6 @@ devDependencies:
   '@vue/test-utils':
     specifier: ^2.4.1
     version: 2.4.6
-  jquery:
-    specifier: ^3.6.0
-    version: 3.6.0
   vue-loader:
     specifier: ^17.2.2
     version: 17.2.2(vue@3.5.13)
@@ -502,10 +505,6 @@ packages:
       '@pkgjs/parseargs': 0.11.0
     dev: true
 
-  /jquery@3.6.0:
-    resolution: {integrity: sha512-JVzAR/AjBvVt2BmYhxRCSYysDsPcssdmTFnzyLEts9qNwmjmu4JTAMYubEfwVOSwpQ1I1sKKFcxhZCI2buerfw==}
-    dev: true
-
   /js-beautify@1.15.1:
     resolution: {integrity: sha512-ESjNzSlt/sWE8sciZH8kBF8BPlwXPwhR6pWKAw8bw4Bwj+iZcnKW6ONWUutJ7eObuBZQpiIb8S7OYspWrKt7rA==}
     engines: {node: '>=14'}
@@ -827,6 +826,16 @@ packages:
       '@vue/runtime-dom': 3.5.13
       '@vue/server-renderer': 3.5.13(vue@3.5.13)
       '@vue/shared': 3.5.13
+
+  /vuex-composition-helpers@2.0.1(vue@3.5.13)(vuex@4.1.0):
+    resolution: {integrity: sha512-i2Bg24AH9/AL5nDdh2lmP19Mcl86EJLV7EeVjrCtqY29wkzZa6PWaYYKcbwbYffYoAiTtz1n54VhIaZ1MxNAkw==}
+    peerDependencies:
+      vue: '>= 3.0.5'
+      vuex: '>= 4.0.0'
+    dependencies:
+      vue: 3.5.13
+      vuex: 4.1.0(vue@3.5.13)
+    dev: false
 
   /vuex@4.1.0(vue@3.5.13):
     resolution: {integrity: sha512-hmV6UerDrPcgbSy9ORAtNXDr9M4wlNP4pEFKye4ujJF8oqgFFuxDCdOLS3eNoRTtq5O3hoBDh9Doj1bQMYHRbQ==}

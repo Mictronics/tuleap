@@ -387,7 +387,7 @@ class Git extends PluginController //phpcs:ignore PSR1.Classes.ClassDeclaration.
                 }
 
                 if ($this->request->exist('allow-artifact-closure')) {
-                    $repository_id                         = (int) $repository->getId();
+                    $repository_id                         = $repository->getId();
                     $is_artifact_closure_currently_allowed = $this->closure_verifier->isArtifactClosureAllowed($repository_id);
                     if ($this->request->get('allow-artifact-closure') === '1') {
                         if (! $is_artifact_closure_currently_allowed) {
@@ -497,10 +497,7 @@ class Git extends PluginController //phpcs:ignore PSR1.Classes.ClassDeclaration.
                     $this->redirectNoRepositoryError();
                     return false;
                 }
-                $params = [
-                    $repository,
-                    in_array($this->request->get('pane'), GitViews_RepoManagement::BURNING_PARROT_COMPATIBLE_PANES, true),
-                ];
+                $params = [$repository];
                 $this->addAction('repoManagement', $params);
                 $this->setDefaultPageRendering(false);
                 $this->addView('repoManagement', $params);

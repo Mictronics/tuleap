@@ -25,6 +25,7 @@ use Tuleap\NeverThrow\Err;
 use Tuleap\NeverThrow\Fault;
 use Tuleap\NeverThrow\Ok;
 use Tuleap\NeverThrow\Result;
+use Tuleap\Process\ProcessExecutionFailure;
 use Tuleap\Process\ProcessFactory;
 use Tuleap\PullRequest\GitExec;
 use Tuleap\PullRequest\PullRequest;
@@ -58,7 +59,7 @@ class GitPullRequestReferenceCreator
         GitExec $executor_repository_destination,
         GitRepository $repository_destination,
     ): Ok|Err {
-        if ((int) $pull_request->getRepoDestId() !== (int) $repository_destination->getId()) {
+        if ((int) $pull_request->getRepoDestId() !== $repository_destination->getId()) {
             throw new \LogicException('Destination repository ID does not match the one of the PR');
         }
 
@@ -88,9 +89,9 @@ class GitPullRequestReferenceCreator
                 $this->dao->updateStatusByPullRequestId($pull_request->getId(), GitPullRequestReference::STATUS_OK);
                 return Result::ok(null);
             },
-            function (Fault $fault) use ($pull_request): Err {
+            function (ProcessExecutionFailure $execution_failure) use ($pull_request): Err {
                 $this->dao->updateStatusByPullRequestId($pull_request->getId(), GitPullRequestReference::STATUS_BROKEN);
-                return Result::err($fault);
+                return Result::err($execution_failure->fault);
             }
         );
     }

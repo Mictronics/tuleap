@@ -3,14 +3,14 @@ msgstr ""
 "Project-Id-Version: \n"
 "POT-Creation-Date: \n"
 "PO-Revision-Date: \n"
-"Last-Translator: Nicolas Terray <nicolas.terray@enalean.com>\n"
+"Last-Translator: Joris MASSON <joris.masson@enalean.com>\n"
 "Language-Team: \n"
 "Language: fr_FR\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
-"X-Generator: Poedit 3.0.1\n"
+"X-Generator: Poedit 3.8\n"
 
 msgid " New user"
 msgstr " Nouvel utilisateur"
@@ -932,9 +932,6 @@ msgstr "Contact (menu \"Aide\")"
 msgid "Content"
 msgstr "Contenu"
 
-msgid "Copy the SVN token"
-msgstr "Copier le jeton SVN"
-
 msgid "Copy the access key"
 msgstr "Copier la clé d'accès"
 
@@ -1379,6 +1376,10 @@ msgid "Fields"
 msgstr "Champs personnalisés"
 
 #, php-format
+msgid "File packages for project \"%s\""
+msgstr "Paquets du projet \"%s\""
+
+#, php-format
 msgid "File upload error (%d). No file was uploaded."
 msgstr "Erreur de chargement de fichier (%d). Aucun fichier chargé."
 
@@ -1515,13 +1516,6 @@ msgstr "Bonjour,"
 
 msgid "Help"
 msgstr "Aide"
-
-msgid ""
-"Here is your new SVN token. Please make sure you copy it, you won't be able "
-"to see it again!"
-msgstr ""
-"Voici votre nouveau jeton SVN. Assurez-vous de l'avoir copié, vous ne "
-"pourrez plus le voir de nouveau !"
 
 msgid ""
 "Here is your new access key. Please make sure to copy it, you won't be able "
@@ -2951,9 +2945,6 @@ msgstr "SVN"
 
 msgid "SVN Commits"
 msgstr "Commits SVN"
-
-msgid "SVN token copied!"
-msgstr "Jeton SVN copié !"
 
 msgid "SVN tokens"
 msgstr "Jetons SVN"

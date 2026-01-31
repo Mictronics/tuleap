@@ -19,32 +19,37 @@
 
 <template>
     <div class="tlp-form-element">
-        <label-for-field v-bind:id="id" v-bind:field="field" />
-        <select ref="select_element" class="tlp-select" v-bind:id="id">
+        <label-for-field v-bind:field="field" />
+        <select ref="select_element" class="tlp-select" v-bind:multiple="is_multiple_select">
             <select-box-options v-bind:field="field" />
         </select>
     </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, onMounted } from "vue";
+import { ref, onMounted } from "vue";
 import { createListPicker } from "@tuleap/list-picker";
 import type { ListFieldStructure } from "@tuleap/plugin-tracker-rest-api-types";
+import { MULTI_SELECTBOX_FIELD } from "@tuleap/plugin-tracker-constants";
 import LabelForField from "./LabelForField.vue";
 import SelectBoxOptions from "./SelectBoxOptions/SelectBoxOptions.vue";
+import { NONE_VALUE } from "../../helpers/list-field-value";
 
 const props = defineProps<{
     field: ListFieldStructure;
 }>();
 
 const select_element = ref<HTMLSelectElement | undefined>();
-const id = computed(() => "select-" + props.field.field_id);
+const is_multiple_select = props.field.type === MULTI_SELECTBOX_FIELD;
 
 onMounted(() => {
     if (!select_element.value) {
         return;
     }
 
-    createListPicker(select_element.value, { is_filterable: true });
+    createListPicker(select_element.value, {
+        is_filterable: true,
+        none_value: !props.field.required ? NONE_VALUE : null,
+    });
 });
 </script>

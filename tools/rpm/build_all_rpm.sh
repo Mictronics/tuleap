@@ -7,11 +7,6 @@ RPM_BUILD="$2"
 TULEAP_OUT_DIR=/var/rpms/tuleap-$(cat "$TULEAP_SOURCES/VERSION")
 mkdir -p $TULEAP_OUT_DIR
 
-push_nix_build_cache=''
-if [ -n "${CACHIX_AUTH_TOKEN}" ]; then
-    push_nix_build_cache='cachix watch-exec tuleap-community'
-fi
-
 build_tmp="$(mktemp -d)"
 
 function cleanup {
@@ -31,9 +26,14 @@ nix-build "$TULEAP_SOURCES"/tools/rpm/tuleap-rpms.nix \
 cp -v -L "$build_tmp/packages/"*.rpm $TULEAP_OUT_DIR
 cp -v -L "$build_tmp/packages/"*.rpm "$RPM_BUILD/RPMS/noarch/"
 
-${push_nix_build_cache} "$TULEAP_SOURCES/"tools/rpm/build_nix_derivation.sh "$TULEAP_SOURCES/"tools/rpm/rpm-additional-packages.nix "$build_tmp/packages"
+nix-build "$TULEAP_SOURCES/"tools/rpm/rpm-additional-packages.nix --out-link "$build_tmp/packages"
 
-cp -v -L "$build_tmp/packages/"*.rpm $TULEAP_OUT_DIR
+if [ -n "${PUSH_CACHE_NAME}" ]; then
+    nix-store -qR --include-outputs $(nix-store -qd "$build_tmp/packages") \
+        | grep -v '\.drv$' \
+        | nix-shell -I nixpkgs=./tools/utils/nix/pinned-nixpkgs.nix -p attic-client --run "attic push --stdin ${PUSH_CACHE_NAME}"
+fi
+
 cp -v -L "$build_tmp/packages/"*.rpm "$RPM_BUILD/RPMS/noarch/"
 if [ -d "$build_tmp/packages/${OS}" ]
 then

@@ -50,11 +50,11 @@ export default [
             },
         },
         externals: {
-            jquery: "jQuery",
             ckeditor4: "CKEDITOR",
         },
         module: {
             rules: [
+                ...webpack_configurator.configureTypescriptRules(),
                 webpack_configurator.rule_vue_images,
                 rule_vue_loader,
                 webpack_configurator.rule_scss_loader,

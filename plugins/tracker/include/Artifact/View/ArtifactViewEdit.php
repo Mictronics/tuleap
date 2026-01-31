@@ -46,6 +46,7 @@ use Tuleap\Tracker\Workflow\SimpleMode\State\TransitionRetriever;
 
 readonly class ArtifactViewEdit extends TrackerArtifactView
 {
+    public const string IDENTIFIER                      = 'edit';
     public const string USER_PREFERENCE_DISPLAY_CHANGES = 'tracker_artifact_comment_display_changes';
     public const string USER_PREFERENCE_INVERT_ORDER    = 'tracker_comment_invertorder';
 
@@ -62,7 +63,7 @@ readonly class ArtifactViewEdit extends TrackerArtifactView
     #[\Override]
     public function getURL(): string
     {
-        return TRACKER_BASE_URL . '/?' . http_build_query(
+        return \trackerPlugin::TRACKER_BASE_URL . '/?' . http_build_query(
             [
                 'aid' => $this->artifact->getId(),
             ]
@@ -80,7 +81,7 @@ readonly class ArtifactViewEdit extends TrackerArtifactView
     #[\Override]
     public function getIdentifier(): string
     {
-        return 'edit';
+        return self::IDENTIFIER;
     }
 
     /** @see TrackerArtifactView::fetch() */

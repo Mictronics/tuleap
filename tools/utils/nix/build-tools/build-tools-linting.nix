@@ -11,23 +11,25 @@ treefmt-nix.mkWrapper pkgs {
       "-disable-indentation"
       "-disable-insert-final-newline"
       "-disable-max-line-length"
-      "-disable-end-of-line"
     ];
     includes = [ "*" ];
     excludes = [
       "src/common/wiki/phpwiki/*"
-      "*/_fixtures/phpwiki/*"
+      "*/_fixtures/*"
+      "*/fixtures/*"
       "src/www/scripts/*"
       "*.test.ts"
+      "*.graphml"
     ];
     priority = 1;
   };
   programs.gofmt.enable = true;
   programs.rustfmt.enable = true;
-  programs.nixfmt = {
-    enable = true;
-    package = pkgs.nixfmt;
-  };
+  programs.nixfmt.enable = true;
+  programs.nixf-diagnose.enable = true;
+  settings.formatter.nixf-diagnose.options = [
+    "--ignore=sema-primop-overridden"
+  ];
   programs.oxipng.enable = true;
   settings.formatter.eslint = {
     command = pkgs.writeShellScriptBin "tuleap-eslint" ''
@@ -68,4 +70,5 @@ treefmt-nix.mkWrapper pkgs {
       "*.phpstub"
     ];
   };
+  programs.dockerfmt.enable = true;
 }

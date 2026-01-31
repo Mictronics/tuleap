@@ -19,7 +19,7 @@
 
 <template>
     <button
-        class="btn btn-small ttm-definition-step-delete-button"
+        class="tlp-button-danger tlp-button-outline tlp-button-small"
         type="button"
         v-on:click="markAsDeleted()"
     >

@@ -73,9 +73,9 @@ class GitDao extends \Tuleap\DB\DataAccessObject implements VerifyArtifactClosur
         $this->getDB()->run($sql, $repositoryId);
     }
 
-    public function save(GitRepository $repository)
+    public function save(GitRepository $repository): int
     {
-        $id = (int) $repository->getId();
+        $id = $repository->getId();
 
         $name       = $repository->getName();
         $mailPrefix = $repository->getMailPrefix();
@@ -110,7 +110,7 @@ class GitDao extends \Tuleap\DB\DataAccessObject implements VerifyArtifactClosur
                 ],
                 ['repository_id' => $id]
             );
-            return true;
+            return $id;
         }
 
         $repository_backend = $repository->getBackend();
@@ -139,7 +139,7 @@ class GitDao extends \Tuleap\DB\DataAccessObject implements VerifyArtifactClosur
             ]
         );
 
-        return $this->getDB()->lastInsertId();
+        return (int) $this->getDB()->lastInsertId();
     }
 
     public function delete(GitRepository $repository): void
@@ -798,5 +798,18 @@ class GitDao extends \Tuleap\DB\DataAccessObject implements VerifyArtifactClosur
             ['allow_artifact_closure' => false],
             ['repository_id' => $repository_id]
         );
+    }
+
+    /**
+     * @return list<int>
+     */
+    public function searchProjectsWithActiveRepositories(): array
+    {
+        $sql = "SELECT DISTINCT `groups`.group_id
+            FROM `groups`
+            JOIN plugin_git ON (plugin_git.project_id = `groups`.group_id)
+            WHERE `groups`.status != 'D' AND plugin_git.repository_deletion_date = '0000-00-00 00:00:00'
+            ORDER BY `groups`.group_id";
+        return $this->getDB()->column($sql);
     }
 }

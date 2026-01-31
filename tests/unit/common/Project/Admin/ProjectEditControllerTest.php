@@ -24,7 +24,7 @@ namespace Tuleap\Project\Admin;
 
 use EventManager;
 use Feedback;
-use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use Project;
 use ProjectHistoryDao;
 use ProjectManager;
@@ -34,6 +34,7 @@ use Tuleap\admin\ProjectEdit\ProjectEditController;
 use Tuleap\admin\ProjectEdit\ProjectEditDao;
 use Tuleap\GlobalLanguageMock;
 use Tuleap\GlobalResponseMock;
+use Tuleap\Test\Builders\LayoutInspectorRedirection;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
@@ -42,15 +43,15 @@ class ProjectEditControllerTest extends \Tuleap\Test\PHPUnit\TestCase
     use GlobalLanguageMock;
     use GlobalResponseMock;
 
-    private ProjectDetailsPresenter&MockObject $details_presenter;
-    private ProjectEditDao&MockObject $dao;
-    private ProjectManager&MockObject $project_manager;
-    private EventManager&MockObject $event_manager;
-    private SystemEventManager&MockObject $system_event_manager;
-    private ProjectHistoryDao&MockObject $project_history_dao;
+    private ProjectDetailsPresenter&Stub $details_presenter;
+    private ProjectEditDao&Stub $dao;
+    private ProjectManager&Stub $project_manager;
+    private EventManager&Stub $event_manager;
+    private SystemEventManager&Stub $system_event_manager;
+    private ProjectHistoryDao&Stub $project_history_dao;
     private ProjectEditController $project_edit_controller;
     private Project $project;
-    private ProjectRenameChecker&MockObject $project_rename_checker;
+    private ProjectRenameChecker&Stub $project_rename_checker;
 
     #[\Override]
     protected function setUp(): void
@@ -61,13 +62,13 @@ class ProjectEditControllerTest extends \Tuleap\Test\PHPUnit\TestCase
             ->withUnixName('old_name')
             ->build();
 
-        $this->details_presenter      = $this->createMock(ProjectDetailsPresenter::class);
-        $this->dao                    = $this->createMock(ProjectEditDao::class);
-        $this->project_manager        = $this->createMock(ProjectManager::class);
-        $this->event_manager          = $this->createMock(EventManager::class);
-        $this->system_event_manager   = $this->createMock(SystemEventManager::class);
-        $this->project_history_dao    = $this->createMock(ProjectHistoryDao::class);
-        $this->project_rename_checker = $this->createMock(ProjectRenameChecker::class);
+        $this->details_presenter      = $this->createStub(ProjectDetailsPresenter::class);
+        $this->dao                    = $this->createStub(ProjectEditDao::class);
+        $this->project_manager        = $this->createStub(ProjectManager::class);
+        $this->event_manager          = $this->createStub(EventManager::class);
+        $this->system_event_manager   = $this->createStub(SystemEventManager::class);
+        $this->project_history_dao    = $this->createStub(ProjectHistoryDao::class);
+        $this->project_rename_checker = $this->createStub(ProjectRenameChecker::class);
 
         $this->project_edit_controller = new ProjectEditController(
             $this->details_presenter,
@@ -115,8 +116,6 @@ class ProjectEditControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $this->dao->method('updateProjectStatusAndType');
 
-        $GLOBALS['Response']->method('addFeedback')->with(Feedback::INFO, 'Updating Project Info');
-
         $this->project_history_dao->method('groupAddHistory');
 
         $this->event_manager->method('processEvent');
@@ -124,7 +123,12 @@ class ProjectEditControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $this->project_manager->method('removeProjectFromCache');
 
-        $this->project_edit_controller->updateProject($request);
+        try {
+            $this->expectExceptionObject(new LayoutInspectorRedirection('/admin/groupedit.php?group_id=111'));
+            $this->project_edit_controller->updateProject($request);
+        } finally {
+            self::assertEquals([['level' => Feedback::INFO, 'message' => 'Updating Project Info']], $this->global_response->inspector->getFeedback());
+        }
     }
 
     public function testUpdateProjectUnixNameDoesntWorkIfUnixNameCantBeEdited(): void
@@ -161,18 +165,6 @@ class ProjectEditControllerTest extends \Tuleap\Test\PHPUnit\TestCase
         });
 
         $this->dao->method('updateProjectStatusAndType');
-        $matcher = $this->exactly(2);
-
-        $GLOBALS['Response']->expects($matcher)->method('addFeedback')->willReturnCallback(function (...$parameters) use ($matcher) {
-            if ($matcher->numberOfInvocations() === 1) {
-                self::assertSame(Feedback::WARN, $parameters[0]);
-                self::assertSame("This project doesn't allow short name edition.", $parameters[1]);
-            }
-            if ($matcher->numberOfInvocations() === 2) {
-                self::assertSame(Feedback::INFO, $parameters[0]);
-                self::assertSame('Updating Project Info', $parameters[1]);
-            }
-        });
 
         $this->project_history_dao->method('groupAddHistory');
 
@@ -184,7 +176,18 @@ class ProjectEditControllerTest extends \Tuleap\Test\PHPUnit\TestCase
 
         $this->project_manager->method('removeProjectFromCache');
 
-        $this->project_edit_controller->updateProject($request);
+        try {
+            $this->expectExceptionObject(new LayoutInspectorRedirection('/admin/groupedit.php?group_id=111'));
+            $this->project_edit_controller->updateProject($request);
+        } finally {
+            self::assertEquals(
+                [
+                    ['level' => Feedback::WARN, 'message' => "This project doesn't allow short name edition."],
+                    ['level' => Feedback::INFO, 'message' => 'Updating Project Info'],
+                ],
+                $this->global_response->inspector->getFeedback()
+            );
+        }
     }
 
     public function testUpdateProjectStatusThrowErrorIfTryingToPassAProjectToPending(): void
@@ -224,12 +227,12 @@ class ProjectEditControllerTest extends \Tuleap\Test\PHPUnit\TestCase
             }
         });
 
-        $GLOBALS['Response']->method('addFeedback')->with(Feedback::ERROR, 'A deleted project can not be restored.');
-        $GLOBALS['Response']->expects($this->once())->method('redirect');
-
-        $this->dao->expects($this->never())->method('updateProjectStatusAndType');
-
-        $this->project_edit_controller->updateProject($request);
+        try {
+            $this->expectExceptionObject(new LayoutInspectorRedirection('/admin/groupedit.php?group_id=111'));
+            $this->project_edit_controller->updateProject($request);
+        } finally {
+            self::assertEquals(['A deleted project can not be restored.'], $this->global_response->getFeedbackErrors());
+        }
     }
 
     public function testUpdateProjectStatusThrowErrorIfProjectAlreadyDeleted2(): void
@@ -269,12 +272,11 @@ class ProjectEditControllerTest extends \Tuleap\Test\PHPUnit\TestCase
             }
         });
 
-        $GLOBALS['Response']->expects($this->once())->method('addFeedback')
-            ->with(Feedback::ERROR, 'Switching the project status back to "pending" is not possible.');
-        $GLOBALS['Response']->expects($this->once())->method('redirect');
-
-        $this->dao->expects($this->never())->method('updateProjectStatusAndType');
-
-        $this->project_edit_controller->updateProject($request);
+        try {
+            $this->expectExceptionObject(new LayoutInspectorRedirection('/admin/groupedit.php?group_id=111'));
+            $this->project_edit_controller->updateProject($request);
+        } finally {
+            self::assertEquals(['Switching the project status back to "pending" is not possible.'], $this->global_response->getFeedbackErrors());
+        }
     }
 }

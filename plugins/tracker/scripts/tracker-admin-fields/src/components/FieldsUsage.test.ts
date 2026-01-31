@@ -17,13 +17,22 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { describe, expect, it } from "vitest";
+import { describe, expect, it, vi } from "vitest";
 import { shallowMount } from "@vue/test-utils";
 import FieldsUsage from "./FieldsUsage.vue";
 import { getGlobalTestOptions } from "../helpers/global-options-for-tests";
 import EmptyState from "./EmptyState.vue";
 import TrackerStructure from "./TrackerStructure.vue";
 import { CONTAINER_FIELDSET } from "@tuleap/plugin-tracker-constants";
+import ErrorState from "./ErrorState.vue";
+
+vi.mock("@tuleap/mention", () => ({
+    initMentions(): void {
+        // Mock @tuleap/mention because it needs jquery in tests
+    },
+}));
+
+vi.useFakeTimers();
 
 describe("FieldsUsage", () => {
     it("should display an empty state", async () => {
@@ -32,14 +41,16 @@ describe("FieldsUsage", () => {
                 tracker_id: 123,
                 fields: [],
                 structure: [],
+                has_error: false,
             },
             global: {
                 ...getGlobalTestOptions(),
             },
         });
 
-        await new Promise(process.nextTick);
+        await vi.runOnlyPendingTimersAsync();
 
+        expect(wrapper.findComponent(ErrorState).exists()).toBe(false);
         expect(wrapper.findComponent(EmptyState).exists()).toBe(true);
         expect(wrapper.findComponent(TrackerStructure).exists()).toBe(false);
     });
@@ -58,14 +69,43 @@ describe("FieldsUsage", () => {
                     },
                 ],
                 structure: [{ id: 123, content: null }],
+                has_error: false,
             },
             global: {
                 ...getGlobalTestOptions(),
             },
         });
 
-        await new Promise(process.nextTick);
+        await vi.runOnlyPendingTimersAsync();
 
+        expect(wrapper.findComponent(ErrorState).exists()).toBe(false);
+        expect(wrapper.findComponent(EmptyState).exists()).toBe(false);
+        expect(wrapper.findComponent(TrackerStructure).exists()).toBe(true);
+    });
+    it("should display and error", async () => {
+        const wrapper = shallowMount(FieldsUsage, {
+            props: {
+                tracker_id: 123,
+                fields: [
+                    {
+                        field_id: 123,
+                        name: "details",
+                        label: "Details",
+                        type: CONTAINER_FIELDSET,
+                        required: false,
+                    },
+                ],
+                structure: [{ id: 123, content: null }],
+                has_error: true,
+            },
+            global: {
+                ...getGlobalTestOptions(),
+            },
+        });
+
+        await vi.runOnlyPendingTimersAsync();
+
+        expect(wrapper.findComponent(ErrorState).exists()).toBe(true);
         expect(wrapper.findComponent(EmptyState).exists()).toBe(false);
         expect(wrapper.findComponent(TrackerStructure).exists()).toBe(true);
     });

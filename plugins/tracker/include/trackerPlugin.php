@@ -46,6 +46,7 @@ use Tuleap\Layout\CssViteAsset;
 use Tuleap\Layout\HomePage\StatisticsCollectionCollector;
 use Tuleap\Layout\IncludeAssets;
 use Tuleap\Layout\IncludeViteAssets;
+use Tuleap\Layout\JavascriptAsset;
 use Tuleap\Layout\NewDropdown\NewDropdownProjectLinksCollector;
 use Tuleap\Mail\MailFilter;
 use Tuleap\Mail\MailLogger;
@@ -84,6 +85,7 @@ use Tuleap\Queue\WorkerEvent;
 use Tuleap\Reference\CheckCrossReferenceValidityEvent;
 use Tuleap\Reference\CrossReferenceByNatureOrganizer;
 use Tuleap\Reference\GetProjectIdForSystemReferenceEvent;
+use Tuleap\Reference\GetReservedKeywordsEvent;
 use Tuleap\Reference\Nature;
 use Tuleap\Reference\NatureCollection;
 use Tuleap\Request\CurrentPage;
@@ -102,8 +104,6 @@ use Tuleap\Tracker\Admin\ArtifactDeletion\ArtifactsDeletionConfigDAO;
 use Tuleap\Tracker\Admin\ArtifactLinksUsageDao;
 use Tuleap\Tracker\Admin\ArtifactLinksUsageDuplicator;
 use Tuleap\Tracker\Admin\ArtifactLinksUsageUpdater;
-use Tuleap\Tracker\Admin\ArtifactsDeletion\ArtifactsDeletionInTrackerAdminController;
-use Tuleap\Tracker\Admin\ArtifactsDeletion\UserDeletionRetriever;
 use Tuleap\Tracker\Admin\GlobalAdmin\ArtifactLinks\ArtifactLinksController;
 use Tuleap\Tracker\Admin\GlobalAdmin\GlobalAdminPermissionsChecker;
 use Tuleap\Tracker\Admin\GlobalAdmin\Trackers\CSRFSynchronizerTokenProvider;
@@ -330,7 +330,6 @@ use Tuleap\User\User_ForgeUserGroupPermissionsFactory;
 use Tuleap\Widget\Event\ConfigureAtXMLImport;
 use Tuleap\Widget\WidgetFactory;
 
-require_once __DIR__ . '/constants.php';
 require_once __DIR__ . '/../vendor/autoload.php';
 require_once __DIR__ . '/../include/manual_autoload.php';
 
@@ -344,6 +343,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
     public const string EMAILGATEWAY_INSECURE_ARTIFACT_UPDATE   = 'forge__artifact';
     public const string SERVICE_SHORTNAME                       = 'plugin_tracker';
     public const string TRUNCATED_SERVICE_NAME                  = 'Trackers';
+    public const string TRACKER_BASE_URL                        = '/plugins/tracker';
 
     public function __construct($id)
     {
@@ -353,7 +353,6 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
 
         $this->addHook('javascript_file');
         $this->addHook(NatureCollection::NAME);
-        $this->addHook(Event::GET_ARTIFACT_REFERENCE_GROUP_ID, 'get_artifact_reference_group_id');
         $this->addHook(Event::JAVASCRIPT, 'javascript');
         $this->addHook(Event::TOGGLE, 'toggle');
         $this->addHook('permission_get_name', 'permission_get_name');
@@ -646,13 +645,12 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         if ($this->currentRequestIsForPlugin()) {
             $layout = $params['layout'];
             assert($layout instanceof \Layout);
-            $legacy_asset = new \Tuleap\Layout\JavascriptAsset(
-                new IncludeAssets(__DIR__ . '/../scripts/legacy/frontend-assets', '/assets/trackers/legacy'),
-                'tracker.js',
-            );
+            $legacy_assets =  new IncludeAssets(__DIR__ . '/../scripts/legacy/frontend-assets', '/assets/trackers/legacy');
+            $layout->includeJavascriptFile(new JavascriptAsset($legacy_assets, 'LoadTrackerArtifactLink.js')->getFileURL());
+            $layout->addCssAsset(new \Tuleap\Layout\CssAssetWithoutVariantDeclinaisons($legacy_assets, 'legacy-style'));
             // DO NOT REPLACE this `includeJavascriptFile()` with `addJavascriptAsset()`
             // The tracker artifact view has script tags in the middle of the body expecting to have access to `tuleap.tracker`
-            $layout->includeJavascriptFile($legacy_asset->getFileURL());
+            $layout->includeJavascriptFile(new JavascriptAsset($legacy_assets, 'tracker.js')->getFileURL());
             $layout->addJavascriptAsset(
                 new \Tuleap\Layout\JavascriptAsset(
                     new IncludeAssets(
@@ -756,7 +754,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         include $GLOBALS['Language']->getContent('script_locale', null, 'tracker');
         echo PHP_EOL;
         echo 'codendi.tracker = codendi.tracker || { };' . PHP_EOL;
-        echo "codendi.tracker.base_url = '" . TRACKER_BASE_URL . "/';" . PHP_EOL;
+        echo "codendi.tracker.base_url = '" . self::TRACKER_BASE_URL . "/';" . PHP_EOL;
     }
 
     public function toggle($params)
@@ -893,7 +891,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
                             ->getTrackerSemanticManager()
                             ->getSemantics();
                         if (isset($semantics['title'])) {
-                            if ($field = Tracker_FormElementFactory::instance()->getFormElementById($semantics['title']->getFieldId())) {
+                            if ($field = Tracker_FormElementFactory::instance()->getFieldById($semantics['title']->getFieldId())) {
                                 $value = $a->getValue($field);
                                 if ($value) {
                                     $ret .= ' - ' . $value->getText();
@@ -967,15 +965,6 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             Artifact::REFERENCE_NATURE,
             new Nature('artifact', 'fas fa-list-ol', dgettext('tuleap-tracker', 'Artifact'), true)
         );
-    }
-
-    public function get_artifact_reference_group_id($params)//phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
-    {
-        $artifact = Tracker_ArtifactFactory::instance()->getArtifactByid($params['artifact_id']);
-        if ($artifact) {
-            $tracker            = $artifact->getTracker();
-            $params['group_id'] = $tracker->getGroupId();
-        }
     }
 
     #[ListeningToEventClass]
@@ -1510,7 +1499,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         $params['buttons'][] = [
             'icon'        => 'fa-list',
             'label'       => dgettext('tuleap-tracker', 'Configure trackers'),
-            'uri'         => TRACKER_BASE_URL . '/?group_id=' . (int) $template->getID(),
+            'uri'         => self::TRACKER_BASE_URL . '/?group_id=' . (int) $template->getID(),
             'is_disabled' => ! $is_service_used,
             'title'       => ! $is_service_used ? dgettext('tuleap-tracker', 'This template does not use trackers') : '',
         ];
@@ -1695,11 +1684,11 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         $retriever->retrieveSearchResult($indexed_item_convertor);
     }
 
-    public function collectGlyphLocations(GlyphLocationsCollector $glyph_locations_collector)
+    public function collectGlyphLocations(GlyphLocationsCollector $glyph_locations_collector): void
     {
         $glyph_locations_collector->addLocation(
             'tuleap-tracker',
-            new GlyphLocation(TRACKER_BASE_DIR . '/../glyphs')
+            new GlyphLocation(__DIR__ . '/../glyphs')
         );
     }
 
@@ -1732,6 +1721,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             new PendingJiraImportDao(),
             new PendingJiraImportBuilder(ProjectManager::instance(), $user_manager),
             $this->getJiraRunner($logger),
+            new \Tuleap\DB\DatabaseUUIDV7Factory(),
         );
 
         AsynchronousActionsRunner::addListener($event);
@@ -1770,7 +1760,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
 
         $template_factory      = TemplateRendererFactory::build();
         $admin_permission_pane = $template_factory
-            ->getRenderer(TRACKER_TEMPLATE_DIR . '/project-admin/')
+            ->getRenderer(__DIR__ . '/../templates/project-admin/')
             ->renderToString(
                 'project-admin-permission-per-group',
                 $presenter
@@ -1913,7 +1903,8 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
                     new ArtifactLinksUsageDao(),
                     new SystemTypePresenterBuilder(\EventManager::instance()),
                 ),
-            )
+            ),
+            new IncludeViteAssets(__DIR__ . '/../../../src/scripts/ckeditor4/frontend-assets/', '/assets/core/ckeditor4/'),
         );
     }
 
@@ -2024,7 +2015,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         $artifact_deletion_dao   = new ArtifactsDeletionConfigDAO();
 
         return new ConfigController(
-            new CSRFSynchronizerToken(TRACKER_BASE_URL . '/config.php'),
+            new CSRFSynchronizerToken(self::TRACKER_BASE_URL . '/config.php'),
             new MailGatewayConfigController(
                 new MailGatewayConfig(
                     new MailGatewayConfigDao(),
@@ -2153,7 +2144,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
 
     public function collectRoutesEvent(\Tuleap\Request\CollectRoutesEvent $event)
     {
-        $event->getRouteCollector()->addGroup(TRACKER_BASE_URL, function (FastRoute\RouteCollector $r) {
+        $event->getRouteCollector()->addGroup(self::TRACKER_BASE_URL, function (FastRoute\RouteCollector $r) {
             $r->addRoute(['GET', 'POST'], '[/[index.php]]', $this->getRouteHandler('routeLegacyController'));
 
             $r->post('/invert_comments_order.php', $this->getRouteHandler('routePostInvertCommentsOrder'));
@@ -2199,8 +2190,6 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             $r->post('/{project_name:[A-z0-9-]+}/new-information', $this->getRouteHandler('routeProcessNewTrackerCreation'));
 
             $r->get('/changeset/{changeset_id:[0-9]+}/diff/{format:html|text|strip-html}/{artifact_id:[0-9]+}/{field_id:[0-9]+}', $this->getRouteHandler('routeChangesetContentRetriever'));
-
-            $r->get('/artifacts-deletion/{tracker_id:\d+}', $this->getRouteHandler('routeGetArtifactsDeletion'));
         });
 
         $event->getRouteCollector()->addRoute(
@@ -2398,22 +2387,10 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             $this->getTrackerCreationPermissionChecker(),
             new DefaultTemplatesCollectionBuilder(\EventManager::instance()),
             new AsyncJiraScheduler(
-                $logger,
-                new \Tuleap\Cryptography\KeyFactoryFromFileSystem(),
                 new PendingJiraImportDao(),
-                $this->getJiraRunner($logger)
+                $this->getJiraRunner($logger),
+                new DBTransactionExecutorWithConnection(DBFactory::getMainTuleapDBConnection()),
             )
-        );
-    }
-
-    public function routeGetArtifactsDeletion(): ArtifactsDeletionInTrackerAdminController
-    {
-        return new ArtifactsDeletionInTrackerAdminController(
-            $this->getTrackerFactory(),
-            new TrackerManager(),
-            TemplateRendererFactory::build()->getRenderer(TRACKER_TEMPLATE_DIR . '/admin'),
-            new ArtifactsDeletionConfig(new ArtifactsDeletionConfigDAO()),
-            new UserDeletionRetriever(new ArtifactsDeletionDAO()),
         );
     }
 
@@ -2559,6 +2536,7 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         $event->addConfigClass(\Tuleap\Tracker\Report\Query\Advanced\Grammar\Query::class);
         $event->addConfigClass(ArtifactViewCollectionBuilder::class);
         $event->addConfigClass(DateFormatter::class);
+        $event->addConfigClass(Tracker_Report_Renderer_Table::class);
     }
 
     private function getMailNotificationBuilder(): MailNotificationBuilder
@@ -2612,7 +2590,6 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         return new JiraRunner(
             $logger,
             new QueueFactory($logger),
-            new \Tuleap\Cryptography\KeyFactoryFromFileSystem(),
             FromJiraTrackerCreator::build($jira_user_on_tuleap_cache),
             new PendingJiraImportDao(),
             $this->getJiraSuccessImportNotifier(),
@@ -2871,5 +2848,13 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
                 dgettext('tuleap-tracker', 'Archive should not contain tracker data.'),
             );
         }
+    }
+
+    #[ListeningToEventClass]
+    public function getReservedKeywordsEvent(GetReservedKeywordsEvent $event): void
+    {
+        $event->addKeyword('art');
+        $event->addKeyword('artifact');
+        $event->addKeyword('tracker');
     }
 }

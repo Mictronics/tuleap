@@ -19,18 +19,15 @@
  */
 
 use Tuleap\Admin\AdminPageRenderer;
+use Tuleap\Git\AsynchronousEvents\RefreshGitoliteProjectConfigurationTask;
 use Tuleap\Git\BigObjectAuthorization\BigObjectAuthorizationManager;
 use Tuleap\Layout\JavascriptAssetGeneric;
+use Tuleap\Queue\EnqueueTaskInterface;
 
 class Git_AdminGitoliteConfig //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace, Squiz.Classes.ValidClassName.NotPascalCase
 {
     public const string ACTION_UPDATE_CONFIG                      = 'update_config';
     public const string ACTION_UPDATE_BIG_OBJECT_ALLOWED_PROJECTS = 'update-big-objects-allowed-projects';
-
-    /**
-     * @var Git_SystemEventManager
-     */
-    private $system_event_manager;
 
     /**
      * @var ProjectManager
@@ -55,14 +52,13 @@ class Git_AdminGitoliteConfig //phpcs:ignore PSR1.Classes.ClassDeclaration.Missi
     public function __construct(
         CSRFSynchronizerToken $csrf,
         ProjectManager $project_manager,
-        Git_SystemEventManager $system_event_manager,
+        private readonly EnqueueTaskInterface $enqueuer,
         AdminPageRenderer $admin_page_renderer,
         BigObjectAuthorizationManager $big_object_authorization_manager,
         JavascriptAssetGeneric $asset,
     ) {
         $this->csrf                             = $csrf;
         $this->project_manager                  = $project_manager;
-        $this->system_event_manager             = $system_event_manager;
         $this->admin_page_renderer              = $admin_page_renderer;
         $this->big_object_authorization_manager = $big_object_authorization_manager;
         $this->asset                            = $asset;
@@ -95,7 +91,7 @@ class Git_AdminGitoliteConfig //phpcs:ignore PSR1.Classes.ClassDeclaration.Missi
         return true;
     }
 
-    private function regenerateGitoliteConfigForAProject(\Tuleap\HTTPRequest $request)
+    private function regenerateGitoliteConfigForAProject(\Tuleap\HTTPRequest $request): void
     {
         $project = $this->getProject($request->get('gitolite_config_project'));
 
@@ -107,7 +103,7 @@ class Git_AdminGitoliteConfig //phpcs:ignore PSR1.Classes.ClassDeclaration.Missi
             return;
         }
 
-        $this->system_event_manager->queueRegenerateGitoliteConfig($project->getID());
+        $this->enqueuer->enqueue(RefreshGitoliteProjectConfigurationTask::fromProject($project));
 
         $GLOBALS['Response']->addFeedback(
             'info',
@@ -134,7 +130,7 @@ class Git_AdminGitoliteConfig //phpcs:ignore PSR1.Classes.ClassDeclaration.Missi
         }
     }
 
-    private function revokeProjects(\Tuleap\HTTPRequest $request)
+    private function revokeProjects(\Tuleap\HTTPRequest $request): void
     {
         $project_ids = $request->get('project-ids-to-revoke');
 
@@ -148,7 +144,9 @@ class Git_AdminGitoliteConfig //phpcs:ignore PSR1.Classes.ClassDeclaration.Missi
         }
 
         $this->big_object_authorization_manager->revokeProjectAuthorization($project_ids);
-        $this->system_event_manager->queueProjectsConfigurationUpdate($project_ids);
+        foreach ($project_ids as $project_id) {
+            $this->enqueuer->enqueue(new RefreshGitoliteProjectConfigurationTask((int) $project_id));
+        }
 
         $GLOBALS['Response']->addFeedback(
             Feedback::INFO,
@@ -156,7 +154,7 @@ class Git_AdminGitoliteConfig //phpcs:ignore PSR1.Classes.ClassDeclaration.Missi
         );
     }
 
-    private function allowProject(\Tuleap\HTTPRequest $request)
+    private function allowProject(\Tuleap\HTTPRequest $request): void
     {
         $project = $this->getProject($request->get('project-to-allow'));
 
@@ -169,7 +167,7 @@ class Git_AdminGitoliteConfig //phpcs:ignore PSR1.Classes.ClassDeclaration.Missi
         }
 
         $this->big_object_authorization_manager->authorizeProject($project);
-        $this->system_event_manager->queueProjectsConfigurationUpdate([$project->getID()]);
+        $this->enqueuer->enqueue(RefreshGitoliteProjectConfigurationTask::fromProject($project));
 
         $GLOBALS['Response']->addFeedback(
             Feedback::INFO,

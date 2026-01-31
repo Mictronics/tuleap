@@ -95,6 +95,7 @@ export interface ItemSearchResult {
     readonly id: number;
     readonly type: string;
     readonly title: string;
+    readonly item_icon: string;
     readonly status: string | null;
     readonly post_processed_description: string;
     readonly owner: User;
@@ -106,6 +107,8 @@ export interface ItemSearchResult {
         readonly title: string;
     }>;
     readonly file_properties: FileProperties | null;
+    readonly wiki_properties: WikiProperties | null;
+    readonly link_properties: LinkProperties | null;
     readonly custom_properties: {
         readonly [key: AdditionalFieldNumber]: CustomPropertySearchResult;
     };
@@ -133,6 +136,7 @@ export type ItemType = (typeof ItemType)[number];
 
 export interface Item extends MinimalItem {
     description: string;
+    item_icon: string;
     post_processed_description: string;
     owner: User;
     last_update_date: string;
@@ -144,7 +148,7 @@ export interface Item extends MinimalItem {
     type: string;
     status: string | FolderStatus;
     created?: boolean;
-    obsolescence_date: null | number;
+    obsolescence_date: null | string;
     updated?: boolean;
     properties: Array<Property>;
     readonly move_uri: string;
@@ -228,6 +232,7 @@ export interface FakeItem extends Uploadable {
     upload_error: string | null;
     is_uploading_new_version: boolean;
     level?: number;
+    item_icon: "fa-regular fa-file document-empty-icon";
 }
 
 export interface Folder extends Item, Uploadable {
@@ -339,6 +344,7 @@ export interface ApprovalTable {
     state: string;
     is_closed: boolean;
     description: string;
+    post_processed_description: string;
     reviewers: ReadonlyArray<ApprovalTableReviewer>;
     reminder_occurence: number;
 }
@@ -349,6 +355,7 @@ export interface ApprovalTableReviewer {
     review_date: string | null;
     state: string;
     comment: string;
+    post_processed_comment: string;
     version_id: number | null;
     version_name: string | null;
     notification: boolean;
@@ -532,6 +539,7 @@ export interface FileHistory {
     readonly filename: string;
     readonly download_href: string;
     readonly approval_href: string | null;
+    readonly open_href: string;
     readonly date: string;
     readonly author: RestUser;
     readonly coauthors: RestUser[];
@@ -593,6 +601,7 @@ export interface NewItemAlternativeSection {
 export interface NewItemAlternative {
     readonly mime_type: string;
     readonly title: string;
+    readonly item_icon: string;
 }
 
 interface OtherItemType {

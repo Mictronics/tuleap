@@ -18,6 +18,7 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/
  */
 
+use Tuleap\Git\Gitolite\Presenter\GitoliteConfPresenter;
 use Tuleap\Git\Permissions\FineGrainedRetriever;
 use Tuleap\Git\Permissions\FineGrainedPermissionFactory;
 use Tuleap\Git\Permissions\GetProtectedGitReferences;
@@ -59,10 +60,6 @@ class Git_Gitolite_ConfigPermissionsSerializer //phpcs:ignore PSR1.Classes.Class
      * @var RegexpFineGrainedRetriever
      */
     private $regexp_retriever;
-    /**
-     * @var EventManager
-     */
-    private $event_manager;
 
     public function __construct(
         Git_Driver_Gerrit_ProjectCreatorStatus $gerrit_status,
@@ -70,7 +67,7 @@ class Git_Gitolite_ConfigPermissionsSerializer //phpcs:ignore PSR1.Classes.Class
         FineGrainedRetriever $fine_grained_retriever,
         FineGrainedPermissionFactory $fine_grained_factory,
         RegexpFineGrainedRetriever $regexp_retriever,
-        EventManager $event_manager,
+        private readonly \Psr\EventDispatcher\EventDispatcherInterface $event_dispatcher,
     ) {
         $this->gerrit_status = $gerrit_status;
         $template_dirs       = [];
@@ -83,15 +80,17 @@ class Git_Gitolite_ConfigPermissionsSerializer //phpcs:ignore PSR1.Classes.Class
         $this->fine_grained_retriever = $fine_grained_retriever;
         $this->fine_grained_factory   = $fine_grained_factory;
         $this->regexp_retriever       = $regexp_retriever;
-        $this->event_manager          = $event_manager;
     }
 
-    public function getGitoliteDotConf(array $project_names)
+    /**
+     * @param list<int> $project_ids
+     */
+    public function getGitoliteDotConf(array $project_ids): string
     {
         return $this->template_renderer->renderToString(
             'gitolite.conf',
-            new Git_Gitolite_Presenter_GitoliteConfPresenter(
-                $project_names,
+            new GitoliteConfPresenter(
+                $project_ids,
             )
         );
     }
@@ -125,8 +124,7 @@ class Git_Gitolite_ConfigPermissionsSerializer //phpcs:ignore PSR1.Classes.Class
      */
     private function getExternalProtectedReferencesFormattedPermissions(GitRepository $repository)
     {
-        $protected_git_references_event = new GetProtectedGitReferences();
-        $this->event_manager->processEvent($protected_git_references_event);
+        $protected_git_references_event = $this->event_dispatcher->dispatch(new GetProtectedGitReferences());
 
         $permissions = '';
 

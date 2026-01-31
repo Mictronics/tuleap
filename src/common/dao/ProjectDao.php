@@ -19,7 +19,7 @@
  * along with Codendi. If not, see <http://www.gnu.org/licenses/>.
  */
 
-class ProjectDao extends DataAccessObject
+class ProjectDao extends DataAccessObject //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 {
     public const string GROUP_ID        = 'group_id';
     public const string STATUS          = 'status';
@@ -178,15 +178,6 @@ class ProjectDao extends DataAccessObject
         return $this->retrieve($sql);
     }
 
-    public function searchPendingProjects()
-    {
-        $project_status = $this->da->quoteSmart(Project::STATUS_PENDING);
-
-        $sql = "SELECT * FROM `groups` WHERE status=$project_status ORDER BY register_time";
-
-        return $this->retrieve($sql);
-    }
-
     public function searchProjectsUserIsAdmin($user_id)
     {
         return $this->searchActiveProjectsByUserStatus($user_id, "AND user_group.admin_flags = 'A'");
@@ -241,7 +232,6 @@ class ProjectDao extends DataAccessObject
     }
 
     /**
-     * Update the http_domain and service when renaming the group
      * @param Project $project
      * @param String  $new_name
      * @return bool
@@ -249,9 +239,7 @@ class ProjectDao extends DataAccessObject
     public function renameProject($project, $new_name)
     {
         //Update 'groups' table
-        $sql        = ' UPDATE `groups` SET unix_group_name= ' . $this->da->quoteSmart($new_name) . ' ,
-                 http_domain=REPLACE (http_domain,' . $this->da->quoteSmart($project->getUnixName(false)) . ',' . $this->da->quoteSmart($new_name) . ')
-                 WHERE group_id= ' . $this->da->quoteSmart($project->getID());
+        $sql        = ' UPDATE `groups` SET unix_group_name= ' . $this->da->quoteSmart($new_name) . ' WHERE group_id= ' . $this->da->quoteSmart($project->getID());
         $res_groups = $this->update($sql);
 
         //Update 'service' table
@@ -567,19 +555,9 @@ class ProjectDao extends DataAccessObject
         return $this->update($sql);
     }
 
-    public function searchGlobal($words, $offset, $exact)
-    {
-        return $this->searchGlobalPaginated($words, $offset, $exact, 26);
-    }
-
     public function searchGlobalPaginated($words, $offset, $exact, $limit)
     {
         return $this->searchGlobalParams($words, $offset, $exact, '', '', $limit);
-    }
-
-    public function searchGlobalForRestrictedUsers($words, $offset, $exact, $user_id)
-    {
-        return $this->searchGlobalPaginatedForRestrictedUsers($words, $offset, $exact, $user_id, 26);
     }
 
     public function searchGlobalPaginatedForRestrictedUsers($words, $offset, $exact, $user_id, $limit)

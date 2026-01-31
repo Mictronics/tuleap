@@ -21,16 +21,16 @@
 
 use Tuleap\Project\Duplication\DuplicationUserGroupMapping;
 
-class PermissionsManager implements IPermissionsManagerNG
+class PermissionsManager implements IPermissionsManagerNG // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 {
     /**
      * @var PermissionsDao
      */
-    public $_permission_dao;
-    public $_permissions;
-    public $_ugroups_for_user;
+    public $_permission_dao; //phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+    public $_permissions; //phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
+    public $_ugroups_for_user; //phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
-    private static $_permissionmanager_instance;
+    private static $_permissionmanager_instance; //phpcs:ignore PSR2.Classes.PropertyDeclaration.Underscore
 
     public function __construct($permission_dao)
     {
@@ -231,9 +231,6 @@ class PermissionsManager implements IPermissionsManagerNG
     }
 
     /**
-     * @param type $object_id
-     * @param type $permission_type
-     *
      * @return PermissionsNormalizerOverrideCollection
      * @throws PermissionDaoException
      */
@@ -301,12 +298,7 @@ class PermissionsManager implements IPermissionsManagerNG
     */
     protected function retrievePermissions($object_id, $ugroups = [])
     {
-        $tracker_field_id = explode('#', $object_id); //An artifact field ?
-        if (count($tracker_field_id) > 1) {
-            $dar = $this->_permission_dao->searchPermissionsByArtifactFieldId($tracker_field_id[0]);
-        } else {
-            $dar = $this->_permission_dao->searchPermissionsByObjectId($object_id);
-        }
+        $dar = $this->_permission_dao->searchPermissionsByObjectId($object_id);
         $this->buildPermissionsCache($dar, $ugroups);
     }
 
@@ -385,7 +377,7 @@ class PermissionsManager implements IPermissionsManagerNG
         return $this->_permission_dao->removePermission($permission_type, $object_id, $ugroup_id);
     }
 
-    public function addHistory($permission_type, $object_id, $group_id)
+    public function addHistory(string $permission_type, $object_id, $group_id): void
     {
         permission_add_history($group_id, $permission_type, $object_id);
     }
@@ -419,10 +411,5 @@ class PermissionsManager implements IPermissionsManagerNG
     public function disableRestrictedAccess()
     {
         $this->_permission_dao->disableRestrictedAccess();
-    }
-
-    public function disableRestrictedAccessForObjectId(array $permission_type, $object_id)
-    {
-        $this->_permission_dao->disableRestrictedAccessForObjectId($permission_type, $object_id);
     }
 }

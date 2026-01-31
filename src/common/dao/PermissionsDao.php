@@ -22,7 +22,7 @@
 use Tuleap\Project\Duplication\DuplicationType;
 use Tuleap\Project\Duplication\DuplicationUserGroupMapping;
 
-class PermissionsDao extends DataAccessObject implements IPermissionsNGDao
+class PermissionsDao extends DataAccessObject implements IPermissionsNGDao // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace
 {
     /**
     * Gets all tables of the db
@@ -57,21 +57,6 @@ class PermissionsDao extends DataAccessObject implements IPermissionsNGDao
                ' WHERE p.object_id = ' . $this->da->quoteSmart($object_id, ['force_string' => true]) .
                ' AND p.permission_type LIKE ' . $this->da->quoteSmart($permission_type) .
                ' ORDER BY ugroup_id';
-        return $this->retrieve($sql);
-    }
-
-    public function getUgroupsByObjectIdAndPermissionType($object_id, $permission_type)
-    {
-        $object_id       = $this->da->quoteSmart($object_id, ['force_string' => true]);
-        $permission_type = $this->da->quoteSmart($permission_type);
-
-        $sql = "SELECT ugroup.*
-               FROM permissions p
-                JOIN ugroup ON ugroup.ugroup_id = p.ugroup_id
-               WHERE p.object_id = $object_id
-               AND p.permission_type = $permission_type
-               ORDER BY p.ugroup_id";
-
         return $this->retrieve($sql);
     }
 
@@ -120,17 +105,6 @@ class PermissionsDao extends DataAccessObject implements IPermissionsNGDao
 
         $sql = sprintf('SELECT * FROM permissions WHERE ' . $_where_clause);
 
-        return $this->retrieve($sql);
-    }
-
-    /**
-    * Searches Permissions by TrackerId and Ugroups
-    * @return \Tuleap\DB\Compat\Legacy2018\LegacyDataAccessResultInterface
-    */
-    public function searchPermissionsByArtifactFieldId($object_id)
-    {
-        $object_id = $this->da->escapeInt($object_id);
-        $sql       = "SELECT * FROM permissions WHERE object_id LIKE '$object_id#%'";
         return $this->retrieve($sql);
     }
 
@@ -307,23 +281,6 @@ class PermissionsDao extends DataAccessObject implements IPermissionsNGDao
            "UPDATE permissions
                SET ugroup_id = $public_ugroup_id
             WHERE ugroup_id  = $unrestricted_ugroup_id";
-
-        return $this->update($sql);
-    }
-
-    public function disableRestrictedAccessForObjectId(array $permission_type, $object_id)
-    {
-        $public_ugroup_id       = $this->da->escapeInt(ProjectUGroup::REGISTERED);
-        $unrestricted_ugroup_id = $this->da->escapeInt(ProjectUGroup::AUTHENTICATED);
-        $object_id              = $this->da->quoteSmart($object_id, ['force_string' => true]);
-        $permission_type        = $this->da->quoteSmartImplode(',', $permission_type);
-
-        $sql =
-           "UPDATE permissions
-               SET ugroup_id = $public_ugroup_id
-            WHERE ugroup_id  = $unrestricted_ugroup_id
-            AND    object_id = $object_id
-            AND    permission_type IN ($permission_type)";
 
         return $this->update($sql);
     }

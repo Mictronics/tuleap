@@ -18,10 +18,15 @@
   -->
 
 <template>
-    <label class="tlp-label" v-bind:for="id">
+    <div class="tlp-label">
         {{ field.label }}
-        <i class="fa-solid fa-asterisk" aria-hidden="true" v-if="field.required"></i>
-    </label>
+        <i
+            class="fa-solid fa-asterisk"
+            aria-hidden="true"
+            v-if="field.required"
+            data-test="required"
+        ></i>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -29,6 +34,5 @@ import type { StructureFields } from "@tuleap/plugin-tracker-rest-api-types";
 
 defineProps<{
     field: StructureFields;
-    id: string;
 }>();
 </script>

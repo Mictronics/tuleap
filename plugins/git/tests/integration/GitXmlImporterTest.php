@@ -45,6 +45,7 @@ use GitXmlImporter;
 use PermissionsDao;
 use PermissionsManager;
 use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\MockObject\Stub;
 use PluginDao;
 use PluginFactory;
 use PluginManager;
@@ -60,6 +61,7 @@ use System_Command;
 use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\DB\DBFactory;
 use Tuleap\ForgeUpgrade\ForgeUpgrade;
+use Tuleap\Git\AsynchronousEvents\RefreshGitoliteProjectConfigurationTask;
 use Tuleap\Git\BigObjectAuthorization\BigObjectAuthorizationManager;
 use Tuleap\Git\DefaultBranch\DefaultBranchUpdateExecutorAsGitoliteUser;
 use Tuleap\Git\Gitolite\GitoliteAccessURLGenerator;
@@ -76,10 +78,12 @@ use Tuleap\Git\SystemEvent\OngoingDeletionDAO;
 use Tuleap\Git\Tests\Stub\DefaultBranch\DefaultBranchUpdateExecutorStub;
 use Tuleap\GlobalLanguageMock;
 use Tuleap\Markdown\CommonMarkInterpreter;
+use Tuleap\Process\SymfonyProcessFactory;
 use Tuleap\Project\XML\Import\ImportConfig;
 use Tuleap\TemporaryTestDirectory;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Test\PHPUnit\TestIntegrationTestCase;
+use Tuleap\Test\Stubs\EnqueueTaskStub;
 use UGroupDao;
 use UGroupManager;
 use UserManager;
@@ -91,23 +95,24 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
     use TemporaryTestDirectory;
     use GlobalLanguageMock;
 
-    private XMLImportHelper&MockObject $user_finder;
+    private XMLImportHelper&Stub $user_finder;
     private GitXmlImporter $importer;
-    private GitDao&MockObject $git_dao;
-    private Git_SystemEventManager&MockObject $git_systemeventmanager;
-    private PermissionsDao&MockObject $permission_dao;
+    private GitDao&Stub $git_dao;
+    private Git_SystemEventManager&Stub $git_systemeventmanager;
+    private PermissionsDao&Stub $permission_dao;
     private string $old_cwd;
-    private UGroupDao&MockObject $ugroup_dao;
-    private EventManager&MockObject $event_manager;
+    private UGroupDao&Stub $ugroup_dao;
+    private EventManager&Stub $event_manager;
     private ?GitRepository $last_saved_repository;
     private TestLogger $logger;
     private ConfigureAllowArtifactClosure&MockObject $configure_artifact_closure;
     private FineGrainedUpdater&MockObject $fine_grained_updater;
     private RegexpFineGrainedEnabler&MockObject $regexp_fine_grained_enabler;
-    private RegexpFineGrainedRetriever&MockObject $regexp_fine_grained_retriever;
-    private FineGrainedPermissionFactory&MockObject $fine_grained_factory;
+    private RegexpFineGrainedRetriever&Stub $regexp_fine_grained_retriever;
+    private FineGrainedPermissionFactory&Stub $fine_grained_factory;
     private FineGrainedPermissionSaver&MockObject $fine_grained_saver;
     private Project $project;
+    private EnqueueTaskStub $enqueuer;
 
     #[\Override]
     protected function setUp(): void
@@ -124,14 +129,14 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
 
         ForgeConfig::set('tmp_dir', $this->getTmpDir());
 
-        $this->git_dao = $this->createMock(GitDao::class);
-        $this->git_dao->method('save')->with(self::callback(
-            function (GitRepository $repository): bool {
+        $this->git_dao = $this->createStub(GitDao::class);
+        $this->git_dao->method('save')->willReturnCallback(
+            function (GitRepository $repository): int {
                 $this->last_saved_repository = $repository;
-                return true;
+                return $repository->getId();
             }
-        ));
-        $plugin_dao = $this->createMock(PluginDao::class);
+        );
+        $plugin_dao = $this->createStub(PluginDao::class);
         ProjectManager::clearInstance();
         $project_manager = ProjectManager::instance();
 
@@ -139,19 +144,19 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
         $git_plugin   = new GitPlugin(1);
         $git_factory  = new GitRepositoryFactory($this->git_dao, $project_manager);
 
-        $this->ugroup_dao    = $this->createMock(UGroupDao::class);
-        $this->event_manager = $this->createMock(EventManager::class);
+        $this->ugroup_dao    = $this->createStub(UGroupDao::class);
+        $this->event_manager = $this->createStub(EventManager::class);
         $ugroup_manager      = new UGroupManager($this->ugroup_dao, $this->event_manager);
 
-        $this->git_systemeventmanager        = $this->createMock(Git_SystemEventManager::class);
+        $this->git_systemeventmanager        = $this->createStub(Git_SystemEventManager::class);
         $this->fine_grained_updater          = $this->createMock(FineGrainedUpdater::class);
-        $this->regexp_fine_grained_retriever = $this->createMock(RegexpFineGrainedRetriever::class);
+        $this->regexp_fine_grained_retriever = $this->createStub(RegexpFineGrainedRetriever::class);
         $this->regexp_fine_grained_enabler   = $this->createMock(RegexpFineGrainedEnabler::class);
-        $this->fine_grained_factory          = $this->createMock(FineGrainedPermissionFactory::class);
+        $this->fine_grained_factory          = $this->createStub(FineGrainedPermissionFactory::class);
         $this->fine_grained_saver            = $this->createMock(FineGrainedPermissionSaver::class);
         $xml_ugroup_retriever                = new XmlUgroupRetriever($this->logger, $ugroup_manager);
 
-        $ongoing_deletion_dao = $this->createMock(OngoingDeletionDAO::class);
+        $ongoing_deletion_dao = $this->createStub(OngoingDeletionDAO::class);
         $ongoing_deletion_dao->method('isADeletionForPathOngoingInProject')->willReturn(false);
 
         $git_manager = new GitRepositoryManager(
@@ -159,14 +164,14 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
             $this->git_systemeventmanager,
             $this->git_dao,
             $this->getTmpDir(),
-            $this->createMock(FineGrainedPermissionReplicator::class),
-            $this->createMock(ProjectHistoryDao::class),
-            $this->createMock(HistoryValueFormatter::class),
+            $this->createStub(FineGrainedPermissionReplicator::class),
+            $this->createStub(ProjectHistoryDao::class),
+            $this->createStub(HistoryValueFormatter::class),
             $this->event_manager,
             $ongoing_deletion_dao,
         );
 
-        $restricted_plugin_dao = $this->createMock(RestrictedPluginDao::class);
+        $restricted_plugin_dao = $this->createStub(RestrictedPluginDao::class);
         $plugin_factory        = new PluginFactory($plugin_dao, new PluginResourceRestrictor($restricted_plugin_dao));
 
         $plugin_manager = new PluginManager(
@@ -178,31 +183,33 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
 
         PluginManager::setInstance($plugin_manager);
 
-        $this->permission_dao = $this->createMock(PermissionsDao::class);
+        $this->permission_dao = $this->createStub(PermissionsDao::class);
         $permissions_manager  = new PermissionsManager($this->permission_dao);
         $git_gitolite_driver  = new Git_GitoliteDriver(
             $this->logger,
-            $this->createMock(Git_GitRepositoryUrlManager::class),
+            $this->createStub(Git_GitRepositoryUrlManager::class),
             $this->git_dao,
             $git_plugin,
-            $this->createMock(BigObjectAuthorizationManager::class),
+            $this->createStub(BigObjectAuthorizationManager::class),
+            new SymfonyProcessFactory(),
             null,
-            null,
-            $this->createMock(Git_Gitolite_ConfigPermissionsSerializer::class),
+            $this->createStub(Git_Gitolite_ConfigPermissionsSerializer::class),
             null,
             null,
         );
-        $this->user_finder    = $this->createMock(XMLImportHelper::class);
+        $this->user_finder    = $this->createStub(XMLImportHelper::class);
 
         $this->configure_artifact_closure = $this->createMock(ConfigureAllowArtifactClosure::class);
 
-        $gitolite       = new Git_Backend_Gitolite($git_gitolite_driver, $this->createMock(GitoliteAccessURLGenerator::class), new DefaultBranchUpdateExecutorStub(), $this->logger);
+        $this->enqueuer = new EnqueueTaskStub();
+
+        $gitolite       = new Git_Backend_Gitolite($git_gitolite_driver, $this->createStub(GitoliteAccessURLGenerator::class), new DefaultBranchUpdateExecutorStub(), $this->logger);
         $this->importer = new GitXmlImporter(
             $this->logger,
             $git_manager,
             $git_factory,
             $gitolite,
-            $this->git_systemeventmanager,
+            $this->enqueuer,
             $permissions_manager,
             $this->event_manager,
             $this->fine_grained_updater,
@@ -218,7 +225,7 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
             new DefaultBranchUpdateExecutorAsGitoliteUser(),
         );
 
-        $user_manager = $this->createMock(UserManager::class);
+        $user_manager = $this->createStub(UserManager::class);
         $user_manager->method('getUserById')->willReturn(UserTestBuilder::buildWithDefaults());
         UserManager::setInstance($user_manager);
 
@@ -232,7 +239,6 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
             ['group_id' => 123, 'unix_group_name' => 'test_project', 'access' => Project::ACCESS_PUBLIC]
         );
         $this->git_systemeventmanager->method('queueRepositoryUpdate');
-        $this->git_systemeventmanager->method('queueProjectsConfigurationUpdate');
         $this->event_manager->method('processEvent');
     }
 
@@ -243,8 +249,25 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
         chdir($this->old_cwd);
     }
 
+    private function expectsNoFineGrainedPermissionsActivation(): void
+    {
+        $this->regexp_fine_grained_enabler->expects($this->never())->method('enableForRepository');
+        $this->fine_grained_updater->expects($this->never())->method('enableRepository');
+        $this->fine_grained_saver->expects($this->never())->method('saveBranchPermission');
+        $this->fine_grained_saver->expects($this->never())->method('saveTagPermission');
+    }
+
+    private function expectsNoArtifactClosureChanges(): void
+    {
+        $this->configure_artifact_closure->expects($this->never())->method('allowArtifactClosureForRepository');
+        $this->configure_artifact_closure->expects($this->never())->method('forbidArtifactClosureForRepository');
+    }
+
     public function testItShouldCreateOneEmptyRepository(): void
     {
+        $this->expectsNoFineGrainedPermissionsActivation();
+        $this->expectsNoArtifactClosureChanges();
+
         $xml         = <<<XML
         <project>
             <git>
@@ -275,6 +298,8 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
 
     public function testItShouldNotChangeAllowArtifactClosureOptionIfAttributeIsNotPresent(): void
     {
+        $this->expectsNoFineGrainedPermissionsActivation();
+
         $xml = <<<XML
         <project>
             <git>
@@ -318,6 +343,8 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
             ->expects($this->once())
             ->method('allowArtifactClosureForRepository');
 
+        $this->expectsNoFineGrainedPermissionsActivation();
+
         $this->importer->import(
             new ImportConfig(),
             $this->project,
@@ -345,6 +372,8 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
             ->expects($this->never())
             ->method('allowArtifactClosureForRepository');
 
+        $this->expectsNoFineGrainedPermissionsActivation();
+
         $this->importer->import(
             new ImportConfig(),
             $this->project,
@@ -356,6 +385,9 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
 
     public function testItShouldImportOneRepositoryWithOneCommit(): void
     {
+        $this->expectsNoFineGrainedPermissionsActivation();
+        $this->expectsNoArtifactClosureChanges();
+
         $xml         = <<<XML
         <project>
             <git>
@@ -380,6 +412,9 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
 
     public function testItShouldImportTwoRepositoriesWithOneCommit(): void
     {
+        $this->expectsNoFineGrainedPermissionsActivation();
+        $this->expectsNoArtifactClosureChanges();
+
         $xml = <<<XML
         <project>
             <git>
@@ -431,6 +466,10 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
                 [Git::PERM_WRITE, self::anything(), 3, true],
                 [Git::PERM_WPLUS, self::anything(), 4, true],
             ]);
+
+        $this->expectsNoArtifactClosureChanges();
+        $this->expectsNoFineGrainedPermissionsActivation();
+
         self::assertTrue($this->import(new SimpleXMLElement($xml)));
     }
 
@@ -464,11 +503,18 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
                 [Git::PERM_WRITE, self::anything(), 3, true],
                 [Git::PERM_WPLUS, self::anything(), 4, true],
             ]);
+
+        $this->expectsNoFineGrainedPermissionsActivation();
+        $this->expectsNoArtifactClosureChanges();
+
         self::assertTrue($this->import(new SimpleXMLElement($xml)));
     }
 
-    public function testItShouldUpdateConfViaSystemEvents(): void
+    public function testItShouldTriggerAGitoliteProjectUpdate(): void
     {
+        $this->expectsNoFineGrainedPermissionsActivation();
+        $this->expectsNoArtifactClosureChanges();
+
         $xml = <<<XML
         <project>
             <git>
@@ -476,12 +522,16 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
             </git>
         </project>
         XML;
-        $this->git_systemeventmanager->expects($this->atLeastOnce())->method('queueProjectsConfigurationUpdate')->with([123]);
         $this->import(new SimpleXMLElement($xml));
+
+        self::assertEquals([new RefreshGitoliteProjectConfigurationTask(123)], $this->enqueuer->queued_tasks);
     }
 
     public function testItShouldImportDescription(): void
     {
+        $this->expectsNoFineGrainedPermissionsActivation();
+        $this->expectsNoArtifactClosureChanges();
+
         $xml = <<<XML
         <project>
             <git>
@@ -495,6 +545,9 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
 
     public function testItShouldImportDefaultDescription(): void
     {
+        $this->expectsNoFineGrainedPermissionsActivation();
+        $this->expectsNoArtifactClosureChanges();
+
         $xml = <<<XML
         <project>
             <git>
@@ -508,6 +561,9 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
 
     public function testItShouldAtLeastSetProjectsAdminAsGitAdmins(): void
     {
+        $this->expectsNoFineGrainedPermissionsActivation();
+        $this->expectsNoArtifactClosureChanges();
+
         $xml = <<<XML
         <project>
             <git>
@@ -521,6 +577,9 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
 
     public function testItShouldImportGitAdmins(): void
     {
+        $this->expectsNoFineGrainedPermissionsActivation();
+        $this->expectsNoArtifactClosureChanges();
+
         $xml    = <<<XML
         <project>
             <git>
@@ -554,7 +613,11 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
         XML;
         $this->ugroup_dao->method('searchByGroupIdAndName')->willReturn([]);
 
-        $this->event_manager->expects($this->exactly(3))->method('processEvent');
+        $this->event_manager->method('processEvent');
+
+        $this->expectsNoFineGrainedPermissionsActivation();
+        $this->expectsNoArtifactClosureChanges();
+
 
         $this->import(new SimpleXMLElement($xml));
     }
@@ -572,7 +635,11 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
         $this->ugroup_dao->method('searchByGroupIdAndName')->willReturn([]);
 
         $this->fine_grained_updater->expects($this->never())->method('enableRepository');
+        $this->fine_grained_saver->expects($this->never())->method('saveBranchPermission');
+        $this->fine_grained_saver->expects($this->never())->method('saveTagPermission');
         $this->regexp_fine_grained_enabler->expects($this->never())->method('enableForRepository');
+
+        $this->expectsNoArtifactClosureChanges();
 
         $this->import(new SimpleXMLElement($xml));
     }
@@ -594,7 +661,10 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
 
         $this->fine_grained_updater->expects($this->once())->method('enableRepository');
         $this->regexp_fine_grained_enabler->expects($this->never())->method('enableForRepository');
+        $this->fine_grained_saver->expects($this->never())->method('saveBranchPermission');
+        $this->fine_grained_saver->expects($this->never())->method('saveTagPermission');
         $this->regexp_fine_grained_retriever->method('areRegexpActivatedAtSiteLevel');
+        $this->expectsNoArtifactClosureChanges();
 
         $this->import(new SimpleXMLElement($xml));
         self::assertTrue($this->logger->hasWarningRecords());
@@ -617,7 +687,11 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
         $this->regexp_fine_grained_retriever->method('areRegexpActivatedAtSiteLevel')->willReturn(true);
 
         $this->fine_grained_updater->expects($this->once())->method('enableRepository');
+        $this->fine_grained_saver->expects($this->never())->method('saveBranchPermission');
+        $this->fine_grained_saver->expects($this->never())->method('saveTagPermission');
         $this->regexp_fine_grained_enabler->expects($this->once())->method('enableForRepository');
+
+        $this->expectsNoArtifactClosureChanges();
 
         $this->import(new SimpleXMLElement($xml));
     }
@@ -639,7 +713,11 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
         $this->regexp_fine_grained_retriever->method('areRegexpActivatedAtSiteLevel')->willReturn(false);
 
         $this->fine_grained_updater->expects($this->once())->method('enableRepository');
+        $this->fine_grained_saver->expects($this->never())->method('saveBranchPermission');
+        $this->fine_grained_saver->expects($this->never())->method('saveTagPermission');
         $this->regexp_fine_grained_enabler->expects($this->never())->method('enableForRepository');
+
+        $this->expectsNoArtifactClosureChanges();
 
         $this->import(new SimpleXMLElement($xml));
         self::assertTrue($this->logger->hasWarningRecords());
@@ -662,7 +740,12 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
         $this->regexp_fine_grained_retriever->method('areRegexpActivatedAtSiteLevel')->willReturn(true);
 
         $this->fine_grained_updater->expects($this->never())->method('enableRepository');
+        $this->fine_grained_saver->expects($this->never())->method('saveBranchPermission');
+        $this->fine_grained_saver->expects($this->never())->method('saveTagPermission');
         $this->regexp_fine_grained_enabler->expects($this->once())->method('enableForRepository');
+
+        $this->configure_artifact_closure->expects($this->never())->method('allowArtifactClosureForRepository');
+        $this->configure_artifact_closure->expects($this->never())->method('forbidArtifactClosureForRepository');
 
         $this->import(new SimpleXMLElement($xml));
     }
@@ -698,7 +781,10 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
 
         $this->fine_grained_saver->expects($this->once())->method('saveBranchPermission');
         $this->fine_grained_saver->expects($this->once())->method('saveTagPermission');
-        $this->fine_grained_updater->method('enableRepository');
+        $this->fine_grained_updater->expects($this->once())->method('enableRepository');
+        $this->regexp_fine_grained_enabler->expects($this->never())->method('enableForRepository');
+
+        $this->expectsNoArtifactClosureChanges();
 
         $this->import(new SimpleXMLElement($xml));
     }
@@ -735,7 +821,10 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
 
         $this->fine_grained_saver->expects($this->once())->method('saveBranchPermission');
         $this->fine_grained_saver->expects($this->once())->method('saveTagPermission');
-        $this->fine_grained_updater->method('enableRepository');
+        $this->fine_grained_updater->expects($this->once())->method('enableRepository');
+        $this->regexp_fine_grained_enabler->expects($this->never())->method('enableForRepository');
+
+        $this->expectsNoArtifactClosureChanges();
 
         $this->import(new SimpleXMLElement($xml));
         self::assertTrue($this->logger->hasWarningRecords());
@@ -782,8 +871,10 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
 
         $this->fine_grained_saver->expects($this->exactly(2))->method('saveBranchPermission');
         $this->fine_grained_saver->expects($this->once())->method('saveTagPermission');
-        $this->fine_grained_updater->method('enableRepository');
-        $this->regexp_fine_grained_enabler->method('enableForRepository');
+        $this->fine_grained_updater->expects($this->once())->method('enableRepository');
+        $this->regexp_fine_grained_enabler->expects($this->once())->method('enableForRepository');
+
+        $this->expectsNoArtifactClosureChanges();
 
         $this->import(new SimpleXMLElement($xml));
     }
@@ -807,8 +898,11 @@ final class GitXmlImporterTest extends TestIntegrationTestCase
         </project>
         XML;
 
-        $this->user_finder->expects($this->atLeastOnce())->method('getUser')->willReturn(UserTestBuilder::buildWithId(102));
-        $this->git_dao->expects($this->once())->method('logGitPush');
+        $this->expectsNoFineGrainedPermissionsActivation();
+        $this->expectsNoArtifactClosureChanges();
+
+        $this->user_finder->method('getUser')->willReturn(UserTestBuilder::buildWithId(102));
+        $this->git_dao->method('logGitPush');
         $this->import(new SimpleXMLElement($xml));
         self::assertEquals(GitRepository::DEFAULT_DESCRIPTION, $this->last_saved_repository->getDescription());
     }

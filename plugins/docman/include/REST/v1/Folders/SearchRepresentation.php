@@ -23,9 +23,12 @@ declare(strict_types=1);
 
 namespace Tuleap\Docman\REST\v1\Folders;
 
+use Tuleap\Docman\Item\Icon\ItemIconPresenter;
 use Tuleap\Docman\Item\PaginatedParentRowCollection;
 use Tuleap\Docman\REST\v1\Files\FilePropertiesRepresentation;
+use Tuleap\Docman\REST\v1\Links\LinkPropertiesRepresentation;
 use Tuleap\Docman\REST\v1\Search\CustomPropertyRepresentation;
+use Tuleap\Docman\REST\v1\Wiki\WikiPropertiesRepresentation;
 use Tuleap\REST\JsonCast;
 use Tuleap\User\Avatar\ProvideUserAvatarUrl;
 use Tuleap\User\REST\MinimalUserRepresentation;
@@ -88,7 +91,10 @@ final class SearchRepresentation
      * @var FilePropertiesRepresentation | null
      */
     public $file_properties;
+    public ?WikiPropertiesRepresentation $wiki_properties;
+    public ?LinkPropertiesRepresentation $link_properties;
     public array $custom_properties;
+    public string $item_icon;
 
     /**
      * @param array<string, CustomPropertyRepresentation> $custom_properties
@@ -105,7 +111,10 @@ final class SearchRepresentation
         PaginatedParentRowCollection $parents,
         ?string $type,
         ?FilePropertiesRepresentation $file_properties,
+        ?WikiPropertiesRepresentation $wiki_properties,
+        ?LinkPropertiesRepresentation $link_properties,
         array $custom_properties,
+        ItemIconPresenter $icon_presenter,
     ) {
         $this->id                         = $id;
         $this->title                      = $title;
@@ -118,7 +127,10 @@ final class SearchRepresentation
         $this->parents                    = $parents->getPaginatedElementCollection();
         $this->type                       = $type;
         $this->file_properties            = $file_properties;
+        $this->wiki_properties            = $wiki_properties;
+        $this->link_properties            = $link_properties;
         $this->custom_properties          = $custom_properties;
+        $this->item_icon                  = $icon_presenter->getIconWithColor();
     }
 
     /**
@@ -132,8 +144,11 @@ final class SearchRepresentation
         PaginatedParentRowCollection $parents,
         ?string $type,
         ?FilePropertiesRepresentation $file_properties,
+        ?WikiPropertiesRepresentation $wiki_properties,
+        ?LinkPropertiesRepresentation $link_properties,
         array $custom_properties,
         ProvideUserAvatarUrl $provide_user_avatar_url,
+        ItemIconPresenter $icon_presenter,
     ): self {
         $obsolescence_date = $item->getObsolescenceDate();
 
@@ -149,7 +164,10 @@ final class SearchRepresentation
             $parents,
             $type,
             $file_properties,
+            $wiki_properties,
+            $link_properties,
             $custom_properties,
+            $icon_presenter
         );
     }
 }

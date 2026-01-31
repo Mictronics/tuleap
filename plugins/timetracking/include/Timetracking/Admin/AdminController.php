@@ -114,7 +114,7 @@ class AdminController
                     __DIR__ . '/../../../scripts/timetracking-tab-styles/frontend-assets',
                     '/assets/timetracking/timetracking-tab-styles'
                 ),
-                'themes/style.scss'
+                'src/style.scss'
             )
         );
         $tracker->displayAdminItemHeaderBurningParrot(

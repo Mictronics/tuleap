@@ -111,9 +111,11 @@ reason = "Not used in production, see https://github.com/bytecodealliance/wasmti
 ### TO BE FIXED
 # Go standard library
 [[IgnoredVulns]]
-id = "GO-2025-4155" # CVE-2025-61729
-reason = "Our code does not call the impacted parts of the Go stdlib."
+id = "GO-2026-4340" # CVE-2025-61730
+reason = "No security impact for Tuleap"
+ignoreUntil = 2026-02-23
 
 [[IgnoredVulns]]
-id = "GO-2025-4175" # CVE-2025-61727
-reason = "Our code does not call the impacted parts of the Go stdlib."
+id = "GO-2026-4341" # CVE-2025-61726
+reason = "No security impact for Tuleap"
+ignoreUntil = 2026-02-23

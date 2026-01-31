@@ -97,6 +97,8 @@ use Tuleap\Git\REST\v1\Branch\BranchCreator;
 use Tuleap\Git\SystemEvent\OngoingDeletionDAO;
 use Tuleap\Git\XmlUgroupRetriever;
 use Tuleap\Http\HttpClientFactory;
+use Tuleap\Process\SymfonyProcessFactory;
+use Tuleap\Queue\EnqueueTask;
 use Tuleap\REST\AuthenticatedResource;
 use Tuleap\REST\Header;
 use Tuleap\REST\ProjectStatusVerificator;
@@ -183,7 +185,7 @@ class RepositoryResource extends AuthenticatedResource
 
         $this->git_permission_manager = new GitPermissionsManager(
             new Git_PermissionsDao(),
-            $this->git_system_event_manager,
+            new EnqueueTask(),
             $fine_grained_dao,
             $fine_grained_retriever
         );
@@ -291,7 +293,7 @@ class RepositoryResource extends AuthenticatedResource
                         new BigObjectAuthorizationDao(),
                         ProjectManager::instance()
                     ),
-                    null,
+                    new SymfonyProcessFactory(),
                     null,
                     null,
                     null,
@@ -1094,7 +1096,6 @@ class RepositoryResource extends AuthenticatedResource
     }
 
     /**
-     * @return GitRepository|\GitRepositoryGitoliteAdmin
      *
      * @throws RestException
      */

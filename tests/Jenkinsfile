@@ -14,6 +14,7 @@ def execTestWithLimitedConcurrency(Closure testToExecute) {
 }
 
 def actions
+def helpers
 
 pipeline {
     agent {
@@ -24,6 +25,16 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
+            }
+        }
+
+        stage('Setup Nix cache') {
+            steps {
+                script {
+                    helpers = load 'sources/tests/helpers.groovy'
+                    helpers.authenticateOnTailscale()
+                    helpers.setupTuleapCommunityNixCache()
+                }
             }
         }
 
@@ -68,12 +79,12 @@ pipeline {
                     steps { script { execTestWithLimitedConcurrency({ actions.runPHPUnitTests('84') }) } }
                     post { always { junit 'results/ut-phpunit/*/phpunit_tests_results.xml' } }
                 }
-                stage('REST PHP 8.4 MySQL 8.0') {
-                    steps { script { execTestWithLimitedConcurrency({ actions.runRESTTests('mysql80', '84') }) } }
+                stage('REST PHP 8.4 MySQL 8.4') {
+                    steps { script { execTestWithLimitedConcurrency({ actions.runRESTTests('mysql84', '84') }) } }
                     post { always { junit 'results/api-rest/*/*' } }
                 }
-                stage('DB/Integration PHP 8.4 MySQL 8.0') {
-                    steps { script { execTestWithLimitedConcurrency({ actions.runDBTests('mysql80', '84') }) } }
+                stage('DB/Integration PHP 8.4 MySQL 8.4') {
+                    steps { script { execTestWithLimitedConcurrency({ actions.runDBTests('mysql84', '84') }) } }
                     post { always { junit 'results/db/*/db_tests.xml' } }
                 }
                 stage('Build and run el9') { steps { script { execTestWithLimitedConcurrency({ actions.runBuildAndRun('el9') }) } } }
@@ -132,7 +143,6 @@ pipeline {
                             execTestWithLimitedConcurrency({
                                 def filesToAnalyze = '.'
                                 if (env.GIT_BRANCH != 'origin/master') {
-                                    def helpers = load 'sources/tests/helpers.groovy'
                                     filesToAnalyze = helpers.getModifiedFilesSinceFirstParentOfCurrentCommit('sources/')
                                 }
                                 actions.runTreefmt(filesToAnalyze)
