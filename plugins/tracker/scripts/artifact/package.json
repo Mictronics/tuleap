@@ -1,7 +1,7 @@
 {
   "author": "Enalean Team",
   "name": "@tuleap/plugin-tracker-artifact",
-  "homepage": "https://tuleap.org",
+  "homepage": "https://www.tuleap.com",
   "license": "GPL-2.0-or-later",
   "private": true,
   "type": "module",
@@ -21,6 +21,7 @@
     "@tuleap/plugin-tracker-rich-text-editor": "workspace:*",
     "@tuleap/plugin-tracker-rte-creator": "workspace:*",
     "@tuleap/project-background": "workspace:^",
+    "@tuleap/tlp-date-picker": "workspace:^",
     "@tuleap/tlp-dropdown": "workspace:^",
     "@tuleap/tlp-fetch": "workspace:*",
     "@tuleap/tlp-styles": "workspace:^",

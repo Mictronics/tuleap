@@ -37,7 +37,6 @@ use Tuleap\Document\Tree\Search\ListOfSearchColumnDefinitionPresenterBuilder;
 use Tuleap\Layout\BaseLayout;
 use Tuleap\Layout\FooterConfiguration;
 use Tuleap\Layout\HeaderConfigurationBuilder;
-use Tuleap\Layout\IncludeAssets;
 use Tuleap\Layout\IncludeViteAssets;
 use Tuleap\Layout\JavascriptViteAsset;
 use Tuleap\Project\Flags\ProjectFlagsBuilder;
@@ -63,7 +62,7 @@ class DocumentTreeController implements DispatchableWithRequest, DispatchableWit
     }
 
     #[\Override]
-    public function process(\Tuleap\HTTPRequest $request, BaseLayout $layout, array $variables)
+    public function process(\Tuleap\HTTPRequest $request, BaseLayout $layout, array $variables): void
     {
         \Tuleap\Project\ServiceInstrumentation::increment('document');
 
@@ -76,6 +75,14 @@ class DocumentTreeController implements DispatchableWithRequest, DispatchableWit
             __DIR__ . '/../../scripts/document/frontend-assets',
             '/assets/document/document'
         ), 'src/index.ts'));
+
+        $include_assets = new \Tuleap\Layout\IncludeAssets(
+            __DIR__ . '/../../../docman/frontend-assets',
+            '/assets/docman'
+        );
+        $layout->addCssAsset(
+            new \Tuleap\Layout\CssAssetWithoutVariantDeclinaisons($include_assets, 'icons-style')
+        );
         $this->includeHeaderAndNavigationBar($layout, $project);
         $this->includeJavascriptFiles($layout, $request);
 
@@ -138,14 +145,6 @@ class DocumentTreeController implements DispatchableWithRequest, DispatchableWit
         return $docman_setting_bo->getMetadataUsage($label) === '1';
     }
 
-    private function getAssets(): IncludeAssets
-    {
-        return new IncludeAssets(
-            __DIR__ . '/../../frontend-assets',
-            '/assets/document'
-        );
-    }
-
     private function includeJavascriptFiles(BaseLayout $layout, \Tuleap\HTTPRequest $request): void
     {
         $ckeditor_assets = new IncludeViteAssets(__DIR__ . '/../../../../src/scripts/ckeditor4/frontend-assets/', '/assets/core/ckeditor4/');
@@ -153,7 +152,7 @@ class DocumentTreeController implements DispatchableWithRequest, DispatchableWit
         $layout->includeFooterJavascriptFile(RelativeDatesAssetsRetriever::retrieveAssetsUrl());
     }
 
-    private function includeHeaderAndNavigationBar(BaseLayout $layout, Project $project)
+    private function includeHeaderAndNavigationBar(BaseLayout $layout, Project $project): void
     {
         $layout->header(
             HeaderConfigurationBuilder::get(dgettext('tuleap-document', 'Document manager'))

@@ -45,7 +45,7 @@
                                 >{{ $gettext('Apply') }}</button><!--
                             --></pre>
                         </tlp-syntax-highlighting>
-                        <div v-dompurify-html="parse(message.explanations)"></div>
+                        <div v-dompurify-html="message.explanations"></div>
                     </div>
                 </template>
                 <div v-if="is_loading" class="assistant-ai-loader-container">
@@ -69,15 +69,25 @@
                     class="assistant-ai-user-prompt-container"
                     v-on:submit.prevent="handlePromptSubmission"
                 >
-                    <input
-                        type="text"
-                        class="tlp-textarea"
-                        v-model="prompt_user_input"
-                        required
-                        maxlength="500"
-                        v-bind:disabled="is_loading"
-                        v-bind:placeholder="$gettext('Describe what you are looking for...')"
-                    />
+                    <div class="tlp-form-element assistant-ai-user-prompt-input-container">
+                        <input
+                            type="text"
+                            class="tlp-input"
+                            v-model="prompt_user_input"
+                            required
+                            maxlength="500"
+                            v-bind:disabled="is_loading"
+                            v-bind:placeholder="$gettext('Describe what you are looking for...')"
+                        />
+                        <p class="tlp-text-info">
+                            <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+                            {{
+                                $gettext(
+                                    "All exchanges are recorded and will be reviewed by the Tuleap Team to improve the query generation experience.",
+                                )
+                            }}
+                        </p>
+                    </div>
                     <button
                         type="submit"
                         class="tlp-button-primary"
@@ -98,7 +108,6 @@ import { ref } from "vue";
 import { postJSON, uri } from "@tuleap/fetch-result";
 import { EMITTER, WIDGET_ID } from "../injection-symbols";
 import { strictInject } from "@tuleap/vue-strict-inject";
-import { parse } from "marked";
 import { SEND_TQL_QUERY_FROM_CHATBOT_EVENT } from "../helpers/widget-events";
 
 const { $gettext } = useGettext();
@@ -178,7 +187,7 @@ function applyAssistantTQLQuery(message: AssistantMessage): void {
     display: flex;
     width: 50%;
     margin: 0 var(--tlp-medium-spacing) var(--tlp-medium-spacing);
-    border-left: 1px solid var(--tlp-neutral-normal-color);
+    border-left: 1px solid var(--tlp-border-color);
 }
 
 .tlp-pane-section {
@@ -209,6 +218,10 @@ function applyAssistantTQLQuery(message: AssistantMessage): void {
 .assistant-ai-user-prompt-container {
     display: flex;
     gap: 10px;
+}
+
+.assistant-ai-user-prompt-input-container {
+    width: 100%;
 }
 
 .assistant-ai-answer,

@@ -31,9 +31,11 @@ use Tuleap\GlobalResponseMock;
 use Tuleap\Layout\BaseLayout;
 use Tuleap\Project\MappingRegistry;
 use Tuleap\Test\Builders\HTTPRequestBuilder;
+use Tuleap\Test\Builders\LayoutInspectorRedirection;
 use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\UserTestBuilder;
 use Tuleap\Tracker\Artifact\Artifact;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
 
 #[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
@@ -79,9 +81,9 @@ final class TrackerManagerTest extends \Tuleap\Test\PHPUnit\TestCase
         $tf->method('getTrackerById')->with(3)->willReturn($this->tracker);
         $tf->method('getTrackersByGroupId')->willReturn($trackers);
 
-        $this->formElement = $this->createMock(\Tracker_FormElement_Interface::class);
+        $this->formElement = $this->createMock(TrackerField::class);
         $ff                = $this->createMock(\Tracker_FormElementFactory::class);
-        $ff->method('getFormElementById')->with('4')->willReturn($this->formElement);
+        $ff->method('getFieldById')->with('4')->willReturn($this->formElement);
 
         $this->artifact->method('getTracker')->willReturn($this->tracker);
         $this->report->method('getTracker')->willReturn($this->tracker);
@@ -158,13 +160,20 @@ final class TrackerManagerTest extends \Tuleap\Test\PHPUnit\TestCase
         $this->tracker->expects($this->never())->method('process'); //user can't view the tracker. so don't process the request in tracker
         $this->formElement->expects($this->never())->method('process');
         $this->tracker->expects($this->once())->method('userCanView')->willReturn(false);
-        $GLOBALS['Response']->expects($this->atLeastOnce())->method('addFeedback')->with('error', self::anything());
-        $GLOBALS['Response']->expects($this->once())->method('redirect');
 
         $request_artifact = HTTPRequestBuilder::get()->build();
 
         $this->url->method('getDispatchableFromRequest')->willReturn($this->tracker);
-        $this->tm->process($request_artifact, $this->user);
+
+        $redirect_exception = null;
+        try {
+            $this->tm->process($request_artifact, $this->user);
+        } catch (LayoutInspectorRedirection $ex) {
+            $redirect_exception = $ex;
+        }
+
+        self::assertTrue($this->global_response->feedbackHasErrors());
+        self::assertNotNull($redirect_exception);
     }
 
     public function testProcessField(): void

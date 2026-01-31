@@ -38,9 +38,33 @@
                 v-bind:icon-class="icon_class"
                 v-bind:item="currently_previewed_item"
             />
-            <component
-                v-if="quick_look_component_action !== null"
-                v-bind:is="quick_look_component_action"
+
+            <quick-look-file
+                v-if="isFile(currently_previewed_item)"
+                v-bind:item="currently_previewed_item"
+            />
+            <quick-look-wiki
+                v-if="isWiki(currently_previewed_item)"
+                v-bind:item="currently_previewed_item"
+            />
+            <quick-look-folder
+                v-if="isFolder(currently_previewed_item)"
+                v-bind:item="currently_previewed_item"
+            />
+            <quick-look-link
+                v-if="isLink(currently_previewed_item)"
+                v-bind:item="currently_previewed_item"
+            />
+            <quick-look-empty
+                v-if="isEmpty(currently_previewed_item)"
+                v-bind:item="currently_previewed_item"
+            />
+            <quick-look-embedded
+                v-if="isEmbedded(currently_previewed_item)"
+                v-bind:item="currently_previewed_item"
+            />
+            <quick-look-other-type
+                v-if="isOtherType(currently_previewed_item)"
                 v-bind:item="currently_previewed_item"
             />
         </section>
@@ -57,29 +81,29 @@
 </template>
 
 <script setup lang="ts">
-import {
-    ICON_EMBEDDED,
-    ICON_EMPTY,
-    ICON_FOLDER_ICON,
-    ICON_LINK,
-    ICON_WIKI,
-    TYPE_EMBEDDED,
-    TYPE_FILE,
-    TYPE_FOLDER,
-    TYPE_LINK,
-    TYPE_WIKI,
-    TYPE_EMPTY,
-} from "../../constants";
-import { iconForMimeType } from "../../helpers/icon-for-mime-type";
 import QuickLookDocumentProperties from "./QuickLookDocumentProperties.vue";
 import QuickLookDocumentPreview from "./QuickLookDocumentPreview.vue";
 import QuickLookItemIsLockedMessage from "./QuickLookItemIsLockedMessage.vue";
 import type { Item } from "../../type";
 import { computed, defineAsyncComponent } from "vue";
-import { isFile } from "../../helpers/type-check-helper";
-import { strictInject } from "@tuleap/vue-strict-inject";
-import { OTHER_ITEM_TYPES } from "../../injection-keys";
+import {
+    isEmbedded,
+    isEmpty,
+    isFile,
+    isFolder,
+    isLink,
+    isOtherType,
+    isWiki,
+} from "../../helpers/type-check-helper";
 import { useGettext } from "vue3-gettext";
+
+const QuickLookFile = defineAsyncComponent(() => import("./QuickLookFile.vue"));
+const QuickLookWiki = defineAsyncComponent(() => import("./QuickLookWiki.vue"));
+const QuickLookFolder = defineAsyncComponent(() => import("./QuickLookFolder.vue"));
+const QuickLookLink = defineAsyncComponent(() => import("./QuickLookLink.vue"));
+const QuickLookEmpty = defineAsyncComponent(() => import("./QuickLookEmpty.vue"));
+const QuickLookEmbedded = defineAsyncComponent(() => import("./QuickLookEmbedded.vue"));
+const QuickLookOtherType = defineAsyncComponent(() => import("./QuickLookOtherType.vue"));
 
 const { $gettext } = useGettext();
 
@@ -95,75 +119,12 @@ const get_description = computed((): string => {
         : "";
 });
 
-const other_item_types = strictInject(OTHER_ITEM_TYPES);
-
 const icon_class = computed((): string => {
     const item = props.currently_previewed_item;
     if (!item) {
-        return ICON_EMPTY;
+        return "";
     }
-    switch (item.type) {
-        case TYPE_FOLDER:
-            return ICON_FOLDER_ICON;
-        case TYPE_LINK:
-            return ICON_LINK;
-        case TYPE_WIKI:
-            return ICON_WIKI;
-        case TYPE_EMBEDDED:
-            return ICON_EMBEDDED;
-        case TYPE_FILE:
-            if (!isFile(item) || !item.file_properties) {
-                return ICON_EMPTY;
-            }
-            return iconForMimeType(item.file_properties.file_type);
-        default:
-            return item.type in other_item_types ? other_item_types[item.type].icon : ICON_EMPTY;
-    }
-});
-
-const quick_look_component_action = computed(() => {
-    if (!props.currently_previewed_item) {
-        return null;
-    }
-    switch (props.currently_previewed_item.type) {
-        case TYPE_FILE:
-            return defineAsyncComponent(
-                () => import(/* webpackChunkName: "quick-look-file" */ `./QuickLookFile.vue`),
-            );
-        case TYPE_WIKI:
-            return defineAsyncComponent(
-                () => import(/* webpackChunkName: "quick-look-wiki" */ `./QuickLookWiki.vue`),
-            );
-        case TYPE_FOLDER:
-            return defineAsyncComponent(
-                () => import(/* webpackChunkName: "quick-look-folder" */ `./QuickLookFolder.vue`),
-            );
-        case TYPE_LINK:
-            return defineAsyncComponent(
-                () => import(/* webpackChunkName: "quick-look-link" */ `./QuickLookLink.vue`),
-            );
-        case TYPE_EMPTY:
-            return defineAsyncComponent(
-                () =>
-                    import(
-                        /* webpackChunkName: "quick-look-empty-embedded" */ `./QuickLookEmpty.vue`
-                    ),
-            );
-        case TYPE_EMBEDDED:
-            return defineAsyncComponent(
-                () =>
-                    import(
-                        /* webpackChunkName: "quick-look-empty-embedded" */ `./QuickLookEmbedded.vue`
-                    ),
-            );
-        default:
-            return defineAsyncComponent(
-                () =>
-                    import(
-                        /* webpackChunkName: "quick-look-empty-other-type" */ `./QuickLookOtherType.vue`
-                    ),
-            );
-    }
+    return item.item_icon;
 });
 
 function closeQuickLookEvent(): void {

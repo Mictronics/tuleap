@@ -90,21 +90,6 @@ function util_date_explode($date)
     return [$year, $month, $day];
 }
 
-//accept now month either in format Jan-Dec or 1-12
-function getMonth($month, &$ok)
-{
-    $months = ['Jan' => 1, 'Feb' => 2, 'Mar' => 3, 'Apr' => 4, 'May' => 5, 'Jun' => 6, 'Jul' => 7, 'Aug' => 8, 'Sep' => 9, 'Oct' => 10, 'Nov' => 11, 'Dec' => 12];
-    if (array_key_exists($month, $months)) {
-        $ok = true;
-        return $months[$month];
-    } elseif (in_array($month, $months)) {
-        $ok = true;
-        return $month;
-    }
-    $ok = false;
-    return 1;
-}
-
 /**
  * @psalm-pure
  */
@@ -152,16 +137,6 @@ function util_make_reference_links($data, $group_id)
     }
 
     return $data;
-}
-
-// Clean up email address (remove starting and ending spaces),replace semicolon by comma and put to lower
-// case
-function util_cleanup_emails($addresses)
-{
-    $addresses = preg_replace('/\s+[,;]/', ',', $addresses);
-    $addresses = preg_replace('/[,;]\s+/', ',', $addresses);
-    $addresses = str_replace(';', ',', $addresses);
-    return strtolower(rtrim(trim($addresses)));
 }
 
 // This function get the image file for the theme.

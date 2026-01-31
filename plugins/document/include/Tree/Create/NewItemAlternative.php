@@ -27,7 +27,10 @@ namespace Tuleap\Document\Tree\Create;
  */
 final class NewItemAlternative
 {
-    public function __construct(public string $mime_type, public string $title)
-    {
+    public function __construct(
+        public string $mime_type,
+        public string $title,
+        public string $item_icon,
+    ) {
     }
 }

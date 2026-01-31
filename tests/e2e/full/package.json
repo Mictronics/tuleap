@@ -1,12 +1,16 @@
 {
   "author": "Enalean Team",
   "name": "@tuleap/core-cypress-e2e-full-tests",
-  "homepage": "https://www.tuleap.org",
+  "homepage": "https://www.tuleap.com",
   "license": "GPL-2.0-or-later",
   "private": true,
   "devDependencies": {
     "@tuleap/cypress-configurator": "workspace:*",
     "@tuleap/cypress-utilities-support": "workspace:*",
+    "@types/quoted-printable": "^1.0.2",
     "cypress-plugin-tab": "^1.0.5"
+  },
+  "dependencies": {
+    "quoted-printable": "^1.0.1"
   }
 }

@@ -19,6 +19,7 @@
  */
 
 import { PROJECT_ADMINISTRATORS_ID } from "@tuleap/core-constants";
+import { getAntiCollisionNamePart } from "@tuleap/cypress-utilities-support";
 
 const FROZEN_FIELDS_POST_ACTION_TYPE = "frozen_fields";
 
@@ -313,8 +314,7 @@ describe(`Tracker Workflow`, () => {
 
         it(`Workflow PostActions on transitions`, function () {
             cy.projectAdministratorSession();
-            const now = Date.now();
-            const project_name = "transitions-" + now;
+            const project_name = "transitions-" + getAntiCollisionNamePart();
             cy.createNewPublicProject(project_name, "issues");
             cy.addProjectMember(project_name, "projectMember");
 
@@ -380,7 +380,10 @@ describe(`Tracker Workflow`, () => {
 
             cy.log("End date is set by workflow, and not by user");
             cy.get("[data-test=edit-field-start_date]").click();
-            cy.get('[data-test="date-time-start_date"]').clear().type("2024-06-01");
+            // flatpickr lib sets "readonly" attribute on the input. Testing date picker specifically should be a dedicated test, therefore we use "force".
+            cy.get('[data-test="date-time-start_date"]')
+                .clear({ force: true })
+                .type("2024-06-01", { force: true });
             selectLabelInListPickerDropdown("Closed");
             cy.get("[data-test=artifact-submit-and-stay]").click();
             cy.get("[data-test=tracker-artifact-value-close_date]").contains(today);

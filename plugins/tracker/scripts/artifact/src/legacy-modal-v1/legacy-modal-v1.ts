@@ -18,7 +18,10 @@
  */
 
 import { initListFields } from "../fields/list-fields";
+import { initDateTimeFields } from "../fields/date-time-fields";
+import "./legacy-modal-v1.scss";
 
 document.addEventListener("DOMContentLoaded", () => {
     initListFields();
+    initDateTimeFields();
 });

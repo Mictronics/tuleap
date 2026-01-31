@@ -553,6 +553,70 @@ class ArtifactLinkField extends TrackerField
             if ($possible_parents_selector) {
                 $html .= $this->renderParentSelector($prefill_parent, $name, $possible_parents_selector);
             }
+
+            $iframe_src = '/plugins/tracker/?' . http_build_query(
+                [
+                    'tracker' => $artifact->getTracker()->getId(),
+                    'func' => 'new-artifact-link',
+                    'id' => $artifact->getId(),
+                    'modal' => 1,
+                ]
+            );
+
+            $html .= '<div class="tlp-modal tlp-modal-medium-sized new-artifact-modal" id="add-new-artifact-modal" role="dialog" aria-labelledby="add-new-artifact-modal-title" data-iframe-src="' . $iframe_src . '">
+    <div class="tlp-modal-header">
+        <h1 class="tlp-modal-title" id="add-new-artifact-modal-title">' . dgettext('tuleap-tracker', 'Create a new artifact to link') . '</h1>
+        <button class="tlp-modal-close" type="button" data-dismiss="modal" aria-label="' . dgettext('tuleap-tracker', 'Close') . '">
+            <i class="fa-solid fa-xmark tlp-modal-close-icon" aria-hidden="true"></i>
+        </button>
+    </div>
+    <div class="tlp-modal-body new-artifact-modal-body">
+        <iframe name="add-new-artifact-iframe" class="new-artifact-modal-iframe"></iframe>
+    </div>
+    <div class="tlp-modal-footer">
+        <button type="button" data-dismiss="modal" class="tlp-button-primary tlp-button-outline tlp-modal-action">
+            ' . dgettext('tuleap-tracker', 'Cancel') . '
+        </button>
+        <button
+            type="button"
+            class="tlp-button-primary tlp-modal-action new-artifact-modal-submit"
+        >
+            ' . $GLOBALS['Language']->getText('global', 'btn_submit') . '
+        </button>
+    </div>
+</div>';
+
+            $search_artifact_url = '/plugins/tracker/?' . http_build_query(
+                [
+                    'tracker' => $artifact->getTracker()->getId(),
+                    'link-artifact-id' => $artifact->getId(),
+                ]
+            );
+
+
+            $html .= '<div class="tlp-modal tlp-modal-medium-sized" id="search-artifact-modal" role="dialog" aria-labelledby="search-artifact-modal-title" data-search-url="' . $search_artifact_url . '">
+    <div class="tlp-modal-header">
+        <h1 class="tlp-modal-title search-artifact-modal-title" id="search-artifact-modal-title">
+            ' . dgettext('tuleap-tracker', 'Select artifacts to link to&nbsp;') . $artifact->getXRefAndTitleFlamingParrot() . '
+        </h1>
+        <button class="tlp-modal-close" type="button" data-dismiss="modal" aria-label="' . dgettext('tuleap-tracker', 'Close') . '">
+            <i class="fa-solid fa-xmark tlp-modal-close-icon" aria-hidden="true"></i>
+        </button>
+    </div>
+    <div class="tlp-modal-body"></div>
+    <div class="tlp-modal-footer">
+      <button type="button" data-dismiss="modal" class="tlp-button-primary tlp-button-outline tlp-modal-action">
+          ' . dgettext('tuleap-tracker', 'Cancel') . '
+      </button>
+      <button
+        type="button"
+        class="tlp-button-primary tlp-modal-action link-artifact-submit"
+      >
+        ' . $GLOBALS['Language']->getText('global', 'btn_submit') . '
+      </button>
+    </div>
+</div>';
+
             $html .= '</div>';
             $html .= '</section>'; // end of tracker_formelement_read_and_edit_edition_section
         }
@@ -597,7 +661,7 @@ class ArtifactLinkField extends TrackerField
 
                 $html .= '<div
                         class="tracker-form-element-artifactlink-renderer-async"
-                        data-field-id="' . (int) $this->getId() . '"
+                        data-field-id="' . $this->getId() . '"
                         data-renderer-data="' . Codendi_HTMLPurifier::instance()->purify($json_encoded_data) . '"></div></div>';
             }
 
@@ -762,7 +826,7 @@ class ArtifactLinkField extends TrackerField
                                     $head .= '</h2>';
                                     //if ($artifact) {
                                     //    $title = $hp->purify('link a '. $tracker->getItemName(), CODENDI_PURIFIER_CONVERT_HTML);
-                                    //    $head .= '<a href="'.TRACKER_BASE_URL.'/?tracker='.$tracker_id.'&func=new-artifact-link&id='.$artifact->getId().'" class="tracker-form-element-artifactlink-link-new-artifact">'. 'create a new '.$hp->purify($tracker->getItemName(), CODENDI_PURIFIER_CONVERT_HTML)  .'</a>';
+                                    //    $head .= '<a href="'.\trackerPlugin::TRACKER_BASE_URL.'/?tracker='.$tracker_id.'&func=new-artifact-link&id='.$artifact->getId().'" class="tracker-form-element-artifactlink-link-new-artifact">'. 'create a new '.$hp->purify($tracker->getItemName(), CODENDI_PURIFIER_CONVERT_HTML)  .'</a>';
                                     //}
                                     $result[$key]['head'] = $head . $result[$key]['head'];
                                     break;
@@ -1835,9 +1899,9 @@ class ArtifactLinkField extends TrackerField
         return new TypePresenterFactory(new TypeDao(), new ArtifactLinksUsageDao(), new SystemTypePresenterBuilder(EventManager::instance()));
     }
 
-    private function getTemplateRenderer()
+    private function getTemplateRenderer(): \TemplateRenderer
     {
-        return TemplateRendererFactory::build()->getRenderer(TRACKER_TEMPLATE_DIR);
+        return TemplateRendererFactory::build()->getRenderer(__DIR__ . '/../../../../templates');
     }
 
     private function appendTypeTable(PFUser $current_user, \Tuleap\HTTPRequest $request, array &$result, bool $is_reverse_artifact_links): void

@@ -216,7 +216,9 @@ CREATE TABLE tracker_field_openlist_value(
     field_id INT(11) UNSIGNED NOT NULL,
     label VARCHAR(255) NOT NULL DEFAULT '',
     is_hidden BOOL DEFAULT FALSE,
-    INDEX idx_search(field_id)
+    INDEX idx_search(field_id),
+    field_value BINARY(64) GENERATED ALWAYS AS (SHA2(CONCAT(CONVERT(field_id, char), label), 256)) STORED,
+    UNIQUE KEY idx_field_value(field_value)
 ) ENGINE=InnoDB AUTO_INCREMENT=101;
 
 DROP TABLE IF EXISTS tracker_field_list_bind_users;
@@ -276,7 +278,8 @@ CREATE TABLE tracker_changeset(
     submitted_by INT(11) NULL,
     submitted_on INT(11) NOT NULL,
     email VARCHAR(255) NULL,
-    INDEX artifact_idx(artifact_id)
+    INDEX artifact_idx(artifact_id),
+    INDEX idx_submitted_on(submitted_on)
 ) ENGINE=InnoDB;
 
 DROP TABLE IF EXISTS tracker_changeset_comment;
@@ -906,7 +909,7 @@ CREATE TABLE IF NOT EXISTS plugin_tracker_workflow_postactions_hidden_fieldsets_
 
 DROP TABLE IF EXISTS plugin_tracker_pending_jira_import;
 CREATE TABLE IF NOT EXISTS plugin_tracker_pending_jira_import (
-    id INT(11) UNSIGNED PRIMARY KEY AUTO_INCREMENT,
+    id BINARY(16) NOT NULL PRIMARY KEY,
     created_on INT(11) UNSIGNED NOT NULL,
     project_id INT(11) NOT NULL,
     user_id INT(11) NOT NULL,
@@ -1065,3 +1068,4 @@ WHERE `groups`.status != 'D'
       AND service.short_name = 'plugin_tracker';
 
 INSERT INTO forgeconfig (name, value) VALUES ('tracker_jira_force_basic_auth', '1');
+INSERT INTO forgeconfig (name, value) VALUES ('artifacts_deletion_limit', '5');

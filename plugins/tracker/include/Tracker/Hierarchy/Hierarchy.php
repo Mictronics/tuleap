@@ -26,15 +26,14 @@
  */
 class Tracker_Hierarchy
 {
-    private $parents = [];
-
     /**
-     * @param int $parent_id The id of the parent in the relatonship
-     * @param int $child_id  The id of the parent in the relatonship
+     * @var array<int, ?int>
      */
-    public function addRelationship($parent_id, $child_id)
+    private array $parents = [];
+
+    public function addRelationship(?int $parent_id, int $child_id): void
     {
-        if (! array_key_exists($parent_id, $this->parents)) {
+        if ($parent_id !== null && ! array_key_exists($parent_id, $this->parents)) {
             $this->parents[$parent_id] = null;
         }
         $this->parents[$child_id] = $parent_id;
@@ -171,7 +170,10 @@ class Tracker_Hierarchy
         return $tracker_ids;
     }
 
-    protected function sortByLevel($tracker1_id, $tracker2_id)
+    /**
+     * @psalm-return -1|0|1
+     */
+    protected function sortByLevel($tracker1_id, $tracker2_id): int
     {
         try {
             $level1 = $this->getLevel($tracker1_id);

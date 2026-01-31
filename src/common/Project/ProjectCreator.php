@@ -18,7 +18,6 @@
  */
 
 require_once __DIR__ . '/../../www/include/service.php';
-require_once __DIR__ . '/../../www/admin/admin_utils.php';
 require_once __DIR__ . '/../../www/include/trove.php';
 require_once __DIR__ . '/../../common/wiki/lib/WikiCloner.php';
 
@@ -276,7 +275,6 @@ class ProjectCreator //phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespa
      * - add system references withut services
      * - copy ugroups and save mapping for further import
      * - copy FRS packages with permissions
-     * - copy trackers
      * - copy wiki
      * - copy layout summary page
      * - Add the template as a project reference

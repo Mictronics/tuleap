@@ -24,7 +24,6 @@
 
 use Tuleap\Git\Branch\BranchName;
 use Tuleap\Git\SystemEvents\ParseGitolite3Logs;
-use Tuleap\Git\SystemEvents\ProjectIsSuspended;
 
 /**
  * I'm responsible to create system events with the right parameters
@@ -33,16 +32,6 @@ class Git_SystemEventManager
 {
     public function __construct(private readonly SystemEventManager $system_event_manager)
     {
-    }
-
-    public function queueProjectsConfigurationUpdate(array $project_ids)
-    {
-        $this->system_event_manager->createEvent(
-            SystemEvent_GIT_PROJECTS_UPDATE::NAME,
-            implode(SystemEvent::PARAMETER_SEPARATOR, $project_ids),
-            SystemEvent::PRIORITY_HIGH,
-            SystemEvent::OWNER_APP
-        );
     }
 
     public function queueRepositoryUpdate(GitRepository $repository, ?BranchName $default_branch = null): void
@@ -168,27 +157,6 @@ class Git_SystemEventManager
         }
     }
 
-    public function queueRegenerateGitoliteConfig($project_id)
-    {
-        $this->system_event_manager->createEvent(
-            SystemEvent_GIT_REGENERATE_GITOLITE_CONFIG::NAME,
-            $project_id,
-            SystemEvent::PRIORITY_HIGH,
-            SystemEvent::OWNER_APP
-        );
-    }
-
-    public function queueProjectIsSuspended($project_id)
-    {
-        $this->system_event_manager->createEvent(
-            ProjectIsSuspended::NAME,
-            $project_id,
-            SystemEvent::PRIORITY_HIGH,
-            SystemEvent::OWNER_APP,
-            ProjectIsSuspended::class
-        );
-    }
-
     public function isRepositoryUpdateAlreadyQueued(GitRepository $repository)
     {
         return $this->system_event_manager->areThereMultipleEventsQueuedMatchingFirstParameter(
@@ -212,7 +180,7 @@ class Git_SystemEventManager
         return $this->system_event_manager->isThereAnEventAlreadyOnGoingMatchingFirstParameter(SystemEvent_GIT_GERRIT_PROJECT_READONLY::NAME, $repository->getId());
     }
 
-    public function getTypes()
+    public function getTypes(): array
     {
         return [
             SystemEvent_GIT_REPO_UPDATE::NAME,
@@ -226,9 +194,6 @@ class Git_SystemEventManager
             SystemEvent_GIT_USER_RENAME::NAME,
             SystemEvent_GIT_EDIT_SSH_KEYS::NAME,
             SystemEvent_GIT_DUMP_ALL_SSH_KEYS::NAME,
-            SystemEvent_GIT_PROJECTS_UPDATE::NAME,
-            SystemEvent_GIT_REGENERATE_GITOLITE_CONFIG::NAME,
-            ProjectIsSuspended::NAME,
         ];
     }
 

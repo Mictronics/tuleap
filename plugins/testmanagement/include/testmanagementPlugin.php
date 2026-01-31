@@ -468,7 +468,6 @@ class testmanagementPlugin extends Plugin implements PluginWithService, \Tuleap\
         $campaign_retriver = new CampaignRetriever(
             Tracker_ArtifactFactory::instance(),
             new CampaignDao(),
-            new \Tuleap\Cryptography\KeyFactoryFromFileSystem(),
         );
         return new \Tuleap\TestManagement\RealTime\MercureJWTController(
             $campaign_retriver,
@@ -488,7 +487,6 @@ class testmanagementPlugin extends Plugin implements PluginWithService, \Tuleap\
             new CampaignRetriever(
                 Tracker_ArtifactFactory::instance(),
                 new CampaignDao(),
-                new \Tuleap\Cryptography\KeyFactoryFromFileSystem()
             ),
             new StatusUpdater(
                 new StatusValueRetriever(
@@ -505,7 +503,6 @@ class testmanagementPlugin extends Plugin implements PluginWithService, \Tuleap\
             new CampaignRetriever(
                 Tracker_ArtifactFactory::instance(),
                 new CampaignDao(),
-                new \Tuleap\Cryptography\KeyFactoryFromFileSystem()
             ),
             new StatusUpdater(
                 new StatusValueRetriever(
@@ -834,7 +831,7 @@ class testmanagementPlugin extends Plugin implements PluginWithService, \Tuleap\
 
     private function isTrackerURL(): bool
     {
-        return strpos($_SERVER['REQUEST_URI'], TRACKER_BASE_URL) === 0;
+        return strpos($_SERVER['REQUEST_URI'], \trackerPlugin::TRACKER_BASE_URL) === 0;
     }
 
     private function canIncludeStepDefinitionAssets(): bool

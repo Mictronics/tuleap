@@ -8,10 +8,10 @@ let
   tuleapGitBinBasePath = "/usr/lib/tuleap/git";
   gitStatic = (
     pkgs.pkgsStatic.gitMinimal.overrideAttrs (oldAttrs: rec {
-      version = "2.51.0";
+      version = "2.52.0";
       src = pkgs.fetchurl {
         url = "https://www.kernel.org/pub/software/scm/git/git-${version}.tar.xz";
-        hash = "sha256-YKfCJRzC5YjVzYe65WcmBhfG3gwi3KnNv8TH0riZC2I=";
+        hash = "sha256-PNj+6G9pqUnLYQ/ujNkmTmhz0H+lhBH2Bgs9YnKe18U=";
       };
 
       dontPatchShebangs = true;

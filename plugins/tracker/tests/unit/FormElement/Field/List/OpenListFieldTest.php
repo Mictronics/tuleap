@@ -66,13 +66,8 @@ final class OpenListFieldTest extends TestCase
 
     public function testGetChangesetValue(): void
     {
-        $open_value_dao = $this->createMock(OpenListChangesetValueDao::class);
-        $open_value_dao->method('searchById')->willReturn(
-            TestHelper::arrayToDar(
-                ['id' => '10', 'field_id' => '1', 'label' => 'Open_1', 'is_hidden' => false],
-                ['id' => '10', 'field_id' => '1', 'label' => 'Open_2', 'is_hidden' => false]
-            )
-        );
+        $open_value_dao = $this->createMock(OpenListValueDao::class);
+        $open_value_dao->method('searchById')->willReturn(['id' => '10', 'field_id' => '1', 'label' => 'Open_1', 'is_hidden' => false]);
 
         $value_dao = $this->createMock(OpenListChangesetValueDao::class);
         $value_dao->method('searchById')->willReturn(TestHelper::arrayToDar(
@@ -189,7 +184,7 @@ final class OpenListFieldTest extends TestCase
             ->with('new value', self::anything())->willReturn(null);
 
         $this->dao->expects($this->once())->method('searchByExactLabel')
-            ->with(self::anything(), 'new value')->willReturn(TestHelper::arrayToDar());
+            ->with(self::anything(), 'new value')->willReturn(null);
 
         self::assertEquals('!new value', $this->field->getFieldData('new value'));
     }
@@ -211,7 +206,7 @@ final class OpenListFieldTest extends TestCase
 
         $this->dao->expects($this->once())->method('searchByExactLabel')
             ->with(self::anything(), 'existing open value')
-            ->willReturn(TestHelper::arrayToDar(['id' => '30', 'field_id' => '1', 'label' => 'existing open value']));
+            ->willReturn(['id' => '30', 'field_id' => '1', 'label' => 'existing open value']);
 
         self::assertEquals('o30', $this->field->getFieldData('existing open value'));
     }
@@ -225,7 +220,7 @@ final class OpenListFieldTest extends TestCase
 
         $this->dao->expects($this->exactly(2))->method('searchByExactLabel')
             ->willReturnCallback(static fn(int $id, string $label) => match ($label) {
-                'new value', 'yet another new value' => TestHelper::emptyDar(),
+                'new value', 'yet another new value' => null,
             });
 
         self::assertEquals('!new value,!yet another new value', $this->field->getFieldData('new value,yet another new value'));
@@ -240,7 +235,7 @@ final class OpenListFieldTest extends TestCase
             });
 
         $this->dao->expects($this->once())->method('searchByExactLabel')
-            ->with(self::anything(), 'new value')->willReturn(TestHelper::arrayToDar([]));
+            ->with(self::anything(), 'new value')->willReturn(null);
 
         self::assertEquals('!new value,b115', $this->field->getFieldData('new value,existing value'));
     }
@@ -255,8 +250,8 @@ final class OpenListFieldTest extends TestCase
 
         $this->dao->expects($this->exactly(2))->method('searchByExactLabel')
             ->willReturnCallback(static fn(int $id, string $label) => match ($label) {
-                'new value'           => TestHelper::emptyDar(),
-                'existing open value' => TestHelper::arrayToDar(['id' => '30', 'field_id' => '1', 'label' => 'existing open value']),
+                'new value'           => null,
+                'existing open value' => ['id' => '30', 'field_id' => '1', 'label' => 'existing open value'],
             });
 
         self::assertEquals('!new value,o30,b115', $this->field->getFieldData('new value,existing open value,existing value'));
@@ -307,13 +302,8 @@ final class OpenListFieldTest extends TestCase
         $artifact = $this->createMock(Artifact::class);
         $field    = $this->aRequiredOpenListField();
 
-        $GLOBALS['Response']->method('addFeedback')
-            ->with(
-                'error',
-                self::callback(static fn(string $message) => $message === 'Invalid value dummytext for field My Open List (openlist).' || $message === 'The field My Open List (openlist) is required.'),
-            );
-
         self::assertFalse($field->isValidRegardingRequiredProperty($artifact, 'dummytext'));
+        self::assertEquals(['Invalid value dummytext for field My Open List (openlist).', 'The field My Open List (openlist) is required.'], $this->global_response->getFeedbackErrors());
     }
 
     public function testWhenFieldIsRequiredItDoesNotAcceptInvalidBindOrOpenValues(): void
@@ -321,11 +311,8 @@ final class OpenListFieldTest extends TestCase
         $artifact = $this->createMock(Artifact::class);
         $field    = $this->aRequiredOpenListField();
 
-        $GLOBALS['Response']
-            ->method('addFeedback')
-            ->with('error', 'The field My Open List (openlist) is required.');
-
         self::assertFalse($field->isValidRegardingRequiredProperty($artifact, 'bdummy,otext'));
+        self::assertEquals(['The field My Open List (openlist) is required.'], $this->global_response->getFeedbackErrors());
     }
 
     #[\PHPUnit\Framework\Attributes\TestWith(['b102'])]

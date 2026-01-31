@@ -34,25 +34,18 @@ $tracker-artifact-followup-comments-in-concurrent-edition-padding-bottom: $track
     width: 100%;
     margin-top: 30px;
     padding: 30px 12px $tracker-artifact-submit-buttons-height;
-    border-top: 1px solid var(--tlp-neutral-normal-color);
+    border-top: 1px solid var(--tlp-border-color);
     background: var(--tlp-fade-background-color);
 
     &.tracker-artifact-in-concurrent-edition {
         padding: 30px 12px $tracker-artifact-followup-comments-in-concurrent-edition-padding-bottom;
     }
 
-    h1 {
+    h1:not(.tlp-popover-title) {
         margin: 0 0 20px;
         color: #474747;
         font-size: 2em;
         font-weight: bold;
-    }
-
-    // To avoid to apply the generic H1 style class.
-    .helper-popover-title {
-        margin: 0;
-        color: var(--tlp-white-color);
-        font-size: 16px;
     }
 
     /* stylelint-disable-next-line selector-class-pattern */

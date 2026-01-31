@@ -22,9 +22,14 @@ declare(strict_types=1);
 
 namespace Tuleap\Tracker\FormElement\Admin;
 
+use PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles;
+use Tuleap\Color\ColorName;
 use Tuleap\Request\NotFoundException;
+use Tuleap\TemporaryTestDirectory;
 use Tuleap\Test\Builders\HTTPRequestBuilder;
+use Tuleap\Test\Builders\IncludeAssetsBuilder;
 use Tuleap\Test\Builders\LayoutInspector;
+use Tuleap\Test\Builders\ProjectTestBuilder;
 use Tuleap\Test\Builders\TemplateRendererFactoryBuilder;
 use Tuleap\Test\Builders\TestLayout;
 use Tuleap\Test\PHPUnit\TestCase;
@@ -35,10 +40,10 @@ use Tuleap\Tracker\Test\Stub\DisplayTrackerLayoutStub;
 use Tuleap\Tracker\Test\Stub\RetrieveTrackerStub;
 use Tuleap\Tracker\Tracker;
 
-#[\PHPUnit\Framework\Attributes\DisableReturnValueGenerationForTestDoubles]
+#[DisableReturnValueGenerationForTestDoubles]
 final class FieldsUsageDisplayControllerTest extends TestCase
 {
-    use \Tuleap\TemporaryTestDirectory;
+    use TemporaryTestDirectory;
 
     public function testExceptionWhenTrackerIsNotFound(): void
     {
@@ -48,6 +53,7 @@ final class FieldsUsageDisplayControllerTest extends TestCase
             TemplateRendererFactoryBuilder::get()->withPath($this->getTmpDir())->build(),
             $this->createMock(StructureRepresentationBuilder::class),
             $this->createMock(FormElementRepresentationsBuilder::class),
+            IncludeAssetsBuilder::build(),
         );
 
         $this->expectException(NotFoundException::class);
@@ -74,6 +80,7 @@ final class FieldsUsageDisplayControllerTest extends TestCase
             TemplateRendererFactoryBuilder::get()->withPath($this->getTmpDir())->build(),
             $this->createMock(StructureRepresentationBuilder::class),
             $this->createMock(FormElementRepresentationsBuilder::class),
+            IncludeAssetsBuilder::build(),
         );
 
         $this->expectException(NotFoundException::class);
@@ -92,6 +99,9 @@ final class FieldsUsageDisplayControllerTest extends TestCase
         $tracker = $this->createMock(Tracker::class);
         $tracker->method('getId')->willReturn(123);
         $tracker->method('userIsAdmin')->willReturn(true);
+        $tracker->method('getProject')->willReturn(ProjectTestBuilder::aProject()->build());
+        $tracker->method('getItemName')->willReturn('story');
+        $tracker->method('getColor')->willReturn(ColorName::fromName('red-wine'));
         $tracker->expects($this->once())->method('displayAdminItemHeaderBurningParrot');
         $tracker->expects($this->once())->method('displayFooter');
 
@@ -107,6 +117,7 @@ final class FieldsUsageDisplayControllerTest extends TestCase
             TemplateRendererFactoryBuilder::get()->withPath($this->getTmpDir())->build(),
             $structure_representation_builder,
             $form_element_representations_builder,
+            IncludeAssetsBuilder::build(),
         );
 
         ob_start();

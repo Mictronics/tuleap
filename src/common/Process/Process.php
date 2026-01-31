@@ -23,17 +23,15 @@ declare(strict_types=1);
 namespace Tuleap\Process;
 
 use Tuleap\NeverThrow\Err;
-use Tuleap\NeverThrow\Fault;
 use Tuleap\NeverThrow\Ok;
 
+/**
+ * @template O of ProcessOutput
+ */
 interface Process
 {
     /**
-     * @return Ok<null>|Err<Fault>
+     * @return Ok<O>|Err<ProcessExecutionFailure>
      */
     public function run(): Ok|Err;
-
-    public function getOutput(): string;
-
-    public function getErrorOutput(): string;
 }

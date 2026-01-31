@@ -53,6 +53,7 @@ use Tuleap\Label\CollectionOfLabelableDao;
 use Tuleap\Label\LabeledItemCollection;
 use Tuleap\Layout\IncludeViteAssets;
 use Tuleap\Layout\JavascriptViteAsset;
+use Tuleap\Plugin\ListeningToEventClass;
 use Tuleap\Project\Admin\GetProjectHistoryEntryValue;
 use Tuleap\Project\Registration\RegisterProjectCreationEvent;
 use Tuleap\Project\RestrictedUserCanAccessProjectVerifier;
@@ -102,6 +103,7 @@ use Tuleap\PullRequest\Tooltip\Presenter;
 use Tuleap\Queue\WorkerEvent;
 use Tuleap\Reference\CrossReferenceByNatureOrganizer;
 use Tuleap\Reference\GetReferenceEvent;
+use Tuleap\Reference\GetReservedKeywordsEvent;
 use Tuleap\Reference\Nature;
 use Tuleap\Reference\NatureCollection;
 use Tuleap\Request\CollectRoutesEvent;
@@ -200,9 +202,6 @@ class pullrequestPlugin extends Plugin
     {
         if ($event->getRequest()->get('action') === 'pull-requests') {
             $layout = $this->getThemeManager()->getBurningParrot(UserManager::instance()->getCurrentUserWithLoggedInInformation());
-            if ($layout === null) {
-                throw new \Exception('Could not load BurningParrot theme');
-            }
             $this->getPullRequestDisplayer()->display($event->getRequest(), $layout);
         }
     }
@@ -228,7 +227,9 @@ class pullrequestPlugin extends Plugin
                 $pull_request_updater = new PullRequestUpdater(
                     $this->getPullRequestFactory(),
                     new PullRequestMerger(
-                        new MergeSettingRetriever(new MergeSettingDAO())
+                        new MergeSettingRetriever(new MergeSettingDAO()),
+                        new \Tuleap\Process\SymfonyProcessFactory(),
+                        self::getLogger(),
                     ),
                     new InlineCommentDao(),
                     new InlineCommentUpdater(),
@@ -285,7 +286,9 @@ class pullrequestPlugin extends Plugin
         return new PullRequestCloser(
             new PullRequestDao(),
             new PullRequestMerger(
-                new MergeSettingRetriever(new MergeSettingDAO())
+                new MergeSettingRetriever(new MergeSettingDAO()),
+                new \Tuleap\Process\SymfonyProcessFactory(),
+                self::getLogger(),
             ),
             $this->getTimelineEventCreator(),
             PullRequestNotificationSupport::buildDispatcher(self::getLogger())
@@ -367,13 +370,11 @@ class pullrequestPlugin extends Plugin
         return $keyword === self::PR_REFERENCE_KEYWORD || $keyword === self::PULLREQUEST_REFERENCE_KEYWORD;
     }
 
-    #[\Tuleap\Plugin\ListeningToEventName(Event::GET_PLUGINS_AVAILABLE_KEYWORDS_REFERENCES)]
-    public function getPluginsAvailableKeywordsReferences($params): void
+    #[ListeningToEventClass]
+    public function getReservedKeywordsEvent(GetReservedKeywordsEvent $event): void
     {
-        $params['keywords'] = array_merge(
-            $params['keywords'],
-            [self::PR_REFERENCE_KEYWORD, self::PULLREQUEST_REFERENCE_KEYWORD]
-        );
+        $event->addKeyword(self::PR_REFERENCE_KEYWORD);
+        $event->addKeyword(self::PULLREQUEST_REFERENCE_KEYWORD);
     }
 
     #[\Tuleap\Plugin\ListeningToEventClass]
@@ -612,7 +613,7 @@ class pullrequestPlugin extends Plugin
             $repository_factory,
             new GitPermissionsManager(
                 new Git_PermissionsDao(),
-                new Git_SystemEventManager(SystemEventManager::instance()),
+                new \Tuleap\Queue\EnqueueTask(),
                 $fine_grained_dao,
                 new FineGrainedRetriever($fine_grained_dao)
             )
@@ -627,7 +628,7 @@ class pullrequestPlugin extends Plugin
             new ProjectHistoryDao(),
             new GitPermissionsManager(
                 new Git_PermissionsDao(),
-                new Git_SystemEventManager(SystemEventManager::instance()),
+                new \Tuleap\Queue\EnqueueTask(),
                 $fine_grained_dao,
                 new FineGrainedRetriever($fine_grained_dao)
             ),

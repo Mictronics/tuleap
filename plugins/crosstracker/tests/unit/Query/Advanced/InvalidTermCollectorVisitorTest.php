@@ -161,8 +161,8 @@ final class InvalidTermCollectorVisitorTest extends TestCase
             $list_field_bind_value_normalizer,
             $ugroup_label_converter
         );
-        $open_list_value_dao              = $this->createMock(OpenListValueDao::class);
-        $open_list_value_dao->method('searchByFieldId')->willReturn(\TestHelper::emptyDar());
+        $open_list_value_dao              = $this->createStub(OpenListValueDao::class);
+        $open_list_value_dao->method('searchByFieldId')->willReturn([]);
 
         $collector = new InvalidTermCollectorVisitor(
             new InvalidSearchableCollectorVisitor(

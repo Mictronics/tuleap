@@ -123,7 +123,7 @@ class TrackerManager implements Tracker_IFetchTrackerSwitcher //phpcs:ignore PSR
                         );
                     }
 
-                    $GLOBALS['Response']->redirect(TRACKER_BASE_URL . '/?tracker=' . $artifact->getTrackerId());
+                    $GLOBALS['Response']->redirect(\trackerPlugin::TRACKER_BASE_URL . '/?tracker=' . $artifact->getTrackerId());
                 }
             } elseif ($request->get('func') == 'new-artifact-link') {
                 echo '<html>';
@@ -145,6 +145,23 @@ class TrackerManager implements Tracker_IFetchTrackerSwitcher //phpcs:ignore PSR
         }
     }
 
+    private function renderNotFoundException(\Tuleap\HTTPRequest $request, string $message): never
+    {
+        new \Tuleap\Layout\ErrorRendering()->rendersError(
+            new ThemeManager(new \Tuleap\BurningParrotCompatiblePageDetector(
+                new \Tuleap\Request\CurrentPage(),
+                new \User_ForgeUserGroupPermissionsManager(
+                    new \User_ForgeUserGroupPermissionsDao()
+                )
+            ))->getBurningParrot(UserManager::instance()->getCurrentUserWithLoggedInInformation()),
+            $request,
+            404,
+            $GLOBALS['Language']->getText('global', 'error'),
+            $message,
+        );
+        exit;
+    }
+
     /**
      * Controler
      *
@@ -161,7 +178,7 @@ class TrackerManager implements Tracker_IFetchTrackerSwitcher //phpcs:ignore PSR
             $object = $url->getDispatchableFromRequest($request, $user);
             $this->processSubElement($object, $request, $user);
         } catch (Tracker_ResourceDoesntExistException $e) {
-             exit_error($GLOBALS['Language']->getText('global', 'error'), $e->getMessage());
+             $this->renderNotFoundException($request, $e->getMessage());
         } catch (Tracker_CannotAccessTrackerException $e) {
             if (isset($object) && ! $request->isAjax()) {
                 $GLOBALS['Response']->addFeedback('error', $e->getMessage(), CODENDI_PURIFIER_LIGHT);
@@ -233,7 +250,7 @@ class TrackerManager implements Tracker_IFetchTrackerSwitcher //phpcs:ignore PSR
 
     private function getTrackerHomepageURL($project_id)
     {
-        return TRACKER_BASE_URL . '/?' . http_build_query([
+        return \trackerPlugin::TRACKER_BASE_URL . '/?' . http_build_query([
             'group_id' => $project_id,
         ]);
     }
@@ -258,7 +275,7 @@ class TrackerManager implements Tracker_IFetchTrackerSwitcher //phpcs:ignore PSR
     {
         $service_tracker_breadcrumb = [
             'title'     => dgettext('tuleap-tracker', 'Trackers'),
-            'url'       => TRACKER_BASE_URL . '/?group_id=' . $project->getID(),
+            'url'       => \trackerPlugin::TRACKER_BASE_URL . '/?group_id=' . $project->getID(),
         ];
 
         if ($this->getCurrentUser()->isAdmin($project->getID())) {

@@ -103,7 +103,7 @@ import FirstLevelSelector from "./FirstLevelSelector.vue";
 import ExplanationsExport from "./ExplanationsExport.vue";
 import SecondLevelSelector from "./SecondLevelSelector.vue";
 import ThirdLevelSelector from "./ThirdLevelSelector.vue";
-import type { ExportSettings } from "../export-document";
+import type { ExportSettings } from "../../../../../tracker/scripts/lib/report-exporter";
 import FakeWorksheet from "./FakeWorksheet.vue";
 import ExportGenerationErrorMessage from "./ExportGenerationErrorMessage.vue";
 
@@ -141,17 +141,16 @@ const export_has_failed = ref(false);
 async function startExport(): Promise<void> {
     export_is_ongoing.value = true;
     export_has_failed.value = false;
-    const export_document_module = import("../export-document");
-    const download_xlsx_module = import("../Exporter/XLSX/download-xlsx");
+    const xlsx_exporter = import("../../../../../tracker/scripts/lib/report-exporter");
 
-    const { downloadXLSXDocument } = await export_document_module;
-    const { downloadXLSX } = await download_xlsx_module;
+    const { downloadDocument, downloadXLSX } = await xlsx_exporter;
     let export_settings: ExportSettings = {
         first_level: {
             tracker_name: props.properties.current_tracker_name,
             report_id: selected_report_level_1.value.id,
             report_name: selected_report_level_1.value.label,
             artifact_link_types: artifact_link_types_level_1.value,
+            all_columns: false,
         },
     };
     if (selected_tracker_level_2.value !== null && selected_report_level_2.value !== null) {
@@ -162,6 +161,7 @@ async function startExport(): Promise<void> {
                 report_id: selected_report_level_2.value.id,
                 report_name: selected_report_level_2.value.label,
                 artifact_link_types: artifact_link_types_level_2.value,
+                all_columns: false,
             },
         };
     }
@@ -172,11 +172,12 @@ async function startExport(): Promise<void> {
                 tracker_name: selected_tracker_level_3.value.label,
                 report_id: selected_report_level_3.value.id,
                 report_name: selected_report_level_3.value.label,
+                all_columns: false,
             },
         };
     }
     try {
-        await downloadXLSXDocument(export_settings, downloadXLSX);
+        await downloadDocument(export_settings, downloadXLSX);
     } catch (e) {
         export_has_failed.value = true;
         export_is_ongoing.value = false;
@@ -200,7 +201,7 @@ async function startExport(): Promise<void> {
     grid-auto-columns: 1fr;
     grid-auto-flow: column;
     grid-gap: 1px;
-    border-top: 1px solid var(--tlp-neutral-light-color);
+    border-top: 1px solid var(--tlp-border-light-color);
     background-color: var(--tlp-neutral-light-color);
 }
 </style>

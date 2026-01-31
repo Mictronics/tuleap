@@ -19,6 +19,9 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
+use Tuleap\Config\ConfigKeyCategory;
+use Tuleap\Config\ConfigKeyInt;
+use Tuleap\Config\FeatureFlagConfigKey;
 use Tuleap\Dashboard\Project\ProjectDashboardController;
 use Tuleap\Dashboard\User\UserDashboardController;
 use Tuleap\Date\RelativeDatesAssetsRetriever;
@@ -47,10 +50,15 @@ use Tuleap\Tracker\Report\Renderer\Table\ProcessExportEvent;
 use Tuleap\Tracker\Report\Renderer\Table\Sort\SortWithIntegrityChecked;
 use Tuleap\Tracker\Report\Widget\WidgetAdditionalButtonPresenter;
 use Tuleap\Tracker\Tracker;
+use function Psl\Json\encode as json_encode;
 
-// phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
-class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements Tracker_Report_Renderer_ArtifactLinkable
+#[ConfigKeyCategory('Tracker')]
+class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements Tracker_Report_Renderer_ArtifactLinkable // phpcs:ignore PSR1.Classes.ClassDeclaration.MissingNamespace,Squiz.Classes.ValidClassName.NotPascalCase
 {
+    #[FeatureFlagConfigKey('Switch between legacy csv export and new export which uses the API. 0 for no, other number for yes')]
+    #[ConfigKeyInt(0)]
+    public const string USE_LEGACY_CSV_EXPORT = 'use_legacy_csv_export';
+
     public const int EXPORT_LIGHT = 1;
     public const int EXPORT_FULL  = 0;
 
@@ -566,6 +574,22 @@ class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements T
             return parent::getOptionsMenuItems($current_user);
         }
 
+        $purifier          = Codendi_HTMLPurifier::instance();
+        $export_properties = $purifier->purify(json_encode([
+            'current_project_id'   => $this->report->getTracker()->getGroupId(),
+            'current_tracker_id'   => $this->report->getTracker()->getId(),
+            'current_tracker_name' => $this->report->getTracker()->getName(),
+            'current_report_id'    => $this->report->getId(),
+            'current_report_name'  => $this->report->getName(),
+            'current_renderer_id'  => $this->id,
+        ]));
+        $csv_separator     = $current_user->getPreference(PFUser::PREFERENCE_NAME_CSV_SEPARATOR);
+        $csv_separator     = $purifier->purify($csv_separator === false ? PFUser::DEFAULT_CSV_SEPARATOR : $csv_separator);
+        $date_format       = $current_user->getPreference(PFUser::PREFERENCE_NAME_CSV_DATEFORMAT);
+        $date_format       = $purifier->purify($date_format === false ? PFUser::DEFAULT_CSV_DATEFORMAT : $date_format);
+
+        $use_legacy_export = (bool) ForgeConfig::getFeatureFlag(self::USE_LEGACY_CSV_EXPORT);
+
         $my_items            = ['export' => ''];
         $my_items['export'] .= '<div class="btn-group">';
         $my_items['export'] .= '<a class="btn btn-mini dropdown-toggle" data-toggle="dropdown">';
@@ -578,12 +602,16 @@ class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements T
         $my_items['export'] .= dgettext('tuleap-tracker', 'CSV');
         $my_items['export'] .= '</li>';
         $my_items['export'] .= '<li>';
-        $my_items['export'] .= '<a href="' . $this->getExportResultURL(self::EXPORT_LIGHT) . '">';
+        $my_items['export'] .= $use_legacy_export
+            ? '<a href="' . $this->getExportResultURL(self::EXPORT_LIGHT) . '">'
+            : "<a href='#' id='tracker-report-csv-export-report-columns' data-properties='$export_properties' data-csv-separator='$csv_separator' data-date-format='$date_format'>";
         $my_items['export'] .= dgettext('tuleap-tracker', 'Export all report columns');
         $my_items['export'] .= '</a>';
         $my_items['export'] .= '</li>';
         $my_items['export'] .= '<li>';
-        $my_items['export'] .= '<a href="' . $this->getExportResultURL(self::EXPORT_FULL) . '">';
+        $my_items['export'] .= $use_legacy_export
+            ? '<a href="' . $this->getExportResultURL(self::EXPORT_FULL) . '">'
+            : "<a href='#' id='tracker-report-csv-export-all-columns' data-properties='$export_properties' data-csv-separator='$csv_separator' data-date-format='$date_format'>";
         $my_items['export'] .= dgettext('tuleap-tracker', 'Export all columns');
         $my_items['export'] .= '</a>';
         $my_items['export'] .= '</li>';
@@ -605,7 +633,7 @@ class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements T
 
     private function getExportResultURL($export_only_displayed_fields)
     {
-        return TRACKER_BASE_URL . '/?' . http_build_query(
+        return \trackerPlugin::TRACKER_BASE_URL . '/?' . http_build_query(
             [
                 'report'         => $this->report->id,
                 'renderer'       => $this->id,
@@ -1095,9 +1123,9 @@ class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements T
         return $html;
     }
 
-    private function getTemplateRenderer()
+    private function getTemplateRenderer(): TemplateRenderer
     {
-        return TemplateRendererFactory::build()->getRenderer(TRACKER_TEMPLATE_DIR . '/report');
+        return TemplateRendererFactory::build()->getRenderer(__DIR__ . '/../../../templates/report');
     }
 
     public function getTableColumns($only_one_column, $use_data_from_db, $store_in_session = true)
@@ -1197,7 +1225,7 @@ class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements T
                     }
                 }
 
-                $renderer = TemplateRendererFactory::build()->getRenderer(TRACKER_TEMPLATE_DIR);
+                $renderer = TemplateRendererFactory::build()->getRenderer(__DIR__ . '/../../../templates');
                 $purifier = Codendi_HTMLPurifier::instance();
                 //extract the first results
                 $first_result = array_shift($results);
@@ -1273,7 +1301,7 @@ class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements T
                         if ($widget && ($widget->owner_type === ProjectDashboardController::LEGACY_DASHBOARD_TYPE || $widget->owner_type === ProjectDashboardController::DASHBOARD_TYPE)) {
                             $redirection_parameters['project-dashboard-id'] = $widget->getDashboardId();
                         }
-                        $url = TRACKER_BASE_URL . '/?' . http_build_query($redirection_parameters);
+                        $url = \trackerPlugin::TRACKER_BASE_URL . '/?' . http_build_query($redirection_parameters);
 
                         $html .= '<td>';
                         $html .= '<a
@@ -1613,7 +1641,7 @@ class Tracker_Report_Renderer_Table extends Tracker_Report_Renderer implements T
             $is_used = isset($used_aggregates[$field->getId()]) && in_array($function, $used_aggregates[$field->getId()]);
             $html   .= '<li>';
 
-            $html .= '<form method="post" action="' . TRACKER_BASE_URL . '">';
+            $html .= '<form method="post" action="' . \trackerPlugin::TRACKER_BASE_URL . '">';
             $html .= $csrf_token->fetchHTMLInput();
             $html .= '<input type="hidden" name="func" value="renderer"/>';
             $html .= '<input type="hidden" name="report" value="' . $purifier->purify($this->report->getId()) . '"/>';

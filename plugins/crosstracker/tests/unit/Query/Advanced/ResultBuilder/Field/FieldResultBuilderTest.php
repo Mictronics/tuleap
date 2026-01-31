@@ -118,7 +118,7 @@ final class FieldResultBuilderTest extends TestCase
         array $selected_result,
     ): SelectedValuesCollection {
         $purifier        = Codendi_HTMLPurifier::instance();
-        $user_helper     = $this->createMock(UserHelper::class);
+        $user_helper     = $this->createStub(UserHelper::class);
         $field_retriever = new ReadableFieldRetriever(
             $fields_retriever,
             RetrieveUserPermissionOnFieldsStub::build()->withPermissionOn(
@@ -368,7 +368,7 @@ EOL
 
     public function testItReturnsValuesForUserGroupListField(): void
     {
-        $GLOBALS['Language']->expects($this->exactly(3))->method('getText')
+        $GLOBALS['Language']->method('getText')
             ->willReturnCallback(static fn(string $pagename, string $category) => match ($category) {
                 'ugroup_project_members' => 'Project members',
                 'ugroup_project_admins'  => 'Project admins',

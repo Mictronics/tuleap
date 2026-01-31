@@ -163,9 +163,8 @@ abstract class Layout extends Tuleap\Layout\BaseLayout //phpcs:ignore PSR1.Class
      * Note: the order of call of include*Javascript method is very important.
      * The code will be included and executed in the same order the
      * includes are done. This allows (for instance) to define a var before
-     * including a script (eg. Layout::includeCalendarScripts).
+     * including a script.
      *
-     * @see   Layout::includeCalendarScripts
      * @param String $file Path (relative to URL root) the the javascript file
      *
      * @return void
@@ -205,13 +204,6 @@ abstract class Layout extends Tuleap\Layout\BaseLayout //phpcs:ignore PSR1.Class
     protected function getUser()
     {
         return UserManager::instance()->getCurrentUser();
-    }
-
-    #[\Override]
-    public function includeCalendarScripts()
-    {
-        $this->includeJavascriptFile('/scripts/datepicker/datepicker.js');
-        return $this;
     }
 
     public function _getFeedback(): string //phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
@@ -427,7 +419,6 @@ abstract class Layout extends Tuleap\Layout\BaseLayout //phpcs:ignore PSR1.Class
         echo '<link rel="stylesheet" type="text/css" href="' . $this->getStylesheetTheme('print.css') . '" media="print" />';
         echo '<link rel="stylesheet" type="text/css" href="/scripts/bootstrap/bootstrap-select/bootstrap-select.css" />';
         echo '<link rel="stylesheet" type="text/css" href="/scripts/select2/select2.css" />';
-        echo '<link rel="stylesheet" type="text/css" href="/scripts/bootstrap/bootstrap-datetimepicker/css/bootstrap-datetimepicker.min.css" />';
     }
 
     /**
@@ -453,88 +444,6 @@ abstract class Layout extends Tuleap\Layout\BaseLayout //phpcs:ignore PSR1.Class
         return '<link rel="alternate" title="' . $title . '" href="' . $href . '" type="application/rss+xml" />';
     }
 
-    /**
-     * Helper for the calendar picker. It returns the html snippet which will
-     * enable user to specify a date with the help of little dhtml
-     *
-     * @deprecated since version 7.0 in favor of getBootstrapDatePicker
-     * @param string $id the id of the input element
-     * @param string $name the name of the input element
-     * @param string $size the optional size of the input element, default is 10
-     * @param string $maxlength the optional maxlength the input element, default is 10
-     * @return string The calendar picker
-     */
-    public function getDatePicker($id, $name, $value, $size = 10, $maxlength = 10)
-    {
-        $hp = Codendi_HTMLPurifier::instance();
-        return '<span style="white-space:nowrap;"><input type="text"
-                       data-test="date-picker"
-                       class="highlight-days-67 format-y-m-d divider-dash no-transparency"
-                       id="' .  $hp->purify($id, CODENDI_PURIFIER_CONVERT_HTML)  . '"
-                       name="' . $hp->purify($name, CODENDI_PURIFIER_CONVERT_HTML) . '"
-                       size="' . $hp->purify($size, CODENDI_PURIFIER_CONVERT_HTML) . '"
-                       maxlength="' . $hp->purify($maxlength, CODENDI_PURIFIER_CONVERT_HTML) . '"
-                       value="' . $hp->purify($value, CODENDI_PURIFIER_CONVERT_HTML) . '"></span>';
-    }
-
-    /**
-     * Helper for the calendar picker. It returns the html snippet which will
-     * enable user to specify a date with the help of little dhtml
-     *
-     * @param array   $criteria_selector list of extra criterias to be listed in a prepended select
-     * @param array   $classes extra css classes if needed
-     *
-     */
-    public function getBootstrapDatePicker(
-        string $id,
-        string $name,
-        $value,
-        array $criteria_selector,
-        array $classes,
-        bool $is_time_displayed,
-        string $data_test,
-        bool $is_required,
-    ): string {
-        $hp = Codendi_HTMLPurifier::instance();
-
-        $format     = 'yyyy-MM-dd';
-        $date_class = 'tuleap_field_date';
-
-        if ($is_time_displayed) {
-            $format     = 'yyyy-MM-dd hh:mm';
-            $date_class = 'tuleap_field_datetime';
-        }
-
-        $classes[] = $date_class;
-
-        $html  = '';
-        $html .= '<div class="input-prepend dropdown input-append date ' . implode(' ', $classes) . '">';
-
-        if (count($criteria_selector) > 0) {
-            $html .= '<select id="add-on-select" name="' . $criteria_selector['name'] . '" class="add-on-select selectpicker">';
-            foreach ($criteria_selector['criterias'] as $criteria_value => $criteria) {
-                $html .= '<option value="' . $criteria_value . '" ' . $criteria['selected'] . '>' . $criteria['html_value'] . '</option>';
-            }
-            $html .= '</select>';
-        }
-
-        $html .= '
-            <input name="' . $hp->purify($name, CODENDI_PURIFIER_CONVERT_HTML) . '"
-                    id="' . $hp->purify($id, CODENDI_PURIFIER_CONVERT_HTML) . '"
-                    data-format="' . $format . '"
-                    type="text"
-                    ' . ($is_required ? ' required ' : '') . '
-                    value="' . $hp->purify($value, CODENDI_PURIFIER_CONVERT_HTML) . '"
-                    data-test="' . $hp->purify($data_test, CODENDI_PURIFIER_CONVERT_HTML) . '">
-            </input>
-            <span class="add-on add-on-calendar">
-                <i class="fas fa-calendar-alt" data-time-icon="fa-clock-o" data-date-icon="fa-calendar"></i>
-            </span>
-        </div>';
-
-        return $html;
-    }
-
     public function warning_for_services_which_configuration_is_not_inherited($group_id, $service_top_tab) // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
         $pm      = ProjectManager::instance();
@@ -545,9 +454,7 @@ abstract class Layout extends Tuleap\Layout\BaseLayout //phpcs:ignore PSR1.Class
                 case 'docman':
                 case 'svn':
                 case 'file':
-                case 'tracker':
                 case 'wiki':
-                case 'salome':
                     break;
                 default:
                     $this->addFeedback('warning', $GLOBALS['Language']->getText('global', 'service_conf_not_inherited'));
@@ -612,7 +519,6 @@ abstract class Layout extends Tuleap\Layout\BaseLayout //phpcs:ignore PSR1.Class
         $theme_color_variant = ThemeVariant::convertToFlamingParrotVariant($color);
         $user_locale         = $current_user->getLocale();
 
-        $this->includeCalendarScripts();
         echo '<!DOCTYPE html>
               <html>
               <head>

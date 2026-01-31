@@ -18,11 +18,7 @@
   -->
 
 <template>
-    <div
-        v-bind:id="'tracker-admin-formElements_' + field.field_id"
-        class="tlp-form-element"
-        v-dompurify-html="field.default_value"
-    ></div>
+    <div class="tlp-form-element" v-dompurify-html="field.default_value"></div>
 </template>
 
 <script setup lang="ts">

@@ -1,7 +1,7 @@
 {
   "author": "Enalean Team",
   "name": "@tuleap/plugin-tracker-admin",
-  "homepage": "https://tuleap.org",
+  "homepage": "https://www.tuleap.com",
   "license": "GPL-2.0-or-later",
   "private": true,
   "dependencies": {
@@ -13,9 +13,12 @@
     "@tuleap/list-picker": "workspace:*",
     "@tuleap/locale": "workspace:^",
     "@tuleap/plugin-tracker-email-copy-paste": "workspace:*",
+    "@tuleap/plugin-tracker-rte-creator": "workspace:^",
     "@tuleap/project-background": "workspace:*",
     "@tuleap/tlp-color-picker": "workspace:*",
+    "@tuleap/tlp-date-picker": "workspace:^",
     "@tuleap/tlp-modal": "workspace:*",
+    "@tuleap/tlp-styles": "workspace:^",
     "@tuleap/user-and-ugroup-autocompleter": "workspace:*"
   },
   "devDependencies": {

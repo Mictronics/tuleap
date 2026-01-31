@@ -27,7 +27,6 @@ import type {
     UserBoundListField,
 } from "@tuleap/plugin-tracker-rest-api-types";
 import { StaticListItemTestBuilder } from "../../tests/builders/StaticListItemTestBuilder";
-import LabelForField from "./LabelForField.vue";
 import { StaticBoundListFieldTestBuilder } from "../../tests/builders/StaticBoundListFieldTestBuilder";
 import ColorBadge from "./ColorBadge.vue";
 import UserBadge from "./UserBadge.vue";
@@ -42,7 +41,7 @@ describe("FieldBaseInputBox", () => {
                 .withColor("red-wine")
                 .build();
 
-            const field = StaticBoundListFieldTestBuilder.aStaticBoundListField()
+            const field = StaticBoundListFieldTestBuilder.aStaticBoundListField(CHECKBOX_FIELD)
                 .withDefaultValues(default_value)
                 .withValues(
                     StaticListItemTestBuilder.aStaticListItem(1).withLabel("MX-3").build(),
@@ -56,9 +55,6 @@ describe("FieldBaseInputBox", () => {
                     input_box_type: CHECKBOX_FIELD,
                 },
             });
-
-            const label_field_component = wrapper.findComponent(LabelForField);
-            expect(label_field_component.attributes("id")).toBe("checkbox-18");
 
             const input_element_list = wrapper.findAll<HTMLInputElement>(
                 "[data-test=input-box-field-input]",
@@ -92,7 +88,7 @@ describe("FieldBaseInputBox", () => {
                 .withColor("red-wine")
                 .build();
 
-            const field = StaticBoundListFieldTestBuilder.aStaticBoundListField()
+            const field = StaticBoundListFieldTestBuilder.aStaticBoundListField(RADIO_BUTTON_FIELD)
                 .withDefaultValues(default_value)
                 .withValues(
                     StaticListItemTestBuilder.aStaticListItem(1).withLabel("MX-3").build(),
@@ -109,9 +105,6 @@ describe("FieldBaseInputBox", () => {
                     ...getGlobalTestOptions(),
                 },
             });
-
-            const label_field_component = wrapper.findComponent(LabelForField);
-            expect(label_field_component.attributes("id")).toBe("radio-18");
 
             const input_element_list = wrapper.findAll<HTMLInputElement>(
                 "[data-test=input-box-field-input]",
@@ -141,7 +134,7 @@ describe("FieldBaseInputBox", () => {
     describe("Badge displays", () => {
         it("displays the color badge component if the current list is a static bound list", () => {
             const field: StaticBoundListField =
-                StaticBoundListFieldTestBuilder.aStaticBoundListField()
+                StaticBoundListFieldTestBuilder.aStaticBoundListField(CHECKBOX_FIELD)
                     .withValues(
                         StaticListItemTestBuilder.aStaticListItem(1).withColor("red-wine").build(),
                     )
@@ -156,7 +149,9 @@ describe("FieldBaseInputBox", () => {
             expect(wrapper.findComponent(UserBadge).exists()).toBe(false);
         });
         it("displays the user badge component if the current list is a user bound list", () => {
-            const field: UserBoundListField = UserBoundListFieldTestBuilder.aUserBoundListField()
+            const field: UserBoundListField = UserBoundListFieldTestBuilder.aUserBoundListField(
+                CHECKBOX_FIELD,
+            )
                 .withValues({
                     id: 101,
                     label: "User 1",

@@ -55,10 +55,7 @@ final class ValinorMapperBuilderFactory
 
     public static function invalidateCache(): void
     {
-        $cache_path = self::getCachePath();
-        if (\Psl\Filesystem\exists($cache_path)) {
-            \Psl\Filesystem\delete_directory(self::getCachePath(), true);
-        }
+        new FileSystemCache(self::getCachePath())->clear();
     }
 
     /**

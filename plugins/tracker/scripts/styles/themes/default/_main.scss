@@ -20,6 +20,7 @@
 @use "sass:map";
 @use "pkg:@tuleap/tlp-swatch-colors";
 @use "pkg:@tuleap/flamingparrot-theme/css/utils/variables-common";
+@use "pkg:@tuleap/tlp-styles/components/forms";
 @use "./includes/cards";
 @use "./includes/field-bound-colors";
 @use "./includes/move-artifact";
@@ -262,10 +263,6 @@ button[name="tracker_query_submit"] {
     vertical-align: top;
 }
 
-.tracker-link-artifact-controls {
-    text-align: left;
-}
-
 #tracker-link-artifact-manual-way {
     margin-bottom: 1em;
 }
@@ -295,10 +292,6 @@ button[name="tracker_query_submit"] {
     font-weight: bold;
 }
 
-.tracker-link-artifact-slow-way-content-selectreport {
-    margin-top: 0;
-}
-
 .tracker_aggregate_function_add_panel {
     position: relative;
 }
@@ -307,11 +300,6 @@ button[name="tracker_query_submit"] {
 #tracker-link-artifact-slow-way > .boxtitle,
 #tracker-link-artifact-recentitems-way > .boxtitle {
     text-align: left;
-}
-
-#lightwindow .tracker_artifact_title {
-    margin-bottom: 0.2em;
-    font-size: 1.2em;
 }
 
 .tracker_report_table_remove_column,
@@ -360,58 +348,6 @@ button[name="tracker_query_submit"] {
 
 #tracker_report_updater li input {
     margin-bottom: 0;
-}
-
-.tracker_decorator,
-.tracker_nodecorator {
-    width: 1em;
-    height: 1em;
-    border: 1px solid transparent;
-}
-
-.tracker_decorator {
-    border: 1px solid #808080;
-}
-
-.tracker_decorator_list,
-.tracker_decorator_list_adv {
-    overflow: auto;
-    border: 1px solid #808080;
-    background-color: #ffffff;
-    background-image: url("../default/images/gradient-white.png");
-    background-repeat: repeat-x;
-    background-position: left top;
-    cursor: default;
-    user-select: none;
-}
-
-.tracker_decorator_list .tracker_decorator_list_pointer {
-    width: 16px;
-    height: 18px;
-    float: right;
-    background-image: url("../default/images/pointer_down.png");
-    background-repeat: no-repeat;
-    background-position: right bottom;
-    vertical-align: middle;
-}
-
-.tracker_decorator_list ul,
-.tracker_decorator_list_adv ul {
-    margin: 0;
-    padding: 0;
-    list-style-type: none;
-}
-
-.tracker_decorator_list .tracker_decorator_option_preselected,
-.tracker_decorator_list_adv .tracker_decorator_option_preselected {
-    background: #008ed6;
-    color: #ffffff;
-}
-
-.tracker_decorator_list .tracker_decorator_option_hover,
-.tracker_decorator_list_adv .tracker_decorator_option_hover {
-    background: #6bb2d6;
-    color: #ffffff;
 }
 
 .tracker-admin-one-list-field:has(.tracker_admin_static_value_hide_checkbox > input:not(:checked)),
@@ -744,7 +680,6 @@ button[name="tracker_query_submit"] {
 
     .xref-in-title {
         margin: 0 10px 0 0;
-        padding: 4px 12px;
         font-size: 18px;
         line-height: 26px;
     }
@@ -782,11 +717,14 @@ button[name="tracker_query_submit"] {
     display: inline-block;
     margin: 0 5px 0 0;
     padding: 2px 10px;
+    border: 1px solid var(--border-color, transparent);
     border-radius: 20px;
-    color: #ffffff;
+    background: var(--secondary-color);
+    color: var(--text-color, var(--tlp-white-color));
     font-size: 12px;
-    font-weight: normal;
+    font-weight: 600;
     line-height: 20px;
+    text-shadow: none;
     white-space: nowrap;
 }
 
@@ -960,16 +898,16 @@ button[name="tracker_query_submit"] {
 .tracker_artifact_fieldset legend {
     margin-bottom: 0;
     padding: 0 14px 0 34px;
-    border-top: 1px solid var(--tlp-neutral-normal-color);
-    border-right: 1px solid var(--tlp-neutral-normal-color);
-    border-left: 1px solid var(--tlp-neutral-normal-color);
+    border-top: 1px solid var(--tlp-border-color);
+    border-right: 1px solid var(--tlp-border-color);
+    border-left: 1px solid var(--tlp-border-color);
     background-color: var(--tlp-white-color);
     background-position: 13px center;
     font-size: 1.2em;
     white-space: nowrap;
 
     &.toggler-noajax {
-        border-bottom: 2px solid var(--tlp-neutral-normal-color);
+        border-bottom: 2px solid var(--tlp-border-color);
         border-top-left-radius: var(--tlp-large-radius);
         border-top-right-radius: var(--tlp-large-radius);
         background-image: url("../../../../../../src/www/themes/common/images/toggle-fontawesome-minus.png");
@@ -2010,28 +1948,6 @@ td.first-column {
     color: #999999;
 }
 
-/* {{{ */
-.tracker_confirm_delete {
-    width: 50%;
-    margin: auto;
-    padding: 4px 10px;
-    border: medium solid #ff0000;
-    background: #ffffcc;
-}
-
-.tracker_confirm_delete_buttons {
-    text-align: center;
-}
-
-.tracker_confirm_delete_preview {
-    margin: 1em auto;
-    padding: 0.5em 1em;
-    border: medium inset #d3d3d3;
-    background: #eeeeee;
-}
-
-/* }}} */
-
 .artifact-children-table {
     width: auto;
     min-width: 50%;
@@ -2408,7 +2324,7 @@ body.sidebar-expanded .artifact-copy-button {
                     max-width: 380px;
                 }
 
-                input[type="text"]:not(.field-computed) {
+                input[type="text"]:not(.field-computed, .datetime-picker) {
                     box-sizing: border-box;
                     width: 100%;
                     height: 30px;
