@@ -25,6 +25,7 @@ import EmptyState from "./EmptyState.vue";
 import TrackerStructure from "./TrackerStructure.vue";
 import { CONTAINER_FIELDSET } from "@tuleap/plugin-tracker-constants";
 import ErrorState from "./ErrorState.vue";
+import { FIELDS } from "../injection-symbols";
 
 vi.mock("@tuleap/mention", () => ({
     initMentions(): void {
@@ -38,13 +39,14 @@ describe("FieldsUsage", () => {
     it("should display an empty state", async () => {
         const wrapper = shallowMount(FieldsUsage, {
             props: {
-                tracker_id: 123,
-                fields: [],
                 structure: [],
                 has_error: false,
             },
             global: {
                 ...getGlobalTestOptions(),
+                provide: {
+                    [FIELDS.valueOf()]: [],
+                },
             },
         });
 
@@ -58,21 +60,24 @@ describe("FieldsUsage", () => {
     it("should display fields", async () => {
         const wrapper = shallowMount(FieldsUsage, {
             props: {
-                tracker_id: 123,
-                fields: [
-                    {
-                        field_id: 123,
-                        name: "details",
-                        label: "Details",
-                        type: CONTAINER_FIELDSET,
-                        required: false,
-                    },
-                ],
                 structure: [{ id: 123, content: null }],
                 has_error: false,
             },
             global: {
                 ...getGlobalTestOptions(),
+                provide: {
+                    [FIELDS.valueOf()]: [
+                        {
+                            field_id: 123,
+                            name: "details",
+                            label: "Details",
+                            type: CONTAINER_FIELDSET,
+                            required: false,
+                            has_notifications: false,
+                            label_decorators: [],
+                        },
+                    ],
+                },
             },
         });
 
@@ -85,21 +90,24 @@ describe("FieldsUsage", () => {
     it("should display and error", async () => {
         const wrapper = shallowMount(FieldsUsage, {
             props: {
-                tracker_id: 123,
-                fields: [
-                    {
-                        field_id: 123,
-                        name: "details",
-                        label: "Details",
-                        type: CONTAINER_FIELDSET,
-                        required: false,
-                    },
-                ],
                 structure: [{ id: 123, content: null }],
                 has_error: true,
             },
             global: {
                 ...getGlobalTestOptions(),
+                provide: {
+                    [FIELDS.valueOf()]: [
+                        {
+                            field_id: 123,
+                            name: "details",
+                            label: "Details",
+                            type: CONTAINER_FIELDSET,
+                            required: false,
+                            has_notifications: false,
+                            label_decorators: [],
+                        },
+                    ],
+                },
             },
         });
 

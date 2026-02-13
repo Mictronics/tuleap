@@ -19,6 +19,7 @@
 
 import { vite } from "@tuleap/build-system-configurator";
 import * as path from "node:path";
+import POGettextPlugin from "@tuleap/po-gettext-plugin";
 
 export default vite.defineAppConfig(
     {
@@ -26,6 +27,7 @@ export default vite.defineAppConfig(
         sub_app_name: path.basename(__dirname),
     },
     {
+        plugins: [POGettextPlugin.vite()],
         build: {
             rollupOptions: {
                 input: {

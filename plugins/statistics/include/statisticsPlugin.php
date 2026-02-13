@@ -27,7 +27,6 @@ use Tuleap\Admin\SiteAdministrationPluginOption;
 use Tuleap\BurningParrotCompatiblePageEvent;
 use Tuleap\Config\ConfigClassProvider;
 use Tuleap\Config\PluginWithConfigKeys;
-use Tuleap\Layout\IncludeAssets;
 use Tuleap\Layout\IncludeViteAssets;
 use Tuleap\Plugin\ListeningToEventName;
 use Tuleap\Project\Admin\Navigation\NavigationDropdownItemPresenter;
@@ -68,7 +67,6 @@ class StatisticsPlugin extends Plugin implements PluginWithConfigKeys
         $this->addHook('get_statistics_aggregation');
 
         $this->addHook(Event::BURNING_PARROT_GET_STYLESHEETS);
-        $this->addHook(Event::BURNING_PARROT_GET_JAVASCRIPT_FILES);
         $this->addHook(NavigationPresenter::NAME);
 
         $this->addHook(ProjectQuotaRequester::NAME);
@@ -239,7 +237,9 @@ class StatisticsPlugin extends Plugin implements PluginWithConfigKeys
             strpos($_SERVER['REQUEST_URI'], $this->getPluginPath()) === 0 ||
             strpos($_SERVER['REQUEST_URI'], '/widgets/') === 0
         ) {
-            echo '<link rel="stylesheet" type="text/css" href="' . $this->getAssets()->getFileURL('disk-usage.css') . '" />' . "\n";
+            $css_url = $this->getAssets()->getFileURL('themes/BurningParrot/css/disk-usage.scss');
+
+            echo "<link rel='stylesheet' type='text/css' href='$css_url' />\n";
         }
     }
 
@@ -278,19 +278,24 @@ class StatisticsPlugin extends Plugin implements PluginWithConfigKeys
 
     public function burning_parrot_get_stylesheets(array $params) //phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
-        if (strpos($_SERVER['REQUEST_URI'], $this->getPluginPath() . '/project_stat.php') === 0) {
-            $params['stylesheets'][] = $this->getAssets()->getFileURL('disk-usage.css');
-        } elseif (strpos($_SERVER['REQUEST_URI'], $this->getPluginPath()) === 0) {
-            $params['stylesheets'][] = $this->getAssets()->getFileURL('style-bp.css');
+        if (str_starts_with((string) $_SERVER['REQUEST_URI'], $this->getPluginPath() . '/project_stat.php')) {
+            $params['stylesheets'][] = $this->getAssets()->getFileURL('themes/BurningParrot/css/disk-usage.scss');
+        } elseif (str_starts_with((string) $_SERVER['REQUEST_URI'], $this->getPluginPath())) {
+            $params['stylesheets'][] = $this->getAssets()->getFileURL('themes/BurningParrot/css/statistics.scss');
         }
     }
 
-    public function burning_parrot_get_javascript_files(array $params) //phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
+    #[ListeningToEventName(Event::BURNING_PARROT_GET_JAVASCRIPT_FILES)]
+    public function burningParrotGetJavascriptFiles(array &$params): void
     {
-        if (strpos($_SERVER['REQUEST_URI'], $this->getPluginPath()) === 0) {
+        if (str_starts_with((string) $_SERVER['REQUEST_URI'], $this->getPluginPath() . '/project_stat.php')) {
+            return;
+        }
+
+        if (str_starts_with((string) $_SERVER['REQUEST_URI'], $this->getPluginPath())) {
             $ckeditor_assets              = new IncludeViteAssets(__DIR__ . '/../../../src/scripts/ckeditor4/frontend-assets/', '/assets/core/ckeditor4/');
             $params['javascript_files'][] = $ckeditor_assets->getFileURL('ckeditor.js');
-            $params['javascript_files'][] = $this->getAssets()->getFileURL('admin.js');
+            $params['javascript_files'][] = $this->getAssets()->getFileURL('scripts/admin.js');
         }
     }
 
@@ -308,9 +313,9 @@ class StatisticsPlugin extends Plugin implements PluginWithConfigKeys
         );
     }
 
-    private function getAssets(): IncludeAssets
+    private function getAssets(): IncludeViteAssets
     {
-        return new IncludeAssets(
+        return new IncludeViteAssets(
             __DIR__ . '/../frontend-assets',
             '/assets/statistics'
         );

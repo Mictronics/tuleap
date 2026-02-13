@@ -18,7 +18,7 @@
  */
 
 import { CONTAINER_COLUMN } from "@tuleap/plugin-tracker-constants";
-import type { Column, Field, Fieldset } from "../type";
+import type { Column, Child, ElementWithChildren } from "../type";
 
-export const isColumn = (element: Field | Fieldset | Column): element is Column =>
-    element.field.type === CONTAINER_COLUMN;
+export const isColumn = (element: Child | ElementWithChildren): element is Column =>
+    "field" in element && element.field.type === CONTAINER_COLUMN;

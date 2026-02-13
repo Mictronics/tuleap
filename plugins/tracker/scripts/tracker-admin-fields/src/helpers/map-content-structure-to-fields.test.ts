@@ -42,6 +42,8 @@ describe("mapContentStructureToFields", () => {
         label: "Summary",
         type: STRING_FIELD,
         required: false,
+        has_notifications: false,
+        label_decorators: [],
         specific_properties: {
             size: 42,
             maxchars: 0,
@@ -55,6 +57,8 @@ describe("mapContentStructureToFields", () => {
         label: "Details",
         type: CONTAINER_FIELDSET,
         required: false,
+        has_notifications: false,
+        label_decorators: [],
     };
 
     const staticrichtext: StructureFields = {
@@ -63,6 +67,8 @@ describe("mapContentStructureToFields", () => {
         label: "Static",
         type: STATIC_RICH_TEXT,
         required: false,
+        has_notifications: false,
+        label_decorators: [],
         default_value: "",
     };
 
@@ -72,6 +78,8 @@ describe("mapContentStructureToFields", () => {
         label: "col0",
         type: CONTAINER_COLUMN,
         required: false,
+        has_notifications: false,
+        label_decorators: [],
     };
 
     const column_1: StructureFields = {
@@ -80,6 +88,8 @@ describe("mapContentStructureToFields", () => {
         label: "col1",
         type: CONTAINER_COLUMN,
         required: false,
+        has_notifications: false,
+        label_decorators: [],
     };
 
     const lubby: StructureFields = {
@@ -88,6 +98,8 @@ describe("mapContentStructureToFields", () => {
         label: "Last updated by",
         type: LAST_UPDATED_BY_FIELD,
         required: false,
+        has_notifications: false,
+        label_decorators: [],
     };
 
     const lud: StructureFields = {
@@ -96,7 +108,9 @@ describe("mapContentStructureToFields", () => {
         label: "Last updated on",
         type: LAST_UPDATE_DATE_FIELD,
         required: false,
+        has_notifications: false,
         is_time_displayed: true,
+        label_decorators: [],
     };
 
     const subby: StructureFields = {
@@ -105,6 +119,8 @@ describe("mapContentStructureToFields", () => {
         label: "Submitted by",
         type: SUBMITTED_BY_FIELD,
         required: false,
+        has_notifications: false,
+        label_decorators: [],
     };
 
     const subon: StructureFields = {
@@ -113,7 +129,9 @@ describe("mapContentStructureToFields", () => {
         label: "Submitted on",
         type: SUBMISSION_DATE_FIELD,
         required: false,
+        has_notifications: false,
         is_time_displayed: true,
+        label_decorators: [],
     };
 
     const fields: TrackerResponseNoInstance["fields"] = [

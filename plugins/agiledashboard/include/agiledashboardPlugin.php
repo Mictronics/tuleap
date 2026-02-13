@@ -45,6 +45,7 @@ use Tuleap\AgileDashboard\ExplicitBacklog\UnplannedArtifactsAdder;
 use Tuleap\AgileDashboard\ExplicitBacklog\UnplannedCriterionOptionsProvider;
 use Tuleap\AgileDashboard\ExplicitBacklog\UnplannedReportCriterionChecker;
 use Tuleap\AgileDashboard\ExplicitBacklog\UnplannedReportCriterionMatchingIdsRetriever;
+use Tuleap\AgileDashboard\FormElement\Burnup;
 use Tuleap\AgileDashboard\FormElement\Burnup\Calculator\BurnupEffortCalculatorForArtifact;
 use Tuleap\AgileDashboard\FormElement\Burnup\Calculator\SystemEvent\SystemEvent_BURNUP_DAILY;
 use Tuleap\AgileDashboard\FormElement\Burnup\Calculator\SystemEvent\SystemEvent_BURNUP_GENERATE;
@@ -62,7 +63,6 @@ use Tuleap\AgileDashboard\Milestone\AllBreadCrumbsForMilestoneBuilder;
 use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItem;
 use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemBuilder;
 use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemCollectionFactory;
-use Tuleap\AgileDashboard\Milestone\Backlog\BacklogItemPresenterBuilder;
 use Tuleap\AgileDashboard\Milestone\Backlog\IBuildBacklogItemAndBacklogItemCollection;
 use Tuleap\AgileDashboard\Milestone\Backlog\MilestoneBacklogFactory;
 use Tuleap\AgileDashboard\Milestone\Backlog\RecentlyVisitedTopBacklogDao;
@@ -70,8 +70,8 @@ use Tuleap\AgileDashboard\Milestone\Backlog\VisitRetriever;
 use Tuleap\AgileDashboard\Milestone\MilestoneDao;
 use Tuleap\AgileDashboard\Milestone\MilestoneReportCriterionDao;
 use Tuleap\AgileDashboard\Milestone\Pane\AgileDashboardPaneInfoIdentifier;
+use Tuleap\AgileDashboard\Milestone\Pane\Details\DetailsPresenterBuilder;
 use Tuleap\AgileDashboard\Milestone\Pane\PaneInfoFactory;
-use Tuleap\AgileDashboard\Milestone\Pane\PanePresenterBuilderFactory;
 use Tuleap\AgileDashboard\Milestone\Pane\Planning\SubmilestoneFinder;
 use Tuleap\AgileDashboard\Milestone\Pane\PlanningMilestonePaneFactory;
 use Tuleap\AgileDashboard\Milestone\Sidebar\MilestonesInSidebarDao;
@@ -146,7 +146,6 @@ use Tuleap\StatisticsCore\StatisticsServiceUsage;
 use Tuleap\Tracker\Action\AfterArtifactCopiedEvent;
 use Tuleap\Tracker\Action\CollectMovableExternalFieldEvent;
 use Tuleap\Tracker\Artifact\ActionButtons\AdditionalArtifactActionButtonsFetcher;
-use Tuleap\Tracker\Artifact\Dao\PriorityDao;
 use Tuleap\Tracker\Artifact\Event\ArtifactCreated;
 use Tuleap\Tracker\Artifact\Event\ArtifactDeleted;
 use Tuleap\Tracker\Artifact\Event\ArtifactUpdated;
@@ -164,6 +163,7 @@ use Tuleap\Tracker\Events\CollectTrackerDependantServices;
 use Tuleap\Tracker\FormElement\Event\MessageFetcherAdditionalWarnings;
 use Tuleap\Tracker\FormElement\Field\Priority\PriorityField;
 use Tuleap\Tracker\FormElement\Field\TrackerField;
+use Tuleap\Tracker\FormElement\View\Admin\FilterFormElementsThatCanBeCreatedForTracker;
 use Tuleap\Tracker\Hierarchy\TrackerHierarchyUpdateEvent;
 use Tuleap\Tracker\Masschange\TrackerMasschangeGetExternalActionsEvent;
 use Tuleap\Tracker\Masschange\TrackerMasschangeProcessExternalActionsEvent;
@@ -300,7 +300,7 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
 
     public function tracker_formelement_get_classnames($params) // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps
     {
-        $params['dynamic']['burnup'] = \Tuleap\AgileDashboard\FormElement\Burnup::class;
+        $params['dynamic'][Burnup::TYPE] = Burnup::class;
     }
 
     /**
@@ -1400,7 +1400,6 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
             $presenter_builder,
             new RemainingEffortValueRetriever($form_element_factory),
             new ArtifactsInExplicitBacklogDao(),
-            new PriorityDao(),
             \Tuleap\Tracker\Permission\TrackersPermissionsRetriever::build(),
             CachedSemanticTitleFieldRetriever::instance(),
             CachedSemanticStatusFieldRetriever::instance(),
@@ -1428,14 +1427,11 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
         return new PlanningMilestonePaneFactory(
             $request,
             $milestone_factory,
-            new PanePresenterBuilderFactory(
+            new DetailsPresenterBuilder(
+                $this->getMilestoneFactory(),
                 $this->getBacklogFactory(),
-                $this->getBacklogItemCollectionFactory(
-                    $this->getMilestoneFactory(),
-                    new BacklogItemPresenterBuilder()
-                ),
                 new BurnupFieldRetriever(Tracker_FormElementFactory::instance()),
-                $event_manager
+                $event_manager,
             ),
             $submilestone_finder,
             $pane_info_factory,
@@ -1929,6 +1925,14 @@ class AgileDashboardPlugin extends Plugin implements PluginWithConfigKeys, Plugi
             $event->addError(
                 dgettext('tuleap-agiledashboard', 'Archive should not contain agiledashboard data.'),
             );
+        }
+    }
+
+    #[ListeningToEventClass]
+    public function filterFormElementsThatCanBeCreatedForTracker(FilterFormElementsThatCanBeCreatedForTracker $event): void
+    {
+        if (new PlanningDao()->searchByMilestoneTrackerId($event->getTracker()->getId()) === null) {
+            $event->removeByType(Burnup::TYPE);
         }
     }
 }

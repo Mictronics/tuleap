@@ -171,13 +171,19 @@ export const getDocumentProperties = (): DocumentProperties => {
 
             emitter.emit("item-properties-have-just-been-updated");
 
-            if (item.id === current_folder.id) {
+            if (item.id === current_folder.id || isFolder(updated_item)) {
                 context.commit("replaceCurrentFolder", updated_item, { root: true });
-                await context.dispatch("loadFolder", item.id, { root: true });
+                const parent_id =
+                    current_folder.parent_id === 0 ? current_folder.id : current_folder.parent_id;
+                await context.dispatch("loadFolder", parent_id, { root: true });
             } else {
                 updated_item.updated = true;
                 context.commit("removeItemFromFolderContent", updated_item, { root: true });
-                context.commit("addJustCreatedItemToFolderContent", updated_item, { root: true });
+                context.commit(
+                    "addJustCreatedItemToFolderContent",
+                    { new_item: updated_item, parent: current_folder },
+                    { root: true },
+                );
                 context.commit("updateCurrentItemForQuickLokDisplay", updated_item, { root: true });
             }
         } catch (exception) {

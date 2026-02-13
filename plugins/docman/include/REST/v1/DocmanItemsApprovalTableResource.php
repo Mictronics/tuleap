@@ -39,6 +39,7 @@ use Tuleap\DB\DBFactory;
 use Tuleap\DB\DBTransactionExecutorWithConnection;
 use Tuleap\Docman\ApprovalTable\ApprovalTableRetriever;
 use Tuleap\Docman\ApprovalTable\ApprovalTableStateMapper;
+use Tuleap\Docman\Item\VersionOpenHrefVisitor;
 use Tuleap\Docman\Notifications\NotificationBuilders;
 use Tuleap\Docman\ResponseFeedbackWrapper;
 use Tuleap\Docman\REST\v1\ApprovalTable\ApprovalTableAction;
@@ -48,6 +49,7 @@ use Tuleap\Docman\REST\v1\ApprovalTable\ApprovalTablePutRepresentation;
 use Tuleap\Docman\REST\v1\ApprovalTable\ApprovalTableReviewPutRepresentation;
 use Tuleap\Docman\REST\v1\ApprovalTable\ApprovalTableReviewUpdater;
 use Tuleap\Docman\REST\v1\ApprovalTable\ApprovalTableUpdater;
+use Tuleap\Docman\Version\VersionRetrieverFromApprovalTableVisitor;
 use Tuleap\REST\AuthenticatedResource;
 use Tuleap\REST\Header;
 use Tuleap\REST\I18NRestException;
@@ -57,6 +59,8 @@ use Tuleap\User\Avatar\ComputeAvatarHash;
 use Tuleap\User\Avatar\UserAvatarUrlProvider;
 use Tuleap\User\REST\MinimalUserRepresentation;
 use UserManager;
+use WikiPageVersionFactory;
+use WikiVersionDao;
 
 final class DocmanItemsApprovalTableResource extends AuthenticatedResource
 {
@@ -113,7 +117,7 @@ final class DocmanItemsApprovalTableResource extends AuthenticatedResource
         $this->checkAccess();
         Header::allowOptionsGet();
 
-        $items_request = $this->request_builder->buildFromItemId($id);
+        $items_request = $this->buildFromItemIdForApprovalTables($id);
         $item          = $items_request->getItem();
         $project       = $items_request->getProject();
 
@@ -153,7 +157,7 @@ final class DocmanItemsApprovalTableResource extends AuthenticatedResource
         $this->checkAccess();
         Header::allowOptionsGet();
 
-        $items_request = $this->request_builder->buildFromItemId($id);
+        $items_request = $this->buildFromItemIdForApprovalTables($id);
         $item          = $items_request->getItem();
         $project       = $items_request->getProject();
 
@@ -192,7 +196,7 @@ final class DocmanItemsApprovalTableResource extends AuthenticatedResource
         $this->checkAccess();
         Header::allowOptionsPostPutPatchDelete();
 
-        $items_request = $this->request_builder->buildFromItemId($id);
+        $items_request = $this->buildFromItemIdForApprovalTables($id);
         $item          = $items_request->getItem();
         $project       = $items_request->getProject();
         $user          = $items_request->getUser();
@@ -242,7 +246,7 @@ final class DocmanItemsApprovalTableResource extends AuthenticatedResource
         $this->checkAccess();
         Header::allowOptionsPostPutPatchDelete();
 
-        $items_request = $this->request_builder->buildFromItemId($id);
+        $items_request = $this->buildFromItemIdForApprovalTables($id);
         $item          = $items_request->getItem();
         $project       = $items_request->getProject();
         $user          = $items_request->getUser();
@@ -293,7 +297,7 @@ final class DocmanItemsApprovalTableResource extends AuthenticatedResource
         $this->checkAccess();
         Header::allowOptionsPostPutPatchDelete();
 
-        $items_request = $this->request_builder->buildFromItemId($id);
+        $items_request = $this->buildFromItemIdForApprovalTables($id);
         $item          = $items_request->getItem();
         $project       = $items_request->getProject();
         $user          = $items_request->getUser();
@@ -342,7 +346,7 @@ final class DocmanItemsApprovalTableResource extends AuthenticatedResource
         $this->checkAccess();
         Header::allowOptionsPostPutPatchDelete();
 
-        $items_request = $this->request_builder->buildFromItemId($id);
+        $items_request = $this->buildFromItemIdForApprovalTables($id);
         $item          = $items_request->getItem();
         $project       = $items_request->getProject();
         $user          = $items_request->getUser();
@@ -397,7 +401,7 @@ final class DocmanItemsApprovalTableResource extends AuthenticatedResource
         $this->checkAccess();
         Header::allowOptionsPut();
 
-        $items_request = $this->request_builder->buildFromItemId($id);
+        $items_request = $this->buildFromItemIdForApprovalTables($id);
         $item          = $items_request->getItem();
         $project       = $items_request->getProject();
         $user          = $items_request->getUser();
@@ -457,7 +461,7 @@ final class DocmanItemsApprovalTableResource extends AuthenticatedResource
         $this->checkAccess();
         Header::allowOptionsPost();
 
-        $items_request = $this->request_builder->buildFromItemId($id);
+        $items_request = $this->buildFromItemIdForApprovalTables($id);
         $item          = $items_request->getItem();
         $project       = $items_request->getProject();
         $user          = $items_request->getUser();
@@ -514,7 +518,7 @@ final class DocmanItemsApprovalTableResource extends AuthenticatedResource
         $this->checkAccess();
         Header::allowOptionsPost();
 
-        $items_request = $this->request_builder->buildFromItemId($id);
+        $items_request = $this->buildFromItemIdForApprovalTables($id);
         $item          = $items_request->getItem();
         $project       = $items_request->getProject();
         $user          = $items_request->getUser();
@@ -573,6 +577,26 @@ final class DocmanItemsApprovalTableResource extends AuthenticatedResource
             $this->version_factory,
             new NotificationBuilders(new ResponseFeedbackWrapper(), $project)->buildNotificationManager(),
             \Codendi_HTMLPurifier::instance(),
+            new VersionOpenHrefVisitor(),
+            new VersionRetrieverFromApprovalTableVisitor(new \Docman_VersionFactory(), new \Docman_LinkVersionFactory(), new WikiVersionDao(), new WikiPageVersionFactory()),
+            ProjectManager::instance()
         );
+    }
+
+    /**
+     * @throws RestException
+     */
+    public function buildFromItemIdForApprovalTables(int $id): DocmanItemsRequest
+    {
+        $item_request = $this->request_builder->buildFromItemId($id);
+        if ($item_request->getItem()->getParentId() === 0) {
+            throw new I18NRestException(400, dgettext('tuleap-docman', 'Root item can not have approval tables'));
+        }
+
+        if ($item_request->getItem() instanceof \Docman_Empty) {
+            throw new I18NRestException(400, dgettext('tuleap-docman', 'Item type empty can not have approval tables'));
+        }
+
+        return $item_request;
     }
 }

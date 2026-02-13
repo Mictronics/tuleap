@@ -29,6 +29,8 @@ use Luracast\Restler\RestException;
 use Project;
 use Tracker_FormElementFactory;
 use Tracker_REST_TrackerRestBuilder;
+use Tracker_Rule_Date_Dao;
+use Tracker_Rule_Date_Factory;
 use TrackerFactory;
 use TransitionFactory;
 use Tuleap\Timetracking\Admin\AdminDao;
@@ -38,6 +40,7 @@ use Tuleap\Timetracking\Permissions\PermissionsRetriever;
 use Tuleap\Timetracking\Time\TimeDao;
 use Tuleap\Timetracking\Time\TimeRetriever;
 use Tuleap\Tracker\Admin\ArtifactLinksUsageDao;
+use Tuleap\Tracker\FormElement\Admin\ListOfLabelDecoratorsForFieldBuilder;
 use Tuleap\Tracker\FormElement\Container\Fieldset\HiddenFieldsetChecker;
 use Tuleap\Tracker\FormElement\Container\FieldsExtractor;
 use Tuleap\Tracker\FormElement\Field\ArtifactLink\Type\SystemTypePresenterBuilder;
@@ -67,6 +70,8 @@ use Tuleap\Tracker\Workflow\SimpleMode\SimpleWorkflowDao;
 use Tuleap\Tracker\Workflow\SimpleMode\State\StateFactory;
 use Tuleap\Tracker\Workflow\SimpleMode\State\TransitionExtractor;
 use Tuleap\Tracker\Workflow\SimpleMode\State\TransitionRetriever;
+use Tuleap\Tracker\Workflow\WorkflowFieldUsageDecoratorsProvider;
+use Tuleap\Tracker\Workflow\GlobalRulesUsageByFieldProvider;
 use Tuleap\User\Password\PasswordExpiredException;
 use UGroupManager;
 use UserManager;
@@ -144,7 +149,14 @@ class ProjectResource
                         $frozen_fields_detector,
                         $permissions_functions_wrapper
                     ),
-                    new TypePresenterFactory(new TypeDao(), new ArtifactLinksUsageDao(), new SystemTypePresenterBuilder(EventManager::instance()))
+                    new TypePresenterFactory(new TypeDao(), new ArtifactLinksUsageDao(), new SystemTypePresenterBuilder(EventManager::instance())),
+                    new ListOfLabelDecoratorsForFieldBuilder(
+                        new WorkflowFieldUsageDecoratorsProvider(
+                            new GlobalRulesUsageByFieldProvider(
+                                new Tracker_Rule_Date_Factory(new Tracker_Rule_Date_Dao(), $form_element_factory)
+                            )
+                        )
+                    ),
                 ),
                 new PermissionsRepresentationBuilder($ugroup_manager, $permissions_functions_wrapper),
                 new WorkflowRestBuilder(),

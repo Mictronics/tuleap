@@ -19,6 +19,7 @@
  */
 
 use Tuleap\REST\JsonCast;
+use Tuleap\Tracker\FormElement\Admin\LabelDecorator;
 use Tuleap\Tracker\FormElement\Field\List\Bind\ListFieldBind;
 use Tuleap\Tracker\FormElement\Field\List\Bind\User\ListFieldUserBind;
 use Tuleap\Tracker\FormElement\Field\TrackerField;
@@ -96,10 +97,13 @@ class Tracker_REST_FormElementRepresentation //phpcs:ignore
      * @var mixed
      */
     public $default_value;
+    public bool $has_notifications;
+    public bool $is_used;
 
     /**
      * @param mixed $values
      * @param mixed $default_rest_value
+     * @param LabelDecorator[] $label_decorators
      */
     protected function __construct(
         TrackerFormElement $form_element,
@@ -111,6 +115,7 @@ class Tracker_REST_FormElementRepresentation //phpcs:ignore
         array $permissions,
         ?PermissionsForGroupsRepresentation $permissions_for_groups,
         public array $specific_properties,
+        public array $label_decorators,
     ) {
         $this->field_id = JsonCast::toInt($form_element->getId());
         $this->name     = $form_element->getName();
@@ -121,7 +126,8 @@ class Tracker_REST_FormElementRepresentation //phpcs:ignore
         } else {
             $this->required = false;
         }
-        $this->collapsed = $is_collapsed;
+        $this->has_notifications = $form_element->hasNotifications();
+        $this->collapsed         = $is_collapsed;
 
         $this->default_value = $default_rest_value;
         $this->type          = $type;
@@ -157,10 +163,19 @@ class Tracker_REST_FormElementRepresentation //phpcs:ignore
         );
 
         $this->permissions_for_groups = $permissions_for_groups;
+        $this->is_used                = $form_element->isUsed();
     }
 
-    public static function build(TrackerFormElement $form_element, string $type, array $permissions, ?PermissionsForGroupsRepresentation $permissions_for_groups): Tracker_REST_FormElementRepresentation
-    {
+    /**
+     * @param LabelDecorator[] $label_decorators
+     */
+    public static function build(
+        TrackerFormElement $form_element,
+        string $type,
+        array $permissions,
+        ?PermissionsForGroupsRepresentation $permissions_for_groups,
+        array $label_decorators,
+    ): Tracker_REST_FormElementRepresentation {
         return new self(
             $form_element,
             $type,
@@ -171,6 +186,7 @@ class Tracker_REST_FormElementRepresentation //phpcs:ignore
             $permissions,
             $permissions_for_groups,
             $form_element->getFlattenPropertiesValues(),
+            $label_decorators,
         );
     }
 }

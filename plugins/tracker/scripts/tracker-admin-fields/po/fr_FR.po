@@ -15,6 +15,9 @@ msgstr ""
 msgid "%{user} user's avatar"
 msgstr "Avatar de l'utilisateur %{user}"
 
+msgid "Add a value"
+msgstr "Ajouter une valeur"
+
 msgid "Add another file"
 msgstr "Ajouter un autre fichier"
 
@@ -30,8 +33,14 @@ msgstr "Id artifact"
 msgid "Artifact link"
 msgstr "Liens entre artifacts"
 
+msgid "Auto-compute"
+msgstr "Calcul automatique"
+
 msgid "Checkbox"
 msgstr "Case à cocher"
+
+msgid "Close"
+msgstr "Fermer"
 
 msgid "Column"
 msgstr "Colonne"
@@ -51,6 +60,9 @@ msgstr "Date"
 msgid "Display in & out references"
 msgstr "Liste des objets étant référencés par l'artifact ou le référençant"
 
+msgid "Field configuration"
+msgstr "Configuration du champ"
+
 msgid "Field..."
 msgstr "Champ..."
 
@@ -59,6 +71,9 @@ msgstr "Utilisation des champs"
 
 msgid "Fieldset"
 msgstr "Groupe de champs"
+
+msgid "Fieldset configuration"
+msgstr "Configuration du groupe de champs"
 
 msgid "File description"
 msgstr "Description du fichier"
@@ -71,6 +86,9 @@ msgstr "Flottant"
 
 msgid "Integer"
 msgstr "Entier"
+
+msgid "Label"
+msgstr "Label"
 
 msgid "Last update by"
 msgstr "Dernière mise à jour par"
@@ -90,8 +108,14 @@ msgstr "Liste à choix multiple"
 msgid "No fields"
 msgstr "Aucun champ"
 
+msgid "No value"
+msgstr "Aucune valeur"
+
 msgid "None"
 msgstr "Aucun"
+
+msgid "Not found"
+msgstr "Introuvable"
 
 msgid "One column layout"
 msgstr "Agencement sur une colonne"
@@ -123,6 +147,9 @@ msgstr "Champ partagé"
 msgid "Static text"
 msgstr "Texte statique"
 
+msgid "Static values"
+msgstr "Valeurs statiques"
+
 msgid "String"
 msgstr "Chaîne de caractères"
 
@@ -135,6 +162,9 @@ msgstr "Date de création"
 msgid "Text"
 msgstr "Texte"
 
+msgid "The resource you are requesting does not exist or has been removed."
+msgstr "La ressource que vous demandez n'existe pas ou a été supprimée."
+
 msgid "This tracker does not have any field yet."
 msgstr "Ce tracker n'a pas encore de champ."
 
@@ -143,3 +173,9 @@ msgstr "Agencement sur trois colonnes"
 
 msgid "Two columns layout"
 msgstr "Agencement sur deux colonnes"
+
+msgid "→ Create a new value %{ name }…"
+msgstr "→ Créer une nouvelle valeur %{ name } …"
+
+msgid "→ Create a new value…"
+msgstr "→ Créer une nouvelle valeur …"

@@ -18,21 +18,39 @@
   -->
 
 <template>
-    <div class="tlp-label">
-        {{ field.label }}
-        <i
-            class="fa-solid fa-asterisk"
-            aria-hidden="true"
-            v-if="field.required"
-            data-test="required"
-        ></i>
+    <div class="label">
+        <span class="tlp-label">
+            {{ field.label }}
+            <i
+                class="fa-solid fa-asterisk"
+                aria-hidden="true"
+                v-if="field.required"
+                data-test="required"
+            ></i>
+        </span>
+        <list-of-label-decorators v-bind:field="field" />
     </div>
 </template>
 
 <script setup lang="ts">
 import type { StructureFields } from "@tuleap/plugin-tracker-rest-api-types";
+import ListOfLabelDecorators from "./ListOfLabelDecorators.vue";
 
 defineProps<{
     field: StructureFields;
 }>();
 </script>
+
+<style lang="scss" scoped>
+.label {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    margin: 0 0 var(--tlp-small-spacing);
+    gap: var(--tlp-small-spacing);
+}
+
+.tlp-label {
+    margin: 0 var(--tlp-small-spacing) 0 0;
+}
+</style>

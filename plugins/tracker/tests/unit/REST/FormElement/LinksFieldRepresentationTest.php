@@ -34,12 +34,13 @@ final class LinksFieldRepresentationTest extends \Tuleap\Test\PHPUnit\TestCase
         $type        = 'art_link';
         $permissions = ['read', 'update', 'submit'];
 
-        $link_field = $this->createMock(\Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField::class);
+        $link_field = $this->createStub(\Tuleap\Tracker\FormElement\Field\ArtifactLink\ArtifactLinkField::class);
         $link_field->method('getId')->willReturn(666);
         $link_field->method('getName')->willReturn('the_link_field');
         $link_field->method('getLabel')->willReturn('The links');
         $link_field->method('isCollapsed')->willReturn(false);
         $link_field->method('isRequired')->willReturn(true);
+        $link_field->method('hasNotifications')->willReturn(false);
         $link_field->method('getDefaultRESTValue')->willReturn(null);
         $link_field->method('getRESTAvailableValues')->willReturn(null);
         $link_field->method('getRESTBindingProperties')->willReturn([
@@ -47,6 +48,7 @@ final class LinksFieldRepresentationTest extends \Tuleap\Test\PHPUnit\TestCase
             ListFieldBind::REST_LIST_KEY => [],
         ]);
         $link_field->method('getFlattenPropertiesValues')->willReturn([]);
+        $link_field->method('isUsed')->willReturn(false);
 
         $allowed_link_types = [
             TypePresenter::buildVisibleType('_is_child', 'Child', 'Parent'),
@@ -59,7 +61,8 @@ final class LinksFieldRepresentationTest extends \Tuleap\Test\PHPUnit\TestCase
             $type,
             $permissions,
             $allowed_link_types,
-            null
+            null,
+            [],
         );
 
         self::assertEquals(666, $representation->field_id);
@@ -69,6 +72,7 @@ final class LinksFieldRepresentationTest extends \Tuleap\Test\PHPUnit\TestCase
 
         self::assertFalse($representation->collapsed);
         self::assertTrue($representation->required);
+        self::assertFalse($representation->has_notifications);
 
         self::assertNull($representation->values);
         self::assertNull($representation->default_value);
