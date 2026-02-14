@@ -40,6 +40,8 @@ use Tracker_FormElement_InvalidFieldException;
 use Tracker_FormElement_InvalidFieldValueException;
 use Tracker_FormElement_RESTValueByField_NotImplementedException;
 use Tracker_FormElementFactory;
+use Tracker_Rule_Date_Dao;
+use Tracker_Rule_Date_Factory;
 use Tracker_URLVerification;
 use TrackerFactory;
 use TransitionFactory;
@@ -121,6 +123,7 @@ use Tuleap\Tracker\Artifact\XML\Exporter\ArtifactXMLExporterBuilder;
 use Tuleap\Tracker\Artifact\XML\Exporter\LocalAbsoluteFilePathXMLExporter;
 use Tuleap\Tracker\Artifact\XML\Exporter\NullChildrenCollector;
 use Tuleap\Tracker\Exception\SemanticTitleNotDefinedException;
+use Tuleap\Tracker\FormElement\Admin\ListOfLabelDecoratorsForFieldBuilder;
 use Tuleap\Tracker\FormElement\ArtifactLinkValidator;
 use Tuleap\Tracker\FormElement\Container\Fieldset\HiddenFieldsetChecker;
 use Tuleap\Tracker\FormElement\Container\FieldsExtractor;
@@ -193,7 +196,9 @@ use Tuleap\Tracker\Workflow\SimpleMode\SimpleWorkflowDao;
 use Tuleap\Tracker\Workflow\SimpleMode\State\StateFactory;
 use Tuleap\Tracker\Workflow\SimpleMode\State\TransitionExtractor;
 use Tuleap\Tracker\Workflow\SimpleMode\State\TransitionRetriever;
+use Tuleap\Tracker\Workflow\WorkflowFieldUsageDecoratorsProvider;
 use Tuleap\Tracker\Workflow\WorkflowUpdateChecker;
+use Tuleap\Tracker\Workflow\GlobalRulesUsageByFieldProvider;
 use Tuleap\Tracker\XML\Updater\MoveChangesetXMLUpdater;
 use Tuleap\User\Avatar\AvatarHashDao;
 use Tuleap\User\Avatar\ComputeAvatarHash;
@@ -320,7 +325,14 @@ class ArtifactsResource extends AuthenticatedResource
                     $frozen_fields_detector,
                     $permissions_functions_wrapper
                 ),
-                new TypePresenterFactory(new TypeDao(), new ArtifactLinksUsageDao(), new SystemTypePresenterBuilder($this->event_manager))
+                new TypePresenterFactory(new TypeDao(), new ArtifactLinksUsageDao(), new SystemTypePresenterBuilder($this->event_manager)),
+                new ListOfLabelDecoratorsForFieldBuilder(
+                    new WorkflowFieldUsageDecoratorsProvider(
+                        new GlobalRulesUsageByFieldProvider(
+                            new Tracker_Rule_Date_Factory(new Tracker_Rule_Date_Dao(), $this->formelement_factory)
+                        )
+                    )
+                ),
             ),
             new PermissionsRepresentationBuilder($ugroup_manager, $permissions_functions_wrapper),
             new WorkflowRestBuilder(),

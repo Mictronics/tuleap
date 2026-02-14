@@ -19,58 +19,54 @@
 
 <!-- prettier-ignore -->
 <template>
-    <div class="ttm-definition-step-actions">
-        <div class="ttm-definition-step-actions-format-and-helper-container">
-            {{ $gettext("Format:") }}
-            <select
-                v-bind:id="format_select_id"
-                ref="format"
-                class="small ttm-definition-step-description-format"
-                v-on:change="input($event)"
-                v-bind:disabled="disabled_format_selectbox"
-                data-test="ttm-definition-step-description-format"
+    <div>
+        {{ $gettext("Format:") }}
+        <select
+            v-bind:id="format_select_id"
+            class="small ttm-definition-step-description-format"
+            v-on:change="input"
+            v-bind:disabled="disabled_format_selectbox"
+            data-test="ttm-definition-step-description-format"
+        >
+            <option
+                value="text"
+                v-bind:selected="is_text"
+                data-test="ttm-definition-step-description-format-text"
             >
-                <option
-                    value="text"
-                    v-bind:selected="is_text"
-                    data-test="ttm-definition-step-description-format-text"
-                >
-                    Text
-                </option>
-                <option
-                    value="html"
-                    v-bind:selected="is_html"
-                    data-test="ttm-definition-step-description-format-html"
-                >
-                    HTML
-                </option>
-                <option
-                    value="commonmark"
-                    v-bind:selected="is_commonmark"
-                    data-test="ttm-definition-step-description-format-commonmark"
-                >
-                    Markdown
-                </option>
-            </select>
-            <commonmark-preview-button
-                v-on:commonmark-preview-event="$emit('interpret-content-event')"
-                v-bind:is_in_preview_mode="is_in_preview_mode"
-                v-bind:is_preview_loading="is_preview_loading"
-                v-if="is_commonmark_button_displayed"
-            />
-            <commonmark-syntax-helper
-                v-bind:is_in_preview_mode="is_in_preview_mode"
-                v-if="is_commonmark_button_displayed"
-            />
-            <step-deletion-action-button-unmark-deletion v-bind:step="step" v-if="step.is_deleted" />
-            <step-deletion-action-button-mark-as-deleted v-bind:step="step" v-else />
-        </div>
-
+                Text
+            </option>
+            <option
+                value="html"
+                v-bind:selected="is_html"
+                data-test="ttm-definition-step-description-format-html"
+            >
+                HTML
+            </option>
+            <option
+                value="commonmark"
+                v-bind:selected="is_commonmark"
+                data-test="ttm-definition-step-description-format-commonmark"
+            >
+                Markdown
+            </option>
+        </select>
+        <commonmark-preview-button
+            v-on:commonmark-preview-event="$emit('interpret-content-event')"
+            v-bind:is_in_preview_mode="is_in_preview_mode"
+            v-bind:is_preview_loading="is_preview_loading"
+            v-if="is_commonmark_button_displayed"
+        />
+        <commonmark-syntax-helper
+            v-bind:is_in_preview_mode="is_in_preview_mode"
+            v-if="is_commonmark_button_displayed"
+        />
+        <step-deletion-action-button-unmark-deletion v-bind:step="step" v-if="step.is_deleted" />
+        <step-deletion-action-button-mark-as-deleted v-bind:step="step" v-else />
     </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { computed } from "vue";
 import type { TextFieldFormat } from "@tuleap/plugin-tracker-constants";
 import {
     TEXT_FORMAT_COMMONMARK,
@@ -91,8 +87,6 @@ const props = defineProps<{
     is_preview_loading: boolean;
 }>();
 
-const format = ref<TextFieldFormat>();
-
 const is_text = computed(() => props.step.description_format === TEXT_FORMAT_TEXT);
 const is_html = computed(() => props.step.description_format === TEXT_FORMAT_HTML);
 const is_commonmark = computed(() => props.step.description_format === TEXT_FORMAT_COMMONMARK);
@@ -100,14 +94,23 @@ const disabled_format_selectbox = computed(() => props.disabled || props.is_in_p
 const is_commonmark_button_displayed = computed(() => !props.disabled && is_commonmark.value);
 
 const emit = defineEmits<{
-    (e: "input", event: Event, format: TextFieldFormat): void;
+    (e: "input", new_format: TextFieldFormat): void;
     (e: "interpret-content-event"): void;
 }>();
 
 function input(event: Event) {
-    if (!format.value) {
+    if (!(event.target instanceof HTMLSelectElement)) {
         return;
     }
-    emit("input", event, format.value);
+
+    if (
+        event.target.value !== TEXT_FORMAT_COMMONMARK &&
+        event.target.value !== TEXT_FORMAT_HTML &&
+        event.target.value !== TEXT_FORMAT_TEXT
+    ) {
+        return;
+    }
+
+    emit("input", event.target.value);
 }
 </script>

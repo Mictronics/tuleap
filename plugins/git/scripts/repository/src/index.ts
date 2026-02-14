@@ -23,6 +23,7 @@ import initCopyButton from "./copy-button";
 import initCloneBarPopover from "./clone-bar-popover";
 import initBranchTagSelector from "./branch-tag-selector";
 import initShortlog from "./shortlog";
+import "@tuleap/tlp-syntax-highlighting";
 
 document.addEventListener("DOMContentLoaded", () => {
     initAlreadyForkedModal();

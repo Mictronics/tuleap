@@ -27,6 +27,7 @@ import "./styles/tracker-admin-fields.scss";
 import { PROJECT_ID } from "./type";
 import {
     CURRENT_USER,
+    FIELDS,
     IS_USER_LOADING,
     TRACKER_COLOR,
     TRACKER_ID,
@@ -35,6 +36,7 @@ import {
 import type { User } from "@tuleap/core-rest-api-types";
 import { Option } from "@tuleap/option";
 import { getJSON, uri } from "@tuleap/fetch-result";
+import { getRouter } from "./router/fields-usage-router";
 
 document.addEventListener("DOMContentLoaded", async () => {
     const mount_point = document.getElementById("tracker-admin-fields-usage-mount-point");
@@ -57,10 +59,10 @@ document.addEventListener("DOMContentLoaded", async () => {
     );
 
     createApp(FieldsUsage, {
-        fields: JSON.parse(getAttributeOrThrow(mount_point, "data-fields")),
         structure: JSON.parse(getAttributeOrThrow(mount_point, "data-structure")),
         has_error,
     })
+        .use(getRouter(getAttributeOrThrow(mount_point, "data-base-uri")))
         .use(
             /** @ts-expect-error vue3-gettext-init is tested with Vue 3.4, but here we use Vue 3.5 */
             await initVueGettext(createGettext, (locale) => {
@@ -74,5 +76,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         .provide(TRACKER_ID, parseInt(getAttributeOrThrow(mount_point, "data-tracker-id"), 10))
         .provide(TRACKER_SHORTNAME, getAttributeOrThrow(mount_point, "data-tracker-shortname"))
         .provide(TRACKER_COLOR, getAttributeOrThrow(mount_point, "data-tracker-color"))
+        .provide(FIELDS, JSON.parse(getAttributeOrThrow(mount_point, "data-fields")))
         .mount(mount_point);
 });

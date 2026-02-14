@@ -24,6 +24,7 @@ namespace Tuleap\Tracker\FormElement\Admin;
 
 use Tracker_IDisplayTrackerLayout;
 use Tuleap\Layout\BaseLayout;
+use Tuleap\Layout\CssViteAsset;
 use Tuleap\Layout\IncludeAssetsGeneric;
 use Tuleap\Layout\IncludeViteAssets;
 use Tuleap\Request\DispatchableWithBurningParrot;
@@ -66,6 +67,15 @@ final readonly class FieldsUsageDisplayController implements DispatchableWithReq
                 'src/tracker-admin-fields.ts',
             ),
         );
+        $layout->addCssAsset(
+            CssViteAsset::fromFileName(
+                new IncludeViteAssets(
+                    __DIR__ . '/../../../scripts/styles/frontend-assets',
+                    '/assets/trackers/styles'
+                ),
+                'themes/BurningParrot/tracker.scss'
+            )
+        );
 
         $tracker->displayAdminItemHeaderBurningParrot($this->layout, 'editformElements', dgettext('tuleap-tracker', 'Manage Field Usage'));
         $this->renderer_factory
@@ -93,5 +103,10 @@ final readonly class FieldsUsageDisplayController implements DispatchableWithReq
         }
 
         return $tracker;
+    }
+
+    public static function getUrl(Tracker $tracker): string
+    {
+        return '/trackers/' . $tracker->getId() . '/fields';
     }
 }

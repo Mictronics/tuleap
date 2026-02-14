@@ -185,7 +185,9 @@ use Tuleap\Tracker\Creation\TrackerCreationProcessorController;
 use Tuleap\Tracker\Creation\TrackerCreator;
 use Tuleap\Tracker\Events\CollectTrackerDependantServices;
 use Tuleap\Tracker\ForgeUserGroupPermission\TrackerAdminAllProjects;
+use Tuleap\Tracker\FormElement\Admin\FieldsUsageConfiguration;
 use Tuleap\Tracker\FormElement\Admin\FieldsUsageDisplayController;
+use Tuleap\Tracker\FormElement\Admin\ListOfLabelDecoratorsForFieldBuilder;
 use Tuleap\Tracker\FormElement\ArtifactLinkValidator;
 use Tuleap\Tracker\FormElement\BurndownCacheDateRetriever;
 use Tuleap\Tracker\FormElement\BurndownCalculator;
@@ -277,8 +279,6 @@ use Tuleap\Tracker\Semantic\Status\Done\SemanticDoneValueChecker;
 use Tuleap\Tracker\Semantic\Status\StatusValueRetriever;
 use Tuleap\Tracker\Semantic\Status\TrackerSemanticStatusFactory;
 use Tuleap\Tracker\Semantic\Timeframe\SemanticTimeframeBuilder;
-use Tuleap\Tracker\Service\CheckPromotedTrackerConfiguration;
-use Tuleap\Tracker\Service\PromotedTrackerConfiguration;
 use Tuleap\Tracker\Tracker;
 use Tuleap\Tracker\Tracker\dao\TrackerGlobalNotificationDao;
 use Tuleap\Tracker\TrackerDeletion\DeletedTrackerDao;
@@ -312,8 +312,10 @@ use Tuleap\Tracker\Workflow\SimpleMode\State\TransitionExtractor;
 use Tuleap\Tracker\Workflow\SimpleMode\State\TransitionRetriever;
 use Tuleap\Tracker\Workflow\Trigger\TriggersDao;
 use Tuleap\Tracker\Workflow\ValidValuesAccordingToTransitionsRetriever;
+use Tuleap\Tracker\Workflow\WorkflowFieldUsageDecoratorsProvider;
 use Tuleap\Tracker\Workflow\WorkflowTransitionController;
 use Tuleap\Tracker\Workflow\WorkflowUpdateChecker;
+use Tuleap\Tracker\Workflow\GlobalRulesUsageByFieldProvider;
 use Tuleap\Tracker\XML\Importer\TrackerImporterUser;
 use Tuleap\Upload\FileBeingUploadedLocker;
 use Tuleap\Upload\FileBeingUploadedWriter;
@@ -651,15 +653,6 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             // DO NOT REPLACE this `includeJavascriptFile()` with `addJavascriptAsset()`
             // The tracker artifact view has script tags in the middle of the body expecting to have access to `tuleap.tracker`
             $layout->includeJavascriptFile(new JavascriptAsset($legacy_assets, 'tracker.js')->getFileURL());
-            $layout->addJavascriptAsset(
-                new \Tuleap\Layout\JavascriptAsset(
-                    new IncludeAssets(
-                        __DIR__ . '/../scripts/legacy-modal-v2/frontend-assets',
-                        '/assets/trackers/legacy-modal-v2'
-                    ),
-                    'modal-v2.js'
-                )
-            );
         }
     }
 
@@ -1903,6 +1896,13 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
                     new ArtifactLinksUsageDao(),
                     new SystemTypePresenterBuilder(\EventManager::instance()),
                 ),
+                new ListOfLabelDecoratorsForFieldBuilder(
+                    new WorkflowFieldUsageDecoratorsProvider(
+                        new GlobalRulesUsageByFieldProvider(
+                            new Tracker_Rule_Date_Factory(new Tracker_Rule_Date_Dao(), $formelement_factory)
+                        )
+                    )
+                ),
             ),
             new IncludeViteAssets(__DIR__ . '/../../../src/scripts/ckeditor4/frontend-assets/', '/assets/core/ckeditor4/'),
         );
@@ -2160,8 +2160,6 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             $r->post('/notifications/my/{id:\d+}/', $this->getRouteHandler('routePostNotificationsMy'));
             $r->post('/notifications/user', $this->getRouteHandler('routePostNotificationsUser'));
 
-            $r->get('/fields/{id:\d+}/', $this->getRouteHandler('routeGetFieldsUsage'));
-
             $r->get(ByFieldController::URL . '/{id:\d+}', $this->getRouteHandler('routeGetFieldsPermissionsByField'));
             $r->get(ByGroupController::URL . '/{id:\d+}', $this->getRouteHandler('routeGetFieldsPermissionsByGroup'));
             $r->post(PermissionsOnFieldsUpdateController::URL . '/{id:\d+}', $this->getRouteHandler('routePostFieldsPermissions'));
@@ -2190,6 +2188,10 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             $r->post('/{project_name:[A-z0-9-]+}/new-information', $this->getRouteHandler('routeProcessNewTrackerCreation'));
 
             $r->get('/changeset/{changeset_id:[0-9]+}/diff/{format:html|text|strip-html}/{artifact_id:[0-9]+}/{field_id:[0-9]+}', $this->getRouteHandler('routeChangesetContentRetriever'));
+        });
+
+        $event->getRouteCollector()->addGroup('/trackers', function (FastRoute\RouteCollector $r) {
+            $r->get('/{id:\d+}/fields[/{vue-routing:.*}]', $this->getRouteHandler('routeGetFieldsUsage'));
         });
 
         $event->getRouteCollector()->addRoute(
@@ -2234,7 +2236,6 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             new PromotedTrackerDao(),
             new CSRFSynchronizerTokenProvider(),
             new ProjectHistoryDao(),
-            new CheckPromotedTrackerConfiguration(),
         );
     }
 
@@ -2254,7 +2255,6 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
             new CSRFSynchronizerTokenProvider(),
             new FieldDao(),
             new TriggersDao(),
-            new CheckPromotedTrackerConfiguration(),
         );
     }
 
@@ -2531,12 +2531,12 @@ class trackerPlugin extends Plugin implements PluginWithConfigKeys, PluginWithSe
         $event->addConfigClass(\Tuleap\Tracker\Creation\JiraImporter\ClientWrapper::class);
         $event->addConfigClass(Tracker_ReportDao::class);
         $event->addConfigClass(ColorpickerMountPointPresenterBuilder::class);
-        $event->addConfigClass(PromotedTrackerConfiguration::class);
         $event->addConfigClass(TrackersPermissionsRetriever::class);
         $event->addConfigClass(\Tuleap\Tracker\Report\Query\Advanced\Grammar\Query::class);
         $event->addConfigClass(ArtifactViewCollectionBuilder::class);
         $event->addConfigClass(DateFormatter::class);
         $event->addConfigClass(Tracker_Report_Renderer_Table::class);
+        $event->addConfigClass(FieldsUsageConfiguration::class);
     }
 
     private function getMailNotificationBuilder(): MailNotificationBuilder

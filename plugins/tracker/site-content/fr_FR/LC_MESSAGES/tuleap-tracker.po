@@ -1594,6 +1594,14 @@ msgstr ""
 "Echec lors de la suppression du widget du tableau de bord de l'utilisateur "
 "#%d"
 
+#, php-format
+msgid ""
+"Feeling adventurous? Try the new %sfields usage administration interface%s "
+"which is under heavy development!"
+msgstr ""
+"Envie de découvrir les nouveautés ? Explorez la nouvelle %sinterface "
+"d’administration des champs%s, actuellement en cours de développement !"
+
 msgid "Field"
 msgstr "Champs"
 
@@ -2541,6 +2549,11 @@ msgstr "Artifact parent :"
 msgid "Paste the patch here (text only)"
 msgstr "Coller le code du correctif ici (texte uniquement)"
 
+msgid "People selected in this field may receive notifications."
+msgstr ""
+"Les personnes sélectionnées dans ce champ sont susceptibles de recevoir des "
+"notifications."
+
 msgid "Per tracker id"
 msgstr "ID dans le tracker"
 
@@ -2676,9 +2689,6 @@ msgstr ""
 "Les administrateurs de projet peuvent aussi <a href=\"/project/admin/"
 "ugroup.php?group_id=%s\">créer ou modifier</a> des groupes d'utilisateurs."
 
-msgid "Promote %s in the +New dropdown across the project"
-msgstr "Promouvoir %s dans le menu déroulant +Nouveau dans tout le projet"
-
 msgid "Promote %s in the sidebar and +New dropdown across the project"
 msgstr ""
 "Promouvoir %s dans la barre latérale et le menu déroulant +Nouveau dans tout "
@@ -2758,9 +2768,6 @@ msgstr "Rappel: '%1$s' %2$s pour '%3$s'"
 
 msgid "Remove"
 msgstr "Enlever"
-
-msgid "Remove %s from +New dropdown"
-msgstr "Enlever %s du menu déroulant +Nouveau"
 
 msgid "Remove %s from sidebar and +New dropdown"
 msgstr "Enlever %s de la barre latérale et du menu déroulant +Nouveau"
@@ -4134,6 +4141,34 @@ msgstr ""
 "ligne %s du fichier CSV."
 
 #, php-format
+msgid "This field carries the \"%s\" semantic."
+msgstr "Ce champ porte la sémantique \"%s\"."
+
+#, php-format
+msgid "This field carries the duration of \"%s\" semantic."
+msgstr "Ce champ porte la durée de la sémantique \"%s\"."
+
+#, php-format
+msgid "This field carries the end date of \"%s\" semantic."
+msgstr "Ce champ porte la date de fin de la sémantique \"%s\"."
+
+#, php-format
+msgid "This field carries the remaining effort of \"%s\" semantic."
+msgstr "Ce champ porte l'effort restant de la sémantique \"%s\"."
+
+#, php-format
+msgid "This field carries the start date of \"%s\" semantic."
+msgstr "Ce champ porte la date de début de la sémantique \"%s\"."
+
+#, php-format
+msgid "This field carries the total effort of \"%s\" semantic."
+msgstr "Ce champ porte l'effort total de la sémantique \"%s\"."
+
+#, php-format
+msgid "This field is part of fields of \"%s\" semantic."
+msgstr "Ce champ fait parti des champs de la sémantique \"%s\"."
+
+#, php-format
 msgid "This field is shared from tracker <a href=\"%s\">%s</a> from project %s"
 msgstr ""
 "Ce champ est partagé depuis le tracker <a href=\"%s\">%s</a> du projet %s"
@@ -4143,6 +4178,9 @@ msgid ""
 msgstr ""
 "Ce champ est le titre de l'artifact. Il est interdit de le mettre "
 "massivement à jour."
+
+msgid "This field is used by global rules"
+msgstr "Ce champ est utilisé par les règles globales"
 
 msgid "This field is used by the following trackers:"
 msgstr "Ce champ est utilisé par les trackers suivants :"
@@ -4325,26 +4363,11 @@ msgstr "Le tracker %s a été supprimé"
 
 #, php-format
 msgid ""
-"Tracker %s will now appear in the +New dropdown on every page of the project"
-msgstr ""
-"Le tracker %s apparaîtra dans le menu déroulant +Nouveau sur toutes les "
-"pages du projet"
-
-#, php-format
-msgid ""
 "Tracker %s will now appear in the sidebar or the +New dropdown on every page "
 "of the project"
 msgstr ""
 "Le tracker %s apparaîtra dans la barre latérale et le menu déroulant "
 "+Nouveau sur toutes les pages du projet"
-
-#, php-format
-msgid ""
-"Tracker %s won't appear anymore in the +New dropdown on every page of the "
-"project"
-msgstr ""
-"Le tracker %s n'apparaîtra plus dans le menu déroulant +Nouveau sur toutes "
-"les pages du projet"
 
 #, php-format
 msgid ""

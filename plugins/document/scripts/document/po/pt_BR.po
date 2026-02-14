@@ -389,10 +389,10 @@ msgstr ""
 msgid "Draft"
 msgstr ""
 
-msgid "Drop one file to upload it to %{folder}s (max size is %{size}s)."
+msgid "Drop one file to upload it to %{folder} (max size is %{size}s)."
 msgid_plural ""
-"Drop up to %{nb_files}s files to upload them to %{folder}s (max size is %"
-"{size}s)."
+"Drop up to %{nb_files} files to upload them to %{folder} (max size is %{size}"
+"s)."
 msgstr[0] ""
 msgstr[1] ""
 
@@ -1020,6 +1020,9 @@ msgid "This item cannot have an approval table"
 msgstr ""
 
 msgid "This item is not versionable"
+msgstr ""
+
+msgid "This item is obsolete since %{ date }."
 msgstr ""
 
 msgid ""

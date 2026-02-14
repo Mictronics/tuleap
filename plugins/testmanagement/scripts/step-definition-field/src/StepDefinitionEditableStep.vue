@@ -20,37 +20,40 @@
 <!-- prettier-ignore -->
 <template>
     <div>
-        <div class="ttm-definition-step-actions-format-and-helper-container">
-            <input
-                type="hidden"
-                v-bind:name="'artifact[' + field_id + '][id][]'"
-                v-bind:value="step.id"
-            />
-            <step-definition-type
-v-bind:value="step_type" v-bind:type_select_id="type_select_id"
-                v-on:type_change="toggleStepType" />
-            <input
-type="hidden" v-bind:name="'artifact[' + field_id + '][step_type][]'"
-                v-bind:value="step_type" />
-            <step-definition-actions
-                v-bind:step="step"
-                v-bind:format_select_id="format_select_id"
-                v-bind:is_in_preview_mode="is_in_preview_mode"
-                v-bind:is_preview_loading="is_preview_loading"
-                v-bind:disabled="false"
-                v-on:input="$emit('toggle-rte', $event)"
-                v-on:interpret-content-event="togglePreview"
-            />
-            <input
-                type="hidden"
-                v-bind:name="'artifact[' + field_id + '][description_format][]'"
-                v-bind:value="step.description_format"
-            />
+        <div class="ttm-definition-step-actions-format-and-helper-container ttm-definition-step-actions">
+        <input
+            type="hidden"
+            v-bind:name="'artifact[' + field_id + '][id][]'"
+            v-bind:value="step.id"
+        />
+        <step-definition-type 
+            :step_type="step_type" 
+            :type_select_id="type_select_id" 
+            :disabled="is_in_preview_mode" 
+            @update:type="toggleStepType"/>
+        <input
+            type="hidden" v-bind:name="'artifact[' + field_id + '][step_type][]'"
+            v-bind:value="step_type" />
+        <step-definition-actions
+            v-bind:step="step"
+            v-bind:format_select_id="format_select_id"
+            v-bind:is_in_preview_mode="is_in_preview_mode"
+            v-bind:is_preview_loading="is_preview_loading"
+            v-bind:disabled="false"
+            v-on:input="onInputEmitToggleRte"
+            v-on:interpret-content-event="togglePreview"
+        />
+        <input
+            type="hidden"
+            v-bind:name="'artifact[' + field_id + '][description_format][]'"
+            v-bind:value="step.description_format"
+        />
         </div>
         <textarea
             ref="description"
             class="ttm-definition-step-description-textarea"
             v-bind:id="description_id"
+            v-bind:data-project-id="project_id"
             v-bind:name="'artifact[' + field_id + '][description][]'"
             v-bind:data-help-id="description_help_id"
             v-bind:data-upload-url="upload_url"
@@ -82,17 +85,25 @@ type="hidden" v-bind:name="'artifact[' + field_id + '][step_type][]'"
                 </div>
 
                 <input
-type="hidden" v-bind:name="'artifact[' + field_id + '][expected_results_format][]'"
+                    type="hidden" v-bind:name="'artifact[' + field_id + '][expected_results_format][]'"
                     v-bind:value="step.description_format" />
                 <textarea
-ref="expected_results" class="ttm-definition-step-expected-results-textarea"
-                    v-bind:id="expected_results_id" v-bind:name="'artifact[' + field_id + '][expected_results][]'"
-                    v-bind:data-help-id="expected_results_help_id" v-bind:data-upload-url="upload_url"
-                    v-bind:data-upload-field-name="upload_field_name" v-bind:data-upload-max-size="upload_max_size"
-                    rows="3" v-model="raw_expected_results" v-show="!is_in_preview_mode && !is_preview_in_error"
-                    data-test="expected-results-textarea" v-bind:disabled="is_preview_loading"></textarea>
+                    ref="expected_results"
+                    class="ttm-definition-step-expected-results-textarea"
+                    v-bind:id="expected_results_id"
+                    v-bind:data-project-id="project_id"
+                    v-bind:name="'artifact[' + field_id + '][expected_results][]'"
+                    v-bind:data-help-id="expected_results_help_id"
+                    v-bind:data-upload-url="upload_url"
+                    v-bind:data-upload-field-name="upload_field_name"
+                    v-bind:data-upload-max-size="upload_max_size"
+                    rows="3"
+                    v-model="raw_expected_results"
+                    v-show="!is_in_preview_mode && !is_preview_in_error"
+                    data-test="expected-results-textarea"
+                    v-bind:disabled="is_preview_loading"></textarea>
                 <div
-v-if="is_in_preview_mode" v-dompurify-html="interpreted_expected_result"
+                    v-if="is_in_preview_mode" v-dompurify-html="interpreted_expected_result"
                     data-test="expected-results-preview"></div>
                 <div class="alert alert-error" v-if="is_preview_in_error" data-test="expected-results-error">
                     {{ $gettext("There was an error in the Markdown preview:") }}
@@ -104,218 +115,220 @@ v-if="is_in_preview_mode" v-dompurify-html="interpreted_expected_result"
     </div>
 </template>
 
-<script>
+<script setup lang="ts">
+import CKEDITOR from "ckeditor4";
+import { ref, computed, onMounted, watch, onUnmounted } from "vue";
+import { useState, useStore } from "vuex-composition-helpers";
+import type { TextFieldFormat } from "@tuleap/plugin-tracker-constants";
+import { strictInject } from "@tuleap/vue-strict-inject";
 import StepDefinitionArrowExpected from "./StepDefinitionArrowExpected.vue";
 import StepDefinitionActions from "./StepDefinitionActions.vue";
 import StepDefinitionType from "./StepDefinitionType.vue";
-import { mapState } from "vuex";
 import { RichTextEditorFactory } from "@tuleap/plugin-tracker-rich-text-editor";
 import {
     getUploadImageOptions,
     UploadImageFormFactory,
 } from "@tuleap/plugin-tracker-artifact-ckeditor-image-upload";
 import { TEXT_FORMAT_HTML } from "@tuleap/plugin-tracker-constants";
-import { postInterpretCommonMark } from "./api/tuleap-api.js";
+import { postInterpretCommonMark } from "./api/rest-querier";
+import type { Step } from "./Step";
+import type { TextEditorInterface } from "@tuleap/plugin-tracker-rich-text-editor";
+import { PROJECT_ID, FIELD_ID } from "./injection-keys";
 
-export default {
-    name: "StepDefinitionEditableStep",
-    components: {
-        StepDefinitionArrowExpected,
-        StepDefinitionActions,
-        StepDefinitionType,
-    },
-    props: {
-        step: {
-            type: Object,
-            default: () => ({}),
-        },
-    },
-    emits: ["update-description", "update-expected-results", "toggle-rte"],
-    data() {
-        return {
-            interpreted_description: "",
-            interpreted_expected_result: "",
-            is_in_preview_mode: false,
-            is_preview_loading: false,
-            is_preview_in_error: false,
-            error_text: "",
-            editors: [],
-            raw_description: this.step.raw_description,
-            raw_expected_results: this.step.raw_expected_results,
-            description_format: this.step.description_format,
-            step_type: this.step.step_type,
-        };
-    },
-    computed: {
-        ...mapState([
-            "field_id",
-            "is_dragging",
-            "upload_url",
-            "upload_field_name",
-            "upload_max_size",
-        ]),
-        description_id() {
-            return "field_description_" + this.step.uuid + "_" + this.field_id;
-        },
-        expected_results_id() {
-            return "field_expected_results_" + this.step.uuid + "_" + this.field_id;
-        },
-        description_help_id() {
-            return this.description_id + "-help";
-        },
+const project_id = strictInject(PROJECT_ID);
+const field_id = strictInject(FIELD_ID);
 
-        expected_results_help_id() {
-            return this.expected_results_id + "-help";
-        },
-        is_current_step_in_html_format() {
-            return this.step.description_format === TEXT_FORMAT_HTML;
-        },
-        format_select_id() {
-            return "format_" + this.step.uuid + "_" + this.field_id;
-        },
-        type_select_id() {
-            return "type_" + this.step.uuid + "_" + this.field_id;
-        },
-        is_in_edit_mode_without_error() {
-            return !this.is_in_preview_mode && !this.is_preview_in_error;
-        },
-    },
-    watch: {
-        is_dragging(new_value) {
-            if (new_value === false) {
-                this.loadEditor();
-            } else {
-                this.getEditorsContent();
-            }
-        },
-    },
-    created() {
-        switch (this.step_type) {
-            case "action":
-                this.is_hide_expected = false;
-                break;
-            case "check":
-            case "info":
-            case "input":
-            case "warning":
-            case "alert":
-            case "requirement":
-            case "rationale":
-                this.is_hide_expected = true;
-                break;
-            default:
-                this.is_hide_expected = false;
-                break;
+const { is_dragging, upload_url, upload_field_name, upload_max_size, last_step_type } = useState([
+    "is_dragging",
+    "upload_url",
+    "upload_field_name",
+    "upload_max_size",
+    "last_step_type",
+]);
+const store = useStore();
+
+const props = defineProps<{
+    step: Step;
+}>();
+
+const emit = defineEmits<{
+    (e: "update-description", new_description: string): void;
+    (e: "update-expected-results", new_expected_result: string): void;
+    (e: "toggle-rte", new_format: TextFieldFormat): void;
+}>();
+
+const description = ref<HTMLTextAreaElement>();
+const expected_results = ref<HTMLTextAreaElement>();
+
+const interpreted_description = ref("");
+const interpreted_expected_result = ref("");
+const is_in_preview_mode = ref(false);
+const is_preview_loading = ref(false);
+const is_preview_in_error = ref(false);
+const is_hide_expected = ref(false);
+const error_text = ref("");
+const editors = ref<Array<TextEditorInterface>>([]);
+const raw_description = ref(props.step.raw_description);
+const raw_expected_results = ref(props.step.raw_expected_results);
+const step_type = ref(props.step.step_type);
+
+const description_id = computed(() => "field_description_" + props.step.uuid + "_" + field_id);
+const expected_results_id = computed(
+    () => "field_expected_results_" + props.step.uuid + "_" + field_id,
+);
+const description_help_id = computed(() => description_id.value + "-help");
+const expected_results_help_id = computed(() => expected_results_id.value + "-help");
+const step_type_id = computed(() => "field_step_type_" + props.step.uuid + "_" + field_id);
+const is_current_step_in_html_format = computed(
+    () => props.step.description_format === TEXT_FORMAT_HTML,
+);
+const format_select_id = computed(() => description_id.value + "-help");
+const type_select_id = computed(() => step_type_id.value + "-help")
+const is_in_edit_mode_without_error = computed(
+    () => !is_in_preview_mode.value && !is_preview_in_error.value,
+);
+
+watch(
+    () => is_dragging.value,
+    (new_value) => {
+        if (new_value === false) {
+            loadEditor();
+        } else {
+            getEditorsContent();
         }
     },
-    onUnmounted() {
-        if (this.editors) {
-            this.editors[0].destroy();
-            this.editors[1].destroy();
-        }
-    },
-    mounted() {
-        this.loadEditor();
-    },
-    methods: {
-        getEditorsContent() {
-            if (this.is_current_step_in_html_format && this.areRTEEditorsSet()) {
-                this.raw_description = this.editors[1].getContent();
-                this.raw_expected_results = this.editors[0].getContent();
-            }
-        },
-        toggleRTE(event, value) {
-            this.description_format = value;
-        },
-        toggleStepType(event, value) {
-            this.step_type = value;
-            switch (value) {
-                case "action":
-                    this.is_hide_expected = false;
-                    break;
-                case "check":
-                case "info":
-                case "input":
-                case "warning":
-                case "alert":
-                case "requirement":
-                case "rationale":
-                    this.is_hide_expected = true;
-                    break;
-                default:
-                    this.is_hide_expected = false;
-                    break;
-            }
-        },
-        areRTEEditorsSet() {
-            return this.editors[0] && this.editors[1];
-        },
-        loadRTE(field) {
-            const text_area = this.$refs[field];
-            let locale = "en_US";
-            if (document.body.dataset.userLocale) {
-                locale = document.body.dataset.userLocale;
-            }
-            const image_upload_factory = UploadImageFormFactory(document, locale);
-            const help_block = image_upload_factory.createHelpBlock(text_area);
-            const editor = RichTextEditorFactory.forFlamingParrotWithExistingFormatSelector(
-                document,
-                locale,
-            );
+);
 
-            const options = {
-                format_selectbox_id: this.format_select_id,
-                format_selectbox_value: this.step.description_format,
-                getAdditionalOptions: (textarea) => getUploadImageOptions(textarea),
-                onFormatChange: (new_format) => {
-                    if (help_block) {
-                        help_block.onFormatChange(new_format);
-                    }
-                    this.getEditorsContent();
-                },
-                onEditorInit: (ckeditor, textarea) =>
-                    image_upload_factory.initiateImageUpload(ckeditor, textarea),
-            };
-            return editor.createRichTextEditor(text_area, options);
-        },
-        loadEditor() {
-            this.editors = [this.loadRTE("expected_results"), this.loadRTE("description")];
-        },
-        updateDescription(event) {
-            this.raw_description = event.target.value;
-            this.$emit("update-description", event);
-        },
-        updateExpectedResults(event) {
-            this.raw_expected_results = event.target.value;
-            this.$emit("update-expected-results", event);
-        },
-        togglePreview() {
-            this.is_preview_in_error = false;
-            this.error_text = "";
+const toggleStepType = (value: string) =>{
+     step_type.value = value;
+     store.state.last_step_type = value;
+}
 
-            if (this.is_in_preview_mode) {
-                this.is_in_preview_mode = false;
-                return Promise.resolve();
+watch(step_type, (t) => {
+     switch (t) {
+        case "action":
+            is_hide_expected.value = false;
+            break;
+        case "check":
+        case "info":
+        case "input":
+        case "warning":
+        case "alert":
+        case "requirement":
+        case "rationale":
+            is_hide_expected.value = true;
+            break;
+        default:
+            is_hide_expected.value = false;
+            break;
+    }
+}, {immediate: true})
+
+onMounted(() => {
+    loadEditor();
+});
+
+onUnmounted(() => {
+    editors.value[0]?.destroy();
+    editors.value[1]?.destroy();
+});
+
+function getEditorsContent() {
+    if (is_current_step_in_html_format.value && areRTEEditorsSet()) {
+        raw_description.value = editors.value[1].getContent();
+        raw_expected_results.value = editors.value[0].getContent();
+    }
+}
+
+function areRTEEditorsSet(): boolean {
+    return editors.value[0] !== undefined && editors.value[1] !== undefined;
+}
+
+function onInputEmitToggleRte(new_format: TextFieldFormat) {
+    emit("toggle-rte", new_format);
+}
+
+function loadRTE(textarea_element: HTMLTextAreaElement) {
+    const text_area = textarea_element;
+    let locale = "en_US";
+    if (document.body.dataset.userLocale) {
+        locale = document.body.dataset.userLocale;
+    }
+    const image_upload_factory = UploadImageFormFactory(document, locale);
+    const help_block = image_upload_factory.createHelpBlock(text_area);
+    const editor = RichTextEditorFactory.forFlamingParrotWithExistingFormatSelector(
+        document,
+        locale,
+    );
+
+    const options = {
+        format_selectbox_id: format_select_id.value,
+        format_selectbox_value: props.step.description_format,
+        getAdditionalOptions: (textarea: HTMLTextAreaElement) => getUploadImageOptions(textarea),
+        onFormatChange: (new_format: TextFieldFormat) => {
+            if (help_block) {
+                help_block.onFormatChange(new_format);
             }
-
-            this.is_preview_loading = true;
-            return Promise.all([
-                postInterpretCommonMark(this.step.raw_description),
-                postInterpretCommonMark(this.step.raw_expected_results),
-            ])
-                .then((interpreted_fields) => {
-                    this.interpreted_description = interpreted_fields[0];
-                    this.interpreted_expected_result = interpreted_fields[1];
-                })
-                .catch((error) => {
-                    this.is_preview_in_error = true;
-                    this.error_text = error;
-                })
-                .finally(() => {
-                    this.is_preview_loading = false;
-                    this.is_in_preview_mode = !this.is_in_preview_mode;
-                });
+            getEditorsContent();
         },
-    },
-};
+        onEditorInit: (ckeditor: CKEDITOR.editor, textarea: HTMLTextAreaElement) =>
+            image_upload_factory.initiateImageUpload(ckeditor, textarea),
+    };
+    return editor.createRichTextEditor(text_area, options);
+}
+
+function loadEditor() {
+    if (!expected_results.value || !description.value) {
+        return;
+    }
+
+    editors.value = [loadRTE(expected_results.value), loadRTE(description.value)];
+}
+
+function updateDescription(event: Event) {
+    if (!(event.target instanceof HTMLTextAreaElement)) {
+        return;
+    }
+
+    raw_description.value = event.target.value;
+    emit("update-description", event.target.value);
+}
+
+function updateExpectedResults(event: Event) {
+    if (!(event.target instanceof HTMLTextAreaElement)) {
+        return;
+    }
+
+    raw_expected_results.value = event.target.value;
+    emit("update-expected-results", event.target.value);
+}
+
+function togglePreview() {
+    is_preview_in_error.value = false;
+    error_text.value = "";
+
+    if (is_in_preview_mode.value) {
+        is_in_preview_mode.value = false;
+        return Promise.resolve();
+    }
+
+    is_preview_loading.value = true;
+
+    return Promise.all([
+        postInterpretCommonMark(project_id, props.step.raw_description),
+        postInterpretCommonMark(project_id, props.step.raw_expected_results),
+    ])
+        .then((interpreted_fields: Array<string>) => {
+            interpreted_description.value = interpreted_fields[0];
+            interpreted_expected_result.value = interpreted_fields[1];
+        })
+        .catch((error) => {
+            is_preview_in_error.value = true;
+            error_text.value = error;
+        })
+        .finally(() => {
+            is_preview_loading.value = false;
+            is_in_preview_mode.value = !is_in_preview_mode.value;
+        });
+}
 </script>

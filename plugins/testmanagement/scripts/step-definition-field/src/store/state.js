@@ -19,8 +19,6 @@
 
 const state = {
     steps: [],
-    empty_step: null,
-    field_id: null,
     is_dragging: false,
     last_step_type: "action",
 };

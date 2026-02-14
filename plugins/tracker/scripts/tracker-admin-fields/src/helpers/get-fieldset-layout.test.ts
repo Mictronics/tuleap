@@ -44,8 +44,10 @@ describe("getFieldsetLayout", () => {
                 field_id: id++,
                 name: "fieldset",
                 required: false,
+                has_notifications: false,
                 label: "Le fieldset",
                 type: CONTAINER_FIELDSET,
+                label_decorators: [],
             },
             children,
         };
@@ -57,8 +59,10 @@ describe("getFieldsetLayout", () => {
                 field_id: id++,
                 name: "column",
                 required: false,
+                has_notifications: false,
                 label: "La column",
                 type: CONTAINER_COLUMN,
+                label_decorators: [],
             },
             children,
         };

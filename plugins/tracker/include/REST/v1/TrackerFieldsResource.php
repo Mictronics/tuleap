@@ -25,12 +25,17 @@ use Luracast\Restler\RestException;
 use PFUser;
 use Tracker_FormElementFactory;
 use Tracker_REST_FormElementRepresentation;
+use Tracker_Rule_Date_Dao;
+use Tracker_Rule_Date_Factory;
+use TrackerFactory;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\DBTransactionExecutorWithConnection;
+use Tuleap\NeverThrow\Fault;
 use Tuleap\REST\AuthenticatedResource;
 use Tuleap\REST\Header;
 use Tuleap\REST\ProjectStatusVerificator;
 use Tuleap\REST\v1\TrackerFieldRepresentations\TrackerFieldPatchRepresentation;
+use Tuleap\Tracker\FormElement\Admin\ListOfLabelDecoratorsForFieldBuilder;
 use Tuleap\Tracker\FormElement\Field\FieldDao;
 use Tuleap\Tracker\FormElement\Field\Files\FilesField;
 use Tuleap\Tracker\FormElement\Field\Files\Upload\EmptyFileToUploadFinisher;
@@ -38,7 +43,15 @@ use Tuleap\Tracker\FormElement\Field\Files\Upload\FileOngoingUploadDao;
 use Tuleap\Tracker\FormElement\Field\Files\Upload\FileToUploadCreator;
 use Tuleap\Tracker\FormElement\Field\Files\Upload\UploadPathAllocator;
 use Tuleap\Tracker\FormElement\Field\List\Bind\Static\ListFieldStaticBind;
+use Tuleap\Tracker\FormElement\TrackerFieldAdder;
+use Tuleap\Tracker\FormElement\TrackerFieldRemover;
 use Tuleap\Tracker\FormElement\TrackerFormElement;
+use Tuleap\Tracker\REST\FormElement\RestFieldUseHandler;
+use Tuleap\Tracker\REST\v1\MoveTrackerFormElement\FieldCannotBeMovedFault;
+use Tuleap\Tracker\REST\v1\MoveTrackerFormElement\FieldNotSavedFault;
+use Tuleap\Tracker\REST\v1\MoveTrackerFormElement\PATCHMoveTrackerFieldHandler;
+use Tuleap\Tracker\Workflow\GlobalRulesUsageByFieldProvider;
+use Tuleap\Tracker\Workflow\WorkflowFieldUsageDecoratorsProvider;
 use UserManager;
 
 class TrackerFieldsResource extends AuthenticatedResource
@@ -76,12 +89,29 @@ class TrackerFieldsResource extends AuthenticatedResource
      * }
      * </pre>
      * <br/>
+     *  To unuse the field:
+     *  <pre>
+     *  {<br>
+     *  &nbsp;"use_it": false<br/>
+     *  }
+     *  </pre>
+     * If you want to use the field, change the value to <strong>true</strong>
+     * <br/>
+     * <br/>
      * To add a value:
      * <pre>
      * {<br>
      * &nbsp;"new_values": ["new01", "new02"]<br/>
      * }
      * </pre>
+     *  To move a field:
+     *  <pre>
+     *  {<br>
+     *  &nbsp;"move": { "parent_id": int | null, "next_sibling_id": int | null }<br/>
+     *  }
+     *  </pre>
+     * note: When parent_id is null, the field will be moved at the root of the tracker. When next_sibling_id is null,
+     * the field will be moved at the end of the parent container field.
      *
      * @url PATCH {id}
      *
@@ -113,16 +143,20 @@ class TrackerFieldsResource extends AuthenticatedResource
             throw new RestException(403, 'User is not tracker administrator.');
         }
 
+        $field_dao = new FieldDao();
         if ($patch->label !== null) {
             $label = trim($patch->label);
             if ($label === '') {
                 throw new RestException(400, 'Label cannot be empty.');
             }
             $field->label = $label;
-            new FieldDao()->save($field);
+            $field_dao->save($field);
         }
 
         $form_element_factory = Tracker_FormElementFactory::instance();
+
+        new RestFieldUseHandler(new TrackerFieldRemover($form_element_factory, TrackerFactory::instance()), new TrackerFieldAdder($form_element_factory))->handle($field, $patch);
+
         if ($patch->new_values !== null) {
             if (! $form_element_factory->isFieldASimpleListField($field)) {
                 throw new RestException(400, 'Field is not a simple list.');
@@ -139,11 +173,34 @@ class TrackerFieldsResource extends AuthenticatedResource
             $field->getBind()->process($request, true);
         }
 
+        if ($patch->move) {
+            new PATCHMoveTrackerFieldHandler(
+                $form_element_factory,
+                $field_dao,
+            )
+                ->handle($field, $patch->move)
+                ->mapErr(function (Fault $fault) {
+                    throw match ($fault::class) {
+                        FieldCannotBeMovedFault::class => new RestException(400, (string) $fault),
+                        FieldNotSavedFault::class => new RestException(500, (string) $fault),
+                    };
+                });
+        }
+
+        $updated_field = $this->getFormElement($id, $user);
+
         return Tracker_REST_FormElementRepresentation::build(
-            $field,
-            $form_element_factory->getType($field),
+            $updated_field,
+            $form_element_factory->getType($updated_field),
             [],
-            null
+            null,
+            new ListOfLabelDecoratorsForFieldBuilder(
+                new WorkflowFieldUsageDecoratorsProvider(
+                    new GlobalRulesUsageByFieldProvider(
+                        new Tracker_Rule_Date_Factory(new Tracker_Rule_Date_Dao(), $form_element_factory)
+                    )
+                )
+            )->getLabelDecorators($field),
         );
     }
 
@@ -224,10 +281,6 @@ class TrackerFieldsResource extends AuthenticatedResource
             $tracker->getProject()
         );
 
-        if (! $field->isUsed()) {
-            throw new RestException(400, 'Field is not used in tracker.');
-        }
-
         return $field;
     }
 
@@ -237,6 +290,11 @@ class TrackerFieldsResource extends AuthenticatedResource
     private function getFileFieldUserCanUpdate(int $id, PFUser $user): FilesField
     {
         $field = $this->getFormElement($id, $user);
+
+        if (! $field->isUsed()) {
+            throw new RestException(400, 'Field is not used in tracker.');
+        }
+
         \assert($field instanceof FilesField);
 
         $form_element_factory = Tracker_FormElementFactory::instance();

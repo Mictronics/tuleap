@@ -28,4 +28,8 @@ interface WebhookData
     public function getGitlabProjectId(): int;
 
     public function getGitlabWebUrl(): string;
+
+    public function getGitlabProjectName(): string;
+
+    public function getGitlabProjectDescription(): string;
 }

@@ -18,9 +18,9 @@
   -->
 
 <template>
-    <section>
-        <palette-container />
-        <div class="tlp-framed">
+    <section class="field-usage">
+        <router-view name="sidebar" />
+        <div>
             <error-state v-if="has_error" />
             <h2>{{ $gettext("Fields usage") }}</h2>
 
@@ -29,31 +29,33 @@
             <empty-state v-if="tracker_root.children.length === 0" />
         </div>
     </section>
+    <router-view name="error" />
 </template>
 
 <script setup lang="ts">
 import { ref, provide } from "vue";
 import { useGettext } from "vue3-gettext";
-import type { StructureFields, StructureFormat } from "@tuleap/plugin-tracker-rest-api-types";
+import type { StructureFormat } from "@tuleap/plugin-tracker-rest-api-types";
 import EmptyState from "./EmptyState.vue";
 import TrackerStructure from "./TrackerStructure.vue";
 import { mapContentStructureToFields } from "../helpers/map-content-structure-to-fields";
 import type { ElementWithChildren } from "../type";
-import PaletteContainer from "./Palette/PaletteContainer.vue";
+import { RouterView } from "vue-router";
 import ErrorState from "./ErrorState.vue";
-import { POST_FIELD_DND_CALLBACK, TRACKER_ROOT } from "../injection-symbols";
+import { POST_FIELD_DND_CALLBACK, TRACKER_ROOT, FIELDS } from "../injection-symbols";
+import { strictInject } from "@tuleap/vue-strict-inject";
 
 const { $gettext } = useGettext();
 
 const props = defineProps<{
-    fields: ReadonlyArray<StructureFields>;
     structure: ReadonlyArray<StructureFormat>;
     has_error: boolean;
 }>();
 
-const tracker_root = ref<ElementWithChildren>(
-    mapContentStructureToFields(props.structure, props.fields),
-);
+const fields = strictInject(FIELDS);
+
+const tracker_root = ref<ElementWithChildren>(mapContentStructureToFields(props.structure, fields));
+
 const key = ref(0);
 const update = (): void => {
     key.value += 1;
@@ -64,8 +66,10 @@ provide(POST_FIELD_DND_CALLBACK, update);
 </script>
 
 <style lang="scss" scoped>
-section {
+.field-usage {
     display: grid;
-    grid-template-columns: 250px 1fr;
+    grid-template-columns: 300px 1fr;
+    gap: var(--tlp-medium-spacing);
+    padding: var(--tlp-medium-spacing);
 }
 </style>

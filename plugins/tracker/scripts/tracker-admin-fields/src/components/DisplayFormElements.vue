@@ -126,6 +126,24 @@
         >
             <field-cross-reference v-bind:field="element.field" />
         </draggable-wrapper>
+        <draggable-wrapper
+            v-bind:field_id="element.field.field_id"
+            v-else-if="isAPriorityField(element.field)"
+        >
+            <field-priority v-bind:field="element.field" />
+        </draggable-wrapper>
+        <draggable-wrapper
+            v-bind:field_id="element.field.field_id"
+            v-else-if="isComputedField(element.field)"
+        >
+            <field-computed v-bind:field="element.field" />
+        </draggable-wrapper>
+        <draggable-wrapper
+            v-bind:field_id="element.field.field_id"
+            v-else-if="isAnOpenStaticListField(element.field)"
+        >
+            <field-open-static-list v-bind:field="element.field" />
+        </draggable-wrapper>
         <draggable-wrapper v-bind:field_id="element.field.field_id" v-else>
             <base-field v-bind:field="element.field" />
         </draggable-wrapper>
@@ -133,9 +151,8 @@
 </template>
 
 <script setup lang="ts">
-import type { ElementWithChildren, Fieldset } from "../type";
+import type { ElementWithChildren } from "../type";
 import {
-    CONTAINER_FIELDSET,
     DATE_FIELD,
     FLOAT_FIELD,
     INT_FIELD,
@@ -156,7 +173,11 @@ import {
     SUBMISSION_DATE_FIELD,
     LAST_UPDATE_DATE_FIELD,
     CROSS_REFERENCE_FIELD,
+    OPEN_LIST_FIELD,
+    LIST_BIND_STATIC,
     FILE_FIELD,
+    PRIORITY_FIELD,
+    COMPUTED_FIELD,
 } from "@tuleap/plugin-tracker-constants";
 import type {
     IntFieldStructure,
@@ -170,9 +191,12 @@ import type {
     ListFieldStructure,
     StaticRichTextStructure,
     ArtifactLinkFieldStructure,
+    StaticBoundOpenListField,
     FileFieldStructure,
+    ComputedFieldStructure,
 } from "@tuleap/plugin-tracker-rest-api-types";
 import { isColumnWrapper } from "../helpers/is-column-wrapper";
+import { isFieldset } from "../helpers/is-fieldset";
 import ContainerFieldset from "./FormElements/ContainerFieldset.vue";
 import ContainerColumnWrapper from "./FormElements/ContainerColumnWrapper.vue";
 import BaseField from "./FormElements/BaseField.vue";
@@ -193,13 +217,14 @@ import FieldStaticUserText from "./FormElements/FieldStaticUserText.vue";
 import FieldStaticDateText from "./FormElements/FieldStaticDateText.vue";
 import FieldCrossReference from "./FormElements/FieldCrossReference.vue";
 import FieldFile from "./FormElements/FieldFile.vue";
+import FieldOpenStaticList from "./FormElements/OpenListField/FieldOpenStaticList.vue";
 import DraggableWrapper from "./DraggableWrapper.vue";
+import FieldPriority from "./FormElements/FieldPriority.vue";
+import FieldComputed from "./FormElements/FieldComputed.vue";
 
 defineProps<{
     elements: ElementWithChildren["children"];
 }>();
-
-type TrackerElement = ElementWithChildren | ElementWithChildren["children"][0];
 
 function isDateField(field: StructureFields): field is EditableDateFieldStructure {
     return field.type === DATE_FIELD;
@@ -223,10 +248,6 @@ function isStringField(field: StructureFields): field is StringFieldStructure {
 
 function isSelectField(field: StructureFields): field is ListFieldStructure {
     return field.type === SELECTBOX_FIELD || field.type === MULTI_SELECTBOX_FIELD;
-}
-
-function isFieldset(element: TrackerElement): element is Fieldset {
-    return "field" in element && element.field.type === CONTAINER_FIELDSET;
 }
 
 function isLineSeparator(field: StructureFields): field is SeparatorStructure {
@@ -271,5 +292,17 @@ function isCrossReferenceField(field: StructureFields): boolean {
 
 function isAFileField(field: StructureFields): field is FileFieldStructure {
     return field.type === FILE_FIELD;
+}
+
+function isAPriorityField(field: StructureFields): boolean {
+    return field.type === PRIORITY_FIELD;
+}
+
+function isComputedField(field: StructureFields): field is ComputedFieldStructure {
+    return field.type === COMPUTED_FIELD;
+}
+
+function isAnOpenStaticListField(field: StructureFields): field is StaticBoundOpenListField {
+    return field.type === OPEN_LIST_FIELD && field.bindings.type === LIST_BIND_STATIC;
 }
 </script>

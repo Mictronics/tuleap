@@ -51,8 +51,8 @@ final class FieldsUsageDisplayControllerTest extends TestCase
             RetrieveTrackerStub::withoutTracker(),
             DisplayTrackerLayoutStub::build(),
             TemplateRendererFactoryBuilder::get()->withPath($this->getTmpDir())->build(),
-            $this->createMock(StructureRepresentationBuilder::class),
-            $this->createMock(FormElementRepresentationsBuilder::class),
+            $this->createStub(StructureRepresentationBuilder::class),
+            $this->createStub(FormElementRepresentationsBuilder::class),
             IncludeAssetsBuilder::build(),
         );
 
@@ -78,8 +78,8 @@ final class FieldsUsageDisplayControllerTest extends TestCase
             RetrieveTrackerStub::withTracker($tracker),
             DisplayTrackerLayoutStub::build(),
             TemplateRendererFactoryBuilder::get()->withPath($this->getTmpDir())->build(),
-            $this->createMock(StructureRepresentationBuilder::class),
-            $this->createMock(FormElementRepresentationsBuilder::class),
+            $this->createStub(StructureRepresentationBuilder::class),
+            $this->createStub(FormElementRepresentationsBuilder::class),
             IncludeAssetsBuilder::build(),
         );
 
@@ -105,10 +105,10 @@ final class FieldsUsageDisplayControllerTest extends TestCase
         $tracker->expects($this->once())->method('displayAdminItemHeaderBurningParrot');
         $tracker->expects($this->once())->method('displayFooter');
 
-        $structure_representation_builder = $this->createMock(StructureRepresentationBuilder::class);
+        $structure_representation_builder = $this->createStub(StructureRepresentationBuilder::class);
         $structure_representation_builder->method('getStructureRepresentation')->willReturn([]);
 
-        $form_element_representations_builder = $this->createMock(FormElementRepresentationsBuilder::class);
+        $form_element_representations_builder = $this->createStub(FormElementRepresentationsBuilder::class);
         $form_element_representations_builder->method('buildRepresentationsInTrackerContextIgnoringReadPermission')->willReturn([]);
 
         $controller = new FieldsUsageDisplayController(

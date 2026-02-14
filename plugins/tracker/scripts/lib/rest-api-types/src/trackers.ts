@@ -60,11 +60,20 @@ export * from "./link-field";
 
 export type PermissionsArray = readonly [ReadPermission, CreatePermission?, UpdatePermission?];
 
+export interface LabelDecorator {
+    readonly icon?: string;
+    readonly url?: string;
+    readonly description: string;
+    readonly label: string;
+}
+
 export interface BaseFieldStructure {
     readonly field_id: number;
     readonly name: string;
     readonly required: boolean;
+    readonly has_notifications: boolean;
     readonly label: string;
+    readonly label_decorators: ReadonlyArray<LabelDecorator>;
 }
 
 export interface UnknownFieldStructure extends BaseFieldStructure {
@@ -149,6 +158,12 @@ export interface FloatFieldStructure extends NumericFieldStructure {
     };
 }
 
+export interface ComputedFieldStructure extends NumericFieldStructure {
+    readonly type: ComputedFieldIdentifier;
+    readonly specific_properties: {
+        default_value: number;
+    };
+}
 export interface UserFieldStructure extends BaseFieldStructure {
     readonly type: SubmittedByFieldIdentifier | LastUpdateByFieldIdentifier;
 }
@@ -206,6 +221,38 @@ export type SemanticsRepresentation = {
     readonly description?: {
         readonly field_id: number;
     };
+    readonly status?: {
+        readonly field_id: number;
+    };
+    readonly contributor?: {
+        readonly field_id: number;
+    };
+    readonly initial_effort?: {
+        readonly field_id: number;
+    };
+    readonly progress?:
+        | {
+              readonly artifact_link_type: "_is_child";
+          }
+        | {
+              readonly total_effort_field_id: number;
+              readonly remaining_effort_field_id: number;
+          };
+    readonly timeframe?:
+        | {
+              readonly start_date_field_id: number;
+              readonly end_date_field_id: number;
+          }
+        | {
+              readonly start_date_field_id: number;
+              readonly duration_field_id: number;
+          }
+        | {
+              readonly implied_from_tracker: {
+                  readonly id: number;
+                  readonly uri: string;
+              };
+          };
 };
 
 interface NotificationsRepresentation {

@@ -36,6 +36,8 @@ describe("FieldStaticUserText", () => {
                     label: "Details",
                     type: LAST_UPDATED_BY_FIELD,
                     required: false,
+                    has_notifications: false,
+                    label_decorators: [],
                 },
             },
             global: {

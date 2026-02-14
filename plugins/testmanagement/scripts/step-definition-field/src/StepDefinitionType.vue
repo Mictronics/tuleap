@@ -21,91 +21,44 @@
 <template>
   <span class="ttm-definition-step-actions">
     <translate>Typ:</translate>
-    <select v-bind:id="type_select_id" ref="type" class="small ttm-definition-step-type"
-      v-on:change="type_change($event)" v-bind:disabled="disabled_type_selectbox" data-test="ttm-definition-step-type">
-      <option value="action" v-bind:selected="is_action" data-test="ttm-definition-step-type-action">
-        Action
-      </option>
-      <option value="check" v-bind:selected="is_check" data-test="ttm-definition-step-type-check">
-        Check
-      </option>
-      <option value="input" v-bind:selected="is_input" data-test="ttm-definition-step-type-input">
-        Input
-      </option>
-      <option value="rationale" v-bind:selected="is_rationale" data-test="ttm-definition-step-type-rationale">
-        Rationale
-      </option>
-      <option value="info" v-bind:selected="is_info" data-test="ttm-definition-step-type-info">
-        Info
-      </option>
-      <option value="requirement" v-bind:selected="is_requirement" data-test="ttm-definition-step-type-requirement">
-        Prerequisite
-      </option>
-      <option value="warning" v-bind:selected="is_warning" data-test="ttm-definition-step-type-warning">
-        Warning
-      </option>
-      <option value="alert" v-bind:selected="is_alert" data-test="ttm-definition-step-type-alert">
-        Alert
-      </option>
+    <select v-bind:id="props.type_select_id" class="small ttm-definition-step-type"
+      v-model="selectType" :disabled="props.disabled" data-test="ttm-definition-step-type">
+      <option v-for="type in typeOptions" :value="type.value">{{ type.label }}</option>
     </select>
   </span>
 </template>
 
-<script>
-import { mapState } from "vuex";
+<script setup lang="ts">
+import { computed } from "vue";
 
-export default {
-    name: "StepDefinitionType",
-    props: {
-        value: {
-            type: String,
-            default: "",
-        },
-        disabled: {
-            type: Boolean,
-            default: false,
-        },
-        type_select_id: {
-            type: String,
-            default: "",
-        },
-    },
-    emits: ["type_change"],
-    computed: {
-        ...mapState(["field_id", "last_step_type"]),
-        disabled_type_selectbox() {
-            return this.disabled || this.is_in_preview_mode;
-        },
-        is_action() {
-            return this.value === "action";
-        },
-        is_check() {
-            return this.value === "check";
-        },
-        is_input() {
-            return this.value === "input";
-        },
-        is_info() {
-            return this.value === "info";
-        },
-        is_rationale() {
-            return this.value === "rationale";
-        },
-        is_requirement() {
-            return this.value === "requirement";
-        },
-        is_warning() {
-            return this.value === "warning";
-        },
-        is_alert() {
-            return this.value === "alert";
-        },
-    },
-    methods: {
-        type_change(event) {
-            this.$store.state.last_step_type = this.$refs.type.value;
-            this.$emit("type_change", event, this.$refs.type.value);
-        },
-    },
-};
+const props = withDefaults(defineProps<{
+    disabled: boolean;
+    type_select_id: string;
+    step_type: string;
+}>(),{
+  disabled: false,
+  type_select_id: "",
+});
+
+const emit = defineEmits<{
+    (e: "update:type", type: string): void;
+}>();
+
+const selectType = computed({
+  get: () => props.step_type,
+  set: (newValue) => {
+    emit('update:type', newValue);
+  },
+});
+
+const typeOptions: {label: string, value: string}[] = [
+  {label: 'Action', value: 'action'},
+  {label: 'Check', value: 'check'},
+  {label: 'Input', value: 'input'},
+  {label: 'Rationale', value: 'rationale'},
+  {label: 'Info', value: 'info'},
+  {label: 'Prerequisite', value: 'requirement'},
+  {label: 'Warning', value: 'warning'},
+  {label: 'Alert', value: 'alert'},
+]
 </script>
