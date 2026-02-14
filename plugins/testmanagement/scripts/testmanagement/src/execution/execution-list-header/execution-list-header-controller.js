@@ -23,6 +23,7 @@ controller.$inject = [
     "ExecutionService",
     "SharedPropertiesService",
     "CampaignService",
+    "$scope",
 ];
 
 export default function controller(
@@ -31,6 +32,7 @@ export default function controller(
     ExecutionService,
     SharedPropertiesService,
     CampaignService,
+    $scope,
 ) {
     const self = this;
     Object.assign(self, {
@@ -82,6 +84,7 @@ export default function controller(
             throw e;
         } finally {
             self.is_preparing_the_download = false;
+            $scope.$apply();
         }
     }
 
@@ -115,6 +118,7 @@ export default function controller(
             throw e;
         } finally {
             self.is_preparing_the_download = false;
+            $scope.$apply();
         }
     }
 
@@ -148,6 +152,7 @@ export default function controller(
             throw e;
         } finally {
             self.is_preparing_the_download = false;
+            $scope.$apply();
         }
     }
 
