@@ -18,8 +18,11 @@
  */
 
 import { type ResultAsync } from "neverthrow";
-import { type Fault } from "@tuleap/fault";
 import { uri, patchJSON } from "@tuleap/fetch-result";
+import {
+    SaveNewFieldOrderFaultBuilder,
+    type SaveNewFieldOrderFault,
+} from "./SaveNewFieldOrderFaultBuilder";
 
 export type MoveFieldsAPIRequestParams = {
     field_id: number;
@@ -27,10 +30,12 @@ export type MoveFieldsAPIRequestParams = {
     next_sibling_id: number | null;
 };
 
-export const saveNewFieldsOrder = (move: MoveFieldsAPIRequestParams): ResultAsync<null, Fault> =>
-    patchJSON(uri`/api/v1/tracker_fields/${move.field_id}`, {
+export const saveNewFieldsOrder = (
+    move: MoveFieldsAPIRequestParams,
+): ResultAsync<null, SaveNewFieldOrderFault> =>
+    patchJSON<null>(uri`/api/v1/tracker_fields/${move.field_id}`, {
         move: {
             parent_id: move.parent_id,
             next_sibling_id: move.next_sibling_id,
         },
-    });
+    }).mapErr(SaveNewFieldOrderFaultBuilder.buildFromFault);

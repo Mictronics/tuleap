@@ -1,5 +1,6 @@
-/*
- * Copyright (c) Enalean, 2020-Present. All Rights Reserved.
+<?php
+/**
+ * Copyright (c) Enalean, 2026 - Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -17,7 +18,21 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-const common = require("./webpack.common.js");
-const { webpack_configurator } = require("@tuleap/build-system-configurator");
+declare(strict_types=1);
 
-module.exports = webpack_configurator.extendDevConfiguration(common);
+namespace Tuleap\Tracker\Workflow\Trigger;
+
+use Tuleap\Option\Option;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
+use Tuleap\Tracker\Tracker;
+
+interface ProvideParentsTriggersUsageByField
+{
+    public function isFieldUsedInParentTrackerTriggers(TrackerField $field): bool;
+
+    /**
+     *  @return Option<Tracker>
+     * /
+     */
+    public function getParentTracker(TrackerField $field): Option;
+}

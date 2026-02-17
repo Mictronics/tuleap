@@ -2546,6 +2546,9 @@ msgstr "Parent"
 msgid "Parent artifact:"
 msgstr "Artifact parent :"
 
+msgid "Parent triggers"
+msgstr "Déclencheurs parents"
+
 msgid "Paste the patch here (text only)"
 msgstr "Coller le code du correctif ici (texte uniquement)"
 
@@ -4179,11 +4182,26 @@ msgstr ""
 "Ce champ est le titre de l'artifact. Il est interdit de le mettre "
 "massivement à jour."
 
+msgid "This field is used by field dependencies"
+msgstr "Ce champ est utilisé par les dépendances entre champs"
+
 msgid "This field is used by global rules"
 msgstr "Ce champ est utilisé par les règles globales"
 
+msgid "This field is used by parent triggers"
+msgstr "Ce champ est utilisé par les déclencheurs parents"
+
 msgid "This field is used by the following trackers:"
 msgstr "Ce champ est utilisé par les trackers suivants :"
+
+msgid "This field is used by triggers"
+msgstr "Ce champ est utilisé par les déclencheurs"
+
+msgid "This field is used by workflow actions"
+msgstr "Ce champ est utilisé par les actions de workflow"
+
+msgid "This field is used by workflow conditions"
+msgstr "Ce champ est utilisé par les conditions de workflow"
 
 msgid "This file has been removed meantime."
 msgstr "Ce fichier a été supprimé entre temps."
@@ -4805,6 +4823,12 @@ msgstr ""
 
 msgid "Workflow"
 msgstr "Workflow"
+
+msgid "Workflow action"
+msgstr "Action de workflow"
+
+msgid "Workflow condition"
+msgstr "Condition de workflow"
 
 #, php-format
 msgid "Workflow mode is incompatible with PostAction of type %s"

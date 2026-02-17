@@ -2265,6 +2265,9 @@ msgstr ""
 msgid "Parent artifact:"
 msgstr ""
 
+msgid "Parent triggers"
+msgstr ""
+
 msgid "Paste the patch here (text only)"
 msgstr ""
 
@@ -3672,10 +3675,25 @@ msgid ""
 "This field is the title of the artifact. It is not allowed to masschange it."
 msgstr ""
 
+msgid "This field is used by field dependencies"
+msgstr ""
+
 msgid "This field is used by global rules"
 msgstr ""
 
+msgid "This field is used by parent triggers"
+msgstr ""
+
 msgid "This field is used by the following trackers:"
+msgstr ""
+
+msgid "This field is used by triggers"
+msgstr ""
+
+msgid "This field is used by workflow actions"
+msgstr ""
+
+msgid "This field is used by workflow conditions"
 msgstr ""
 
 msgid "This file has been removed meantime."
@@ -4223,6 +4241,12 @@ msgid "When you use @ to mention someone, they will get an email notification."
 msgstr ""
 
 msgid "Workflow"
+msgstr ""
+
+msgid "Workflow action"
+msgstr ""
+
+msgid "Workflow condition"
 msgstr ""
 
 #, php-format
