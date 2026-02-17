@@ -22,12 +22,13 @@
         class="draggable-wrapper"
         draggable="true"
         v-bind:data-element-id="fieldset.field.field_id"
+        v-bind:class="{ 'drek-hide': dragged_field_id === fieldset.field.field_id }"
     >
         <div class="draggable-form-element">
             <section class="tlp-pane">
                 <div class="tlp-pane-container">
                     <div class="tlp-pane-header fieldset-header">
-                        <h1 class="tlp-pane-title">
+                        <h1 class="tlp-pane-title fieldset-title">
                             <label-for-field v-bind:field="fieldset.field" />
                         </h1>
                         <fieldset-layout v-bind:fieldset="fieldset" />
@@ -55,12 +56,16 @@
 
 <script setup lang="ts">
 import { useGettext } from "vue3-gettext";
+import { strictInject } from "@tuleap/vue-strict-inject";
 import type { Fieldset } from "../../type";
+import { DRAGGED_FIELD_ID } from "../../injection-symbols";
 import DisplayFormElements from "../DisplayFormElements.vue";
 import FieldsetLayout from "./FieldsetLayout.vue";
 import LabelForField from "./LabelForField.vue";
 
 const { $gettext } = useGettext();
+
+const dragged_field_id = strictInject(DRAGGED_FIELD_ID);
 
 defineProps<{
     fieldset: Fieldset;
@@ -75,8 +80,13 @@ defineProps<{
 .fieldset-header {
     display: flex;
     grid-column: span 2;
+    align-items: center;
     justify-content: space-between;
     gap: var(--tlp-medium-spacing);
+}
+
+.fieldset-title {
+    flex: 1 0 auto;
 }
 
 .tlp-pane-container {

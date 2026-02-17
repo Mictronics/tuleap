@@ -2265,6 +2265,9 @@ msgstr ""
 msgid "Parent artifact:"
 msgstr ""
 
+msgid "Parent triggers"
+msgstr ""
+
 msgid "Paste the patch here (text only)"
 msgstr ""
 
@@ -3672,10 +3675,28 @@ msgid ""
 "This field is the title of the artifact. It is not allowed to masschange it."
 msgstr ""
 
+msgid "This field is used by field dependencies"
+msgstr ""
+
 msgid "This field is used by global rules"
 msgstr ""
 
+msgid "This field is used by parent triggers"
+msgstr ""
+
 msgid "This field is used by the following trackers:"
+msgstr ""
+
+msgid "This field is used by triggers"
+msgstr ""
+
+msgid "This field is used by workflow actions"
+msgstr ""
+
+msgid "This field is used by workflow conditions"
+msgstr ""
+
+msgid "This field is used by workflow transitions"
 msgstr ""
 
 msgid "This file has been removed meantime."
@@ -4225,8 +4246,17 @@ msgstr ""
 msgid "Workflow"
 msgstr ""
 
+msgid "Workflow action"
+msgstr ""
+
+msgid "Workflow condition"
+msgstr ""
+
 #, php-format
 msgid "Workflow mode is incompatible with PostAction of type %s"
+msgstr ""
+
+msgid "Workflow transition"
 msgstr ""
 
 msgid "XML file doesn't have correct format"

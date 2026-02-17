@@ -18,9 +18,19 @@
   -->
 
 <template>
+    <div class="tlp-property">
+        <label class="tlp-label">{{ $gettext("Id") }}</label>
+        <p>{{ field.field_id }}</p>
+    </div>
+
     <div class="tlp-form-element">
         <label class="tlp-label" for="field-label">{{ $gettext("Label") }}</label>
         <input type="text" class="tlp-input" id="field-label" v-bind:value="field.label" />
+    </div>
+
+    <div class="tlp-form-element">
+        <label class="tlp-label" for="field-name">{{ $gettext("Name") }}</label>
+        <input type="text" class="tlp-input" id="field-name" v-bind:value="field.name" />
     </div>
 </template>
 

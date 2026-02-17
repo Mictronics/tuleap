@@ -24,6 +24,13 @@ msgstr "Ajouter un autre fichier"
 msgid "Add fields"
 msgstr "Ajouter des champs"
 
+msgid ""
+"An error occurred during one of your last actions. Please refresh the page "
+"to get back in a consistent state."
+msgstr ""
+"Une erreur est survenue durant l'une de vos dernières actions. Veuillez "
+"rafraîchir la page pour revenir dans un état cohérent."
+
 msgid "An error occurred while retrieving the current user."
 msgstr "Une erreur est survenue lors du chargement de l'utilisateur courant."
 
@@ -36,14 +43,14 @@ msgstr "Liens entre artifacts"
 msgid "Auto-compute"
 msgstr "Calcul automatique"
 
+msgid "Cancel"
+msgstr "Annuler"
+
 msgid "Checkbox"
 msgstr "Case à cocher"
 
 msgid "Close"
 msgstr "Fermer"
-
-msgid "Column"
-msgstr "Colonne"
 
 msgid "Computed value"
 msgstr "Valeur calculée"
@@ -57,14 +64,23 @@ msgstr "Agencement personnalisé"
 msgid "Date"
 msgstr "Date"
 
+msgid "Delete"
+msgstr "Supprimer"
+
 msgid "Display in & out references"
 msgstr "Liste des objets étant référencés par l'artifact ou le référençant"
+
+msgid "Edit"
+msgstr "Éditer"
 
 msgid "Field configuration"
 msgstr "Configuration du champ"
 
 msgid "Field..."
 msgstr "Champ..."
+
+msgid "Fields"
+msgstr "Champs"
 
 msgid "Fields usage"
 msgstr "Utilisation des champs"
@@ -84,6 +100,9 @@ msgstr "Fichier à téléverser"
 msgid "Float"
 msgstr "Flottant"
 
+msgid "Id"
+msgstr "Id"
+
 msgid "Integer"
 msgstr "Entier"
 
@@ -96,14 +115,17 @@ msgstr "Dernière mise à jour par"
 msgid "Last update date"
 msgstr "Date de mise à jour"
 
-msgid "Line break"
-msgstr "Saut de ligne"
+msgid "Layout & structure"
+msgstr "Organisation & structure"
 
 msgid "Move element"
 msgstr "Déplacer l'élément"
 
 msgid "Multi selectbox"
 msgstr "Liste à choix multiple"
+
+msgid "Name"
+msgstr "Nom"
 
 msgid "No fields"
 msgstr "Aucun champ"
@@ -119,6 +141,9 @@ msgstr "Introuvable"
 
 msgid "One column layout"
 msgstr "Agencement sur une colonne"
+
+msgid "Oops, an error occurred!"
+msgstr "Oups, une erreur est survenue !"
 
 msgid "Open list"
 msgstr "Liste ouverte"
@@ -137,6 +162,12 @@ msgstr "Bouton radio"
 
 msgid "Rank"
 msgstr "Rang"
+
+msgid "Refresh"
+msgstr "Rafraîchir"
+
+msgid "Save"
+msgstr "Sauvegarder"
 
 msgid "Selectbox"
 msgstr "Liste de choix"

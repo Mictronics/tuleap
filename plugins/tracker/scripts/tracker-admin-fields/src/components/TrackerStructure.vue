@@ -31,26 +31,38 @@
 import { onBeforeUnmount, onMounted, useTemplateRef } from "vue";
 import DisplayFormElements from "./DisplayFormElements.vue";
 import type {
+    DragCallbackParameter,
     DragDropCallbackParameter,
     Drekkenov,
     PossibleDropCallbackParameter,
     SuccessfulDropCallbackParameter,
 } from "@tuleap/drag-and-drop";
 import { init } from "@tuleap/drag-and-drop";
-import { POST_FIELD_DND_CALLBACK, TRACKER_ROOT } from "../injection-symbols";
+import {
+    DRAGGED_FIELD_ID,
+    OPEN_REFRESH_AFTER_FAULT_MODAL,
+    POST_FIELD_DND_CALLBACK,
+    TRACKER_ROOT,
+} from "../injection-symbols";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import { getSuccessfulDropContextTransformer } from "../helpers/SuccessfulDropContextTransformer";
 import { getFieldsMover } from "../helpers/FieldsMover";
 import { ROOT_CONTAINER_ID } from "../type";
 import { getDropRulesEnforcer } from "../helpers/DropRulesEnforcer";
 import { saveNewFieldsOrder } from "../helpers/save-new-fields-order";
+import { isSaveNewFieldOrderFault } from "../helpers/SaveNewFieldOrderFaultBuilder";
+import { useDragAutoscrollWithDraggableEvents } from "@tuleap/drag-autoscroll";
+import { getAttributeOrThrow } from "@tuleap/dom";
 
 const tracker_root = strictInject(TRACKER_ROOT);
 const post_field_update_callback = strictInject(POST_FIELD_DND_CALLBACK);
+const openRefreshAfterFaultModal = strictInject(OPEN_REFRESH_AFTER_FAULT_MODAL);
+const dragged_field_id = strictInject(DRAGGED_FIELD_ID);
 const container = useTemplateRef<HTMLElement>("container");
 const drop_rules_enforcer = getDropRulesEnforcer(tracker_root);
 const context_transformer = getSuccessfulDropContextTransformer(tracker_root);
 const fields_mover = getFieldsMover();
+const drag_autoscroll = useDragAutoscrollWithDraggableEvents();
 
 let drek: Drekkenov | undefined = undefined;
 
@@ -68,7 +80,13 @@ onMounted(() => {
             Boolean(handle.closest("[data-not-drag-handle]")),
         isConsideredInDropzone: (child: Element) => child.hasAttribute("draggable"),
         doesDropzoneAcceptDraggable: drop_rules_enforcer.isDropPossible,
-        onDragStart: (): void => {},
+        onDragStart: (context: DragCallbackParameter): void => {
+            drag_autoscroll.start();
+            dragged_field_id.value = Number.parseInt(
+                getAttributeOrThrow(context.dragged_element, "data-element-id"),
+                10,
+            );
+        },
         onDragEnter(context: PossibleDropCallbackParameter): void {
             context.source_dropzone.classList.remove(
                 "tracker-admin-fields-container-dropzone-hover",
@@ -81,16 +99,23 @@ onMounted(() => {
             );
         },
         onDrop(context: SuccessfulDropCallbackParameter): void {
+            dragged_field_id.value = null;
             context_transformer
                 .transformSuccessfulDropContext(context)
                 .andThen(fields_mover.moveField)
                 .asyncAndThen(saveNewFieldsOrder)
                 .match(post_field_update_callback, (fault) => {
-                    /* eslint-disable-next-line no-console */
-                    console.error(`[tracker-admin-fields] Unable to move element: ${fault}`);
+                    if (isSaveNewFieldOrderFault(fault)) {
+                        openRefreshAfterFaultModal(fault);
+                        return;
+                    }
+
+                    throw new Error(`[tracker-admin-fields] Unable to move element: ${fault}`);
                 });
         },
-        cleanupAfterDragCallback: (): void => {},
+        cleanupAfterDragCallback: (): void => {
+            drag_autoscroll.stop();
+        },
     });
 });
 

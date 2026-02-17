@@ -118,7 +118,6 @@
 <script setup lang="ts">
 import type CKEDITOR from "ckeditor4";
 import { ref, computed, onMounted, watch, onUnmounted } from "vue";
-import { useState } from "vuex-composition-helpers";
 import type { TextFieldFormat } from "@tuleap/plugin-tracker-constants";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import StepDefinitionArrowExpected from "./StepDefinitionArrowExpected.vue";
@@ -132,17 +131,21 @@ import { TEXT_FORMAT_HTML } from "@tuleap/plugin-tracker-constants";
 import { postInterpretCommonMark } from "./api/rest-querier";
 import type { Step } from "./Step";
 import type { TextEditorInterface } from "@tuleap/plugin-tracker-rich-text-editor";
-import { PROJECT_ID, FIELD_ID } from "./injection-keys";
+import {
+    PROJECT_ID,
+    FIELD_ID,
+    UPLOAD_URL,
+    UPLOAD_FIELD_NAME,
+    UPLOAD_MAX_SIZE,
+    IS_DRAGGING,
+} from "./injection-keys";
 
 const project_id = strictInject(PROJECT_ID);
 const field_id = strictInject(FIELD_ID);
-
-const { is_dragging, upload_url, upload_field_name, upload_max_size } = useState([
-    "is_dragging",
-    "upload_url",
-    "upload_field_name",
-    "upload_max_size",
-]);
+const upload_url = strictInject(UPLOAD_URL);
+const upload_field_name = strictInject(UPLOAD_FIELD_NAME);
+const upload_max_size = strictInject(UPLOAD_MAX_SIZE);
+const is_dragging = strictInject(IS_DRAGGING);
 
 const props = defineProps<{
     step: Step;

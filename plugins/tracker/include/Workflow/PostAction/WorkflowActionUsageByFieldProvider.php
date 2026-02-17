@@ -1,5 +1,6 @@
+<?php
 /**
- * Copyright (c) Enalean, 2012 - Present. All Rights Reserved.
+ * Copyright (c) Enalean, 2026 - Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -17,25 +18,23 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-/* global $$:readonly */
+declare(strict_types=1);
 
-document.observe("dom:loaded", function () {
-    function displayMode(mode) {
-        mode.up("h3").next(".tracker_create_mode").show();
+namespace Tuleap\Tracker\Workflow\PostAction;
+
+use Override;
+use Transition_PostActionFactory;
+use Tuleap\Tracker\FormElement\Field\TrackerField;
+
+final readonly class WorkflowActionUsageByFieldProvider implements ProvideWorkflowActionUsageByField
+{
+    public function __construct(private Transition_PostActionFactory $post_action_factory)
+    {
     }
 
-    function hideAllModes() {
-        $$(".tracker_create_mode").invoke("hide");
+    #[Override]
+    public function isFieldUsedInWorkflowActions(TrackerField $field): bool
+    {
+        return $this->post_action_factory->isFieldUsedInPostActions($field);
     }
-
-    hideAllModes();
-    $$("input[name=create_mode]").each(function (mode) {
-        if (mode.checked) {
-            displayMode(mode);
-        }
-        mode.observe("click", function () {
-            hideAllModes();
-            displayMode(mode);
-        });
-    });
-});
+}

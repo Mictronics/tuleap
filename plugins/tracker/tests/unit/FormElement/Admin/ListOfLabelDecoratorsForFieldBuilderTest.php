@@ -30,7 +30,13 @@ use Tuleap\Tracker\FormElement\Field\TrackerField;
 use Tuleap\Tracker\Semantic\CollectionOfSemanticsUsingAParticularTrackerField;
 use Tuleap\Tracker\Semantic\Title\TrackerSemanticTitle;
 use Tuleap\Tracker\Test\Builders\TrackerTestBuilder;
+use Tuleap\Tracker\Test\Stub\Workflow\FieldDependencies\ProvideFieldDependenciesUsageByFieldStub;
+use Tuleap\Tracker\Test\Stub\Workflow\PostAction\ProvideWorkflowActionUsageByFieldStub;
 use Tuleap\Tracker\Test\Stub\Workflow\ProvideGlobalRulesUsageByFieldStub;
+use Tuleap\Tracker\Test\Stub\Workflow\Transition\Condition\ProvideWorkflowConditionUsageByFieldStub;
+use Tuleap\Tracker\Test\Stub\Workflow\Transition\ProvideWorkflowTransitionUsageByFieldStub;
+use Tuleap\Tracker\Test\Stub\Workflow\Trigger\ProvideParentsTriggersUsageByFieldStub;
+use Tuleap\Tracker\Test\Stub\Workflow\Trigger\ProvideTriggersUsageByFieldStub;
 use Tuleap\Tracker\Workflow\WorkflowFieldUsageDecoratorsProvider;
 
 #[DisableReturnValueGenerationForTestDoubles]
@@ -42,7 +48,13 @@ final class ListOfLabelDecoratorsForFieldBuilderTest extends TestCase
         $builder = new ListOfLabelDecoratorsForFieldBuilder(new WorkflowFieldUsageDecoratorsProvider(
             $has_workflow
                 ? ProvideGlobalRulesUsageByFieldStub::withGlobalRules()
-                : ProvideGlobalRulesUsageByFieldStub::withoutGlobalRules()
+                : ProvideGlobalRulesUsageByFieldStub::withoutGlobalRules(),
+            ProvideFieldDependenciesUsageByFieldStub::withoutFieldDependencies(),
+            ProvideTriggersUsageByFieldStub::withoutTriggers(),
+            ProvideParentsTriggersUsageByFieldStub::withoutParentTriggers(),
+            ProvideWorkflowConditionUsageByFieldStub::withoutWorkflowCondition(),
+            ProvideWorkflowActionUsageByFieldStub::withoutWorkflowAction(),
+            ProvideWorkflowTransitionUsageByFieldStub::withoutWorkflowTransition()
         ));
 
         $field = $this->getFormElement($has_semantic, $has_notifications);

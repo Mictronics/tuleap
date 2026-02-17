@@ -23,14 +23,35 @@ declare(strict_types=1);
 namespace Tuleap\Tracker\Workflow;
 
 use Tuleap\Tracker\Tracker;
+use Workflow;
 
 final class WorkflowUrlBuilder
 {
-    public static function buildGlobalRulesUrl(Tracker $tracker): string
+    private static function buildUrl(Tracker $tracker, string $func): string
     {
         return \trackerPlugin::TRACKER_BASE_URL . '/?' . http_build_query([
             'tracker' => $tracker->getId(),
-            'func'    => \Workflow::FUNC_ADMIN_RULES,
+            'func'    => $func,
         ]);
+    }
+
+    public static function buildGlobalRulesUrl(Tracker $tracker): string
+    {
+        return self::buildUrl($tracker, Workflow::FUNC_ADMIN_RULES);
+    }
+
+    public static function buildFieldDependenciesUrl(Tracker $tracker): string
+    {
+        return self::buildUrl($tracker, Workflow::FUNC_ADMIN_DEPENDENCIES);
+    }
+
+    public static function buildTriggersUrl(Tracker $tracker): string
+    {
+        return self::buildUrl($tracker, Workflow::FUNC_ADMIN_CROSS_TRACKER_TRIGGERS);
+    }
+
+    public static function buildTransitionsUrl(Tracker $tracker): string
+    {
+        return self::buildUrl($tracker, Workflow::FUNC_ADMIN_TRANSITIONS);
     }
 }
