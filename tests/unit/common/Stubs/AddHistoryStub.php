@@ -1,5 +1,6 @@
-/*
- * Copyright (c) Enalean, 2025 - present. All Rights Reserved.
+<?php
+/**
+ * Copyright (c) Enalean, 2026-present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -17,9 +18,34 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { StrictInjectionKey } from "@tuleap/vue-strict-inject";
+declare(strict_types=1);
 
-export const VIEW_CHANGES_NAME = "changes";
-export const CHANGES_APP_BASE_URL_KEY: StrictInjectionKey<URL> = Symbol("changes_app_base_url");
-export const CURRENT_USER_ID_KEY: StrictInjectionKey<number> = Symbol("current_user_id");
-export const PULL_REQUEST_ID_KEY: StrictInjectionKey<number> = Symbol("pull_request_id");
+namespace Tuleap\Stubs;
+
+use Override;
+
+final class AddHistoryStub implements \Tuleap\dao\AddHistory
+{
+    private(set) int $call_count = 0;
+
+    private function __construct()
+    {
+    }
+
+    public static function build(): self
+    {
+        return new self();
+    }
+
+    #[Override]
+    public function addHistory(
+        \Project $project,
+        \PFUser $project_admin,
+        \DateTimeImmutable $now,
+        string $field_name,
+        string $old_value,
+        array $args = [],
+    ): void {
+        $this->call_count++;
+    }
+}

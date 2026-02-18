@@ -19,7 +19,6 @@
 
 const state = {
     steps: [],
-    is_dragging: false,
     last_step_type: "action",
 };
 

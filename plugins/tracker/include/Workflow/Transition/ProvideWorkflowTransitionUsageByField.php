@@ -1,5 +1,6 @@
-/*
- * Copyright (c) Enalean, 2025 - present. All Rights Reserved.
+<?php
+/**
+ * Copyright (c) Enalean, 2026 - Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -17,9 +18,13 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { StrictInjectionKey } from "@tuleap/vue-strict-inject";
+declare(strict_types=1);
 
-export const VIEW_CHANGES_NAME = "changes";
-export const CHANGES_APP_BASE_URL_KEY: StrictInjectionKey<URL> = Symbol("changes_app_base_url");
-export const CURRENT_USER_ID_KEY: StrictInjectionKey<number> = Symbol("current_user_id");
-export const PULL_REQUEST_ID_KEY: StrictInjectionKey<number> = Symbol("pull_request_id");
+namespace Tuleap\Tracker\Workflow\Transition;
+
+use Tuleap\Tracker\FormElement\Field\TrackerField;
+
+interface ProvideWorkflowTransitionUsageByField
+{
+    public function isFieldUsedInWorkflowTransitions(TrackerField $field): bool;
+}

@@ -3462,6 +3462,16 @@ msgstr[0] ""
 msgstr[1] ""
 
 #, php-format
+msgid ""
+"The tracker %s is involved in cross-tracker triggers, you cannot change its "
+"hierarchy."
+msgid_plural ""
+"The trackers %s are involved in cross-tracker triggers, you cannot change "
+"their hierarchy."
+msgstr[0] ""
+msgstr[1] ""
+
+#, php-format
 msgid "The tracker '%1$s' cannot be created."
 msgstr ""
 
@@ -3694,6 +3704,9 @@ msgid "This field is used by workflow actions"
 msgstr ""
 
 msgid "This field is used by workflow conditions"
+msgstr ""
+
+msgid "This field is used by workflow transitions"
 msgstr ""
 
 msgid "This file has been removed meantime."
@@ -4069,11 +4082,17 @@ msgstr ""
 msgid "Unused elements"
 msgstr ""
 
+msgid "Unused field"
+msgstr ""
+
 msgid "Update"
 msgstr "Atualizar"
 
 #, php-format
 msgid "Update Field '%1$s'"
+msgstr ""
+
+msgid "Update field"
 msgstr ""
 
 msgid "Update semantic"
@@ -4251,6 +4270,9 @@ msgstr ""
 
 #, php-format
 msgid "Workflow mode is incompatible with PostAction of type %s"
+msgstr ""
+
+msgid "Workflow transition"
 msgstr ""
 
 msgid "XML file doesn't have correct format"
