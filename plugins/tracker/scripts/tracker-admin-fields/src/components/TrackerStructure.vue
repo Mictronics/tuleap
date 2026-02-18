@@ -76,8 +76,7 @@ onMounted(() => {
         isDropZone: (element: HTMLElement) =>
             element.classList.contains("tracker-admin-fields-container-dropzone"),
         isDraggable: (element: HTMLElement) => element.draggable,
-        isInvalidDragHandle: (handle: HTMLElement) =>
-            Boolean(handle.closest("[data-not-drag-handle]")),
+        isInvalidDragHandle: (handle: HTMLElement) => handle.hasAttribute("data-not-drag-handle"),
         isConsideredInDropzone: (child: Element) => child.hasAttribute("draggable"),
         doesDropzoneAcceptDraggable: drop_rules_enforcer.isDropPossible,
         onDragStart: (context: DragCallbackParameter): void => {
@@ -99,7 +98,6 @@ onMounted(() => {
             );
         },
         onDrop(context: SuccessfulDropCallbackParameter): void {
-            dragged_field_id.value = null;
             context_transformer
                 .transformSuccessfulDropContext(context)
                 .andThen(fields_mover.moveField)
@@ -114,6 +112,7 @@ onMounted(() => {
                 });
         },
         cleanupAfterDragCallback: (): void => {
+            dragged_field_id.value = null;
             drag_autoscroll.stop();
         },
     });
