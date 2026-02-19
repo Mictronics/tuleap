@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) Enalean, 2026-present. All Rights Reserved.
+ * Copyright (c) Enalean, 2026 - Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -20,28 +20,20 @@
 
 declare(strict_types=1);
 
-namespace Tuleap\Tracker\Test\Stub;
+namespace Tuleap\Tracker\FormElement;
 
 use Override;
-use Tuleap\Tracker\FormElement\Field\AddField;
+use Tuleap\DB\DataAccessObject;
 
-final class AddFieldStub implements AddField
+final class UsageDao extends DataAccessObject implements UseFormElement
 {
-    private(set) int $call_count = 0;
-
-    private function __construct()
-    {
-    }
-
-    public static function build(): self
-    {
-        return new AddFieldStub();
-    }
-
     #[Override]
-    public function addFormElement(int $form_element_id): bool
+    public function useFormElement(TrackerFormElement $form_element): void
     {
-        $this->call_count++;
-        return true;
+        $this->getDB()->update(
+            'tracker_field',
+            ['use_it' => true],
+            ['id' => $form_element->getId()]
+        );
     }
 }

@@ -22,11 +22,9 @@ declare(strict_types=1);
 
 namespace Tuleap\Tracker\FormElement;
 
-use Tuleap\Tracker\FormElement\Field\AddField;
-
 final class TrackerFieldAdder
 {
-    public function __construct(private AddField $form_element_factory)
+    public function __construct(private UseFormElement $dao)
     {
     }
 
@@ -35,6 +33,7 @@ final class TrackerFieldAdder
         if ($field->isUsed()) {
             return;
         }
-        $this->form_element_factory->addFormElement($field->getId());
+
+        $this->dao->useFormElement($field);
     }
 }

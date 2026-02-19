@@ -103,7 +103,6 @@ use Tuleap\CSRFSynchronizerTokenPresenter;
 use Tuleap\Dashboard\Project\ProjectDashboardDao;
 use Tuleap\Dashboard\Project\ProjectDashboardRetriever;
 use Tuleap\Dashboard\Widget\DashboardWidgetDao;
-use Tuleap\DB\DatabaseUUIDV7Factory;
 use Tuleap\DB\DBFactory;
 use Tuleap\DB\DBTransactionExecutorWithConnection;
 use Tuleap\HTTPRequest;
@@ -253,7 +252,6 @@ use Tuleap\Tracker\Workflow\WorkflowMenuPresenterBuilder;
 use Tuleap\Tracker\Workflow\WorkflowUpdateChecker;
 use Tuleap\Tracker\XML\Updater\FieldChange\FieldChangeComputedXMLUpdater;
 use Tuleap\User\Avatar\AvatarHashDao;
-use Tuleap\User\Avatar\ComputeAvatarHash;
 use Tuleap\User\Avatar\UserAvatarUrlProvider;
 use Tuleap\Widget\WidgetFactory;
 use UGroupDao;
@@ -422,7 +420,7 @@ class Tracker implements Tracker_Dispatchable_Interface
         $this->notifications_level          = (int) $notifications_level;
         $this->enable_emailgateway          = $enable_emailgateway;
         $this->formElementFactory           = Tracker_FormElementFactory::instance();
-        $this->sharedFormElementFactory     = new Tracker_SharedFormElementFactory($this->formElementFactory, new Tracker_FormElement_Field_List_BindFactory(new DatabaseUUIDV7Factory()));
+        $this->sharedFormElementFactory     = new Tracker_SharedFormElementFactory($this->formElementFactory, new Tracker_FormElement_Field_List_BindFactory());
         $this->renderer                     = TemplateRendererFactory::build()->getRenderer(__DIR__ . '/../templates');
         $this->color                        = $color;
     }
@@ -845,14 +843,7 @@ class Tracker implements Tracker_Dispatchable_Interface
                 if ($this->userIsAdmin($current_user)) {
                     $form_element_admin_url = \trackerPlugin::TRACKER_BASE_URL . '/?' . http_build_query(['func' => 'admin-formElements', 'tracker' => $this->getId()]);
                     $csrf_token             = new CSRFSynchronizerToken($form_element_admin_url);
-                    if ($request->isPost() && is_array($request->get('add-formElement'))) {
-                        $csrf_token->check();
-                        $formElement_id = key($request->get('add-formElement'));
-                        if (Tracker_FormElementFactory::instance()->addFormElement((int) $formElement_id)) {
-                            $GLOBALS['Response']->addFeedback('info', dgettext('tuleap-tracker', 'Field added to the form'));
-                            $GLOBALS['Response']->redirect($form_element_admin_url);
-                        }
-                    } elseif ($request->isPost() && is_array($request->get('create-formElement'))) {
+                    if ($request->isPost() && is_array($request->get('create-formElement'))) {
                         $type = key($request->get('create-formElement'));
                         if ($request->get('docreate-formElement') && is_array($request->get('formElement_data'))) {
                             $csrf_token->check();
@@ -1943,7 +1934,6 @@ class Tracker implements Tracker_Dispatchable_Interface
                 \UserHelper::instance(),
                 new UserAvatarUrlProvider(
                     new AvatarHashDao(),
-                    new ComputeAvatarHash()
                 )
             ),
             new CollectionOfUgroupToBeNotifiedPresenterBuilder($ugroup_to_notify_dao),

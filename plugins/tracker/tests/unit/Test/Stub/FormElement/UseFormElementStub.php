@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) Enalean, 2024 - Present. All Rights Reserved.
+ * Copyright (c) Enalean, 2026-present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -18,16 +18,30 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace Tuleap\User\Avatar;
+declare(strict_types=1);
 
-interface AvatarHashStorage
+namespace Tuleap\Tracker\Test\Stub\FormElement;
+
+use Override;
+use Tuleap\Tracker\FormElement\TrackerFormElement;
+use Tuleap\Tracker\FormElement\UseFormElement;
+
+final class UseFormElementStub implements UseFormElement
 {
-    public function retrieve(\PFUser $user): UserAvatarHash;
+    private(set) int $call_count = 0;
 
-    /**
-     * @return list<UserAvatarHash>
-     */
-    public function retrieveHashes(\PFUser ...$users): array;
+    private function __construct()
+    {
+    }
 
-    public function store(\PFUser $user, string $hash): void;
+    public static function build(): self
+    {
+        return new self();
+    }
+
+    #[Override]
+    public function useFormElement(TrackerFormElement $form_element): void
+    {
+        $this->call_count++;
+    }
 }
