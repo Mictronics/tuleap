@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) Enalean, 2026-present. All Rights Reserved.
+ * Copyright (c) Enalean, 2026-Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -20,28 +20,21 @@
 
 declare(strict_types=1);
 
-namespace Tuleap\Tracker\Test\Stub;
+namespace Tuleap\User\Avatar;
 
-use Override;
-use Tuleap\Tracker\FormElement\Field\AddField;
+use Tuleap\Option\Option;
 
-final class AddFieldStub implements AddField
+/**
+ * @psalm-immutable
+ */
+final readonly class UserAvatarHash
 {
-    private(set) int $call_count = 0;
-
-    private function __construct()
-    {
-    }
-
-    public static function build(): self
-    {
-        return new AddFieldStub();
-    }
-
-    #[Override]
-    public function addFormElement(int $form_element_id): bool
-    {
-        $this->call_count++;
-        return true;
+    /**
+     * @param Option<string> $avatar_hash
+     */
+    public function __construct(
+        public \PFUser $user,
+        public Option $avatar_hash,
+    ) {
     }
 }

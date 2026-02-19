@@ -20,14 +20,14 @@
 
 namespace Tuleap\User\Avatar;
 
-use Tuleap\Option\Option;
-
 interface AvatarHashStorage
 {
+    public function retrieve(\PFUser $user): UserAvatarHash;
+
     /**
-     * @return Option<string>
+     * @return list<UserAvatarHash>
      */
-    public function retrieve(\PFUser $user): Option;
+    public function retrieveHashes(\PFUser ...$users): array;
 
     public function store(\PFUser $user, string $hash): void;
 }

@@ -1,6 +1,6 @@
 <?php
 /**
- * Copyright (c) Enalean, 2026-present. All Rights Reserved.
+ * Copyright (c) Enalean, 2026-Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -20,9 +20,16 @@
 
 declare(strict_types=1);
 
-namespace Tuleap\Tracker\FormElement\Field;
+namespace Tuleap\User\Avatar;
 
-interface AddField
+/**
+ * @psalm-immutable
+ */
+final readonly class UserAvatarUrl
 {
-    public function addFormElement(int $form_element_id): bool;
+    public function __construct(
+        public \PFUser $user,
+        public string $avatar_url,
+    ) {
+    }
 }

@@ -1,5 +1,6 @@
+<?php
 /**
- * Copyright (c) Enalean, 2021 - present. All Rights Reserved.
+ * Copyright (c) Enalean, 2026 - Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -17,16 +18,22 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { describe, expect, it, vi } from "vitest";
-import Prism from "prismjs";
-import { syntaxHighlightElement } from "./prism";
+declare(strict_types=1);
 
-describe("Prism", () => {
-    it("does the syntax highlighting of an element", () => {
-        const spy = vi.spyOn(Prism, "highlightElement");
+namespace Tuleap\Tracker\FormElement;
 
-        syntaxHighlightElement(document.implementation.createHTMLDocument().createElement("div"));
+use Override;
+use Tuleap\DB\DataAccessObject;
 
-        expect(spy).toHaveBeenCalled();
-    });
-});
+final class UsageDao extends DataAccessObject implements UseFormElement
+{
+    #[Override]
+    public function useFormElement(TrackerFormElement $form_element): void
+    {
+        $this->getDB()->update(
+            'tracker_field',
+            ['use_it' => true],
+            ['id' => $form_element->getId()]
+        );
+    }
+}
