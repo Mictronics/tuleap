@@ -1,3 +1,4 @@
+<?php
 /**
  * Copyright (c) Enalean, 2026-Present. All Rights Reserved.
  *
@@ -17,25 +18,23 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { vite } from "@tuleap/build-system-configurator";
-import * as path from "node:path";
-import vue from "@vitejs/plugin-vue";
-import POGettextPlugin from "@tuleap/po-gettext-plugin";
-import { viteExternalsPlugin } from "vite-plugin-externals";
+declare(strict_types=1);
 
-export default vite.defineAppConfig(
-    {
-        plugin_name: path.basename(__dirname),
-    },
-    {
-        plugins: [vue(), POGettextPlugin.vite(), viteExternalsPlugin({ tlp: "tlp" })],
-        build: {
-            rollupOptions: {
-                input: {
-                    testplan: path.resolve(__dirname, "scripts/test-plan/index.ts"),
-                    "testplan-style": path.resolve(__dirname, "themes/testplan.scss"),
-                },
-            },
-        },
-    },
-);
+namespace Tuleap\DB;
+
+/**
+ * @template T
+ * @psalm-immutable
+ */
+final readonly class PaginatedItems
+{
+    /**
+     * @psalm-param list<T> $items
+     * @psalm-param 0|positive-int $total_items
+     */
+    public function __construct(
+        public array $items,
+        public int $total_items,
+    ) {
+    }
+}
