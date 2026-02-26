@@ -96,10 +96,10 @@ class RequirementReference extends \Reference
      *
      * @return Artifact ID
      */
-    public function getId(): string
+    public function getId(): string|int
     {
         if (empty($this->requirement_artifact_id) && ! $this->requirement_title) {
-            return (string) $this->id;
+            return (int) $this->id;
         } elseif (empty($this->requirement_artifact_id) && $this->requirement_title) {
             $row = $this->_getRequirementFromDao($this->requirement_title, $this->group_id);
             if (! empty($row) && $row['item_name'] == 'requirement') {
