@@ -36,7 +36,7 @@
                 <button
                     type="button"
                     class="btn btn-primary"
-                    v-on:click="addStep([0, empty_step])"
+                    v-on:click="onClick"
                     data-test="add-step"
                 >
                     <i class="fa-solid fa-plus"></i>
@@ -64,32 +64,27 @@
 </template>
 
 <script setup lang="ts">
-import { computed, onBeforeMount } from "vue";
-import { useStore, useState, useMutations } from "vuex-composition-helpers";
+import { computed } from "vue";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import StepDefinitionNoStep from "./StepDefinitionNoStep.vue";
 import StepDefinitionDragContainer from "./StepDefinitionDragContainer.vue";
-import type { Step } from "./Step";
-import { EMPTY_STEP, IS_DRAGGING } from "./injection-keys";
+import { EMPTY_STEP, IS_DRAGGING, STEPS, LAST_STEP_TYPE } from "./injection-keys";
+import { addStep } from "./helpers/StepAdder";
 
 const empty_step = strictInject(EMPTY_STEP);
 const is_dragging = strictInject(IS_DRAGGING);
-
-const { steps } = useState(["steps"]);
-const { addStep } = useMutations(["addStep"]);
-
-const props = defineProps<{
-    initial_steps: Array<Step>;
-}>();
+const last_step_type = strictInject(LAST_STEP_TYPE);
+const steps = strictInject(STEPS);
 
 const isThereAtLeastOneStep = computed(() => steps.value.length !== 0);
 const areThereAtLeastTwoSteps = computed(() => steps.value.length > 1);
 
-onBeforeMount(() => {
-    useStore().commit("initStepField", props.initial_steps);
-});
-
-function toggleIsDragging() {
+function toggleIsDragging(): void {
     is_dragging.value = !is_dragging.value;
+}
+
+function onClick(): void {
+    empty_step.step_type = last_step_type.value;
+    addStep(steps, 0, empty_step);
 }
 </script>

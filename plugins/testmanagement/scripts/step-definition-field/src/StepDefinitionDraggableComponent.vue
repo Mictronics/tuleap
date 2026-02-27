@@ -27,7 +27,8 @@
         <div
             v-dompurify-html="step.raw_description"
             v-bind:class="{
-                'ttm-definition-step-description-text': is_text(step.description_format),
+                'ttm-definition-step-description-text':
+                    step.description_format === TEXT_FORMAT_TEXT,
             }"
             class="draggable-step-description-text"
         ></div>
@@ -35,11 +36,9 @@
 </template>
 
 <script setup lang="ts">
-import { useGetters } from "vuex-composition-helpers";
 import StepDefinitionTypeIcon from "./StepDefinitionTypeIcon.vue";
+import { TEXT_FORMAT_TEXT } from "@tuleap/plugin-tracker-constants";
 import type { Step } from "./Step";
-
-const { is_text } = useGetters(["is_text"]);
 
 defineProps<{
     step: Step;

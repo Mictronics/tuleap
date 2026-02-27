@@ -23,6 +23,7 @@ import { defineConfig, globalIgnores } from "eslint/config";
 import globals from "globals";
 import eslint_plugin_prettier_recommended from "eslint-plugin-prettier/recommended";
 import eslint_config_prettier from "eslint-config-prettier";
+import deprecate from "eslint-plugin-deprecate";
 import plugin_cypress from "eslint-plugin-cypress/flat";
 import plugin_vue from "eslint-plugin-vue";
 import plugin_jest from "eslint-plugin-jest";
@@ -222,7 +223,6 @@ const config_for_remaining_vue_javascript = {
         "plugins/baseline/scripts/baseline/src/**/*.vue",
         "plugins/document/**/*.vue",
         "plugins/pullrequest/scripts/create-pullrequest-button/**/*.vue",
-        "plugins/testmanagement/scripts/step-definition-field/**/*.vue",
         "plugins/tracker/scripts/workflow-transitions/**/*.vue",
     ],
     rules: {
@@ -405,6 +405,13 @@ const config_for_hexagonal_architecture_in_link_field = {
     },
 };
 
+const config_for_deprecations = {
+    plugins: { deprecate },
+    rules: {
+        "deprecate/function": ["error", { name: "initGettextSync", use: "initGettext" }],
+    },
+};
+
 export default defineConfig([
     globalIgnores([
         "**/additional-packages/",
@@ -469,4 +476,5 @@ export default defineConfig([
     ...storybook.configs["flat/recommended"],
     config_for_hexagonal_architecture_in_artifact_modal,
     config_for_hexagonal_architecture_in_link_field,
+    config_for_deprecations,
 ]);

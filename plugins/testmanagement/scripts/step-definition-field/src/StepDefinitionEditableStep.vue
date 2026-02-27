@@ -118,13 +118,13 @@
 <script setup lang="ts">
 import CKEDITOR from "ckeditor4";
 import { ref, computed, onMounted, watch, onUnmounted } from "vue";
-import { useStore } from "vuex-composition-helpers";
 import type { TextFieldFormat } from "@tuleap/plugin-tracker-constants";
 import { strictInject } from "@tuleap/vue-strict-inject";
 import StepDefinitionArrowExpected from "./StepDefinitionArrowExpected.vue";
 import StepDefinitionActions from "./StepDefinitionActions.vue";
 import StepDefinitionType from "./StepDefinitionType.vue";
 import { RichTextEditorFactory } from "@tuleap/plugin-tracker-rich-text-editor";
+import type { PossibleCKEditorOptions } from "@tuleap/plugin-tracker-artifact-ckeditor-image-upload";
 import {
     getUploadImageOptions,
     UploadImageFormFactory,
@@ -140,6 +140,7 @@ import {
     UPLOAD_FIELD_NAME,
     UPLOAD_MAX_SIZE,
     IS_DRAGGING,
+    LAST_STEP_TYPE,
 } from "./injection-keys";
 
 const project_id = strictInject(PROJECT_ID);
@@ -148,8 +149,8 @@ const upload_url = strictInject(UPLOAD_URL);
 const upload_field_name = strictInject(UPLOAD_FIELD_NAME);
 const upload_max_size = strictInject(UPLOAD_MAX_SIZE);
 const is_dragging = strictInject(IS_DRAGGING);
+const last_step_type = strictInject(LAST_STEP_TYPE);
 
-const store = useStore();
 const props = defineProps<{
     step: Step;
 }>();
@@ -204,7 +205,7 @@ watch(
 
 const toggleStepType = (value: string) =>{
      step_type.value = value;
-     store.commit("setLastStepType", value);
+     last_step_type.value = value;
 }
 
 watch(step_type, (t) => {
@@ -236,7 +237,7 @@ onUnmounted(() => {
     editors.value[1]?.destroy();
 });
 
-function getEditorsContent() {
+function getEditorsContent(): void {
     if (is_current_step_in_html_format.value && areRTEEditorsSet()) {
         raw_description.value = editors.value[1].getContent();
         raw_expected_results.value = editors.value[0].getContent();
@@ -247,11 +248,11 @@ function areRTEEditorsSet(): boolean {
     return editors.value[0] !== undefined && editors.value[1] !== undefined;
 }
 
-function onInputEmitToggleRte(new_format: TextFieldFormat) {
+function onInputEmitToggleRte(new_format: TextFieldFormat): void {
     emit("toggle-rte", new_format);
 }
 
-function loadRTE(textarea_element: HTMLTextAreaElement) {
+function loadRTE(textarea_element: HTMLTextAreaElement): TextEditorInterface {
     const text_area = textarea_element;
     let locale = "en_US";
     if (document.body.dataset.userLocale) {
@@ -267,20 +268,21 @@ function loadRTE(textarea_element: HTMLTextAreaElement) {
     const options = {
         format_selectbox_id: format_select_id.value,
         format_selectbox_value: props.step.description_format,
-        getAdditionalOptions: (textarea: HTMLTextAreaElement) => getUploadImageOptions(textarea),
-        onFormatChange: (new_format: TextFieldFormat) => {
+        getAdditionalOptions: (textarea: HTMLTextAreaElement): PossibleCKEditorOptions =>
+            getUploadImageOptions(textarea),
+        onFormatChange: (new_format: TextFieldFormat): void => {
             if (help_block) {
                 help_block.onFormatChange(new_format);
             }
             getEditorsContent();
         },
-        onEditorInit: (ckeditor: CKEDITOR.editor, textarea: HTMLTextAreaElement) =>
+        onEditorInit: (ckeditor: CKEDITOR.editor, textarea: HTMLTextAreaElement): void =>
             image_upload_factory.initiateImageUpload(ckeditor, textarea),
     };
     return editor.createRichTextEditor(text_area, options);
 }
 
-function loadEditor() {
+function loadEditor(): void {
     if (!expected_results.value || !description.value) {
         return;
     }
@@ -288,7 +290,7 @@ function loadEditor() {
     editors.value = [loadRTE(expected_results.value), loadRTE(description.value)];
 }
 
-function updateDescription(event: Event) {
+function updateDescription(event: Event): void {
     if (!(event.target instanceof HTMLTextAreaElement)) {
         return;
     }
@@ -297,7 +299,7 @@ function updateDescription(event: Event) {
     emit("update-description", event.target.value);
 }
 
-function updateExpectedResults(event: Event) {
+function updateExpectedResults(event: Event): void {
     if (!(event.target instanceof HTMLTextAreaElement)) {
         return;
     }
@@ -306,7 +308,7 @@ function updateExpectedResults(event: Event) {
     emit("update-expected-results", event.target.value);
 }
 
-function togglePreview() {
+function togglePreview(): Promise<void> {
     is_preview_in_error.value = false;
     error_text.value = "";
 
@@ -334,4 +336,17 @@ function togglePreview() {
             is_in_preview_mode.value = !is_in_preview_mode.value;
         });
 }
+
+defineExpose({
+    is_in_preview_mode,
+    is_preview_in_error,
+    is_preview_loading,
+    togglePreview,
+    error_text,
+    raw_description,
+    raw_expected_results,
+    getEditorsContent,
+    editors,
+    step_type,
+});
 </script>

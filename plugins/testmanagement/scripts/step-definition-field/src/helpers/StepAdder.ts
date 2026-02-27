@@ -1,5 +1,5 @@
-/*
- * Copyright (c) Enalean, 2019-present. All Rights Reserved.
+/**
+ * Copyright (c) Enalean, 2026 - Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -17,8 +17,13 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { TEXT_FORMAT_TEXT } from "@tuleap/plugin-tracker-constants";
+import type { Ref } from "vue";
+import { v4 as uuid } from "uuid";
+import type { Step } from "../Step";
 
-export const is_text = () => (format) => {
-    return format === TEXT_FORMAT_TEXT;
-};
+export function addStep(steps: Ref<Array<Step>>, index: number, empty_step: Step): void {
+    const step = { ...empty_step };
+    step.uuid = uuid();
+    step.is_deleted = false;
+    steps.value.splice(index, 0, step);
+}

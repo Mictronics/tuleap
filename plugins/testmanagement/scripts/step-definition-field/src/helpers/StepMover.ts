@@ -1,5 +1,5 @@
-/*
- * Copyright (c) Enalean, 2019 - Present. All Rights Reserved.
+/**
+ * Copyright (c) Enalean, 2026 - Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -17,10 +17,10 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import { createGettext } from "vue3-gettext";
+import type { Ref } from "vue";
+import type { Step } from "../Step";
 
-export function getGlobalTestOptions() {
-    return {
-        plugins: [createGettext({ silent: true })],
-    };
+export function moveStep(steps: Ref<Array<Step>>, step_to_move: Step, index: number): void {
+    steps.value = steps.value.filter((step) => step.uuid !== step_to_move.uuid);
+    steps.value.splice(index, 0, step_to_move);
 }
