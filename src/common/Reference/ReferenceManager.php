@@ -835,8 +835,8 @@ class ReferenceManager implements ExtractReferences, ExtractAndSaveCrossReferenc
     private function getReferenceFromMatch($match)
     {
         // Analyse match
-        $keyword = strtolower($match['key']);
-        $value   = $match['value'];
+        $keyword = strtolower($match['ata_key'] ?? $match['key'] ?? '');
+        $value = $match['ata_codes'] ?? $match['value'] ?? null;
 
         $ref_gid = $this->getProjectIdForReference($match, $keyword, $value);
 
@@ -899,8 +899,12 @@ class ReferenceManager implements ExtractReferences, ExtractAndSaveCrossReferenc
     private function _getReferenceInstanceFromMatch($match): ?ReferenceInstance // phpcs:ignore PSR2.Methods.MethodDeclaration.Underscore
     {
         // Analyse match
-        $key   = strtolower($match['key']);
-        $value = $match['value'];
+        $key = strtolower($match['ata_key'] ?? $match['key'] ?? '');
+        $value = $match['ata_codes'] ?? $match['value'] ?? null;
+
+        if ($key === '' || $value === null) {
+            return null;
+        }
 
         $ref = $this->getReferenceFromMatch($match);
 

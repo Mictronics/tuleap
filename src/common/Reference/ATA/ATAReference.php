@@ -116,10 +116,10 @@ class ATAReference extends \Reference
      *
      * @return Artifact ID
      */
-    public function getId(): string
+    public function getId(): string|int
     {
-        if (empty($this->ata_artifact_id) && ! empty($this->ata_title)) {
-            return (string) $this->id;
+        if (empty($this->ata_artifact_id) && ! $this->ata_title) {
+            return (int) $this->id;
         } elseif (empty($this->ata_artifact_id) && empty($this->ata_title)) {
             if ($this->ata_system && $this->ata_subsystem) {
                 $row = $this->_getATAFromDao($this->ata_system, $this->ata_subsystem, $this->group_id);
