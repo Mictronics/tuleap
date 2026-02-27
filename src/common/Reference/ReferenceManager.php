@@ -596,12 +596,19 @@ class ReferenceManager implements ExtractReferences, ExtractAndSaveCrossReferenc
         $context_word            = $ref_instance->getContextWord();
         $context_word_with_space = $context_word !== '' ? $context_word . ' ' : '';
 
+        $match = $ref_instance->getMatch();
+        if($ref->keyword == 'ata'){
+            $match = strtoupper($match);
+        } else {
+            $match = ucfirst($match);
+        }
+
         return sprintf(
             '%s<a href="%s" title="%s" class="cross-reference" data-test="cross-reference-link">%s</a>',
             $purifier->purify($context_word_with_space),
             $ref_instance->getFullGotoLink(),
             $purifier->purify($reference_description_translation->getTranslatedDescription()),
-            empty($context_word_with_space) ? $purifier->purify(ucfirst($ref_instance->getMatch())) : $purifier->purify($ref_instance->getMatch())
+            empty($context_word_with_space) ? $purifier->purify($match) : $purifier->purify($ref_instance->getMatch())
         );
     }
 
