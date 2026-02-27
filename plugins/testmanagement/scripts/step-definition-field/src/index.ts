@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             .provide(UPLOAD_MAX_SIZE, getAttributeOrThrow(mount_point, "data-upload-max-size"))
             .provide(IS_DRAGGING, ref(false))
             .provide(STEPS, ref(initial_steps))
-            .provide(LAST_STEP_TYPE, ref('action'))
+            .provide(LAST_STEP_TYPE, ref("action"))
             .use(VueDOMPurifyHTML)
             /** @ts-expect-error vue3-gettext-init is tested with Vue 3.4, but here we use Vue 3.5 */
             .use(gettext_plugin)

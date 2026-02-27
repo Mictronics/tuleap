@@ -64,5 +64,5 @@ const props = defineProps<{
     step: Step;
 }>();
 
-const is_step_type_action = computed(()=> props.step.step_type === 'action')
+const is_step_type_action = computed(() => props.step.step_type === "action");
 </script>

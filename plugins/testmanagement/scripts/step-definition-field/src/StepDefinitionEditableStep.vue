@@ -27,10 +27,10 @@
             v-bind:value="step.id"
         />
         <step-definition-type 
-            :step_type="step_type" 
-            :type_select_id="type_select_id" 
-            :disabled="is_in_preview_mode" 
-            @update:type="toggleStepType"/>
+            v-bind:step_type="step_type" 
+            v-bind:type_select_id="type_select_id" 
+            v-bind:disabled="is_in_preview_mode" 
+            v-on:update:type="toggleStepType" />
         <input
             type="hidden" v-bind:name="'artifact[' + field_id + '][step_type][]'"
             v-bind:value="step_type" />
@@ -116,7 +116,7 @@
 </template>
 
 <script setup lang="ts">
-import CKEDITOR from "ckeditor4";
+import type CKEDITOR from "ckeditor4";
 import { ref, computed, onMounted, watch, onUnmounted } from "vue";
 import type { TextFieldFormat } from "@tuleap/plugin-tracker-constants";
 import { strictInject } from "@tuleap/vue-strict-inject";
@@ -187,7 +187,7 @@ const is_current_step_in_html_format = computed(
     () => props.step.description_format === TEXT_FORMAT_HTML,
 );
 const format_select_id = computed(() => description_id.value + "-help");
-const type_select_id = computed(() => step_type_id.value + "-help")
+const type_select_id = computed(() => step_type_id.value + "-help");
 const is_in_edit_mode_without_error = computed(
     () => !is_in_preview_mode.value && !is_preview_in_error.value,
 );
@@ -203,30 +203,34 @@ watch(
     },
 );
 
-const toggleStepType = (value: string) =>{
-     step_type.value = value;
-     last_step_type.value = value;
-}
+const toggleStepType = (value: string) => {
+    step_type.value = value;
+    last_step_type.value = value;
+};
 
-watch(step_type, (t) => {
-     switch (t) {
-        case "action":
-            is_hide_expected.value = false;
-            break;
-        case "check":
-        case "info":
-        case "input":
-        case "warning":
-        case "alert":
-        case "requirement":
-        case "rationale":
-            is_hide_expected.value = true;
-            break;
-        default:
-            is_hide_expected.value = false;
-            break;
-    }
-}, {immediate: true})
+watch(
+    step_type,
+    (t) => {
+        switch (t) {
+            case "action":
+                is_hide_expected.value = false;
+                break;
+            case "check":
+            case "info":
+            case "input":
+            case "warning":
+            case "alert":
+            case "requirement":
+            case "rationale":
+                is_hide_expected.value = true;
+                break;
+            default:
+                is_hide_expected.value = false;
+                break;
+        }
+    },
+    { immediate: true },
+);
 
 onMounted(() => {
     loadEditor();
