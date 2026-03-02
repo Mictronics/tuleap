@@ -34,8 +34,8 @@
                         step.description_format === TEXT_FORMAT_TEXT,
                 }"
             ></div>
-            <section class="ttm-definition-step-expected" v-if="is_step_type_action">
-                <step-definition-arrow-expected />
+            <section class="ttm-definition-step-expected"  v-if="is_step_type_action">
+                <i class="fa-solid fa-arrow-turn-up fa-rotate-90" aria-hidden="true"></i>
                 <div class="ttm-definition-step-expected-edit">
                     <div class="ttm-definition-step-expected-edit-title">
                         {{ $gettext("Expected results") }}
@@ -56,7 +56,6 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { TEXT_FORMAT_TEXT } from "@tuleap/plugin-tracker-constants";
-import StepDefinitionArrowExpected from "./StepDefinitionArrowExpected.vue";
 import StepDefinitionActions from "./StepDefinitionActions.vue";
 import type { Step } from "./Step";
 

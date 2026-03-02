@@ -1,5 +1,5 @@
-/**
- * Copyright (c) Enalean, 2021 - present. All Rights Reserved.
+/*
+ * Copyright (c) Enalean, 2026 - present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -15,20 +15,7 @@
  *
  * You should have received a copy of the GNU General Public License
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
- *
  */
 
-.popover {
-    max-width: none;
-    padding: 0;
-}
-
-.popover-content {
-    padding: 0;
-}
-
-.popover-h1-indentation,
-.popover-h2-indentation,
-.popover-blockquote-indentation {
-    display: inline;
-}
+import "./components/FieldStepExecution";
+import "./components/FieldStepDefinition";

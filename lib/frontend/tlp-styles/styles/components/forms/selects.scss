@@ -34,6 +34,7 @@
         url("@tuleap/tlp-styles/images/field-double-arrows.svg") no-repeat;
     background-position: right var(--tlp-form-element-padding-horizontal) center;
     appearance: none;
+    margin: 0;
 
     &.tlp-select-small {
         height: var(--tlp-form-element-small-height);

@@ -21,7 +21,7 @@
 <template>
   <span class="ttm-definition-step-actions">
     <translate>Typ:</translate>
-    <select v-bind:id="props.type_select_id" class="small ttm-definition-step-type"
+    <select v-bind:id="props.type_select_id" class="tlp-select tlp-select-small ttm-definition-step-type"
       v-model="selectType" :disabled="props.disabled" data-test="ttm-definition-step-type">
       <option v-for="type in typeOptions" :value="type.value">{{ type.label }}</option>
     </select>
