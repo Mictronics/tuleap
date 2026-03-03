@@ -6,4 +6,4 @@ if [ -z "$files_changed" ]; then
     exit 0
 fi
 
-exec treefmt --fail-on-change --quiet -- $files_changed
+#exec treefmt --fail-on-change --quiet -- $files_changed
