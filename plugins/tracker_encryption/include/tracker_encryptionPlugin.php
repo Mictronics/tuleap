@@ -22,9 +22,12 @@
 use Tuleap\BurningParrotCompatiblePageEvent;
 use Tuleap\Layout\IncludeAssets;
 use Tuleap\Layout\IncludeViteAssets;
+use Tuleap\Layout\JavascriptViteAsset;
+use Tuleap\Plugin\ListeningToEventClass;
 use Tuleap\Plugin\PluginWithLegacyInternalRouting;
 use Tuleap\Tracker\Admin\GlobalAdmin\Trackers\MarkTrackerAsDeletedController;
 use Tuleap\Tracker\Artifact\ActionButtons\MoveArtifactActionAllowedByPluginRetriever;
+use Tuleap\Tracker\FormElement\Admin\ExternalTrackerAdminFieldEvent;
 use Tuleap\Tracker\Tracker;
 use Tuleap\TrackerEncryption\Dao\TrackerPublicKeyDao;
 use Tuleap\TrackerEncryption\Dao\ValueDao;
@@ -200,7 +203,7 @@ class tracker_encryptionPlugin extends PluginWithLegacyInternalRouting
         if ($this->currentRequestIsForPlugin() || strpos($_SERVER['REQUEST_URI'], 'plugins/tracker') == true) {
             $layout = $params['layout'];
             assert($layout instanceof \Tuleap\Layout\BaseLayout);
-            $layout->includeFooterJavascriptFile(new \Tuleap\Layout\JavascriptViteAsset($this->getAssets(), 'scripts/encrypted_field.js')->getFileURL());
+            $layout->includeFooterJavascriptFile(new \Tuleap\Layout\JavascriptViteAsset($this->getAssets(), 'src/encrypted_field.js')->getFileURL());
         }
     }
 
@@ -208,15 +211,15 @@ class tracker_encryptionPlugin extends PluginWithLegacyInternalRouting
     public function cssfile($params): void
     {
         if (strpos($_SERVER['REQUEST_URI'], '/plugins/tracker') === 0) {
-            echo '<link rel="stylesheet" type="text/css" href="' . $this->getAssets()->getFileURL('themes/default/css/style.scss') . '" />';
+            echo '<link rel="stylesheet" type="text/css" href="' . $this->getAssets()->getFileURL('themes/style.scss') . '" />';
         }
     }
 
     private function getAssets(): IncludeViteAssets
     {
         return new IncludeViteAssets(
-            __DIR__ . '/../frontend-assets',
-            '/assets/tracker_encryption/'
+            __DIR__ . '/../scripts/encrypted-field/frontend-assets',
+            '/assets/tracker_encryption/encrypted-field/'
         );
     }
 
@@ -236,6 +239,20 @@ class tracker_encryptionPlugin extends PluginWithLegacyInternalRouting
             dgettext(
                 'tuleap-tracker_encryption',
                 'This artifact cannot be moved because the tracker uses encrypted fields.'
+            )
+        );
+    }
+
+    #[ListeningToEventClass]
+    public function getTrackerAdminFieldAssets(ExternalTrackerAdminFieldEvent $event): void
+    {
+        $event->addViteAssets(
+            new JavascriptViteAsset(
+                new IncludeViteAssets(
+                    __DIR__ . '/../scripts/tracker-admin-fields/frontend-assets',
+                    '/assets/tracker_encryption/tracker-admin-fields'
+                ),
+                'src/index.ts'
             )
         );
     }

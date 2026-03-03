@@ -23,7 +23,7 @@
             {{ $gettext("Format:") }}
             <select
                 v-bind:id="format_select_id"
-                class="small ttm-definition-step-description-format"
+                class="tlp-select tlp-select-small tlp-select-adjusted"
                 v-on:change="input"
                 v-bind:disabled="disabled_format_selectbox"
                 data-test="ttm-definition-step-description-format"
@@ -99,7 +99,7 @@ const emit = defineEmits<{
     (e: "interpret-content-event"): void;
 }>();
 
-function input(event: Event) {
+function input(event: Event): void {
     if (!(event.target instanceof HTMLSelectElement)) {
         return;
     }

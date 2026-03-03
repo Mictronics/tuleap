@@ -26,11 +26,11 @@
         <div>
             <button
                 type="button"
-                class="btn btn-primary"
-                v-on:click="addStep([0, empty_step])"
+                class="tlp-button-primary"
+                v-on:click="onClick"
                 data-test="add-step"
             >
-                <i class="fa-solid fa-plus"></i>
+                <i class="fa-solid fa-plus tlp-button-icon" aria-hidden="true"></i>
                 {{ $gettext("Add step") }}
             </button>
         </div>
@@ -38,12 +38,15 @@
 </template>
 
 <script setup lang="ts">
-import { useMutations } from "vuex-composition-helpers";
 import { strictInject } from "@tuleap/vue-strict-inject";
-import { EMPTY_STEP, FIELD_ID } from "./injection-keys";
+import { EMPTY_STEP, FIELD_ID, STEPS } from "./injection-keys";
+import { addStep } from "./helpers/StepAdder";
 
 const empty_step = strictInject(EMPTY_STEP);
-
+const steps = strictInject(STEPS);
 const field_id = strictInject(FIELD_ID);
-const { addStep } = useMutations(["addStep"]);
+
+function onClick(): void {
+    addStep(steps, 0, empty_step);
+}
 </script>
