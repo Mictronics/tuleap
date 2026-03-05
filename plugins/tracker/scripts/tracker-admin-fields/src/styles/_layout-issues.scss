@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) Enalean, 2025 - Present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
@@ -17,12 +17,6 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { MountingOptions } from "@vue/test-utils";
-import { createGettext } from "vue3-gettext";
-import { getRouter } from "../router/fields-usage-router";
-
-export function getGlobalTestOptions(): MountingOptions<unknown>["global"] {
-    return {
-        plugins: [getRouter("/"), createGettext({ silent: true })],
-    };
+.highlight-layout-issue:not(.drek-ghost) {
+    border: 3px dashed var(--tlp-warning-color);
 }

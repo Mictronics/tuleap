@@ -1,5 +1,6 @@
+<?php
 /**
- * Copyright (c) Enalean, 2025 - Present. All Rights Reserved.
+ * Copyright (c) Enalean, 2026 - present. All Rights Reserved.
  *
  * This file is a part of Tuleap.
  *
@@ -17,12 +18,29 @@
  * along with Tuleap. If not, see <http://www.gnu.org/licenses/>.
  */
 
-import type { MountingOptions } from "@vue/test-utils";
-import { createGettext } from "vue3-gettext";
-import { getRouter } from "../router/fields-usage-router";
+declare(strict_types=1);
 
-export function getGlobalTestOptions(): MountingOptions<unknown>["global"] {
-    return {
-        plugins: [getRouter("/"), createGettext({ silent: true })],
-    };
+namespace Tuleap\AgileDashboard\AgileDashboard\FormElement;
+
+use Tuleap\Tracker\FormElement\ChartFieldUsage;
+
+/**
+ * @psalm-immutable
+ */
+final class BurnupChartFieldUsage implements ChartFieldUsage
+{
+    public bool $uses_start_date       = true;
+    public bool $uses_duration         = true;
+    public bool $uses_capacity         = false;
+    public bool $uses_hierarchy        = false;
+    public bool $uses_remaining_effort = false;
+
+    private function __construct()
+    {
+    }
+
+    public static function build(): self
+    {
+        return new self();
+    }
 }
