@@ -20,31 +20,31 @@
 
 declare(strict_types=1);
 
-namespace Tuleap\Tracker\FormElement\Admin;
+namespace Tuleap\Tracker\Test\Stub\Workflow\PostAction;
 
-final readonly class LabelDecorator
+use Override;
+use Tuleap\Tracker\FormElement\Container\Fieldset\FieldsetContainer;
+use Tuleap\Tracker\Workflow\PostAction\ProvideWorkflowActionUsageByFieldset;
+
+final readonly class ProvideWorkflowActionUsageByFieldsetStub implements ProvideWorkflowActionUsageByFieldset
 {
-    private function __construct(
-        public string $label,
-        public string $description,
-        public ?string $icon,
-        public ?string $url,
-        public ?string $action,
-    ) {
+    private function __construct(private bool $has_workflow_action)
+    {
     }
 
-    public static function build(string $label, string $description): self
+    public static function withWorkflowAction(): self
     {
-        return new self($label, $description, null, null, null);
+        return new self(true);
     }
 
-    public static function buildWithIcon(string $label, string $description, string $icon, string $action): self
+    public static function withoutWorkflowAction(): self
     {
-        return new self($label, $description, $icon, null, $action);
+        return new self(false);
     }
 
-    public static function buildWithUrl(string $label, string $description, string $url): self
+    #[Override]
+    public function isFieldsetUsedInWorkflowActions(FieldsetContainer $fieldset): bool
     {
-        return new self($label, $description, null, $url, null);
+        return $this->has_workflow_action;
     }
 }
