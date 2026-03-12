@@ -41,17 +41,25 @@ def runJSManifestConsistencyCheck() {
     }
 }
 
-def runRESTTests(String db, String php) {
+def runRESTTests(String db, String php, Boolean with_proxysql = true) {
+    def proxysql_use_env='USE_PROXYSQL=1'
+    if (! with_proxysql) {
+        proxysql_use_env='USE_PROXYSQL=0'
+    }
     sh """
     mkdir -p \$WORKSPACE/results/api-rest/php${php}-${db}
-    TESTS_RESULT=\$WORKSPACE/results/api-rest/php${php}-${db} sources/tests/rest/bin/run-compose.sh "${php}" "${db}"
+    TESTS_RESULT=\$WORKSPACE/results/api-rest/php${php}-${db} ${proxysql_use_env} sources/tests/rest/bin/run-compose.sh "${php}" "${db}"
     """
 }
 
-def runDBTests(String db, String php) {
+def runDBTests(String db, String php, Boolean with_proxysql = true) {
+    def proxysql_use_env='USE_PROXYSQL=1'
+    if (! with_proxysql) {
+        proxysql_use_env='USE_PROXYSQL=0'
+    }
     sh """
     mkdir -p \$WORKSPACE/results/db/php${php}-${db}
-    TESTS_RESULT=\$WORKSPACE/results/db/php${php}-${db} sources/tests/integration/bin/run-compose.sh "${php}" "${db}"
+    TESTS_RESULT=\$WORKSPACE/results/db/php${php}-${db} ${proxysql_use_env} sources/tests/integration/bin/run-compose.sh "${php}" "${db}"
     """
 }
 

@@ -30,7 +30,6 @@ final class BurndownChartFieldUsage implements ChartFieldUsage
     public bool $uses_start_date       = true;
     public bool $uses_duration         = true;
     public bool $uses_capacity         = false;
-    public bool $uses_hierarchy        = true;
     public bool $uses_remaining_effort = true;
 
     private function __construct()

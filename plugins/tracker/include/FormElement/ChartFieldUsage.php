@@ -25,6 +25,5 @@ interface ChartFieldUsage
     public bool $uses_start_date { get; }
     public bool $uses_duration { get; }
     public bool $uses_capacity { get; }
-    public bool $uses_hierarchy { get; }
     public bool $uses_remaining_effort { get; }
 }

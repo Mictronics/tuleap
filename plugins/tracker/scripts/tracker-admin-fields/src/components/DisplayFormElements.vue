@@ -169,6 +169,20 @@
         >
             <field-open-static-list v-bind:field="element.field" />
         </draggable-wrapper>
+        <draggable-wrapper
+            v-bind:field_id="element.field.field_id"
+            v-bind:class="classes"
+            v-else-if="isABurndownField(element.field)"
+        >
+            <field-burndown v-bind:field="element.field" />
+        </draggable-wrapper>
+        <draggable-wrapper
+            v-bind:class="classes"
+            v-bind:field_id="element.field.field_id"
+            v-else-if="isPermissionsOnArtifactField(element.field)"
+        >
+            <field-permissions-on-artifact v-bind:field="element.field" />
+        </draggable-wrapper>
         <draggable-wrapper v-bind:field_id="element.field.field_id" v-bind:class="classes" v-else>
             <base-field v-bind:field="element.field" />
         </draggable-wrapper>
@@ -177,6 +191,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { strictInject } from "@tuleap/vue-strict-inject";
 import type { Column, ElementWithChildren, Fieldset } from "../type";
 import {
     DATE_FIELD,
@@ -204,6 +219,8 @@ import {
     FILE_FIELD,
     PRIORITY_FIELD,
     COMPUTED_FIELD,
+    PERMISSION_FIELD,
+    BURNDOWN_FIELD,
 } from "@tuleap/plugin-tracker-constants";
 import type {
     IntFieldStructure,
@@ -220,9 +237,12 @@ import type {
     StaticBoundOpenListField,
     FileFieldStructure,
     ComputedFieldStructure,
+    PermissionsOnArtifactFieldStructure,
+    BurndownFieldStructure,
 } from "@tuleap/plugin-tracker-rest-api-types";
 import { isColumnWrapper } from "../helpers/is-column-wrapper";
 import { isFieldset } from "../helpers/is-fieldset";
+import { IS_LAYOUT_WARNING_DISPLAYED } from "../injection-symbols";
 import ContainerFieldset from "./FormElements/ContainerFieldset.vue";
 import ContainerColumnWrapper from "./FormElements/ContainerColumnWrapper.vue";
 import BaseField from "./FormElements/BaseField.vue";
@@ -247,8 +267,8 @@ import FieldOpenStaticList from "./FormElements/OpenListField/FieldOpenStaticLis
 import DraggableWrapper from "./DraggableWrapper.vue";
 import FieldPriority from "./FormElements/FieldPriority.vue";
 import FieldComputed from "./FormElements/FieldComputed.vue";
-import { strictInject } from "@tuleap/vue-strict-inject";
-import { IS_LAYOUT_WARNING_DISPLAYED } from "../injection-symbols";
+import FieldPermissionsOnArtifact from "./FormElements/FieldPermissionsOnArtifact.vue";
+import FieldBurndown from "./FormElements/FieldBurndown.vue";
 
 const props = defineProps<{
     elements: ElementWithChildren["children"];
@@ -267,6 +287,16 @@ const classes = computed(() => {
 
     return "";
 });
+
+function isABurndownField(field: StructureFields): field is BurndownFieldStructure {
+    return field.type === BURNDOWN_FIELD;
+}
+
+function isPermissionsOnArtifactField(
+    field: StructureFields,
+): field is PermissionsOnArtifactFieldStructure {
+    return field.type === PERMISSION_FIELD;
+}
 
 function isDateField(field: StructureFields): field is EditableDateFieldStructure {
     return field.type === DATE_FIELD;

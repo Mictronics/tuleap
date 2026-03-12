@@ -55,6 +55,9 @@ msgstr "Réduire"
 msgid "Computed value"
 msgstr "Valeur calculée"
 
+msgid "Configuration warnings"
+msgstr "Avertissements de configuration"
+
 msgid "Cross references"
 msgstr "Références croisées"
 
@@ -68,7 +71,10 @@ msgid "Delete"
 msgstr "Supprimer"
 
 msgid "Delete:"
-msgstr "Supprimer : "
+msgstr "Supprimer :"
+
+msgid "Description"
+msgstr "Description"
 
 msgid "Display in & out references"
 msgstr "Liste des objets étant référencés par l'artifact ou le référençant"
@@ -78,6 +84,9 @@ msgstr "Éditer"
 
 msgid "Expand"
 msgstr "Étendre"
+
+msgid "Fake image of a burndown"
+msgstr "Fausse image d'un burndown"
 
 msgid "Field configuration"
 msgstr "Configuration du champ"
@@ -204,6 +213,9 @@ msgstr ""
 msgid "Permissions on artifact"
 msgstr "Permissions sur l'artifact"
 
+msgid "Please select user groups"
+msgstr "Veuillez sélectionner des groupes d'utilisateurs"
+
 msgid "Please use a select box or multi select box instead."
 msgstr "Merci d'utiliser une liste de choix ou une liste à choix multiple."
 
@@ -220,6 +232,10 @@ msgstr[1] "Recommandations :"
 
 msgid "Refresh"
 msgstr "Rafraîchir"
+
+msgid "Restrict access to this artifact for the following user groups:"
+msgstr ""
+"Restreindre l'accès à cet artifact pour les groupes d'utilisateurs suivants :"
 
 msgid "Save"
 msgstr "Sauvegarder"
@@ -282,7 +298,7 @@ msgid "Unuse"
 msgstr "Inutiliser"
 
 msgid "Unuse:"
-msgstr "Inutiliser : "
+msgstr "Inutiliser :"
 
 msgid "What do you want to do with the field \"%{field_name}\"?"
 msgstr "Que souhaitez-vous faire avec le champ \"%{field_name}\" ?"

@@ -124,7 +124,11 @@ $fade-background-color: color.mix($tlp-background-color, common.$tlp-white-color
         #{color.mix($tlp-background-color, common.$tlp-white-color, 50%)},
         #{color.mix($tlp-dark-color, common.$tlp-black-color, 50%)}
     );
-    --tlp-backdrop-color: #{color.adjust(common.$tlp-black-color, $alpha: - 0.5)};
+    --tlp-grey-color: light-dark(var(--tlp-neutral-dark-color), #{$tlp-dimmed-color});
+    --tlp-backdrop-color: light-dark(
+        #{color.adjust(common.$tlp-black-color, $alpha: - 0.5)},
+        #{color.adjust(common.$tlp-black-color, $alpha: - 0.25)}
+    );
     --tlp-theme-orange: #{common.$tlp-theme-orange};
     --tlp-background-color-lighter-02: #{color.adjust($tlp-background-color, $lightness: 2%)};
     --tlp-background-color-lighter-03: #{color.adjust($tlp-background-color, $lightness: 3%)};
@@ -176,6 +180,7 @@ $fade-background-color: color.mix($tlp-background-color, common.$tlp-white-color
     --tlp-main-color-transparent-90: #{color.adjust($tlp-main-color, $alpha: - 0.9)};
     --tlp-info-color-darker-05: #{color.adjust($tlp-info-color, $lightness: - 5%)};
     --tlp-info-color-darker-10: #{color.adjust($tlp-info-color, $lightness: - 10%)};
+    --tlp-info-color-darker-20: #{color.adjust($tlp-info-color, $lightness: - 20%)};
     --tlp-info-color-darker-30: #{color.adjust($tlp-info-color, $lightness: - 30%)};
     --tlp-info-color-darker-50: #{color.adjust($tlp-info-color, $lightness: - 50%)};
     --tlp-info-color-darker-70: #{color.adjust($tlp-info-color, $lightness: - 70%)};
@@ -462,7 +467,7 @@ $fade-background-color: color.mix($tlp-background-color, common.$tlp-white-color
         #{$tlp-illustration-grey-on-white},
         #{color.mix($tlp-dark-color, common.$tlp-black-color, 50%)}
     );
-    --tlp-illustration-grey: light-dark(var(--tlp-neutral-dark-color), var(--tlp-dimmed-color));
+    --tlp-illustration-grey: var(--tlp-grey-color);
     --tlp-illustration-yellow: #fbe484;
     --tlp-illustration-red: #faaaa5;
     --tlp-illustration-green: #b8daaf;

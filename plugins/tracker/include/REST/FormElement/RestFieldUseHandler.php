@@ -23,22 +23,21 @@ declare(strict_types=1);
 namespace Tuleap\Tracker\REST\FormElement;
 
 use Luracast\Restler\RestException;
+use Override;
 use PFUser;
 use Tuleap\NeverThrow\Fault;
 use Tuleap\REST\v1\TrackerFieldRepresentations\TrackerFieldPatchRepresentation;
 use Tuleap\Tracker\FormElement\TrackerFieldAdder;
-use Tuleap\Tracker\FormElement\TrackerFieldRemover;
+use Tuleap\Tracker\FormElement\TrackerFormElementRemover;
 use Tuleap\Tracker\FormElement\TrackerFormElement;
 
-final readonly class RestFieldUseHandler
+final readonly class RestFieldUseHandler implements PatchHandler
 {
-    public function __construct(private TrackerFieldRemover $field_remover, private TrackerFieldAdder $field_adder)
+    public function __construct(private TrackerFormElementRemover $field_remover, private TrackerFieldAdder $field_adder)
     {
     }
 
-    /**
-     * @throws \Luracast\Restler\RestException
-     */
+    #[Override]
     public function handle(TrackerFormElement $field, TrackerFieldPatchRepresentation $patch, PFUser $current_user): void
     {
         if ($patch->use_it === null) {
